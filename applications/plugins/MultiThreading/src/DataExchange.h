@@ -33,9 +33,6 @@
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/core/objectmodel/Event.h>
 
-#include <SofaBaseMechanics/MechanicalObject.h>
-
-
 namespace sofa
 {
 
@@ -137,9 +134,6 @@ namespace sofa
 			}
 
 
-			Data<DataTypes> mSource;
-			Data<DataTypes> mDestination;
-
 		private:
 
 
@@ -149,7 +143,8 @@ namespace sofa
 			//SingleLink< DataExchange<DataTypes>, Data<DataTypes>, BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> mDestinationObject;
 
 
-			
+			Data<DataTypes> mSource;
+			Data<DataTypes> mDestination;
 
 			DataTypes* mSourcePtr;
 			DataTypes* mDestinationPtr;
@@ -163,6 +158,9 @@ namespace sofa
 
 		};
 
+
+
+	
 
 
 
@@ -190,7 +188,11 @@ namespace sofa
 		//extern template class SOFA_XICATHPLUGIN_API DataExchange< sofa::defaulttype::Rigid2fTypes >;
 
 
+
+
+
 	}
+
 
 }
 
