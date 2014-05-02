@@ -138,8 +138,32 @@ public:
     typedef PluginMap::iterator PluginIterator;
 
     static PluginManager& getInstance();
-    bool loadPlugin(std::string& path, std::ostream* errlog=&std::cerr);
-    bool unloadPlugin(std::string& path, std::ostream* errlog=&std::cerr);
+
+    /// Get the default suffix applied to plugin names to find the actual lib to load
+    /// (depends on platform, version, debug/release build)
+    static std::string getDefaultSuffix();
+
+    /// Search for a plugin given a path or a name (if no path or extension specified, in which case
+    /// the provided suffix will be added)
+    /// On return the full path of the plugin is written into the path parameter
+    ///
+    bool findPlugin(std::string& path, const std::string& suffix = getDefaultSuffix(), std::ostream* errlog=&std::cerr);
+
+    /// Check if a plugin is loaded given a path or a name (if no path or extension specified, in which case
+    /// the default suffix will be added)
+    /// On return the full path of the plugin is written into the path parameter
+    bool hasPlugin(std::string& path, bool finalPath = false);
+
+    /// Load a plugin given a path or a name (if finalPath is false and no path or extension is
+    /// specified, in which case the default suffix will be added)
+    /// On return the full path of the plugin is written into the path parameter
+    ///
+    bool loadPlugin(std::string& path, std::ostream* errlog=&std::cerr, bool finalPath = false);
+
+    /// Unload a plugin given a path or a name (if no path or extension specified, in which case
+    /// the default suffix will be added)
+    /// On return the full path of the plugin is written into the path parameter
+    bool unloadPlugin(std::string& path, std::ostream* errlog=&std::cerr, bool finalPath = false);
 
     void initRecentlyOpened();
     void init();

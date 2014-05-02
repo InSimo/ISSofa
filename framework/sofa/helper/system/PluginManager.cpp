@@ -123,15 +123,28 @@ void PluginManager::writeToIniFile()
     outstream.close();
 }
 
-bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog)
+/// Get the default suffix applied to plugin names to find the actual lib to load
+/// (depends on platform, version, debug/release build)
+std::string PluginManager::getDefaultSuffix()
+{
+#ifdef SOFA_LIBSUFFIX
+    return sofa_tostring(SOFA_LIBSUFFIX);
+#else
+    return "";
+#endif
+}
+
+/// Search for a plugin given a path or a name (if no path or extension specified, in which case
+/// the provided suffix will be added)
+/// On return the full path of the plugin is written into the path parameter
+///
+bool PluginManager::findPlugin(std::string& pluginPath, const std::string& suffix, std::ostream* errlog)
 {
     if (sofa::helper::system::SetDirectory::GetParentDir(pluginPath.c_str()).empty() &&
         sofa::helper::system::SetDirectory::GetExtension(pluginPath.c_str()).empty())
     {
         // no path and extension -> automatically add suffix and OS-specific extension
-#ifdef SOFA_LIBSUFFIX
-        pluginPath += sofa_tostring(SOFA_LIBSUFFIX);
-#endif
+        pluginPath += suffix;
 #if defined (WIN32)
         pluginPath = pluginPath + std::string(".dll");
 #elif defined (__APPLE__)
@@ -147,12 +160,46 @@ bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog)
         if (errlog) (*errlog) << "Plugin " << pluginPath << " NOT FOUND in: " << PluginRepository << std::endl;
         return false;
     }
-    if(m_pluginMap.find(pluginPath) != m_pluginMap.end() )
+
+    return true;
+}
+
+/// Check if a plugin is loaded given a path or a name (if no path or extension specified, in which case
+/// the default suffix will be added)
+/// On return the full path of the plugin is written into the path parameter
+bool PluginManager::hasPlugin(std::string& pluginPath, bool finalPath)
+{
+    if (!finalPath)
     {
-//        if(errlog) (*errlog) << "Plugin " << pluginPath << " already in PluginManager" << std::endl;
+        if (!findPlugin(pluginPath, getDefaultSuffix(), NULL))
+        {
+            return false;
+        }
+    }
+    return (m_pluginMap.find(pluginPath) != m_pluginMap.end() );
+}
+
+/// Load a plugin given a path or a name (if no path or extension specified, in which case
+/// the default suffix will be added)
+/// On return the full path of the plugin is written into the path parameter
+///
+bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog, bool finalPath)
+{
+    if (!finalPath)
+    {
+        if (!findPlugin(pluginPath, getDefaultSuffix(), errlog))
+        {
+            return false;
+        }
+    }
+
+    if (hasPlugin(pluginPath, true))
+    {
+        (*errlog) << "Plugin " << pluginPath << " already in PluginManager" << std::endl;
         return false;
     }
-    DynamicLibrary::Handle d  = DynamicLibrary::load(pluginPath);
+
+    DynamicLibrary* d  = DynamicLibrary::load(pluginPath, errlog);
     Plugin p;
     if( ! d.isValid() )
     {
@@ -179,33 +226,21 @@ bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog)
     return true;
 }
 
-bool PluginManager::unloadPlugin(std::string &pluginPath, std::ostream *errlog)
+/// Unload a plugin given a path or a name (if no path or extension specified, in which case
+/// the default suffix will be added)
+/// On return the full path of the plugin is written into the path parameter
+bool PluginManager::unloadPlugin(std::string& pluginPath, std::ostream* errlog, bool finalPath)
 {
     PluginMap::iterator iter;
     iter = m_pluginMap.find(pluginPath);
-    if( iter == m_pluginMap.end() )
+    if(iter == m_pluginMap.end() && !finalPath)
     {
-        if (sofa::helper::system::SetDirectory::GetParentDir(pluginPath.c_str()).empty() &&
-            sofa::helper::system::SetDirectory::GetExtension(pluginPath.c_str()).empty())
-        {
-            // no path and extension -> automatically add suffix and OS-specific extension
-#ifdef SOFA_LIBSUFFIX
-            pluginPath += sofa_tostring(SOFA_LIBSUFFIX);
-#endif
-#if defined (WIN32)
-            pluginPath = pluginPath + std::string(".dll");
-#elif defined (__APPLE__)
-            pluginPath = std::string("lib") + pluginPath + std::string(".dylib");
-#else
-            pluginPath = std::string("lib") + pluginPath + std::string(".so");
-#endif
-        }
-        PluginRepository.findFile(pluginPath,"",errlog);
+        findPlugin(pluginPath, getDefaultSuffix(), errlog);
         iter = m_pluginMap.find(pluginPath);
     }
     if( iter == m_pluginMap.end() )
     {
-        if(errlog) (*errlog) << "Plugin " << pluginPath << "not in PluginManager" << std::endl;
+        if (errlog) (*errlog) << "Plugin " << pluginPath << "not in PluginManager" << std::endl;
         return false;
     }
     else

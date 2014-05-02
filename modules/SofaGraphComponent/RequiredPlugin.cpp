@@ -43,7 +43,12 @@ int RequiredPluginClass = core::RegisterObject("Load required plugin")
         .add< RequiredPlugin >();
 
 RequiredPlugin::RequiredPlugin()
-    : pluginName( initData(&pluginName, "pluginName", "Name of the plugin to loaded. If this is empty, the name of this component is used as plugin name."))
+    : pluginName( initData(&pluginName, "pluginName", "plugin name (or several names if you need to load different plugins or a plugin with several alternate names)"))
+    , suffixMap ( initData(&suffixMap , "suffixMap", "standard->custom suffixes pairs (to be used if the plugin is compiled outside of Sofa with a non standard way of differenciating versions), using ! to represent empty suffix"))
+    , stopAfterFirstNameFound( initData(&stopAfterFirstNameFound , false, "stopAfterFirstNameFound", "Stop after the first plugin name that is loaded successfully"))
+    , stopAfterFirstSuffixFound( initData(&stopAfterFirstSuffixFound , true, "stopAfterFirstSuffixFound", "For each plugin name, stop after the first suffix that is loaded successfully"))
+    , requireOne ( initData(&requireOne , true, "requireOne", "Display an error message if no plugin names were successfully loaded"))
+    , requireAll ( initData(&requireAll , false, "requireAll", "Display an error message if any plugin names failed to be loaded"))
 {
     this->f_printLog.setValue(true); // print log by default, to identify which pluging is responsible in case of a crash during loading
 }
@@ -51,30 +56,81 @@ RequiredPlugin::RequiredPlugin()
 void RequiredPlugin::parse(sofa::core::objectmodel::BaseObjectDescription* arg)
 {
     Inherit1::parse(arg);
-    if (!pluginName.getValue().empty() || !name.getValue().empty())
+    if (!pluginName.getValue().empty())
         loadPlugin();
 }
 
 void RequiredPlugin::loadPlugin()
 {
-    if(pluginName.getValue().empty()) pluginName.setValue( name.getValue() );
-
-    std::string pluginPath = pluginName.getValue();
-
-    sout << "Loading " << pluginPath << sendl;
-    if (sofa::helper::system::PluginManager::getInstance().loadPlugin(pluginPath)) // pluginPath is modified here
+    sofa::helper::system::PluginManager* pluginManager = &sofa::helper::system::PluginManager::getInstance();
+    std::string defaultSuffix = pluginManager->getDefaultSuffix();
+    const helper::vector<helper::fixed_array<std::string,2> >& sMap = suffixMap.getValue();
+    helper::vector<std::string> suffixVec;
+    if (!sMap.empty())
     {
-        sout << "Loaded " << pluginPath << sendl;
-        sofa::helper::system::PluginManager::getInstance().init();
+        std::string skey = (defaultSuffix.empty() ? std::string("!") : defaultSuffix);
+        for (std::size_t i = 0; i < sMap.size(); ++i)
+        {
+            if (sMap[i][0] == skey)
+            {
+                suffixVec.push_back(sMap[i][1] == std::string("!") ? std::string(""):sMap[i][1]);
+            }
+        }
+    }
+    if (suffixVec.empty())
+        suffixVec.push_back(defaultSuffix);
+    const helper::vector<std::string>& nameVec = pluginName.getValue();
+
+    helper::vector< std::string > loaded;
+    helper::vector< std::string > failed;
+    std::ostringstream errmsg;
+    for (std::size_t nameIndex = 0; nameIndex < nameVec.size(); ++nameIndex)
+    {
+        const std::string& name = nameVec[nameIndex];
+        //sout << "Loading " << name << sendl;
+        bool nameLoaded = false;
+        for (std::size_t suffixIndex = 0; suffixIndex < suffixVec.size(); ++suffixIndex)
+        {
+            const std::string& suffix = suffixVec[suffixIndex];
+            std::string pluginPath = name;
+            bool result = pluginManager->findPlugin(pluginPath, suffix, &errmsg);
+            if (result && !pluginManager->hasPlugin(pluginPath, true))
+            {
+                result = pluginManager->loadPlugin(pluginPath, &errmsg, true);
+            }
+            if (result)
+            {
+                sout << "Loaded " << pluginPath << sendl;
+                loaded.push_back(pluginPath);
+                nameLoaded = true;
+                if (stopAfterFirstSuffixFound.getValue()) break;
+            }
+        }
+        if (!nameLoaded)
+        {
+            failed.push_back(name);
+        }
+        else
+        {
+            if (stopAfterFirstNameFound.getValue()) break;
+        }
     }
 
-    // try to load the eventual plugin gui
-    pluginPath = pluginName.getValue() + "_gui";
-    if (sofa::helper::system::PluginManager::getInstance().loadPlugin(pluginPath,NULL))
+    if (!failed.empty())
     {
-        sout << "Loaded " << pluginPath << sendl;
-        sofa::helper::system::PluginManager::getInstance().init();
+        if ((requireAll.getValue() || (requireOne.getValue() && loaded.empty())))
+        {
+            serr << errmsg.str();
+            serr << "Required plugin"<<(failed.size()>1?"s":"")<<" failed to load: " << failed << sendl;
+        }
+        else
+        {
+            sout << errmsg.str();
+            sout << "Optional/alternate plugin"<<(failed.size()>1?"s":"")<<" failed to load: " << failed << sendl;
+        }
     }
+    pluginManager->init();
+
 }
 
 }
