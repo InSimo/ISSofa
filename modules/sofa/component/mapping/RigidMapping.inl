@@ -142,8 +142,6 @@ RigidMapping<TIn, TOut>::RigidMapping()
     , indexFromEnd(initData(&indexFromEnd, false, "indexFromEnd", "input DOF index starts from the end of input DOFs vector"))
     , pointsPerFrame(initData(&pointsPerFrame, "repartition", "number of dest dofs per entry dof"))
     , globalToLocalCoords(initData(&globalToLocalCoords, "globalToLocalCoords", "are the output DOFs initially expressed in global coordinates"))
-    , maskFrom(NULL)
-    , maskTo(NULL)
     , matrixJ()
     , updateJ(false)
 {
@@ -256,16 +254,6 @@ void RigidMapping<TIn, TOut>::reinit()
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::init()
 {
-    //    rigidMappingDummyFunction();
-    if (core::behavior::BaseMechanicalState* stateFrom = dynamic_cast<core::behavior::BaseMechanicalState*>(this->fromModel.get()))
-    {
-        maskFrom = &stateFrom->forceMask;
-    }
-    if (core::behavior::BaseMechanicalState* stateTo = dynamic_cast<core::behavior::BaseMechanicalState*>(this->toModel.get()))
-    {
-        maskTo = &stateTo->forceMask;
-    }
-
     if (!fileRigidMapping.getValue().empty())
         this->load(fileRigidMapping.getFullPath().c_str());
 
@@ -436,7 +424,6 @@ void RigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mparams*/ 
     const VecCoord& pts = this->getPoints();
     out.resize(pts.size());
 
-    bool isMaskInUse = maskTo && maskTo->isInUse();
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
     if (repartitionCount > 1 && repartitionCount != in.size())
@@ -473,11 +460,6 @@ void RigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mparams*/ 
         outputPerInput = pointsPerFrame.getValue()[0];
     }
 
-    typedef helper::ParticleMask ParticleMask;
-    ParticleMask::InternalStorage* indices = isMaskInUse ? &maskTo->getEntries() : NULL;
-    ParticleMask::InternalStorage::const_iterator it;
-    if (isMaskInUse) it = indices->begin();
-
     for (unsigned inIdx = inIdxBegin, outIdx = 0; inIdx < inIdxEnd; ++inIdx)
     {
         if (repartitionCount > 1)
@@ -486,17 +468,9 @@ void RigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mparams*/ 
         }
 
         for (unsigned iOutput = 0;
-             iOutput < outputPerInput && !(isMaskInUse && it == indices->end());
+             iOutput < outputPerInput;
              ++iOutput, ++outIdx)
         {
-            if (isMaskInUse)
-            {
-                if (outIdx != *it)
-                {
-                    continue;
-                }
-                ++it;
-            }
             out[outIdx] = velocityAtRotatedPoint( in[inIdx], rotatedPoints[outIdx] );
         }
     }
@@ -509,9 +483,6 @@ void RigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparams*/
     helper::ReadAccessor< Data<VecDeriv> > in = dIn;
 
     const VecCoord& pts = this->getPoints();
-
-    bool isMaskInUse = maskTo && maskTo->isInUse();
-    if (maskFrom) maskFrom->setInUse(isMaskInUse);
 
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
@@ -542,12 +513,6 @@ void RigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparams*/
         inputPerOutput = pointsPerFrame.getValue()[0];
     }
 
-
-    typedef helper::ParticleMask ParticleMask;
-    ParticleMask::InternalStorage* indices = isMaskInUse ? &maskTo->getEntries() : NULL;
-    ParticleMask::InternalStorage::const_iterator it;
-    if (isMaskInUse) it = indices->begin();
-
     for (unsigned outIdx = outIdxBegin, inIdx = 0; outIdx < outIdxEnd; ++outIdx)
     {
         if (repartitionCount > 1)
@@ -556,17 +521,9 @@ void RigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparams*/
         }
 
         for (unsigned iInput = 0;
-             iInput < inputPerOutput && !(isMaskInUse && it == indices->end());
+             iInput < inputPerOutput;
              ++iInput, ++inIdx)
         {
-            if (isMaskInUse)
-            {
-                if (inIdx != *it)
-                {
-                    continue;
-                }
-                ++it;
-            }
             getVCenter(out[outIdx]) += in[inIdx];
             getVOrientation(out[outIdx]) +=  (typename InDeriv::Rot)cross(rotatedPoints[inIdx], in[inIdx]);
             //                        cerr<<"RigidMapping<TIn, TOut>::applyJT, inIdx = "<< inIdx << endl;
@@ -577,12 +534,7 @@ void RigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparams*/
             //                        cerr<<"RigidMapping<TIn, TOut>::applyJT, torque(out[outIdx]) = "<< getVOrientation(out[outIdx]) << endl;
 
         }
-        if (isMaskInUse)
-        {
-            maskFrom->insertEntry(outIdx);
-        }
     }
-
 }
 
 //            using defaulttype::Vec;
@@ -635,9 +587,6 @@ void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* 
 
     const VecCoord& pts = this->getPoints();
 
-    bool isMaskInUse = maskTo && maskTo->isInUse();
-    if (maskFrom) maskFrom->setInUse(isMaskInUse);
-
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
     if (repartitionCount > 1 && repartitionCount != parentForces.size())
@@ -668,12 +617,6 @@ void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* 
         inputPerOutput = pointsPerFrame.getValue()[0];
     }
 
-
-    typedef helper::ParticleMask ParticleMask;
-    ParticleMask::InternalStorage* indices = isMaskInUse ? &maskTo->getEntries() : NULL;
-    ParticleMask::InternalStorage::const_iterator it;
-    if (isMaskInUse) it = indices->begin();
-
     for (unsigned parentIdx = parentIdxBegin, childIdx = 0; parentIdx < parentIdxEnd; ++parentIdx)
     {
         if (repartitionCount > 1)
@@ -682,17 +625,9 @@ void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* 
         }
 
         for (unsigned iInput = 0;
-             iInput < inputPerOutput && !(isMaskInUse && it == indices->end());
+             iInput < inputPerOutput;
              ++iInput, ++childIdx)
         {
-            if (isMaskInUse)
-            {
-                if (childIdx != *it)
-                {
-                    continue;
-                }
-                ++it;
-            }
             typename TIn::AngularVector& parentTorque = getVOrientation(parentForces[parentIdx]);
             const typename TIn::AngularVector& parentRotation = getVOrientation(parentDisplacements[parentIdx]);
             //                        const typename TIn::AngularVector& torqueDecrement = symCrossCross( childForces[childIdx], parentRotation, rotatedPoints[childIdx]) * kfactor;
@@ -708,10 +643,6 @@ void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* 
 
 
 
-        }
-        if (isMaskInUse)
-        {
-            maskFrom->insertEntry(parentIdx);
         }
     }
 }
@@ -1032,7 +963,6 @@ const sofa::defaulttype::BaseMatrix* RigidMapping<TIn, TOut>::getJ()
             matrixJ->clear();
         }
 
-        //        bool isMaskInUse = maskTo->isInUse();
         unsigned repartitionCount = pointsPerFrame.getValue().size();
 
         if (repartitionCount > 1 && repartitionCount != in.size())
@@ -1069,10 +999,6 @@ const sofa::defaulttype::BaseMatrix* RigidMapping<TIn, TOut>::getJ()
             outputPerInput = pointsPerFrame.getValue()[0];
         }
 
-        //        typedef helper::ParticleMask ParticleMask;
-        //        const ParticleMask::InternalStorage& indices = maskTo->getEntries();
-        //        ParticleMask::InternalStorage::const_iterator it = indices.begin();
-
         for (unsigned inIdx = inIdxBegin, outIdx = 0; inIdx < inIdxEnd; ++inIdx)
         {
             if (repartitionCount > 1)
@@ -1081,17 +1007,9 @@ const sofa::defaulttype::BaseMatrix* RigidMapping<TIn, TOut>::getJ()
             }
 
             for (unsigned iOutput = 0;
-                 iOutput < outputPerInput; // iOutput < outputPerInput && !(isMaskInUse && it == indices.end());
+                 iOutput < outputPerInput; // iOutput < outputPerInput;
                  ++iOutput, ++outIdx)
             {
-                //                if (isMaskInUse)
-                //                {
-                //                    if (outIdx != *it)
-                //                    {
-                //                        continue;
-                //                    }
-                //                    ++it;
-                //                }
                 setJMatrixBlock(outIdx, inIdx);
             }
         }

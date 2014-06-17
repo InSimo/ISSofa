@@ -54,8 +54,6 @@ template<class DataTypes1, class DataTypes2>
 void MixedInteractionConstraint<DataTypes1, DataTypes2>::init()
 {
     BaseInteractionConstraint::init();
-    this->mask1 = &mstate1->forceMask;
-    this->mask2 = &mstate2->forceMask;
 }
 
 template<class DataTypes1, class DataTypes2>

@@ -171,10 +171,8 @@ static inline void peq(defaulttype::RigidCoord<N,T1>& dest, const defaulttype::V
 template<class TIn, class TOut>
 void IdentityMapping<TIn, TOut>::init()
 {
-    if ((stateFrom = dynamic_cast< core::behavior::BaseMechanicalState *>(this->fromModel.get())))
-        maskFrom = &stateFrom->forceMask;
-    if ((stateTo = dynamic_cast< core::behavior::BaseMechanicalState *>(this->toModel.get())))
-        maskTo = &stateTo->forceMask;
+    stateFrom = dynamic_cast< core::behavior::BaseMechanicalState *>(this->fromModel.get());
+    stateTo = dynamic_cast< core::behavior::BaseMechanicalState *>(this->toModel.get());
     Inherit::init();
 }
 
@@ -200,21 +198,9 @@ void IdentityMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mparams
 
     out.resize(in.size());
 
-    if ( !(maskTo->isInUse()) )
     {
         for(unsigned int i=0; i<out.size(); i++)
         {
-            eq(out[i], in[i]);
-        }
-    }
-    else
-    {
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage &indices=maskTo->getEntries();
-        ParticleMask::InternalStorage::const_iterator it;
-        for (it=indices.begin(); it!=indices.end(); it++)
-        {
-            const int i=(int)(*it);
             eq(out[i], in[i]);
         }
     }
@@ -226,24 +212,10 @@ void IdentityMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparam
     helper::WriteAccessor< Data<InVecDeriv> > out = dOut;
     helper::ReadAccessor< Data<VecDeriv> > in = dIn;
 
-    if ( !(maskTo->isInUse()) )
     {
-        maskFrom->setInUse(false);
         for(unsigned int i=0; i<in.size(); i++)
         {
             peq(out[i], in[i]);
-        }
-    }
-    else
-    {
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage &indices=maskTo->getEntries();
-        ParticleMask::InternalStorage::const_iterator it;
-        for (it=indices.begin(); it!=indices.end(); it++)
-        {
-            const int i=(int)(*it);
-            peq(out[i], in[i]);
-            maskFrom->insertEntry(i);
         }
     }
 }
@@ -306,22 +278,8 @@ const sofa::defaulttype::BaseMatrix* IdentityMapping<TIn, TOut>::getJ()
             matrixJ->clear();
         }
 
-        bool isMaskInUse = maskTo->isInUse();
-
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage& indices = maskTo->getEntries();
-        ParticleMask::InternalStorage::const_iterator it = indices.begin();
-
-        for(unsigned i = 0; i < outStateSize && !(isMaskInUse && it == indices.end()); i++)
+        for(unsigned i = 0; i < outStateSize; i++)
         {
-            if (isMaskInUse)
-            {
-                if(i != *it)
-                {
-                    continue;
-                }
-                ++it;
-            }
             MBloc& block = *matrixJ->wbloc(i, i, true);
             IdentityMappingMatrixHelper<NOut, NIn, Real>::setMatrix(block);
         }

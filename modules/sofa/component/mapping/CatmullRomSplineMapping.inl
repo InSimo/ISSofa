@@ -79,13 +79,7 @@ void CatmullRomSplineMapping<TIn, TOut>::init()
     sourceMesh=this->getFromModel()->getContext()->getMeshTopology();
     targetMesh=this->getToModel()->getContext()->getMeshTopology() ;
 
-    maskFrom = NULL;
-    if ( core::behavior::BaseMechanicalState *stateFrom = dynamic_cast< core::behavior::BaseMechanicalState *> ( this->getFromModel() ) )
-        maskFrom = &stateFrom->forceMask;
-    maskTo = NULL;
-    if ( core::behavior::BaseMechanicalState *stateTo = dynamic_cast< core::behavior::BaseMechanicalState *> ( this->getToModel() ) )
-        maskTo = &stateTo->forceMask;
-    unsigned int k = SplittingLevel.getValue();
+	unsigned int k = SplittingLevel.getValue();
     unsigned int P = sourceMesh->getNbPoints();
     unsigned int E = sourceMesh->getNbEdges();
     SeqEdges Edges = sourceMesh->getEdges();
@@ -193,26 +187,11 @@ void CatmullRomSplineMapping<TIn, TOut>::apply ( typename Out::VecCoord& out, co
 template <class TIn, class TOut>
 void CatmullRomSplineMapping<TIn, TOut>::applyJ ( typename Out::VecDeriv& out, const typename In::VecDeriv& in )
 {
-    if ( ! ( this->maskTo->isInUse() ) )
     {
         for ( unsigned int i=0; i<out.size(); i++ )
         {
             out[i] = OutDeriv();
             for ( unsigned int j=0; j<4 ; j++ )     out[i] += in[m_index[i][j]] * m_weight[i][j] ;
-        }
-    }
-    else
-    {
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage &indices=this->maskTo->getEntries();
-
-        ParticleMask::InternalStorage::const_iterator it;
-
-        for ( it=indices.begin(); it!=indices.end(); it++ )
-        {
-            unsigned int i= ( unsigned int ) ( *it );
-            out[i] = OutDeriv();
-            for ( unsigned int j=0; j<4 ; j++ )  out[i] += in[m_index[i][j]] * m_weight[i][j] ;
         }
     }
 }
@@ -222,30 +201,10 @@ void CatmullRomSplineMapping<TIn, TOut>::applyJ ( typename Out::VecDeriv& out, c
 template <class TIn, class TOut>
 void CatmullRomSplineMapping<TIn, TOut>::applyJT ( typename In::VecDeriv& out, const typename Out::VecDeriv& in )
 {
-    if ( ! ( this->maskTo->isInUse() ) )
     {
-        this->maskFrom->setInUse ( false );
-
         for ( unsigned int i=0; i<in.size(); i++ )
             for ( unsigned int j=0; j<4 ; j++ )
                 out[m_index[i][j]]  += in[i] * m_weight[i][j];
-    }
-    else
-    {
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage &indices=this->maskTo->getEntries();
-
-        ParticleMask::InternalStorage::const_iterator it;
-
-        for ( it=indices.begin(); it!=indices.end(); it++ )
-        {
-            const int i= ( int ) ( *it );
-            for ( unsigned int j=0; j<4 ; j++ )
-            {
-                out[m_index[i][j]]  += in[i] * m_weight[i][j];
-                maskFrom->insertEntry ( m_index[i][j] );
-            }
-        }
     }
 }
 

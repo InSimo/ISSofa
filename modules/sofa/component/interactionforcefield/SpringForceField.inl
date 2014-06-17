@@ -110,19 +110,21 @@ bool SpringForceField<DataTypes>::load(const char *filename)
 template <class DataTypes>
 void SpringForceField<DataTypes>::reinit()
 {
-    for (unsigned int i=0; i<springs.getValue().size(); ++i)
+    sofa::helper::vector<Spring>& springs = *this->springs.beginEdit();
+	const Real ks = (Real)this->ks.getValue();
+	const Real kd = (Real)this->kd.getValue();
+    for (unsigned int i=0; i<springs.size(); ++i)
     {
-        (*springs.beginEdit())[i].ks = (Real) ks.getValue();
-        (*springs.beginEdit())[i].kd = (Real) kd.getValue();
+        springs[i].ks = ks;
+        springs[i].kd = kd;
     }
-    updateMaskStatus();
+	this->springs.endEdit();
 }
 
 template <class DataTypes>
 void SpringForceField<DataTypes>::init()
 {
     this->Inherit::init();
-    updateMaskStatus();
 }
 
 template<class DataTypes>
@@ -144,11 +146,6 @@ void SpringForceField<DataTypes>::addSpringForce(Real& ener, VecDeriv& f1, const
     Deriv force = u*forceIntensity;
     f1[a]+=force;
     f2[b]-=force;
-    if (this->maskInUse)
-    {
-        this->mstate1->forceMask.insertEntry(a);
-        this->mstate2->forceMask.insertEntry(b);
-    }
 }
 
 template<class DataTypes>
@@ -375,25 +372,6 @@ void SpringForceField<DataTypes>::handleTopologyChange(core::topology::Topology 
             } // while( changeIt != last; )
         }
     }
-}
-
-
-template <class DataTypes>
-void SpringForceField<DataTypes>::updateMaskStatus()
-{
-    if (this->getMechModel1() == this->getMechModel2()) maskInUse = false;
-    else
-    {
-        if (springs.getValue().size() < 0.5*this->getMechModel1()->getSize() ||
-            springs.getValue().size() < 0.5*this->getMechModel2()->getSize() ) maskInUse = true;
-        else maskInUse=false;
-    }
-}
-
-template<class DataTypes>
-bool SpringForceField<DataTypes>::useMask() const
-{
-    return maskInUse;
 }
 
 template<class DataTypes>

@@ -63,7 +63,6 @@ class SOFA_CORE_API BaseForceField : public virtual objectmodel::BaseObject
 public:
     SOFA_ABSTRACT_CLASS(BaseForceField, objectmodel::BaseObject);
 protected:
-    BaseForceField();
     virtual ~BaseForceField() {}
 public:
     /// @name Vector operations
@@ -196,6 +195,8 @@ public:
      * If isCompliance==true, the ForceField is handled as a compliance and getComplianceMatrix must return a non-null pointer.
      */
     /// @{
+    /// Return a pointer to the stiffness matrix, or NULL if this should be seen as a compliance.
+    virtual const sofa::defaulttype::BaseMatrix* getStiffnessMatrix(const MechanicalParams*) { return NULL; }
 
     /// Considered as compliance, else consider as stiffness
     Data< bool > isCompliance;

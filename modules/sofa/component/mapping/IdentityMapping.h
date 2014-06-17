@@ -92,8 +92,6 @@ public:
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
     typedef sofa::component::linearsolver::CompressedRowSparseMatrix<MBloc> MatrixType;
 
-    helper::ParticleMask* maskFrom;
-    helper::ParticleMask* maskTo;
     //enum { N=((int)Deriv::static_size < (int)InDeriv::static_size ? (int)Deriv::static_size : (int)InDeriv::static_size) };
 
     core::behavior::BaseMechanicalState *stateFrom;
@@ -101,8 +99,6 @@ public:
 protected:
     IdentityMapping()
         : Inherit(),
-          maskFrom(NULL),
-          maskTo(NULL),
           stateFrom(NULL),
           stateTo(NULL),
           matrixJ(),

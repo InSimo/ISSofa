@@ -141,7 +141,7 @@ void VectorSpringForceField<DataTypes>::addSpring(int m1, int m2, SReal ks, SRea
 template <class DataTypes>
 VectorSpringForceField<DataTypes>::VectorSpringForceField(MechanicalState* _object)
     : Inherit(_object, _object)
-    , m_potentialEnergy( 0.0 ), useTopology( false ), usingMask(false)
+    , m_potentialEnergy( 0.0 ), useTopology( false )
     , springArray( initData(&springArray, "springs", "springs data"))
     , m_filename( initData(&m_filename,std::string(""),"filename","File name from which the spring informations are loaded") )
     , m_stiffness( initData(&m_stiffness,1.0,"stiffness","Default edge stiffness used in absence of file information") )
@@ -154,7 +154,7 @@ VectorSpringForceField<DataTypes>::VectorSpringForceField(MechanicalState* _obje
 template <class DataTypes>
 VectorSpringForceField<DataTypes>::VectorSpringForceField(MechanicalState* _object1, MechanicalState* _object2)
     : Inherit(_object1, _object2)
-    , m_potentialEnergy( 0.0 ), useTopology( false ), usingMask(false)
+    , m_potentialEnergy( 0.0 ), useTopology( false )
     , springArray( initData(&springArray, "springs", "springs data"))
     , m_filename( initData(&m_filename,std::string(""),"filename","File name from which the spring informations are loaded") )
     , m_stiffness( initData(&m_stiffness,1.0,"stiffness","Default edge stiffness used in absence of file information") )
@@ -313,9 +313,7 @@ void VectorSpringForceField<DataTypes>::addForce(const MechanicalParams* /*mpara
             force = (squash_vector * s.ks) + (relativeVelocity * s.kd);
 
             f1[e[0]]+=force;
-            this->mstate1->forceMask.insertEntry(e[0]);
             f2[e[1]]-=force;
-            this->mstate2->forceMask.insertEntry(e[1]);
         }
 
     }
@@ -334,9 +332,7 @@ void VectorSpringForceField<DataTypes>::addForce(const MechanicalParams* /*mpara
             force = (squash_vector * s.ks) + (relativeVelocity * s.kd);
 
             f1[e[0]]+=force;
-            this->mstate1->forceMask.insertEntry(e[0]);
             f2[e[1]]-=force;
-            this->mstate2->forceMask.insertEntry(e[1]);
         }
     }
     springArray.endEdit();

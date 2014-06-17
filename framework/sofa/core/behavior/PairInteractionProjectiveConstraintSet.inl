@@ -62,9 +62,6 @@ void PairInteractionProjectiveConstraintSet<DataTypes>::init()
     {
         mstate1 = mstate2 = dynamic_cast< MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
     }
-
-    this->mask1 = &mstate1->forceMask;
-    this->mask2 = &mstate2->forceMask;
 }
 
 template<class DataTypes>
@@ -115,8 +112,6 @@ void PairInteractionProjectiveConstraintSet<DataTypes>::projectResponse(const Me
     if( !isActive() ) return;
     if (mstate1 && mstate2)
     {
-        this->mask1 = &mstate1->forceMask;
-        this->mask2 = &mstate2->forceMask;
 #ifdef SOFA_SMP
         if (mparams->execMode() == ExecParams::EXEC_KAAPI)
             Task<PairConstraintProjectResponseTask<DataTypes> >(mparams /* PARAMS FIRST */, this, **defaulttype::getShared(*dxId[mstate1.get(mparams)].write()), **defaulttype::getShared(*dxId[mstate2.get(mparams)].write()));
@@ -132,8 +127,6 @@ void PairInteractionProjectiveConstraintSet<DataTypes>::projectVelocity(const Me
     if( !isActive() ) return;
     if (mstate1 && mstate2)
     {
-        this->mask1 = &mstate1->forceMask;
-        this->mask2 = &mstate2->forceMask;
 #ifdef SOFA_SMP
         if (mparams->execMode() == ExecParams::EXEC_KAAPI)
             Task<PairConstraintProjectVelocityTask<DataTypes> >(mparams /* PARAMS FIRST */, this, **defaulttype::getShared(*vId[mstate1.get(mparams)].write()), **defaulttype::getShared(*vId[mstate2.get(mparams)].write()));
@@ -149,8 +142,6 @@ void PairInteractionProjectiveConstraintSet<DataTypes>::projectPosition(const Me
     if( !isActive() ) return;
     if (mstate1 && mstate2)
     {
-        this->mask1 = &mstate1->forceMask;
-        this->mask2 = &mstate2->forceMask;
 #ifdef SOFA_SMP
         if (mparams->execMode() == ExecParams::EXEC_KAAPI)
             Task<PairConstraintProjectPositionTask<DataTypes> >(mparams /* PARAMS FIRST */, this, **defaulttype::getShared(*xId[mstate1.get(mparams)].write()), **defaulttype::getShared(*xId[mstate2.get(mparams)].write()));

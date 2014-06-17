@@ -154,9 +154,9 @@ void GearSpringForceField<DataTypes>::addSpringForce( double& /*potentialEnergy*
 
     // add force
     const Deriv force1(fT1, fR1 );
-    f1[spring.m1] += force1; this->mask1->insertEntry(spring.m1);	if(spring.m1!=spring.p1) {	f1[spring.p1] -= force1; this->mask1->insertEntry(spring.p1); }
+    f1[spring.m1] += force1;	if(spring.m1!=spring.p1) {	f1[spring.p1] -= force1; }
     const Deriv force2(fT2, fR2 );
-    f2[spring.m2] += force2; this->mask2->insertEntry(spring.m2);	if(spring.m2!=spring.p2) { 	f2[spring.p2] -= force2; this->mask2->insertEntry(spring.p2); }
+    f2[spring.m2] += force2;	if(spring.m2!=spring.p2) { 	f2[spring.p2] -= force2; }
 
 // gear
     // get gear rotation axis in global coord
@@ -191,8 +191,8 @@ void GearSpringForceField<DataTypes>::addSpringForce( double& /*potentialEnergy*
     Real f = ( - spring.angle1 * spring.Ratio - spring.angle2 ) * spring.softStiffnessRot; // force1 = - force2  at contact point
 
     // convert 1D force into torques
-    getVOrientation(f1[spring.m1]) += axis1*f; 					this->mask1->insertEntry(spring.m2);
-    getVOrientation(f2[spring.m2]) += axis2*f/spring.Ratio; 	this->mask2->insertEntry(spring.m1);
+    getVOrientation(f1[spring.m1]) += axis1*f;
+    getVOrientation(f2[spring.m2]) += axis2*f/spring.Ratio;
 
     // write output file
     if (outfile)

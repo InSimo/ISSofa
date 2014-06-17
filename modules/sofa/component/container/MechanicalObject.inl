@@ -151,10 +151,6 @@ MechanicalObject<DataTypes>::MechanicalObject()
     rotation2       .setGroup("Transformation");
     scale           .setGroup("Transformation");
 
-    // Deactivate the Filter.
-    // MechanicalObjects created during the collision response must not use the filter as it will be empty
-    this->forceMask.activate(false);
-
     setVecCoord(core::VecCoordId::position().index, &x);
     setVecCoord(core::VecCoordId::freePosition().index, &xfree);
     setVecCoord(core::VecCoordId::restPosition().index, &x0);
@@ -1367,7 +1363,6 @@ void MechanicalObject<DataTypes>::writeState(std::ostream& out)
 template <class DataTypes>
 void MechanicalObject<DataTypes>::beginIntegration(Real /*dt*/)
 {
-    this->forceMask.activate(false);
 }
 
 template <class DataTypes>
@@ -1377,10 +1372,6 @@ void MechanicalObject<DataTypes>::endIntegration(const core::ExecParams*
                                                  #endif
                                                  /* PARAMS FIRST */, Real /*dt*/    )
 {
-    this->forceMask.clear();
-    //By default the mask is disabled, the user has to enable it to benefit from the speedup
-    this->forceMask.setInUse(this->useMask.getValue());
-
 #ifdef SOFA_SMP
     if (params->execMode() == core::ExecParams::EXEC_KAAPI)
     {
@@ -1414,21 +1405,9 @@ void MechanicalObject<DataTypes>::accumulateForce(const core::ExecParams* params
         {
             helper::WriteAccessor< Data<VecDeriv> > f_wA ( params, *this->write(VecDerivId::force()) );
 
-            if (!this->forceMask.isInUse())
             {
                 for (unsigned int i=0; i < extForces_rA.size(); i++)
                     f_wA[i] += extForces_rA[i];
-            }
-            else
-            {
-                typedef helper::ParticleMask ParticleMask;
-                const ParticleMask::InternalStorage &indices = this->forceMask.getEntries();
-                ParticleMask::InternalStorage::const_iterator it;
-                for (it = indices.begin(); it != indices.end(); it++)
-                {
-                    const int i = (*it);
-                    f_wA[i] += extForces_rA[i];
-                }
             }
         }
     }
@@ -2486,23 +2465,10 @@ void MechanicalObject<DataTypes>::resetForce(const core::ExecParams* params)
     {
         helper::WriteAccessor< Data<VecDeriv> > f( params, *this->write(VecDerivId::force()) );
 
-        if (!this->forceMask.isInUse())
         {
             for (unsigned i = 0; i < f.size(); ++i)
             {
                 f[i] = Deriv();
-            }
-        }
-        else
-        {
-            typedef helper::ParticleMask ParticleMask;
-
-            const ParticleMask::InternalStorage &indices = this->forceMask.getEntries();
-            ParticleMask::InternalStorage::const_iterator it;
-
-            for (it = indices.begin(); it != indices.end(); it++)
-            {
-                f[(*it)] = Deriv();
             }
         }
     }

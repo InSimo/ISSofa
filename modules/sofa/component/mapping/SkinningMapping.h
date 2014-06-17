@@ -92,9 +92,6 @@ public:
 
 protected:
 
-    helper::ParticleMask* maskFrom;
-    helper::ParticleMask* maskTo;
-
     Data<VecOutCoord> f_initPos;  // initial child coordinates in the world reference frame
 
     // data for linear blending

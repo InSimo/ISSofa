@@ -281,9 +281,7 @@ void JointSpringForceField<DataTypes>::addSpringForce( double& /*potentialEnergy
     // add force
     const Deriv force(fT0, fR );
     f1[a] += force;
-    this->mask1->insertEntry(a);
     f2[b] -= force;
-    this->mask2->insertEntry(b);
 
     // write output file
     if (outfile)

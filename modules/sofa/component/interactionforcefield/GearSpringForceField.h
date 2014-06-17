@@ -319,9 +319,6 @@ public:
         getVectorAngle(u,v,w);
     }
 
-
-    bool useMask() const {return true;}
-
     /// the list of the springs
     Data<sofa::helper::vector<Spring> > springs;
     sofa::core::objectmodel::DataFileName f_filename;

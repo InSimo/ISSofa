@@ -252,13 +252,11 @@ void BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::applyJT( typename In:
 
     actualPos.clear();
     actualPos.resize(map.size());
-    if( !maskTo || !maskTo->isInUse() )
     {
-        maskFrom->setInUse(false);
         for ( unsigned int i=0; i<map.size(); i++ )
         {
             //get velocity of the DoF
-            const defaulttype::Rigid3Types::DPos v = defaulttype::Rigid3Types::getDPos(in[i]);
+            const defaulttype::Rigid3dTypes::DPos v = defaulttype::Rigid3dTypes::getDPos(in[i]);
 
             //get its coordinated wrt to the associated tetra with given index
             const OutReal fx = ( OutReal ) map[i].baryCoords[0];
@@ -293,39 +291,6 @@ void BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::applyJT( typename In:
 #endif
         }
     }
-    else
-    {
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage &indices=maskTo->getEntries();
-
-
-        ParticleMask::InternalStorage::const_iterator it;
-        for (it=indices.begin(); it!=indices.end(); it++)
-        {
-            const int i=(int)(*it);
-            const defaulttype::Rigid3Types::DPos v = defaulttype::Rigid3Types::getDPos(in[i]);
-            const OutReal fx = ( OutReal ) map[i].baryCoords[0];
-            const OutReal fy = ( OutReal ) map[i].baryCoords[1];
-            const OutReal fz = ( OutReal ) map[i].baryCoords[2];
-            int index = map[i].in_index;
-            const topology::Tetrahedron& tetra = tetrahedra[index];
-            out[tetra[0]] += v * ( 1-fx-fy-fz );
-            out[tetra[1]] += v * fx;
-            out[tetra[2]] += v * fy;
-            out[tetra[3]] += v * fz;
-
-            //compute the linear forces for each vertex from the torque, inspired by rigid mapping
-            Vector3 torque = getVOrientation(in[i]);
-            //if (torque.norm() > 10e-6) {
-            for (unsigned int ti = 0; ti<4; ti++)
-                out[tetra[ti]] -= cross(actualTetraPosition[tetra[ti]],torque);
-            //}
-            maskFrom->insertEntry(tetra[0]);
-            maskFrom->insertEntry(tetra[1]);
-            maskFrom->insertEntry(tetra[2]);
-            maskFrom->insertEntry(tetra[3]);
-        }
-    }
 
     actualOut.clear();
     actualOut.resize(out.size());
@@ -350,7 +315,6 @@ void BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::applyJ( typename Out:
     out.resize ( map.size() );
 
 
-    if( !maskTo || !maskTo->isInUse() )
     {
         for ( unsigned int i=0; i<map.size(); i++ )
         {
@@ -375,36 +339,6 @@ void BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::applyJ( typename Out:
             Out::setDRot(out[i], actualDRot);
 
 
-        }
-    }
-    else
-    {
-        typedef helper::ParticleMask ParticleMask;
-        const ParticleMask::InternalStorage &indices=maskTo->getEntries();
-
-
-        ParticleMask::InternalStorage::const_iterator it;
-        for (it=indices.begin(); it!=indices.end(); it++)
-        {
-            const int i=(int)(*it);
-            const Real fx = map[i].baryCoords[0];
-            const Real fy = map[i].baryCoords[1];
-            const Real fz = map[i].baryCoords[2];
-            int index = map[i].in_index;
-            const topology::Tetrahedron& tetra = tetrahedra[index];
-            Out::setDPos(out[i] , in[tetra[0]] * ( 1-fx-fy-fz )
-                    + in[tetra[1]] * fx
-                    + in[tetra[2]] * fy
-                    + in[tetra[3]] * fz );
-
-            Vector3 actualDRot(0,0,0);
-            for (unsigned int vert = 0; vert < 4; vert++)
-            {
-                //if (in[tetra[vert]].norm() > 10e-6)
-                actualDRot += cross(actualTetraPosition[tetra[vert]], in[tetra[vert]]);
-            }
-
-            Out::setDRot(out[i], actualDRot);
         }
     }
 #ifdef SOFA_IP_TRACES

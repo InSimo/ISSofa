@@ -87,8 +87,6 @@ public:
     Data< bool > indexFromEnd;
     Data< bool > globalToLocalCoords;
 
-    helper::ParticleMask* maskFrom;
-    helper::ParticleMask* maskTo;
 protected:
     RigidRigidMapping()
         : Inherit(),
@@ -98,9 +96,7 @@ protected:
           fileRigidRigidMapping(initData(&fileRigidRigidMapping,"fileRigidRigidMapping","Filename")),
           axisLength(initData( &axisLength, 0.7, "axisLength", "axis length for display")),
           indexFromEnd( initData ( &indexFromEnd,false,"indexFromEnd","input DOF index starts from the end of input DOFs vector") ),
-          globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) ),
-          maskFrom(NULL),
-          maskTo(NULL)
+          globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) )
     {
         this->addAlias(&fileRigidRigidMapping,"filename");
 

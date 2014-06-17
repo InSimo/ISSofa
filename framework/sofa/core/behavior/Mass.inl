@@ -110,7 +110,6 @@ void Mass<DataTypes>::addMDx(const MechanicalParams* mparams /* PARAMS FIRST */,
 {
     if (this->mstate)
     {
-        this->mstate->forceMask.setInUse(this->useMask());
         addMDx( *f.beginEdit(mparams) , dx.getValue(mparams), factor);
         f.endEdit(mparams);
     }
@@ -142,7 +141,6 @@ void Mass<DataTypes>::accFromF(const MechanicalParams* mparams /* PARAMS FIRST *
 {
     if (this->mstate)
     {
-        this->mstate->forceMask.setInUse(this->useMask());
         accFromF( *a.beginEdit(mparams) , f.getValue(mparams));
         a.endEdit(mparams);
     }

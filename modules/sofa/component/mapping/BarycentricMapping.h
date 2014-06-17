@@ -279,18 +279,12 @@ protected:
     sofa::helper::vector< MappingData2D >  map2d;
     sofa::helper::vector< MappingData3D >  map3d;
 
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
-
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperMeshTopology(core::topology::BaseMeshTopology* fromTopology,
-            topology::PointSetTopologyContainer* toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, toTopology),
-          maskFrom(_maskFrom), maskTo(_maskTo),
           matrixJ(NULL), updateJ(true)
     {
     }
@@ -412,18 +406,13 @@ protected:
 
     sofa::helper::vector<CubeData> map;
     topology::RegularGridTopology* fromTopology;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
 
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperRegularGridTopology(topology::RegularGridTopology* fromTopology,
-            topology::PointSetTopologyContainer* toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* toTopology)
         : Inherit(fromTopology, toTopology),fromTopology(fromTopology),
-          maskFrom(_maskFrom), maskTo(_maskTo),
           matrixJ(NULL), updateJ(true)
     {
     }
@@ -438,8 +427,6 @@ public:
 
     bool isEmpty() {return this->map.size() == 0;}
     void setTopology(topology::RegularGridTopology* _topology) {this->fromTopology = _topology;}
-    void setMaskFrom(helper::ParticleMask *m) {maskFrom = m;}
-    void setMaskTo  (helper::ParticleMask *m) {maskTo = m;}
     topology::RegularGridTopology *getTopology() {return dynamic_cast<topology::RegularGridTopology *>(this->fromTopology);}
 
     int addPointInCube(const int cubeIndex, const SReal* baryCoords);
@@ -495,19 +482,14 @@ protected:
 
     sofa::helper::vector<CubeData> map;
     topology::SparseGridTopology* fromTopology;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
 
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperSparseGridTopology(topology::SparseGridTopology* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           fromTopology(fromTopology),
-          maskFrom(_maskFrom), maskTo(_maskTo),
           matrixJ(NULL), updateJ(true)
     {
     }
@@ -568,21 +550,15 @@ protected:
     topology::PointData< sofa::helper::vector<MappingData > > map;
     topology::EdgeSetTopologyContainer*			_fromContainer;
     topology::EdgeSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperEdgeSetTopology(topology::EdgeSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
           _fromGeomAlgo(NULL),
-          maskFrom(_maskFrom),
-          maskTo(_maskTo),
           matrixJ(NULL),
           updateJ(true)
     {}
@@ -659,21 +635,15 @@ protected:
     topology::PointData< sofa::helper::vector<MappingData> > map;
     topology::TriangleSetTopologyContainer*			_fromContainer;
     topology::TriangleSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperTriangleSetTopology(topology::TriangleSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
           _fromGeomAlgo(NULL),
-          maskFrom(_maskFrom),
-          maskTo(_maskTo),
           matrixJ(NULL),
           updateJ(true)
     {}
@@ -750,21 +720,15 @@ protected:
     topology::PointData< sofa::helper::vector<MappingData> >  map;
     topology::QuadSetTopologyContainer*			_fromContainer;
     topology::QuadSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperQuadSetTopology(topology::QuadSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
           _fromGeomAlgo(NULL),
-          maskFrom(_maskFrom),
-          maskTo(_maskTo),
           matrixJ(NULL),
           updateJ(true)
     {}
@@ -844,21 +808,15 @@ protected:
 
     topology::TetrahedronSetTopologyContainer*			_fromContainer;
     topology::TetrahedronSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
 
     MatrixType* matrixJ;
     bool updateJ;
 
-    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
           _fromGeomAlgo(NULL),
-          maskFrom(_maskFrom),
-          maskTo(_maskTo),
           matrixJ(NULL),
           updateJ(true)
     {}
@@ -910,28 +868,21 @@ protected:
     topology::HexahedronSetGeometryAlgorithms<In>*	_fromGeomAlgo;
 
     std::set<int>	_invalidIndex;
-    helper::ParticleMask *maskFrom;
-    helper::ParticleMask *maskTo;
     MatrixType* matrixJ;
     bool updateJ;
 
     BarycentricMapperHexahedronSetTopology()
         : TopologyBarycentricMapper<In,Out>(NULL, NULL),
           map(initData(&map,"map", "mapper data")),
-          _fromContainer(NULL),_fromGeomAlgo(NULL),
-          maskFrom(NULL), maskTo(NULL)
+          _fromContainer(NULL),_fromGeomAlgo(NULL)
     {}
 
     BarycentricMapperHexahedronSetTopology(topology::HexahedronSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology,
-            helper::ParticleMask *_maskFrom,
-            helper::ParticleMask *_maskTo)
+            topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
           _fromGeomAlgo(NULL),
-          maskFrom(_maskFrom),
-          maskTo(_maskTo),
           matrixJ(NULL),
           updateJ(true)
     {}
@@ -965,8 +916,6 @@ public:
 
     bool isEmpty() {return this->map.getValue().empty();}
     void setTopology(topology::HexahedronSetTopologyContainer* _topology) {this->fromTopology = _topology; _fromContainer=_topology;}
-    void setMaskFrom(helper::ParticleMask *m) {maskFrom = m;}
-    void setMaskTo(helper::ParticleMask *m) {maskTo = m;}
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperHexahedronSetTopology<In, Out> &b )
     {
         unsigned int size_vec;

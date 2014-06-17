@@ -380,8 +380,6 @@ public:
         springs.endEdit();
     }
 
-    bool useMask() const {return true;}
-
     /// the list of the springs
     Data<sofa::helper::vector<Spring> > springs;
     sofa::core::objectmodel::DataFileName f_outfilename;

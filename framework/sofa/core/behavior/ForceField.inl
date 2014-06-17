@@ -105,7 +105,6 @@ void ForceField<DataTypes>::addForce(const MechanicalParams* mparams /* PARAMS F
 {
     if (mstate.get(mparams))
     {
-        mstate.get(mparams)->forceMask.setInUse(this->useMask());
         addForce( *f.beginEdit(mparams) , x.getValue(mparams), v.getValue(mparams));
         f.endEdit(mparams);
     }

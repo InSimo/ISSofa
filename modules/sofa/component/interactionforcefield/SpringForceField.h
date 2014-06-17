@@ -117,23 +117,20 @@ public:
 
     typedef LinearSpring<Real> Spring;
 
+protected:
+    Real m_potentialEnergy;
     Data<SReal> ks;
     Data<SReal> kd;
     Data<float> showArrowSize;
     Data<int> drawMode; //Draw Mode: 0=Line - 1=Cylinder - 2=Arrow
     Data<sofa::helper::vector<Spring> > springs;
     core::objectmodel::DataFileName fileSprings;
-
-protected:
-    bool maskInUse;
-    Real m_potentialEnergy;
     class Loader;
 
     SpringForceFieldInternalData<DataTypes> data;
     friend class SpringForceFieldInternalData<DataTypes>;
 
     virtual void addSpringForce(Real& potentialEnergy, VecDeriv& f1, const VecCoord& p1, const VecDeriv& v1, VecDeriv& f2, const VecCoord& p2, const VecDeriv& v2, int /*i*/, const Spring& spring);
-    void updateMaskStatus();
 
 
     SpringForceField(MechanicalState* object1, MechanicalState* object2, SReal _ks=100.0, SReal _kd=5.0);
@@ -186,27 +183,21 @@ public:
         sofa::helper::vector<Spring>& springs = *this->springs.beginEdit();
         springs.erase(springs.begin() +idSpring );
         this->springs.endEdit();
-
-        updateMaskStatus();
     }
 
     void addSpring(int m1, int m2, SReal ks, SReal kd, SReal initlen)
     {
         springs.beginEdit()->push_back(Spring(m1,m2,ks,kd,initlen));
         springs.endEdit();
-        updateMaskStatus();
     }
 
     void addSpring(const Spring & spring)
     {
         springs.beginEdit()->push_back(spring);
         springs.endEdit();
-        updateMaskStatus();
     }
 
     virtual void handleTopologyChange(core::topology::Topology *topo);
-
-    virtual bool useMask() const ;
 
     /// initialization to export kinetic, potential energy  and force intensity to gnuplot files format
     virtual void initGnuplot(const std::string path);

@@ -31,7 +31,6 @@
 #include <sofa/defaulttype/BaseVector.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Quat.h>
-#include <sofa/helper/ParticleMask.h>
 
 #include <iostream>
 
@@ -305,15 +304,6 @@ public:
     {
         return false;
     }
-
-    /// @}
-
-    /// @name Mask-based optimized computations (by only updating a subset of the DOFs)
-    /// @{
-
-    Data<bool> useMask;
-    /// Mask to filter the particles. Used inside MechanicalMappings inside applyJ and applyJT methods.
-    helper::ParticleMask forceMask;
 
     /// @}
 

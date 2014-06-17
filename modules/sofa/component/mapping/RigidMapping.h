@@ -116,8 +116,6 @@ public:
     Data<sofa::helper::vector<unsigned int> > pointsPerFrame;
     Data<bool> globalToLocalCoords;
 
-    helper::ParticleMask* maskFrom;
-    helper::ParticleMask* maskTo;
 protected:
     RigidMapping();
     virtual ~RigidMapping() {}

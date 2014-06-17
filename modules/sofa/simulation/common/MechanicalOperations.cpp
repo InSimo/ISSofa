@@ -122,14 +122,14 @@ void MechanicalOperations::propagateDxAndResetDf(core::MultiVecDerivId dx, core:
 {
     setDx(dx);
     setDf(df);
-    executeVisitor( MechanicalPropagateDxAndResetForceVisitor(&mparams /* PARAMS FIRST */, dx, df, false) );
+    executeVisitor( MechanicalPropagateDxAndResetForceVisitor(&mparams /* PARAMS FIRST */, dx, df) );
 }
 
 /// Propagate the given position through all mappings
 void MechanicalOperations::propagateX(core::MultiVecCoordId x, bool applyProjections)
 {
     setX(x);
-    MechanicalPropagatePositionVisitor visitor(&mparams, 0.0, x, false); //Don't ignore the masks
+    MechanicalPropagatePositionVisitor visitor(&mparams, 0.0, x);
     visitor.applyProjections = applyProjections;
     executeVisitor( visitor );
 }
@@ -138,7 +138,7 @@ void MechanicalOperations::propagateX(core::MultiVecCoordId x, bool applyProject
 void MechanicalOperations::propagateV(core::MultiVecDerivId v, bool applyProjections)
 {
     setV(v);
-    MechanicalPropagateVelocityVisitor visitor(&mparams /* PARAMS FIRST */, 0.0, v, false); //Don't ignore the masks
+    MechanicalPropagateVelocityVisitor visitor(&mparams /* PARAMS FIRST */, v);
     visitor.applyProjections = applyProjections;
     executeVisitor( visitor );
 }
@@ -148,7 +148,7 @@ void MechanicalOperations::propagateXAndV(core::MultiVecCoordId x, core::MultiVe
 {
     setX(x);
     setV(v);
-    MechanicalPropagatePositionAndVelocityVisitor visitor(&mparams, 0.0, x, v, false); //Don't ignore the masks
+    MechanicalPropagatePositionAndVelocityVisitor visitor(&mparams, 0.0, x, v);
     visitor.applyProjections = applyProjections;
     executeVisitor( visitor );
 }
@@ -158,7 +158,7 @@ void MechanicalOperations::propagateXAndResetF(core::MultiVecCoordId x, core::Mu
 {
     setX(x);
     setF(f);
-    MechanicalPropagatePositionAndResetForceVisitor visitor(&mparams, x, f, false);
+    MechanicalPropagatePositionAndResetForceVisitor visitor(&mparams, x, f);
     visitor.applyProjections = applyProjections;
     executeVisitor( visitor );
 }
@@ -206,7 +206,7 @@ void MechanicalOperations::accFromF(core::MultiVecDerivId a, core::ConstMultiVec
 }
 
 /// Compute the current force (given the latest propagated position and velocity)
-void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear, bool accumulate, bool neglectingCompliance)
+void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear, bool accumulate)
 {
     setF(result);
     if (clear)
@@ -214,9 +214,8 @@ void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear
         executeVisitor( MechanicalResetForceVisitor(&mparams /* PARAMS FIRST */, result, false) );
         //finish();
     }
-    executeVisitor( MechanicalComputeForceVisitor(&mparams /* PARAMS FIRST */, result, accumulate, neglectingCompliance) );
+    executeVisitor( MechanicalComputeForceVisitor(&mparams /* PARAMS FIRST */, result, accumulate) );
 }
-
 
 /// Compute the current force delta (given the latest propagated displacement)
 void MechanicalOperations::computeDf(core::MultiVecDerivId df, bool clear, bool accumulate)
@@ -279,8 +278,6 @@ void MechanicalOperations::addMBKv(core::MultiVecDerivId df, double m, double b,
     mparams.setDx(dx);
 }
 
-
-
 /// Add dt*Gravity to the velocity
 void MechanicalOperations::addSeparateGravity(double dt, core::MultiVecDerivId result)
 {
@@ -311,30 +308,15 @@ void MechanicalOperations::computeAcc(double t, core::MultiVecDerivId a, core::M
     setDx(a);
     setX(x);
     setV(v);
-    executeVisitor( MechanicalPropagatePositionAndVelocityVisitor(&mparams /* PARAMS FIRST */, t,x,v,
+    executeVisitor( MechanicalPropagatePositionAndVelocityVisitor(&mparams /* PARAMS FIRST */, t,x,v
 #ifdef SOFA_SUPPORT_MAPPED_MASS
-            a,
+            ,a
 #endif
-            true) );
+            ) );
     computeForce(f);
 
     accFromF(a,f);
     projectResponse(a);
-}
-
-void MechanicalOperations::computeForce(double t, core::MultiVecDerivId f, core::MultiVecCoordId x, core::MultiVecDerivId v, bool neglectingCompliance)
-{
-    setF(f);
-    setX(x);
-    setV(v);
-    executeVisitor( MechanicalPropagatePositionAndVelocityVisitor(&mparams /* PARAMS FIRST */, t,x,v,
-#ifdef SOFA_SUPPORT_MAPPED_MASS
-            a,
-#endif
-            true) );
-    computeForce(f,true,true,neglectingCompliance);
-
-    projectResponse(f);
 }
 
 void MechanicalOperations::computeContactAcc(double t, core::MultiVecDerivId a, core::MultiVecCoordId x, core::MultiVecDerivId v)
@@ -344,11 +326,11 @@ void MechanicalOperations::computeContactAcc(double t, core::MultiVecDerivId a, 
     setDx(a);
     setX(x);
     setV(v);
-    executeVisitor( MechanicalPropagatePositionAndVelocityVisitor(&mparams /* PARAMS FIRST */, t,x,v,
+    executeVisitor( MechanicalPropagatePositionAndVelocityVisitor(&mparams /* PARAMS FIRST */, t,x,v
 #ifdef SOFA_SUPPORT_MAPPED_MASS
-            a,
+            ,a
 #endif
-            true) );
+            ) );
     computeContactForce(f);
 
     accFromF(a,f);

@@ -71,12 +71,6 @@ public:
     /// \param cParams defines the state vectors to use for positions and velocities. Also defines the order of the constraint (POS, VEL, ACC)
     virtual void getConstraintViolation(const ConstraintParams* cParams, defaulttype::BaseVector *v) = 0;
 
-    /// If the constraint is applied only on a subset of particles.
-    /// That way, we can optimize the time spent traversing the mappings
-    /// Deactivated by default. The constraints using only a subset of particles should activate the mask,
-    /// and during buildConstraintMatrix(), insert the indices of the particles modified
-    virtual bool useMask() const {return false;}
-
 protected:
 
     Data< int > group;

@@ -340,7 +340,7 @@ void ConstraintAnimationLoop::freeMotion(const core::ExecParams* params /* PARAM
         sofa::core::MechanicalParams mparams(*params);
         sofa::core::MultiVecCoordId xfree = sofa::core::VecCoordId::freePosition();
         mparams.x() = xfree;
-        simulation::MechanicalPropagatePositionVisitor(&mparams /* PARAMS FIRST */, 0, xfree, true ).execute(context);
+        simulation::MechanicalPropagatePositionVisitor(&mparams /* PARAMS FIRST */, 0, xfree ).execute(context);
     }
     sofa::helper::AdvancedTimer::stepEnd  ("Free Motion");
 
@@ -705,7 +705,7 @@ void ConstraintAnimationLoop::step ( const core::ExecParams* params /* PARAMS FI
 
     //////////////// BEFORE APPLYING CONSTRAINT  : propagate position through mapping
     core::MechanicalParams mparams(*params);
-    simulation::MechanicalPropagatePositionVisitor(&mparams /* PARAMS FIRST */, 0, core::VecCoordId::position(), true).execute(this->gnode);
+    simulation::MechanicalPropagatePositionVisitor(&mparams /* PARAMS FIRST */, 0, core::VecCoordId::position()).execute(this->gnode);
 
 
     /// CONSTRAINT SPACE & COMPLIANCE COMPUTATION

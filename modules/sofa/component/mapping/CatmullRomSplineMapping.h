@@ -88,9 +88,6 @@ protected:
     CatmullRomSplineMapping ();
     virtual ~CatmullRomSplineMapping();
 
-    helper::ParticleMask* maskFrom;
-    helper::ParticleMask* maskTo;
-
     Data<unsigned int> SplittingLevel;
     //Data<Real> Radius;
 
