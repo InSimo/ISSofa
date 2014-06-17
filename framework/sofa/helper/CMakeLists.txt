@@ -15,7 +15,7 @@ set(HEADER_FILES
     FnDispatcher.inl
     gl/Trackball.h
     gl/Transformation.h
-	integer_id.h
+    integer_id.h
     io/Image.h
     io/ImageBMP.h
     io/ImagePNG.h
@@ -43,7 +43,6 @@ set(HEADER_FILES
     list.h
     MarchingCubeUtility.h
     MemoryManager.h
-    ParticleMask.h
     decompose.h
     decompose.inl
     Quater.h

@@ -79,7 +79,7 @@ void CatmullRomSplineMapping<TIn, TOut>::init()
     sourceMesh=this->getFromModel()->getContext()->getMeshTopology();
     targetMesh=this->getToModel()->getContext()->getMeshTopology() ;
 
-	unsigned int k = SplittingLevel.getValue();
+    unsigned int k = SplittingLevel.getValue();
     unsigned int P = sourceMesh->getNbPoints();
     unsigned int E = sourceMesh->getNbEdges();
     SeqEdges Edges = sourceMesh->getEdges();
