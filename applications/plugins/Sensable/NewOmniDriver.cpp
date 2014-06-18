@@ -96,8 +96,6 @@ int compteur_debug = 0;
 
 static sofa::helper::system::atomic<int> doUpdate;
 
-
-
 //retour en cas d'erreur
 //TODO: rajouter le numero de l'interface qui pose pb
 void printError(const HDErrorInfo *error, const char *message)
@@ -171,12 +169,11 @@ HDCallbackCode HDCALLBACK stateCallback(void * userData)
 
         rot.fromMatrix(mrot);
         rot.normalize();
-              
+
         double factor = 0.001;
         Vec3d pos(transform[12+0]*factor, transform[12+1]*factor, transform[12+2]*factor); // omni pos is in mm => sofa simulation are in meters by default
         autreOmniDriver[i]->data.servoDeviceData.pos=pos;
 
-        
         // verify that the quaternion does not flip:
         if ((rot[0]*autreOmniDriver[i]->data.servoDeviceData.quat[0]
                 +rot[1]*autreOmniDriver[i]->data.servoDeviceData.quat[1]
@@ -189,9 +186,10 @@ HDCallbackCode HDCALLBACK stateCallback(void * userData)
             autreOmniDriver[i]->data.servoDeviceData.quat[u] = rot[u];
 
         //std::cout << pos << "    " << rot << std::endl;
+
         SolidTypes<double>::Transform baseOmni_H_endOmni(pos* autreOmniDriver[i]->data.scale, rot);
         SolidTypes<double>::Transform world_H_virtualTool = autreOmniDriver[i]->data.world_H_baseOmni * baseOmni_H_endOmni * autreOmniDriver[i]->data.endOmni_H_virtualTool;
-   
+
 
 //partie pour ff simulatnnée
 #if 1
@@ -206,6 +204,9 @@ HDCallbackCode HDCALLBACK stateCallback(void * userData)
 
     }
 
+    if(autreOmniDriver[0]->data.forceFeedback != NULL)
+        (autreOmniDriver[0]->data.forceFeedback)->computeForce(positionDevs,forceDevs);
+
     for(unsigned int i=0; i<autreOmniDriver.size(); i++)
     {
 
@@ -218,6 +219,7 @@ HDCallbackCode HDCALLBACK stateCallback(void * userData)
 
         /// COMPUTATION OF THE vituralTool 6D POSITION IN THE World COORDINATES
         SolidTypes<double>::Transform baseOmni_H_endOmni((autreOmniDriver[i]->data.servoDeviceData.pos)* autreOmniDriver[i]->data.scale, autreOmniDriver[i]->data.servoDeviceData.quat);
+
 
         Vec3d world_pos_tool = positionDevs[i].getCenter();
         Quat world_quat_tool = positionDevs[i].getOrientation();
@@ -320,6 +322,7 @@ HDCallbackCode HDCALLBACK copyDeviceDataCallback(void * /*pUserData*/)
     //vector<NewOmniDriver*> autreOmniDriver = static_cast<vector<NewOmniDriver*>>(pUserData);
     for(unsigned int i=0; i<autreOmniDriver.size(); i++)
     {
+        //std::cout << "COPY " << (int)autreOmniDriver[i]->data.deviceData.ready << " " << (int)autreOmniDriver[i]->data.servoDeviceData.ready << std::endl;
         memcpy(&autreOmniDriver[i]->data.deviceData, &autreOmniDriver[i]->data.servoDeviceData, sizeof(NewDeviceData));
         autreOmniDriver[i]->data.servoDeviceData.nupdates = 0;
         autreOmniDriver[i]->data.servoDeviceData.ready = true;
@@ -348,6 +351,10 @@ int NewOmniDriver::initDevice()
     HDErrorInfo error;
     for(unsigned int i=0; i<autreOmniDriver.size(); i++)
     {
+        //if(autreOmniDriver[i]->isInitialized)
+        //{
+        //	return 0;
+        //}
         while(autreOmniDriver[i]->isInitialized && i<autreOmniDriver.size())
         {
             i++;
@@ -665,6 +672,7 @@ void NewOmniDriver::bwdInit()
         {
             autreOmniDriver[this->deviceIndex.getValue()]->DOFs = DOFs;
         }
+    }
 }
 
 //configure data
@@ -706,6 +714,8 @@ void NewOmniDriver::reinit()
 // setup omni device visualization
 void NewOmniDriver::draw()
 {
+    //cout << "NewOmniDriver::draw is called" << endl;
+
     if(initVisu)
     {
         if(!visuActif && omniVisu.getValue())
@@ -914,7 +924,7 @@ void NewOmniDriver::onAnimateBeginEvent()
         // COMPUTATION OF THE vituralTool 6D POSITION IN THE World COORDINATES
         SolidTypes<double>::Transform baseOmni_H_endOmni(data.deviceData.pos*data.scale, data.deviceData.quat);
 
-    
+   
         Quat& orientB =(*orientationBase.beginEdit());
         Vec3d& posB =(*positionBase.beginEdit());
         if(alignOmniWithCamera.getValue())

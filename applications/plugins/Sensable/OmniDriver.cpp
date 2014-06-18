@@ -354,6 +354,7 @@ OmniDriver::OmniDriver()
     , visu_end(NULL)
     , currentToolIndex(0)
     , isToolControlled(true)
+    , mState(NULL)
 {
     this->f_listening.setValue(true);
     //data.forceFeedback = new NullForceFeedback();
