@@ -386,7 +386,7 @@ void ManifoldTriangleSetTopologyContainer::createEdgesAroundVertexArray()
         it_map = map_OppositeEdgeVertex[vertexIndex].begin();
         firstVertex = (*it_map).first;
 
-        for (it_multimap = map_Adjacents[vertexIndex].begin(); it_multimap != map_Adjacents[vertexIndex].end(); it_multimap++)
+        for (it_multimap = map_Adjacents[vertexIndex].begin(); it_multimap != map_Adjacents[vertexIndex].end(); ++it_multimap)
         {
             cpt = (int)map_Adjacents[vertexIndex].count((*it_multimap).first);
 
@@ -638,14 +638,14 @@ void ManifoldTriangleSetTopologyContainer::createTrianglesAroundEdgeArray()
             {
                 m_trianglesAroundEdge[indexEdge].push_back((*it).second);
 
-                it++;
+                ++it;
                 m_trianglesAroundEdge[indexEdge].push_back((*it).second);
             }
             else
             {
-                it++;
+                ++it;
                 m_trianglesAroundEdge[indexEdge].push_back((*it).second);
-                it--;
+                --it;
                 m_trianglesAroundEdge[indexEdge].push_back((*it).second);
             }
         }
