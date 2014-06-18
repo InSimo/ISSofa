@@ -135,7 +135,7 @@ public:
     static void apply( const Coord& F, Strain& strain, MaterialFrame* rotation=NULL)
     // Apply : strain = f(F) convert deformation gradient to strain
     {
-        if(iscorotational) // cauchy strain (order 0 or 1) : e= [grad(R^T u)+grad(R^T u)^T ]/2 = [R^T F + F^T R ]/2 - I
+        if(iscorotational && rotation!=NULL) // cauchy strain (order 0 or 1) : e= [grad(R^T u)+grad(R^T u)^T ]/2 = [R^T F + F^T R ]/2 - I
         {
             MaterialFrame strainmat;
             helper::Decompose<Real>::polarDecomposition(F.getMaterialFrame(), *rotation, strainmat); // decompose F=RD
@@ -223,7 +223,7 @@ public:
       */
     static void addMultTranspose( Deriv& dF , const Coord& F, const StressDeriv& s, const StrainEnergyVec& integ, const MaterialFrame* rotation=NULL)
     {
-        if(iscorotational) // cauchy strain (order 0 or 1) : e= [grad(R^T u)+grad(R^T u)^T ]/2 = [R^T F + F^T R ]/2 - I
+        if(iscorotational && rotation!=NULL) // cauchy strain (order 0 or 1) : e= [grad(R^T u)+grad(R^T u)^T ]/2 = [R^T F + F^T R ]/2 - I
         {
             // order 0: dF -= R.dE * vol
             MaterialFrame s0 = *rotation * getFrame( s[0] );
