@@ -671,7 +671,7 @@ struct PolynomialFitFactors
     }
 
     void setParents(const vector<unsigned int>& parents)     { parentsToNodeIndex.clear();  for(unsigned int i=0;i<parents.size();i++)  parentsToNodeIndex[parents[i]]=i; }
-    void setParents(const std::set<unsigned int>& parents)     { parentsToNodeIndex.clear();  unsigned int i=0; for( std::set<unsigned int>::const_iterator it=parents.begin();it!=parents.end();it++)  parentsToNodeIndex[*it]=i++; }
+    void setParents(const std::set<unsigned int>& parents)     { parentsToNodeIndex.clear();  unsigned int i=0; for( std::set<unsigned int>::const_iterator it=parents.begin();it!=parents.end();++it)  parentsToNodeIndex[*it]=i++; }
 
     // compute factors. vals is a num_nodes x nbp matrix
     void fill( const Matrix& val, const vector<Vec<3,real> >& pos, const unsigned int order, const Vec<3,real>& voxelsize, const unsigned int volOrder)
@@ -799,7 +799,7 @@ struct PolynomialFitFactors
     }
 
     // updates nodes given that vals for new node i is a weighted sum of old vals \sum val_j w(i,j)
-    void updateNodes(const Matrix& w, const std::vector<unsigned int> newParents)
+    void updateNodes(const Matrix& w, const std::vector<unsigned int>& newParents)
     {
         b = w*b;
         c = w*c*w.transpose();
@@ -842,7 +842,7 @@ struct PolynomialFitFactors
         unsigned int dim = a.rows(); if(!dim) return;
 
         index.resize(num_nodes); w.resize(num_nodes); dw.resize(num_nodes); ddw.resize(num_nodes);
-        for(std::map<unsigned int , unsigned int>::iterator it=parentsToNodeIndex.begin(); it!=parentsToNodeIndex.end(); it++)
+        for(std::map<unsigned int , unsigned int>::iterator it=parentsToNodeIndex.begin(); it!=parentsToNodeIndex.end(); ++it)
         {
             unsigned int i = it->second;
             index[i] = it->first;
