@@ -75,7 +75,11 @@ struct VRPNImagerData
         got_dimensions(false),
         ready_for_region(false),
         already_posted(false),
-        image(NULL)
+        image(NULL),
+        Xdim(0),
+        Ydim(0),
+        remote_imager(NULL)
+        rigidPointData({0,0,0,0,0,0,0})
     {}
 };
 
