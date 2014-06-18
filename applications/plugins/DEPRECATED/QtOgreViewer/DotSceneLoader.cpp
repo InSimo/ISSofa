@@ -32,6 +32,7 @@ using namespace Ogre;
 
 DotSceneLoader::DotSceneLoader()
     : mSceneMgr(0)
+    , mAttachNode(NULL)
 {
     environment.nearClipDistance = 0.2;
     environment.farClipDistance = 1000;

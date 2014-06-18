@@ -62,6 +62,7 @@ OgrePlanarReflectionMaterial::OgrePlanarReflectionMaterial():
     ,mDebugPlaneEntity(NULL)
     ,mPlaneNode(NULL)
     ,mMatPtr(NULL)
+    ,mRoot(NULL)
 {
     sofa::defaulttype::Vector3* normal = normalReflectionPlane.beginEdit();
     normal->normalize();

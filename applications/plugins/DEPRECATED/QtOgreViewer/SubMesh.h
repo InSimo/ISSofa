@@ -78,7 +78,12 @@ class SubMesh
 
 public:
 
-    SubMesh():maxPrimitives(10000) {};
+    SubMesh():maxPrimitives(10000)
+    , index(0)
+    , model(NULL)
+    , shaderParameters(NULL)
+    , shaderTextureUnits(NULL)
+    {};
 
     int index;
     Indices indices;

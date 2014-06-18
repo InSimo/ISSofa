@@ -120,6 +120,20 @@ using namespace sofa::helper::system::thread;
 //Application principale
 QtOgreViewer::QtOgreViewer( QWidget *parent, const char *name )
     : QGLWidget( parent, name )
+    , mCamera(NULL)
+    , pickDone(false)
+    , saveLightsButton(NULL)
+    , ambient({NULL,NULL,NULL})
+    , numDirLight(NULL)
+    , numPointLight(NULL)
+    , numSpotLight(NULL)
+    , needUpdateParameters(false)
+    , compositorWidget(NULL)
+    , zeroNode(NULL)
+    , nodeX(NULL)
+    , nodeY(NULL)
+    , nodeZ(NULL)
+    , _factorWheel(0)
 {
     dirLight = pointLight = spotLight = NULL;
     this->setName("ogre");

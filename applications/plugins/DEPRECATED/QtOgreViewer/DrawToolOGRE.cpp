@@ -49,6 +49,10 @@ DrawToolOGRE::DrawToolOGRE():
     pOgreDraw(NULL)
     ,pOgreDrawInternal(NULL)
     ,pOgreDrawSave(NULL)
+    ,mLightEnabled(false)
+    ,mPolygonMode(0)
+    ,mWireFrameEnabled(false)
+    ,pSceneMgr(NULL)
 {
 }
 
