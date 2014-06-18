@@ -528,7 +528,7 @@ void PersistentFrictionContact<TCollisionModel1,TCollisionModel2>::activateConst
 
     const double d0 = this->intersectionMethod->getContactDistance() + this->model1->getProximity() + this->model2->getProximity(); // - 0.001;
 
-    for (std::vector<DetectionOutput*>::const_iterator it = this->contacts.begin(); it!=this->contacts.end(); it++)
+    for (std::vector<DetectionOutput*>::const_iterator it = this->contacts.begin(); it!=this->contacts.end(); ++it)
     {
         DetectionOutput* o = *it;
         CollisionElement1 elem1(o->elem.first);
@@ -645,7 +645,7 @@ void PersistentFrictionContact<TCollisionModel1,TCollisionModel2>::createRespons
 
     if (this->m_constraint)
     {
-        for (std::vector<DetectionOutput*>::const_iterator it = this->contacts.begin(); it != this->contacts.end(); it++)
+        for (std::vector<DetectionOutput*>::const_iterator it = this->contacts.begin(); it != this->contacts.end(); ++it)
         {
             DetectionOutput *o = *it;
 
