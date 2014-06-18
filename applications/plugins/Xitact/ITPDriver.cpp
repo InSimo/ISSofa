@@ -91,6 +91,9 @@ ITPDriver::ITPDriver()
 //, heartManager(NULL)
     , operation(true)
     , contactReached(false)
+    , _mstate(NULL)
+    , visu_base(NULL)
+    , visu_end(NULL) 
 {
     for (unsigned int i =0; i<3; ++i)
         graspReferencePoint[i] = 0.0;
@@ -134,7 +137,6 @@ void ITPDriver::bwdInit()
     {
         this->f_printLog.setValue(true);
         serr<<"ERROR : no MechanicalState<Vec1dTypes> defined... init of ITPDriver faild "<<sendl;
-        this->_mstate = NULL;
         return ;
     }
     else

@@ -298,6 +298,19 @@ IHPDriver::IHPDriver()
     , openTool(initData(&openTool,"openTool","opening of the tool"))
     , maxTool(initData(&maxTool,1.0,"maxTool","maxTool value"))
     , minTool(initData(&minTool,0.0,"minTool","minTool value"))
+    , operation(true)
+    , visu_base(NULL)
+    , visu_end(NULL)
+    , initVisu(false)
+    , changeScale(false)
+    , oldScale(0)
+    , posBati(NULL)
+    , visuActif(false)
+    , visuAxes(false)
+    , modX(false)
+    , modY(false)
+    , modZ(false)
+    , modS(false)
 {
     std::cout<<"IHPDriver::IHPDriver() called:"<<std::endl;/////////////////////////////////////////////////////////
 
@@ -552,11 +565,6 @@ void IHPDriver::init()
         changeScale=false;
     }
 
-    visuAxes = false;
-    modX=false;
-    modY=false;
-    modZ=false;
-    modS=false;
     initVisu=true;
 
     std::cout<<"IHPDDriver::init() ended:"<<std::endl;
