@@ -413,13 +413,13 @@ void FrameBlendingMapping<TIn, TOut>::applyJ ( typename Out::VecDeriv& out, cons
         const ParticleMask::InternalStorage &indices=this->maskTo->getEntries();
         ParticleMask::InternalStorage::const_iterator it;
         if(useDQ.getValue())
-            for ( it=indices.begin(); it!=indices.end(); it++ )
+            for ( it=indices.begin(); it!=indices.end(); ++it )
             {
                 unsigned int i= ( unsigned int ) ( *it );
                 out[i] = dq_blending[i].mult( in );
             }
         else
-            for ( it=indices.begin(); it!=indices.end(); it++ )
+            for ( it=indices.begin(); it!=indices.end(); ++it )
             {
                 unsigned int i= ( unsigned int ) ( *it );
                 out[i] = blending[i].mult( in );
@@ -458,7 +458,7 @@ void FrameBlendingMapping<TIn, TOut>::applyJT ( typename In::VecDeriv& out, cons
         if( this->f_printLog.getValue() )     std::cerr<<"FrameBlendingMapping<TIn, TOut>::applyJT, use mask, parent values before = "<< out << std::endl;
 
         if(useDQ.getValue())
-            for ( it=indices.begin(); it!=indices.end(); it++ ) // VecType
+            for ( it=indices.begin(); it!=indices.end(); ++it ) // VecType
             {
                 const int i= ( int ) ( *it );
                 dq_blending[i].addMultTranspose( out, in[i] );
@@ -467,7 +467,7 @@ void FrameBlendingMapping<TIn, TOut>::applyJT ( typename In::VecDeriv& out, cons
                     maskFrom->insertEntry ( index[i][j] );
             }
         else
-            for ( it=indices.begin(); it!=indices.end(); it++ ) // VecType
+            for ( it=indices.begin(); it!=indices.end(); ++it ) // VecType
             {
                 const int i= ( int ) ( *it );
                 blending[i].addMultTranspose( out, in[i] );

@@ -101,7 +101,7 @@ void HexaRemover<DataTypes>::init ()
     if ( !cuttingModels.empty() )
     {
         sout << "Cutting Models found:" << sendl;
-        for ( helper::vector<MTopology*>::iterator it = cuttingModels.begin(); it != cuttingModels.end(); it++ )
+        for ( helper::vector<MTopology*>::iterator it = cuttingModels.begin(); it != cuttingModels.end(); ++it )
             sout << " " << ( *it )->getName() << sendl;
     }
     else
@@ -186,7 +186,7 @@ void HexaRemover<DataTypes>::propagateFrom ( const unsigned int hexa)
         // Propagate to the neighbors
         helper::set<unsigned int> neighbors;
         getNeighbors ( hexaID, neighbors );
-        for ( helper::set<unsigned int>::const_iterator it = neighbors.begin(); it != neighbors.end(); it++ )
+        for ( helper::set<unsigned int>::const_iterator it = neighbors.begin(); it != neighbors.end(); ++it )
         {
             hexasToParse.push ( *it );
         }
