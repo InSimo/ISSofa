@@ -135,14 +135,14 @@ const std::string BaseViewer::screenshotName()
 #endif
 }
 
-void BaseViewer::setPrefix(const std::string filename)
+void BaseViewer::setPrefix(const std::string& filename)
 {
 #ifndef SOFA_NO_OPENGL
     capture.setPrefix(filename);
 #endif
 }
 
-void BaseViewer::screenshot(const std::string filename, int compression_level)
+void BaseViewer::screenshot(const std::string& filename, int compression_level)
 {
 #ifndef SOFA_NO_OPENGL
     capture.saveScreen(filename, compression_level);

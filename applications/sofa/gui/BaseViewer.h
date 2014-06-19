@@ -114,8 +114,8 @@ public:
 
     //Fonctions needed to take a screenshot
     virtual const std::string screenshotName();
-    virtual void setPrefix(const std::string filename);
-    virtual void screenshot(const std::string filename, int compression_level =-1);
+    virtual void setPrefix(const std::string& filename);
+    virtual void screenshot(const std::string& filename, int compression_level =-1);
 
     virtual void getView(Vec3d& pos, Quat& ori) const;
     virtual void setView(const Vec3d& pos, const Quat &ori);
