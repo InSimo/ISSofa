@@ -308,7 +308,16 @@ public:
     int rows;
     int cols;
 
-    table_data_widget_container() : wSize(NULL), wTableView(NULL), wDisplay(NULL), widget(NULL), container_layout(NULL) {}
+    table_data_widget_container() 
+    : wSize(NULL)
+    , wTableView(NULL)
+    , wDisplay(NULL)
+    , widget(NULL)
+    , container_layout(NULL) 
+    , wTableView(NULL)
+    , rows(0)
+    , cols(0)
+    {}
 
 
     bool createLayout( DataWidget* parent )
