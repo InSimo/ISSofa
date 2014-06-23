@@ -944,7 +944,11 @@ public :
     ///a widget for a that particular data type.
     RadioDataWidget(QWidget* parent, const char* name,
             core::objectmodel::Data<sofa::helper::OptionsGroup >* m_data)
-        : TDataWidget<sofa::helper::OptionsGroup >(parent,name,m_data) {};
+        : TDataWidget<sofa::helper::OptionsGroup >(parent,name,m_data)
+        , buttonList(NULL)
+        , comboList(NULL)
+        , buttonMode(false)
+        {}
 
     ///In this method we  create the widgets and perform the signal / slots connections.
     virtual bool createWidgets();

@@ -60,7 +60,11 @@ defaulttype::Vec<3,int> PieWidget::getColor(int i)
     return res;
 }
 
-PieWidget::PieWidget(QWidget *parent): QWidget(parent)
+PieWidget::PieWidget(QWidget *parent)
+: QWidget(parent)
+, sizePie(0)
+, selection(0)
+, totalTime(0)
 {
     if (PieWidget::colorArray.empty())
     {
@@ -111,7 +115,9 @@ void PieWidget::clear()
     repaint();
 }
 
-ChartsWidget::ChartsWidget(const std::string &name, QWidget *parent): QWidget(parent)
+ChartsWidget::ChartsWidget(const std::string &name, QWidget *parent)
+: QWidget(parent)
+, selection(0)
 {
     QSplitter *splitter=new QSplitter(this);
     splitter->setOrientation(Qt::Horizontal);
