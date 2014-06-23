@@ -70,7 +70,11 @@ typedef QListViewItem Q3ListViewItem;
 class GraphVisitor
 {
 public:
-    GraphVisitor(WindowVisitor *w) { window=w; graph=w->graphView; totalTimeMax=-1; initSize=false;}
+    GraphVisitor(WindowVisitor *w) 
+    : totalTime(0)
+    , level(0)
+    { window=w; graph=w->graphView; totalTimeMax=-1; initSize=false;}
+    
     Q3ListViewItem *addNode(Q3ListViewItem *parent,Q3ListViewItem *elementAbove, std::string info);
     Q3ListViewItem *addComment(Q3ListViewItem *element, Q3ListViewItem *elementAbove, std::string comment);
     void addInformation(Q3ListViewItem *element, std::string name, std::string info);

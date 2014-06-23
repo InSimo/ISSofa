@@ -53,8 +53,11 @@ public:
     DataFileNameWidget(
         QWidget* parent,
         const char* name,
-        core::objectmodel::Data<std::string>* data):
-        TDataWidget<std::string>(parent,name,data) {};
+        core::objectmodel::Data<std::string>* data)
+    : TDataWidget<std::string>(parent,name,data) 
+    , openFilePath(NULL)
+    , openFileButton(NULL)
+    {}
 
     virtual bool createWidgets();
     virtual void setDataReadOnly(bool readOnly);
