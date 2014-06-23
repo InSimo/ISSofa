@@ -106,7 +106,6 @@ public:
         , _specularCheckBox(NULL)
         , _diffuseCheckBox(NULL)
         , _shininessCheckBox(NULL)
-        , _currentMaterialPos(NULL)
     {}
 
     virtual bool createWidgets();

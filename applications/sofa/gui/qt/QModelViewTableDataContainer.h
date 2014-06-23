@@ -314,7 +314,6 @@ public:
     , wDisplay(NULL)
     , widget(NULL)
     , container_layout(NULL) 
-    , wTableView(NULL)
     , rows(0)
     , cols(0)
     {}
