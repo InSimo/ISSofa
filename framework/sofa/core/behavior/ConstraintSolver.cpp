@@ -49,10 +49,8 @@ void ConstraintSolver::solveConstraint(const ConstraintParams * cParams, MultiVe
     std::string className = "SolveConstraints " + cParams->getName();
     AdvancedTimer::stepBegin(className + "SolveConstraints ");
 
-    bool continueSolving = true;
-
     AdvancedTimer::stepBegin(className + " PrepareState");
-    continueSolving = prepareStates(cParams, res1, res2);
+    bool continueSolving = prepareStates(cParams, res1, res2);
     AdvancedTimer::stepEnd(className + " PrepareState");
 
     if (continueSolving)
