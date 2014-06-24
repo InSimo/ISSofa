@@ -133,7 +133,7 @@ void  VRPN_CALLBACK handle_region_change(void *userData, const vrpn_IMAGERREGION
     for (unsigned i =  0; i < numData; i++)
     {
         imagerData->rigidPointData[i] = data[i];
-        fprintf(stderr,"[%d] = %f ", i, imagerData->rigidPointData[i]);
+        fprintf(stderr,"[%u] = %f ", i, imagerData->rigidPointData[i]);
     }
     fprintf(stderr,"\n");
     //std::cout << "rigidPoint = " << rigidPoint. << std::endl;

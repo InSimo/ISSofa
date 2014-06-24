@@ -54,6 +54,7 @@ void handle_button(void * /*userdata*/, const vrpn_BUTTONCB b)
 }
 
 VRPNButton::VRPNButton()
+: btn(NULL)
 {
     // TODO Auto-generated constructor stub
 
