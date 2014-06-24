@@ -430,7 +430,11 @@ public:
     VectorVisOptionsWidget* options;
     QVBoxLayout* container_layout;
 
-    vectorvis_data_widget_container() : settings(NULL), container_layout(NULL) {}
+    vectorvis_data_widget_container() 
+    : settings(NULL)
+    , container_layout(NULL)
+    , options(NULL)
+    {}
 
     bool createLayout(DataWidget* parent)
     {

@@ -136,6 +136,14 @@ public:
         , die(0)
         , got_rgb(0)
         , got_depth(0)
+        , rgb_mid(NULL)
+        , rgb_back(NULL)
+        , depth_mid(NULL)
+        , depth_back(NULL)
+        , f_ctx(NULL)
+        , f_dev(NULL)
+        , backup_tiltangle(0)
+        , freenect_thread(0)
     {
         globalKinectClassPointer = (void*) this; // used for kinect callbacks
 
