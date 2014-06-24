@@ -450,9 +450,11 @@ signals:
 
 struct ActivationFunctor
 {
-    ActivationFunctor(bool act, GraphListenerQListView* l):active(act), listener(l)
+    ActivationFunctor(bool act, GraphListenerQListView* l)
+    :active(act)
+    , listener(l)
+    , pixmap_filename("textures/media-record.png")
     {
-        pixmap_filename= std::string("textures/media-record.png");
         if ( sofa::helper::system::DataRepository.findFile ( pixmap_filename ) )
             pixmap_filename = sofa::helper::system::DataRepository.getFile ( pixmap_filename );
     }
