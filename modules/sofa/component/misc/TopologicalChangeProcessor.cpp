@@ -1139,11 +1139,9 @@ void  TopologicalChangeProcessor::findElementIndex(Vector3 coord, int& triangleI
 
     for (unsigned int i = 0 ; i < triIndices.size() ; i++)
     {
-        bool isPointInTriangle = false;
-
         bool is_tested = false;
         unsigned int indTest;
-        isPointInTriangle = triangleGeo->isPointInsideTriangle(triIndices[i], is_tested, coord, indTest);
+        bool isPointInTriangle = triangleGeo->isPointInsideTriangle(triIndices[i], is_tested, coord, indTest);
 
         if (isPointInTriangle)
         {
@@ -1193,12 +1191,10 @@ void  TopologicalChangeProcessor::findElementIndex(Vector3 coord, int& triangleI
         projectedPoint[1] = (- a * b * x + (a * a + c * c) * y - b * c * z - d * b) /*/normalNorm*/;
         projectedPoint[2] = (- a * c * x - b * c * y + (a * a + b * b) * z - d * c) /*/normalNorm*/;
 
-        bool isPointInTriangle = false;
-
         bool is_tested = false;
         unsigned int indTest;
         //test if the projected point is inside the current triangle
-        isPointInTriangle = triangleGeo->isPointInsideTriangle(i, is_tested, projectedPoint, indTest);
+        bool isPointInTriangle = triangleGeo->isPointInsideTriangle(i, is_tested, projectedPoint, indTest);
 
         if (isPointInTriangle)
         {
