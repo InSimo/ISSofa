@@ -94,7 +94,7 @@ static void glut_display()
         {
             SofaPhysicsDataController* m = dataControllers[i];
             m->setValue("30");
-            printf("DataController[%i]\n applied", i);
+            printf("DataController[%u]\n applied", i);
         }
 
         unsigned int nbDataMonitors = mainSimulation->getNbDataMonitors();
@@ -102,7 +102,7 @@ static void glut_display()
         for (unsigned int i=0; i<nbDataMonitors; ++i)
         {
             SofaPhysicsDataMonitor* m = dataMonitors[i];
-            printf("DataMonitor[%i] = %s\n", i, m->getValue());
+            printf("DataMonitor[%u] = %s\n", i, m->getValue());
         }
 
         unsigned int nbMeshes = mainSimulation->getNbOutputMeshes();
@@ -140,14 +140,14 @@ static void glut_display()
         static int counter = 0;
         if (!(counter%1000))
         {
-            printf("%3d meshes, %6d total points, bbox = < %6f, %6f, %6f > - < %6f, %6f, %6f >\n",nbMeshes,totalpoints,bbmin[0],bbmin[1],bbmin[2],bbmax[0],bbmax[1],bbmax[2]);
+            printf("%3u meshes, %6u total points, bbox = < %6f, %6f, %6f > - < %6f, %6f, %6f >\n",nbMeshes,totalpoints,bbmin[0],bbmin[1],bbmin[2],bbmax[0],bbmax[1],bbmax[2]);
         }
         if (!counter)
         {
             for (unsigned int i=0; i<nbMeshes; ++i)
             {
                 SofaPhysicsOutputMesh* m = meshes[i];
-                printf("  mesh %3d: %6d points%s%s, name = \"%s\"\n", i, m->getNbVertices(), (m->getVTexCoords() ? " with UVs" : ""), (m->getVNormals() ? " with normals" : ""), m->getName());
+                printf("  mesh %3u: %6u points%s%s, name = \"%s\"\n", i, m->getNbVertices(), (m->getVTexCoords() ? " with UVs" : ""), (m->getVNormals() ? " with normals" : ""), m->getName());
             }
         }
         ++counter;
