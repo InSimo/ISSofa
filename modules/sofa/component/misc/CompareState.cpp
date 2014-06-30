@@ -68,7 +68,7 @@ std::string lookForValidCompareStateFile( const std::string& sceneName,
         const std::string& mstateName,
         const int counterCompareState,
         const std::string& extension,
-        const std::string defaultName ="default")
+        const std::string& defaultName ="default")
 {
     using namespace sofa::helper::system;
 
