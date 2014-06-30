@@ -80,6 +80,8 @@ public :
     ///constructors
     LMLForce(MechanicalState<DataTypes> *mm = NULL)
         : ForceField<DataTypes>(mm)
+        , mmodel(NULL)
+        , loads(NULL)
     {}
     LMLForce(Loads* loadsList, const map<unsigned int, unsigned int> &atomIndexToDOFIndex, MechanicalState<DataTypes> *mm);
 
