@@ -126,7 +126,11 @@ public:
         return info;
     }
     ParallelMechanicalVOpMecVisitor(const sofa::core::ExecParams* params /* PARAMS FIRST  = sofa::core::ExecParams::defaultInstance()*/, MultiVecId v, ConstMultiVecId a = ConstMultiVecId::null(),Shared<double> *fSh=NULL )
-        : BaseMechanicalVisitor(params), v(v), a(a),fSh(fSh)
+        : BaseMechanicalVisitor(params)
+        , v(v)
+        , a(a)
+        , fSh(fSh)
+        , f(0.0)
     {}
 
     virtual Result fwdMechanicalState(Node* /*node*/, sofa::core::behavior::BaseMechanicalState* mm);
@@ -229,7 +233,12 @@ public:
 #endif
 
 
-    ParallelMechanicalVDotVisitor( const sofa::core::ExecParams* params /* PARAMS FIRST  = sofa::core::ExecParams::defaultInstance()*/, Shared<double>* t, ConstMultiVecId a, ConstMultiVecId b) : BaseMechanicalVisitor(params), a(a), b(b), totalSh(t)
+    ParallelMechanicalVDotVisitor( const sofa::core::ExecParams* params /* PARAMS FIRST  = sofa::core::ExecParams::defaultInstance()*/, Shared<double>* t, ConstMultiVecId a, ConstMultiVecId b) 
+    : BaseMechanicalVisitor(params)
+    , a(a)
+    , b(b)
+    , totalSh(t)
+    , total(NULL)
     {}
     /// Sequential code
     Result fwdMechanicalState(simulation::Node* /*node*/, sofa::core::behavior::BaseMechanicalState* mm);
