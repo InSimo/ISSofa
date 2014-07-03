@@ -720,12 +720,14 @@ void DotSceneLoader::processEntity(TiXmlElement *XMLNode, SceneNode *pParent)
     TiXmlElement *pElement;
 
     // Process vertexBuffer (?)
-    pElement = XMLNode->FirstChildElement("vertexBuffer");
+    XMLNode->FirstChildElement("vertexBuffer");
+//  pElement = XMLNode->FirstChildElement("vertexBuffer");
 //	if(pElement)
 //		;//processVertexBuffer(pElement);
 
     // Process indexBuffer (?)
-    pElement = XMLNode->FirstChildElement("indexBuffer");
+    XMLNode->FirstChildElement("indexBuffer");
+//  pElement = XMLNode->FirstChildElement("indexBuffer");
 //	if(pElement)
 //		;//processIndexBuffer(pElement);
 
