@@ -45,7 +45,7 @@ public:
     long double __value_;
 public:
     __node()
-        : __name_(0), __size_(0), __left_(0), __right_(0), __cached_size_(-1)
+        : __name_(0), __size_(0), __left_(0), __right_(0), __cached_size_(-1), __value_(0)
         {}
     virtual ~__node() {};
 
