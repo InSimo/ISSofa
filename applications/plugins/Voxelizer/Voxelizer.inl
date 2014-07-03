@@ -775,7 +775,7 @@ T* Voxelizer<DataTypes>::findObject( string path, const BaseContext* context)
 
 
 template <class DataTypes>
-bool Voxelizer<DataTypes>::saveRAW( const std::string filename, const unsigned char* data, const unsigned int size) const
+bool Voxelizer<DataTypes>::saveRAW( const std::string& filename, const unsigned char* data, const unsigned int size) const
 {
     FILE *file;
     std::cout << "Writing RAW file " << filename << std::endl;

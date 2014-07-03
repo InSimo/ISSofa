@@ -173,7 +173,7 @@ protected:
     void restoreTags();
     template<class T>
     T* findObject( string path, const BaseContext* context);
-    bool saveRAW( const std::string filename, const unsigned char* data, const unsigned int size) const;
+    bool saveRAW( const std::string& filename, const unsigned char* data, const unsigned int size) const;
     void saveInfos();
     void loadInfos();
     inline void changeRasterizerSettings();
