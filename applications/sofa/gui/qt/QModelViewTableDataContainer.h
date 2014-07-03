@@ -316,6 +316,7 @@ public:
     , container_layout(NULL) 
     , rows(0)
     , cols(0)
+    , wTableModel(NULL)
     {}
 
 
