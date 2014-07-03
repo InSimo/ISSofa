@@ -136,10 +136,10 @@ void display(__node* x, int indent = 0)
         size_t sz = x->size();
         char* buf = (char*)calloc(sz+10, 1);
         x->get_demangled_name(buf);
-        printf("%s [%ld] %s, %p\n", typeid(*x).name(), sz, buf, x);
+        printf("%s [%lu] %s, %p\n", typeid(*x).name(), sz, buf, x);
         if (strlen(buf) != sz)
         {
-            printf("strlen(buf) = %ld and size = %ld\n", strlen(buf), sz);
+            printf("strlen(buf) = %ld and size = %lu\n", strlen(buf), sz);
         }
         free(buf);
         display(x->__left_, indent+1);
