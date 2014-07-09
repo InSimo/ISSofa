@@ -59,7 +59,11 @@ using namespace sofa::gui;
 class SculptBodyPerformerConfiguration
 {
 public:
-    SculptBodyPerformerConfiguration() {}
+    SculptBodyPerformerConfiguration()
+    : checkedFix(false)
+    , checkedInflate(false)
+    , checkedDeflate(false)
+    {}
     void setForce(double f) {force=f;}
     void setScale(double s) {scale=s;}
     void setMass(double m) {mass=m;}
