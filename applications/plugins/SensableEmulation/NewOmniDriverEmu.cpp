@@ -80,6 +80,9 @@ NewOmniDriverEmu::NewOmniDriverEmu()
     , trajTim(initData(&trajTim, "trajTiming","Trajectory timing"))
     , visu_base(NULL)
     , visu_end(NULL)
+    , afterFirstStep(false)
+    , thTimer(NULL)
+    , lastStep(0.0)
 {
 
     this->f_listening.setValue(true);
