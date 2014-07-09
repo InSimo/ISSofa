@@ -73,6 +73,13 @@ typedef struct
     simulation::Node *node;
     sofa::component::visualmodel::OglModel *visu;
     sofa::component::mapping::RigidMapping< Rigid3dTypes , ExtVec3fTypes  > *mapping;
+
+    VisualComponent()
+    : node(NULL)
+    , visu(NULL)
+    , mapping(NULL)
+    {}
+    
 } VisualComponent;
 
 typedef struct
@@ -82,6 +89,13 @@ typedef struct
     float scale;
     float torqueScale;
     float forceScale;
+
+    HaptionData()
+    : forceFeedback(NULL)
+    , scale(1.0)
+    , torqueScale(1.0)
+    , forceScale(1.0)
+    {}
 } HaptionData;
 
 
