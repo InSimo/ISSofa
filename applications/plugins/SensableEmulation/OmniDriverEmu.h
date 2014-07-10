@@ -104,6 +104,13 @@ struct OmniData
     DeviceData servoDeviceData;  // for the haptic loop
     DeviceData deviceData;		 // for the simulation loop
 
+    OmniData()
+    : forceFeedbackIndice(0)
+    , context(NULL)
+    , forceScale(1.0)
+    , scale(1.0)
+    , permanent_feedback(false)
+    {}
 };
 
 /**
