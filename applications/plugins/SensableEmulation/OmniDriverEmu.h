@@ -73,6 +73,16 @@ typedef struct
     Quat quat;
     bool ready;
     bool stop;
+
+    DeviceData()
+    : nupdates(0)
+    , m_buttonState(0)
+    , pos(0,0,0)
+    , quat(0,0,0,1)
+    , ready(false)
+    , stop(false)
+	{}
+    
 } DeviceData;
 
 typedef struct

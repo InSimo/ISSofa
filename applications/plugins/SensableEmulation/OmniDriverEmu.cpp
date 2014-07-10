@@ -91,6 +91,9 @@ OmniDriverEmu::OmniDriverEmu()
     , visu_end(NULL)
     , currentToolIndex(0)
     , isToolControlled(true)
+    , afterFirstStep(false)
+    , lastStep(0.0)
+    , mState(NULL)
 {
 
     this->f_listening.setValue(true);
