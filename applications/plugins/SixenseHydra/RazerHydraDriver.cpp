@@ -66,7 +66,7 @@ RazerHydraDriver::RazerHydraDriver()
 	, triggerValueSecondTool(initData(&triggerValueSecondTool, float(0.0), "triggerValueSecondTool","Trigger value of the second tool (between 0 and 1.0)"))
 	, useBothTools(initData (&useBothTools, false, "useBothTools", "If true, the two controllers are used, otherwise only one controller is used"))
 	, displayTools(initData (&displayTools, false, "displayTools", "display the Razer Hydra Controller joysticks as tools"))
-	
+	, first_controller_index(0), second_controller_index(0)
 {
 	this->f_listening.setValue(true);
 }
