@@ -61,7 +61,7 @@ using namespace helper::system::thread;
 using core::objectmodel::Data;
 
 /** Holds data retrieved from HDAPI. */
-typedef struct
+struct DeviceData
 {
     // changement unsigned int -> HDD
     //HHD id;
@@ -83,9 +83,9 @@ typedef struct
     , stop(false)
 	{}
     
-} DeviceData;
+};
 
-typedef struct
+struct OmniData
 {
     vector<ForceFeedback*> forceFeedbacks;
     //ForceFeedback* forceFeedback;
@@ -104,15 +104,7 @@ typedef struct
     DeviceData servoDeviceData;  // for the haptic loop
     DeviceData deviceData;		 // for the simulation loop
 
-    OmniData()
-    : forceFeedbackIndice(0)
-    , context(NULL)
-    , forceScale(1.0)
-    , scale(1.0)
-    , permanent_feedback(false)
-    {}
-    
-} OmniData;
+};
 
 /**
 * Omni driver
