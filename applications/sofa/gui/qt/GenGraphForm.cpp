@@ -339,7 +339,7 @@ void GenGraphForm::doExport()
         addTask(argv);
         if (!exp)
         {
-            exp = true;
+            //exp = true;
             exportedFile = basefile+".svg";
         }
     }
