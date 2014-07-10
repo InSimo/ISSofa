@@ -754,8 +754,8 @@ void SofaPhysicsSimulation::Impl::calcProjection()
     double xNear, yNear/*, xOrtho, yOrtho*/;
     double xFactor = 1.0, yFactor = 1.0;
     double offset;
-    double xForeground, yForeground, zForeground, xBackground, yBackground,
-           zBackground;
+    //double xForeground, yForeground, xBackground, yBackground;
+    double zForeground, zBackground;
     Vector3 center;
 
     /// Camera part
@@ -822,15 +822,15 @@ void SofaPhysicsSimulation::Impl::calcProjection()
                 vparams->zNear(), vparams->zFar());
     }
 
-    xForeground = -zForeground * xNear / vparams->zNear();
-    yForeground = -zForeground * yNear / vparams->zNear();
-    xBackground = -zBackground * xNear / vparams->zNear();
-    yBackground = -zBackground * yNear / vparams->zNear();
+    //xForeground = -zForeground * xNear / vparams->zNear();
+    //yForeground = -zForeground * yNear / vparams->zNear();
+    //xBackground = -zBackground * xNear / vparams->zNear();
+    //yBackground = -zBackground * yNear / vparams->zNear();
 
-    xForeground *= xFactor;
-    yForeground *= yFactor;
-    xBackground *= xFactor;
-    yBackground *= yFactor;
+    //xForeground *= xFactor;
+    //yForeground *= yFactor;
+    //xBackground *= xFactor;
+    //yBackground *= yFactor;
 
     glGetDoublev(GL_PROJECTION_MATRIX,lastProjectionMatrix);
 
