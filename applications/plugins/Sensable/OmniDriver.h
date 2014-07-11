@@ -74,7 +74,6 @@ struct DeviceData
     , nupdates(0)
     , m_buttonState(0)
     , m_devicePosition(0,0,0)
-    , m_error(0)
     , pos(0,0,0)
     , ready(false)
     , stop(false)
