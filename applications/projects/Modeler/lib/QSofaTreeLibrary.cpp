@@ -36,7 +36,9 @@ namespace gui
 namespace qt
 {
 
-QSofaTreeLibrary::QSofaTreeLibrary(QWidget *parent): QTreeWidget(parent)
+QSofaTreeLibrary::QSofaTreeLibrary(QWidget *parent)
+: QTreeWidget(parent)
+, toolbox(NULL)
 {
     setFocusPolicy(Qt::NoFocus);
     setIndentation(10);
