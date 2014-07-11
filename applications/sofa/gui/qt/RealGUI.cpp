@@ -1045,6 +1045,7 @@ void RealGUI::saveXML()
 
 void RealGUI::editRecordDirectory()
 {
+#ifndef SOFA_GUI_QT_NO_RECORDER
     std::string filename(this->windowFilePath().ascii());
     std::string record_directory;
     QString s = getExistingDirectory ( this, filename.empty() ?NULL:filename.c_str(), "open directory dialog",  "Choose a directory" );
@@ -1053,11 +1054,11 @@ void RealGUI::editRecordDirectory()
         record_directory = s.ascii();
         if (record_directory.at(record_directory.size()-1) != '/')
             record_directory+="/";
-#ifndef SOFA_GUI_QT_NO_RECORDER
+
         if (recorder)
             recorder->SetRecordDirectory(record_directory);
-#endif
     }
+#endif
 }
 
 //------------------------------------

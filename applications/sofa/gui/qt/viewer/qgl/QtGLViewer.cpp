@@ -156,9 +156,9 @@ void QtGLViewer::init(void)
     static	 GLfloat	lmodel_ambient[]	= {0.0f, 0.0f, 0.0f, 0.0f};
     static	 GLfloat	lmodel_twoside[]	= {GL_FALSE};
     static	 GLfloat	lmodel_local[]		= {GL_FALSE};
-    bool		initialized			= false;
+    //bool		initialized			= false;
 
-    if (!initialized)
+    //if (!initialized)
     {
         //std::cout << "progname="<<sofa::gui::qt::progname<<std::endl;
         //sofa::helper::system::SetDirectory cwd(sofa::helper::system::SetDirectory::GetProcessFullPath(sofa::gui::qt::progname));
@@ -266,7 +266,7 @@ void QtGLViewer::init(void)
         gluQuadricNormals(_disk, GLU_SMOOTH);
 
         // change status so we only do this stuff once
-        initialized = true;
+        //initialized = true;
 
         _beginTime = CTime::getTime();
 

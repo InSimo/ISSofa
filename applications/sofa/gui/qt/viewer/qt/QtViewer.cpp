@@ -188,9 +188,9 @@ void QtViewer::initializeGL(void)
     { GL_FALSE };
     static GLfloat lmodel_local[] =
     { GL_FALSE };
-    bool initialized = false;
+    //bool initialized = false;
 
-    if (!initialized)
+    //if (!initialized)
     {
         //std::cout << "progname=" << sofa::gui::qt::progname << std::endl;
         //sofa::helper::system::SetDirectory cwd(sofa::helper::system::SetDirectory::GetProcessFullPath(sofa::gui::qt::progname));
@@ -305,7 +305,7 @@ void QtViewer::initializeGL(void)
         gluQuadricNormals(_disk, GLU_SMOOTH);
 
         // change status so we only do this stuff once
-        initialized = true;
+        //initialized = true;
 
         _beginTime = CTime::getTime();
 
@@ -966,9 +966,9 @@ void QtViewer::calcProjection(int width, int height)
     if (!height) height = _H;
     double xNear, yNear/*, xOrtho, yOrtho*/;
     double xFactor = 1.0, yFactor = 1.0;
-    double offset;
-    double xForeground, yForeground, zForeground, xBackground, yBackground,
-           zBackground;
+    //double offset;
+    //double xForeground, yForeground, zForeground, xBackground, yBackground,
+    //       zBackground;
     Vector3 center;
 
     /// Camera part
@@ -989,7 +989,7 @@ void QtViewer::calcProjection(int width, int height)
 
     xNear = 0.35 * vparams->zNear();
     yNear = 0.35 * vparams->zNear();
-    offset = 0.001 * vparams->zNear(); // for foreground and background planes
+    //offset = 0.001 * vparams->zNear(); // for foreground and background planes
 
 //    xOrtho = fabs(vparams->sceneTransform().translation[2]) * xNear
 //            / vparams->zNear();
@@ -1020,8 +1020,8 @@ void QtViewer::calcProjection(int width, int height)
 
     //std::cout << xNear << " " << yNear << std::endl;
 
-    zForeground = -vparams->zNear() - offset;
-    zBackground = -vparams->zFar() + offset;
+    //zForeground = -vparams->zNear() - offset;
+    //zBackground = -vparams->zFar() + offset;
 
     if (currentCamera->getCameraType() == core::visual::VisualParams::PERSPECTIVE_TYPE)
         gluPerspective(currentCamera->getFieldOfView(), (double) width / (double) height, vparams->zNear(), vparams->zFar());
@@ -1038,15 +1038,15 @@ void QtViewer::calcProjection(int width, int height)
                 vparams->zNear(), vparams->zFar());
     }
 
-    xForeground = -zForeground * xNear / vparams->zNear();
-    yForeground = -zForeground * yNear / vparams->zNear();
-    xBackground = -zBackground * xNear / vparams->zNear();
-    yBackground = -zBackground * yNear / vparams->zNear();
+    //xForeground = -zForeground * xNear / vparams->zNear();
+    //yForeground = -zForeground * yNear / vparams->zNear();
+    //xBackground = -zBackground * xNear / vparams->zNear();
+    //yBackground = -zBackground * yNear / vparams->zNear();
 
-    xForeground *= xFactor;
-    yForeground *= yFactor;
-    xBackground *= xFactor;
-    yBackground *= yFactor;
+    //xForeground *= xFactor;
+    //yForeground *= yFactor;
+    //xBackground *= xFactor;
+    //yBackground *= yFactor;
 
     glGetDoublev(GL_PROJECTION_MATRIX, lastProjectionMatrix);
 
@@ -1103,8 +1103,6 @@ void QtViewer::ApplyMouseInteractorTransformation(int x, int y)
                 - sceneBBox.minBBox()).norm();
     Quaternion conjQuat, resQuat, _newQuatBckUp;
 
-    float x1, x2, y1, y2;
-
     if (_mouseInteractorMoving)
     {
         if (_mouseInteractorRotationMode)
@@ -1112,11 +1110,11 @@ void QtViewer::ApplyMouseInteractorTransformation(int x, int y)
             if ((_mouseInteractorSavedPosX != x) || (_mouseInteractorSavedPosY
                     != y))
             {
-                x1 = 0;
-                y1 = 0;
-                x2 = (2.0f * (x + (-_mouseInteractorSavedPosX + _W / 2.0f))
+                float x1 = 0;
+                float y1 = 0;
+                float x2 = (2.0f * (x + (-_mouseInteractorSavedPosX + _W / 2.0f))
                         - _W) / _W;
-                y2 = (_H - 2.0f
+                float y2 = (_H - 2.0f
                         * (y + (-_mouseInteractorSavedPosY + _H / 2.0f))) / _H;
 
                 _mouseInteractorTrackball.ComputeQuaternion(x1, y1, x2, y2);

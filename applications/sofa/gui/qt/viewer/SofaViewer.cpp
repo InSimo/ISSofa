@@ -202,7 +202,6 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
             std::cout << "Stereo mode: None" << std::endl; break;
         default:
             std::cout << "Stereo mode: INVALID" << std::endl; break;
-            break;
         }
         break;
     }
