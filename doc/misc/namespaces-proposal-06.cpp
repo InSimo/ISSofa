@@ -296,7 +296,7 @@ RegularGridSpringForceField;
 TetrahedronFEMForceField;
 TriangleFEMForceField;
 
-6DSpringForceField;	// 6D spring force field (for haptic for instance)
+SpringForceField6D;	// 6D spring force field (for haptic for instance)
 AngularForceField;  // 1D (angular) for some articulations
 
 LennardJonesForceField;
