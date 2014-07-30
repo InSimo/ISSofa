@@ -43,7 +43,7 @@ int RuleBasedContactManagerClass = core::RegisterObject("Create different respon
         ;
 
 RuleBasedContactManager::RuleBasedContactManager()
-    : d_variables(initData(&d_variables, "variables", "Define a list of variables to be used inside the rules"))
+    : d_variables(initData(&d_variables, "variables", "Define a list of variables to be used inside the rules (of specify * to include all unknown attributes)"))
     , rules(initData(&rules, "rules", "Ordered list of rules, each with a triplet of strings.\n"
             "The first two define either the name of the collision model, its group number, or * meaning any model.\n"
             "The last string define the response algorithm to use for contacts matched by this rule.\n"
@@ -149,7 +149,18 @@ std::string RuleBasedContactManager::getContactResponse(core::CollisionModel* mo
 void RuleBasedContactManager::parse ( sofa::core::objectmodel::BaseObjectDescription* arg )
 {
     const char* v = arg->getAttribute(d_variables.getName().c_str());
-    if (v)
+    if (v && v[0] == '*' && v[1] == '\0')
+    {
+        std::vector<std::string> attributes;
+        arg->getAttributeList(attributes);
+        for (std::vector<std::string>::const_iterator it = attributes.begin(), itend = attributes.end(); it != itend; ++it)
+        {
+            std::string var = *it;
+            if (this->hasField(var)) continue; // ignore existing data fields
+            createVariableData(var);
+        }
+    }
+    else if (v)
     {
         std::istringstream variablesStr(v);
         std::string var;
