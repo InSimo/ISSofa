@@ -123,7 +123,6 @@ public:
 
 
 protected:
-    virtual void linkToElementDataArray() {}
 
     virtual void createTopologyHandler() {}
 
@@ -134,9 +133,15 @@ protected:
     sofa::component::topology::TopologySparseDataHandler<TopologyElementType,VecT>* m_topologyHandler;
 
     bool m_isConcerned;
+
+    void linkToElementDataArray(Point*      ) { linkToPointDataArray();       }
+    void linkToElementDataArray(Edge*       ) { linkToEdgeDataArray();        }
+    void linkToElementDataArray(Triangle*   ) { linkToTriangleDataArray();    }
+    void linkToElementDataArray(Quad*       ) { linkToQuadDataArray();        }
+    void linkToElementDataArray(Tetrahedron*) { linkToTetrahedronDataArray(); }
+    void linkToElementDataArray(Hexahedron* ) { linkToHexahedronDataArray();  }
+
 };
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,18 +152,10 @@ template< class VecT >
 class PointSparseData : public TopologySparseDataImpl<Point, VecT>
 {
 public:
-    typedef typename TopologySparseDataImpl<Point, VecT>::container_type container_type;
-    typedef typename TopologySparseDataImpl<Point, VecT>::value_type value_type;
-
     PointSparseData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
         : TopologySparseDataImpl<Point, VecT>(data)
     {}
-
-protected:
-    void linkToElementDataArray() {this->linkToPointDataArray();}
 };
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,16 +166,9 @@ template< class VecT >
 class EdgeSparseData : public TopologySparseDataImpl<Edge, VecT>
 {
 public:
-    typedef typename TopologySparseDataImpl<Edge, VecT>::container_type container_type;
-    typedef typename TopologySparseDataImpl<Edge, VecT>::value_type value_type;
-
     EdgeSparseData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
         : TopologySparseDataImpl<Edge, VecT>(data)
     {}
-
-protected:
-    void linkToElementDataArray() {this->linkToEdgeDataArray();}
-
 };
 
 
@@ -190,18 +180,10 @@ template< class VecT >
 class TriangleSparseData : public TopologySparseDataImpl<Triangle, VecT>
 {
 public:
-    typedef typename TopologySparseDataImpl<Triangle, VecT>::container_type container_type;
-    typedef typename TopologySparseDataImpl<Triangle, VecT>::value_type value_type;
-
     TriangleSparseData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
         : TopologySparseDataImpl<Triangle, VecT>(data)
     {}
-
-protected:
-    void linkToElementDataArray() {this->linkToTriangleDataArray();}
-
 };
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,18 +194,10 @@ template< class VecT >
 class QuadSparseData : public TopologySparseDataImpl<Quad, VecT>
 {
 public:
-    typedef typename TopologySparseDataImpl<Quad, VecT>::container_type container_type;
-    typedef typename TopologySparseDataImpl<Quad, VecT>::value_type value_type;
-
     QuadSparseData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
         : TopologySparseDataImpl<Quad, VecT>(data)
     {}
-
-protected:
-    void linkToElementDataArray() {this->linkToQuadDataArray();}
-
 };
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,19 +208,10 @@ template< class VecT >
 class TetrahedronSparseData : public TopologySparseDataImpl<Tetrahedron, VecT>
 {
 public:
-    typedef typename TopologySparseDataImpl<Tetrahedron, VecT>::container_type container_type;
-    typedef typename TopologySparseDataImpl<Tetrahedron, VecT>::value_type value_type;
-
     TetrahedronSparseData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
         : TopologySparseDataImpl<Tetrahedron, VecT>(data)
     {}
-
-protected:
-    void linkToElementDataArray() {this->linkToTetrahedronDataArray();}
-
 };
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,18 +222,10 @@ template< class VecT >
 class HexahedronSparseData : public TopologySparseDataImpl<Hexahedron, VecT>
 {
 public:
-    typedef typename TopologySparseDataImpl<Hexahedron, VecT>::container_type container_type;
-    typedef typename TopologySparseDataImpl<Hexahedron, VecT>::value_type value_type;
-
     HexahedronSparseData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
         : TopologySparseDataImpl<Hexahedron, VecT>(data)
     {}
-
-protected:
-    void linkToElementDataArray() {this->linkToHexahedronDataArray();}
-
 };
-
 
 
 } // namespace topology
