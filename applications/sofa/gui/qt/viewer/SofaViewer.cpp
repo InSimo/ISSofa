@@ -54,13 +54,18 @@ void SofaViewer::redraw()
 
 void SofaViewer::keyPressEvent(QKeyEvent * e)
 {
-    sofa::core::objectmodel::KeypressedEvent kpe(e->key());
-    currentCamera->manageEvent(&kpe);
+
+    if (currentCamera)
+    {
+        sofa::core::objectmodel::KeypressedEvent kpe(e->key());
+        currentCamera->manageEvent(&kpe);
+    }
 
     switch (e->key())
     {
     case Qt::Key_T:
     {
+        if (!currentCamera) break;
         if (currentCamera->getCameraType() == core::visual::VisualParams::ORTHOGRAPHIC_TYPE)
             setCameraMode(core::visual::VisualParams::PERSPECTIVE_TYPE);
         else
@@ -68,10 +73,13 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
         break;
     }
     case Qt::Key_Shift:
+    {
+        if (!getPickHandler()) break;
         GLint viewport[4];
         glGetIntegerv(GL_VIEWPORT,viewport);
         getPickHandler()->activateRay(viewport[2],viewport[3], groot.get());
         break;
+    }
     case Qt::Key_B:
         // --- change background
     {
@@ -153,6 +161,7 @@ void SofaViewer::keyPressEvent(QKeyEvent * e)
     case Qt::Key_W:
         // --- save current view
     {
+        if (!currentCamera) break;
         saveView();
         break;
     }
@@ -226,9 +235,12 @@ void SofaViewer::keyReleaseEvent(QKeyEvent * e)
     switch (e->key())
     {
     case Qt::Key_Shift:
-        getPickHandler()->deactivateRay();
+    {
+        if (getPickHandler())
+            getPickHandler()->deactivateRay();
 
         break;
+    }
     case Qt::Key_Control:
     {
         m_isControlPressed = false;
@@ -262,6 +274,7 @@ bool SofaViewer::isControlPressed() const
 // ---------------------- Here are the Mouse controls   ----------------------
 void SofaViewer::wheelEvent(QWheelEvent *e)
 {
+    if (!currentCamera) return;
     //<CAMERA API>
     sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel,e->delta());
     currentCamera->manageEvent(&me);
@@ -275,6 +288,7 @@ void SofaViewer::wheelEvent(QWheelEvent *e)
 
 void SofaViewer::mouseMoveEvent ( QMouseEvent *e )
 {
+    if (!currentCamera) return;
     //<CAMERA API>
     sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Move,e->x(), e->y());
     currentCamera->manageEvent(&me);
@@ -288,6 +302,7 @@ void SofaViewer::mouseMoveEvent ( QMouseEvent *e )
 
 void SofaViewer::mousePressEvent ( QMouseEvent * e)
 {
+    if (!currentCamera) return;
     //<CAMERA API>
     sofa::core::objectmodel::MouseEvent* mEvent = NULL;
     if (e->button() == Qt::LeftButton)
@@ -311,6 +326,7 @@ void SofaViewer::mousePressEvent ( QMouseEvent * e)
 
 void SofaViewer::mouseReleaseEvent ( QMouseEvent * e)
 {
+    if (!currentCamera) return;
     //<CAMERA API>
     sofa::core::objectmodel::MouseEvent* mEvent = NULL;
     if (e->button() == Qt::LeftButton)
@@ -335,6 +351,7 @@ void SofaViewer::mouseReleaseEvent ( QMouseEvent * e)
 
 bool SofaViewer::mouseEvent(QMouseEvent *e)
 {
+    if (!currentCamera) return true;
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT,viewport);
 
