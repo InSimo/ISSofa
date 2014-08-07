@@ -384,8 +384,33 @@ void RestShapeSpringsForceField<DataTypes>::addSubKToMatrix(const core::Mechanic
 }
 
 template<class DataTypes>
-void RestShapeSpringsForceField<DataTypes>::draw(const core::visual::VisualParams * /*vparams*/)
+void RestShapeSpringsForceField<DataTypes>::draw(const core::visual::VisualParams *vparams)
 {
+    if (!vparams->displayFlags().getShowForceFields())
+        return;
+
+    if (!drawSpring.getValue())
+        return;
+
+    sofa::helper::ReadAccessor< DataVecCoord > p0 = *getExtPosition();
+    sofa::helper::ReadAccessor< DataVecCoord > p = this->mstate->read(core::VecCoordId::position());
+
+    const VecIndex& indices = m_indices;
+    const VecIndex& ext_indices = (useRestMState ? m_ext_indices : m_indices);
+
+    helper::vector< defaulttype::Vector3 > points;
+    Vector3 point1, point2;
+
+    for (unsigned int i = 0; i < indices.size(); i++)
+    {
+        point1 = DataTypes::getCPos(p[indices[i]]);
+        point2 = DataTypes::getCPos(p0[ext_indices[i]]);
+
+        points.push_back(point1);
+        points.push_back(point2);
+    }
+
+    vparams->drawTool()->drawLines(points, 5, springColor.getValue());
 }
 
 
