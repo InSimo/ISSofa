@@ -55,10 +55,10 @@ RestShapeSpringsForceField<DataTypes>::RestShapeSpringsForceField()
     , external_points(initData(&external_points, "external_points", "points from the external Mechancial State that define the rest shape springs"))
     , recompute_indices(initData(&recompute_indices, false, "recompute_indices", "Recompute indices (should be false for BBOX)"))
     , drawSpring(initData(&drawSpring, false, "drawSpring", "draw Spring"))
-    , springColor(initData(&springColor, Vec4f(0.f,1.f,0.f,1.f), "springColor", "spring color"))
+    , springColor(initData(&springColor, sofa::defaulttype::Vec4f(0.f,1.f,0.f,1.f), "springColor", "spring color"))
     , restMState(NULL)
 //	, pp_0(NULL)
-{    
+{
 }
 
 
@@ -382,8 +382,6 @@ void RestShapeSpringsForceField<DataTypes>::addSubKToMatrix(const core::Mechanic
         }
     }
 }
-
-
 
 template<class DataTypes>
 void RestShapeSpringsForceField<DataTypes>::draw(const core::visual::VisualParams * /*vparams*/)
