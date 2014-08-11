@@ -88,30 +88,34 @@ public:
     Data< std::string > external_rest_shape;
     Data< helper::vector< unsigned int > > external_points;
     Data< bool > recompute_indices;
-    Data< bool > drawSpring;
-    Data< sofa::defaulttype::Vec4f > springColor;
+    
+    Data< bool > d_drawSpring;
+    Data< Real > d_drawSpringLengthThreshold;
+    Data< sofa::defaulttype::Vec4f > d_springColor;
+    Data< sofa::defaulttype::Vec4f > d_springSphereColor;
+    Data< Real > d_springSphereRadius;
 
     sofa::core::behavior::MechanicalState< DataTypes > *restMState;
 #ifdef SOFA_HAVE_EIGEN2
     linearsolver::EigenBaseSparseMatrix<typename DataTypes::Real> matS;    
 #endif
 
-    //VecDeriv Springs_dir;
 protected:
     RestShapeSpringsForceField();
+
 public:
     /// BaseObject initialization method.
     void bwdInit();
 
     /// Add the forces.
-    virtual void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
+    virtual void addForce(const core::MechanicalParams* mparams, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
 
-    virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx);
+    virtual void addDForce(const core::MechanicalParams* mparams, DataVecDeriv& df, const DataVecDeriv& dx);
 
     /// Brings ForceField contribution to the global system stiffness matrix.
-    virtual void addKToMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix );
+    virtual void addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix );
 
-    virtual void addSubKToMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & addSubIndex );
+    virtual void addSubKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & addSubIndex );
 
     virtual void draw(const core::visual::VisualParams* vparams);
 
@@ -137,7 +141,7 @@ private :
     bool useRestMState; /// An external MechanicalState is used as rest reference.
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_RESTSHAPESPRINGFORCEFIELD_CPP)
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFORMABLE)
 
 using namespace sofa::defaulttype;
 
@@ -158,7 +162,7 @@ extern template class SOFA_DEFORMABLE_API RestShapeSpringsForceField<Rigid3fType
 //extern template class SOFA_DEFORMABLE_API RestShapeSpringsForceField<Rigid2fTypes>;
 #endif
 
-#endif // defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_RESTSHAPESPRINGFORCEFIELD_CPP)
+#endif
 
 } // namespace forcefield
 
