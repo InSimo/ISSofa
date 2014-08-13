@@ -103,6 +103,8 @@ public:
 protected:
     RestShapeSpringsForceField();
 
+    Data< bool > d_useRestMState; ///< An external MechanicalState is used as rest reference.
+
 public:
     /// BaseObject initialization method.
     void bwdInit();
@@ -122,23 +124,22 @@ public:
 
     const DataVecCoord* getExtPosition() const;
     const VecIndex& getIndices() const { return m_indices; }
-    const VecIndex& getExtIndices() const { return (useRestMState ? m_ext_indices : m_indices); }
+    const VecIndex& getExtIndices() const { return (d_useRestMState.getValue() ? m_ext_indices : m_indices); }
 
 protected :
 
     void recomputeIndices();
 
+    bool checkOutOfBoundsIndices();
+    bool checkOutOfBoundsIndices(const VecIndex &indices, const unsigned int dimension);
+
     VecIndex m_indices;
-    VecReal k;
     VecIndex m_ext_indices;
     helper::vector<CPos> m_pivots;
 
 #ifdef SOFA_HAVE_EIGEN2
     double lastUpdatedStep;
 #endif
-private :
-
-    bool useRestMState; /// An external MechanicalState is used as rest reference.
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFORMABLE)
