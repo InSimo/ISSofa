@@ -31,11 +31,9 @@
 #include <sofa/component/constraintset/BilateralInteractionConstraint.h>
 #include <sofa/helper/Factory.h>
 #include <sofa/component/collision/BaseContactMapper.h>
-#include <sofa/component/collision/FrictionContact.h>
+#include <sofa/component/collision/ContactIdentifier.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/BaseMapping.h>
-
-//#include <sofa/component/collision/BeamBsplineContactMapper.inl>
 
 namespace sofa
 {
@@ -50,7 +48,7 @@ using namespace sofa::defaulttype;
 
 
 template <class TCollisionModel1, class TCollisionModel2>
-class StickContactConstraint : public core::collision::Contact, public Identifier
+class StickContactConstraint : public core::collision::Contact, public ContactIdentifier
 {
 public:
     SOFA_CLASS(SOFA_TEMPLATE2(StickContactConstraint, TCollisionModel1, TCollisionModel2), core::collision::Contact);

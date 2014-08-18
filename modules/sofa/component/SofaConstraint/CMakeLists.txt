@@ -3,6 +3,7 @@ include(${SOFA_CMAKE_DIR}/preProject.cmake)
 set(HEADER_FILES
 
     ../initConstraint.h 
+    ../collision/ContactIdentifier.h 
     ../collision/LocalMinDistance.h 
     ../collision/LocalMinDistance.inl 
     ../collision/LMDNewProximityIntersection.h 
@@ -41,6 +42,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
 
     ../initConstraint.cpp 
+    ../collision/ContactIdentifier.cpp 
     ../collision/LocalMinDistance.cpp 
     ../collision/LMDNewProximityIntersection.cpp 
     ../collision/FrictionContact.cpp 
