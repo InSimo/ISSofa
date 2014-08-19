@@ -1811,7 +1811,7 @@ void TriangularFEMForceField<DataTypes>::draw(const core::visual::VisualParams* 
         double maxStress = 0.0;
         for ( unsigned int i = 0 ; i < vertexInf.size() ; i++)
         {
-            BaseMeshTopology::TrianglesAroundVertex triangles = _topology->getTrianglesAroundVertex(i);
+            const BaseMeshTopology::TrianglesAroundVertex& triangles = _topology->getTrianglesAroundVertex(i);
             double averageStress = 0.0;
             double sumArea = 0.0;
             for ( unsigned int v = 0 ; v < triangles.size() ; v++)

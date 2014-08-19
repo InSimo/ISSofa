@@ -51,10 +51,6 @@
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/component/topology/TopologyData.h>
 
-#ifdef SOFA_HAVE_EIGEN2
-#include <sofa/component/linearsolver/EigenSparseMatrix.h>
-#endif
-
 #define LOCAL_OPTIM
 
 namespace sofa
@@ -113,6 +109,7 @@ public:
     virtual void addDForce(const core::MechanicalParams* mparams, DataVecDeriv& d_df, const DataVecDeriv& d_dx);
     virtual void addKToMatrix(sofa::defaulttype::BaseMatrix *mat, SReal k, unsigned int &offset); // compute and add all the element stiffnesses to the global stiffness matrix
     virtual double getPotentialEnergy(const core::MechanicalParams* mparams, const DataVecCoord& d_x) const;
+
 
     void draw(const core::visual::VisualParams* vparams);
 
@@ -173,11 +170,11 @@ protected:
         {
             if( !is_activated ) return 0;
             Deriv R = p[vid[A]]*alpha[A] +  p[vid[B]]*alpha[B] +  p[vid[C]]*alpha[C] +  p[vid[D]]*alpha[D];
-            f[vid[A]] -= R * lambda * alpha[A];
-            f[vid[B]] -= R * lambda * alpha[B];
-            f[vid[C]] -= R * lambda * alpha[C];
-            f[vid[D]] -= R * lambda * alpha[D];
-            return R * R * lambda * (Real)0.5;
+            f[vid[A]] -= R * (lambda * alpha[A]);
+            f[vid[B]] -= R * (lambda * alpha[B]);
+            f[vid[C]] -= R * (lambda * alpha[C]);
+            f[vid[D]] -= R * (lambda * alpha[D]);
+            return R * (R * (lambda * (Real)0.5));
         }
 
 #ifdef LOCAL_OPTIM
@@ -188,17 +185,20 @@ protected:
 
             Deriv dpKfact[4];
 
-            dpKfact[0] = dp[vid[0]] * lambda * kfactor * alpha[0];
-            dpKfact[1] = dp[vid[1]] * lambda * kfactor * alpha[1];
-            dpKfact[2] = dp[vid[2]] * lambda * kfactor * alpha[2];
-            dpKfact[3] = dp[vid[3]] * lambda * kfactor * alpha[3];
+            dpKfact[0] = dp[vid[0]] * (kfactor * alpha[0]);
+            dpKfact[1] = dp[vid[1]] * (kfactor * alpha[1]);
+            dpKfact[2] = dp[vid[2]] * (kfactor * alpha[2]);
+            dpKfact[3] = dp[vid[3]] * (kfactor * alpha[3]);
 
             for( unsigned j=0; j<4; ++j)
             {
+                Deriv df_tmp;
                 for( unsigned k=0; k<4; ++k)
                 {
-                    df[vid[j]] -= dpKfact[k] * alpha[j];
+                    df_tmp -= dpKfact[k] * alpha[j];
                 }
+
+                df[vid[j]] -= df_tmp;
             }
         }
 #else
@@ -207,15 +207,19 @@ protected:
 	        if( !is_activated ) return;
 	        for( unsigned j=0; j<4; j++ )
 	            for( unsigned k=0; k<4; k++ )
-	                df[vid[j]] -= dp[vid[k]] * lambda * alpha[j] * alpha[k] * kfactor;
+	                df[vid[j]] -= dp[vid[k]] * alpha[j] * alpha[k] * kfactor;
         }
 #endif
 
         /// Stiffness matrix assembly
         void addStiffness( sofa::defaulttype::BaseMatrix *bm, unsigned int offset, SReal scale, core::behavior::ForceField< _DataTypes>* ff ) const
         {
-            StiffnessMatrix K;
-            getStiffness( K );
+            defaulttype::Mat<12,12,Real> K;
+            for( unsigned j=0; j<4; j++ )
+                for( unsigned k=0; k<4; k++ )
+                {
+                    K[j*3][k*3] =  K[j*3+1][k*3+1] =  K[j*3+2][k*3+2] = -alpha[j] * alpha[k];
+                }
             ff->addToMatrix(bm,offset,vid,K,scale);
         }
 
@@ -228,6 +232,7 @@ protected:
                     K[j*3][k*3] = K[j*3+1][k*3+1] = K[j*3+2][k*3+2] = -lambda * alpha[j] * alpha[k];
                 }
         }
+
 
         /// replace a vertex index with another one
         void replaceIndex( unsigned oldIndex, unsigned newIndex )
