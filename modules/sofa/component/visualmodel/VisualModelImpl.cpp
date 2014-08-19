@@ -825,9 +825,9 @@ void VisualModelImpl::computeNormals()
 
         for (unsigned int i = 0; i < triangles.size(); i++)
         {
-            const Coord v1 = vertices[triangles[i][0]];
-            const Coord v2 = vertices[triangles[i][1]];
-            const Coord v3 = vertices[triangles[i][2]];
+            const Coord & v1 = vertices[triangles[i][0]];
+            const Coord & v2 = vertices[triangles[i][1]];
+            const Coord & v3 = vertices[triangles[i][2]];
             Coord n = cross(v2-v1, v3-v1);
 
             normals[triangles[i][0]] += n;
@@ -954,9 +954,9 @@ void VisualModelImpl::computeTangents()
     const bool fixMergedUVSeams = m_fixMergedUVSeams.getValue();
     for (unsigned int i = 0; i < triangles.size() ; i++)
     {
-        const Coord v1 = vertices[triangles[i][0]];
-        const Coord v2 = vertices[triangles[i][1]];
-        const Coord v3 = vertices[triangles[i][2]];
+        const Coord & v1 = vertices[triangles[i][0]];
+        const Coord & v2 = vertices[triangles[i][1]];
+        const Coord & v3 = vertices[triangles[i][2]];
         TexCoord t1 = texcoords[triangles[i][0]];
         TexCoord t2 = texcoords[triangles[i][1]];
         TexCoord t3 = texcoords[triangles[i][2]];
