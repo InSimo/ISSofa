@@ -174,7 +174,7 @@ protected:
             f[vid[B]] -= R * (lambda * alpha[B]);
             f[vid[C]] -= R * (lambda * alpha[C]);
             f[vid[D]] -= R * (lambda * alpha[D]);
-            return R * (R * (lambda * (Real)0.5));
+            return (R * R) * lambda * (Real)0.5;
         }
 
 #ifdef LOCAL_OPTIM
@@ -198,7 +198,7 @@ protected:
                     df_tmp -= dpKfact[k] * alpha[j];
                 }
 
-                df[vid[j]] -= df_tmp;
+                df[vid[j]] += df_tmp;
             }
         }
 #else
