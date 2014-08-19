@@ -169,7 +169,11 @@ public:
 
     Quater inverse() const;
 
+    /// @deprecated
     defaulttype::Vec<3,Real> toEulerVector() const;
+
+    ///< Returns the logarithm of the input quaternion
+    defaulttype::Vec<3,Real> getLog() const;
 
 
     /*! Returns the slerp interpolation of Quaternions \p a and \p b, at time \p t.
@@ -277,7 +281,7 @@ public:
     /// Return the eulerian vector resulting of the movement between 2 quaternions
     defaulttype::Vec<3,Real> angularDisplacement( Quater a, const Quater& b)
     {
-        return quatDiff(a,b).toEulerVector();
+        return quatDiff(a,b).getLog();
     }
 
 

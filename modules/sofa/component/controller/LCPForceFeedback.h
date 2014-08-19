@@ -125,6 +125,9 @@ public:
         return DataTypes::Name();
     }
 
+    /*Deriv m_dxRotation;
+    Coord m_valRotation;*/
+
 protected:
     //component::constraintset::LCP* lcp, *next_lcp;
     core::behavior::MechanicalState<DataTypes> *mState; ///< The device try to follow this mechanical state.

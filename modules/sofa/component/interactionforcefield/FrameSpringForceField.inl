@@ -95,7 +95,7 @@ void FrameSpringForceField<DataTypes>::addSpringForce ( double& /*potentialEnerg
     springRef[a] = p1[a];
 
     VecN fT = kst.linearProduct( ( p2[b].getCenter() + Mr02 * ( spring.vec2)) - ( p1[a].getCenter() + Mr01 * ( spring.vec1))) + damping.linearProduct ( getVCenter(Vp1p2));
-    VecN fR = ksr.linearProduct( ( p1[a].getOrientation().inverse() * p2[b].getOrientation()).toEulerVector());
+    VecN fR = ksr.linearProduct( ( p1[a].getOrientation().inverse() * p2[b].getOrientation()).getLog());
 
     VecN C1 = fR + cross( Mr01 * ( spring.vec1), fT) + damping.linearProduct ( getVOrientation(Vp1p2) );
     VecN C2 = fR + cross( Mr02 * ( spring.vec2), fT) + damping.linearProduct ( -getVOrientation(Vp1p2) );

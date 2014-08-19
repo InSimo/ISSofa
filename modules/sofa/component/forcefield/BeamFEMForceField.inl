@@ -442,7 +442,7 @@ void BeamFEMForceField<DataTypes>::initLarge(int i, Index a, Index b)
     dQ = qDiff(quatB, quatA);
     dQ.normalize();
 
-    dW = dQ.toEulerVector();
+    dW = dQ.getLog();
 
     double Theta = dW.norm();
 
@@ -491,7 +491,7 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
     // dQ = QA.i * QB ou dQ = QB * QA.i() ??
     dQ0 = qDiff(x0[b].getOrientation(), x0[a].getOrientation()); // x0[a].getOrientation().inverse() * x0[b].getOrientation();
     dQ =  qDiff(x[b].getOrientation(), x[a].getOrientation()); // x[a].getOrientation().inverse() * x[b].getOrientation();
-    //u = dQ.toEulerVector() - dQ0.toEulerVector();
+    //u = dQ.getLog() - dQ0.getLog();
 
     dQ0.normalize();
     dQ.normalize();
@@ -499,7 +499,7 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
     Quat tmpQ = qDiff(dQ,dQ0);
     tmpQ.normalize();
 
-    u = tmpQ.toEulerVector(); //dQ.toEulerVector() - dQ0.toEulerVector();
+    u = tmpQ.getLog(); //dQ.getLog() - dQ0.getLog();
 
     depl[3] = 0.0; 	depl[4] = 0.0; 	depl[5] = 0.0;
     depl[9] = u[0]; depl[10]= u[1]; depl[11]= u[2];

@@ -494,24 +494,43 @@ void Quater<Real>::quatToAxis(defaulttype::Vec<3,Real> & a, Real &phi)
 }
 
 
+/// Returns the log of the quaternion
 template<class Real>
-defaulttype::Vec<3,Real> Quater<Real>::toEulerVector() const
+defaulttype::Vec<3,Real> Quater<Real>::getLog() const
 {
-    Quater<Real> q = *this;
+    Quater< Real > q = *this;
     q.normalize();
 
-    double angle = acos(q._q[3]) * 2;
-
-    defaulttype::Vec<3,Real> v(q._q[0], q._q[1], q._q[2]);
+    defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
 
     double norm = sqrt( (double) (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()) );
-    if (norm > 0.0005)
+ 
+    if (norm < 0.000001)
+        return v;
+
+    if (q[3] > 0.999)
     {
-        v /= norm;
-        v *= angle;
+         v *= 2.0;
+    }
+    else if (q[3] < -0.999)
+    {
+        v *= -2.0;
+    }
+    else
+    {
+        double angle = q[3] > 0 ? acos(q[3]) * 2 : acos(-q[3]) * -2;
+        v *= angle / norm;
     }
 
     return v;
+}
+
+
+/// @Deprecated. Use getLog method instead.
+template<class Real>
+defaulttype::Vec<3,Real> Quater<Real>::toEulerVector() const
+{
+    return getLog();
 }
 
 /*! Returns the slerp interpolation of Quaternions \p a and \p b, at time \p t.

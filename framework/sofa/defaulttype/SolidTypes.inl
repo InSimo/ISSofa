@@ -51,7 +51,7 @@ template<class R>
 SolidTypes<R>::SpatialVector::SpatialVector(const SolidTypes<R>::Transform &DTrans)
 {
 	freeVec = DTrans.getOrigin();
-	lineVec = DTrans.getOrientation().toEulerVector();
+	lineVec = DTrans.getOrientation().getLog();
 }
 */
 
@@ -219,7 +219,7 @@ template<class R>
 typename SolidTypes<R>::SpatialVector SolidTypes<R>::Transform::DTrans()
 {
 
-    return SpatialVector(orientation_.toEulerVector(), this->getOrigin());
+    return SpatialVector(orientation_.getLog(), this->getOrigin());
 }
 
 template<class R>
@@ -320,7 +320,7 @@ typename SolidTypes<R>::Transform& SolidTypes<R>::Transform::operator *= (const 
 template<class R>
 typename SolidTypes<R>::SpatialVector  SolidTypes<R>::Transform::CreateSpatialVector()
 {
-    return SpatialVector(this->getOrientation().toEulerVector(),  this->getOrigin() );
+    return SpatialVector(this->getOrientation().getLog(),  this->getOrigin() );
 }
 
 template<class R>
