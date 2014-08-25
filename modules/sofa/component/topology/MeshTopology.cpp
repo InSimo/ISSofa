@@ -653,7 +653,8 @@ void MeshTopology::init()
     for(PointID pid=0;pid<(std::size_t)this->getNbPoints();++pid)
     {
         getEdgesAroundVertex(pid);
-        getOrientedEdgesAroundVertex(pid);
+        if(getNbTriangles()>0)
+            getOrientedEdgesAroundVertex(pid);
         getTrianglesAroundVertex(pid);
         //getOrientedTrianglesAroundVertex(pid);
         getQuadsAroundVertex(pid);
