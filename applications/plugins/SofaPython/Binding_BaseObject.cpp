@@ -99,6 +99,28 @@ extern "C" PyObject * BaseObject_setSrc(PyObject *self, PyObject * args)
     Py_RETURN_NONE;
 }
 
+extern "C" PyObject * BaseObject_getSlaves(PyObject * self, PyObject * /*args*/)
+{
+    BaseObject* node=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+
+    const BaseObject::VecSlaves& slaves = node->getSlaves();
+
+    PyObject *list = PyList_New(slaves.size());
+
+    for (unsigned int i=0; i<slaves.size(); ++i)
+        PyList_SetItem(list,i,SP_BUILD_PYSPTR(slaves[i].get()));
+
+    return list;
+}
+
+extern "C" PyObject * BaseObject_getName(PyObject * self, PyObject * /*args*/)
+{
+    // BaseNode is not binded in SofaPython, so getChildNode is binded in Node instead of BaseNode
+    BaseObject* node=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+
+    return PyString_FromString((node->getName()).c_str());
+}
+
 
 SP_CLASS_METHODS_BEGIN(BaseObject)
 SP_CLASS_METHOD(BaseObject,init)
@@ -111,6 +133,8 @@ SP_CLASS_METHOD(BaseObject,getContext)
 SP_CLASS_METHOD(BaseObject,getMaster)
 
 SP_CLASS_METHOD(BaseObject,setSrc)
+SP_CLASS_METHOD(BaseObject,getSlaves)
+SP_CLASS_METHOD(BaseObject,getName)
 SP_CLASS_METHODS_END
 
 
