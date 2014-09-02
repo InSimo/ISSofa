@@ -72,6 +72,11 @@ public:
     Data< double > arrowSizeCoef; // for drawing. The sign changes the direction, 0 doesn't draw arrow
     /// Concerned DOFs indices are numbered from the end of the MState DOFs vector
     Data< bool > indexFromEnd;
+    /// Start of time which the force is activated
+	Data< double > startTime;
+    /// End of time which the force is activated
+	Data< double > endTime;
+
 protected:
     ConstantForceField();
 public:
