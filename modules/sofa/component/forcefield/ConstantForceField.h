@@ -72,10 +72,14 @@ public:
     Data< double > arrowSizeCoef; // for drawing. The sign changes the direction, 0 doesn't draw arrow
     /// Concerned DOFs indices are numbered from the end of the MState DOFs vector
     Data< bool > indexFromEnd;
+    /// Enable support of topological changes for point indices (disable if another component takes care of this)
+    Data < bool > d_handleTopologyChange;
     /// Start of time which the force is activated
-	Data< double > startTime;
+	Data< double > d_startTime;
     /// End of time which the force is activated
-	Data< double > endTime;
+	Data< double > d_endTime;
+    /// Time at which the time-based activation loops
+	Data< double > d_loopTime;
 
 protected:
     ConstantForceField();
@@ -107,6 +111,9 @@ public:
     virtual double getPotentialEnergy(const core::MechanicalParams* params /* PARAMS FIRST */, const DataVecCoord& x) const;
 
     void draw(const core::visual::VisualParams* vparams);
+
+    /// Check if this force is active
+    bool isActive() const;
 
 protected:
     /// Pointer to the current topology
