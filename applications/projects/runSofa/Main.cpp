@@ -82,12 +82,14 @@ void loadVerificationData(std::string& directory, std::string& filename, sofa::s
     v_read.execute(node);
 }
 
+#ifdef WIN32
 int onError( int reportType, char *message, int *returnValue )
 {
 	std::cout << "ERROR: type='" << reportType << "', message='" << message << "', returnValue='" << *returnValue << "'" << std::endl;
 	
 	return TRUE;
 }
+#endif
 
 // ---------------------------------------------------------------------
 // ---
