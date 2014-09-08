@@ -53,6 +53,9 @@
 #endif /* SOFA_SMP */
 #ifdef WIN32
 #include <windows.h>
+#ifdef IS_TEST_FRAMEWORK
+#include <crtdbg.h>
+#endif
 #endif
 using std::cerr;
 using std::endl;
@@ -77,6 +80,13 @@ void loadVerificationData(std::string& directory, std::string& filename, sofa::s
 
     sofa::component::misc::ReadStateActivator v_read(sofa::core::ExecParams::defaultInstance() /* PARAMS FIRST */, true);
     v_read.execute(node);
+}
+
+int onError( int reportType, char *message, int *returnValue )
+{
+	std::cout << "ERROR: type='" << reportType << "', message='" << message << "', returnValue='" << *returnValue << "'" << std::endl;
+	
+	return TRUE;
 }
 
 // ---------------------------------------------------------------------
@@ -107,9 +117,14 @@ int main(int argc, char** argv)
             winfo.Right = csbi.dwMaximumWindowSize.X-1;
             SetConsoleWindowInfo(hStdout, TRUE, &winfo);
         }
-
     }
+
+#ifdef	IS_TEST_FRAMEWORK
+	_CrtSetReportHook(&onError);
 #endif
+
+#endif
+
 
     sofa::gui::initMain();
 
