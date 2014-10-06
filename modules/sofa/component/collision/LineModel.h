@@ -70,6 +70,7 @@ public:
     const Coord& p1() const;
     const Coord& p2() const;
     const Coord& p(int i) const;
+	const Coord& p0(int i) const;
 
     const Coord& p1Free() const;
     const Coord& p2Free() const;
@@ -249,6 +250,11 @@ inline const typename DataTypes::Coord& TLine<DataTypes>::p2() const { return (*
 template<class DataTypes>
 inline const typename DataTypes::Coord& TLine<DataTypes>::p(int i) const {
     return (*this->model->mstate->getX())[this->model->elems[this->index].p[i]];
+}
+
+template<class DataTypes>
+inline const typename DataTypes::Coord& TLine<DataTypes>::p0(int i) const {
+    return (*this->model->mstate->getX0())[this->model->elems[this->index].p[i]];
 }
 
 template<class DataTypes>
