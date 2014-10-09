@@ -61,6 +61,7 @@ EulerImplicitSolver::EulerImplicitSolver()
     , f_velocityDamping( initData(&f_velocityDamping,0.,"vdamping","Velocity decay coefficient (no decay if null)") )
     , f_firstOrder (initData(&f_firstOrder, false, "firstOrder", "Use backward Euler scheme for first order ode system."))
     , f_verbose( initData(&f_verbose,false,"verbose","Dump system state at each iteration") )
+    , f_projectForce( initData(&f_projectForce,false,"projectForce","Apply projection constraints to force vector (by default, projections are only applied once aggregated with other components of the right hand term)") )
 {
 }
 
@@ -131,13 +132,14 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
     double h = dt;
     const bool verbose  = f_verbose.getValue();
     const bool firstOrder = f_firstOrder.getValue();
+    const bool projectForce = f_projectForce.getValue();
 
     sofa::helper::AdvancedTimer::stepBegin("ComputeForce");
 
     // compute the net forces at the beginning of the time step
     mop.computeForce(f);
     if( verbose )
-        serr<<"EulerImplicitSolver, initial f = "<< f <<sendl;
+        serr<<"EulerImplicitSolver, f = "<< f <<sendl;
 
     sofa::helper::AdvancedTimer::stepNext ("ComputeForce", "ComputeRHTerm");
     if( firstOrder )
@@ -160,8 +162,6 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
 
         // force in the current configuration
         b.eq(f);                                                                         // b = f0
-        if( verbose )
-            serr<<"EulerImplicitSolver, f = "<< f <<sendl;
 
         // add the change of force due to stiffness + Rayleigh damping
         mop.addMBKv(b, -f_rayleighMass.getValue(), 1, h+f_rayleighStiffness.getValue()); // b =  f0 + ( rm M + B + (h+rs) K ) v
@@ -169,6 +169,12 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
         // integration over a time step
         b.teq(h);                                                                        // b = h(f0 + ( rm M + B + (h+rs) K ) v )
 #endif
+    }
+    if ( projectForce )
+    {
+        mop.projectResponse(f);          // f is projected to the constrained space
+        if( verbose )
+            serr<<"EulerImplicitSolver, projected f = "<< f <<sendl;
     }
 
     if( verbose )

@@ -100,6 +100,7 @@ public:
     Data<double> f_velocityDamping;
     Data<bool> f_firstOrder;
     Data<bool> f_verbose;
+    Data<bool> f_projectForce;
 protected:
     EulerImplicitSolver();
 public:
