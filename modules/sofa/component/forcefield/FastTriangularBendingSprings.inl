@@ -89,7 +89,8 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
         typename MechanicalState::ReadVecCoord restPosition = ff->mstate->readRestPositions();
 
         helper::WriteAccessor<Data<vector<EdgeSpring> > > edgeData(ff->edgeSprings);
-        
+        const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
+        const bool useRestCurvature = ff->d_useRestCurvature.getValue();
         for (unsigned int i=0; i<triangleAdded.size(); ++i)
         {
             /// edges of the new triangle
@@ -140,7 +141,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 					Deriv ve = restPosition[e2]-restPosition[e1];
 
 					if(vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
-						ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, (Real)ff->f_bendingStiffness.getValue() );
+						ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
                 }
                 else
                     ei.is_activated = ei.is_initialized = false;
@@ -159,6 +160,10 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
     {
         typename MechanicalState::ReadVecCoord restPosition = ff->mstate->readRestPositions();
         helper::vector<EdgeSpring>& edgeData = *(ff->edgeSprings.beginEdit());
+
+        const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
+        const bool useRestCurvature = ff->d_useRestCurvature.getValue();
+
         for (unsigned int i=0; i<triangleRemoved.size(); ++i)
         {
             /// describe the jth edge index of triangle no i
@@ -240,7 +245,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 
 					if(vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
                     {
-						ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, (Real)ff->f_bendingStiffness.getValue());
+						ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
                     }
 					else
 						ei.is_activated = ei.is_initialized = false;
@@ -368,12 +373,13 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::ApplyTopo
 }
 
 template<class DataTypes>
-FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings(/*double _ks, double _kd*/)
-    : f_bendingStiffness(initData(&f_bendingStiffness,(double) 1.0,"bendingStiffness","bending stiffness of the material"))
-    , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
-    , edgeHandler(NULL)
-	, d_minDistValidity(initData(&d_minDistValidity,(double) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
-    , d_useOldAddForce(initData(&d_useOldAddForce, false,"useOldAddForce","Use old version of addForce"))
+FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
+: f_bendingStiffness(initData(&f_bendingStiffness,(double) 1.0,"bendingStiffness","bending stiffness of the material"))
+, d_minDistValidity(initData(&d_minDistValidity,(double) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
+, d_useRestCurvature(initData(&d_useRestCurvature, false, "useRestCurvature", "Use rest curvature as the zero potential energy"))
+, d_useOldAddForce(initData(&d_useOldAddForce, false,"useOldAddForce","Use old version of addForce"))
+, edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
+, edgeHandler(NULL)
 {
     // Create specific handler for EdgeData
     edgeHandler = new TriangularBSEdgeHandler(this, &edgeSprings);
