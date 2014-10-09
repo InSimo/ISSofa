@@ -319,12 +319,6 @@ bool Mapping<In,Out>::checkApplyJ( OutVecDeriv& out, const InVecDeriv& in, const
         return false;
     }
 
-    behavior::BaseMechanicalState* toMechaModel = NULL;
-    helper::vector<behavior::BaseMechanicalState*> toMechaModelVec = this->getMechTo();
-    if(toMechaModelVec.size() < 1)
-        return false;
-    else toMechaModel = toMechaModelVec[0];
-
     OutVecDeriv out2;
     out2.resize(out.size());
 
@@ -433,12 +427,6 @@ bool Mapping<In,Out>::checkApplyJT( InVecDeriv& out, const OutVecDeriv& in, cons
         applyJT(out, in);
         return false;
     }
-
-    behavior::BaseMechanicalState* toMechaModel = NULL;
-    helper::vector<behavior::BaseMechanicalState*> toMechaModelVec = this->getMechTo();
-    if(toMechaModelVec.size() < 1)
-        return false;
-    else toMechaModel = toMechaModelVec[0];
 
     InVecDeriv tmp;
     tmp.resize(out.size());
