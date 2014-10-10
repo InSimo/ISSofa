@@ -67,7 +67,7 @@ TEST(AddForce_test, checkThatPlanarTrianglesWithDisplacementsAndNoStiffnessDontC
         p.push_back(BendingSpring::Coord(5,5,0));
         p.push_back(BendingSpring::Coord(0,5,0));
 
-        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 0);
+        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 0, true);
     }
 
     BendingSpring::VecDeriv df(4);
@@ -98,7 +98,7 @@ TEST(AddForce_test, checkThatNonPlanarTrianglesWithNoDisplacementsDontCreateForc
         p.push_back(BendingSpring::Coord(5,8,5));
         p.push_back(BendingSpring::Coord(0,5,1));
 
-        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000);
+        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000, true);
     }
 
     BendingSpring::VecDeriv df(4);
@@ -161,7 +161,7 @@ TEST(AddForce_test, checkThatNonPlanarTrianglesWithEqualDisplacementsDontCreateF
         p.push_back(BendingSpring::Coord(5,50,100));
         p.push_back(BendingSpring::Coord(3,5,50));
 
-        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000);
+        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000, true);
     }
 
     BendingSpring::VecDeriv df(4);
