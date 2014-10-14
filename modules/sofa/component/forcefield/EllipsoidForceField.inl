@@ -73,21 +73,20 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
     VecDeriv& f1        = *(dataF.beginEdit());
     const VecCoord& p1  =   dataX.getValue()  ;
     const VecDeriv& v1  =   dataV.getValue()  ;
-
-
-    const Coord center = this->center.getValue();
-    const Coord r = this->vradius.getValue();
+    const CPos center = this->center.getValue();
+    const CPos r = this->vradius.getValue();
     const Real stiffness = this->stiffness.getValue();
     const Real stiffabs = helper::rabs(stiffness);
     //const Real s2 = (stiff < 0 ? - stiff*stiff : stiff*stiff );
-    Coord inv_r2;
+    CPos inv_r2;
+
     for (int j=0; j<N; j++) inv_r2[j] = 1/(r[j]*r[j]);
     sofa::helper::vector<Contact>* contacts = this->contacts.beginEdit();
     contacts->clear();
     f1.resize(p1.size());
     for (unsigned int i=0; i<p1.size(); i++)
     {
-        Coord dp = p1[i] - center;
+        CPos dp = DataTypes::getCPos(p1[i]) - center;
         Real norm2 = 0;
         for (int j=0; j<N; j++) norm2 += (dp[j]*dp[j])*inv_r2[j];
         //Real d = (norm2-1)*s2;
@@ -95,15 +94,16 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
         {
             Real norm = helper::rsqrt(norm2);
             Real v = norm-1;
-            Coord grad;
+            CPos grad;
             for (int j=0; j<N; j++) grad[j] = dp[j]*inv_r2[j];
             Real gnorm2 = grad.norm2();
             Real gnorm = helper::rsqrt(gnorm2);
             //grad /= gnorm; //.normalize();
             Real forceIntensity = -stiffabs*v/gnorm;
             Real dampingIntensity = this->damping.getValue()*helper::rabs(v);
-            Deriv force = grad*forceIntensity - v1[i]*dampingIntensity;
-            f1[i]+=force;
+            DPos force = grad*forceIntensity - DataTypes::getDPos(v1[i])*dampingIntensity;
+            //f1[i]+=force;
+            DataTypes::setDPos(f1[i],DataTypes::getDPos(f1[i])+force);
             Contact c;
             c.index = i;
             Real fact1 = -stiffabs / (norm * gnorm);
@@ -118,6 +118,8 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
             contacts->push_back(c);
         }
     }
+    nbContact = contacts->size();
+
     this->contacts.endEdit();
 
     dataF.endEdit();
@@ -126,9 +128,9 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
 template<class DataTypes>
 void EllipsoidForceField<DataTypes>::addDForce(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv&   datadF , const DataVecDeriv&   datadX )
 {
-    Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
+    Real kFactor        = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     VecDeriv& df1       = *(datadF.beginEdit());
-    const VecCoord& dx1 =   datadX.getValue()  ;
+    const VecDeriv& dx1 =   datadX.getValue()  ;
 
 
     df1.resize(dx1.size());
@@ -137,14 +139,32 @@ void EllipsoidForceField<DataTypes>::addDForce(const sofa::core::MechanicalParam
     {
         const Contact& c = contacts[i];
         assert((unsigned)c.index<dx1.size());
-        Deriv du = dx1[c.index];
-        Deriv dforce = c.m * du;
+        DPos du = DataTypes::getDPos(dx1[c.index]);
+        DPos dforce = c.m * du;
         dforce *= kFactor;
-        df1[c.index] += dforce;
+        //df1[c.index] += dforce;
+        DataTypes::setDPos(df1[c.index], DataTypes::getDPos(df1[c.index]) + dforce);
     }
 
 
     datadF.endEdit();
+}
+
+template<class DataTypes>
+void EllipsoidForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMatrix * mat, SReal kFactor, unsigned int &offset)
+{
+    const Real fact = (Real)(kFactor);
+    for (unsigned int i=0; i<this->contacts.getValue().size(); i++)
+    {
+        const Contact& c = (this->contacts.getValue())[i];
+        unsigned int p = c.index;
+        for (int l=0; l<N; ++l)
+            for (int k=0; k<N; ++k)
+            {
+                SReal coef = c.m[l][k] * fact;
+                mat->add(offset + p*Deriv::total_size + l, offset + p*Deriv::total_size + k, coef);
+            }
+    }
 }
 
 template<class DataTypes>
@@ -153,11 +173,14 @@ void EllipsoidForceField<DataTypes>::draw(const core::visual::VisualParams* vpar
 #ifndef SOFA_NO_OPENGL
     if (!vparams->displayFlags().getShowForceFields()) return;
     if (!bDraw.getValue()) return;
-
-    Real cx=0, cy=0, cz=0;
-    DataTypes::get(cx, cy, cz, center.getValue());
-    Real rx=1, ry=1, rz=1;
-    DataTypes::get(rx, ry, rz, vradius.getValue());
+    CPos c = center.getValue();
+    Real cx = c.size()>0 ? c[0] : 0;
+    Real cy = c.size()>1 ? c[1] : 0;
+    Real cz = c.size()>2 ? c[2] : 0;
+    CPos r = vradius.getValue();
+    Real rx = r.size()>0 ? r[0] : 0;
+    Real ry = r.size()>1 ? r[1] : 0;
+    Real rz = r.size()>2 ? r[2] : 0;
     glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHTING);
     glEnable(GL_COLOR_MATERIAL);
