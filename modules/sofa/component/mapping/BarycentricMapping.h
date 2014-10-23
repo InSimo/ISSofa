@@ -43,7 +43,6 @@
 
 #include <sofa/helper/vector.h>
 
-
 // forward declarations
 namespace sofa
 {
@@ -646,9 +645,10 @@ protected:
           _fromGeomAlgo(NULL),
           matrixJ(NULL),
           updateJ(true)
-    {}
+    {
+    }
 
-    virtual ~BarycentricMapperTriangleSetTopology() {}
+    virtual ~BarycentricMapperTriangleSetTopology(){}
 
 public:
     void clear(int reserve=0);
@@ -666,6 +666,9 @@ public:
     virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
+
+    // handle topology changes in the From topology
+    virtual void handleTopologyChange(core::topology::Topology* t);
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperTriangleSetTopology<In, Out> &b )
     {
