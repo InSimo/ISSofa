@@ -30,6 +30,8 @@
 #include <sofa/core/ConstraintParams.h>
 #include <sofa/core/behavior/LinearSolver.h>
 #include <sofa/defaulttype/BaseMatrix.h>
+
+using namespace sofa::core;
 namespace sofa
 {
 
@@ -39,13 +41,13 @@ namespace simulation
 namespace common
 {
 
-MechanicalOperations::MechanicalOperations(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, sofa::core::objectmodel::BaseContext* ctx)
-    :mparams(*mparams),ctx(ctx),executeVisitor(*ctx)
+MechanicalOperations::MechanicalOperations(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, sofa::core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder)
+    :mparams(*mparams),ctx(ctx),executeVisitor(*ctx,precomputedTraversalOrder)
 {
 }
 
-MechanicalOperations::MechanicalOperations(const sofa::core::ExecParams* params /* PARAMS FIRST */, sofa::core::objectmodel::BaseContext* ctx)
-    :mparams(*params),ctx(ctx),executeVisitor(*ctx)
+MechanicalOperations::MechanicalOperations(const sofa::core::ExecParams* params /* PARAMS FIRST */, sofa::core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder)
+    :mparams(*params),ctx(ctx),executeVisitor(*ctx,precomputedTraversalOrder)
 {
 }
 

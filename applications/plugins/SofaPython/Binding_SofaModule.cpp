@@ -35,7 +35,7 @@
 #include <sofa/gui/BaseGUI.h>
 #include <sofa/gui/BaseViewer.h>
 #include <sofa/gui/GUIManager.h>
-#include <sofa/config.h>
+
 
 
 using namespace sofa::core;
@@ -177,14 +177,6 @@ extern "C" PyObject * Sofa_sendGUIMessage(PyObject * /*self*/, PyObject * args)
     Py_RETURN_NONE;
 }
 
-
-extern "C" PyObject* Sofa_build_dir(PyObject * /*self*/, PyObject * /*args*/ ) {
-	return Py_BuildValue("s", SOFA_BUILD_DIR);
-}
-
-extern "C" PyObject* Sofa_src_dir(PyObject * /*self*/, PyObject * /*args*/ ) {
-	return Py_BuildValue("s", SOFA_SRC_DIR);
-}
 // ask the GUI to save a screenshot
 extern "C" PyObject * Sofa_saveScreenshot(PyObject * /*self*/, PyObject * args)
 {
@@ -322,8 +314,6 @@ SP_MODULE_METHOD_KW(Sofa,createObject)
 SP_MODULE_METHOD(Sofa,getObject)        // deprecated on date 2012/07/18
 SP_MODULE_METHOD(Sofa,getChildNode)     // deprecated on date 2012/07/18
 SP_MODULE_METHOD(Sofa,sendGUIMessage)
-SP_MODULE_METHOD(Sofa,build_dir)
-SP_MODULE_METHOD(Sofa,src_dir)
 SP_MODULE_METHOD(Sofa,saveScreenshot)
 SP_MODULE_METHOD(Sofa,setViewerResolution)
 SP_MODULE_METHOD(Sofa,setViewerBackgroundColor)

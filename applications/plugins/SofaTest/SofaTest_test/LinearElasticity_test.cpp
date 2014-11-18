@@ -22,25 +22,27 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#include "stdafx.h"
 #include "Elasticity_test.h"
 #include <plugins/SceneCreator/SceneCreator.h>
 #include <sofa/defaulttype/VecTypes.h>
 
 //Including Simulation
-#include <sofa/component/init.h>
+#include <SofaComponentMain/init.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
 
-#include <sofa/component/forcefield/TetrahedralTensorMassForceField.h>
-#include <sofa/component/forcefield/TetrahedralCorotationalFEMForceField.h>
-#include <sofa/component/topology/TopologySparseData.inl>
-#include <sofa/component/forcefield/TrianglePressureForceField.h>
-#include <sofa/component/projectiveconstraintset/AffineMovementConstraint.h>
-#include <sofa/component/linearsolver/CGLinearSolver.h>
-#include <sofa/component/engine/PairBoxRoi.h>
-#include <sofa/component/odesolver/StaticSolver.h>
-#include <sofa/component/projectiveconstraintset/ProjectToLineConstraint.h>
+#include <SofaMiscFem/TetrahedralTensorMassForceField.h>
+#include <SofaSimpleFem/TetrahedralCorotationalFEMForceField.h>
+#include <SofaBaseTopology/TopologySparseData.inl>
+#include <SofaBoundaryCondition/TrianglePressureForceField.h>
+#include <SofaBoundaryCondition/AffineMovementConstraint.h>
+#include <SofaBaseLinearSolver/CGLinearSolver.h>
+#include <SofaEngine/PairBoxRoi.h>
+#include <SofaImplicitOdeSolver/StaticSolver.h>
+#include <SofaBoundaryCondition/ProjectToLineConstraint.h>
 
 namespace sofa {
+namespace {
 
 using std::cout;
 using std::cerr;
@@ -144,13 +146,13 @@ struct LinearElasticity_test : public Elasticity_test<_DataTypes>
 					// sofa::simulation::getSimulation()->init(tractionStruct.root.get());
 					tractionStruct.forceField.get()->init();
 					// record the initial point of a given vertex
-					Coord p0=(*(tractionStruct.dofs.get()->getX()))[vIndex];
+                    Coord p0 = tractionStruct.dofs.get()->read(core::ConstVecCoordId::position())->getValue()[vIndex];
 			
 					//  do one step of the static solver
 					sofa::simulation::getSimulation()->animate(tractionStruct.root.get(),0.5);
 
 					// Get the simulated final position of that vertex
-					Coord p1=(*(tractionStruct.dofs.get()->getX()))[vIndex];
+                    Coord p1 = tractionStruct.dofs.get()->read(core::ConstVecCoordId::position())->getValue()[vIndex];
 					// test the young modulus
 					Real longitudinalDeformation=(p1[2]-p0[2])/p0[2];
 					if (fabs(longitudinalDeformation-pressure/youngModulus)>1e-4) {
@@ -208,4 +210,6 @@ TYPED_TEST( LinearElasticity_test , testTractionCorotational )
     ASSERT_TRUE( this->testLinearElasticityInTraction(&sofa::LinearElasticity_test<TypeParam>::addTetrahedralCorotationalFEMLinearElastic));
 }
 
+
+} // namespace
 } // namespace sofa

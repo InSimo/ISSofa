@@ -45,7 +45,13 @@ GNode::GNode(const std::string& name, GNode* parent)
 }
 
 GNode::~GNode()
-{}
+{
+	for (ChildIterator it = child.begin(), itend = child.end(); it != itend; ++it)
+    {
+		GNode::SPtr gnode = sofa::core::objectmodel::SPtr_static_cast<GNode>(*it);
+		gnode->l_parent.remove(this);
+	}
+}
 
 /// Create, add, then return the new child of this Node
 Node::SPtr GNode::createChild(const std::string& nodeName)
@@ -338,7 +344,7 @@ bool GNode::hasAncestor(const BaseContext* context) const
 
 /// Execute a recursive action starting from this node
 /// This method bypass the actionScheduler of this node if any.
-void GNode::doExecuteVisitor(simulation::Visitor* action)
+void GNode::doExecuteVisitor(simulation::Visitor* action, bool)
 {
 #ifdef SOFA_DUMP_VISITOR_INFO
     action->setNode(this);
@@ -427,7 +433,6 @@ Node* GNode::findCommonParent( simulation::Node* node2 )
         if (it != hierarchyParent.end())
         {
             return gnodeGroup2;
-            break;
         }
         gnodeGroup2=static_cast<GNode*>(gnodeGroup2->getParent());
     }

@@ -25,7 +25,7 @@
 #ifndef SOFA_SIMULATION_TREE_GNODE_H
 #define SOFA_SIMULATION_TREE_GNODE_H
 
-#include <sofa/simulation/tree/tree.h>
+#include <sofa/SofaSimulation.h>
 #include <sofa/simulation/common/Node.h>
 
 
@@ -160,7 +160,7 @@ protected:
 
     /// Execute a recursive action starting from this node.
     /// This method bypass the actionScheduler of this node if any.
-    void doExecuteVisitor(simulation::Visitor* action);
+    void doExecuteVisitor(simulation::Visitor* action, bool=false);
     // VisitorScheduler can use doExecuteVisitor() method
     friend class simulation::VisitorScheduler;
 

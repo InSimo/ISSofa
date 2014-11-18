@@ -23,11 +23,15 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include "Binding_Data.h"
+#include "Binding_LinearSpring.h"
+
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/core/objectmodel/Data.h>
-#include "Binding_LinearSpring.h"
 
+#include <SofaDeformable/SpringForceField.h>
+
+using namespace sofa::component::interactionforcefield;
 using namespace sofa::core::objectmodel;
 using namespace sofa::defaulttype;
 
@@ -92,7 +96,7 @@ PyObject *GetDataValuePython(BaseData* data)
 
     }
 
-    if (typeinfo->size(valueVoidPtr)==1)
+    if (typeinfo->size(valueVoidPtr)==1 && typeinfo->FixedSize())
     {
         // this type is NOT a vector; return directly the proper native type
         if (typeinfo->Text())

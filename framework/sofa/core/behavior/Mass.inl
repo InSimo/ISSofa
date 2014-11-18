@@ -108,18 +108,9 @@ void Mass<DataTypes>::addMDx(const MechanicalParams* mparams /* PARAMS FIRST */,
 template<class DataTypes>
 void Mass<DataTypes>::addMDx(const MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecDeriv& dx , double factor )
 {
-    if (this->mstate)
-    {
-        addMDx( *f.beginEdit(mparams) , dx.getValue(mparams), factor);
-        f.endEdit(mparams);
-    }
+    serr << "ERROR("<<getClassName()<< "): addMDx(const MechanicalParams* , DataVecDeriv& , const DataVecDeriv&  , double  ) not implemented." << sendl;
 }
 
-template<class DataTypes>
-void Mass<DataTypes>::addMDx(VecDeriv& /*f*/, const VecDeriv& /*dx*/, double /*factor*/)
-{
-    serr << "ERROR("<<getClassName()<<"): addMDx(VecDeriv& , const VecDeriv& , double ) not implemented." << sendl;
-}
 
 template<class DataTypes>
 void Mass<DataTypes>::accFromF(const MechanicalParams* mparams /* PARAMS FIRST */, MultiVecDerivId aid)
@@ -139,19 +130,9 @@ void Mass<DataTypes>::accFromF(const MechanicalParams* mparams /* PARAMS FIRST *
 template<class DataTypes>
 void Mass<DataTypes>::accFromF(const MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& a, const DataVecDeriv& f)
 {
-    if (this->mstate)
-    {
-        accFromF( *a.beginEdit(mparams) , f.getValue(mparams));
-        a.endEdit(mparams);
-    }
-    else serr<< "Mass<DataTypes>::accFromF, " << getName() << "has no mechanical state" << sendl;
+    serr << "ERROR("<<getClassName()<<"): accFromF(const MechanicalParams* , DataVecDeriv& , const DataVecDeriv& ) not implemented." << sendl;
 }
 
-template<class DataTypes>
-void Mass<DataTypes>::accFromF(VecDeriv& /*a*/, const VecDeriv& /*f*/)
-{
-    serr << "ERROR("<<getClassName()<<"): accFromF(VecDeriv& /*a*/, const VecDeriv& /*f*/) not implemented." << sendl;
-}
 
 template<class DataTypes>
 void Mass<DataTypes>::addDForce(const MechanicalParams*
@@ -189,13 +170,7 @@ double Mass<DataTypes>::getKineticEnergy(const MechanicalParams* mparams) const
 template<class DataTypes>
 double Mass<DataTypes>::getKineticEnergy(const MechanicalParams* mparams /* PARAMS FIRST */, const DataVecDeriv& v) const
 {
-    return getKineticEnergy(v.getValue(mparams));
-}
-
-template<class DataTypes>
-double Mass<DataTypes>::getKineticEnergy(const VecDeriv& /*v*/ ) const
-{
-    serr << "ERROR("<<getClassName()<<"): getKineticEnergy( const VecDeriv& ) not implemented." << sendl;
+    serr << "ERROR("<<getClassName()<<"): getKineticEnergy(const MechanicalParams*, const DataVecDeriv& ) not implemented." << sendl;
     return 0.0;
 }
 
@@ -212,13 +187,7 @@ double Mass<DataTypes>::getPotentialEnergy(const MechanicalParams* mparams) cons
 template<class DataTypes>
 double Mass<DataTypes>::getPotentialEnergy(const MechanicalParams* mparams /* PARAMS FIRST */, const DataVecCoord& x) const
 {   
-    return getPotentialEnergy(x.getValue(mparams));
-}
-
-template<class DataTypes>
-double Mass<DataTypes>::getPotentialEnergy(const VecCoord& /*x*/ ) const
-{
-    serr << "ERROR("<<getClassName()<<"): getPotentialEnergy( const VecCoord& ) not implemented." << sendl;
+    serr << "ERROR("<<getClassName()<<"): getPotentialEnergy( const MechanicalParams*, const DataVecCoord& ) not implemented." << sendl;
     return 0.0;
 }
 
@@ -322,7 +291,7 @@ double Mass<DataTypes>::getElementMass(unsigned int ) const
 template <class DataTypes>
 void Mass<DataTypes>::getElementMass(unsigned int , defaulttype::BaseMatrix *m) const
 {
-    static unsigned int dimension = (unsigned int) defaulttype::DataTypeInfo<Coord>::size();
+    static const defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Coord>::size();
     if (m->rowSize() != dimension || m->colSize() != dimension) m->resize(dimension,dimension);
 
     m->clear();

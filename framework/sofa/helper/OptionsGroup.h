@@ -31,7 +31,7 @@
 #include <sstream>
 
 #include <sofa/helper/vector.h>
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 
 namespace sofa
 {
@@ -110,6 +110,8 @@ protected:
 
     helper::vector<std::string> textItems    ;
     unsigned int                selectedItem ;
+
+public:
 
     ///return the id_item of the string if found in string list button
     ///             -1    if not found

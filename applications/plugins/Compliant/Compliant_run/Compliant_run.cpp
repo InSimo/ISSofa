@@ -43,24 +43,24 @@
 #include <sofa/gui/Main.h>
 #include <sofa/helper/system/FileRepository.h>
 
-#include <sofa/component/init.h>
-#include <sofa/component/mapping/SubsetMultiMapping.h>
-#include <sofa/component/mapping/DistanceMapping.h>
-#include <sofa/component/mapping/DistanceFromTargetMapping.h>
-#include <sofa/component/topology/MeshTopology.h>
-#include <sofa/component/topology/EdgeSetTopologyContainer.h>
-#include <sofa/component/topology/RegularGridTopology.h>
-#include <sofa/component/collision/SphereModel.h>
-#include <sofa/component/topology/CubeTopology.h>
-#include <sofa/component/visualmodel/VisualStyle.h>
-#include <sofa/component/odesolver/EulerImplicitSolver.h>
-#include <sofa/component/linearsolver/CGLinearSolver.h>
+#include <SofaComponentMain/init.h>
+#include <SofaMiscMapping/SubsetMultiMapping.h>
+#include <SofaMiscMapping/DistanceMapping.h>
+#include <SofaMiscMapping/DistanceFromTargetMapping.h>
+#include <SofaBaseTopology/MeshTopology.h>
+#include <SofaBaseTopology/EdgeSetTopologyContainer.h>
+#include <SofaBaseTopology/RegularGridTopology.h>
+#include <SofaBaseCollision/SphereModel.h>
+#include <SofaBaseTopology/CubeTopology.h>
+#include <SofaBaseVisual/VisualStyle.h>
+#include <SofaImplicitOdeSolver/EulerImplicitSolver.h>
+#include <SofaBaseLinearSolver/CGLinearSolver.h>
 
 //Using double by default, if you have SOFA_FLOAT in use in you sofa-default.cfg, then it will be FLOAT.
 #include <sofa/component/typedef/Sofa_typedef.h>
 #include <plugins/SceneCreator/SceneCreator.h>
 
-#include <plugins/Compliant/odesolver/AssembledSolver.h>
+#include <plugins/Compliant/odesolver/CompliantImplicitSolver.h>
 #include <plugins/Compliant/numericalsolver/LDLTSolver.h>
 #include <plugins/Compliant/compliance/UniformCompliance.h>
 #include <plugins/Compliant/misc/CompliantAttachButtonSetting.h>
@@ -87,9 +87,9 @@ typedef Vec<3,SReal> Vec3;
 typedef Vec<1,SReal> Vec1;
 typedef DistanceMapping<MechanicalObject3::DataTypes, MechanicalObject1::DataTypes> DistanceMapping31;
 typedef DistanceFromTargetMapping<MechanicalObject3::DataTypes, MechanicalObject1::DataTypes> DistanceFromTargetMapping31;
-typedef UniformCompliance<Vec1Types> UniformCompliance1;
+typedef UniformCompliance<defaulttype::Vec1Types> UniformCompliance1;
 
-typedef component::odesolver::AssembledSolver AssembledSolver;
+typedef component::odesolver::CompliantImplicitSolver CompliantImplicitSolver;
 typedef component::linearsolver::LDLTSolver LDLTSolver;
 typedef component::odesolver::EulerImplicitSolver EulerImplicitSolver;
 typedef component::linearsolver::CGLinearSolver<component::linearsolver::GraphScatteredMatrix, component::linearsolver::GraphScatteredVector> CGLinearSolver;
@@ -216,7 +216,7 @@ simulation::Node::SPtr createCompliantScene()
     Node::SPtr simulatedScene = root->createChild("simulatedScene");
 
 
-    AssembledSolver::SPtr assembledSolver = New<AssembledSolver>();
+    CompliantImplicitSolver::SPtr assembledSolver = New<CompliantImplicitSolver>();
     simulatedScene->addObject( assembledSolver );
 //    assembledSolver->verbose.setValue(verbose);
 

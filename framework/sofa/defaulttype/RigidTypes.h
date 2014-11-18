@@ -31,6 +31,7 @@
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/rmath.h>
+#include <sofa/helper/RandomGenerator.h>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -369,6 +370,20 @@ public:
 
     void clear() { center.clear(); orientation.clear(); }
 
+    /**
+     * @brief Random rigid transform composed of 3 random translations and 3 random Euler angles
+     * @param a Range of each random value: (-a,+a)
+     * @return random rigid transform
+     */
+    static RigidCoord rand(SReal a,int seed = (unsigned int)time(NULL))
+    {
+        RigidCoord t;
+        helper::RandomGenerator randomGenerator(seed);
+        t.center = Pos( randomGenerator.symrand(a), randomGenerator.symrand(a), randomGenerator.symrand(a) );
+        t.orientation = Quat::fromEuler( randomGenerator.symrand(a), randomGenerator.symrand(a), randomGenerator.symrand(a) );
+        return t;
+    }
+
     template<typename real2>
     void operator=(const RigidCoord<3,real2>& c)
     {
@@ -579,23 +594,35 @@ public:
         m[14] = (float)center[2];
     }
 
-    /// Project a point from the child frame to the parent frame
-    Vec3 pointToParent( const Vec3& v ) const
+    /// Apply the transform to a point, i.e. project a point from the child frame to the parent frame (translation and rotation)
+    Vec3 projectPoint( const Vec3& v ) const
     {
         return orientation.rotate(v)+center;
     }
 
-    /// Project a point from the parent frame to the child frame
-    Vec3 pointToChild( const Vec3& v ) const
+    /// Apply the transform to a vector, i.e. project a vector from the child frame to the parent frame (rotation only, no translation added)
+    Vec3 projectVector( const Vec3& v ) const
+    {
+        return orientation.rotate(v);
+    }
+
+    /// Apply the inverse transform to a point, i.e. project a point from the parent frame to the child frame (translation and rotation)
+    Vec3 unprojectPoint( const Vec3& v ) const
     {
         return orientation.inverseRotate(v-center);
     }
 
-    /// compute the projection of a vector from the parent frame to the child
-    Vec3 vectorToChild( const Vec3& v ) const
+    ///  Apply the inverse transform to a vector, i.e. project a vector from the parent frame to the child frame (rotation only, no translation)
+    Vec3 unprojectVector( const Vec3& v ) const
     {
         return orientation.inverseRotate(v);
     }
+
+    /// obsolete. Use projectPoint.
+    Vec3 pointToParent( const Vec3& v ) const { return projectPoint(v); }
+    /// obsolete. Use unprojectPoint.
+    Vec3 pointToChild( const Vec3& v ) const { return unprojectPoint(v); }
+
 
     /// write to an output stream
     inline friend std::ostream& operator << ( std::ostream& out, const RigidCoord<3,real>& v )
@@ -859,18 +886,20 @@ public:
     static const char* Name();
 
     /// Return a Deriv with random value. Each entry with magnitude smaller than the given value.
-    static Deriv randomDeriv( Real maxValue )
+    static Deriv randomDeriv( Real maxValue, int seed = (unsigned int)time(NULL))
     {
         Deriv result;
-        set( result, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX );
+        helper::RandomGenerator randomGenerator(seed);
+        set( result, randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue) );
         return result;
     }
 
     static Deriv coordDifference(const Coord& c1, const Coord& c2)
     {
         defaulttype::Vector3 vCenter = c1.getCenter() - c2.getCenter();
-        defaulttype::Quat quat, quat1(c1.getOrientation()), quat0(c2.getOrientation());
-        quat = quat1.quatDiff(quat1, quat0);
+        defaulttype::Quat quat, quat1(c1.getOrientation()), quat2(c2.getOrientation());
+        // Transformation between c2 and c1 frames
+        quat = quat1*quat2.inverse();
         quat.normalize();
         defaulttype::Vector3 axis; defaulttype::Quat::value_type angle; quat.quatToAxis(axis, angle);
         axis*=angle;
@@ -964,15 +993,11 @@ typedef StdRigidTypes<3,float> Rigid3fTypes;
 typedef RigidMass<3,float> Rigid3fMass;
 #endif
 
-/// particular case, because "Rigid" is used as default template type name
-#ifdef SOFA_FLOAT
-template<> inline const char* Rigid3fTypes::Name() { return "Rigid"; }
-#else
-template<> inline const char* Rigid3dTypes::Name() { return "Rigid"; }
-//#ifndef SOFA_DOUBLE
-template<> inline const char* Rigid3fTypes::Name() { return "Rigid3f"; }
-//#endif
+/// We now use template aliases so we do not break backward compatibility.
+#ifndef SOFA_FLOAT
+template<> inline const char* Rigid3dTypes::Name() { return "Rigid3d"; }
 #endif
+template<> inline const char* Rigid3fTypes::Name() { return "Rigid3f"; }
 
 
 #ifdef SOFA_FLOAT
@@ -1236,6 +1261,20 @@ public:
 
     void clear() { center.clear(); orientation = 0; }
 
+    /**
+     * @brief Random rigid transform composed of 2 random translations and a random angle
+     * @param a Range of each random value: (-a,+a)
+     * @return random rigid transform
+     */
+    static RigidCoord rand(SReal a)
+    {
+        RigidCoord t;
+        helper::RandomGenerator randomGenerator;
+        t.center = Pos( randomGenerator.symrand(a), randomGenerator.symrand(a) );
+        t.orientation = randomGenerator.symrand(a);
+        return t;
+    }
+
     void operator +=(const RigidDeriv<2,real>& a)
     {
         center += getVCenter(a);
@@ -1434,6 +1473,36 @@ public:
     {
         return /*orientation.*/inverseRotate(v);
     }
+
+    /// Apply the transform to a point, i.e. project a point from the child frame to the parent frame (translation and rotation)
+    Vec2 projectPoint( const Vec2& v ) const
+    {
+        return rotate(v)+center;
+    }
+
+    /// Apply the transform to a vector, i.e. project a vector from the child frame to the parent frame (rotation only, no translation added)
+    Vec2 projectVector( const Vec2& v ) const
+    {
+        return rotate(v);
+    }
+
+    /// Apply the inverse transform to a point, i.e. project a point from the parent frame to the child frame (translation and rotation)
+    Vec2 unprojectPoint( const Vec2& v ) const
+    {
+        return inverseRotate(v-center);
+    }
+
+    ///  Apply the inverse transform to a vector, i.e. project a vector from the parent frame to the child frame (rotation only, no translation)
+    Vec2 unprojectVector( const Vec2& v ) const
+    {
+        return inverseRotate(v);
+    }
+
+    /// obsolete. Use projectPoint.
+    Vec2 pointToParent( const Vec2& v ) const { return projectPoint(v); }
+    /// obsolete. Use unprojectPoint.
+    Vec2 pointToChild( const Vec2& v ) const { return unprojectPoint(v); }
+
 
     /// write to an output stream
     inline friend std::ostream& operator << ( std::ostream& out, const RigidCoord<2,real>& v )
@@ -1697,10 +1766,11 @@ public:
     }
 
     /// Return a Deriv with random value. Each entry with magnitude smaller than the given value.
-    static Deriv randomDeriv( Real maxValue )
+    static Deriv randomDeriv( Real maxValue, int seed = (unsigned int)time(NULL))
     {
         Deriv result;
-        set( result, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX, rand()*maxValue/RAND_MAX );
+        helper::RandomGenerator randomGenerator(seed);
+        set( result, randomGenerator.symrand(maxValue),randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue),randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue), randomGenerator.symrand(maxValue) );
         return result;
     }
 

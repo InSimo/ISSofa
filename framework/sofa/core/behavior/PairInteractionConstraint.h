@@ -25,7 +25,7 @@
 #ifndef SOFA_CORE_BEHAVIOR_PAIRINTERACTIONCONSTRAINT_H
 #define SOFA_CORE_BEHAVIOR_PAIRINTERACTIONCONSTRAINT_H
 
-#include <sofa/core/core.h>
+#include <sofa/SofaFramework.h>
 #include <sofa/core/behavior/BaseInteractionConstraint.h>
 #include <sofa/core/behavior/MechanicalState.h>
 
@@ -129,16 +129,11 @@ public:
         std::string object2 = arg->getAttribute("object2","@./");
         if (object1.empty()) object1 = "@./";
         if (object2.empty()) object2 = "@./";
-        if (object1[0] != '@')
-            object1 = BaseLink::ConvertOldPath(object1, "object1", "object1", context, false);
-        if (object2[0] != '@')
-            object2 = BaseLink::ConvertOldPath(object2, "object2", "object2", context, false);
         context->findLinkDest(mstate1, object1, NULL);
         context->findLinkDest(mstate2, object2, NULL);
 
         if (!mstate1 || !mstate2)
             return false;
-
         return BaseInteractionConstraint::canCreate(obj, context, arg);
     }
 
@@ -152,17 +147,14 @@ public:
         {
             std::string object1 = arg->getAttribute("object1","");
             std::string object2 = arg->getAttribute("object2","");
-            if (!object1.empty() && object1[0] != '@')
+            if (!object1.empty())
             {
-                object1 = BaseLink::ConvertOldPath(object1, "object1", "object1", context, false);
                 arg->setAttribute("object1", object1.c_str());
             }
-            if (!object2.empty() && object2[0] != '@')
+            if (!object2.empty())
             {
-                object2 = BaseLink::ConvertOldPath(object2, "object2", "object2", context, false);
                 arg->setAttribute("object2", object2.c_str());
             }
-
             obj->parse(arg);
         }
 

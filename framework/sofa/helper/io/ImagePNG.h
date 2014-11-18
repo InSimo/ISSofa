@@ -24,13 +24,14 @@
 ******************************************************************************/
 #ifndef SOFA_HELPER_IO_IMAGEPNG_H
 #define SOFA_HELPER_IO_IMAGEPNG_H
+#include <sofa/SofaFramework.h>
 
 #include <sofa/helper/io/Image.h>
 #include <string>
 #include <assert.h>
 
 #include <sofa/helper/system/config.h>
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 
 namespace sofa
 {
@@ -40,8 +41,6 @@ namespace helper
 
 namespace io
 {
-
-//using namespace sofa::defaulttype;
 
 #ifdef SOFA_HAVE_PNG
 

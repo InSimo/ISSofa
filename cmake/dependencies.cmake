@@ -44,6 +44,10 @@ endif()
 
 ## google test
 if(SOFA-MISC_BUILD_GTEST)
+	if(NOT gtest_inited)
+		set(gtest_inited ON CACHE INTERNAL "" FORCE)
+		set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+	endif()
     add_subdirectory("${SOFA_EXTLIBS_DIR}/gtest")
     # try to replace with :
     # RegisterProjects("gtest" "gtest_main" PATH "${SOFA_EXTLIBS_DIR}/gtest")
@@ -68,7 +72,7 @@ RegisterProjects("SofaCore" OPTION "SOFA-LIB_CORE" PATH "${SOFA_FRAMEWORK_DIR}/s
 # modules
 set(SOFA_PROJECT_FOLDER "SofaLib")
 add_subdirectory("${SOFA_MODULES_DIR}/sofa/simulation")
-add_subdirectory("${SOFA_MODULES_DIR}/sofa/component")
+add_subdirectory("${SOFA_MODULES_DIR}")
 
 RegisterProjects("SofaGpuOpenCL" OPTION SOFA-LIB_COMPONENT_GPU_OPENCL COMPILE_DEFINITIONS SOFA_GPU_OPENCL PATH "${SOFA_MODULES_DIR}/sofa/gpu/opencl")
 

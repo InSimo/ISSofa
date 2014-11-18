@@ -25,7 +25,7 @@
 #ifndef SOFA_SIMULATION_COMMON_MECHANICALOPERATIONS_H
 #define SOFA_SIMULATION_COMMON_MECHANICALOPERATIONS_H
 
-#include <sofa/simulation/common/common.h>
+#include <sofa/SofaSimulation.h>
 #include <sofa/core/objectmodel/BaseContext.h>
 #include <sofa/core/MultiVecId.h>
 #include <sofa/core/MechanicalParams.h>
@@ -49,9 +49,9 @@ public:
     core::ConstraintParams cparams;
     core::objectmodel::BaseContext* ctx;
 
-    MechanicalOperations(const core::MechanicalParams* mparams /* PARAMS FIRST  = core::MechanicalParams::defaultInstance()*/, core::objectmodel::BaseContext* ctx);
+    MechanicalOperations(const core::MechanicalParams* mparams /* PARAMS FIRST  = core::MechanicalParams::defaultInstance()*/, core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder=false);
 
-    MechanicalOperations(const core::ExecParams* params /* PARAMS FIRST */, core::objectmodel::BaseContext* ctx);
+    MechanicalOperations(const core::ExecParams* params /* PARAMS FIRST */, core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder=false);
 
     core::MechanicalParams* operator->() { return &mparams; }
     operator const core::MechanicalParams*() { return &mparams; }
@@ -118,7 +118,7 @@ public:
 
     /** Find all the Constraint present in the scene graph, build the constraint equation system, solve and apply the correction
     **/
-    void solveConstraint(MultiVecId id, core::ConstraintParams::ConstOrder order);
+    void solveConstraint(sofa::core::MultiVecId id, core::ConstraintParams::ConstOrder order);
 
 
 

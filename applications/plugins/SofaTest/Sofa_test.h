@@ -31,8 +31,9 @@
 #define _VARIADIC_MAX 10 
 #endif
 
-#include "initTestPlugin.h"
+#include "InitPlugin_test.h"
 #include <gtest/gtest.h>
+#include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/simulation/common/Node.h>
 #include <time.h>
@@ -56,6 +57,9 @@ namespace sofa {
 
     /// Clear the scene graph
     void clearSceneGraph();
+
+    /// Seed value
+    static int seed;
 };
 
 
@@ -92,7 +96,7 @@ struct SOFA_TestPlugin_API  Sofa_test : public BaseSofa_test
 
     /// return the maximum difference between corresponding entries, or the infinity if the vectors have different sizes
     template< int N, typename Real, typename Vector2>
-    Real vectorMaxDiff( const sofa::defaulttype::Vec<N,Real>& m1, const Vector2& m2 )
+    static Real vectorMaxDiff( const sofa::defaulttype::Vec<N,Real>& m1, const Vector2& m2 )
     {
         if( N !=m2.size() ) {
             ADD_FAILURE() << "Comparison between vectors of different sizes";
@@ -107,9 +111,9 @@ struct SOFA_TestPlugin_API  Sofa_test : public BaseSofa_test
     }
 
 
-    /// return the maximum difference between corresponding entries, or the infinity if the vectors have different sizes
+    /// return the maximum difference between corresponding entries
     template< int N, typename Real>
-    Real vectorMaxDiff( const sofa::defaulttype::Vec<N,Real>& m1, const sofa::defaulttype::Vec<N,Real>& m2 )
+    static Real vectorMaxDiff( const sofa::defaulttype::Vec<N,Real>& m1, const sofa::defaulttype::Vec<N,Real>& m2 )
     {
         Real result = 0;
         for( unsigned i=0; i<N; i++ ){
@@ -129,7 +133,7 @@ struct SOFA_TestPlugin_API  Sofa_test : public BaseSofa_test
         }
 
         Real maxdiff = 0.;
-        for(unsigned i=0; i<c1.size(); i++ ){
+        for(unsigned i=0; i<(unsigned)c1.size(); i++ ){
 //            cout<< c2[i]-c1[i] << " ";
             Real n = norm(c1[i]-c2[i]);
             if( n>maxdiff )
@@ -154,8 +158,8 @@ struct SOFA_TestPlugin_API  Sofa_test : public BaseSofa_test
             ADD_FAILURE() << "Comparison between matrices of different sizes";
             return infinity();
         }
-        for(unsigned i=0; i<m1.rowSize(); i++)
-            for(unsigned j=0; j<m1.colSize(); j++){
+        for(typename Matrix1::Index i=0; i<m1.rowSize(); i++)
+            for(typename Matrix1::Index j=0; j<m1.colSize(); j++){
                 Real diff = abs(m1.element(i,j)-m2.element(i,j));
                 if(diff>result)
                     result = diff;
@@ -185,8 +189,9 @@ struct SOFA_TestPlugin_API  Sofa_test : public BaseSofa_test
 
 protected:
     // helpers
-    Real norm(Real a){ return fabs(a); }
-    template <typename T> Real norm(T a){ return a.norm(); }
+    static Real norm(Real a){ return fabs(a); }
+    template <typename T>
+    static Real norm(T a){ return a.norm(); }
 
 
 };
@@ -207,12 +212,103 @@ void copyToData( WriteData& d, const Vector& v){
         d[i] = v[i];
 }
 
+/** Helpers for DataTypes. Includes copies to and from vectors of scalars.
+ *
+ */
+template<class _DataTypes>
+struct data_traits
+{
+    typedef _DataTypes DataTypes;
+    typedef std::size_t Index;
 
+    typedef typename DataTypes::VecCoord VecCoord;
+    typedef typename DataTypes::VecDeriv VecDeriv;
+    typedef typename DataTypes::Coord Coord;
+    typedef typename DataTypes::Deriv Deriv;
+    typedef typename Coord::value_type Real;
 
+    enum { spatial_dimensions = Coord::spatial_dimensions };
+    enum { coord_total_size = Coord::total_size };
+    enum { deriv_total_size = Deriv::total_size };
+
+    /// Resize a vector of scalars, and copies a VecCoord in it
+    template <class VectorOfScalars>
+    inline static void VecCoord_to_Vector( VectorOfScalars& vec, const VecCoord& vcoord  )
+    {
+        vec.resize( vcoord.size() * coord_total_size );
+        for( Index i=0; i<vcoord.size(); i++ ){
+            for( Index j=0; j<coord_total_size; j++ )
+                vec[j+coord_total_size*i] = vcoord[i][j];
+        }
+    }
+
+    /// Resize a vector of scalars, and copies a VecDeriv in it
+    template <class VectorOfScalars>
+    inline static void VecDeriv_to_Vector( VectorOfScalars& vec, const VecDeriv vderiv  )
+    {
+        vec.resize( vderiv.size() * deriv_total_size );
+        for( Index i=0; i<vderiv.size(); i++ ){
+            for( Index j=0; j<deriv_total_size; j++ )
+                vec[j+deriv_total_size*i] = vderiv[i][j];
+        }
+    }
+
+};
+
+// Do not use this class directly
+template<class DataTypes, int N, bool isVector>
+struct setRotWrapper
+{ static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot); };
+
+template<class DataTypes, int N>
+struct setRotWrapper<DataTypes, N, true>
+{ static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot) {} };
+
+template<class DataTypes>
+struct setRotWrapper<DataTypes, 2, false>
+{ static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot)	{ coord.getOrientation() = rot.toEulerVector().z(); } };
+
+template<class DataTypes, int N>
+struct setRotWrapper<DataTypes, N, false>
+{ static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot) 	{ DataTypes::setCRot(coord, rot); } };
+
+template<class DataTypes>
+void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot)
+{ setRotWrapper<DataTypes, DataTypes::Coord::spatial_dimensions, DataTypes::Coord::total_size == DataTypes::Coord::spatial_dimensions>::setRot(coord, rot); }
+
+/// Create a coord of the specified type from a Vector3 and a Quater
+template<class DataTypes>
+typename DataTypes::Coord createCoord(const sofa::defaulttype::Vector3& pos, const sofa::helper::Quater<SReal>& rot)
+{
+	typename DataTypes::Coord temp;
+	DataTypes::set(temp, pos[0], pos[1], pos[2]);
+	setRot<DataTypes>(temp, rot);
+	return temp;
 }
 
-#endif
+template <int N, class real>
+void EXPECT_VEC_DOUBLE_EQ(sofa::defaulttype::Vec<N, real> const& expected, sofa::defaulttype::Vec<N, real> const& actual) {
+    typedef typename sofa::defaulttype::Vec<N,real>::size_type size_type;
+    for (size_type i=0; i<expected.total_size; ++i)
+        EXPECT_DOUBLE_EQ(expected[i], actual[i]);
+}
 
+template <int L, int C, class real>
+void EXPECT_MAT_DOUBLE_EQ(sofa::defaulttype::Mat<L,C,real> const& expected, sofa::defaulttype::Mat<L,C,real> const& actual) {
+    typedef typename sofa::defaulttype::Mat<L,C,real>::size_type size_type;
+    for (size_type i=0; i<expected.nbLines; ++i)
+        for (size_type j=0; j<expected.nbCols; ++j)
+            EXPECT_DOUBLE_EQ(expected(i,j), actual(i,j));
+}
 
+template <int L, int C, class real>
+void EXPECT_MAT_NEAR(sofa::defaulttype::Mat<L,C,real> const& expected, sofa::defaulttype::Mat<L,C,real> const& actual, real abs_error) {
+    typedef typename sofa::defaulttype::Mat<L,C,real>::size_type size_type;
+    for (size_type i=0; i<expected.nbLines; ++i)
+        for (size_type j=0; j<expected.nbCols; ++j)
+            EXPECT_NEAR(expected(i,j), actual(i,j), abs_error);
+}
 
+} // namespace sofa
 
+#endif // SOFA_STANDARDTEST_Sofa_test_H

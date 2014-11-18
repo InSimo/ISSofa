@@ -1,13 +1,16 @@
+#ifndef SOFA_STANDARDTEST_Python_test_H
+#define SOFA_STANDARDTEST_Python_test_H
 
 #include <gtest/gtest.h>
 #include <string>
 #include <plugins/SofaPython/SceneLoaderPY.h>
+#include "InitPlugin_test.h"
 
 namespace sofa {
 
 
 /// a Python_test is defined by a python filepath and optional arguments
-struct Python_test_data
+struct SOFA_TestPlugin_API Python_test_data
 {
     Python_test_data( const std::string& filepath, const std::vector<std::string>& arguments ) : filepath(filepath), arguments(arguments) {}
     std::string filepath;
@@ -15,7 +18,7 @@ struct Python_test_data
 };
 
 /// utility to build a static list of Python_test_data
-struct Python_test_list
+struct SOFA_TestPlugin_API Python_test_list
 {
     std::vector<Python_test_data> list;
 protected:
@@ -38,13 +41,18 @@ private:
 
 
 /// A test written in python (but not as a sofa class to perform unitary testing on python functions)
-class Python_test : public ::testing::TestWithParam<Python_test_data> {
+class SOFA_TestPlugin_API Python_test : public ::testing::TestWithParam<Python_test_data> {
 
 protected:
 
     simulation::SceneLoaderPY loader;
 
 public:
+
+#ifdef WIN32 // Fix for linking in Visual Studio (the functions are not exported by the gtest library)
+    static void SetUpTestCase() {}
+    static void TearDownTestCase() {}
+#endif
 
     struct result {
         result(bool value) : value( value ) { }
@@ -59,7 +67,7 @@ public:
 
 
 /// A test written as a sofa scene in python
-class Python_scene_test : public Python_test {
+class SOFA_TestPlugin_API Python_scene_test : public Python_test {
 
 public:
 
@@ -69,3 +77,5 @@ public:
 
 
 }
+
+#endif

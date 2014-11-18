@@ -26,15 +26,15 @@
   The same suite is instanciated using different parameters: entry types (float/double) and BlockMN size in CompressedRowSparse.
   */
 
-
+#include "stdafx.h"
 #include <gtest/gtest.h>
 #include "Sofa_test.h"
 
-#include <sofa/component/linearsolver/EigenSparseMatrix.h>
-#include <sofa/component/linearsolver/SparseMatrix.h>
-#include <sofa/component/linearsolver/CompressedRowSparseMatrix.h>
-#include <sofa/component/linearsolver/FullMatrix.h>
-#include <sofa/component/linearsolver/FullVector.h>
+#include <SofaEigen2Solver/EigenSparseMatrix.h>
+#include <SofaBaseLinearSolver/SparseMatrix.h>
+#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <SofaBaseLinearSolver/FullVector.h>
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/VecTypes.h>
@@ -54,6 +54,8 @@ double get_time() {
 
 
 namespace sofa {
+namespace {
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -149,7 +151,7 @@ struct TestSparseMatrices : public Sofa_test<_Real>
     static void generateRandomMat( defaulttype::Mat<nbrows,nbcols,Real>& mat, bool sparse=false )
     {
         sofa::helper::RandomGenerator randomGenerator;
-        randomGenerator.initSeed( (long)time(0) );
+        randomGenerator.initSeed( BaseSofa_test::seed );
 
         for( int j=0; j<mat.nbCols; j++)
         {
@@ -182,7 +184,7 @@ struct TestSparseMatrices : public Sofa_test<_Real>
     /// Create the context for the matrix tests.
     TestSparseMatrices()
     {
-        //std::cout<<"Matrix_test "<<NumRows<<" "<<NumCols<<" "<<BlockRows<<" "<<BlockCols<<std::endl;
+        //std::cout<<"Matrix_test "<<NumRows<<" "<<NumCols<<" "<<BlockRows<<" "<<BlockCols<<std::endl << "seed number = " << BaseSofa_test::seed<<std::endl;
 
         // resize and fill the matrices
         generateRandomMat( mat, true );
@@ -439,7 +441,7 @@ TEST_F(TsProductTimings, benchmark )
         res.resize(nbrows,NBCOLSRHS);
 
         sofa::helper::RandomGenerator randomGenerator;
-        randomGenerator.initSeed( (long)time(0) );
+        randomGenerator.initSeed( BaseSofa_test::seed);
 
         for( unsigned j=0; j<nbcols; j++)
         {
@@ -529,6 +531,6 @@ typedef TestSparseMatrices<float,4,8,2,2> Ts4822f;
 
 
 
-
-}// namespace sofa
+} // namespace
+} // namespace sofa
 

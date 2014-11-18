@@ -5,14 +5,17 @@
 
 namespace sofa
 {
+
 using namespace modeling;
+using namespace component;
 
 /** Test suite for matrix assembly.
  */
 struct Assembly_test : public CompliantSolver_test
 {
-    typedef odesolver::AssembledSolver OdeSolver;
+    typedef odesolver::CompliantImplicitSolver OdeSolver;
     typedef linearsolver::LDLTSolver LinearSolver;
+    typedef sofa::Vec3 Vec3;
     OdeSolver::SPtr complianceSolver; ///< Solver used to perform the test simulation, and which contains the actual results, to be compared with the expected ones.
     LinearSolver::SPtr linearSolver; ///< Auxiliary linear equation solver used by the ode solver
 
@@ -978,6 +981,8 @@ TEST_F( Assembly_test, testConstrainedHardString )
     ASSERT_TRUE(vectorsAreEqual( expected.lambda, complianceSolver->getLambda() ));
     //    cout<<"testConstrainedHardString results compared"<< endl;
 }
+
+
 TEST_F( Assembly_test, testExternallyConstrainedHardString )
 {
     unsigned numParticles=2;
@@ -991,6 +996,8 @@ TEST_F( Assembly_test, testExternallyConstrainedHardString )
     ASSERT_TRUE(vectorsAreEqual( expected.lambda, complianceSolver->getLambda() ));
     //    //    cout<<"testExternallyConstrainedHardString results compared"<< endl;
 }
+
+
 TEST_F( Assembly_test, testAttachedConnectedHardStrings )
 {
     unsigned numParticles=2;

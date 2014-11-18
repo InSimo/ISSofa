@@ -26,7 +26,7 @@
 #define SOFA_HELPER_IO_MESHVTK_H
 
 #include <sofa/helper/io/Mesh.h>
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 #include <fstream>
 
 namespace sofa
@@ -37,8 +37,6 @@ namespace helper
 
 namespace io
 {
-
-using namespace sofa::defaulttype;
 
 class SOFA_HELPER_API MeshVTK : public Mesh
 {

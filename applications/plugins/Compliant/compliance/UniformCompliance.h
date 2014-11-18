@@ -3,7 +3,7 @@
 #include "initCompliant.h"
 #include <sofa/core/behavior/ForceField.h>
 #include <sofa/defaulttype/Mat.h>
-#include <sofa/component/linearsolver/EigenSparseMatrix.h>
+#include <SofaEigen2Solver/EigenSparseMatrix.h>
 
 namespace sofa
 {
@@ -54,6 +54,12 @@ public:
 
     /// addDForce does nothing when this component is processed like a compliance.
     virtual void addDForce(const core::MechanicalParams *, DataVecDeriv &, const DataVecDeriv &);
+
+    virtual double getPotentialEnergy(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, const DataVecCoord&  /* x */) const
+    {
+        serr << "getPotentialEnergy() not implemented" << sendl;
+        return 0.0;
+    }
 
 protected:
     UniformCompliance( core::behavior::MechanicalState<DataTypes> *mm = NULL);

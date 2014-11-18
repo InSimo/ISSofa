@@ -26,11 +26,11 @@
 #define SOFAOPENCL_OPENCLSPRINGFORCEFIELD_INL
 
 #include "OpenCLSpringForceField.h"
-#include <sofa/component/interactionforcefield/SpringForceField.inl>
-#include <sofa/component/interactionforcefield/StiffSpringForceField.inl>
-#include <sofa/component/interactionforcefield/MeshSpringForceField.inl>
-#include <sofa/component/interactionforcefield/TriangleBendingSprings.inl>
-#include <sofa/component/interactionforcefield/QuadBendingSprings.inl>
+#include <SofaDeformable/SpringForceField.inl>
+#include <SofaDeformable/StiffSpringForceField.inl>
+#include <SofaDeformable/MeshSpringForceField.inl>
+#include <SofaDeformable/TriangleBendingSprings.inl>
+#include <SofaDeformable/QuadBendingSprings.inl>
 
 #define DEBUG_TEXT(t) //printf("\t%s\t %s %d\n",t,__FILE__,__LINE__);
 
@@ -364,7 +364,7 @@ void SpringForceFieldInternalData< gpu::opencl::OpenCLVectorTypes<TCoord,TDeriv,
     {
         VecDeriv& df = df1;
         const VecDeriv& dx = dx1;
-        const VecCoord& x = *m->mstate1->getX();
+        const VecCoord& x = m->mstate1->read(core::ConstVecCoordId::position())->getValue();
         df.resize(x.size());
         int d = data.springs1.vertex0;
         if (data.springs1.nbSpringPerVertex > 0)
@@ -381,8 +381,8 @@ void SpringForceFieldInternalData< gpu::opencl::OpenCLVectorTypes<TCoord,TDeriv,
     }
     else
     {
-        const VecCoord& x1 = *m->mstate1->getX();
-        const VecCoord& x2 = *m->mstate2->getX();
+        const VecCoord& x1 = m->mstate1->read(core::ConstVecCoordId::position())->getValue();
+        const VecCoord& x2 = m->mstate2->read(core::ConstVecCoordId::position())->getValue();
         df1.resize(x1.size());
         df2.resize(x2.size());
         if (data.springs1.nbSpringPerVertex > 0)

@@ -1,8 +1,7 @@
-include(${SOFA_CMAKE_DIR}/preProject.cmake)
+cmake_minimum_required(VERSION 2.8.12)
+project(SofaHelper)
 
-set(HEADER_FILES
-
-	helper.h
+set(SOFAHELPER_HEADERS
     ArgumentParser.h
     BackTrace.h
 	deque.h
@@ -18,7 +17,6 @@ set(HEADER_FILES
     integer_id.h
     io/Image.h
     io/ImageBMP.h
-    io/ImagePNG.h
     io/ImageRAW.h
     io/MassSpringLoader.h
     io/Mesh.h
@@ -54,7 +52,6 @@ set(HEADER_FILES
     system/config.h
     system/gl.h
     system/glu.h
-    system/glut.h
     system/SetDirectory.h
     system/FileRepository.h
     system/atomic.h
@@ -91,8 +88,7 @@ set(HEADER_FILES
     kdTree.h
 	)
 
-set(SOURCE_FILES
-
+set(SOFAHELPER_SOURCES
 	ArgumentParser.cpp
     BackTrace.cpp
     DualQuat.cpp
@@ -101,7 +97,6 @@ set(SOURCE_FILES
     gl/Transformation.cpp
     io/Image.cpp
     io/ImageBMP.cpp
-    io/ImagePNG.cpp
     io/ImageRAW.cpp
     io/MassSpringLoader.cpp
     io/Mesh.cpp
@@ -120,6 +115,7 @@ set(SOURCE_FILES
     decompose.cpp
     Quater.cpp
     RandomGenerator.cpp
+	system/gl.cpp
     system/SetDirectory.cpp
     system/FileRepository.cpp
     system/thread/CTime.cpp
@@ -143,77 +139,107 @@ set(SOURCE_FILES
     UnitTest.cpp
 	)
 
-if(SOFA-EXTERNAL_BOOST)
-	list(APPEND HEADER_FILES "system/thread/TimeoutWatchdog.h")
-	
-	list(APPEND SOURCE_FILES "system/thread/TimeoutWatchdog.cpp")
+if(SOFA_HAVE_PNG)
+	list(APPEND SOFAHELPER_HEADERS  io/ImagePNG.h  )
+	list(APPEND SOFAHELPER_SOURCES  io/ImagePNG.cpp) 
+endif()
+
+if(Boost_thread_FOUND )
+	list(APPEND SOFAHELPER_HEADERS "system/thread/TimeoutWatchdog.h")
+	list(APPEND SOFAHELPER_SOURCES "system/thread/TimeoutWatchdog.cpp")
 endif()
 
 if(NOT SOFA-MISC_NO_OPENGL)
-	list(APPEND HEADER_FILES
-    gl/Axis.h
-    gl/BasicShapes.h
-    gl/Capture.h
-    gl/Color.h
-    gl/Cylinder.h
-    gl/glfont.h
-    gl/glText.inl
-    gl/glText.h
-    gl/RAII.h
-    gl/template.h
-    gl/Texture.h
-    gl/FrameBufferObject.h
-    gl/GLSLShader.h
-  )
+	if(SOFA_HAVE_GLUT)
+		list(APPEND SOFAHELPER_HEADERS
+		system/glut.h
+		gl/Axis.h
+		gl/BasicShapes.h
+		gl/Cylinder.h
+		gl/glText.inl
+		gl/glText.h
+		)
+		list(APPEND SOFAHELPER_SOURCES
+		gl/Axis.cpp
+		gl/Cylinder.cpp
+		gl/glText.cpp
+		)
+	endif(SOFA_HAVE_GLUT)
 	
-	list(APPEND SOURCE_FILES
-    gl/Axis.cpp
-    gl/Capture.cpp
-    gl/Color.cpp
-    gl/Cylinder.cpp
-    gl/glfont.cpp
-    gl/glText.cpp
-    gl/Texture.cpp
-    system/gl.cpp
-    gl/FrameBufferObject.cpp
-    gl/GLSLShader.cpp
-    )
-endif()
+	list(APPEND SOFAHELPER_HEADERS
+	gl/Capture.h
+	gl/Color.h
+	gl/glfont.h
+	gl/RAII.h
+	gl/template.h)
+			
+	list(APPEND SOFAHELPER_SOURCES
+	gl/Capture.cpp
+	gl/Color.cpp
+	gl/glfont.cpp
+	)
+	
+	if(SOFA_HAVE_GLEW)
+		list(APPEND SOFAHELPER_HEADERS
+			gl/Texture.h
+			gl/FrameBufferObject.h
+			gl/GLSLShader.h)
+		list(APPEND SOFAHELPER_SOURCES
+			gl/Texture.cpp
+			gl/FrameBufferObject.cpp
+			gl/GLSLShader.cpp)
+	endif(SOFA_HAVE_GLEW)
+endif(NOT SOFA-MISC_NO_OPENGL)
 
-if(SOFA-EXTERNAL_FFMPEG)
-	list(APPEND HEADER_FILES "gl/VideoRecorder.h")
-	
-	list(APPEND SOURCE_FILES "gl/VideoRecorder.cpp")
+if(SOFA-EXTERNAL_HAVE_FFMPEG)
+	list(APPEND SOFAHELPER_HEADERS "gl/VideoRecorder.h")
+	list(APPEND SOFAHELPER_SOURCES "gl/VideoRecorder.cpp")
 endif()
 
 if(PS3)
-	list(APPEND HEADER_FILES "gl/ps3gl_compat.h")
-	list(APPEND SOURCE_FILES "gl/ps3gl_compat.cpp")
+	list(APPEND SOFAHELPER_HEADERS "gl/ps3gl_compat.h")
+	list(APPEND SOFAHELPER_SOURCES "gl/ps3gl_compat.cpp")
 endif()
-
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-
-AddCompilerDefinitions("SOFA_BUILD_HELPER")
-AddLinkerDependencies(${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} ${PNG_LIBRARIES} tinyxml)
 
 if(WIN32)
     # Windows lib, used in system::FileSystem
-    AddLinkerDependencies(Shlwapi)
+	list(APPEND SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES Shlwapi)
 endif()
 
-if(PS3)
-	AddLinkerDependencies("$(SCE_PS3_ROOT)/target/ppu/lib/libsysmodule_stub.a")
-	AddLinkerDependencies("$(SCE_PS3_ROOT)/target/ppu/lib/libc.a")
-	AddLinkerDependencies("$(SCE_PS3_ROOT)/target/ppu/lib/libstdc++.a")
-	AddLinkerDependencies("$(SCE_PS3_ROOT)/target/ppu/lib/libm.a")
-	AddLinkerDependencies("$(SCE_PS3_ROOT)/target/ppu/lib/libpthread.a")
+if(UNIX)
+  list(APPEND SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES dl)
 endif()
 
-if(SOFA-EXTERNAL_BOOST)
-    AddLinkerDependencies(${Boost_LIBRARIES})
-endif()
 
-AddSourceDependencies(eigen) 
+add_library(${PROJECT_NAME} SHARED ${SOFAHELPER_HEADERS} ${SOFAHELPER_SOURCES})
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} )
+target_link_libraries(${PROJECT_NAME} LINK_PRIVATE ${SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES})
+target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../>" 
+												  "$<BUILD_INTERFACE:${SOFAFRAMEWORK_DEPENDENCY_INCLUDE_DIRECTORIES}>")
 
-include(${SOFA_CMAKE_DIR}/postProject.cmake)
+# make the name of debug libraries end in _d.
+set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
 
+set_target_properties( ${PROJECT_NAME}  PROPERTIES VERSION ${SOFAFRAMEWORK_VERSION} )
+
+set( SOFAHELPER_COMPILER_FLAGS "-DSOFA_BUILD_HELPER -DUNICODE")
+
+set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAHELPER_COMPILER_FLAGS}"  )
+# set_target_properties( ${PROJECT_NAME} PROPERTIES FOLDER "${GLOBAL_PROJECT_OPTION_FOLDER_${PROJECT_NAME}}")
+
+install(TARGETS ${PROJECT_NAME}
+    COMPONENT SofaFramework_libraries
+    EXPORT  SofaFrameworkTargets
+    RUNTIME DESTINATION "${SOFAFRAMEWORK_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${SOFAFRAMEWORK_INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${SOFAFRAMEWORK_INSTALL_LIB_DIR}"
+    )
+
+install(DIRECTORY ${SofaHelper_SOURCE_DIR}/ DESTINATION "${SOFAFRAMEWORK_INSTALL_INCLUDE_DIR}/sofa/helper"
+        COMPONENT SofaFramework_headers
+        FILES_MATCHING 
+            PATTERN "*.h"
+            PATTERN "*.inl"
+            PATTERN "*.hxx"
+            PATTERN "*.hpp"
+       )

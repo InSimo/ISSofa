@@ -80,7 +80,7 @@ void ConstraintSolver::solveConstraint(const ConstraintParams * cParams, MultiVe
     if (continueSolving)
     {
         AdvancedTimer::stepBegin(className + " ApplyCorrection ");
-        continueSolving = applyCorrection(cParams, res1, res2);
+        applyCorrection(cParams, res1, res2);
         AdvancedTimer::stepEnd(className + " ApplyCorrection ");
     }
 

@@ -33,7 +33,7 @@
 #include <sofa/helper/system/gl.h>
 #include <sofa/helper/system/glu.h>
 
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 
 #include <map>
 
@@ -46,12 +46,11 @@ namespace helper
 namespace gl
 {
 
-using namespace sofa::defaulttype;
-
 class SOFA_HELPER_API Cylinder
 {
 public:
-
+    typedef sofa::defaulttype::Vector3 Vector3;
+    typedef sofa::defaulttype::Quaternion Quaternion;
     Cylinder(SReal len=(SReal)1);
     Cylinder(const Vector3& len);
     Cylinder(const Vector3& center, const Quaternion &orient, const Vector3& length);

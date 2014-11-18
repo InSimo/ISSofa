@@ -32,8 +32,10 @@
 #ifndef RANDOMGENERATOR_H_
 #define RANDOMGENERATOR_H_
 
+#include <sofa/SofaFramework.h>
+#include <sofa/helper/system/config.h>
 #include <cstdlib>
-#include <sofa/helper/helper.h>
+
 #include <limits>
 
 #define RAND48_SEED_0   (0x330e)
@@ -78,18 +80,6 @@ public:
 
     void initSeed(long seed);
 
-
-
-    /// @deprecated for backward compatibility
-    /// use random<long>(min,max)
-    long int randomInteger(long min, long max);
-    /// @deprecated for backward compatibility
-    /// use random<double>(min,max)
-    double randomDouble(double min, double max);
-
-
-
-
     /// number between [min, max)  (max has less chance to appear)
     /// note that "only" 2^32 different values can be generated
     /// @warning min < max
@@ -99,6 +89,11 @@ public:
         return (T)random<long>( (long)min, (long)max );  // default implementation for integer types. Specialization for floating types in .cpp
     }
 
+    /// number between [-vmax, vmax] (vmax has less chance to appear)
+    template<class T> T symrand(T vmax)
+    {
+        return random<T>(-vmax, +vmax);
+    }
 
     /// number between [T::min, T::max)  (max has less chance to appear)
     /// note that "only" 2^32 different values can be generated

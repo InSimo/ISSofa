@@ -25,7 +25,7 @@
 #ifndef SOFA_SIMULATION_VISITOR_H
 #define SOFA_SIMULATION_VISITOR_H
 
-#include <sofa/simulation/common/common.h>
+#include <sofa/SofaSimulation.h>
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/common/LocalStorage.h>
 
@@ -171,7 +171,7 @@ public:
 
 
     /// Alias for context->executeVisitor(this)
-    virtual void execute(core::objectmodel::BaseContext* node);
+    virtual void execute(core::objectmodel::BaseContext* node, bool precomputedOrder=false);
 
     virtual ctime_t begin(simulation::Node* node, core::objectmodel::BaseObject* obj
             , const std::string &typeInfo=std::string("type")

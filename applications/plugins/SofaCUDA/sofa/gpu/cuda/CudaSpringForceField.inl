@@ -26,11 +26,11 @@
 #define SOFA_GPU_CUDA_CUDASPRINGFORCEFIELD_INL
 
 #include "CudaSpringForceField.h"
-#include <sofa/component/interactionforcefield/SpringForceField.inl>
-#include <sofa/component/interactionforcefield/StiffSpringForceField.inl>
-#include <sofa/component/interactionforcefield/MeshSpringForceField.inl>
-#include <sofa/component/interactionforcefield/TriangleBendingSprings.inl>
-#include <sofa/component/interactionforcefield/QuadBendingSprings.inl>
+#include <SofaDeformable/SpringForceField.inl>
+#include <SofaDeformable/StiffSpringForceField.inl>
+#include <SofaDeformable/MeshSpringForceField.inl>
+#include <SofaDeformable/TriangleBendingSprings.inl>
+#include <SofaDeformable/QuadBendingSprings.inl>
 
 namespace sofa
 {
@@ -345,7 +345,7 @@ void SpringForceFieldInternalData< gpu::cuda::CudaVectorTypes<TCoord,TDeriv,TRea
     {
         VecDeriv& df = df1;
         const VecDeriv& dx = dx1;
-        const VecCoord& x = *m->mstate1->getX();
+        const VecCoord& x = m->mstate1->read(core::ConstVecCoordId::position())->getValue();
         df.resize(x.size());
         int d = data.springs1.vertex0;
         if (data.springs1.nbSpringPerVertex > 0)
@@ -362,8 +362,8 @@ void SpringForceFieldInternalData< gpu::cuda::CudaVectorTypes<TCoord,TDeriv,TRea
     }
     else
     {
-        const VecCoord& x1 = *m->mstate1->getX();
-        const VecCoord& x2 = *m->mstate2->getX();
+        const VecCoord& x1 = m->mstate1->read(core::ConstVecCoordId::position())->getValue();
+        const VecCoord& x2 = m->mstate2->read(core::ConstVecCoordId::position())->getValue();
         df1.resize(x1.size());
         df2.resize(x2.size());
         int d1 = data.springs1.vertex0;

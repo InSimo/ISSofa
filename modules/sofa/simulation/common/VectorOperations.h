@@ -26,7 +26,7 @@
 #define SOFA_SIMULATION_COMMON_VECTOROPERATIONS_H
 
 #include <sofa/core/behavior/BaseVectorOperations.h>
-#include <sofa/simulation/common/common.h>
+#include <sofa/SofaSimulation.h>
 #include <sofa/simulation/common/VisitorExecuteFunc.h>
 
 namespace sofa
@@ -47,7 +47,7 @@ class SOFA_SIMULATION_COMMON_API VectorOperations : public sofa::core::behavior:
 {
 public:
 
-    VectorOperations(const sofa::core::ExecParams* params, sofa::core::objectmodel::BaseContext* ctx);
+    VectorOperations(const sofa::core::ExecParams* params, sofa::core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder=false);
 
     /// Allocate a temporary vector
     void v_alloc(sofa::core::MultiVecCoordId& v);
@@ -81,7 +81,7 @@ public:
     void v_threshold(core::MultiVecId a, double threshold); ///< nullify the values below the given threshold
 
     double finish();
-    void print(ConstMultiVecId v, std::ostream& out, std::string prefix="", std::string suffix="" );
+    void print(sofa::core::ConstMultiVecId v, std::ostream& out, std::string prefix="", std::string suffix="" );
 
     virtual size_t v_size(core::MultiVecId v);
 

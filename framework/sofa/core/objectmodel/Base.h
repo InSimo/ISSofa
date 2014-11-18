@@ -150,15 +150,15 @@ public:
     /// Write the current field values to the given map of name -> value pairs
     void writeDatas (std::map<std::string,std::string*>& str);
 
-    /// Write the current field values to the given XML output stream
-    void xmlWriteDatas (std::ostream& out, int level = 0);
+    /// Write the current field values to the given output stream
+    /// separated with the given separator (" " used by default for XML)
+    void writeDatas (std::ostream& out, const std::string& separator = " ");
 
     /// Find a data field given its name. Return NULL if not found.
     /// If more than one field is found (due to aliases), only the first is returned.
     BaseData* findData( const std::string &name ) const;
 
-    /// @deprecated
-    BaseData* findField( const std::string &name ) const { return findData(name); }
+
 
     /// Find data fields given a name: several can be found as we look into the alias map
     std::vector< BaseData* > findGlobalField( const std::string &name ) const;
@@ -202,12 +202,6 @@ public:
     /// Remove a data field.
     void removeData(BaseData* f);
 
-    /// @deprecated
-    void addField(BaseData* f, const char* name)
-    {
-        if (name && *name) f->setName(name);
-        addData(f);
-    }
 
     /// Add an alias to a Data
     void addAlias( BaseData* field, const char* alias);

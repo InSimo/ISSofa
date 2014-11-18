@@ -1,4 +1,4 @@
-#include <sofa/component/linearsolver/EigenSparseMatrix.h>
+#include <SofaEigen2Solver/EigenSparseMatrix.h>
 
 namespace sofa {
 
@@ -14,6 +14,16 @@ bool zero(const Matrix& m) {
 template<class Matrix>
 bool empty(const Matrix& m) {
     return !m.rows();
+}
+
+/// test if present value are all zero (not optimized sparse matrix but existing)
+template<class SparseMatrix>
+bool fillWithZeros(const SparseMatrix& m) {
+    for( unsigned i=0 ; i<m.data().size() ; ++i )
+    {
+        if( m.valuePtr()[i] != 0 ) return false;
+    }
+    return true;
 }
 
 

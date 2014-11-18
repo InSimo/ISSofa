@@ -26,7 +26,7 @@
 #define SOFA_COMPONENT_MASS_CUDAMESHMATRIXMASS_INL
 
 #include "CudaMeshMatrixMass.h"
-#include <sofa/component/mass/MeshMatrixMass.inl>
+#include <SofaMiscForceField/MeshMatrixMass.inl>
 #include <sofa/gpu/cuda/CudaTypes.h>
 
 namespace sofa
@@ -86,7 +86,7 @@ void MeshMatrixMass<CudaVec2fTypes, float>::addForce(const core::MechanicalParam
 {
     VecDeriv& f = *d_f.beginEdit();
     const CudaVector<float>& vertexMass = data.vMass;
-    Vec3d g ( this->getContext()->getGravity() );
+    defaulttype::Vec3d g ( this->getContext()->getGravity() );
 
     MeshMatrixMassCuda_addForce2f( vertexMass.size(), f.deviceWrite(), vertexMass.deviceRead(), g.ptr(), (float) massLumpingCoeff);
     d_f.endEdit();

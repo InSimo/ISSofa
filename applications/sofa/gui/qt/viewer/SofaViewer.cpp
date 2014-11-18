@@ -24,7 +24,7 @@
 ******************************************************************************/
 #include "SofaViewer.h"
 #include <sofa/helper/Factory.inl>
-#include <sofa/component/visualmodel/VisualStyle.h>
+#include <SofaBaseVisual/VisualStyle.h>
 #include <sofa/core/visual/DisplayFlags.h>
 
 namespace sofa
@@ -276,6 +276,7 @@ void SofaViewer::wheelEvent(QWheelEvent *e)
 {
     if (!currentCamera) return;
     //<CAMERA API>
+	if (!currentCamera) return;
     sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Wheel,e->delta());
     currentCamera->manageEvent(&me);
 
@@ -290,6 +291,7 @@ void SofaViewer::mouseMoveEvent ( QMouseEvent *e )
 {
     if (!currentCamera) return;
     //<CAMERA API>
+	if (!currentCamera) return;
     sofa::core::objectmodel::MouseEvent me(sofa::core::objectmodel::MouseEvent::Move,e->x(), e->y());
     currentCamera->manageEvent(&me);
 
@@ -304,6 +306,7 @@ void SofaViewer::mousePressEvent ( QMouseEvent * e)
 {
     if (!currentCamera) return;
     //<CAMERA API>
+	if (!currentCamera) return;
     sofa::core::objectmodel::MouseEvent* mEvent = NULL;
     if (e->button() == Qt::LeftButton)
         mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftPressed, e->x(), e->y());
@@ -328,6 +331,7 @@ void SofaViewer::mouseReleaseEvent ( QMouseEvent * e)
 {
     if (!currentCamera) return;
     //<CAMERA API>
+	if (!currentCamera) return;
     sofa::core::objectmodel::MouseEvent* mEvent = NULL;
     if (e->button() == Qt::LeftButton)
         mEvent = new sofa::core::objectmodel::MouseEvent(sofa::core::objectmodel::MouseEvent::LeftReleased, e->x(), e->y());

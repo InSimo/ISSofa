@@ -32,22 +32,27 @@
 #ifdef SOFA_HAVE_DAG
 #include <sofa/simulation/graph/DAGSimulation.h>
 #endif
-#ifdef SOFA_HAVE_BGL
-#include <sofa/simulation/bgl/BglSimulation.h>
-#endif
 #ifdef SOFA_SMP
 #include <sofa/simulation/tree/SMPSimulation.h>
 #endif
 #include <sofa/simulation/tree/TreeSimulation.h>
-#include <sofa/component/init.h>
-#include <sofa/component/misc/ReadState.h>
-#include <sofa/component/misc/CompareState.h>
+
+
+#include <SofaComponentCommon/initComponentCommon.h>
+#include <SofaComponentBase/initComponentBase.h>
+#include <SofaComponentGeneral/initComponentGeneral.h>
+#include <SofaComponentAdvanced/initComponentAdvanced.h>
+#include <SofaComponentMisc/initComponentMisc.h>
+
+#include <SofaLoader/ReadState.h>
+#include <SofaValidation/CompareState.h>
 #include <sofa/helper/Factory.h>
 #include <sofa/helper/BackTrace.h>
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/system/SetDirectory.h>
 #include <sofa/gui/GUIManager.h>
 #include <sofa/gui/Main.h>
+#include <sofa/gui/BatchGUI.h>  // For the default number of iterations
 #include <sofa/helper/system/gl.h>
 #include <sofa/helper/system/glut.h>
 #include <sofa/helper/system/atomic.h>
@@ -139,7 +144,7 @@ int main(int argc, char** argv)
     bool        loadRecent = false;
     bool        temporaryFile = false;
 	bool		testMode = false;
-    int	        nbIterations = 0;
+    int	        nbIterations = sofa::gui::BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
     unsigned    computationTimeSampling=0; ///< Frequency of display of the computation time statistics, in number of animation steps. 0 means never.
 
     std::string gui = "";
@@ -226,7 +231,13 @@ int main(int argc, char** argv)
         _CrtSetReportHook(&onError);
 #endif
     }
-    sofa::component::init();
+
+    sofa::component::initComponentBase();
+    sofa::component::initComponentCommon();
+    sofa::component::initComponentGeneral();
+    sofa::component::initComponentAdvanced();
+    sofa::component::initComponentMisc();
+
     sofa::simulation::xml::initXml();
 
     if (!files.empty())
@@ -237,7 +248,7 @@ int main(int argc, char** argv)
 
     sofa::helper::system::PluginManager::getInstance().init();
 
-    if(gui.compare("batch") == 0 && nbIterations > 0)
+    if(gui.compare("batch") == 0 && nbIterations >= 0)
     {
         std::ostringstream oss ;
         oss << "nbIterations=";
@@ -252,7 +263,7 @@ int main(int argc, char** argv)
     {
         if (loadRecent) // try to reload the latest scene
         {
-            std::string scenes = "config/Sofa.ini";
+            std::string scenes = "share/config/Sofa.ini";
             scenes = sofa::helper::system::DataRepository.getFile( scenes );
             std::ifstream mrulist(scenes.c_str());
             std::getline(mrulist,fileName);
@@ -291,7 +302,7 @@ int main(int argc, char** argv)
 
     if (startAnim)
         groot->setAnimate(true);
-    bool save = (nbIterations > 0);
+
     if (printFactory)
     {
         std::cout << "////////// FACTORY //////////" << std::endl;

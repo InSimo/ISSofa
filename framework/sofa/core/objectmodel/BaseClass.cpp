@@ -95,6 +95,10 @@ std::string BaseClass::decodeTypeName(const std::type_info& t)
         {
             start = i+1;
         }
+        else if (c == ' ' && i >= 6 && realname[i-6] == 's' && realname[i-5] == 't' && realname[i-4] == 'r' && realname[i-3] == 'u' && realname[i-2] == 'c' && realname[i-1] == 't')
+        {
+            start = i+1;
+        }
         else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'))
         {
             // write result
@@ -211,6 +215,10 @@ std::string BaseClass::decodeNamespaceName(const std::type_info& t)
         {
             start = i+1;
         }
+        else if (c == ' ' && i >= 6 && realname[i-6] == 's' && realname[i-5] == 't' && realname[i-4] == 'r' && realname[i-3] == 'u' && realname[i-2] == 'c' && realname[i-1] == 't')
+        {
+            start = i+1;
+        }
         else if (c == ':' && (i<1 || realname[i-1]!=':'))
         {
             last = i-1;
@@ -251,6 +259,10 @@ std::string BaseClass::decodeTemplateName(const std::type_info& t)
         {
             start = i+1;
         }
+        else if (c == ' ' && i >= 6 && realname[i-6] == 's' && realname[i-5] == 't' && realname[i-4] == 'r' && realname[i-3] == 'u' && realname[i-2] == 'c' && realname[i-1] == 't')
+        {
+            start = i+1;
+        }
         else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'))
         {
             // write result
@@ -266,7 +278,7 @@ std::string BaseClass::decodeTemplateName(const std::type_info& t)
         name[dest++] = realname[start++];
     }
     name.resize(dest);
-    return name;
+    return name.substr(0, name.length()-1);
     /*
         std::string name = BaseClass::decodeTypeName(t);
         // Find template

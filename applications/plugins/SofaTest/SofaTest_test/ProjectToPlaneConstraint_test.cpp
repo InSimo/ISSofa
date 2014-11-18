@@ -23,25 +23,28 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-
+#include "stdafx.h"
 #include "Sofa_test.h"
-#include <sofa/component/init.h>
+#include <SofaComponentMain/init.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
 #include <sofa/defaulttype/VecTypes.h>
-#include <sofa/component/topology/PointSetTopologyContainer.h>
-#include <sofa/component/projectiveconstraintset/ProjectToPlaneConstraint.h>
-#include <sofa/component/container/MechanicalObject.h>
+#include <SofaBaseTopology/PointSetTopologyContainer.h>
+#include <SofaBoundaryCondition/ProjectToPlaneConstraint.h>
+#include <SofaBaseMechanics/MechanicalObject.h>
 #include <sofa/core/MechanicalParams.h>
 #include <sofa/defaulttype/VecTypes.h>
+#include <sofa/core/ObjectFactory.h>
+
 
 namespace sofa {
+namespace {
+
 using std::cout;
 using std::cerr;
 using std::endl;
 using namespace component;
 using namespace defaulttype;
-
-
+using core::objectmodel::New;
 
 /**  Test suite for ProjectToPlaneConstraint.
 The test cases are defined in the #Test_Cases member group.
@@ -249,7 +252,7 @@ TYPED_TEST( ProjectToPlaneConstraint_test , allParticlesConstrained )
     ASSERT_TRUE(  this->test_projectVelocity() );
 }
 
-
+} // namespace
 } // namespace sofa
 
 

@@ -26,7 +26,7 @@
 #define SOFA_HELPER_IO_MESHTRIAN_H
 
 #include <sofa/helper/io/Mesh.h>
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 
 namespace sofa
 {
@@ -36,8 +36,6 @@ namespace helper
 
 namespace io
 {
-
-using namespace sofa::defaulttype;
 
 /// Cette classe permet la fabrication d'un visuel pour un fichier de type trian
 /// ces fichiers se presentent de la maniere suivante

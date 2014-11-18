@@ -27,11 +27,8 @@
 
 #include <sofa/core/visual/VisualLoop.h>
 #include <sofa/core/objectmodel/BaseObject.h>
-#include <sofa/simulation/common/common.h>
+#include <sofa/SofaSimulation.h>
 #include <sofa/simulation/common/Node.h>
-
-using namespace sofa::core::objectmodel;
-using namespace sofa::core::behavior;
 
 namespace sofa
 {
@@ -57,6 +54,8 @@ class SOFA_SIMULATION_COMMON_API DefaultVisualManagerLoop : public core::visual:
 {
 public:
     typedef core::visual::VisualLoop Inherit;
+    typedef sofa::core::objectmodel::BaseContext BaseContext;
+    typedef sofa::core::objectmodel::BaseObjectDescription BaseObjectDescription;
     SOFA_CLASS(DefaultVisualManagerLoop,core::visual::VisualLoop);
 protected:
     DefaultVisualManagerLoop(simulation::Node* gnode = NULL);

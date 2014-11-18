@@ -25,14 +25,14 @@
 #ifndef SOFAHAPI_SOFAHAPIFORCEFEEDBACKEFFECT_H
 #define SOFAHAPI_SOFAHAPIFORCEFEEDBACKEFFECT_H
 
-#include "SofaHAPI.h"
+#include <sofa/SofaHAPI.h>
 
 //HAPI include
 #include <HAPI/HAPIForceEffect.h>
 #include <H3DUtil/AutoRef.h>
 
 #include <sofa/defaulttype/SolidTypes.h>
-#include <sofa/component/controller/ForceFeedback.h>
+#include <SofaHaptics/ForceFeedback.h>
 
 namespace SofaHAPI
 {

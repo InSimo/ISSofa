@@ -23,11 +23,11 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-
+#include "stdafx.h"
 #include "Sofa_test.h"
 #include<sofa/helper/system/SetDirectory.h>
 #include <sofa/helper/system/FileRepository.h>
-#include <sofa/component/init.h>
+#include <SofaComponentMain/init.h>
 #include <sofa/core/ExecParams.h>
 
 //Including Simulation
@@ -36,17 +36,18 @@
 #include <sofa/simulation/common/Node.h>
 
 // Including constraint, force and mass
-#include <sofa/component/topology/BezierTetrahedronSetTopologyContainer.h>
-#include <sofa/component/topology/BezierTetrahedronSetGeometryAlgorithms.h>
-#include <sofa/component/container/MechanicalObject.h>
+#include <SofaBaseTopology/BezierTetrahedronSetTopologyContainer.h>
+#include <SofaBaseTopology/BezierTetrahedronSetGeometryAlgorithms.h>
+#include <SofaBaseMechanics/MechanicalObject.h>
 #include <sofa/core/MechanicalParams.h>
 #include <plugins/SceneCreator/SceneCreator.h>
-#include <sofa/component/mass/MeshMatrixMass.h>
-#include <sofa/component/engine/GenerateCylinder.h>
-#include <sofa/component/topology/Mesh2BezierTopologicalMapping.h>
+#include <SofaMiscForceField/MeshMatrixMass.h>
+#include <SofaEngine/GenerateCylinder.h>
+#include <SofaTopologyMapping/Mesh2BezierTopologicalMapping.h>
 #include <sofa/defaulttype/VecTypes.h>
 
 namespace sofa {
+namespace {
 
 using std::cout;
 using std::cerr;
@@ -147,7 +148,7 @@ struct BezierTetrahedronTopology_test : public Sofa_test<typename _DataTypes::Re
 		BezierDegreeType degree=container->getDegree();
 		// check the total number of vertices.
 		size_t nbPoints=container->getNumberOfTetrahedralPoints()+container->getNumberOfEdges()*(degree-1)+container->getNumberOfTriangles()*(degree-1)*(degree-2)/2+container->getNumberOfTetrahedra()*((degree-1)*(degree-2)*(degree-3)/6);
-		if(container->getNbPoints()!=nbPoints) {
+        if((size_t)container->getNbPoints()!=nbPoints) {
 			ADD_FAILURE() << "wrong number of points " <<container->getNbPoints() << " is wrong. It should be  " <<nbPoints  << std::endl;
 			return false;
 		}
@@ -328,4 +329,5 @@ TYPED_TEST( BezierTetrahedronTopology_test , testTopology )
 
 
 
+} // namespace
 } // namespace sofa

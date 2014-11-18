@@ -25,8 +25,9 @@
 #ifndef SOFAHAPI_SOFAHAPIHAPTICSDEVICE_H
 #define SOFAHAPI_SOFAHAPIHAPTICSDEVICE_H
 
-#include "SofaHAPI.h"
+#include <sofa/SofaHAPI.h>
 
+#include <cstddef>
 //HAPI include
 #include <H3DUtil/AutoRef.h>
 #include <HAPI/HAPIHapticsDevice.h>
@@ -34,11 +35,12 @@
 
 #include "SofaHAPIForceFeedbackEffect.h"
 
+#include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/defaulttype/SolidTypes.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/behavior/BaseController.h>
-#include <sofa/component/controller/Controller.h>
-#include <sofa/component/controller/ForceFeedback.h>
+#include <SofaUserInteraction/Controller.h>
+#include <SofaHaptics/ForceFeedback.h>
 
 namespace SofaHAPI
 {
@@ -46,6 +48,7 @@ namespace SofaHAPI
 using sofa::helper::vector;
 using sofa::defaulttype::Vec3d;
 using sofa::defaulttype::Quat;
+using sofa::defaulttype::Rigid3dTypes;
 typedef sofa::defaulttype::SolidTypes<double>::Transform Transform;
 using sofa::core::objectmodel::Data;
 using sofa::core::objectmodel::BaseLink;

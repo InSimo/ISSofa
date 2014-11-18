@@ -63,7 +63,7 @@ def createScene(node):
     # solvers
     compliance = 0
     
-    node.createObject('AssembledSolver', name='odesolver',stabilization=1)
+    node.createObject('CompliantImplicitSolver', name='odesolver',stabilization=1)
     node.createObject('MinresSolver', name='numsolver', iterations='250', precision='1e-14');
     #node.createObject('LDLTSolver', name='numsolver'); compliance = 1e-10 #need to relax the system a bit
         
@@ -120,7 +120,7 @@ def createScene(node):
     ## create joints
     for l in links:
       
-      j = l[3] (l[4], scene, l[0], offsets[l[1]].node, offsets[l[2]].node )
+      j = l[3] (l[4], l[0], offsets[l[1]].node, offsets[l[2]].node )
       j.constraint.compliance.compliance = compliance
       
       joints.append( j )

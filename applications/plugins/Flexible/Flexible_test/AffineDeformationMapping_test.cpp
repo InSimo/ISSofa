@@ -22,6 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#include "stdafx.h"
 #include <sofa/helper/Quater.h>
 #include <sofa/helper/RandomGenerator.h>
 
@@ -29,7 +30,7 @@
 #include "../deformationMapping/LinearMapping.h"
 
 #include <Mapping_test.h>
-
+#include "../shapeFunction/DiffusionShapeFunction.h"
 namespace sofa {
 
     using namespace defaulttype;
@@ -75,13 +76,12 @@ namespace sofa {
         AffineLinearDeformationMappings_test() : Mapping_test<_Mapping>(std::string(FLEXIBLE_TEST_SCENES_DIR) + "/" + "AffineLineDeformationMapping.scn")
         {   
             Inherited::errorMax = 5000;
-            seed=2;
             // Set random rotation and translation
-            randomGenerator.initSeed(seed);
-            this->SetRandomAffineTransform(seed);
+            randomGenerator.initSeed(BaseSofa_test::seed);
+            this->SetRandomAffineTransform();
         }
              
-        void SetRandomAffineTransform (int seed)
+        void SetRandomAffineTransform ()
         {
             // Matrix 3*3
             for( int j=0; j<testedRotation.nbCols; j++)
@@ -116,7 +116,7 @@ namespace sofa {
         }
         
         /// After simulation compare the positions of points to the theoretical positions.
-        bool runTest(double convergenceAccuracy)
+        bool runTest(double /*convergenceAccuracy*/)
         {
             // Init simulation
             sofa::simulation::getSimulation()->init(this->root.get());
@@ -153,7 +153,7 @@ namespace sofa {
 
       // Define the list of DataTypes to instantiate
     using testing::Types;
-    typedef Types<
+    typedef testing::Types<
         LinearMapping<Affine3Types, F331Types>,
         LinearMapping<Affine3Types, F332Types>
     > DataTypes; // the types to instantiate.

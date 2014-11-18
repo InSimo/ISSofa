@@ -23,19 +23,21 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-
+#include "stdafx.h"
 #include "Sofa_test.h"
-#include <sofa/component/init.h>
+#include <SofaComponentMain/init.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
 #include <sofa/defaulttype/VecTypes.h>
-#include <sofa/component/topology/PointSetTopologyContainer.h>
-#include <sofa/component/projectiveconstraintset/ProjectToLineConstraint.h>
-#include <sofa/component/container/MechanicalObject.h>
+#include <SofaBaseTopology/PointSetTopologyContainer.h>
+#include <SofaBoundaryCondition/ProjectToLineConstraint.h>
+#include <SofaBaseMechanics/MechanicalObject.h>
 #include <sofa/core/MechanicalParams.h>
 #include <sofa/defaulttype/VecTypes.h>
 
+using sofa::core::objectmodel::New;
 
 namespace sofa {
+namespace {
 
 using std::cout;
 using std::cerr;
@@ -253,6 +255,6 @@ TYPED_TEST( ProjectToLineConstraint_test , allParticlesConstrained )
     ASSERT_TRUE(  this->test_projectVelocity() );
 }
 
-
+} // namespace
 } // namespace sofa
 

@@ -23,9 +23,9 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-
+#include "stdafx.h"
 #include "Sofa_test.h"
-#include <sofa/component/init.h>
+#include <SofaComponentMain/init.h>
 //#include <plugins/SceneCreator/SceneCreator.h>
 //Including Simulation
 #include <sofa/simulation/common/Simulation.h>
@@ -33,14 +33,15 @@
 #include <sofa/simulation/common/Node.h>
 #include <sofa/helper/set.h>
 // Including constraint, force and mass
-#include <sofa/component/topology/TetrahedronSetGeometryAlgorithms.h>
-#include <sofa/component/topology/CommonAlgorithms.h>
+#include <SofaBaseTopology/TetrahedronSetGeometryAlgorithms.h>
+#include <SofaBaseTopology/CommonAlgorithms.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <ctime>
 #include <plugins/SceneCreator/SceneCreator.h>
 
 
 namespace sofa {
+namespace {
 
 using std::cout;
 using std::cerr;
@@ -89,8 +90,9 @@ struct TetrahedronNumericalIntegration_test : public Sofa_test<typename _DataTyp
 		Real integral,weight;
 		typename NumericalIntegrationDescriptor::BarycentricCoordinatesType bc;
 		Vec<4,unsigned short> randomPolynomial;
-		srand((unsigned) time(NULL));
-
+        /// Random generator
+        sofa::helper::RandomGenerator randomGenerator;
+        randomGenerator.initSeed(BaseSofa_test::seed);
 
 		// get the descriptor of numerical integration on tetrahedra
         NumericalIntegrationDescriptor &nid=geo->getTetrahedronNumericalIntegrationDescriptor();
@@ -109,7 +111,7 @@ struct TetrahedronNumericalIntegration_test : public Sofa_test<typename _DataTyp
 				/// such that i+j+k+l= degree
 				for(k=0;k<4;++k) randomPolynomial[k]=0; 
 				for (k=0;k<(*itio);++k) {
-					randomPolynomial[rand()%4]++;
+                    randomPolynomial[randomGenerator.random<unsigned short>()%4]++;
 				}
 				// compute the integral over the tetrahedron through numerical integration
 				integral=(Real)0;
@@ -133,7 +135,7 @@ struct TetrahedronNumericalIntegration_test : public Sofa_test<typename _DataTyp
 				if (fabs(realIntegral-integral)>1e-8) {
 					ADD_FAILURE() << "Error in numerical integration on tetrahedron for integration method " <<(*itio)<<
 						"  and integration order " <<(*itio)  << " for polynomial defined by "<< randomPolynomial<< std::endl
-					 << "Got  " <<integral<<" instead of " <<realIntegral  << std::endl;
+                     << "Got  " <<integral<<" instead of " <<realIntegral  << std::endl << "Failed seed number = " << BaseSofa_test::seed << std::endl;
 					return false;
 				}
 			}
@@ -169,5 +171,5 @@ TYPED_TEST( TetrahedronNumericalIntegration_test , testNumericalIntegration )
 }
 
 
-
+} // namespace
 } // namespace sofa

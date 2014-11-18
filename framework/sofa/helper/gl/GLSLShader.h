@@ -25,6 +25,8 @@
 #ifndef SOFA_HELPER_GL_GLSLSHADER_H
 #define SOFA_HELPER_GL_GLSLSHADER_H
 
+#include <sofa/SofaFramework.h>
+
 #ifndef SOFA_HAVE_GLEW
 #error GL Shader support requires GLEW. Please define SOFA_HAVE_GLEW to use shaders.
 #endif
@@ -37,7 +39,7 @@
 #include <string>
 #include <string.h>
 
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 #include <vector>
 #include <map>
 #include <iostream>
@@ -120,6 +122,7 @@ public:
 
     /// These are our basic get functions for our private data
     /// @{
+    bool        IsReady() const { return m_hProgramObject != 0; }
     GLhandleARB GetProgram() const	{	return m_hProgramObject; }
     std::string GetShaderFileName(GLint type) const;
     GLhandleARB GetShaderID(GLint type) const; //	{	std::map<GLint,GLhandleARB>::const_iterator it = m_hShaders.find(type); return (it.second ? *it.first : 0); }

@@ -25,7 +25,7 @@
 #ifndef SOFA_SIMULATION_ANIMATEACTION_H
 #define SOFA_SIMULATION_ANIMATEACTION_H
 
-#include <sofa/simulation/common/common.h>
+#include <sofa/SofaSimulation.h>
 #include <sofa/simulation/common/Visitor.h>
 #include <sofa/core/VecId.h>
 #include <sofa/core/MultiVecId.h>
@@ -36,9 +36,6 @@
 #include <sofa/core/behavior/OdeSolver.h>
 #include <sofa/core/behavior/BaseAnimationLoop.h>
 #include <sofa/core/collision/Pipeline.h>
-
-using namespace sofa::core;
-
 
 namespace sofa
 {
@@ -55,7 +52,7 @@ protected :
     bool firstNodeVisited;
 #endif
 public:
-    AnimateVisitor(const core::ExecParams* params = ExecParams::defaultInstance());
+    AnimateVisitor(const core::ExecParams* params = core::ExecParams::defaultInstance());
     AnimateVisitor(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, double dt);
 
     void setDt(double v) { dt = v; }

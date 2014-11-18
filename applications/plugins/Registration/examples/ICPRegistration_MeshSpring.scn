@@ -17,7 +17,7 @@
    			<MeshSpringForceField name="Springs" stiffness="10000" />
 
 			<NormalsFromPoints name="NormalsFromPoints" template="Vec3d" position="@PointSet.position" triangles="@MeshLoader.triangles" quads="@MeshLoader.quads"/>
-			<ClosestPointRegistrationForceField template="Vec3d&gt"
+			<ClosestPointRegistrationForceField template="Vec3d"
 					sourceTriangles="@MeshLoader.triangles"					
 					sourceNormals="@NormalsFromPoints.normals"					
 					position="@../target/Bone.position" 
@@ -27,7 +27,7 @@
 					stiffness="5" damping="0" />
 		<Node name="Visu">
 			<OglModel name="Visual" fileMesh="data/femur_m.obj" normals="0"   color="1 .4 0.5 1" />
-			<BarycentricMapping object1="../.." object2="Visual" />
+			<BarycentricMapping input="@.." output="@Visual" />
 		</Node>			
 	</Node>
 

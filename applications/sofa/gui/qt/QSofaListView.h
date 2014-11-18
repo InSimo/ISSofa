@@ -124,6 +124,7 @@ Q_SIGNALS:
     void NodeAdded();
     void focusChanged(sofa::core::objectmodel::BaseObject*);
     void focusChanged(sofa::core::objectmodel::BaseNode*);
+    void dataModified( QString );
 
 protected Q_SLOTS:
     void SaveNode();
@@ -144,9 +145,9 @@ protected Q_SLOTS:
     void RunSofaRightClicked( Q3ListViewItem *item, const QPoint& point, int index );
     void RunSofaDoubleClicked( Q3ListViewItem*);
 #else
-    void updateMatchingObjectmodel(QListViewItem* item);
-    void RunSofaRightClicked( QListViewItem *item, const QPoint& point, int index );
-    void RunSofaDoubleClicked( QListViewItem*);
+    void updateMatchingObjectmodel(Q3ListViewItem* item);
+    void RunSofaRightClicked( Q3ListViewItem *item, const QPoint& point, int index );
+    void RunSofaDoubleClicked( Q3ListViewItem*);
 #endif
     void nodeNameModification( simulation::Node*);
     void focusObject();

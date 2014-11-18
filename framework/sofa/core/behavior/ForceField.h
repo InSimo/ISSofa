@@ -25,7 +25,7 @@
 #ifndef SOFA_CORE_BEHAVIOR_FORCEFIELD_H
 #define SOFA_CORE_BEHAVIOR_FORCEFIELD_H
 
-#include <sofa/core/core.h>
+#include <sofa/SofaFramework.h>
 #include <sofa/core/behavior/BaseForceField.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/objectmodel/Data.h>
@@ -103,14 +103,7 @@ public:
     /// $ f += B v + K x $
     ///
     /// This is the method that should be implemented by the component
-    virtual void addForce(const MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataVecDeriv& f , const DataVecCoord& x , const DataVecDeriv& v)
-#ifdef SOFA_DEPRECATE_OLD_API
-        = 0;
-#else
-    ;
-    /// @deprecated use instead addForce(const MechanicalParams* /* PARAMS FIRST */, DataVecDeriv&,const DataVecCoord&,const DataVecDeriv&)
-    virtual void addForce(VecDeriv& f, const VecCoord& x, const VecDeriv& v);
-#endif
+    virtual void addForce(const MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataVecDeriv& f , const DataVecCoord& x , const DataVecDeriv& v) = 0;
 
     /// Compute the force derivative given a small displacement from the
     /// position and velocity used in the previous call to addForce().
@@ -127,16 +120,7 @@ public:
     /// method implemented by the component.
     virtual void addDForce(const MechanicalParams* mparams /* PARAMS FIRST */, MultiVecDerivId dfId );
 
-    virtual void addDForce(const MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv&   df , const DataVecDeriv&   dx )
-#ifdef SOFA_DEPRECATE_OLD_API
-        = 0;
-#else
-    ;
-    /// @deprecated
-    virtual void addDForce(VecDeriv&       df , const VecDeriv&       dx , double kFactor, double bFactor);
-    /// @deprecated
-    virtual void addDForce(VecDeriv&       df , const VecDeriv&       dx );
-#endif
+    virtual void addDForce(const MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv&   df , const DataVecDeriv&   dx ) = 0;
 
 
 
@@ -150,14 +134,7 @@ public:
 
     virtual double getPotentialEnergy(const MechanicalParams* mparams) const  ;
 
-    virtual double getPotentialEnergy(const MechanicalParams* /*mparams*/ /* PARAMS FIRST */, const DataVecCoord&   x) const
-#ifdef SOFA_DEPRECATE_OLD_API
-        = 0;
-#else
-    ;
-    /// @deprecated
-    virtual double getPotentialEnergy(const VecCoord& x) const;
-#endif
+    virtual double getPotentialEnergy(const MechanicalParams* /*mparams*/ /* PARAMS FIRST */, const DataVecCoord&   x) const = 0;
 
 
     /// @}

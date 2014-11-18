@@ -27,7 +27,10 @@
 
 #ifndef SOFA_NO_OPENGL
 
+#include <sofa/SofaFramework.h>
+#include <sofa/SofaFramework.h>
 #include <sofa/helper/system/config.h>
+#include <string>
 
 #if defined (SOFA_HAVE_GLEW) && !defined(PS3)
 #include <GL/glew.h>
@@ -37,13 +40,18 @@
 #include <OpenGL/gl.h>
 #else
 #define GL_GLEXT_PROTOTYPES // for glext.h : necessary to use glBindBuffer without glew and make GLSLShader file
+#if defined(WIN32)
+#include <gl/GL.h>
+#else
 #include <GL/gl.h>
 #include <GL/glext.h> // necessary when you havn't glew
+#endif // WIN32
+
 #endif
 
-extern const char* GetGlExtensionsList();
+extern SOFA_HELPER_API const char* GetGlExtensionsList();
 
-extern bool CanUseGlExtension(char* ext);
+extern SOFA_HELPER_API bool CanUseGlExtension(const std::string& ext);
 
 #endif /* SOFA_NO_OPENGL */
 

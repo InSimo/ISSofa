@@ -23,7 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-
+#include "stdafx.h"
 #include "Sofa_test.h"
 #include <sofa/simulation/graph/DAGSimulation.h>
 #include <plugins/SceneCreator/SceneCreator.h>
@@ -31,6 +31,7 @@
 #include <sofa/simulation/common/Node.h>
 
 namespace sofa {
+namespace {
 
 using namespace modeling;
 
@@ -67,7 +68,8 @@ TEST_F( Node_test, getPathName)
     EXPECT_EQ("/A/B", B->getPathName());
 }
 
-}// namespace sofa
+} // namespace
+} // namespace sofa
 
 
 

@@ -67,7 +67,7 @@ Year = {2009}                                                                   
 
 #include "CudaTypes.h"
 #include <sofa/core/behavior/ForceField.h>
-#include <sofa/component/topology/MeshTopology.h>
+#include <SofaBaseTopology/MeshTopology.h>
 
 
 namespace sofa
@@ -115,7 +115,7 @@ public:
 //    void addDForce (VecDeriv& /*df*/, const VecDeriv& /*dx*/);
     virtual void addDForce(const sofa::core::MechanicalParams* /*mparams*/, DataVecDeriv& datadF, const DataVecDeriv& datadX ) ;
     double getPotentialEnergy(const VecCoord&) const { return 0.0; }
-
+    double getPotentialEnergy(const sofa::core::MechanicalParams* , const DataVecCoord&) const { return 0.0; }
     // Computes lambda and mu based on Young's modulus and Poisson ratio
     void updateLameCoefficients();
     // Computes element volumes for tetrahedral elements

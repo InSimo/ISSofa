@@ -10,7 +10,7 @@
 #include "SpringInteractor.h"
 
 namespace sofa {
-namespace newgui {
+namespace simplegui {
 
 /** OpenGL interface to a SofaScene.
  * This is not a viewer, this is an object used by a viewer to display a Sofa scene and to pick objects in it.
@@ -27,15 +27,9 @@ class SOFA_SOFASIMPLEGUI_API  SofaGL
 {
 public:
     /**
-     * @brief SofaGL
-     * @param s The Sofa scene to interact with.
+     * @param s The Sofa scene to interact with, the scene MUST already be opened !
      */
     SofaGL( SofaScene* s );
-    /**
-     * @brief init
-     * currently does nothing
-     */
-    void init();
     /**
      * @brief Draw the scene and stores the transformation matrices, for picking.
      * This requires an OpenGL context. It is supposed to be used by the drawing method of a viewer, after setting the modelview matrix.
@@ -54,18 +48,13 @@ public:
      * @param near Smaller than the nearest distance from the new camera center to the scene (output)
      * @param far Larger than the nearest distance from the new camera center to the scene (output)
      */
-    void viewAll( SReal* xcam, SReal* ycam, SReal* zcam, SReal* xcen, SReal* ycen, SReal* zcen, SReal a, SReal* near, SReal* far);
+    void viewAll( SReal* xcam, SReal* ycam, SReal* zcam, SReal* xcen, SReal* ycen, SReal* zcen, SReal a, SReal* nearPlane, SReal* farPlane);
 
-    /**
-     * @brief getPickDirection Compute the direction of a button click, returned as a unit vector
-     * @param dx normalized direction
-     * @param dy normalized direction
-     * @param dz normalized direction
-     * @param x x-coordinate of the click
-     * @param y y-coordinate of the click (origin on top)
-     */
-    void getPickDirection( GLdouble* dx, GLdouble* dy, GLdouble* dz, int x, int y );
+    /// Compute the bounding box of the scene
+    void getSceneBBox( float* xmin, float* ymin, float* zmin, float* xmax, float* ymax, float* zmax );
 
+    /// @name Interaction
+    /// @{
     /** @brief Try to pick a particle along a ray.
      * The ray starts at the camera center and passes through point with coordinates x,y
      * ox, oy, oz are the camera center in world coordinates.
@@ -74,6 +63,7 @@ public:
      * @return a valid PickedPoint if succeeded, an invalid PickedPoint if not.
      */
     PickedPoint pick(GLdouble ox, GLdouble oy, GLdouble oz, int x, int y);
+
 
     /** @brief Insert an interactor in the scene
      * Does not check if it is already there, so be careful not to insert the same twice
@@ -105,6 +95,24 @@ public:
     /// Remove the interactor from the scene, without deleting it.
     void detach(Interactor*);
 
+    /// @}
+
+    /** @brief Try to pick a displayed thing along a ray, using OpenGL picking.
+     * The ray starts at the camera center and passes through point with coordinates x,y in image coordinates (origin on top left).
+     * In this experimental implementation, this function just prints something on the standard output.
+     */
+    void glPick(int x, int y);
+
+    /**
+     * @brief getPickDirection Compute the direction of a button click, returned as a unit vector
+     * @param dx normalized direction
+     * @param dy normalized direction
+     * @param dz normalized direction
+     * @param x x-coordinate of the click
+     * @param y y-coordinate of the click (origin on top)
+     */
+    void getPickDirection( GLdouble* dx, GLdouble* dy, GLdouble* dz, int x, int y );
+
 
 protected:
     SofaScene* _sofaScene;
@@ -116,14 +124,24 @@ protected:
     // rendering tools
     sofa::core::visual::DrawToolGL   _drawToolGL;
     sofa::core::visual::VisualParams* _vparams;
+    void draw(sofa::core::visual::VisualParams*);
 
     // Interaction tools
     typedef map< PickedPoint, Interactor*> Picked_to_Interactor;
     /** Currently available interactors, associated with picked points.
-     *  The interactors are not necessarily being manipulated. Only one can be manipulated at at time.
+     *  The interactors are not necessarily being manipulated. Only one is typically manipulated at a given time.
      */
     Picked_to_Interactor _picked_to_interactor;
     Interactor* _drag;                            ///< The currently active interactor
+
+
+
+    // OpenGL picking data
+    bool _isPicking;        ///< if we are doing OpenGL picking
+    GLint pickX, pickY;     // window coordinates of the pick point
+    enum {BUFSIZE=1024};
+    GLuint selectBuf[BUFSIZE];
+    GLint hits;
 
 
 };

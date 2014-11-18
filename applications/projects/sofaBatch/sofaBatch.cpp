@@ -29,7 +29,7 @@
 #include <sofa/helper/ArgumentParser.h>
 #include <sofa/helper/system/PluginManager.h>
 
-#include <sofa/component/init.h>
+#include <SofaComponentMain/init.h>
 #include <sofa/simulation/common/xml/initXml.h>
 
 #include <sofa/helper/system/FileRepository.h>
@@ -40,7 +40,7 @@
 
 #include <sofa/helper/Factory.h>
 #include <sofa/helper/BackTrace.h>
-#include <sofa/component/misc/WriteState.h>
+#include <SofaExporter/WriteState.h>
 
 
 
@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     //std::ifstream end(fileName.c_str());
 
     std::string input;
-    int nbsteps;
+//    int nbsteps;
     std::string output;
 
 //    while( end >> input && end >>nbsteps && end >> output  )

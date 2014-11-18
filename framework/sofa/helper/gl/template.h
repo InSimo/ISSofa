@@ -28,7 +28,7 @@
 #ifndef SOFA_NO_OPENGL
 
 #include <sofa/helper/system/gl.h>
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 
 namespace sofa
 {
@@ -103,7 +103,7 @@ inline void glVertexT<float>(const float& c)
 ////////////////////////////////////////
 
 template<int N>
-inline void glTexCoordNv(const float* p)
+inline void glTexCoordNv(const float* /*p*/)
 {
 }
 

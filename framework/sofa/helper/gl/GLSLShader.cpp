@@ -46,14 +46,14 @@ bool GLSLShader::InitGLSL()
 	return false;
 #else
     // Make sure find the GL_ARB_shader_objects extension so we can use shaders.
-    if( !CanUseGlExtension((char*)"GL_ARB_shading_language_100") )
+    if( !CanUseGlExtension("GL_ARB_shading_language_100") )
     {
         fprintf(stderr, "Error: GL_ARB_shader_objects extension not supported!\n");
         return false;
     }
 
     // Make sure we support the GLSL shading language 1.0
-    if( !CanUseGlExtension((char*)"GL_ARB_shading_language_100") )
+    if( !CanUseGlExtension("GL_ARB_shading_language_100") )
     {
         fprintf(stderr, "Error: GL_ARB_shading_language_100 extension not supported!\n");
         return false;
@@ -143,7 +143,7 @@ std::string GLSLShader::LoadTextFile(const std::string& strFile)
 
 std::string CombineHeaders(std::string header, const std::string &shaderStage, std::string source)
 {
-    std::size_t spos = 1;
+    std::size_t spos = source.size() ? 1 : 0;
     int srcline = 1;
     // Skip #version
     if (source.size() > spos + 8 && (source.substr(spos,8)).compare(std::string("#version")) == 0)
@@ -214,6 +214,7 @@ std::string GLSLShader::GetShaderStageName(GLint target)
 ///	This function compiles a shader and check the log
 bool GLSLShader::CompileShader(GLint target, const std::string& fileName, const std::string& header)
 {
+    if (!GLSLIsSupported) return false;
     std::string source = LoadTextFile(fileName);
 
     std::string shaderStage = GetShaderStageName(target);
@@ -252,6 +253,7 @@ bool GLSLShader::CompileShader(GLint target, const std::string& fileName, const 
 ///	This function loads a vertex and fragment shader file
 void GLSLShader::InitShaders()
 {
+    if (!GLSLIsSupported) return;
     // Make sure the user passed in at least a vertex and fragment shader file
     if(!GetVertexShaderFileName().length() || !GetFragmentShaderFileName().length())
     {

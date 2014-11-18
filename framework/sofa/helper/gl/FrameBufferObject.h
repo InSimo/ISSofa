@@ -32,9 +32,11 @@
 #ifndef FRAMEBUFFEROBJECT_H_
 #define FRAMEBUFFEROBJECT_H_
 
+#include <sofa/SofaFramework.h>
+
 #ifdef SOFA_HAVE_GLEW
 
-#include <sofa/helper/helper.h>
+#include <sofa/SofaFramework.h>
 #include <sofa/helper/system/gl.h>
 
 

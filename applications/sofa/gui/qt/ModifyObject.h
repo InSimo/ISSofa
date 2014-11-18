@@ -32,7 +32,7 @@
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/fixed_array.h>
 #include <sofa/simulation/common/Node.h>
-#include <sofa/component/misc/Monitor.h>
+#include <SofaValidation/Monitor.h>
 #include <sofa/gui/qt/WDoubleLineEdit.h>
 
 #ifdef SOFA_QT4
@@ -80,10 +80,11 @@ namespace qt
 {
 
 class QTransformationWidget;
+#ifdef SOFA_HAVE_QWT
 class QEnergyStatWidget;
 class QMomentumStatWidget;
-
-
+#endif
+class QTabulationModifyObject;
 #ifndef SOFA_QT4
 typedef QListView   Q3ListView;
 typedef QListViewItem Q3ListViewItem;
@@ -182,6 +183,8 @@ signals:
     void dialogClosed(void *);            //the current window has been closed: we give the Id of the current window
     void nodeNameModification(simulation::Node*);
     void componentDirty(bool);
+    void dataModified( QString );
+
 
     void beginObjectModification(sofa::core::objectmodel::Base* object);
     void endObjectModification(sofa::core::objectmodel::Base* object);
@@ -194,8 +197,8 @@ protected slots:
     void clearOutputs() {node->clearOutputs(); logOutputEdit->clear();}
 
 protected:
-    void updateConsole();             //update the console log of warnings and outputs
-
+    void updateConsole();  //update the console log of warnings and outputs
+    QString parseDataModified();
     void* Id_;
     Q3ListViewItem* item_;
     core::objectmodel::Base* node;
@@ -213,11 +216,15 @@ protected:
     //Widget specific to Node:
     //Transformation widget: translation, rotation, scale ( only experimental and deactivated)
     QTransformationWidget* transformation;
+#ifdef SOFA_HAVE_QWT
     //Energy widget: plot the kinetic & potential energy
     QEnergyStatWidget* energy;
     //Momentum widget: plot the linear & angular momentum
     QMomentumStatWidget* momentum;
+#endif
     //Visual Flags
+
+    std::vector< QTabulationModifyObject* > m_tabs;
 
 };
 

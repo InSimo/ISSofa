@@ -203,7 +203,7 @@ public:
     { vOp( params /* PARAMS FIRST */, f, ConstVecId::null(), ConstVecId::null(), 1.0 ); }
 
     /// Set Acc =0
-    virtual void resetAcc( const ExecParams* params /* PARAMS FIRST   = ExecParams::defaultInstance()*/, VecId a = VecId::dx() /* VecId::accFromFrame() */ )
+    virtual void resetAcc( const ExecParams* params /* PARAMS FIRST   = ExecParams::defaultInstance()*/, VecId a = VecId::dx() )
     { vOp( params /* PARAMS FIRST */, a, ConstVecId::null(), ConstVecId::null(), 1.0 ); }
 
     /// Add stored external forces to F
@@ -232,8 +232,8 @@ public:
         ConstraintBlock( unsigned int c, defaulttype::BaseMatrix *m):column(c),matrix(m) {}
 
         unsigned int getColumn() const {return column;}
-        const defaulttype::BaseMatrix &getMatrix() const {return *matrix;};
-        defaulttype::BaseMatrix *getMatrix() {return matrix;};
+        const defaulttype::BaseMatrix &getMatrix() const {return *matrix;}
+        defaulttype::BaseMatrix *getMatrix() {return matrix;}
     protected:
         unsigned int column;
         defaulttype::BaseMatrix *matrix;
@@ -278,7 +278,7 @@ public:
     /// \brief Rotate the current state
     ///
     /// This method is optional, it is used when the user want to interactively change the position of an object using Euler angles
-    virtual void applyRotation (const double /*rx*/, const double /*ry*/, const double /*rz*/) {};
+    virtual void applyRotation (const double /*rx*/, const double /*ry*/, const double /*rz*/) {}
 
     /// Rotate the current state
     virtual void applyRotation(const defaulttype::Quat q)=0;

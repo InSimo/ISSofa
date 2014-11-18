@@ -25,9 +25,7 @@
 #include <sofa/helper/io/MeshVTK.h>
 
 #include <sstream>
-
-#define TIXML_USE_STL
-#include <tinyxml/tinyxml.h>
+#include <tinyxml.h>
 
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/system/SetDirectory.h>
@@ -62,15 +60,14 @@ void MeshVTK::init(std::string filename)
 void MeshVTK::readVTU(const std::string &filename)
 {
 
-    tinyxml::TiXmlDocument vtu;
-    vtu.LoadFile(filename);
+    TiXmlDocument vtu(filename);
     if (vtu.Error())
     {
         std::cerr << "Error while loading file " << filename << std::endl;
         std::cerr << vtu.ErrorDesc() << std::endl;
         return;
     }
-    tinyxml::TiXmlElement* piece = vtu.FirstChildElement("VTKFile")->FirstChildElement("UnstructuredGrid")->FirstChildElement("Piece");
+    TiXmlElement* piece = vtu.FirstChildElement("VTKFile")->FirstChildElement("UnstructuredGrid")->FirstChildElement("Piece");
 
     unsigned int nbPoints, nbCells;
     piece->QueryUnsignedAttribute("NumberOfPoints", &nbPoints);
@@ -89,7 +86,7 @@ void MeshVTK::readVTU(const std::string &filename)
     // read triangles
     std::stringstream connectivityDataArray;
     std::stringstream typesDataArray;
-    tinyxml::TiXmlElement* cellDataArray = piece->FirstChildElement("Cells")->FirstChildElement("DataArray");
+    TiXmlElement* cellDataArray = piece->FirstChildElement("Cells")->FirstChildElement("DataArray");
     std::string name;
     while(cellDataArray)
     {
@@ -103,25 +100,41 @@ void MeshVTK::readVTU(const std::string &filename)
 
     int cellType;
     vector< vector<int> > vertNormTexIndices;
-    vector<int> vIndices, nIndices(3,0), tIndices(3,0);
+    vector<int> vIndices(3,0), nIndices(3,0), tIndices(3,0), quad(4,0);
     for (std::size_t i = 0 ; i < nbCells ; ++i)
     {
-        vIndices.clear();
-        vertNormTexIndices.clear();
         typesDataArray >> cellType;
         switch(cellType) {
-        case 5:
-            vIndices.resize(3);
+        case 5: // triangle
             connectivityDataArray >> vIndices[0]  >> vIndices[1] >> vIndices[2];
+            vertNormTexIndices.clear();
+            vertNormTexIndices.push_back (vIndices);
+            vertNormTexIndices.push_back (nIndices);
+            vertNormTexIndices.push_back (tIndices);
+            facets.push_back(vertNormTexIndices);
+            break;
+        case 9: // quad
+            // split quad into two triangles
+            connectivityDataArray >> quad[0] >> quad[1] >> quad[2] >> quad[3];
+            // triangle #1
+            vIndices[0]=quad[0];vIndices[1]=quad[1];vIndices[2]=quad[2];
+            vertNormTexIndices.clear();
+            vertNormTexIndices.push_back (vIndices);
+            vertNormTexIndices.push_back (nIndices);
+            vertNormTexIndices.push_back (tIndices);
+            facets.push_back(vertNormTexIndices);
+            // triangle #2
+            vIndices[0]=quad[0];vIndices[1]=quad[2];vIndices[2]=quad[3];
+            vertNormTexIndices.clear();
+            vertNormTexIndices.push_back (vIndices);
+            vertNormTexIndices.push_back (nIndices);
+            vertNormTexIndices.push_back (tIndices);
+            facets.push_back(vertNormTexIndices);
             break;
         default:
-            std::cerr << "Unsupported cell type" << std::endl;
+            std::cerr << "ERROR: " << filename << " - Unsupported cell type: " << cellType << std::endl;
             return;
         }
-        vertNormTexIndices.push_back (vIndices);
-        vertNormTexIndices.push_back (nIndices);
-        vertNormTexIndices.push_back (tIndices);
-        facets.push_back(vertNormTexIndices);
     }
 }
 

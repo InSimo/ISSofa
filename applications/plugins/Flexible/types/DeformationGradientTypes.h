@@ -31,9 +31,11 @@
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/core/objectmodel/BaseContext.h>
-#include <sofa/component/container/MechanicalObject.h>
+#include <SofaBaseMechanics/MechanicalObject.h>
+#include <sofa/helper/RandomGenerator.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/rmath.h>
+#include <sofa/helper/RandomGenerator.h>
 #ifdef SOFA_SMP
 #include <sofa/defaulttype/SharedTypes.h>
 #endif /* SOFA_SMP */
@@ -149,6 +151,7 @@ struct DefGradientTypes
         {
             return getVec().norm();
         }
+
     };
 
     typedef vector<Deriv> VecDeriv;
@@ -183,12 +186,19 @@ struct DefGradientTypes
     //@}
 
     /// Return a Deriv with random value. Each entry with magnitude smaller than the given value.
-    static Deriv randomDeriv( Real maxValue )
+    static Deriv randomDeriv( Real maxValue , int seed = (unsigned int)time(NULL))
     {
         Deriv result;
+        helper::RandomGenerator randomGenerator(seed);
         for( unsigned int i=0 ; i<VSize ; ++i )
-            result[i] = rand()*maxValue/RAND_MAX;
+            result[i] = randomGenerator.symrand(maxValue);
         return result;
+    }
+
+    /// for finite difference methods 
+    static Deriv coordDifference(const Coord& c1, const Coord& c2)
+    {
+        return (Deriv)(c1-c2);
     }
 
 };
