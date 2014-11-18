@@ -62,7 +62,7 @@ void RepulsiveSpringForceField<DataTypes>::addForce(const MechanicalParams* /*mp
         int b = springs[i].m2;
         Coord u = x2[b]-x1[a];
         Real d = u.norm();
-        if (d < springs[i].initpos)
+        if (d!=0 && d < springs[i].initpos)
         {
             Real inverseLength = 1.0f/d;
             u *= inverseLength;
