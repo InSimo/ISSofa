@@ -210,7 +210,8 @@ Visitor::Result AnimateVisitor::processNodeTopDown(simulation::Node* node)
             end(node, node->solver[i], t0);
         }
 
-        MechanicalPropagatePositionAndVelocityVisitor(&m_mparams /* PARAMS FIRST */, nextTime,VecCoordId::position(),VecDerivId::velocity()
+        MechanicalPropagatePositionAndVelocityVisitor(&m_mparams /* PARAMS FIRST */, nextTime,
+            sofa::core::VecCoordId::position(),sofa::core::VecDerivId::velocity()
 #ifdef SOFA_SUPPORT_MAPPED_MASS
                 ,VecDerivId::dx()
 #endif

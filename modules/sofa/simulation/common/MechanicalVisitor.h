@@ -1024,21 +1024,29 @@ public:
 #endif
 };
 
-/** V is propagated to all the layers through the mappings.
+/** Propagate velocities to all the levels of the hierarchy.
+At each level, the mappings form the parent to the child is applied.
+After the execution of this action, all the (mapped) degrees of freedom are consistent with the independent degrees of freedom.
 */
 class SOFA_SIMULATION_COMMON_API MechanicalPropagateVelocityVisitor : public MechanicalVisitor
 {
 public:
-    MultiVecDerivId v;
+    double currentTime;
+    sofa::core::MultiVecDerivId v;  
     bool applyProjections;
-
-    MechanicalPropagateVelocityVisitor(const sofa::core::MechanicalParams* mparams , MultiVecDerivId _v)
-        : MechanicalVisitor(mparams) , v(_v), applyProjections(true)
-    {
-#ifdef SOFA_DUMP_VISITOR_INFO
-        setReadWriteVectors();
+    
+#ifdef SOFA_SUPPORT_MAPPED_MASS
+    // compute the acceleration created by the input velocity and the derivative of the mapping
+    MultiVecDerivId a;
+    MechanicalPropagateVelocityVisitor(
+        const sofa::core::MechanicalParams* mparams /* PARAMS FIRST  = sofa::core::MechanicalParams::defaultInstance()*/, double time=0,
+        MultiVecDerivId v = VecDerivId::velocity(),
+        MultiVecDerivId a = VecDerivId::dx() ); 
+#else
+    MechanicalPropagateVelocityVisitor(const sofa::core::MechanicalParams* mparams, double time=0, 
+                                        sofa::core::MultiVecDerivId v = sofa::core::VecId::velocity() );
 #endif
-    }
+
     virtual Result fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm);
     virtual Result fwdMechanicalMapping(simulation::Node* /*node*/, core::BaseMapping* map);
     virtual Result fwdProjectiveConstraintSet(simulation::Node* /*node*/, core::behavior::BaseProjectiveConstraintSet* c);
@@ -1052,11 +1060,9 @@ public:
 
     /// Return a class name for this visitor
     /// Only used for debugging / profiling purposes
-    virtual const char* getClassName() const { return "MechanicalPropagateVelocityVisitor"; }
-    virtual std::string getInfos() const
-    {
-        std::string name="["+v.getName()+"]"; return name;
-    }
+    virtual const char* getClassName() const { return "MechanicalPropagateVelocityVisitor";}
+    virtual std::string getInfos() const { std::string name="v["+v.getName()+"]"; return name; }
+
     /// Specify whether this action can be parallelized.
     virtual bool isThreadSafe() const
     {
@@ -1079,8 +1085,8 @@ public:
     sofa::core::MultiVecDerivId dx,f;
 
     MechanicalPropagateDxAndResetForceVisitor(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST  = sofa::core::MechanicalParams::defaultInstance()*/, 
-                                              sofa::core::MultiVecDerivId dx, MultiVecDerivId f, bool m)
-        : MechanicalVisitor(mparams) , dx(dx), f(f), ignoreMask(m)
+                                              sofa::core::MultiVecDerivId dx, sofa::core::MultiVecDerivId f)
+        : MechanicalVisitor(mparams) , dx(dx), f(f)
     {
 #ifdef SOFA_DUMP_VISITOR_INFO
         setReadWriteVectors();
@@ -1120,7 +1126,7 @@ public:
     bool applyProjections;
 
     MechanicalPropagatePositionAndResetForceVisitor(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST  = sofa::core::MechanicalParams::defaultInstance()*/, 
-                                                    sofa::core::MultiVecCoordId x, MultiVecDerivId f)
+                                                    sofa::core::MultiVecCoordId x, sofa::core::MultiVecDerivId f)
         : MechanicalVisitor(mparams) , x(x), f(f), applyProjections(true)
     {}
     virtual Result fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm);
@@ -1360,7 +1366,7 @@ public:
     bool applyProjections;
 
     MechanicalPropagatePositionVisitor( const sofa::core::MechanicalParams* mparams /* PARAMS FIRST  = sofa::core::MechanicalParams::defaultInstance()*/, double time=0, 
-                                        sofa::core::MultiVecCoordId x = VecCoordId::position());
+                                        sofa::core::MultiVecCoordId x = sofa::core::VecCoordId::position());
 
     virtual Result fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm);
     virtual Result fwdMechanicalMapping(simulation::Node* /*node*/, core::BaseMapping* map);
@@ -1416,7 +1422,8 @@ public:
         sofa::core::MultiVecDerivId a = sofa::core::VecDerivId::dx() , bool m=true); //
 #else
     MechanicalPropagatePositionAndVelocityVisitor(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST  = sofa::core::MechanicalParams::defaultInstance()*/, double time=0, 
-                                                  sofa::core::MultiVecCoordId x = VecId::position(), MultiVecDerivId v = VecId::velocity());
+                                                  sofa::core::MultiVecCoordId x = sofa::core::VecId::position(), 
+                                                  sofa::core::MultiVecDerivId v = sofa::core::VecId::velocity());
 #endif
   
 

@@ -140,7 +140,7 @@ void MechanicalOperations::propagateX(core::MultiVecCoordId x, bool applyProject
 void MechanicalOperations::propagateV(core::MultiVecDerivId v, bool applyProjections)
 {
     setV(v);
-    MechanicalPropagateVelocityVisitor visitor(&mparams /* PARAMS FIRST */, v);
+    MechanicalPropagateVelocityVisitor visitor(&mparams /* PARAMS FIRST */, 0.0, v);
     visitor.applyProjections = applyProjections;
     executeVisitor( visitor );
 }
@@ -208,7 +208,7 @@ void MechanicalOperations::accFromF(core::MultiVecDerivId a, core::ConstMultiVec
 }
 
 /// Compute the current force (given the latest propagated position and velocity)
-void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear, bool accumulate)
+void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear, bool accumulate, bool neglectingCompliance)
 {
     setF(result);
     if (clear)
@@ -216,7 +216,7 @@ void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear
         executeVisitor( MechanicalResetForceVisitor(&mparams /* PARAMS FIRST */, result, false) );
         //finish();
     }
-    executeVisitor( MechanicalComputeForceVisitor(&mparams /* PARAMS FIRST */, result, accumulate) );
+    executeVisitor( MechanicalComputeForceVisitor(&mparams /* PARAMS FIRST */, result, accumulate,neglectingCompliance) );
 }
 
 /// Compute the current force delta (given the latest propagated displacement)
