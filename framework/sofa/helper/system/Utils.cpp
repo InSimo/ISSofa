@@ -24,6 +24,8 @@
 ******************************************************************************/
 #include <sofa/helper/system/Utils.h>
 
+#include <string.h>
+
 #ifdef WIN32
 # include <Windows.h>
 # include <StrSafe.h>

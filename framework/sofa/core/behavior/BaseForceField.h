@@ -64,6 +64,7 @@ public:
     SOFA_ABSTRACT_CLASS(BaseForceField, objectmodel::BaseObject);
 protected:
     virtual ~BaseForceField() {}
+    BaseForceField();
 public:
     /// @name Vector operations
     /// @{

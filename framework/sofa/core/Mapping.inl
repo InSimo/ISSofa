@@ -326,12 +326,6 @@ bool Mapping<In,Out>::checkApplyJ( const MechanicalParams* mparams, OutDataVecDe
         return false;
     else toMechaModel = toMechaModelVec[0];
 
-    if (toMechaModel->forceMask.isInUse())
-    {
-        serr << "Mask in use in mapped model. Disabled because of checkApplyJ." << sendl;
-        toMechaModel->forceMask.setInUse(false);
-    }
-
     OutVecDeriv& out = *outData.beginEdit(mparams);
     const InVecDeriv& in = inData.getValue(mparams);
 
@@ -452,12 +446,6 @@ bool Mapping<In,Out>::checkApplyJT(const MechanicalParams* mparams, InDataVecDer
     if(toMechaModelVec.size() < 1)
         return false;
     else toMechaModel = toMechaModelVec[0];
-
-    if (toMechaModel->forceMask.isInUse())
-    {
-        serr << "Mask in use in mapped model. Disabled because of checkApplyJT." << sendl;
-        toMechaModel->forceMask.setInUse(false);
-    }
 
     InVecDeriv& out = *outData.beginEdit(mparams);
     const OutVecDeriv& in = inData.getValue(mparams);
