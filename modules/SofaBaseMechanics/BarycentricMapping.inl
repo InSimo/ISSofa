@@ -2013,8 +2013,6 @@ void BarycentricMapperQuadSetTopology<In,Out>::applyJT ( typename In::VecDeriv& 
 {
     const sofa::helper::vector<topology::Quad>& quads = this->fromTopology->getQuads();
 
-    const sofa::helper::vector<topology::Quad>& quads = this->fromTopology->getQuads();
-
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -3584,8 +3582,8 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
             vectorData.clear();
             this->map.endEdit();
 
-            typedef MechanicalState<In> MechanicalStateF;
-            typedef MechanicalState<Out> MechanicalStateT;
+            typedef sofa::core::behavior::MechanicalState<In> MechanicalStateF;
+            typedef sofa::core::behavior::MechanicalState<Out> MechanicalStateT;
 
             MechanicalStateF* mStateF;
             MechanicalStateT* mStateT;
@@ -3593,8 +3591,8 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
             this->fromTopology->getContext()->get(mStateF);
             this->toTopology->getContext()->get(mStateT);
 
-            const typename MechanicalStateF::VecCoord& in = *(mStateF->getX0());
-            const typename MechanicalStateT::VecCoord& out = *(mStateT->getX0());
+            const typename sofa::helper::ReadAccessor< sofa::Data<MechanicalStateF::VecCoord> > in =  mStateF->readRestPositions();
+            const typename sofa::helper::ReadAccessor< sofa::Data<MechanicalStateT::VecCoord> > out = mStateT->readRestPositions();
 
             int outside = 0;
 
