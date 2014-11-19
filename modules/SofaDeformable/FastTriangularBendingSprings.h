@@ -52,7 +52,7 @@
 #include <SofaBaseTopology/TopologyData.h>
 
 #ifdef SOFA_HAVE_EIGEN2
-#include <sofa/component/linearsolver/EigenSparseMatrix.h>
+#include <SofaEigen2Solver/EigenSparseMatrix.h>
 #endif
 
 
@@ -88,6 +88,9 @@ public:
     typedef typename DataTypes::Real Real;
     typedef core::behavior::MechanicalState<DataTypes> MechanicalState;
 
+    typedef sofa::core::topology::Edge     Edge;
+    typedef sofa::core::topology::Triangle Triangle;
+    typedef sofa::core::topology::Topology::PointID PointID;
     typedef core::objectmodel::Data<VecCoord> DataVecCoord;
     typedef core::objectmodel::Data<VecDeriv> DataVecDeriv;
 
@@ -98,6 +101,9 @@ public:
 
     Data<double> f_bendingStiffness;  ///< Material parameter
 	Data<double> d_minDistValidity; ///< Minimal distance to consider a spring valid
+
+    Data<bool>   d_useRestCurvature; ///< Use the rest curvature as the zero energy bending.  
+    Data<bool>   d_useOldAddForce; //warning: bug version
 
 
     /// Searches triangle topology and creates the bending springs
@@ -119,20 +125,18 @@ protected:
     class EdgeSpring
     {
     public:
-        enum {A=0,B,C,D};     ///< vertex names as in Volino's paper
+        enum {A=0,B,C,D};                        ///< vertex names as in Volino's paper
         sofa::defaulttype::Vec<4,unsigned> vid;  ///< vertex indices, in circular order
         sofa::defaulttype::Vec<4,Real> alpha;    ///< weight of each vertex in the bending vector
-        //mutable Deriv dpKfact[4];
-        Real lambda;          ///< bending stiffness
-
+        Real lambda;                             ///< bending stiffness
+        Deriv R0;                                ///< rest curvature;
         bool is_activated;
-
         bool is_initialized;
 
         typedef defaulttype::Mat<12,12,Real> StiffnessMatrix;
 
         /// Store the vertex indices and perform all the precomputations
-        void setEdgeSpring( const VecCoord& p, unsigned iA, unsigned iB, unsigned iC, unsigned iD, Real materialBendingStiffness )
+        void setEdgeSpring( const VecCoord& p, unsigned iA, unsigned iB, unsigned iC, unsigned iD, Real materialBendingStiffness, bool computeRestCurvature=false )
         {
             is_activated = is_initialized = true;
 
@@ -260,13 +264,13 @@ protected:
     };
 
     /// The list of edge springs, one for each edge between two triangles
-    EdgeData<helper::vector<EdgeSpring> > edgeSprings;
+    sofa::component::topology::EdgeData<helper::vector<EdgeSpring> > edgeSprings;
 
-    class TriangularBSEdgeHandler : public TopologyDataHandler<Edge,vector<EdgeSpring> >
+    class TriangularBSEdgeHandler : public sofa::component::topology::TopologyDataHandler<Edge,vector<EdgeSpring> >
     {
     public:
         typedef typename FastTriangularBendingSprings<DataTypes>::EdgeSpring EdgeSpring;
-        TriangularBSEdgeHandler(FastTriangularBendingSprings<DataTypes>* _ff, EdgeData<sofa::helper::vector<EdgeSpring> >* _data)
+        TriangularBSEdgeHandler(FastTriangularBendingSprings<DataTypes>* _ff, sofa::component::topology::EdgeData<sofa::helper::vector<EdgeSpring> >* _data)
             : TopologyDataHandler<Edge, sofa::helper::vector<EdgeSpring> >(_data), ff(_ff) {}
 
         void applyCreateFunction(unsigned int edgeIndex,
@@ -306,7 +310,7 @@ protected:
 
     virtual ~FastTriangularBendingSprings();
 
-    EdgeData<helper::vector<EdgeSpring> > &getEdgeInfo() {return edgeSprings;}
+    sofa::component::topology::EdgeData<helper::vector<EdgeSpring> > &getEdgeInfo() {return edgeSprings;}
 
     TriangularBSEdgeHandler* edgeHandler;
 

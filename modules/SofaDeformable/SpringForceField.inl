@@ -57,7 +57,6 @@ SpringForceField<DataTypes>::SpringForceField(MechanicalState* mstate1, Mechanic
     , showArrowSize(initData(&showArrowSize,0.01f,"showArrowSize","size of the axis"))
     , drawMode(initData(&drawMode,0,"drawMode","The way springs will be drawn:\n- 0: Line\n- 1:Cylinder\n- 2: Arrow"))
     , springs(initData(&springs,"spring","pairs of indices, stiffness, damping, rest length"))
-    , maskInUse(false)
 {
 }
 
@@ -69,7 +68,6 @@ SpringForceField<DataTypes>::SpringForceField(SReal _ks, SReal _kd)
     , drawMode(initData(&drawMode,0,"drawMode","The way springs will be drawn:\n- 0: Line\n- 1:Cylinder\n- 2: Arrow"))
     , springs(initData(&springs,"spring","pairs of indices, stiffness, damping, rest length"))
     , fileSprings(initData(&fileSprings, "fileSprings", "File describing the springs"))
-    , maskInUse(false)
 {
     this->addAlias(&fileSprings, "filename");
 }
