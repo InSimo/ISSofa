@@ -186,7 +186,7 @@ void CatmullRomSplineMapping<TIn, TOut>::apply( const sofa::core::MechanicalPara
 
 
 template <class TIn, class TOut>
-void CatmullRomSplineMapping<TIn, TOut>::applyJ ( typename Out::VecDeriv& out, const typename In::VecDeriv& in )
+void CatmullRomSplineMapping<TIn, TOut>::applyJ( const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, OutDataVecDeriv& outData, const InDataVecDeriv& inData)
 {
     OutVecDeriv& out = *outData.beginEdit(mparams);
     const InVecDeriv& in = inData.getValue();
