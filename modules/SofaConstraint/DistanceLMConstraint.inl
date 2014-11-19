@@ -126,8 +126,6 @@ void DistanceLMConstraint<DataTypes>::buildConstraintMatrix(const core::Constrai
         registeredConstraints.push_back(cIndex);
         cIndex++;
 
-        this->constrainedObject1->forceMask.insertEntry(idx1);
-        this->constrainedObject2->forceMask.insertEntry(idx2);
     }
 }
 

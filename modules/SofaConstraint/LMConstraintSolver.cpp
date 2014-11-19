@@ -171,7 +171,7 @@ bool LMConstraintSolver::prepareStates(const core::ConstraintParams *cparams, Mu
         if (f_printLog.getValue()) cerr << "LMConstraintSolver::prepareStates for velocities"<<endl;
         if (needPriorStatePropagation(orderState))
         {
-            simulation::MechanicalPropagateVelocityVisitor propagateState(&mparams, 0.0, core::VecDerivId(vid),false);
+            simulation::MechanicalPropagateVelocityVisitor propagateState(&mparams, 0.0, core::VecDerivId(vid));
             propagateState.execute(this->getContext());
         }
         else
@@ -199,7 +199,7 @@ bool LMConstraintSolver::prepareStates(const core::ConstraintParams *cparams, Mu
 
         if (needPriorStatePropagation(orderState))
         {
-            simulation::MechanicalPropagatePositionVisitor propagateState(&mparams /* PARAMS FIRST */, 0.0, core::VecCoordId(vid), false);
+            simulation::MechanicalPropagatePositionVisitor propagateState(&mparams /* PARAMS FIRST */, 0.0, core::VecCoordId(vid));
             propagateState.execute(this->getContext());
         }
         else

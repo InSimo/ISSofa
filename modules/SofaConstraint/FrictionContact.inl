@@ -43,8 +43,8 @@ namespace component
 namespace collision
 {
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::FrictionContact(CollisionModel1* model1, CollisionModel2* model2, Intersection* intersectionMethod)
+template < class TCollisionModel1, class TCollisionModel2>
+FrictionContact<TCollisionModel1,TCollisionModel2>::FrictionContact(CollisionModel1* model1, CollisionModel2* model2, Intersection* intersectionMethod)
     : model1(model1)
     , model2(model2)
     , intersectionMethod(intersectionMethod)
@@ -61,13 +61,13 @@ FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::FrictionCo
 
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::~FrictionContact()
+template < class TCollisionModel1, class TCollisionModel2>
+FrictionContact<TCollisionModel1,TCollisionModel2>::~FrictionContact()
 {
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::cleanup()
+template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::cleanup()
 {
     if (m_constraint)
     {
@@ -91,8 +91,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::clean
 }
 
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDetectionOutputs(OutputVector* o)
+template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::setDetectionOutputs(OutputVector* o)
 {
     TOutputVector& outputs = *static_cast<TOutputVector*>(o);
     // We need to remove duplicate contacts
@@ -135,8 +135,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDe
 }
 
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activateMappers()
+template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::activateMappers()
 {
     if (!m_constraint)
     {
@@ -220,8 +220,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activ
 
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::createResponse(core::objectmodel::BaseContext* group)
+template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::createResponse(core::objectmodel::BaseContext* group)
 {
 
     activateMappers();
@@ -263,8 +263,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::creat
     }
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::removeResponse()
+template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::removeResponse()
 {
     if (m_constraint)
     {
@@ -280,8 +280,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::remov
     }
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
-void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setInteractionTags(MechanicalState1* mstate1, MechanicalState2* mstate2)
+template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::setInteractionTags(MechanicalState1* mstate1, MechanicalState2* mstate2)
 {
     sofa::core::objectmodel::TagSet tagsm1 = mstate1->getTags();
     sofa::core::objectmodel::TagSet tagsm2 = mstate2->getTags();

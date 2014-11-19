@@ -4,6 +4,7 @@ project(SofaConstraint)
 set(HEADER_FILES
 
     initConstraint.h
+    ContactIdentifier.h
     LocalMinDistance.h
     LocalMinDistance.inl
     LMDNewProximityIntersection.h
@@ -42,6 +43,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
 
     initConstraint.cpp
+    ContactIdentifier.cpp
     LocalMinDistance.cpp
     LMDNewProximityIntersection.cpp
     FrictionContact.cpp

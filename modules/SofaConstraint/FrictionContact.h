@@ -33,8 +33,8 @@
 #include <SofaBaseCollision/BaseContactMapper.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/BaseMapping.h>
-
-#include <sofa/component/collision/ContactIdentifier.h>
+#include <sofa/defaulttype/Vec3Types.h>
+#include <SofaConstraint/ContactIdentifier.h>
 
 namespace sofa
 {
@@ -55,8 +55,11 @@ public:
     typedef TCollisionModel1 CollisionModel1;
     typedef TCollisionModel2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
-    typedef typename CollisionModel1::DataTypes DataTypes1;
-    typedef typename CollisionModel2::DataTypes DataTypes2;
+    typedef typename TCollisionModel1::DataTypes::CPos TVec1;
+    typedef typename TCollisionModel2::DataTypes::CPos TVec2;
+    typedef sofa::defaulttype::StdVectorTypes<TVec1,TVec1, typename TCollisionModel1::DataTypes::Real > DataTypes1; 
+    typedef sofa::defaulttype::StdVectorTypes<TVec2,TVec2, typename TCollisionModel1::DataTypes::Real > DataTypes2;
+
     typedef core::behavior::MechanicalState<DataTypes1> MechanicalState1;
     typedef core::behavior::MechanicalState<DataTypes2> MechanicalState2;
     typedef typename CollisionModel1::Element CollisionElement1;
