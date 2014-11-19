@@ -243,6 +243,9 @@ void SkinningMapping<TIn, TOut>::setWeights(const vector<sofa::helper::SVector<I
 template <class TIn, class TOut>
 void SkinningMapping<TIn, TOut>::apply( const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, OutDataVecCoord& outData, const InDataVecCoord& inData)
 {
+    OutVecCoord& out = *outData.beginEdit(mparams);
+    const InVecCoord& in = inData.getValue();
+
     unsigned int nbref=nbRef.getValue()[0];
     sofa::helper::ReadAccessor<Data<vector<sofa::helper::SVector<InReal> > > > m_weights  ( this->weight );
     sofa::helper::ReadAccessor<Data<vector<sofa::helper::SVector<unsigned int> > > > index ( f_index );
@@ -478,6 +481,7 @@ void SkinningMapping<TIn, TOut>::applyJT ( const sofa::core::ConstraintParams* c
                 }
             }
         }
+	outData.endEdit();
 }
 
 template <class TIn, class TOut>

@@ -97,7 +97,7 @@ public:
 
 protected:
 
-    Data<VecOutCoord> f_initPos;  // initial child coordinates in the world reference frame
+    Data<OutVecCoord> f_initPos;  // initial child coordinates in the world reference frame
 
     // data for linear blending
     vector<vector<OutCoord> > f_localPos; /// initial child coordinates in local frame x weight :   dp = dMa_i (w_i \bar M_i f_localPos)
