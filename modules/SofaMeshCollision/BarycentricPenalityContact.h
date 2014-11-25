@@ -51,19 +51,21 @@ namespace component
 namespace collision
 {
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes = sofa::defaulttype::Vec3Types >
+template < class TCollisionModel1, class TCollisionModel2>
 class BarycentricPenalityContact : public core::collision::Contact
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE3(BarycentricPenalityContact, TCollisionModel1, TCollisionModel2, ResponseDataTypes), core::collision::Contact);
+    SOFA_CLASS(SOFA_TEMPLATE2(BarycentricPenalityContact, TCollisionModel1, TCollisionModel2), core::collision::Contact);
 
     typedef TCollisionModel1 CollisionModel1;
     typedef TCollisionModel2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
     typedef core::collision::DetectionOutputVector OutputVector;
     typedef core::collision::TDetectionOutputVector<CollisionModel1,CollisionModel2> TOutputVector;
-    typedef ResponseDataTypes DataTypes1;
-    typedef ResponseDataTypes DataTypes2;
+    typedef typename TCollisionModel1::DataTypes::CPos TVec1;
+    typedef typename TCollisionModel2::DataTypes::CPos TVec2;
+    typedef sofa::defaulttype::StdVectorTypes<TVec1,TVec1, typename TCollisionModel1::DataTypes::Real > DataTypes1; 
+    typedef sofa::defaulttype::StdVectorTypes<TVec2,TVec2, typename TCollisionModel1::DataTypes::Real > DataTypes2;
     typedef core::behavior::MechanicalState<DataTypes1> MechanicalState1;
     typedef core::behavior::MechanicalState<DataTypes2> MechanicalState2;
     typedef typename CollisionModel1::Element CollisionElement1;
@@ -71,7 +73,7 @@ public:
 //#ifdef SOFA_TEST_FRICTION
 //	typedef forcefield::PenalityContactFrictionForceField<ResponseDataTypes> ResponseForceField;
 //#else
-    typedef interactionforcefield::PenalityContactForceField<ResponseDataTypes> ResponseForceField;
+    typedef interactionforcefield::PenalityContactForceField<sofa::defaulttype::Vec3Types > ResponseForceField;
 //#endif
 protected:
     CollisionModel1* model1;

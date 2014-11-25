@@ -38,22 +38,22 @@ namespace component
 namespace collision
 {
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::BarycentricPenalityContact(CollisionModel1* _model1, CollisionModel2* _model2, Intersection* _intersectionMethod)
+template < class TCollisionModel1, class TCollisionModel2>
+BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::BarycentricPenalityContact(CollisionModel1* _model1, CollisionModel2* _model2, Intersection* _intersectionMethod)
     : model1(_model1), model2(_model2), intersectionMethod(_intersectionMethod), ff(NULL), parent(NULL)
 {
     mapper1.setCollisionModel(model1);
     mapper2.setCollisionModel(model2);
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::~BarycentricPenalityContact()
+template < class TCollisionModel1, class TCollisionModel2>
+BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::~BarycentricPenalityContact()
 {
 }
 
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::cleanup()
+template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::cleanup()
 {
     if (ff!=NULL)
     {
@@ -67,8 +67,8 @@ void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTy
     }
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDetectionOutputs(OutputVector* o)
+template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::setDetectionOutputs(OutputVector* o)
 {
     TOutputVector& outputs = *static_cast<TOutputVector*>(o);
     const bool printLog = this->f_printLog.getValue();
@@ -217,8 +217,8 @@ void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTy
     mapper2.update();
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::createResponse(core::objectmodel::BaseContext* group)
+template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::createResponse(core::objectmodel::BaseContext* group)
 {
     if (ff!=NULL)
     {
@@ -237,8 +237,8 @@ void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTy
     }
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::removeResponse()
+template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::removeResponse()
 {
     if (ff!=NULL)
     {
@@ -252,15 +252,15 @@ void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTy
     }
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::draw(const core::visual::VisualParams* )
+template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::draw(const core::visual::VisualParams* )
 {
     //	if (ff!=NULL)
     //		ff->draw(vparams);
 }
 
-template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setInteractionTags(MechanicalState1* mstate1, MechanicalState2* mstate2)
+template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::setInteractionTags(MechanicalState1* mstate1, MechanicalState2* mstate2)
 {
     sofa::core::objectmodel::TagSet tagsm1 = mstate1->getTags();
     sofa::core::objectmodel::TagSet tagsm2 = mstate2->getTags();
