@@ -253,7 +253,7 @@ inline const typename DataTypes::Coord& TLine<DataTypes>::p(int i) const {
 
 template<class DataTypes>
 inline const typename DataTypes::Coord& TLine<DataTypes>::p0(int i) const {
-    return (*this->model->mstate->getX0())[this->model->elems[this->index].p[i]];
+    return this->model->mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[i]];
 }
 
 template<class DataTypes>
