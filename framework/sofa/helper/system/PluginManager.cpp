@@ -199,7 +199,7 @@ bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog, bo
         return false;
     }
 
-    DynamicLibrary* d  = DynamicLibrary::load(pluginPath, errlog);
+    DynamicLibrary::Handle d  = DynamicLibrary::load(pluginPath);
     Plugin p;
     if( ! d.isValid() )
     {
