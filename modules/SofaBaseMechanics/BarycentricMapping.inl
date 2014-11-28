@@ -3561,53 +3561,45 @@ void BarycentricMapping<TIn, TOut>::handleTopologyChange ( core::topology::Topol
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::topology::Topology* t)
 {
-  	core::topology::BaseMeshTopology* from = dynamic_cast<core::topology::BaseMeshTopology*>(t);
-	if(from == NULL ) {
-		this->serr << __FUNCTION__ << ": could not cast topology to BaseMeshTopology" << this->sendl;
-		return;
-	}
+    using core::topology::TopologyChange;
 
-	std::list<const core::topology::TopologyChange *>::const_iterator itBegin = from->beginChange();
-	std::list<const core::topology::TopologyChange *>::const_iterator itEnd = from->endChange();
+    if (t != this->fromTopology) return;
 
-	for ( std::list<const core::topology::TopologyChange *>::const_iterator changeIt = itBegin;
-		changeIt != itEnd; ++changeIt )
+    if ( this->fromTopology->beginChange() == this->fromTopology->endChange() )
+        return;
+
+    MechanicalState< In >* mStateFrom = NULL;
+    MechanicalState< Out >* mStateTo = NULL;
+
+    this->fromTopology->getContext()->get(mStateFrom);
+    this->toTopology->getContext()->get(mStateTo);
+
+    if ((mStateFrom == NULL) || (mStateTo == NULL))
+        return;
+
+    const typename MechanicalState< In >::VecCoord& in = *(mStateFrom->getX0());
+    const typename MechanicalState< Out >::VecCoord& out = *(mStateTo->getX0());
+
+	for (std::list< const TopologyChange *>::const_iterator it = this->fromTopology->beginChange(), itEnd = this->fromTopology->endChange(); it != itEnd; ++it)
 	{
-		const core::topology::TopologyChangeType changeType = ( *changeIt )->getChangeType();
+		const core::topology::TopologyChangeType& changeType = (*it)->getChangeType();
+
 		switch ( changeType )
 		{
-        case core::topology::ENDING_EVENT:       ///< To notify the end for the current sequence of topological change events
+        case core::topology::ENDING_EVENT :
         {
-            helper::vector<MappingData>& vectorData = *(this->map.beginEdit());
-            vectorData.clear();
-            this->map.endEdit();
+            const helper::vector< topology::Triangle >& triangles = this->fromTopology->getTriangles();
+            helper::vector< Mat3x3d > bases;
+            helper::vector< Vector3 > centers;
 
-            typedef sofa::core::behavior::MechanicalState<In> MechanicalStateF;
-            typedef sofa::core::behavior::MechanicalState<Out> MechanicalStateT;
-
-            MechanicalStateF* mStateF;
-            MechanicalStateT* mStateT;
-
-            this->fromTopology->getContext()->get(mStateF);
-            this->toTopology->getContext()->get(mStateT);
-
-            const typename sofa::helper::ReadAccessor< sofa::Data<typename MechanicalStateF::VecCoord> > in =  mStateF->readRestPositions();
-            const typename sofa::helper::ReadAccessor< sofa::Data<typename MechanicalStateT::VecCoord> > out = mStateT->readRestPositions();
-
-            int outside = 0;
-
-            const sofa::helper::vector<topology::Triangle>& triangles = this->fromTopology->getTriangles();
-            sofa::helper::vector<sofa::defaulttype::Mat3x3d> bases;
-            sofa::helper::vector<sofa::defaulttype::Vector3> centers;
-
-            // no 3D elements -> map on 2D elements
-            this->clear ( out.size() ); // reserve space for 2D mapping
-            bases.resize ( triangles.size() );
-            centers.resize ( triangles.size() );
+            // clear and reserve space for 2D mapping
+            this->clear(out.size());
+            bases.resize(triangles.size());
+            centers.resize(triangles.size());
 
             for ( unsigned int t = 0; t < triangles.size(); t++ )
             {
-                sofa::defaulttype::Mat3x3d m,mt;
+                Mat3x3d m,mt;
                 m[0] = in[triangles[t][1]]-in[triangles[t][0]];
                 m[1] = in[triangles[t][2]]-in[triangles[t][0]];
                 m[2] = cross ( m[0],m[1] );
@@ -3618,21 +3610,18 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
 
             for ( unsigned int i=0; i<out.size(); i++ )
             {
-                sofa::defaulttype::Vec3d pos = Out::getCPos(out[i]);
-                sofa::defaulttype::Vector3 coefs;
+                Vec3d pos = Out::getCPos(out[i]);
+                Vector3 coefs;
                 int index = -1;
                 double distance = 1e10;
                 for ( unsigned int t = 0; t < triangles.size(); t++ )
                 {
-                    sofa::defaulttype::Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
+                    Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
                     double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( ( v[2]<0?-v[2]:v[2] )-0.01,v[0]+v[1]-1 ) );
                     if ( d>0 ) d = ( pos-centers[t] ).norm2();
                     if ( d<distance ) { coefs = v; distance = d; index = t; }
                 }
-                if ( distance>0 )
-                {
-                    ++outside;
-                }
+
                 this->addPointInTriangle ( index, coefs.ptr() );
             }
             break;
