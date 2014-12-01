@@ -70,6 +70,10 @@ foreach(TARGET ${SOFAGENERAL_TARGETS})
   endif()
 endforeach()
 
+if(TARGET gtest)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../applications/projects/SofaDeformable_test ${CMAKE_CURRENT_BINARY_DIR}/SofaDeformable_test)
+endif()
+
 include(CMakePackageConfigHelpers)
 
 # SofaGeneralConfigVersion.cmake file (same for build tree and intall)
