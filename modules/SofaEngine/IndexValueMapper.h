@@ -33,6 +33,10 @@
 #include <sofa/core/DataEngine.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
 #include <sofa/helper/vector.h>
+#include <sofa/defaulttype/Vec.h>
+#include <sofa/core/objectmodel/BaseObject.h>
+#include <sofa/defaulttype/VecTypes.h>
+#include <sofa/defaulttype/RigidTypes.h>
 
 namespace sofa
 {
@@ -43,15 +47,14 @@ namespace component
 namespace engine
 {
 
-template <class DataTypes>
+    
+template <class VecT>
 class IndexValueMapper : public sofa::core::DataEngine
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE(IndexValueMapper,DataTypes),sofa::core::DataEngine);
-    typedef typename DataTypes::Coord Coord;
-    typedef typename DataTypes::VecCoord VecCoord;
-    typedef typename DataTypes::Real Real;
-    typedef sofa::defaulttype::Vec<3,Real> Vec3;
+    SOFA_CLASS(SOFA_TEMPLATE(IndexValueMapper,VecT),sofa::core::DataEngine);
+    typedef VecT VecValue;
+    typedef typename VecValue::value_type Value;
     typedef unsigned int Index;
 
 protected:
@@ -68,30 +71,46 @@ public:
         return templateName(this);
     }
 
-    static std::string templateName(const IndexValueMapper<DataTypes>* = NULL)
+    static std::string templateName(const IndexValueMapper<VecT>* = NULL)
     {
-        return DataTypes::Name();
+        return Data<Value>::templateName();
     }
 
     //Input
-    Data<sofa::helper::vector<Real> > f_inputValues;
+    Data< VecValue > f_inputValues;
     Data<sofa::helper::vector<Index> > f_indices;
-    Data<Real> f_value;
+    Data<Value> f_value;
 
     //Output
-    Data<sofa::helper::vector<Real> > f_outputValues;
+    Data<VecValue > f_outputValues;
 
     //Parameter
-    Data<Real> p_defaultValue;
+    Data<Value> p_defaultValue;
 
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(INDEXVALUEMAPPER_CPP_)
+
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<int> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<bool> >;
+//extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<std::string> >;
 #ifndef SOFA_FLOAT
-extern template class SOFA_ENGINE_API IndexValueMapper<sofa::defaulttype::Vec3dTypes>;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<double> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec2d> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec3d> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2dTypes::VecCoord >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2dTypes::VecDeriv >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3dTypes::VecCoord >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3dTypes::VecDeriv >;
 #endif //SOFA_FLOAT
 #ifndef SOFA_DOUBLE
-extern template class SOFA_ENGINE_API IndexValueMapper<sofa::defaulttype::Vec3fTypes>;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<float> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec2f> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec3f> >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2fTypes::VecCoord >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2fTypes::VecDeriv >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3fTypes::VecCoord >;
+extern template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3fTypes::VecDeriv >;
 #endif //SOFA_DOUBLE
 #endif
 

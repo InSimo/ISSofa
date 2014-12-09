@@ -43,19 +43,56 @@ using namespace sofa::defaulttype;
 SOFA_DECL_CLASS(IndexValueMapper)
 
 int IndexValueMapperClass = core::RegisterObject("?")
+#if defined(SOFA_DOUBLE)
+    .add< IndexValueMapper< helper::vector<double> > >(true)
+#elif defined(SOFA_FLOAT)
+    .add< IndexValueMapper< helper::vector<float> > >(true)
+#else
+    .add< IndexValueMapper< helper::vector<double> > >(true)
+    .add< IndexValueMapper< helper::vector<float> > >()
+#endif
+    .add< IndexValueMapper< helper::vector<int> > >()
+    .add< IndexValueMapper< helper::vector<bool> > >()
+    //.add< IndexValueMapper< helper::vector<std::string> > >()
 #ifndef SOFA_FLOAT
-        .add< IndexValueMapper<Vec3dTypes> >(true)
+    .add< IndexValueMapper< helper::vector<defaulttype::Vec2d> > >()
+    .add< IndexValueMapper< helper::vector<defaulttype::Vec3d> > >()
+    .add< IndexValueMapper< defaulttype::Rigid2dTypes::VecCoord > >()
+    .add< IndexValueMapper< defaulttype::Rigid2dTypes::VecDeriv > >()
+    .add< IndexValueMapper< defaulttype::Rigid3dTypes::VecCoord > >()
+    .add< IndexValueMapper< defaulttype::Rigid3dTypes::VecDeriv > >()
 #endif //SOFA_FLOAT
 #ifndef SOFA_DOUBLE
-        .add< IndexValueMapper<Vec3fTypes> >()
+    .add< IndexValueMapper< helper::vector<defaulttype::Vec2f> > >()
+    .add< IndexValueMapper< helper::vector<defaulttype::Vec3f> > >()
+    .add< IndexValueMapper< defaulttype::Rigid2fTypes::VecCoord > >()
+    .add< IndexValueMapper< defaulttype::Rigid2fTypes::VecDeriv > >()
+    .add< IndexValueMapper< defaulttype::Rigid3fTypes::VecCoord > >()
+    .add< IndexValueMapper< defaulttype::Rigid3fTypes::VecDeriv > >()
 #endif //SOFA_DOUBLE
         ;
 
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<int> >;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<bool> >;
+//template class SOFA_ENGINE_API IndexValueMapper< helper::vector<std::string> >;
+
 #ifndef SOFA_FLOAT
-template class SOFA_ENGINE_API IndexValueMapper<Vec3dTypes>;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<double> >;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec2d> >;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec3d> >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2dTypes::VecCoord >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2dTypes::VecDeriv >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3dTypes::VecCoord >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3dTypes::VecDeriv >;
 #endif //SOFA_FLOAT
 #ifndef SOFA_DOUBLE
-template class SOFA_ENGINE_API IndexValueMapper<Vec3fTypes>;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<float> >;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec2f> >;
+template class SOFA_ENGINE_API IndexValueMapper< helper::vector<defaulttype::Vec3f> >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2fTypes::VecCoord >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid2fTypes::VecDeriv >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3fTypes::VecCoord >;
+template class SOFA_ENGINE_API IndexValueMapper< defaulttype::Rigid3fTypes::VecDeriv >;
 #endif //SOFA_DOUBLE
 
 
