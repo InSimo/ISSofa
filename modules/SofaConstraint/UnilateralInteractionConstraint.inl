@@ -279,7 +279,7 @@ void UnilateralInteractionConstraint<DataTypes>::getConstraintViolation(const co
 
 
 template<class DataTypes>
-void UnilateralInteractionConstraint<DataTypes>::getConstraintInfo(VecConstraintBlockInfo& blocks, VecPersistentID& ids, VecConstCoord& /*positions*/, VecConstDeriv& directions, VecConstArea& /*areas*/)
+void UnilateralInteractionConstraint<DataTypes>::getConstraintInfo(const core::ConstraintParams* /*cParams*/, VecConstraintBlockInfo& blocks, VecPersistentID& ids, VecConstCoord& /*positions*/, VecConstDeriv& directions, VecConstArea& /*areas*/)
 {
     if (contacts.empty()) return;
     const bool friction = (contacts[0].mu > 0.0); /// @todo: can there be both friction-less and friction contacts in the same UnilateralInteractionConstraint ???
@@ -311,7 +311,7 @@ void UnilateralInteractionConstraint<DataTypes>::getConstraintInfo(VecConstraint
 }
 
 template<class DataTypes>
-void UnilateralInteractionConstraint<DataTypes>::getConstraintResolution(std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset)
+void UnilateralInteractionConstraint<DataTypes>::getConstraintResolution(const core::ConstraintParams* /*cParams*/, std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset)
 {
     if(contactsStatus)
     {

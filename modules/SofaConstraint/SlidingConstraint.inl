@@ -150,7 +150,7 @@ void SlidingConstraint<DataTypes>::getConstraintViolation(const core::Constraint
 
 
 template<class DataTypes>
-void SlidingConstraint<DataTypes>::getConstraintResolution(std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset)
+void SlidingConstraint<DataTypes>::getConstraintResolution(const core::ConstraintParams* /*cParams*/, std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset)
 {
     resTab[offset++] = new BilateralConstraintResolution();
     resTab[offset++] = new BilateralConstraintResolution();

@@ -115,10 +115,10 @@ protected:
     virtual ~StopperConstraint() {}
 public:
     virtual void init();
-    virtual void buildConstraintMatrix(const core::ConstraintParams* cParams /* PARAMS FIRST =core::ConstraintParams::defaultInstance()*/, DataMatrixDeriv &c_d, unsigned int &cIndex, const DataVecCoord &x);
-    virtual void getConstraintViolation(const core::ConstraintParams* cParams /* PARAMS FIRST =core::ConstraintParams::defaultInstance()*/, defaulttype::BaseVector *resV, const DataVecCoord &x, const DataVecDeriv &v);
+    virtual void buildConstraintMatrix(const core::ConstraintParams* cParams, DataMatrixDeriv &c_d, unsigned int &cIndex, const DataVecCoord &x);
+    virtual void getConstraintViolation(const core::ConstraintParams* cParams, defaulttype::BaseVector *resV, const DataVecCoord &x, const DataVecDeriv &v);
 
-    virtual void getConstraintResolution(std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset);
+    virtual void getConstraintResolution(const core::ConstraintParams* cParams, std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset);
 };
 } // namespace constraintset
 
