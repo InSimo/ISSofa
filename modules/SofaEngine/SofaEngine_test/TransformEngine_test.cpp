@@ -23,7 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-#include "Sofa_test.h"
+#include <gtest/gtest.h>
 #include <SofaEngine/TransformEngine.h>
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/defaulttype/Vec3Types.h>
@@ -49,6 +49,39 @@ sofa::defaulttype::Vector3		OUTPUT_SCALE_POS(5,0,0);
 
 sofa::defaulttype::Vector3		OUTPUT_ROTATION_SCALE_POS(0,5,0);
 
+namespace 
+{
+    // Do not use this class directly
+    template<class DataTypes, int N, bool isVector>
+    struct setRotWrapper
+    { static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot); };
+
+    template<class DataTypes, int N>
+    struct setRotWrapper<DataTypes, N, true>
+    { static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot) {} };
+
+    template<class DataTypes>
+    struct setRotWrapper<DataTypes, 2, false>
+    { static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot)	{ coord.getOrientation() = rot.toEulerVector().z(); } };
+
+    template<class DataTypes, int N>
+    struct setRotWrapper<DataTypes, N, false>
+    { static void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot) 	{ DataTypes::setCRot(coord, rot); } };
+
+    template<class DataTypes>
+    void setRot(typename DataTypes::Coord& coord, const sofa::helper::Quater<SReal>& rot)
+    { setRotWrapper<DataTypes, DataTypes::Coord::spatial_dimensions, DataTypes::Coord::total_size == DataTypes::Coord::spatial_dimensions>::setRot(coord, rot); }
+
+    /// Create a coord of the specified type from a Vector3 and a Quater
+    template<class DataTypes>
+    typename DataTypes::Coord createCoord(const sofa::defaulttype::Vector3& pos, const sofa::helper::Quater<SReal>& rot)
+    {
+	    typename DataTypes::Coord temp;
+	    DataTypes::set(temp, pos[0], pos[1], pos[2]);
+	    setRot<DataTypes>(temp, rot);
+	    return temp;
+    }
+}
 
 namespace sofa 
 {

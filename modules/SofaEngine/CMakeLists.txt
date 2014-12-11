@@ -163,3 +163,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${SOFAGENERAL_INSTALL_LIB_DIR}" COMPONENT SofaGeneral_libraries
         PUBLIC_HEADER DESTINATION "${SOFAGENERAL_INSTALL_INCLUDE_DIR}/${PROJECT_NAME}" COMPONENT SofaGeneral_headers
 )
+
+if(TARGET gtest)
+    add_subdirectory("SofaEngine_test")
+endif()
