@@ -28,6 +28,7 @@
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/core/objectmodel/Data.h>
+#include "Binding_LinearSpring.h"
 
 #include <SofaDeformable/SpringForceField.h>
 
@@ -115,7 +116,7 @@ PyObject *GetDataValuePython(BaseData* data)
             return PyInt_FromLong((long)typeinfo->getIntegerValue(valueVoidPtr,0));
         }
     }
-    else
+    else if (typeinfo->name() != "vector<unknown>")
     {
         // this is a vector; return a python list of the corrsponding type (ints, scalars or strings)
 
@@ -153,7 +154,7 @@ PyObject *GetDataValuePython(BaseData* data)
 
         return rows;
     }
-    // default (should not happen)...
+    // default (only happens if typeinfo->name() == "vector<unknown>")...
     SP_MESSAGE_WARNING( "BaseData_getAttr_value unsupported native type="<<data->getValueTypeString()<<" ; returning string value" )
     return PyString_FromString(data->getValueString().c_str());
 }
