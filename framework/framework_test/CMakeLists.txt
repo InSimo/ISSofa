@@ -11,6 +11,7 @@ set(SOURCE_FILES
     helper/system/UtilsTest.cpp
     #core/PluginTest.cpp
     core/objectmodel/AspectPoolTest.cpp
+    core/objectmodel/DataTest.cpp
     #plugin-system/PluginSystemTest.cpp
     )
 
