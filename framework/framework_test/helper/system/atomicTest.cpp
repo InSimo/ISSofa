@@ -28,7 +28,7 @@
 
 using sofa::helper::system::atomic;
 
-TEST(atomitTest, dec_and_test_null)
+TEST(atomicTest, dec_and_test_null)
 {
     atomic<int> value(3);
     EXPECT_EQ(value.dec_and_test_null(), false);
@@ -39,7 +39,7 @@ TEST(atomitTest, dec_and_test_null)
     EXPECT_EQ(value, 0);
 }
 
-TEST(atomitTest, compare_and_swap)
+TEST(atomicTest, compare_and_swap)
 {
     atomic<int> value(-1);
     EXPECT_EQ(value.compare_and_swap(-1, 10), -1);

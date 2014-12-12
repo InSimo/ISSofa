@@ -50,10 +50,10 @@ struct DataLink_test : public ::testing::Test
         data1.setValue(1);
 
         // Test if boolean isDirty of data1 is false
-        ASSERT_EQ(data1.isDirty(),0);
+        ASSERT_EQ(data1.isDirty(),false);
 
        // Test if boolean isDirty of data2 is true
-       ASSERT_EQ(data2.isDirty(),1);
+       ASSERT_EQ(data2.isDirty(),true);
 
        // Test if result is correct
        ASSERT_EQ(data2.getValue(),1);
