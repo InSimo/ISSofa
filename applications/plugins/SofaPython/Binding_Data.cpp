@@ -97,65 +97,68 @@ PyObject *GetDataValuePython(BaseData* data)
 
     }
 
-    if (typeinfo->size(valueVoidPtr)==1 && typeinfo->FixedSize())
+    if(typeinfo->ValidInfo() )
     {
-        // this type is NOT a vector; return directly the proper native type
-        if (typeinfo->Text())
-        {
-            // it's some text
-            return PyString_FromString(typeinfo->getTextValue(valueVoidPtr,0).c_str());
-        }
-        if (typeinfo->Scalar())
-        {
-            // it's a SReal
-            return PyFloat_FromDouble(typeinfo->getScalarValue(valueVoidPtr,0));
-        }
-        if (typeinfo->Integer())
-        {
-            // it's some Integer...
-            return PyInt_FromLong((long)typeinfo->getIntegerValue(valueVoidPtr,0));
-        }
-    }
-    else if (typeinfo->name() != "vector<unknown>")
-    {
-        // this is a vector; return a python list of the corrsponding type (ints, scalars or strings)
 
-        PyObject *rows = PyList_New(nbRows);
-        for (int i=0; i<nbRows; i++)
+        if (typeinfo->size(valueVoidPtr)==1 && typeinfo->FixedSize())
         {
-            PyObject *row = PyList_New(rowWidth);
-            for (int j=0; j<rowWidth; j++)
+            // this type is NOT a vector; return directly the proper native type
+            if (typeinfo->Text())
             {
-                // build each value of the list
-                if (typeinfo->Text())
-                {
-                    // it's some text
-                    PyList_SetItem(row,j,PyString_FromString(typeinfo->getTextValue(valueVoidPtr,i*rowWidth+j).c_str()));
-                }
-                else if (typeinfo->Scalar())
-                {
-                    // it's a SReal
-                    PyList_SetItem(row,j,PyFloat_FromDouble(typeinfo->getScalarValue(valueVoidPtr,i*rowWidth+j)));
-                }
-                else if (typeinfo->Integer())
-                {
-                    // it's some Integer...
-                    PyList_SetItem(row,j,PyInt_FromLong((long)typeinfo->getIntegerValue(valueVoidPtr,i*rowWidth+j)));
-                }
-                else
-                {
-                    // this type is not yet supported
-                    SP_MESSAGE_WARNING( "BaseData_getAttr_value unsupported native type="<<data->getValueTypeString()<<" ; returning string value" )
-                    PyList_SetItem(row,j,PyString_FromString(typeinfo->getTextValue(valueVoidPtr,i*rowWidth+j).c_str()));
-                }
+                // it's some text
+                return PyString_FromString(typeinfo->getTextValue(valueVoidPtr,0).c_str());
             }
-            PyList_SetItem(rows,i,row);
+            if (typeinfo->Scalar())
+            {
+                // it's a SReal
+                return PyFloat_FromDouble(typeinfo->getScalarValue(valueVoidPtr,0));
+            }
+            if (typeinfo->Integer())
+            {
+                // it's some Integer...
+                return PyInt_FromLong((long)typeinfo->getIntegerValue(valueVoidPtr,0));
+            }
         }
+        else
+        {
+            // this is a vector; return a python list of the corrsponding type (ints, scalars or strings)
 
-        return rows;
+            PyObject *rows = PyList_New(nbRows);
+            for (int i=0; i<nbRows; i++)
+            {
+                PyObject *row = PyList_New(rowWidth);
+                for (int j=0; j<rowWidth; j++)
+                {
+                    // build each value of the list
+                    if (typeinfo->Text())
+                    {
+                        // it's some text
+                        PyList_SetItem(row,j,PyString_FromString(typeinfo->getTextValue(valueVoidPtr,i*rowWidth+j).c_str()));
+                    }
+                    else if (typeinfo->Scalar())
+                    {
+                        // it's a SReal
+                        PyList_SetItem(row,j,PyFloat_FromDouble(typeinfo->getScalarValue(valueVoidPtr,i*rowWidth+j)));
+                    }
+                    else if (typeinfo->Integer())
+                    {
+                        // it's some Integer...
+                        PyList_SetItem(row,j,PyInt_FromLong((long)typeinfo->getIntegerValue(valueVoidPtr,i*rowWidth+j)));
+                    }
+                    else
+                    {
+                        // this type is not yet supported
+                        printf("<SofaPython> BaseData_getAttr_value WARNING: unsupported native type=%s ; returning string value\n",data->getValueTypeString().c_str());
+                        PyList_SetItem(row,j,PyString_FromString(typeinfo->getTextValue(valueVoidPtr,i*rowWidth+j).c_str()));
+                    }
+                }
+                PyList_SetItem(rows,i,row);
+            }
+
+            return rows;
+        }
     }
-    // default (only happens if typeinfo->name() == "vector<unknown>")...
-    SP_MESSAGE_WARNING( "BaseData_getAttr_value unsupported native type="<<data->getValueTypeString()<<" ; returning string value" )
+    // fallback for unknown types, read the content of the data using the output stream operator
     return PyString_FromString(data->getValueString().c_str());
 }
 
