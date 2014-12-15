@@ -3562,6 +3562,7 @@ template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::topology::Topology* t)
 {
     using core::topology::TopologyChange;
+    using core::behavior::MechanicalState;
 
     if (t != this->fromTopology) return;
 
@@ -3577,8 +3578,8 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
     if ((mStateFrom == NULL) || (mStateTo == NULL))
         return;
 
-    const typename MechanicalState< In >::VecCoord& in = *(mStateFrom->getX0());
-    const typename MechanicalState< Out >::VecCoord& out = *(mStateTo->getX0());
+    helper::ReadAccessor< typename MechanicalState< In >::VecCoord >  in  = mStateFrom->readRestPositions();
+    helper::ReadAccessor< typename MechanicalState< Out >::VecCoord>  out = mStateTo->readRestPositions();
 
 	for (std::list< const TopologyChange *>::const_iterator it = this->fromTopology->beginChange(), itEnd = this->fromTopology->endChange(); it != itEnd; ++it)
 	{

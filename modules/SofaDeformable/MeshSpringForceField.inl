@@ -77,11 +77,19 @@ void MeshSpringForceField<DataTypes>::addSpring(std::set<std::pair<int,int> >& s
         sset.insert(std::make_pair(m2,m1));
     }
     Real artificialTension = this->defaultTension.getValue();
-    
-    Real l = ((*this->mstate2->getX0())[m2] - (*this->mstate1->getX0())[m1]).norm() * artificialTension;
+    helper::ReadAccessor< sofa::Data<VecCoord> > X01 = this->mstate1->readRestPositions();
+    helper::ReadAccessor< sofa::Data<VecCoord> > X02 = this->mstate2->readRestPositions();
+
+    Real l = (X02[m2] - X01[m1]).norm() * artificialTension;
     
     this->springs.beginEdit()->push_back(typename SpringForceField<DataTypes>::Spring(m1,m2,stiffness/l, damping/l, l, noCompression.getValue()));
     this->springs.endEdit();
+}
+
+template <class DataTypes>
+void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event *event)
+{
+    init();
 }
 
 template<class DataTypes>
