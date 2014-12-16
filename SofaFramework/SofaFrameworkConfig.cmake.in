@@ -5,6 +5,12 @@
 
 @PACKAGE_INIT@
 
+list(FIND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}" HAS_SOFAFRAMEWORK_CMAKE_MODULE_PATH)
+
+if(HAS_SOFAFRAMEWORK_CMAKE_MODULE_PATH EQUAL -1)
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+endif()
+
 include(CMakeSofaCreateTarget)
 
 set_and_check(SOFAFRAMEWORK_INCLUDE_DIR  "@PACKAGE_SOFAFRAMEWORK_INCLUDE_DIR@")
@@ -36,7 +42,7 @@ endif()
 
 if(SOFA_HAVE_GLUT)
     find_package(GLUT REQUIRED)
-    sofa_create_target(GLUT SofaFramework ${GLUT_LIBRARIES} ${GLUT_INCLUDE_DIR} )
+    sofa_create_target(GLUT SofaFramework  ${GLUT_glut_LIBRARY} ${GLUT_INCLUDE_DIR} )
 endif()
 
 if(SOFA_HAVE_BOOST)
