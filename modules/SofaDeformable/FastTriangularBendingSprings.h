@@ -102,7 +102,7 @@ public:
     Data<double> f_bendingStiffness;  ///< Material parameter
 	Data<double> d_minDistValidity; ///< Minimal distance to consider a spring valid
 
-    Data<bool>   d_useRestCurvature; ///< Use the rest curvature as the zero energy bending.  
+    Data<bool>   d_useRestCurvature; ///< Use the rest curvature as the zero energy bending.
     Data<bool>   d_useOldAddForce; //warning: bug version
 
 
@@ -271,7 +271,7 @@ protected:
     public:
         typedef typename FastTriangularBendingSprings<DataTypes>::EdgeSpring EdgeSpring;
         TriangularBSEdgeHandler(FastTriangularBendingSprings<DataTypes>* _ff, sofa::component::topology::EdgeData<sofa::helper::vector<EdgeSpring> >* _data)
-            : TopologyDataHandler<Edge, sofa::helper::vector<EdgeSpring> >(_data), ff(_ff) {}
+            : sofa::component::topology::TopologyDataHandler<Edge, sofa::helper::vector<EdgeSpring> >(_data), ff(_ff) {}
 
         void applyCreateFunction(unsigned int edgeIndex,
                 EdgeSpring &ei,

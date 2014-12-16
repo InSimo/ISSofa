@@ -562,20 +562,20 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
         }
         for ( unsigned int i=0; i<out.size(); i++ )
         {
-            Vector3 pos = Out::getCPos(out[i]);
-            Vector3 coefs;
+            sofa::defaulttype::Vector3 pos = Out::getCPos(out[i]);
+            sofa::defaulttype::Vector3 coefs;
             int index = -1;
             double distance = 1e10;
             for ( unsigned int t = 0; t < tetrahedra.size(); t++ )
             {
-                Vector3 v = bases[t] * ( pos - in[tetrahedra[t][0]] );
+                sofa::defaulttype::Vector3 v = bases[t] * ( pos - in[tetrahedra[t][0]] );
                 double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( -v[2],v[0]+v[1]+v[2]-1 ) );
                 if ( d>0 ) d = ( pos-centers[t] ).norm2();
                 if ( d<distance ) { coefs = v; distance = d; index = t; }
             }
             for ( unsigned int c = 0; c < cubes.size(); c++ )
             {
-                Vector3 v = bases[c0+c] * ( pos - in[cubes[c][0]] );
+                sofa::defaulttype::Vector3 v = bases[c0+c] * ( pos - in[cubes[c][0]] );
                 double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( std::max ( -v[2],v[0]-1 ),std::max ( v[1]-1,v[2]-1 ) ) );
                 if ( d>0 ) d = ( pos-centers[c0+c] ).norm2();
                 if ( d<distance ) { coefs = v; distance = d; index = c0+c; }
@@ -765,7 +765,7 @@ int BarycentricMapperQuadSetTopology<In,Out>::createPointInQuad ( const typename
     const typename In::Coord pA = ( *points ) [elem[1]] - p0;
     const typename In::Coord pB = ( *points ) [elem[3]] - p0;
     typename In::Coord pos = Out::getCPos(p) - p0;
-    Mat<3,3,typename In::Real> m,mt,base;
+    sofa::defaulttype::Mat<3,3,typename In::Real> m,mt,base;
     m[0] = pA;
     m[1] = pB;
     m[2] = cross ( pA, pB );
@@ -1594,7 +1594,7 @@ void BarycentricMapperMeshTopology<In,Out>::applyJ ( typename Out::VecDeriv& out
             }
         }
     }
-    
+
 }
 
 template <class In, class Out>
@@ -2434,7 +2434,7 @@ const sofa::defaulttype::BaseMatrix* BarycentricMapperQuadSetTopology<In,Out>::g
 
 template <class In, class Out>
 const sofa::defaulttype::BaseMatrix* BarycentricMapperTetrahedronSetTopology<In,Out>::getJ(int outSize, int inSize)
-{    
+{
 
     if (matrixJ && !updateJ)
         return matrixJ;
@@ -2478,7 +2478,7 @@ const sofa::defaulttype::BaseMatrix* BarycentricMapperHexahedronSetTopology<In,O
     if (matrixJ->rowBSize() != (unsigned)outSize || matrixJ->colBSize() != (unsigned)inSize)
         matrixJ->resize(outSize*NOut, inSize*NIn);
     else
-        matrixJ->clear();    
+        matrixJ->clear();
 
     const sofa::helper::vector<topology::Hexahedron>& cubes = this->fromTopology->getHexahedra();
 
@@ -3563,7 +3563,7 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
 {
   	core::topology::BaseMeshTopology* from = dynamic_cast<core::topology::BaseMeshTopology*>(t);
 	if(from == NULL ) {
-		this->serr << __FUNCTION__ << ": could not cast topology to BaseMeshTopology" << this->sendl; 
+		this->serr << __FUNCTION__ << ": could not cast topology to BaseMeshTopology" << this->sendl;
 		return;
 	}
 
@@ -3591,14 +3591,14 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
             this->fromTopology->getContext()->get(mStateF);
             this->toTopology->getContext()->get(mStateT);
 
-            const typename sofa::helper::ReadAccessor< sofa::Data<MechanicalStateF::VecCoord> > in =  mStateF->readRestPositions();
-            const typename sofa::helper::ReadAccessor< sofa::Data<MechanicalStateT::VecCoord> > out = mStateT->readRestPositions();
+            const typename sofa::helper::ReadAccessor< sofa::Data<typename MechanicalStateF::VecCoord> > in =  mStateF->readRestPositions();
+            const typename sofa::helper::ReadAccessor< sofa::Data<typename MechanicalStateT::VecCoord> > out = mStateT->readRestPositions();
 
             int outside = 0;
 
             const sofa::helper::vector<topology::Triangle>& triangles = this->fromTopology->getTriangles();
-            sofa::helper::vector<Mat3x3d> bases;
-            sofa::helper::vector<Vector3> centers;
+            sofa::helper::vector<sofa::defaulttype::Mat3x3d> bases;
+            sofa::helper::vector<sofa::defaulttype::Vector3> centers;
 
             // no 3D elements -> map on 2D elements
             this->clear ( out.size() ); // reserve space for 2D mapping
@@ -3607,7 +3607,7 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
 
             for ( unsigned int t = 0; t < triangles.size(); t++ )
             {
-                Mat3x3d m,mt;
+                sofa::defaulttype::Mat3x3d m,mt;
                 m[0] = in[triangles[t][1]]-in[triangles[t][0]];
                 m[1] = in[triangles[t][2]]-in[triangles[t][0]];
                 m[2] = cross ( m[0],m[1] );
@@ -3618,13 +3618,13 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
 
             for ( unsigned int i=0; i<out.size(); i++ )
             {
-                Vec3d pos = Out::getCPos(out[i]);
-                Vector3 coefs;
+                sofa::defaulttype::Vec3d pos = Out::getCPos(out[i]);
+                sofa::defaulttype::Vector3 coefs;
                 int index = -1;
                 double distance = 1e10;
                 for ( unsigned int t = 0; t < triangles.size(); t++ )
                 {
-                    Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
+                    sofa::defaulttype::Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
                     double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( ( v[2]<0?-v[2]:v[2] )-0.01,v[0]+v[1]-1 ) );
                     if ( d>0 ) d = ( pos-centers[t] ).norm2();
                     if ( d<distance ) { coefs = v; distance = d; index = t; }
