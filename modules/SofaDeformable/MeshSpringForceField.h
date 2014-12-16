@@ -174,8 +174,8 @@ public:
 
     virtual void init();
     virtual void reset();
+    virtual void reinit();
 
-    void handleEvent(core::objectmodel::Event* e);
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFORMABLE)

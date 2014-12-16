@@ -86,14 +86,8 @@ void MeshSpringForceField<DataTypes>::addSpring(std::set<std::pair<int,int> >& s
     this->springs.endEdit();
 }
 
-template <class DataTypes>
-void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event *event)
-{
-    init();
-}
-
 template<class DataTypes>
-void MeshSpringForceField<DataTypes>::init()
+void MeshSpringForceField<DataTypes>::reinit()
 {
     this->StiffSpringForceField<DataTypes>::clear();
     if(!(this->mstate1) || !(this->mstate2))
@@ -192,10 +186,16 @@ void MeshSpringForceField<DataTypes>::init()
     this->StiffSpringForceField<DataTypes>::init();
 }
 
+template<class DataTypes>
+void MeshSpringForceField<DataTypes>::init()
+{
+    reinit();
+}
+
 template <class DataTypes>
 void MeshSpringForceField<DataTypes>::reset()
 {
-	init();
+	reinit();
 }
 
 } // namespace interactionforcefield
