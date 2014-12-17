@@ -180,6 +180,7 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 		for (unsigned int i=0;i<constraintCorrections.size();i++)
 		{
 			core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
 			cc->resetForUnbuiltResolution(current_cp->getF(), current_cp->constraints_sequence); 
 		}
  
@@ -203,6 +204,7 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 			for (unsigned int j = 0; j < constraintCorrections.size(); j++)
 			{
 				core::behavior::BaseConstraintCorrection* cc = constraintCorrections[j];
+				if (!cc->isActive()) continue;
 				if (cc->hasConstraintNumber(c_id))
 				{
 					current_cp->cclist_elems[c_id][j] = cc;
@@ -233,6 +235,7 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 		for (unsigned int i=0; i<constraintCorrections.size(); i++)
 		{
 			core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
 			sofa::helper::AdvancedTimer::stepBegin("Object name: " + cc->getName());
 			cc->addComplianceInConstraintSpace(cParams, &current_cp->W);
 			sofa::helper::AdvancedTimer::stepEnd("Object name: " + cc->getName());
@@ -257,6 +260,7 @@ void GenericConstraintSolver::rebuildSystem(double massFactor, double forceFacto
     for (unsigned int i=0; i<constraintCorrections.size(); i++)
     {
             core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
             //serr << "REBUILD " <<  cc->getName() << " m="<<massFactor << " f=" << forceFactor << sendl;
             cc->rebuildSystem(massFactor, forceFactor);
     }
@@ -365,6 +369,7 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
 		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
 		{
 			BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
 			cc->computeAndApplyMotionCorrection(cParams, xId, vId, this->m_fId, &current_cp->f);
 		}
 	}
@@ -374,6 +379,7 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
 		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
 		{
 			BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
 			cc->computeAndApplyPositionCorrection(cParams, xId, this->m_fId, &current_cp->f);
 		}
 	}
@@ -383,6 +389,7 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
 		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
 		{
 			BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
 			cc->computeAndApplyVelocityCorrection(cParams, vId, this->m_fId, &current_cp->f);
 		}
 	}
