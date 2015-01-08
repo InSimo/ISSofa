@@ -67,6 +67,9 @@ set(HEADER_FILES
     Binding_MeshLoader.h
     Binding_Vector.h
     Binding_Topology.h
+    Binding_TopologyChange.h
+    Binding_PointSetTopologyModifier.h
+    Binding_TriangleSetTopologyModifier.h
     Binding_BaseMeshTopology.h
     Binding_MeshTopology.h
     Binding_GridTopology.h
@@ -109,6 +112,9 @@ set(SOURCE_FILES
     Binding_MeshLoader.cpp
     Binding_Vector.cpp
     Binding_Topology.cpp
+    Binding_TopologyChange.cpp
+    Binding_PointSetTopologyModifier.cpp
+    Binding_TriangleSetTopologyModifier.cpp
     Binding_BaseMeshTopology.cpp
     Binding_MeshTopology.cpp
     Binding_GridTopology.cpp

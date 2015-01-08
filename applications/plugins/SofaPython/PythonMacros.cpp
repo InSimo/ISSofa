@@ -15,10 +15,10 @@
 #include <SofaBaseTopology/GridTopology.h>
 #include <SofaBaseTopology/RegularGridTopology.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
+#include <SofaBaseTopology/PointSetTopologyModifier.h>
 #include <SofaMiscMapping/SubsetMultiMapping.h>
+#include <SofaBaseTopology/TriangleSetTopologyModifier.h>
 #include <sofa/core/BaseMapping.h>
-
-
 #include "PythonScriptController.h"
 
 #include "Binding_Base.h"
@@ -43,6 +43,8 @@
 //#include "Binding_MultiMapping.h"
 #include "Binding_SubsetMultiMapping.h"
 #include "Binding_VisualModel.h"
+#include "Binding_PointSetTopologyModifier.h"
+#include "Binding_TriangleSetTopologyModifier.h"
 
 typedef sofa::component::container::MechanicalObject< sofa::defaulttype::Vec3Types > MechanicalObject3;
 typedef sofa::component::mapping::SubsetMultiMapping< sofa::defaulttype::Vec3Types, sofa::defaulttype::Vec3Types > SubsetMultiMapping3_to_3;
@@ -94,8 +96,15 @@ PyObject* SP_BUILD_PYSPTR(Base* obj)
     if (dynamic_cast<sofa::core::BaseMapping*>(obj))
         return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(BaseMapping));
 
+    if( dynamic_cast<sofa::component::topology::TriangleSetTopologyModifier*>(obj) )
+        return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(TriangleSetTopologyModifier));
+    if( dynamic_cast<sofa::component::topology::PointSetTopologyModifier*>(obj) )
+        return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(PointSetTopologyModifier));
+
     if (dynamic_cast<BaseObject*>(obj))
         return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(BaseObject));
+
+
 
     // par défaut...
     return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(Base));

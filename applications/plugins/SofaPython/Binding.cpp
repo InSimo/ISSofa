@@ -36,6 +36,7 @@
 #include "Binding_Context.h"
 #include "Binding_Node.h"
 #include "Binding_Vector.h"
+#include "Binding_TopologyChange.h"
 #include "Binding_BaseLoader.h"
 #include "Binding_MeshLoader.h"
 #include "Binding_Topology.h"
@@ -48,6 +49,8 @@
 #include "Binding_MechanicalObject.h"
 #include "Binding_PythonScriptController.h"
 #include "Binding_LinearSpring.h"
+#include "Binding_TriangleSetTopologyModifier.h"
+#include "Binding_PointSetTopologyModifier.h"
 #include "Binding_BaseMapping.h"
 //#include "Binding_Mapping.h"
 //#include "Binding_RigidMapping.h"
@@ -70,6 +73,8 @@ void bindSofaPythonModule()
 
     SP_ADD_CLASS(SofaPythonModule,Vector3)
 
+    SP_ADD_CLASS(SofaPythonModule,PointAncestorElem)
+
     SP_ADD_CLASS(SofaPythonModule,LinearSpring)
 
 
@@ -78,6 +83,8 @@ void bindSofaPythonModule()
                 SP_ADD_CLASS(SofaPythonModule,Context)
                     SP_ADD_CLASS(SofaPythonModule,Node)
             SP_ADD_CLASS(SofaPythonModule,BaseObject)
+                SP_ADD_CLASS(SofaPythonModule,PointSetTopologyModifier)
+                    SP_ADD_CLASS(SofaPythonModule,TriangleSetTopologyModifier)
                 SP_ADD_CLASS(SofaPythonModule,BaseState)
                     SP_ADD_CLASS(SofaPythonModule,BaseMechanicalState)
                         SP_ADD_CLASS(SofaPythonModule,MechanicalObject)
