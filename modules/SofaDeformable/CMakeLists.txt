@@ -75,6 +75,10 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES VERSION ${SOFACOMMON_VERSION} 
 set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFADEFORMABLE_COMPILER_FLAGS}"  )
 set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
 
+if(TARGET gtest)
+    add_subdirectory(SofaDeformable_test)
+endif()
+
 install(TARGETS ${PROJECT_NAME}
         EXPORT  SofaCommonTargets
         RUNTIME DESTINATION "${SOFACOMMON_INSTALL_BIN_DIR}" COMPONENT SofaCommon_libraries
