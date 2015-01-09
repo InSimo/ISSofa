@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
+
+find_package(SofaGeneral REQUIRED)
+find_package(SofaMisc    REQUIRED)
+find_package(SofaGui     REQUIRED)
+
 project(runSofa)
 
 set(SOURCE_FILES
