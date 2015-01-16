@@ -40,6 +40,37 @@ namespace core
 namespace collision
 {
 
+template< class Model1, class Model2>
+struct DetectionOutputVectorCreator
+{
+    typedef typename sofa::core::collision::TDetectionOutputVector<Model1,Model2> TDetectionOutputVector;
+    static TDetectionOutputVector* create()
+    {
+        return new TDetectionOutputVector();
+    }
+
+};
+
+template<class Model1, class Model2>
+sofa::core::collision::TDetectionOutputVector<Model1,Model2>* createOutputVector(Model1*, Model2*)
+{
+    return DetectionOutputVectorCreator<Model1,Model2>::create();
+}
+
+template<class Model1, class Model2>
+sofa::core::collision::TDetectionOutputVector<Model1,Model2>* getOutputVector(Model1*, Model2*, sofa::core::collision::DetectionOutputVector* contacts)
+{
+    return static_cast<sofa::core::collision::TDetectionOutputVector<Model1,Model2>*>(contacts);
+}
+
+template<class Model1, class Model2>
+sofa::core::collision::TDetectionOutputVector<Model1,Model2>* getOutputVector(sofa::core::collision::DetectionOutputVector* contacts)
+{
+    Model1* m1=NULL;
+    Model2* m2=NULL;
+    return getOutputVector(m1,m2,contacts);
+}
+
 class BaseIntersector
 {
 public:
@@ -48,19 +79,7 @@ public:
 
     ~BaseIntersector() {}
 
-    template<class Model1, class Model2>
-    sofa::core::collision::TDetectionOutputVector<Model1,Model2>* createOutputVector(Model1*, Model2*)
-    {
-        return new sofa::core::collision::TDetectionOutputVector<Model1,Model2>;
-    }
-
-    template<class Model1, class Model2>
-    sofa::core::collision::TDetectionOutputVector<Model1,Model2>* getOutputVector(Model1*, Model2*, sofa::core::collision::DetectionOutputVector* contacts)
-    {
-        return static_cast<sofa::core::collision::TDetectionOutputVector<Model1,Model2>*>(contacts);
-    }
-
-    typedef sofa::helper::vector<sofa::core::collision::DetectionOutput> OutputVector;
+    typedef sofa::core::collision::DetectionOutputVector OutputVector;
 
     int beginIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, OutputVector* /*contacts*/)
     {

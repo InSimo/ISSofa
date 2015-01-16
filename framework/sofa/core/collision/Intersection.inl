@@ -60,9 +60,9 @@ public:
         Model2* m2 = static_cast<Model2*>(model2);
         if (contacts == NULL)
         {
-            contacts = impl->createOutputVector(m1,m2);
+            contacts = createOutputVector(m1,m2);
         }
-        return impl->beginIntersection(m1, m2, impl->getOutputVector(m1, m2, contacts));
+        return impl->beginIntersection(m1, m2, getOutputVector(m1, m2, contacts));
     }
 
     /// Compute the intersection between 2 elements.
@@ -70,7 +70,7 @@ public:
     {
         Elem1 e1(elem1);
         Elem2 e2(elem2);
-        return impl->computeIntersection(e1, e2, impl->getOutputVector(e1.getCollisionModel(), e2.getCollisionModel(), contacts));
+        return impl->computeIntersection(e1, e2, getOutputVector<Model1,Model2>( contacts ) );
     }
 
     std::string name() const
@@ -83,7 +83,7 @@ public:
     {
         Model1* m1 = static_cast<Model1*>(model1);
         Model2* m2 = static_cast<Model2*>(model2);
-        return impl->endIntersection(m1, m2, impl->getOutputVector(m1, m2, contacts));
+        return impl->endIntersection(m1, m2, getOutputVector(m1, m2, contacts));
     }
 
 protected:
