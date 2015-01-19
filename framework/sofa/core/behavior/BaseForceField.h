@@ -181,13 +181,6 @@ public:
 
     /// @}
 
-    /// True if the forcefield is applied only on a subset of particles.
-    ///
-    /// That way, we can optimize the time spent to transfer forces through the mechanical mappings.
-    /// Deactivated by default. The forcefields using only a subset of particles should activate the mask,
-    /// and during addForce(), insert the indices of the particles modified.
-    virtual bool useMask() const { return false; }
-
 
     /** @name API used in the Compliant solver to perform global matrix assembly
      * Each ForceField may be processed either as a traditional force function, or a as a compliance (provided that its stiffness matrix is invertible).
