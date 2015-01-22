@@ -69,10 +69,13 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField()
     , _radius(initData(&_radius,(Real)0.1,"radius","radius of the section"))
     , _radiusInner(initData(&_radiusInner,(Real)0.0,"radiusInner","inner radius of the section for hollow beams"))
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
+    , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
+    , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _partial_list_segment(false)
     , _updateStiffnessMatrix(true)
     , _assembling(false)
     , edgeHandler(NULL)
+    , m_rigidTsf(Coord())
 {
     edgeHandler = new BeamFFEdgeHandler(this, &beamsData);
 
@@ -91,10 +94,13 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField(Real poissonRatio, Real youngMod
     , _radius(initData(&_radius,(Real)radius,"radius","radius of the section"))
     , _radiusInner(initData(&_radiusInner,(Real)radiusInner,"radiusInner","inner radius of the section for hollow beams"))
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
+    , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
+    , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _partial_list_segment(false)
     , _updateStiffnessMatrix(true)
     , _assembling(false)
     , edgeHandler(NULL)
+    , m_rigidTsf(Coord())
 {
     edgeHandler = new BeamFFEdgeHandler(this, &beamsData);  
 
@@ -172,6 +178,12 @@ void BeamFEMForceField<DataTypes>::init()
 
     beamsData.createTopologicalEngine(_topology,edgeHandler);
     beamsData.registerTopologicalData();
+
+    bool isTransform = _applyRigidTransFirstBeam.getValue();
+    if ( isTransform )
+    {
+        m_rigidTsf = _rigidTransFirstBeam.getValue();
+    }
 
     reinit();
 }
@@ -431,7 +443,8 @@ void BeamFEMForceField<DataTypes>::initLarge(int i, Index a, Index b)
     defaulttype::Quat quatA, quatB, dQ;
     Vec3 dW;
 
-    quatA = x[a].getOrientation();
+    bool isTransform = _applyRigidTransFirstBeam.getValue() && a == 0;
+    quatA = isTransform ? (x[a].mult(m_rigidTsf)).getOrientation() : x[a].getOrientation();
     quatB = x[b].getOrientation();
 
     quatA.normalize();
@@ -464,7 +477,11 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
 {
     const VecCoord& x0 = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
 
-    beamQuat(i)= x[a].getOrientation();
+    bool isTransform = _applyRigidTransFirstBeam.getValue() && a == 0;
+    Quat x_a_getOrientation = isTransform ? (x[a].mult(m_rigidTsf)).getOrientation() : x[a].getOrientation();
+    x_a_getOrientation.normalize();
+
+    beamQuat(i) = x_a_getOrientation;
     beamQuat(i).normalize();
 
     beamsData.endEdit();
@@ -477,7 +494,7 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
     P1P2_0 = x0[b].getCenter() - x0[a].getCenter();
     P1P2_0 = x0[a].getOrientation().inverseRotate(P1P2_0);
     P1P2 = x[b].getCenter() - x[a].getCenter();
-    P1P2 = x[a].getOrientation().inverseRotate(P1P2);
+    P1P2 = x_a_getOrientation.inverseRotate(P1P2);
     u = P1P2 - P1P2_0;
 
     depl[0] = 0.0; 	depl[1] = 0.0; 	depl[2] = 0.0;
@@ -488,7 +505,7 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
 
     // dQ = QA.i * QB ou dQ = QB * QA.i() ??
     dQ0 = qDiff(x0[b].getOrientation(), x0[a].getOrientation()); // x0[a].getOrientation().inverse() * x0[b].getOrientation();
-    dQ =  qDiff(x[b].getOrientation(), x[a].getOrientation()); // x[a].getOrientation().inverse() * x[b].getOrientation();
+    dQ =  qDiff(x[b].getOrientation(), x_a_getOrientation); // x[a].getOrientation().inverse() * x[b].getOrientation();
     //u = dQ.getLog() - dQ0.getLog();
 
     dQ0.normalize();
@@ -508,11 +525,11 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
 
     // Apply lambda transpose (we use the rotation value of point a for the beam)
 
-    Vec3 fa1 = x[a].getOrientation().rotate(defaulttype::Vec3d(force[0],force[1],force[2]));
-    Vec3 fa2 = x[a].getOrientation().rotate(defaulttype::Vec3d(force[3],force[4],force[5]));
+    Vec3 fa1 = x_a_getOrientation.rotate(defaulttype::Vec3d(force[0],force[1],force[2]));
+    Vec3 fa2 = x_a_getOrientation.rotate(defaulttype::Vec3d(force[3],force[4],force[5]));
 
-    Vec3 fb1 = x[a].getOrientation().rotate(defaulttype::Vec3d(force[6],force[7],force[8]));
-    Vec3 fb2 = x[a].getOrientation().rotate(defaulttype::Vec3d(force[9],force[10],force[11]));
+    Vec3 fb1 = x_a_getOrientation.rotate(defaulttype::Vec3d(force[6],force[7],force[8]));
+    Vec3 fb2 = x_a_getOrientation.rotate(defaulttype::Vec3d(force[9],force[10],force[11]));
 
 
     f[a] += Deriv(-fa1, -fa2);
