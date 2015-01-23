@@ -46,11 +46,13 @@ set(SOURCE_FILES
     )
 
 find_package(SofaGui REQUIRED)
-find_package(SofaGeneral REQUIRED)
+find_package(SofaGeneral  REQUIRED)
+find_package(SofaAdvanced REQUIRED)
+find_package(SofaMisc     REQUIRED)
 set(SOFAPHYSICSAPI_DEPENDENCY_INCLUDE_DIR ${SofaGui_INCLUDE_DIRS} ${SofaGeneral_INCLUDE_DIRS}) 
     
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} )
-target_link_libraries( ${PROJECT_NAME} PUBLIC SofaGuiMain SofaComponentGeneral ) 
+target_link_libraries( ${PROJECT_NAME} PUBLIC SofaGuiMain SofaComponentGeneral SofaComponentAdvanced SofaComponentMisc ) 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>") 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPHYSICSAPI_DEPENDENCY_INCLUDE_DIR}>")
 

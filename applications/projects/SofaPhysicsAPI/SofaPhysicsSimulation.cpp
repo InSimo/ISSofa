@@ -24,7 +24,11 @@
 
 #include "fakegui.h"
 
+#include <SofaComponentCommon/initComponentCommon.h>
+#include <SofaComponentBase/initComponentBase.h>
 #include <SofaComponentGeneral/initComponentGeneral.h>
+#include <SofaComponentAdvanced/initComponentAdvanced.h>
+#include <SofaComponentMisc/initComponentMisc.h>
 
 #include <math.h>
 #include <iostream>
@@ -170,6 +174,14 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_)
     static bool first = true;
     if (first)
     {
+        sofa::component::initComponentBase();
+        sofa::component::initComponentCommon();
+        sofa::component::initComponentGeneral();
+        sofa::component::initComponentAdvanced();
+        sofa::component::initComponentMisc();
+
+        sofa::simulation::xml::initXml();
+
         if ( !useGUI ) {
           // FakeGUI to be able to receive messages
           FakeGUI::Create();
@@ -202,9 +214,6 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_)
 
     m_Simulation = new sofa::simulation::tree::TreeSimulation();
     sofa::simulation::setSimulation(m_Simulation);
-
-    sofa::component::initComponentGeneral();
-    sofa::simulation::xml::initXml();
 
     sofa::core::ObjectFactory::AddAlias("VisualModel", "OglModel", true,
             &classVisualModel);
