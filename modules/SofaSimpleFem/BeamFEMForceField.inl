@@ -71,6 +71,8 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField()
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
     , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
     , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
+    , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
+    , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
     , _partial_list_segment(false)
     , _updateStiffnessMatrix(true)
     , _assembling(false)
@@ -96,6 +98,8 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField(Real poissonRatio, Real youngMod
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
     , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
     , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
+    , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
+    , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
     , _partial_list_segment(false)
     , _updateStiffnessMatrix(true)
     , _assembling(false)
@@ -371,8 +375,8 @@ void BeamFEMForceField<DataTypes>::computeStiffness(int i, Index , Index )
     Real _J = (Real)beamsData.getValue()[i]._J;
     Real L2 = (Real) (_L * _L);
     Real L3 = (Real) (L2 * _L);
-    Real EIy = (Real)(_E * _Iy);
-    Real EIz = (Real)(_E * _Iz);
+    Real EIy = (Real)((_E * _Iy) * _rigidY.getValue());
+    Real EIz = (Real)((_E * _Iz) * _rigidZ.getValue());
 
     //std::cout<<" Young Modulus :"<<_E<<std::endl;
 
