@@ -65,8 +65,6 @@ public:
     typedef container::DistanceGrid DistanceGrid;
 
 protected:
-    DistanceGrid* grid;
-
     class Contact
     {
     public:
@@ -92,10 +90,6 @@ protected:
 
     };
 
-    sofa::helper::vector<bool> pOnBorder;
-    Data<sofa::helper::vector<Contact> > contacts;
-
-
     class TContact
     {
     public:
@@ -116,8 +110,6 @@ protected:
         }
 
     };
-
-    Data<sofa::helper::vector<TContact> > tcontacts;
 
     class VContact
     {
@@ -140,6 +132,11 @@ protected:
 
     };
 
+        
+    DistanceGrid* grid;
+    sofa::helper::vector<bool> pOnBorder;
+    Data<sofa::helper::vector<Contact> > contacts;
+    Data<sofa::helper::vector<TContact> > tcontacts;
     Data<sofa::helper::vector<VContact> > vcontacts;
 
     DistanceGridForceFieldInternalData<DataTypes> data;
@@ -173,9 +170,9 @@ public:
 protected:
     DistanceGridForceField()
         : grid(NULL)
-        , contacts(initData( &contacts, "contacts", "WARNING: this data need to be commented"))
-        , tcontacts(initData( &tcontacts, "tcontacts", "WARNING: this data need to be commented"))
-        , vcontacts(initData( &vcontacts, "vconatcts", "WARNING: this data need to be commented"))
+        , contacts( initData(&contacts, "contacts", "Contacts" ))
+        , tcontacts( initData(&tcontacts, "tcontacts","TContacts"))
+        , vcontacts( initData(&vcontacts, "vcontacts","VContacts"))
         , fileDistanceGrid( initData( &fileDistanceGrid, "fileDistanceGrid", "load distance grid from specified file"))
         , scale( initData( &scale, 1.0, "scale", "scaling factor for input file"))
         , box( initData( &box, "box", "Field bounding box defined by xmin,ymin,zmin, xmax,ymax,zmax") )
