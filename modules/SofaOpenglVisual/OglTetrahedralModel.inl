@@ -44,6 +44,7 @@ template<class DataTypes>
 OglTetrahedralModel<DataTypes>::OglTetrahedralModel()
     : m_topology(NULL)
     , m_positions(initData(&m_positions, "position", "Vertices coordinates"))
+    , m_tetrahedrons(initData(&m_tetrahedrons, "tetrahedra", "Tetrahedra coordinates"))
     , modified(false)
     , lastMeshRev(-1)
     , useTopology(false)

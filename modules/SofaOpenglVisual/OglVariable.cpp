@@ -499,6 +499,7 @@ void OglFloatVector4Variable::initVisual()
 
 //// Matrix /////
 OglMatrix2Variable::OglMatrix2Variable()
+: transpose(initData(&transpose, false, "transpose", "Activate transpose of the matrix"))
 {
 
 }

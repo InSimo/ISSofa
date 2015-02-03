@@ -46,7 +46,9 @@ public:
     //typedef sofa::core::objectmodel::Data< sofa::helper::vector <void*> > t_topologicalData;
 
 protected:
-    TopologyEngine() {}//m_topologicalData(NULL)  {}
+    TopologyEngine()
+    : m_changeList(initData(&m_changeList, "changeList", "List of topological changes"))
+    {}//m_topologicalData(NULL)  {}
 
     virtual ~TopologyEngine()
     {

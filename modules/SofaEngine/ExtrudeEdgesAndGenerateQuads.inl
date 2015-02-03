@@ -54,6 +54,7 @@ ExtrudeEdgesAndGenerateQuads<DataTypes>::ExtrudeEdgesAndGenerateQuads()
     , f_curveVertices( initData (&f_curveVertices, "curveVertices", "Position coordinates along the initial curve") )
     , f_curveEdges( initData (&f_curveEdges, "curveEdges", "Indices of the edges of the curve to extrude") )
     , f_extrudedVertices( initData (&f_extrudedVertices, "extrudedVertices", "Coordinates of the extruded vertices") )
+    , f_extrudedEdges( initData (&f_extrudedEdges, "extrudedEdges", "Coordinates of the extruded edges") )
     , f_extrudedQuads( initData (&f_extrudedQuads, "extrudedQuads", "List of all quads generated during the extrusion") )
 {
 }

@@ -87,7 +87,7 @@ public:
     bool                                             initialized;
     Data<bool>                                       isVisible;
     Data<Coord>                                      f_direction;
-    Data<Real>                                       f_thickness;
+//    Data<Real>                                       f_thickness;
     Data<Real>                                       f_thicknessIn;
     Data<Real>                                       f_thicknessOut;
     Data<int>                                        f_numberOfSections;

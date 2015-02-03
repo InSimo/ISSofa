@@ -403,7 +403,7 @@ public:
     }
 
     /** \copydoc BaseData(const char*, bool, bool) */
-    Data( const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
+    explicit Data( const char* helpMsg, bool isDisplayed=true, bool isReadOnly=false)
         : TData<T>(helpMsg, isDisplayed, isReadOnly)
         , m_values()
         , shared(NULL)
@@ -415,7 +415,7 @@ public:
     /** \copydoc BaseData(const char*, bool, bool)
      *  \param value The default value.
      */
-    Data( const T& value, const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
+    Data( const T& value, const char* helpMsg, bool isDisplayed=true, bool isReadOnly=false)
         : TData<T>(helpMsg, isDisplayed, isReadOnly)
         , m_values()
         , shared(NULL)

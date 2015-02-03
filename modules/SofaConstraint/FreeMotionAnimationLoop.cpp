@@ -60,6 +60,7 @@ using namespace sofa::simulation;
 
 FreeMotionAnimationLoop::FreeMotionAnimationLoop(simulation::Node* gnode)
     : Inherit(gnode)
+    , displayTime(initData(&displayTime,false,"displayTime","Dump the computation times"))
     , m_solveVelocityConstraintFirst(initData(&m_solveVelocityConstraintFirst , false, "solveVelocityConstraintFirst", "solve separately velocity constraint violations before position constraint violations"))
     , constraintSolver(NULL)
     , defaultSolver(NULL)

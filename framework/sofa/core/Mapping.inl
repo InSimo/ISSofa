@@ -450,7 +450,7 @@ bool Mapping<In,Out>::checkApplyJT(const MechanicalParams* mparams, InDataVecDer
     InVecDeriv& out = *outData.beginEdit(mparams);
     const OutVecDeriv& in = inData.getValue(mparams);
 
-    InDataVecDeriv tmpData;
+    InDataVecDeriv tmpData("tmpData");
     InVecDeriv& tmp = *tmpData.beginEdit(mparams);
     tmp.resize(out.size());
     tmpData.endEdit(mparams);

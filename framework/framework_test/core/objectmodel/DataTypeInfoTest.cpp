@@ -41,7 +41,9 @@ struct DataTypeInfoMyType_test : public ::testing::Test
     static std::size_t size;
 
     DataTypeInfoMyType_test()
-    :myTypeInfo(NULL)
+    :myData("myData")
+    ,myVectorData("myVectorData")
+    ,myTypeInfo(NULL)
     ,myVectorTypeInfo(NULL)
     ,myValueVoidPtr(NULL)
     ,myVectorValueVoidPtr(NULL)

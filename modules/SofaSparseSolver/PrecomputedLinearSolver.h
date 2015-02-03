@@ -91,9 +91,9 @@ public:
     Data<bool> jmjt_twostep;
     Data<bool> f_verbose;
     Data<bool> use_file;
-    Data<int> init_MaxIter;
-    Data<double> init_Tolerance;
-    Data<double> init_Threshold;
+//    Data<int> init_MaxIter;
+//    Data<double> init_Tolerance;
+//    Data<double> init_Threshold;
 
     PrecomputedLinearSolver();
     void solve (TMatrix& M, TVector& x, TVector& b);

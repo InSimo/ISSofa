@@ -202,6 +202,8 @@ protected:
     *
     */
     TopologyContainer()
+    : m_changeList(initData(&m_changeList, "changeList", "List of topological changes"))
+    , m_stateChangeList(initData(&m_stateChangeList, "stateChangeList", "List of topological changes applied to states (prior to propagation to other objects)"))
     {}
 
 

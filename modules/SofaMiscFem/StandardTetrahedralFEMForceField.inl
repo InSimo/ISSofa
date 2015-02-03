@@ -555,7 +555,7 @@ defaulttype::Mat<3,3,double> StandardTetrahedralFEMForceField<DataTypes>::getPhi
 template<class DataTypes>
 void StandardTetrahedralFEMForceField<DataTypes>::testDerivatives()
 {
-	DataVecCoord d_pos;
+	DataVecCoord d_pos("pos");
 	VecCoord &pos = *d_pos.beginEdit();
 	pos =  this->mstate->read(core::ConstVecCoordId::position())->getValue();
 
@@ -566,19 +566,19 @@ void StandardTetrahedralFEMForceField<DataTypes>::testDerivatives()
 	}
 
 
-	DataVecDeriv d_force1;
+	DataVecDeriv d_force1("force1");
 	VecDeriv &force1 = *d_force1.beginEdit();
 	force1.resize( pos.size() );
 
-	DataVecDeriv d_deltaPos;
+	DataVecDeriv d_deltaPos("deltaPos");
 	VecDeriv &deltaPos = *d_deltaPos.beginEdit();
 	deltaPos.resize( pos.size() );
 
-	DataVecDeriv d_deltaForceCalculated;
+	DataVecDeriv d_deltaForceCalculated("deltaForceCalculated");
 	VecDeriv &deltaForceCalculated = *d_deltaForceCalculated.beginEdit();
 	deltaForceCalculated.resize( pos.size() );
 
-	DataVecDeriv d_force2;
+	DataVecDeriv d_force2("force2");
 	VecDeriv &force2 = *d_force2.beginEdit();
 	force2.resize( pos.size() );
 

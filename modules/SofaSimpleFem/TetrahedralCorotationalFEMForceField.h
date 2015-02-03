@@ -181,12 +181,12 @@ public:
     Data<bool> _updateStiffnessMatrix;
     Data<bool> _assembling;
     Data<bool> f_drawing;
-    Data<bool> _displayWholeVolume;
+//    Data<bool> _displayWholeVolume;
     Data<defaulttype::Vec4f> drawColor1;
     Data<defaulttype::Vec4f> drawColor2;
     Data<defaulttype::Vec4f> drawColor3;
     Data<defaulttype::Vec4f> drawColor4;
-    Data<std::map < std::string, sofa::helper::vector<double> > > _volumeGraph;
+//    Data<std::map < std::string, sofa::helper::vector<double> > > _volumeGraph;
 protected:
     TetrahedralCorotationalFEMForceField();
     TetrahedronHandler* tetrahedronHandler;

@@ -431,13 +431,8 @@ bool MeshObjLoader::readOBJ (std::ifstream &file, const char* filename)
                 if (faces.empty()) continue;
                 std::ostringstream oname;
                 oname << "material_" << materialName << "_" << fname << "Indices";
-                //std::ostringstream ohelp;
-                //ohelp << "list of indices of " << fname << "s that should be rendered with  material " << materialName;
-                //std::string shelp = ohelp.str();
-                Data< helper::vector<unsigned int> >* dOut = new Data< helper::vector<unsigned int> >;
+                Data< helper::vector<unsigned int> >* dOut = new Data< helper::vector<unsigned int> >("list of face indices corresponding to a given material");
                 dOut->setName(oname.str());
-                //dOut->setHelp(shelp.c_str());
-                dOut->setHelp("list of face indices corresponding to a given material");
 
                 this->addData(dOut);
                 dOut->setGroup("Materials");

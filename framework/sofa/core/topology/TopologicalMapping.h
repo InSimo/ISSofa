@@ -66,6 +66,7 @@ protected:
     TopologicalMapping()
         : fromModel(initLink("input", "Input topology to map"))
         , toModel(initLink("output", "Output topology to map"))
+        , Loc2GlobDataVec(initData(&Loc2GlobDataVec, "Loc2Glob", "Array which gives for each index (local index) of an element in the OUTPUT topology the corresponding index (global index) of the same element in the INPUT topology"))
     {}
 
     virtual ~TopologicalMapping() { }

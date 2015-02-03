@@ -75,7 +75,8 @@ protected:
           mRadius(initData(&mRadius,2.0,"radius","Radius")),
           mIsoValue(initData(&mIsoValue,0.5,"isoValue","Iso Value")),
           mGridMin(initData(&mGridMin,InCoord(-100,-100,-100),"min","Grid Min")),
-          mGridMax(initData(&mGridMax,InCoord(100,100,100),"max","Grid Max"))
+          mGridMax(initData(&mGridMax,InCoord(100,100,100),"max","Grid Max")),
+          planes(initData(&planes,"planes", "For each cube, store the vertex indices on each 3 first edges, and the data value", false, true))
     {
     }
 

@@ -93,9 +93,9 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
     , f_young(initData(&f_young,(Real)(1000.0),"youngModulus","Young modulus in Hooke's law"))
     , f_damping(initData(&f_damping,(Real)0.,"damping","Ratio damping/stiffness"))
     , f_restScale(initData(&f_restScale,(Real)1.,"restScale","Scale factor applied to rest positions (to simulate pre-stretched materials)"))
-#ifdef SIMPLEFEM_COLORMAP
+//#ifdef SIMPLEFEM_COLORMAP
     , showStressValue(initData(&showStressValue,true,"showStressValue","Flag activating rendering of stress values as a color in each triangle"))
-#endif
+//#endif
     , showStressVector(initData(&showStressVector,false,"showStressVector","Flag activating rendering of stress directions within each triangle"))
 #ifdef SIMPLEFEM_COLORMAP
     , showStressColorMap(initData(&showStressColorMap,"showStressColorMap", "Color map used to show stress values"))

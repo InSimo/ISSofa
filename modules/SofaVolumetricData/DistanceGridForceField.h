@@ -173,6 +173,9 @@ public:
 protected:
     DistanceGridForceField()
         : grid(NULL)
+        , contacts(initData( &contacts, "contacts", "WARNING: this data need to be commented"))
+        , tcontacts(initData( &tcontacts, "tcontacts", "WARNING: this data need to be commented"))
+        , vcontacts(initData( &vcontacts, "vconatcts", "WARNING: this data need to be commented"))
         , fileDistanceGrid( initData( &fileDistanceGrid, "fileDistanceGrid", "load distance grid from specified file"))
         , scale( initData( &scale, 1.0, "scale", "scaling factor for input file"))
         , box( initData( &box, "box", "Field bounding box defined by xmin,ymin,zmin, xmax,ymax,zmax") )

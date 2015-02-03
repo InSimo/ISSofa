@@ -71,7 +71,6 @@ public:
     Data<bool> m_restRotations;
 
     Data<bool> recompute;
-    Data<std::string> filePrefix;
     Data<double> debugViewFrameScale;
     sofa::core::objectmodel::DataFileName f_fileCompliance;
 protected:

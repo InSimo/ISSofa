@@ -29,6 +29,7 @@ template<class MyReal>
 TCylinderModel<sofa::defaulttype::StdRigidTypes<3,MyReal> >::TCylinderModel():
       _cylinder_radii(initData(&_cylinder_radii, "radii","Radius of each cylinder")),
       _cylinder_heights(initData(&_cylinder_heights,"heights","The cylinder heights")),
+      _cylinder_local_axes(initData(&_cylinder_local_axes,"localAxis","The cylinder local axis")),
       _default_radius(initData(&_default_radius,(Real)0.5,"defaultRadius","The default radius")),
       _default_height(initData(&_default_height,(Real)2,"defaultHeight","The default height")),
 	  _default_local_axis(initData(&_default_local_axis,typename DataTypes::Vec3(0.0, 1.0, 0.0),"defaultLocalAxis", "The default local axis cylinder is modeled around")),
@@ -41,9 +42,10 @@ template<class MyReal>
 TCylinderModel<sofa::defaulttype::StdRigidTypes<3,MyReal> >::TCylinderModel(core::behavior::MechanicalState<DataTypes>* mstate):
     _cylinder_radii(initData(&_cylinder_radii, "radii","Radius of each cylinder")),
     _cylinder_heights(initData(&_cylinder_heights,"heights","The cylinder heights")),
+    _cylinder_local_axes(initData(&_cylinder_local_axes,"local_axes","The cylinder heights")),
     _default_radius(initData(&_default_radius,(Real)0.5,"defaultRadius","The default radius")),
     _default_height(initData(&_default_height,(Real)2,"dafaultHeight","The default height")),
-	_default_local_axis(initData(&_default_local_axis,typename DataTypes::Vec3(0.0, 1.0, 0.0),"defaultLocalAxis", "The default local axis cylinder is modeled around")),
+	   _default_local_axis(initData(&_default_local_axis,typename DataTypes::Vec3(0.0, 1.0, 0.0),"defaultLocalAxis", "The default local axis cylinder is modeled around")),
     _mstate(mstate)
 {
     enum_type = CYLINDER_TYPE;

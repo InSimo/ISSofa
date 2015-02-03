@@ -106,11 +106,13 @@ protected:
 
 
     PenalityContactForceField(MechanicalState* object1, MechanicalState* object2)
-        : Inherit(object1, object2), contacts(initData(&contacts,"contacts", "Contacts"))
+        : Inherit(object1, object2)
+        , contacts(initData(&contacts,"contacts", "Contacts"))
     {
     }
 
     PenalityContactForceField()
+        : contacts(initData(&contacts,"contacts", "Contacts"))
     {
     }
 public:

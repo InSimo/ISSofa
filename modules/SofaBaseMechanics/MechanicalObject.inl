@@ -1436,7 +1436,7 @@ Data<typename MechanicalObject<DataTypes>::VecCoord>* MechanicalObject<DataTypes
 
     if (vectorsCoord[v.index] == NULL)
     {
-        vectorsCoord[v.index] = new Data< VecCoord >;
+        vectorsCoord[v.index] = new Data< VecCoord >("VecCoord temporary state vector");
         if (f_reserve.getValue() > 0)
         {
             vectorsCoord[v.index]->beginEdit()->reserve(f_reserve.getValue());
@@ -1500,7 +1500,7 @@ Data<typename MechanicalObject<DataTypes>::VecDeriv>* MechanicalObject<DataTypes
 
     if (vectorsDeriv[v.index] == NULL)
     {
-        vectorsDeriv[v.index] = new Data< VecDeriv >;
+        vectorsDeriv[v.index] = new Data< VecDeriv >("VecDeriv temporary state vector");
         if (f_reserve.getValue() > 0)
         {
             vectorsDeriv[v.index]->beginEdit()->reserve(f_reserve.getValue());
@@ -1563,7 +1563,7 @@ Data<typename MechanicalObject<DataTypes>::MatrixDeriv>* MechanicalObject<DataTy
 
     if (vectorsMatrixDeriv[v.index] == NULL)
     {
-        vectorsMatrixDeriv[v.index] = new Data< MatrixDeriv >;
+        vectorsMatrixDeriv[v.index] = new Data< MatrixDeriv >("MatrixDeriv temporary state vector");
     }
 
     return vectorsMatrixDeriv[v.index];

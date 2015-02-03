@@ -55,6 +55,11 @@ ReadTopology::ReadTopology()
     , nextTime(0.0)
     , lastTime(0.0)
     , loopTime(0.0)
+    , edges( initData(&edges, "edges", "1D elements"))
+    , triangles( initData(&triangles, "triangles", "2D elements"))
+    , quads( initData(&quads, "quads", "2D elements"))
+    , tetrahedra( initData(&tetrahedra, "tetrahedra", "3D elements"))
+    , hexahedra( initData(&hexahedra, "hexahedra", "3D elements"))
 {
     this->f_listening.setValue(true);
 }

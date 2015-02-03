@@ -115,7 +115,8 @@ public:
     Data<bool> bDraw;
 protected:
     ConicalForceField()
-        : coneCenter(initData(&coneCenter, "coneCenter", "cone center"))
+        : contacts(initData(&contacts, "contacts", "Active forces"))
+        , coneCenter(initData(&coneCenter, "coneCenter", "cone center"))
         , coneHeight(initData(&coneHeight, "coneHeight", "cone height"))
         , coneAngle(initData(&coneAngle, (Real)10, "coneAngle", "cone angle"))
 
