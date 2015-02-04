@@ -159,20 +159,36 @@ extern "C" PyObject * BaseContext_getObject(PyObject * self, PyObject * args)
 extern "C" PyObject * BaseContext_getObjects(PyObject * self, PyObject * args)
 {
     BaseContext* context=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
-
+    char* type_name= NULL;
+    char* name= NULL;
+    if ( !PyArg_ParseTuple ( args, "s|s", &type_name, &name ) ) {
+        Py_RETURN_NONE;
+    }
     if (!context)
     {
         PyErr_BadArgument();
         Py_RETURN_NONE;
     }
-    BaseObject::SPtr sptr;
+
+    std::string type_name_str ( type_name ? type_name : "" );
+    std::string name_str ( name ? name : "" );
+    ObjectFactory::ClassEntry& class_entry = ObjectFactory::getInstance()->getEntry(type_name);
 
     sofa::helper::vector< boost::intrusive_ptr<BaseObject> > list;
     context->get<BaseObject>(&list,sofa::core::objectmodel::BaseContext::Local);
 
-    PyObject *pyList = PyList_New(list.size());
-    for (int i=0; i<list.size(); i++)
-        PyList_SetItem(pyList,i,SP_BUILD_PYSPTR(list[i].get()));
+    PyObject *pyList = PyList_New(0);
+    for (unsigned int i=0; i<list.size(); i++)
+    {
+        BaseObject* o = list[i].get();
+        if ( type_name_str == "" || o->getClassName() == class_entry.className || class_entry.creatorMap.find(o->getClassName()) != class_entry.creatorMap.end()) 
+        {
+            if ( name_str == "" || name_str == o->getName())
+            {
+                PyList_SetItem(pyList,i,SP_BUILD_PYSPTR(o));
+            }
+        }
+    }
 
     return pyList;
 }
