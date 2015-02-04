@@ -29,6 +29,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <SofaDeformable/StiffSpringForceField.inl>
 #include <sofa/core/topology/BaseMeshTopology.h>
+#include <sofa/simulation/common/AnimateBeginEvent.h>
 #include <iostream>
 
 
@@ -189,6 +190,8 @@ void MeshSpringForceField<DataTypes>::reinit()
 template<class DataTypes>
 void MeshSpringForceField<DataTypes>::init()
 {
+    prevDefaultTension = this->defaultTension.getValue();
+
     reinit();
 }
 
@@ -196,6 +199,20 @@ template <class DataTypes>
 void MeshSpringForceField<DataTypes>::reset()
 {
 	reinit();
+}
+
+template<class DataTypes>
+void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event* e)
+{
+    if (dynamic_cast< simulation::AnimateBeginEvent* >(e) != 0)
+    {
+      if (prevDefaultTension != this->defaultTension.getValue())
+      {
+        std::cout << "A new defaultTension value has been set : "<< this->defaultTension.getValue() << " -> reinint() is called in MeshSpringForceField" <<  std::endl;
+        this->reinit();
+        prevDefaultTension = this->defaultTension.getValue();
+      }
+    }
 }
 
 } // namespace interactionforcefield

@@ -64,6 +64,7 @@ protected:
     Data< Real >  cubesDamping;
     Data< bool >  noCompression;
     Data< Real >  defaultTension;
+    Data< Real >  prevDefaultTension;
 
     /// optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)
     Data< defaulttype::Vec<2,int> > localRange;
@@ -85,10 +86,11 @@ protected:
         , localRange( initData(&localRange, defaulttype::Vec<2,int>(-1,-1), "localRange", "optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)" ) )
         , noCompression( initData(&noCompression, false, "noCompression", "Only consider elongation", false))
         , defaultTension( initData(&defaultTension, Real(1.0),"defaultTension", "Percentage to apply to length of edges to artificially create tension",true))
-
+        , prevDefaultTension((Real)1.0)
     {
         this->ks.setDisplayed(false);
         this->kd.setDisplayed(false);
+        this->f_listening.setValue(true);
         this->addAlias(&linesStiffness,     "stiffness"); this->addAlias(&linesDamping,     "damping");
         this->addAlias(&trianglesStiffness, "stiffness"); this->addAlias(&trianglesDamping, "damping");
         this->addAlias(&quadsStiffness,     "stiffness"); this->addAlias(&quadsDamping,     "damping");
@@ -99,6 +101,9 @@ protected:
     }
 
     virtual ~MeshSpringForceField();
+    
+    virtual void handleEvent(core::objectmodel::Event* e);
+
 public:
     virtual double getPotentialEnergy() const;
 
