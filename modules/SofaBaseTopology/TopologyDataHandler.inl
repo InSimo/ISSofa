@@ -70,7 +70,7 @@ void TopologyDataHandler <TopologyElementType, VecT>::add(const sofa::helper::ve
             << " while vector size is " << i0 << this->m_topologyData->getOwner()->sendl;
         i0 = index[0];
     }
-    data.resize(i0+nbElements);
+    TopologyDataHandler_resize(data, i0+nbElements);
 
     const sofa::helper::vector< unsigned int > empty_vecint;
     const sofa::helper::vector< double > empty_vecdouble;
@@ -119,7 +119,7 @@ void TopologyDataHandler <TopologyElementType, VecT>::remove( const sofa::helper
 			--last;
 		}
 
-		data.resize( data.size() - index.size() );
+  TopologyDataHandler_resize( data, data.size() - index.size() );
 	}
 	m_topologyData->endEdit();
 }
