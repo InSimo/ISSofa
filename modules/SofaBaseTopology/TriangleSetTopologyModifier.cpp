@@ -86,7 +86,6 @@ void TriangleSetTopologyModifier::reinit()
         }
     }
 
-    sout << trianglesToBeRemoved << sendl;
     this->removeItems(trianglesToBeRemoved);
 }
 
@@ -334,36 +333,38 @@ void TriangleSetTopologyModifier::addEdgesProcess(const sofa::helper::vector< Ed
 
 
 
-void TriangleSetTopologyModifier::removeItems(sofa::helper::vector< unsigned int >& items)
+void TriangleSetTopologyModifier::removeItems(const sofa::helper::vector<unsigned int> &items)
 {
-
     removeTriangles(items, true, true); // remove triangles
 }
 
 
-void TriangleSetTopologyModifier::removeTriangles(sofa::helper::vector< unsigned int >& triangles,
+void TriangleSetTopologyModifier::removeTriangles(const sofa::helper::vector<unsigned int> &triangleIds,
         const bool removeIsolatedEdges,
         const bool removeIsolatedPoints)
-{
-    helper::ReadAccessor< Data< sofa::helper::vector<Triangle> > > m_triangle = m_container->d_triangle;
-    for (unsigned int i = 0; i < triangles.size(); i++)
+{    
+    sofa::helper::vector<unsigned int> triangleIds_filtered;
+    for (unsigned int i = 0; i < triangleIds.size(); i++)
     {
-        if( triangles[i] >= m_triangle.size())
+        if( triangleIds[i] >= m_container->getNumberOfTriangles())
         {
-            serr << "Error: TriangleSetTopologyModifier::removeTriangles: Triangle: "<< triangles[i] <<" is out of bound" << sendl;
+            serr << "Warning: TriangleSetTopologyModifier::removeTriangles: Triangle: "<< triangleIds[i] <<" is out of bound and won't be removed." << sendl;
             return;
+        }
+        else
+        {
+            triangleIds_filtered.push_back(triangleIds[i]);
         }
     }
 
-
-    if (removeTrianglesPreconditions(triangles)) // Test if the topology will still fulfill the conditions if these triangles are removed.
+    if (removeTrianglesPreconditions(triangleIds_filtered)) // Test if the topology will still fulfill the conditions if these triangles are removed.
     {
         /// add the topological changes in the queue
-        removeTrianglesWarning(triangles);
+        removeTrianglesWarning(triangleIds_filtered);
         // inform other objects that the triangles are going to be removed
         propagateTopologicalChanges();
         // now destroy the old triangles.
-        removeTrianglesProcess(  triangles ,removeIsolatedEdges, removeIsolatedPoints);
+        removeTrianglesProcess(triangleIds_filtered ,removeIsolatedEdges, removeIsolatedPoints);
 
         m_container->checkTopology();
     }
