@@ -45,28 +45,6 @@ namespace collision
 // #define DETECTIONOUTPUT_FREEMOTION
 //#define DETECTIONOUTPUT_BARYCENTRICINFO
 
-
-
-/**
- *  \brief Abstract description of a set of contact point.
- */
-
-class DetectionOutputVector
-{
-protected:
-    virtual ~DetectionOutputVector() {}
-public:
-    /// Clear the content of this vector
-    virtual void clear() = 0;
-    /// Current size (number of detected contacts
-    virtual unsigned int size() const = 0;
-    /// Test if the vector is empty
-    bool empty() const { return size()==0; }
-    /// Delete this vector from memory once the contact pair is no longer active
-    virtual void release() { delete this; }
-};
-
-
 /**
  *  \brief Generic description of a contact point, used for most collision models except special cases such as GPU-based collisions.
  *
@@ -120,7 +98,28 @@ public:
     }
 };
 
+/**
+ *  \brief Abstract description of a set of contact point.
+ */
 
+class DetectionOutputVector
+{
+protected:
+    virtual ~DetectionOutputVector() {}
+public:
+    /// Clear the content of this vector
+    virtual void clear() = 0;
+    /// Current size (number of detected contacts
+    virtual unsigned int size() const = 0;
+    /// Test if the vector is empty
+    bool empty() const { return size()==0; }
+    /// Delete this vector from memory once the contact pair is no longer active
+    virtual void release() { delete this; }
+    /// Copy one contact to a DetectionOutput (inefficient,
+    /// not supported by all subclasses, use only for debugging)
+    /// @return false if not supported
+    virtual bool getDetectionOutput(unsigned int i, DetectionOutput& o) const { return false; }
+};
 
 /**
  *  \brief Generic description of a set of contact point between two specific collision models
