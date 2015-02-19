@@ -99,6 +99,7 @@ public:
     Data<bool> f_firstOrder;
     Data<bool> f_verbose;
     Data<bool> f_projectForce;
+    Data<bool> f_solveConstraint;
 protected:
     EulerImplicitSolver();
 public:
