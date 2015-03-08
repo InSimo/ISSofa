@@ -80,14 +80,28 @@ public:
 
 protected:
     sofa::core::topology::BaseTopologyData <VecT>* m_topologyData;
-	value_type m_defaultValue; // default value when adding an element (by set as value_type() by default)
+	value_type* m_defaultValue; // default value when adding an element (or NULL if not specified, in which case TopologyDataHandler_clear() is used)
 
 public:
-    // constructor
-    TopologyDataHandler(sofa::core::topology::BaseTopologyData <VecT>* _topologyData,
-                        value_type defaultValue=value_type())
+    /// constructor without default value
+    TopologyDataHandler(sofa::core::topology::BaseTopologyData <VecT>* _topologyData)
         :sofa::core::topology::TopologyElementHandler < TopologyElementType >()
-        , m_topologyData(_topologyData), m_defaultValue(defaultValue) {}
+        , m_topologyData(_topologyData), m_defaultValue(NULL) {}
+
+    /// constructor with default value
+    TopologyDataHandler(sofa::core::topology::BaseTopologyData <VecT>* _topologyData,
+                        value_type defaultValue)
+        :sofa::core::topology::TopologyElementHandler < TopologyElementType >()
+        , m_topologyData(_topologyData), m_defaultValue(new value_type(defaultValue)) {}
+
+    /// destructor
+    ~TopologyDataHandler()
+    {
+        if (m_defaultValue)
+        {
+            delete m_defaultValue;
+        }
+    }
 
     bool isTopologyDataRegistered()
     {
@@ -102,7 +116,17 @@ public:
     /// Apply adding current elementType elements
     virtual void applyCreateFunction(unsigned int, value_type& t,
             const sofa::helper::vector< unsigned int > &,
-            const sofa::helper::vector< double > &) {t = m_defaultValue;}
+            const sofa::helper::vector< double > &)
+    {
+        if (m_defaultValue)
+        {
+            t = *m_defaultValue;
+        }
+        else
+        {
+            TopologyDataHandler_clear(t);
+        }
+    }
 
     /// WARNING NEED TO UNIFY THIS
     /// Apply adding current elementType elements
@@ -121,8 +145,16 @@ public:
         applyCreateFunction(i, t, e, ancestors, coefs);
     }
 	// update the default value used during creation
-	void setDefaultValue(const value_type &v) {
-		m_defaultValue=v;
+	void setDefaultValue(const value_type &v)
+    {
+        if (m_defaultValue)
+        {
+            *m_defaultValue = v;
+        }
+        else
+        {
+            m_defaultValue = new value_type(v);
+        }
 	}
 
 protected:
