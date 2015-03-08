@@ -69,7 +69,7 @@ class BilateralConstraintResolution : public core::behavior::ConstraintResolutio
 {
 public:
     BilateralConstraintResolution(double* initF=NULL) : _f(initF) {}
-    virtual void resolution(int line, double** w, double* d, double* force)
+    virtual void resolution(int line, double** w, double* d, double* force, double* /*dFree*/)
     {
         force[line] -= d[line] / w[line][line];
     }
@@ -129,7 +129,7 @@ public:
         }
     }
 
-    virtual void resolution(int line, double** /*w*/, double* d, double* force)
+    virtual void resolution(int line, double** /*w*/, double* d, double* force, double* /*dFree*/)
     {
         for(int i=0; i<3; i++)
         {
@@ -182,7 +182,7 @@ public:
         }
     }
 
-    virtual void resolution(int line, double** /*w*/, double* d, double* force)
+    virtual void resolution(int line, double** /*w*/, double* d, double* force, double* /*dFree*/)
     {
         for(int i=0; i<N; i++)
         {
