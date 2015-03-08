@@ -3592,8 +3592,8 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
         case core::topology::ENDING_EVENT :
         {
             const helper::vector< topology::Triangle >& triangles = this->fromTopology->getTriangles();
-            helper::vector< Mat3x3d > bases;
-            helper::vector< Vector3 > centers;
+            helper::vector< sofa::defaulttype::Mat3x3d > bases;
+            helper::vector< sofa::defaulttype::Vector3 > centers;
 
             // clear and reserve space for 2D mapping
             this->clear(out.size());
@@ -3602,10 +3602,10 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
 
             for ( unsigned int t = 0; t < triangles.size(); t++ )
             {
-                Mat3x3d m,mt;
+                sofa::defaulttype::Mat3x3d m,mt;
                 m[0] = in[triangles[t][1]]-in[triangles[t][0]];
                 m[1] = in[triangles[t][2]]-in[triangles[t][0]];
-                m[2] = cross ( m[0],m[1] );
+                m[2] = defaulttype::cross ( m[0],m[1] );
                 mt.transpose ( m );
                 bases[t].invert ( mt );
                 centers[t] = ( in[triangles[t][0]]+in[triangles[t][1]]+in[triangles[t][2]] ) /3;
@@ -3613,13 +3613,13 @@ void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::to
 
             for ( unsigned int i=0; i<out.size(); i++ )
             {
-                Vec3d pos = Out::getCPos(out[i]);
-                Vector3 coefs;
+                sofa::defaulttype::Vec3d pos = Out::getCPos(out[i]);
+                defaulttype::Vector3 coefs;
                 int index = -1;
                 double distance = 1e10;
                 for ( unsigned int t = 0; t < triangles.size(); t++ )
                 {
-                    Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
+                    sofa::defaulttype::Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
                     double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( ( v[2]<0?-v[2]:v[2] )-0.01,v[0]+v[1]-1 ) );
                     if ( d>0 ) d = ( pos-centers[t] ).norm2();
                     if ( d<distance ) { coefs = v; distance = d; index = t; }

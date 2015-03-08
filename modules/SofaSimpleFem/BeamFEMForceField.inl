@@ -70,7 +70,7 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField()
     , _radiusInner(initData(&_radiusInner,(Real)0.0,"radiusInner","inner radius of the section for hollow beams"))
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
     , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
-    , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
+    , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),defaulttype::Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
     , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
     , _partial_list_segment(false)
@@ -97,7 +97,7 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField(Real poissonRatio, Real youngMod
     , _radiusInner(initData(&_radiusInner,(Real)radiusInner,"radiusInner","inner radius of the section for hollow beams"))
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
     , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
-    , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
+    , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),defaulttype::Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
     , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
     , _partial_list_segment(false)
@@ -482,7 +482,7 @@ void BeamFEMForceField<DataTypes>::accumulateForceLarge( VecDeriv& f, const VecC
     const VecCoord& x0 = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
 
     bool isTransform = _applyRigidTransFirstBeam.getValue() && a == 0;
-    Quat x_a_getOrientation = isTransform ? (x[a].mult(m_rigidTsf)).getOrientation() : x[a].getOrientation();
+    defaulttype::Quat x_a_getOrientation = isTransform ? (x[a].mult(m_rigidTsf)).getOrientation() : x[a].getOrientation();
     x_a_getOrientation.normalize();
 
     beamQuat(i) = x_a_getOrientation;
