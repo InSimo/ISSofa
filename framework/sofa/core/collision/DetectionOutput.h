@@ -118,7 +118,7 @@ public:
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)
     /// @return false if not supported
-    virtual bool getDetectionOutput(unsigned int i, DetectionOutput& o) const { return false; }
+    virtual bool getDetectionOutput(unsigned int /*i*/, DetectionOutput& /*o*/) const { return false; }
 };
 
 /**
@@ -140,6 +140,14 @@ public:
     virtual unsigned int size() const
     {
         return (unsigned int)this->Vector::size();
+    }
+    /// Copy one contact to a DetectionOutput (inefficient,
+    /// not supported by all subclasses, use only for debugging)
+    /// @return false if not supported
+    virtual bool getDetectionOutput(unsigned int i, DetectionOutput& o) const
+    {
+        o = (*this)[i];
+        return true;
     }
 };
 
