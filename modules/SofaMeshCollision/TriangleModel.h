@@ -275,7 +275,7 @@ inline const typename DataTypes::Coord& TTriangle<DataTypes>::p(int i) const {
 }
 template<class DataTypes>
 inline const typename DataTypes::Coord& TTriangle<DataTypes>::p0(int i) const {
-    return this->model->mstate->read(core::ConstVecCoordId::freePosition())->getValue()[(*(this->model->triangles))[this->index][i]];
+    return this->model->mstate->read(core::ConstVecCoordId::restPosition())->getValue()[(*(this->model->triangles))[this->index][i]];
 }
 template<class DataTypes>
 inline const typename DataTypes::Coord& TTriangle<DataTypes>::operator[](int i) const {
