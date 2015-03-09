@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
+
 project(SofaSparseSolver)
 
 
@@ -17,6 +18,7 @@ set(SOURCE_FILES
     initSparseSolver.cpp
     PrecomputedLinearSolver.cpp
     SparseLDLSolver.cpp
+    
     )
 
 if( SOFA_HAVE_CSPARSE )
@@ -31,9 +33,11 @@ set(GROUP_BASE_DIR "..")
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries( ${PROJECT_NAME} PUBLIC SofaBaseLinearSolver SofaImplicitOdeSolver SofaSimpleFem )
-if( SOFA_HAVE_CSPARSE )
-target_link_libraries( ${PROJECT_NAME} csparse )
+
+if( SOFA_HAVE_CSPARSE)
+  target_link_libraries( ${PROJECT_NAME} PUBLIC csparse)
 endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_BUILD_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_DEPENDENCY_INCLUDE_DIR}>")

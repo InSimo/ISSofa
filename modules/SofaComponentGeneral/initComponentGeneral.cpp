@@ -37,9 +37,9 @@
 #ifdef SOFA_HAVE_NEWMAT
 #include <SofaDenseSolver/initDenseSolver.h>
 #endif
-#ifdef SOFA_HAVE_CSPARSE
+
 #include <SofaSparseSolver/initSparseSolver.h>
-#endif
+
 #ifdef SOFA_HAVE_TAUCS
 #include <SofaTaucsSolver/initTaucsSolver.h>
 #endif
@@ -78,9 +78,7 @@ void initComponentGeneral()
 #ifdef SOFA_HAVE_NEWMAT
     initDenseSolver();
 #endif
-#ifdef SOFA_HAVE_CSPARSE
     initSparseSolver();
-#endif
 #ifdef SOFA_HAVE_TAUCS
     initTaucsSolver();
 #endif

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 set(SOLUTION_NAME "SofaGeneral")
 project(${SOLUTION_NAME})
 
@@ -30,7 +30,10 @@ set(SOFAGENERAL_INSTALL_CMAKE_DIR   ${SOFAGENERAL_INSTALL_LIB_DIR}/cmake/SofaGen
 ##
 find_package(SofaCommon REQUIRED)
 find_package(Newmat)
+find_package(Csparse)
+
 set(SOFA_HAVE_NEWMAT ${Newmat_FOUND} )
+set(SOFA_HAVE_CSPARSE ${Csparse_FOUND} )
 
 set(SOFAGENERAL_DEPENDENCY_INCLUDE_DIR ${SofaCommon_INCLUDE_DIRS})
 
@@ -41,19 +44,21 @@ install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaGeneral.h
          DESTINATION "${SOFAGENERAL_INSTALL_INCLUDE_DIR}/sofa")
 
 set(SOFAGENERAL_TARGETS SofaValidation SofaExporter SofaGraphComponent SofaTopologyMapping SofaBoundaryCondition 
-    SofaComponentGeneral SofaEngine SofaUserInteraction SofaConstraint SofaHaptics SofaPreconditioner)
+    SofaComponentGeneral SofaEngine SofaUserInteraction SofaConstraint SofaHaptics SofaPreconditioner SofaSparseSolver)
 
 if(SOFA_HAVE_NEWMAT)
   list(APPEND SOFAGENERAL_DEPENDENCY_LINK newmat )
   list(APPEND SOFAGENERAL_TARGETS SofaDenseSolver)
 endif()
 
-if(NOT SOFA-MISC_NO_OPENGL)
+if(SOFA_HAVE_CSPARSE)
+   list(APPEND SOFAGENERAL_DEPENDENCY_LINK csparse)
+endif()
+
+if(NOT SOFA_NO_OPENGL)
    list(APPEND SOFAGENERAL_TARGETS SofaOpenglVisual)
 endif()
-#if(SOFA_HAVE_CSPARSE)
-   list(APPEND SOFAGENERAL_TARGETS SofaSparseSolver)
-#endif()
+
 if(SOFA_HAVE_TAUCS)
    list(APPEND SOFAGENERAL_TARGETS SofaTaucsSolver)
 endif()
