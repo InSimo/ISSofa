@@ -36,6 +36,10 @@ else()
     find_package(PythonLibs 2.7 REQUIRED)
 endif()
 
+if(UNIX)
+  list(APPEND PYTHON_LIBRARIES dl)
+endif()
+
 find_package(SofaGui REQUIRED)
 find_package(SofaGeneral REQUIRED)
 find_package(SofaMisc REQUIRED)

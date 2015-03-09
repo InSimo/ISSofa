@@ -35,11 +35,10 @@ using namespace sofa::component::controller;
 
 //using namespace sofa::simulation::tree;
 
-
 // WARNING workaround to be able to import python libraries on linux (like numpy) at least on ubuntu
 // more details on http://bugs.python.org/issue4434
 // It is not fixing the real problem, but at least it is working for now
-#if __linux__
+#if defined(__linux__)
 #include <dlfcn.h>
 #endif
 
@@ -64,8 +63,8 @@ void PythonEnvironment::Init()
     SP_MESSAGE_INFO( "Python framework version: "<<pythonVersion )
 //    PyEval_InitThreads();
 
-#if __linux__
-    // fixing the library import on ubuntu
+#if defined(__linux__)
+    // fixing the library import on ubuntu. See http://bugs.python.org/issue19153
     std::string pythonLibraryName = "libpython" + std::string(pythonVersion,0,3) + ".so";
     dlopen( pythonLibraryName.c_str(), RTLD_LAZY|RTLD_GLOBAL );
 #endif
@@ -74,11 +73,12 @@ void PythonEnvironment::Init()
     if( putenv((char*)"PYTHONUNBUFFERED=1") )
         SP_MESSAGE_WARNING( "failed to define environment variable PYTHONUNBUFFERED" )
 
-
-    //SP_MESSAGE_INFO( "Py_Initialize()" )
-    Py_Initialize();
-    //SP_MESSAGE_INFO( "Registering Sofa bindings..." )
-
+    if ( !Py_IsInitialized() )
+    {
+        //SP_MESSAGE_INFO( "Py_Initialize()" )
+        Py_Initialize();
+        //SP_MESSAGE_INFO( "Registering Sofa bindings..." )
+    }
 
     // append sofa modules to the embedded python environment
     bindSofaPythonModule();
