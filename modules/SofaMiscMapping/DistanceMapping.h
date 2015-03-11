@@ -88,6 +88,7 @@ public:
     typedef linearsolver::EigenSparseMatrix<TIn,TIn>    SparseKMatrixEigen;
     enum {Nin = In::deriv_total_size, Nout = Out::deriv_total_size };
     typedef topology::EdgeSetTopologyContainer::SeqEdges SeqEdges;
+    typedef defaulttype::Vec<In::spatial_dimensions,Real> Direction;
 
 
     Data< bool >		   f_computeDistance;	///< computeDistance = true ---> restDistance = 0
@@ -121,11 +122,11 @@ protected:
     SparseMatrixEigen jacobian;                         ///< Jacobian of the mapping
     vector<defaulttype::BaseMatrix*> baseMatrices;      ///< Jacobian of the mapping, in a vector
     SparseKMatrixEigen K;                               ///< Assembled geometric stiffness matrix
-    vector<InDeriv> directions;                         ///< Unit vectors in the directions of the lines
+    vector<Direction> directions;                         ///< Unit vectors in the directions of the lines
     vector< Real > invlengths;                          ///< inverse of current distances. Null represents the infinity (null distance)
 
     /// r=b-a only for position (eventual rotation, affine transform... remains null)
-    void computeCoordPositionDifference( InDeriv& r, const InCoord& a, const InCoord& b );
+    void computeCoordPositionDifference( Direction& r, const InCoord& a, const InCoord& b );
 };
 
 
@@ -157,6 +158,7 @@ public:
     enum {Nin = In::deriv_total_size, Nout = Out::deriv_total_size };
     typedef topology::EdgeSetTopologyContainer::SeqEdges SeqEdges;
     typedef typename helper::vector <const InVecCoord*> vecConstInVecCoord;
+    typedef defaulttype::Vec<In::spatial_dimensions,Real> Direction;
 
 
     Data< bool >		   f_computeDistance;	///< computeDistance = true ---> restDistance = 0
@@ -241,13 +243,13 @@ protected:
 
     topology::EdgeSetTopologyContainer* edgeContainer;  ///< where the edges are defined
     vector<defaulttype::BaseMatrix*> baseMatrices;      ///< Jacobian of the mapping, in a vector
-    vector<InDeriv> directions;                         ///< Unit vectors in the directions of the lines
+    vector<Direction> directions;                         ///< Unit vectors in the directions of the lines
     vector< Real > invlengths;                          ///< inverse of current distances. Null represents the infinity (null distance)
 
     SparseKMatrixEigen K;
 
     /// r=b-a only for position (eventual rotation, affine transform... remains null)
-    void computeCoordPositionDifference( InDeriv& r, const InCoord& a, const InCoord& b );
+    void computeCoordPositionDifference( Direction& r, const InCoord& a, const InCoord& b );
 
 
 private:

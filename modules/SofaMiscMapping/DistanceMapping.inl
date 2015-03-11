@@ -85,10 +85,9 @@ void DistanceMapping<TIn, TOut>::init()
 }
 
 template <class TIn, class TOut>
-void DistanceMapping<TIn, TOut>::computeCoordPositionDifference( InDeriv& r, const InCoord& a, const InCoord& b )
+void DistanceMapping<TIn, TOut>::computeCoordPositionDifference( Direction& r, const InCoord& a, const InCoord& b )
 {
-    // default implementation
-    TIn::setDPos(r, TIn::getDPos(TIn::coordDifference(b,a))); //Generic code working also for type!=particles but not optimize for particles
+    r = TIn::getCPos(b)-TIn::getCPos(a);
 }
 
 template <class TIn, class TOut>
@@ -101,12 +100,13 @@ void DistanceMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*
 
     //    jacobian.clear();
     jacobian.resizeBlocks(out.size(),in.size());
+
     directions.resize(out.size());
     invlengths.resize(out.size());
 
     for(unsigned i=0; i<links.size(); i++ )
     {
-        InDeriv& gap = directions[i];
+        Direction& gap = directions[i];
 
         // gap = in[links[i][1]] - in[links[i][0]] (only for position)
         computeCoordPositionDifference( gap, in[links[i][0]], in[links[i][1]] );
@@ -123,7 +123,7 @@ void DistanceMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*
         else
         {
             invlengths[i] = 0;
-            gap = InDeriv();
+            gap = Direction();
             gap[0]=1.0;  // arbitrary unit vector
         }
 
@@ -253,7 +253,6 @@ const defaulttype::BaseMatrix* DistanceMapping<TIn, TOut>::getK()
     K.resizeBlocks(size,size);
     for(size_t i=0; i<links.size(); i++)
     {
-
         sofa::defaulttype::Mat<Nin,Nin,Real> b;  // = (I - uu^T)
         for(unsigned j=0; j<Nin; j++)
         {
@@ -277,6 +276,9 @@ const defaulttype::BaseMatrix* DistanceMapping<TIn, TOut>::getK()
         K.endBlockRow();
     }
     K.compress();
+
+//    serr<<childForce<<sendl;
+//    serr<<K<<sendl;
 
     return &K;
 }
@@ -381,10 +383,9 @@ void DistanceMultiMapping<TIn, TOut>::init()
 }
 
 template <class TIn, class TOut>
-void DistanceMultiMapping<TIn, TOut>::computeCoordPositionDifference( InDeriv& r, const InCoord& a, const InCoord& b )
+void DistanceMultiMapping<TIn, TOut>::computeCoordPositionDifference( Direction& r, const InCoord& a, const InCoord& b )
 {
-    // default implementation
-    TIn::setDPos(r, TIn::getDPos(TIn::coordDifference(b,a))); //Generic code working also for type!=particles but not optimize for particles
+    r = TIn::getCPos(b)-TIn::getCPos(a);
 }
 
 template <class TIn, class TOut>
@@ -413,7 +414,7 @@ void DistanceMultiMapping<TIn, TOut>::apply(const helper::vector<OutVecCoord*>& 
 
     for(unsigned i=0; i<links.size(); i++ )
     {
-        InDeriv& gap = directions[i];
+        Direction& gap = directions[i];
 
         const Vec2f& pair0 = pairs[ links[i][0] ];
         const Vec2f& pair1 = pairs[ links[i][1] ];
@@ -436,7 +437,7 @@ void DistanceMultiMapping<TIn, TOut>::apply(const helper::vector<OutVecCoord*>& 
         else
         {
             invlengths[i] = 0;
-            gap = InDeriv();
+            gap = Direction();
             gap[0]=1.0;  // arbitrary unit vector
         }
 
