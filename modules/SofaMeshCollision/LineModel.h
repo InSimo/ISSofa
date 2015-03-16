@@ -81,6 +81,8 @@ public:
 
     bool activated(core::CollisionModel *cm = 0) const;
 
+    unsigned int getClassificationSampling() const { return this->model->getClassificationSampling(); }
+
     // Return respectively the Vertex composing the neighbor Rigt and Left Triangle
 //	const Vector3* tRight() const;
 //	const Vector3* tLeft() const;
@@ -202,6 +204,7 @@ public:
         return DataTypes::Name();
     }
 
+    unsigned int getClassificationSampling() const { return d_classificationSampling.getValue(); }
 
 protected:
 
@@ -212,11 +215,10 @@ protected:
     LineLocalMinDistanceFilter *m_lmdFilter;
 
     Data< std::string  > LineActiverPath;
-    Data<bool> m_displayFreePosition;
+    Data< bool > m_displayFreePosition;
+    Data< unsigned int > d_classificationSampling;
 
     LineActiver *myActiver;
-
-
 };
 
 template<class DataTypes>
