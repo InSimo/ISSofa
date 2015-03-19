@@ -35,7 +35,6 @@ struct DataTypeInfoMyType_test : public ::testing::Test
     typedef sofa::helper::vector<MyType> VectorMyType;
     typedef sofa::Data<VectorMyType> DataVectorMyType;
     typedef sofa::Data<MyType> DataMyType;
-    typedef sofa::Data<sofa::helper::vector<MyType> > DataVectorMyType; 
     typedef sofa::defaulttype::DataTypeInfo<MyType>   DataTypeInfoMyType;
 
     static std::size_t size;
