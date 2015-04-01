@@ -22,6 +22,7 @@ endif()
 # optional extlibs
 add_subdirectory(${SofaDeps_ACTUAL_SOURCE_DIR}/miniFlowVR ${CMAKE_CURRENT_BINARY_DIR}/miniFlowVR)
 add_subdirectory(${SofaDeps_ACTUAL_SOURCE_DIR}/newmat ${CMAKE_CURRENT_BINARY_DIR}/newmat)
+add_subdirectory(${SofaDeps_ACTUAL_SOURCE_DIR}/csparse ${CMAKE_CURRENT_BINARY_DIR}/csparse)
 
 if(MSVC)
   set_target_properties(miniFlowVR PROPERTIES FOLDER "SofaExtlibs")
