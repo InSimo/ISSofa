@@ -99,7 +99,6 @@ bool DistanceGrid::release()
 
 DistanceGrid* DistanceGrid::load(const std::string& filename, double scale, double sampling, int nx, int ny, int nz, Coord pmin, Coord pmax)
 {
-    sofa::core::objectmodel::Base* base;
     double absscale=fabs(scale);
     if (filename == "#cube")
     {
@@ -156,14 +155,14 @@ DistanceGrid* DistanceGrid::load(const std::string& filename, double scale, doub
         flowvr::render::Mesh mesh;
         if (!mesh.load(filename.c_str()))
         {
-            base->serr << "ERROR loading FlowVR mesh file "<<filename<<base->sendl;
+            std::cerr << "ERROR loading FlowVR mesh file "<<filename<<std::endl;
             return NULL;
         }
-        //std::cout << "bbox = "<<mesh.bb<<std::endl;
+        //base->sout << "bbox = "<<mesh.bb<<base->sendl;
 
         if (!mesh.getAttrib(flowvr::render::Mesh::MESH_DISTMAP))
         {
-            base->serr << "ERROR: FlowVR mesh "<<filename<<" does not contain distance information. Please use flowvr-distmap."<<base->sendl;
+            std::cerr << "ERROR: FlowVR mesh "<<filename<<" does not contain distance information. Please use flowvr-distmap."<<std::endl;
             return NULL;
         }
         nx = mesh.distmap->nx;

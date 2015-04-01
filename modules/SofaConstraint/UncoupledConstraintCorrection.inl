@@ -434,8 +434,6 @@ void UncoupledConstraintCorrection<DataTypes>::computeAndApplyMotionCorrection(c
     const Real xFactor = this->d_correctionPositionFactor.getValue();
     const Real vFactor = (Real)(this->d_correctionVelocityFactor.getValue() / this->getContext()->getDt());
 
-    const double invDt = 1.0 / this->getContext()->getDt();
-
     for (unsigned int i = 0; i < dx.size(); i++)
     {
         x[i] = x_free[i];
