@@ -89,7 +89,7 @@ void NodeToggleController::toggle()
     {
         int newNodeIndex=0;
 
-        Node::DynamicCast(children[newNodeIndex])->is_activated.setValue(true,true);
+        Node::DynamicCast(children[newNodeIndex])->is_activated.setValue(true);
         Node::DynamicCast(children[newNodeIndex])->setActive(true);
         sofa::simulation::DeactivationVisitor visitorON(sofa::core::ExecParams::defaultInstance(), true);
         Node::DynamicCast(children[newNodeIndex])->executeVisitor(&visitorON);
@@ -98,7 +98,7 @@ void NodeToggleController::toggle()
     else
     {
         //newNodeIndex = (prevNodeIndex+1)%children.size();
-        Node::DynamicCast(children[prevNodeIndex])->is_activated.setValue(true,true);
+        Node::DynamicCast(children[prevNodeIndex])->is_activated.setValue(true);
         sofa::simulation::DeactivationVisitor visitorOFF(sofa::core::ExecParams::defaultInstance(), false);
         Node::DynamicCast(children[prevNodeIndex])->executeVisitor(&visitorOFF);
         Node::DynamicCast(children[prevNodeIndex])->setActive(false);

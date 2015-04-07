@@ -469,7 +469,7 @@ void MathOp<VecT>::createInputs(int nb)
     vf_inputs.resize(n);
     m_inputsHelp.resize(n);
     if (n != f_nbInputs.getValue())
-        f_nbInputs.setValue(n,true);
+        f_nbInputs.setValue(n);
 }
 
 /// Parse the given description to assign values to this object's fields and potentially other parameters
