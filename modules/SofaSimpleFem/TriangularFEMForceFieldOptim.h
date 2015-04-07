@@ -67,6 +67,74 @@ public:
     void reinit(Main* /*m*/) {}
 };
 
+enum { nbColorMapEntries = 64 };
+static defaulttype::Vec4f colorMapEntries[nbColorMapEntries] =
+{
+    defaulttype::Vec4f( 0.0f,        0.0f,       0.5625f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,        0.625f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,       0.6875f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,         0.75f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,       0.8125f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,        0.875f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,       0.9375f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.0f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.0625f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,      0.125f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.1875f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,       0.25f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.3125f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,      0.375f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.4375f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        0.5f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.5625f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,      0.625f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.6875f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,       0.75f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.8125f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.875f,           1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,     0.9375f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0f,        1.0f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.0625f,     1.0f,          1.0f, 1.0f ),
+    defaulttype::Vec4f( 0.125f,      1.0f,       0.9375f, 1.0f ),
+    defaulttype::Vec4f( 0.1875f,     1.0f,        0.875f, 1.0f ),
+    defaulttype::Vec4f( 0.25f,       1.0f,       0.8125f, 1.0f ),
+    defaulttype::Vec4f( 0.3125f,     1.0f,         0.75f, 1.0f ),
+    defaulttype::Vec4f( 0.375f,      1.0f,       0.6875f, 1.0f ),
+    defaulttype::Vec4f( 0.4375f,     1.0f,        0.625f, 1.0f ),
+    defaulttype::Vec4f( 0.5f,        1.0f,       0.5625f, 1.0f ),
+    defaulttype::Vec4f( 0.5625f,     1.0f,          0.5f, 1.0f ),
+    defaulttype::Vec4f( 0.625f,      1.0f,       0.4375f, 1.0f ),
+    defaulttype::Vec4f( 0.6875f,     1.0f,        0.375f, 1.0f ),
+    defaulttype::Vec4f( 0.75f,       1.0f,       0.3125f, 1.0f ),
+    defaulttype::Vec4f( 0.8125f,     1.0f,         0.25f, 1.0f ),
+    defaulttype::Vec4f( 0.875f,      1.0f,       0.1875f, 1.0f ),
+    defaulttype::Vec4f( 0.9375f,     1.0f,        0.125f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,        1.0f,       0.0625f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,        1.0f,          0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.9375f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,        0.875f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.8125f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,         0.75f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.6875f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,        0.625f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.5625f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,          0.5f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.4375f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,        0.375f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.3125f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,         0.25f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.1875f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,        0.125f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,       0.0625f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 1.0f,          0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.9375f,       0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.875f,        0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.8125f,       0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.75f,         0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.6875f,       0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.625f,        0.0f,        0.0f, 1.0f ),
+    defaulttype::Vec4f( 0.5625f,       0.0f,        0.0f, 1.0f )
+};
 
 /** corotational triangle from
 * @InProceedings{NPF05,
@@ -130,6 +198,36 @@ protected:
 
     virtual ~TriangularFEMForceFieldOptim();
 public:
+
+	template<class Real>
+    class Evaluator
+    {
+    public:
+
+        typedef defaulttype::Vec4f Color;   // ... with alpha value
+
+        Evaluator(Real vmin, Real vmax)
+            : vmin(vmin), vmax(vmax), vscale((vmax == vmin) ? (Real)0 : (nbColorMapEntries-1)/(vmax-vmin)) {}
+
+        Color operator()(Real r)
+        {
+            Real e = (r-vmin)*vscale;
+            if (e<0) return colorMapEntries[0];
+
+            unsigned int i = (unsigned int)(e);
+            if (i>=(nbColorMapEntries-1)) return colorMapEntries[nbColorMapEntries-1];
+
+            Color c1 = colorMapEntries[i];
+            Color c2 = colorMapEntries[i+1];
+            return c1+(c2-c1)*(e-i);
+        }
+
+	protected:
+        const Real vmin;
+        const Real vmax;
+        const Real vscale;
+    };
+
     virtual void init();
     virtual void reinit();
     virtual void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
@@ -337,9 +435,9 @@ public:
     Data<std::string> showStressColorMap;
 #endif
     Data<Real> showStressMaxValue;
-#ifdef SIMPLEFEM_COLORMAP
+//#ifdef SIMPLEFEM_COLORMAP
     Data<float> showStressValueAlpha;
-#endif
+//#endif
 
 
     TFEMFFOTriangleInfoHandler* triangleInfoHandler;

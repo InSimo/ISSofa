@@ -101,9 +101,9 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
     , showStressColorMap(initData(&showStressColorMap,"showStressColorMap", "Color map used to show stress values"))
 #endif
     , showStressMaxValue(initData(&showStressMaxValue,(Real)0.0,"showStressMaxValue","Max value for rendering of stress values"))
-#ifdef SIMPLEFEM_COLORMAP
+//#ifdef SIMPLEFEM_COLORMAP
     , showStressValueAlpha(initData(&showStressValueAlpha,(float)1.0,"showStressValueAlpha","Alpha (1-transparency) value for rendering of stress values"))
-#endif
+//#endif
     , drawPrevMaxStress((Real)-1.0)
 {
     triangleInfoHandler = new TFEMFFOTriangleInfoHandler(this, &triangleInfo);
@@ -642,8 +642,8 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
         {
             maxStress = showStressMaxValue.getValue();
         }
-#ifdef SIMPLEFEM_COLORMAP
-        visualmodel::ColorMap::evaluator<Real> evalColor = showStressColorMapReal->getEvaluator(minStress, maxStress);
+//#ifdef SIMPLEFEM_COLORMAP
+        Evaluator<Real> evalColor = Evaluator<Real>(minStress, maxStress);
         if (showStressValue)
         {
             for (unsigned int i=0;i<pstresses.size();++i)
@@ -774,7 +774,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
  
             vparams->drawTool()->setPolygonMode(0,false);
        }
-#endif
+//#endif
         if (showStressVector && maxStress > 0)
         {
             std::vector< Vector3 > points[2];
