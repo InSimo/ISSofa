@@ -424,7 +424,8 @@ public:
 
     /// Forcefield intern paramaters
     Data<Real> f_poisson;
-    Data<Real> f_young;
+    Data<VecReal> f_young;
+    Data<Real> f_youngFactor;
     Data<Real> f_damping;
     Data<Real> f_restScale;
 
@@ -438,14 +439,13 @@ public:
 //#ifdef SIMPLEFEM_COLORMAP
     Data<float> showStressValueAlpha;
 //#endif
-
+    Data<bool> d_showStiffness;
 
     TFEMFFOTriangleInfoHandler* triangleInfoHandler;
     TFEMFFOTriangleStateHandler* triangleStateHandler;
 
 protected:
     Real drawPrevMaxStress;
-
 };
 
 

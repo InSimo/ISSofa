@@ -90,7 +90,8 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
 #endif
 #endif
     , f_poisson(initData(&f_poisson,(Real)(0.45),"poissonRatio","Poisson ratio in Hooke's law"))
-    , f_young(initData(&f_young,(Real)(1000.0),"youngModulus","Young modulus in Hooke's law"))
+    , f_young(initData(&f_young,"youngModulus","Young modulus in Hooke's law"))
+    , f_youngFactor(initData(&f_youngFactor,(Real) 1.0, "youngModulusFactor","Apply a factor on Young modulus"))
     , f_damping(initData(&f_damping,(Real)0.,"damping","Ratio damping/stiffness"))
     , f_restScale(initData(&f_restScale,(Real)1.,"restScale","Scale factor applied to rest positions (to simulate pre-stretched materials)"))
 //#ifdef SIMPLEFEM_COLORMAP
@@ -104,6 +105,7 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
 //#ifdef SIMPLEFEM_COLORMAP
     , showStressValueAlpha(initData(&showStressValueAlpha,(float)1.0,"showStressValueAlpha","Alpha (1-transparency) value for rendering of stress values"))
 //#endif
+    , d_showStiffness(initData(&d_showStiffness,false,"showStiffness","Flag activating rendering of the stiffness per triangle"))
     , drawPrevMaxStress((Real)-1.0)
 {
     triangleInfoHandler = new TFEMFFOTriangleInfoHandler(this, &triangleInfo);
@@ -148,6 +150,26 @@ void TriangularFEMForceFieldOptim<DataTypes>::init()
     if (_topology->getNbTriangles()==0 && _topology->getNbQuads()!=0 )
     {
         serr << "The topology only contains quads while this forcefield only supports triangles."<<sendl;
+    }
+
+    bool diffSize = false;
+
+    if ((f_young.getValue().size() == 1) || (diffSize = ((f_young.getValue().size() > 1) && (f_young.getValue().size() != _topology->getNbTriangles()))))
+    {
+        VecReal& young = *f_young.beginEdit();
+        Real value = young[0];
+        young.clear();
+
+        for (int i=0; i<_topology->getNbTriangles(); ++i)
+        {
+            young.push_back(value);
+        }
+        f_young.endEdit();
+
+        if (diffSize)
+        {
+            serr << "WARNING : the size of the YoungModulus vector does not match the number of triangles. Only the first value of the vector is applied for all triangles" << sendl;
+        }
     }
 
     reinit();
@@ -226,10 +248,10 @@ void TriangularFEMForceFieldOptim<DataTypes>::reinit()
 
     // mu = (1-p)*y/(1-p^2) = (1-p)*y/((1-p)(1+p)) = y/(1+p)
 
-    const Real youngModulus = f_young.getValue();
-    const Real poissonRatio = f_poisson.getValue();
-    mu = (youngModulus) / (1+poissonRatio);
-    gamma = (youngModulus * poissonRatio) / (1-poissonRatio*poissonRatio);
+//    const Real youngModulus = f_young.getValue();
+//    const Real poissonRatio = f_poisson.getValue();
+//    mu = (youngModulus) / (1+poissonRatio);
+//    gamma = (youngModulus * poissonRatio) / (1-poissonRatio*poissonRatio);
 
     /// prepare to store info in the triangle array
     const unsigned int nbTriangles = _topology->getNbTriangles();
@@ -298,13 +320,14 @@ void TriangularFEMForceFieldOptim<DataTypes>::addForce(const core::MechanicalPar
 
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
-    const Real gamma = this->gamma;
-    const Real mu = this->mu;
+    const Real poissonRatio = f_poisson.getValue();
 
     f.resize(x.size());
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
+        const Real mu = (f_young.getValue()[i]*f_youngFactor.getValue()) / (1+poissonRatio);
+        const Real gamma = ((f_young.getValue()[i]*f_youngFactor.getValue()) * poissonRatio) / (1-poissonRatio*poissonRatio);
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
         TriangleState& ts = triState[i];
@@ -358,14 +381,16 @@ void TriangularFEMForceFieldOptim<DataTypes>::addDForce(const core::MechanicalPa
 
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
-    const Real gamma = this->gamma;
-    const Real mu = this->mu;
+    const Real poissonRatio = f_poisson.getValue();
     const Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
 
     df.resize(dx.size());
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
+        const Real mu = (f_young.getValue()[i]*f_youngFactor.getValue()) / (1+poissonRatio);
+        const Real gamma = ((f_young.getValue()[i]*f_youngFactor.getValue()) * poissonRatio) / (1-poissonRatio*poissonRatio);
+
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
         const TriangleState& ts = triState[i];
@@ -422,11 +447,13 @@ void TriangularFEMForceFieldOptim<DataTypes>::addKToMatrixT(const core::Mechanic
     const Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
-    const Real gamma = this->gamma;
-    const Real mu = this->mu;
+    const Real poissonRatio = f_poisson.getValue();
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
+        const Real mu = (f_young.getValue()[i]*f_youngFactor.getValue()) / (1+poissonRatio);
+        const Real gamma = ((f_young.getValue()[i]*f_youngFactor.getValue()) * poissonRatio) / (1-poissonRatio*poissonRatio);
+
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
         const TriangleState& ts = triState[i];
@@ -854,6 +881,53 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
         vparams->drawTool()->drawLines(points[1], 1, c1);
         vparams->drawTool()->drawLines(points[2], 1, c2);
         vparams->drawTool()->drawLines(points[3], 1, c3);
+    }
+
+    if (d_showStiffness.getValue())
+    {
+        std::vector< Vector3 > points;
+        std::vector< Vector3 > normals;
+        std::vector< Vec4f > colors;
+
+        const VecReal& young = f_young.getValue();
+        Real stiffnessMaxValue = young[0];
+        for (unsigned int i=1; i<nbTriangles; ++i)
+        {
+            if (young[i] > stiffnessMaxValue)
+            {
+                stiffnessMaxValue = young[i];
+            }
+        }
+
+        Evaluator<Real> evalColor = Evaluator<Real>(0, stiffnessMaxValue);
+
+        for (unsigned int i=0; i<nbTriangles; i++)
+        {
+            Triangle t = triangles[i];
+            points.push_back(x[t[0]]);
+            points.push_back(x[t[1]]);
+            points.push_back(x[t[2]]);
+            Vector3 n = cross(x[t[1]]-x[t[0]],x[t[2]]-x[t[0]]);
+            n.normalize();
+            normals.push_back(n);
+            colors.push_back(evalColor(young[i]));
+            colors.push_back(evalColor(young[i]));
+            colors.push_back(evalColor(young[i]));
+        }
+
+        if (vparams->displayFlags().getShowWireFrame())
+            vparams->drawTool()->setPolygonMode(0,true);
+        else
+        {
+            vparams->drawTool()->setPolygonMode(2,true);
+            vparams->drawTool()->setPolygonMode(1,false);
+        }
+
+        vparams->drawTool()->setLightingEnabled(true);
+        vparams->drawTool()->drawTriangles(points, normals, colors);
+        vparams->drawTool()->setLightingEnabled(false);
+
+        vparams->drawTool()->setPolygonMode(0,false);
     }
 }
 
