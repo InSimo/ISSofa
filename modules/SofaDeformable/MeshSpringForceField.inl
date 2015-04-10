@@ -208,7 +208,7 @@ void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event
     {
       if (prevDefaultTension != this->defaultTension.getValue())
       {
-        std::cout << "A new defaultTension value has been set : "<< this->defaultTension.getValue() << " -> reinint() is called in MeshSpringForceField" <<  std::endl;
+        //std::cout << "A new defaultTension value has been set : "<< this->defaultTension.getValue() << " -> reinint() is called in MeshSpringForceField" <<  std::endl;
         this->reinit();
         prevDefaultTension = this->defaultTension.getValue();
       }
