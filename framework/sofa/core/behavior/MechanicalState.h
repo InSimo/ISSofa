@@ -151,7 +151,7 @@ public:
 		
 		switch(dst.type) {
 		case V_COORD: {
-			helper::WriteAccessor< Data<VecCoord> > vec = this->write(VecCoordId(dst));
+            helper::WriteOnlyAccessor< Data<VecCoord> > vec = this->write(VecCoordId(dst));
 			constexpr size_t dim = defaulttype::DataTypeInfo<Coord>::FinalSize;
 			assert( n == dim * size );
 			
@@ -163,7 +163,7 @@ public:
 			
 		}; break;
 		case V_DERIV: {
-			helper::WriteAccessor< Data<VecDeriv> > vec = this->write(VecDerivId(dst));
+            helper::WriteOnlyAccessor< Data<VecDeriv> > vec = this->write(VecDerivId(dst));
 			constexpr size_t dim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
 			assert( n == dim * size );
 			
