@@ -66,7 +66,7 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE rt)
 endif()
 
-target_compile_options(${PROJECT_NAME} PUBLIC "-DQT_DLL" "-DQWT_DLL" "-DQWT_MAKEDLL" "-DQWT_NO_SVG" ${QT_DEFINITIONS} )
+target_compile_options(${PROJECT_NAME} PRIVATE "-DQT_DLL" "-DQWT_DLL" "-DQWT_MAKEDLL" "-DQWT_NO_SVG" ${QT_DEFINITIONS} )
 
 set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
 set_target_properties( ${PROJECT_NAME}  PROPERTIES VERSION ${QWT_VERSION} )
