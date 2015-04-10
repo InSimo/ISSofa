@@ -190,7 +190,7 @@ void RigidMapping<TIn, TOut>::reinit()
     {
         //        cerr<<"RigidMapping<TIn, TOut>::init(), from " << this->fromModel->getName() << " to " << this->toModel->getName() << endl;
         const VecCoord& xTo =this->toModel->read(core::ConstVecCoordId::position())->getValue();
-        helper::WriteAccessor<Data<VecCoord> > points = this->points;
+        helper::WriteOnlyAccessor<Data<VecCoord> > points = this->points;
         points.resize(xTo.size());
         unsigned int i = 0;
         if (globalToLocalCoords.getValue())
@@ -280,28 +280,25 @@ void RigidMapping<TIn, TOut>::disable()
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::clear(int reserve)
 {
-    helper::WriteAccessor<Data<VecCoord> > points = this->points;
+    helper::WriteOnlyAccessor<Data<VecCoord> > points = this->points;
     points.clear();
     if (reserve)
         points.reserve(reserve);
-    this->pointsPerFrame.beginEdit()->clear();
-    this->pointsPerFrame.endEdit();
 }
 
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::setRepartition(unsigned int value)
 {
-    vector<unsigned int>& rep = *this->pointsPerFrame.beginEdit();
+    helper::WriteOnlyAccessor< Data< vector<unsigned int> > > rep = this->pointsPerFrame;
     rep.clear();
     rep.push_back(value);
-    this->pointsPerFrame.endEdit();
 }
 
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::setRepartition(sofa::helper::vector<
                                              unsigned int> values)
 {
-    vector<unsigned int>& rep = *this->pointsPerFrame.beginEdit();
+    helper::WriteOnlyAccessor< Data< vector<unsigned int> > > rep = this->pointsPerFrame;
     rep.clear();
     rep.reserve(values.size());
     //repartition.setValue(values);
@@ -311,7 +308,6 @@ void RigidMapping<TIn, TOut>::setRepartition(sofa::helper::vector<
         rep.push_back(*it);
         it++;
     }
-    this->pointsPerFrame.endEdit();
 }
 
 template <class TIn, class TOut>
@@ -333,7 +329,7 @@ const typename RigidMapping<TIn, TOut>::VecCoord & RigidMapping<TIn, TOut>::getP
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*/ /* PARAMS FIRST */, Data<VecCoord>& dOut, const Data<InVecCoord>& dIn)
 {
-    helper::WriteAccessor< Data<VecCoord> > out = dOut;
+    helper::WriteOnlyAccessor< Data<VecCoord> > out = dOut;
     helper::ReadAccessor< Data<InVecCoord> > in = dIn;
     const VecCoord& pts = this->getPoints();
 
@@ -413,7 +409,7 @@ void RigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*/ /
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mparams*/ /* PARAMS FIRST */, Data<VecDeriv>& dOut, const Data<InVecDeriv>& dIn)
 {
-    helper::WriteAccessor< Data<VecDeriv> > out = dOut;
+    helper::WriteOnlyAccessor< Data<VecDeriv> > out = dOut;
     helper::ReadAccessor< Data<InVecDeriv> > in = dIn;
 
     const VecCoord& pts = this->getPoints();
