@@ -711,6 +711,9 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
     currentError = error;
     currentIterations = i+1;
+
+	sofa::helper::AdvancedTimer::valSet("GS iterations", currentIterations);
+
 	if(solver)
 	{
 		if(!convergence)
@@ -727,8 +730,6 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 			constraintsResolutions[i]->store(i, force, convergence);
 	}
 
-	sofa::helper::AdvancedTimer::valSet("GS iterations", i+1);
-	
 /*
     if(schemeCorrection)
     {
@@ -983,10 +984,10 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
 		}
 	}
     
-	sofa::helper::AdvancedTimer::valSet("GS iterations", i+1);
-
     currentError = error;
     currentIterations = i+1;
+
+	sofa::helper::AdvancedTimer::valSet("GS iterations", currentIterations);
 
 	if(solver)
 	{
