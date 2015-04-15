@@ -57,8 +57,11 @@ enum
     MASS,
     TOPOLOGY,
     VMODEL,
-    LOADER ,
+    LOADER,
     CONFIGURATIONSETTING,
+    ENGINE,
+    TOPOOBJECT,
+    TOPOMAPPING,
     ALLCOLORS
 };
 
@@ -86,6 +89,9 @@ static const char* COLOR[ALLCOLORS]=
     /*VisualModel           =*/ "#eefdea", // color 11 (brighter)
     /*Loader                =*/ "#00daff", // cyan
     /*ConfigurationSetting  =*/ "#aaaaaa", // pale pink
+    /*Engine                =*/ "#009abf", // cyan (darker)
+    /*TopologyObject        =*/ "#fffdaf", // color 12 (brighter)
+    /*TopologicalMapping    =*/ "#bfad2f", // color 12 (darker)
 };
 
 inline const char* getColor(const char* classname)
@@ -107,8 +113,11 @@ inline const char* getColor(const char* classname)
     if (!strcmp(classname,"Mapping")) return COLOR[MAPPING];
     if (!strcmp(classname,"Mass")) return COLOR[MASS];
     if (!strcmp(classname,"Topology")) return COLOR[TOPOLOGY];
+    if (!strcmp(classname,"BaseTopologyObject")) return COLOR[TOPOOBJECT];
+    if (!strcmp(classname,"TopologicalMapping")) return COLOR[TOPOMAPPING];
     if (!strcmp(classname,"VisualModel")) return COLOR[VMODEL];
     if (!strcmp(classname,"Loader")) return COLOR[LOADER];
+    if (!strcmp(classname,"DataEngine")) return COLOR[ENGINE];
     if (!strcmp(classname,"ConfigurationSetting")) return COLOR[CONFIGURATIONSETTING];
     return "";
 

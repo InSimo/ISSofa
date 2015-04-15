@@ -46,11 +46,14 @@ public:
 
     bool showNode;
     bool showObject;
+    bool showSlaves;
     bool showBehaviorModel;
     bool showCollisionModel;
     bool showVisualModel;
     bool showMapping;
     bool showContext;
+    bool showEngine;
+    bool showLoader;
     bool showCollisionPipeline;
     bool showSolver;
     bool showMechanicalState;
@@ -59,7 +62,10 @@ public:
     bool showConstraint;
     bool showMass;
     bool showTopology;
+    bool showTopologyObject;
+    bool showTopologicalMapping;
     bool showMechanicalMapping;
+    bool showOthers;
 
     bool labelNodeName;
     bool labelNodeClass;
@@ -102,6 +108,9 @@ protected:
 
     /// Compute the name of a given object
     std::string getName(core::objectmodel::BaseObject* obj);
+
+    /// Tag used to exclude nodes or graphs from exported graph
+    sofa::core::objectmodel::Tag tagNoExportGraph;
 
 };
 
