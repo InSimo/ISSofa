@@ -408,6 +408,9 @@ public:
     /// Mesh Topology (unified interface for both static and dynamic topologies)
     virtual core::topology::BaseMeshTopology* getMeshTopology() const;
 
+    /// Mesh Topology that is local to this context (i.e. not within parent contexts)
+    virtual core::topology::BaseMeshTopology* getLocalMeshTopology() const;
+
     /// Degrees-of-Freedom
     virtual core::BaseState* getState() const;
 

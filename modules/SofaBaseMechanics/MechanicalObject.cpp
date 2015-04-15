@@ -266,6 +266,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::draw(const core::visual::Visua
 
         defaulttype::Mat<4,4, GLfloat> modelviewM;
 
+        const int vsize = d_size.getValue();
         for (int i=0 ; i< vsize ; i++)
         {
             std::ostringstream oss;
@@ -347,8 +348,9 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::draw(const core::visual::Visua
 
     if (showObject.getValue())
     {
-        const float& scale = showObjectScale.getValue();
+        const float scale = showObjectScale.getValue();
         helper::ReadAccessor<Data<VecCoord> > x = *this->read(core::VecCoordId::position());
+        const int vsize = d_size.getValue();
         for (int i = 0; i < vsize; ++i)
         {
             vparams->drawTool()->pushMatrix();
@@ -527,6 +529,7 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::draw(const core::visual::Visua
 
         Mat<4,4, GLfloat> modelviewM;
 
+        const int vsize = d_size.getValue();
         for (int i=0 ; i< vsize ; i++)
         {
             std::ostringstream oss;
@@ -609,8 +612,9 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::draw(const core::visual::Visua
 
     if (showObject.getValue())
     {
-        const float& scale = showObjectScale.getValue();
+        const float scale = showObjectScale.getValue();
         helper::ReadAccessor<Data<VecCoord> > x = *this->read(core::VecCoordId::position());
+        const int vsize = d_size.getValue();
         for (int i = 0; i < vsize; ++i)
         {
             vparams->drawTool()->pushMatrix();
@@ -655,6 +659,7 @@ void MechanicalObject<defaulttype::LaparoscopicRigid3Types>::draw(const core::vi
 
         defaulttype::Mat<4,4, GLfloat> modelviewM;
 
+        const int vsize = d_size.getValue();
         for (int i=0 ; i< vsize ; i++)
         {
             std::ostringstream oss;
@@ -694,8 +699,9 @@ void MechanicalObject<defaulttype::LaparoscopicRigid3Types>::draw(const core::vi
 
     if (showObject.getValue())
     {
-        const float& scale = showObjectScale.getValue();
+        const float scale = showObjectScale.getValue();
         helper::ReadAccessor<Data<VecCoord> > x = *this->read(core::VecCoordId::position());
+        const int vsize = d_size.getValue();
         for (int i = 0; i < vsize; ++i)
         {
             vparams->drawTool()->pushMatrix();
