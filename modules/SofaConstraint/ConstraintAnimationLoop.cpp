@@ -345,6 +345,7 @@ void ConstraintAnimationLoop::freeMotion(const core::ExecParams* params /* PARAM
         sofa::core::MechanicalParams mparams(*params);
         sofa::core::MultiVecCoordId xfree = sofa::core::VecCoordId::freePosition();
         mparams.x() = xfree;
+        simulation::MechanicalProjectPositionVisitor(&mparams /* PARAMS FIRST */, 0, xfree ).execute(context);
         simulation::MechanicalPropagatePositionVisitor(&mparams /* PARAMS FIRST */, 0, xfree ).execute(context);
     }
     sofa::helper::AdvancedTimer::stepEnd  ("Free Motion");
@@ -510,7 +511,7 @@ void ConstraintAnimationLoop::correctiveMotion(const core::ExecParams* params /*
 
     simulation::common::MechanicalOperations mop(params, this->getContext());
 
-    mop.propagateV(core::VecDerivId::velocity(), false); // ignore projective constraints (?)
+    mop.propagateV(core::VecDerivId::velocity());
 
     mop.propagateDx(core::VecDerivId::dx(), true);
 
