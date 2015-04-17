@@ -146,20 +146,27 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 {
 	unsigned int numConstraints = 0;
 
-    sofa::helper::AdvancedTimer::stepBegin("Accumulate Constraint");
+    sofa::helper::AdvancedTimer::stepBegin("Reset Constraint");
 	// mechanical action executed from root node to propagate the constraints
 	simulation::MechanicalResetConstraintVisitor(cParams).execute(context);
 	// calling buildConstraintMatrix
 	//simulation::MechanicalAccumulateConstraint(&cparams /* PARAMS FIRST */, core::MatrixDerivId::holonomicC(), numConstraints).execute(context);
 
+    sofa::helper::AdvancedTimer::stepNext("Reset Constraint", "Build Constraint");
+
 	simulation::MechanicalBuildConstraintMatrix(cParams, core::MatrixDerivId::holonomicC(), numConstraints).execute(context);
+
+    sofa::helper::AdvancedTimer::stepNext("Build Constraint", "Accumulate Matrix");
+
     simulation::MechanicalAccumulateMatrixDeriv(cParams, core::MatrixDerivId::holonomicC(), reverseAccumulateOrder.getValue()).execute(context);
+
+    sofa::helper::AdvancedTimer::stepNext("Accumulate Matrix", "Project Jacobian");
 
     // suppress the constraints that are on DOFS currently concerned by projective constraint
     core::MechanicalParams mparams = core::MechanicalParams(*cParams);
     simulation::MechanicalProjectJacobianMatrixVisitor(&mparams).execute(context);
 
-    sofa::helper::AdvancedTimer::stepEnd  ("Accumulate Constraint");
+    sofa::helper::AdvancedTimer::stepEnd  ("Project Jacobian");
     sofa::helper::AdvancedTimer::valSet("numConstraints", numConstraints);
 
 	current_cp->clear(numConstraints);
@@ -231,6 +238,13 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 	{
 		sofa::helper::AdvancedTimer::stepBegin("Get Compliance");
 		if (this->f_printLog.getValue()) sout<<" computeCompliance in "  << constraintCorrections.size()<< " constraintCorrections" <<sendl;
+		for (unsigned int i=0; i<constraintCorrections.size(); i++)
+		{
+			core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
+			cc->prepareCompliance(cParams);
+		}
+
 		for (unsigned int i=0; i<constraintCorrections.size(); i++)
 		{
 			core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
