@@ -364,8 +364,6 @@ public:
     topology::TriangleData<VecTriangleState> triangleState;
     topology::PointData<VecVertexInfo> vertexInfo;
     topology::EdgeData<VecEdgeInfo> edgeInfo;
-
-
     class TFEMFFOTriangleInfoHandler : public topology::TopologyDataHandler<Triangle,VecTriangleInfo >
     {
     public:
@@ -424,7 +422,8 @@ public:
 
     /// Forcefield intern paramaters
     Data<Real> f_poisson;
-    Data<VecReal> f_young;
+    Data<Real> f_youngModulus;
+    Data<VecReal> f_youngModuli;
     Data<Real> f_youngFactor;
     Data<Real> f_damping;
     Data<Real> f_restScale;

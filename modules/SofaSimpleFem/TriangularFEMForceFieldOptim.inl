@@ -90,7 +90,8 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
 #endif
 #endif
     , f_poisson(initData(&f_poisson,(Real)(0.45),"poissonRatio","Poisson ratio in Hooke's law"))
-    , f_young(initData(&f_young,"youngModulus","Young modulus in Hooke's law"))
+    , f_youngModulus(initData(&f_youngModulus, (Real)(1000.0), "youngModulus","Young modulus in Hooke's law"))
+    , f_youngModuli(initData(&f_youngModuli,"youngModuli","Young Modulus values for each triangle. When this vector is set, the single youngModulus is ignored. WARNING : it doen not handle topological changes !"))
     , f_youngFactor(initData(&f_youngFactor,(Real) 1.0, "youngModulusFactor","Apply a factor on Young modulus"))
     , f_damping(initData(&f_damping,(Real)0.,"damping","Ratio damping/stiffness"))
     , f_restScale(initData(&f_restScale,(Real)1.,"restScale","Scale factor applied to rest positions (to simulate pre-stretched materials)"))
@@ -111,8 +112,11 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
     triangleInfoHandler = new TFEMFFOTriangleInfoHandler(this, &triangleInfo);
     triangleStateHandler = new TFEMFFOTriangleStateHandler(this, &triangleState);
 
-	f_poisson.setRequired(true);
-	f_young.setRequired(true);
+    f_poisson.setRequired(true);
+    if (!f_youngModuli.isSet())
+    {
+	       f_youngModulus.setRequired(true);
+    }
 }
 
 
@@ -152,22 +156,11 @@ void TriangularFEMForceFieldOptim<DataTypes>::init()
         serr << "The topology only contains quads while this forcefield only supports triangles."<<sendl;
     }
 
-    bool diffSize = false;
-
-    if ((f_young.getValue().size() == 1) || (diffSize = ((f_young.getValue().size() > 1) && (f_young.getValue().size() != _topology->getNbTriangles()))))
+    if (f_youngModuli.isSet())
     {
-        sofa::helper::WriteAccessor< core::objectmodel::Data< VecReal > > young = f_young;
-        Real value = young[0];
-        young.clear();
-
-        for (int i=0; i<_topology->getNbTriangles(); ++i)
+        if (f_youngModuli.getValue().size() != _topology->getNbTriangles())
         {
-            young.push_back(value);
-        }
-
-        if (diffSize)
-        {
-            serr << "WARNING : the size of the YoungModulus vector does not match the number of triangles. Only the first value of the vector is applied for all triangles" << sendl;
+            serr << "WARNING : the size of the YoungModuli vector does not match the number of triangles. YoungModulus will be used instead" << sendl;
         }
     }
 
@@ -320,15 +313,22 @@ void TriangularFEMForceFieldOptim<DataTypes>::addForce(const core::MechanicalPar
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
     const Real poissonRatio = f_poisson.getValue();
-    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
+    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > youngModuli = f_youngModuli;
     const Real youngFactor = f_youngFactor.getValue();
 
     f.resize(x.size());
 
+    Real youngModulus = f_youngModulus.getValue()*youngFactor;
+
     for ( Index i=0; i<nbTriangles; i+=1)
     {
-        const Real mu = (young[i]*youngFactor) / (1+poissonRatio);
-        const Real gamma = ((young[i]*youngFactor) * poissonRatio) / (1-poissonRatio*poissonRatio);
+        if (!youngModuli.empty() && (youngModuli.size() != nbTriangles))
+        {
+            youngModulus = youngModuli[i]*youngFactor;
+        }
+
+        const Real mu = youngModulus / (1+poissonRatio);
+        const Real gamma = (youngModulus * poissonRatio) / (1-poissonRatio*poissonRatio);
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
         TriangleState& ts = triState[i];
@@ -383,16 +383,23 @@ void TriangularFEMForceFieldOptim<DataTypes>::addDForce(const core::MechanicalPa
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
     const Real poissonRatio = f_poisson.getValue();
-    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
+    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > youngModuli = f_youngModuli;
     const Real youngFactor = f_youngFactor.getValue();
     const Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
 
     df.resize(dx.size());
 
+    Real youngModulus = f_youngModulus.getValue()*youngFactor;
+
     for ( Index i=0; i<nbTriangles; i+=1)
     {
-        const Real mu = (young[i]*youngFactor) / (1+poissonRatio);
-        const Real gamma = ((young[i]*youngFactor) * poissonRatio) / (1-poissonRatio*poissonRatio);
+        if (!youngModuli.empty() && (youngModuli.size() != nbTriangles))
+        {
+            youngModulus = youngModuli[i]*youngFactor;
+        }
+
+        const Real mu = youngModulus / (1+poissonRatio);
+        const Real gamma = (youngModulus * poissonRatio) / (1-poissonRatio*poissonRatio);
 
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
@@ -451,13 +458,20 @@ void TriangularFEMForceFieldOptim<DataTypes>::addKToMatrixT(const core::Mechanic
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
     const Real poissonRatio = f_poisson.getValue();
-    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
+    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > youngModuli = f_youngModuli;
     const Real youngFactor = f_youngFactor.getValue();
+
+    Real youngModulus = f_youngModulus.getValue()*youngFactor;
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
-        const Real mu = (young[i]*youngFactor) / (1+poissonRatio);
-        const Real gamma = ((young[i]*youngFactor) * poissonRatio) / (1-poissonRatio*poissonRatio);
+        if (!youngModuli.empty() && (youngModuli.size() != nbTriangles))
+        {
+            youngModulus = youngModuli[i]*youngFactor;
+        }
+
+        const Real mu = youngModulus / (1+poissonRatio);
+        const Real gamma = (youngModulus * poissonRatio) / (1-poissonRatio*poissonRatio);
 
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
@@ -894,17 +908,29 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
         std::vector< Vector3 > normals;
         std::vector< Vec4f > colors;
 
-        sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
-        Real stiffnessMaxValue = young[0];
-        for (unsigned int i=1; i<nbTriangles; ++i)
+        Real stiffnessMaxValue;
+
+        sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > youngModuli = f_youngModuli;
+        const Real youngFactor = f_youngFactor.getValue();
+        if (!youngModuli.empty() && (youngModuli.size() != nbTriangles))
         {
-            if (young[i] > stiffnessMaxValue)
+            Real stiffnessMaxValue = youngModuli[0]*youngFactor;
+            for (unsigned int i=1; i<nbTriangles; ++i)
             {
-                stiffnessMaxValue = young[i];
+                if (youngModuli[i] > stiffnessMaxValue)
+                {
+                    stiffnessMaxValue = youngModuli[i]*youngFactor;
+                }
             }
+        }
+        else
+        {
+            stiffnessMaxValue = f_youngModulus.getValue()*youngFactor;
         }
 
         Evaluator<Real> evalColor = Evaluator<Real>(0, stiffnessMaxValue);
+
+        Real youngModulus = f_youngModulus.getValue()*youngFactor;
 
         for (unsigned int i=0; i<nbTriangles; i++)
         {
@@ -915,9 +941,15 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
             Vector3 n = cross(x[t[1]]-x[t[0]],x[t[2]]-x[t[0]]);
             n.normalize();
             normals.push_back(n);
-            colors.push_back(evalColor(young[i]));
-            colors.push_back(evalColor(young[i]));
-            colors.push_back(evalColor(young[i]));
+
+            if (!youngModuli.empty() && (youngModuli.size() != nbTriangles))
+            {
+                youngModulus = youngModuli[i]*youngFactor;
+            }
+
+            colors.push_back(evalColor(youngModulus));
+            colors.push_back(evalColor(youngModulus));
+            colors.push_back(evalColor(youngModulus));
         }
 
         if (vparams->displayFlags().getShowWireFrame())
