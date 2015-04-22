@@ -156,7 +156,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::init()
 
     if ((f_young.getValue().size() == 1) || (diffSize = ((f_young.getValue().size() > 1) && (f_young.getValue().size() != _topology->getNbTriangles()))))
     {
-        VecReal& young = *f_young.beginEdit();
+        sofa::helper::WriteAccessor< core::objectmodel::Data< VecReal > > young = f_young;
         Real value = young[0];
         young.clear();
 
@@ -164,7 +164,6 @@ void TriangularFEMForceFieldOptim<DataTypes>::init()
         {
             young.push_back(value);
         }
-        f_young.endEdit();
 
         if (diffSize)
         {
@@ -321,13 +320,15 @@ void TriangularFEMForceFieldOptim<DataTypes>::addForce(const core::MechanicalPar
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
     const Real poissonRatio = f_poisson.getValue();
+    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
+    const Real youngFactor = f_youngFactor.getValue();
 
     f.resize(x.size());
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
-        const Real mu = (f_young.getValue()[i]*f_youngFactor.getValue()) / (1+poissonRatio);
-        const Real gamma = ((f_young.getValue()[i]*f_youngFactor.getValue()) * poissonRatio) / (1-poissonRatio*poissonRatio);
+        const Real mu = (young[i]*youngFactor) / (1+poissonRatio);
+        const Real gamma = ((young[i]*youngFactor) * poissonRatio) / (1-poissonRatio*poissonRatio);
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
         TriangleState& ts = triState[i];
@@ -382,14 +383,16 @@ void TriangularFEMForceFieldOptim<DataTypes>::addDForce(const core::MechanicalPa
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
     const Real poissonRatio = f_poisson.getValue();
+    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
+    const Real youngFactor = f_youngFactor.getValue();
     const Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
 
     df.resize(dx.size());
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
-        const Real mu = (f_young.getValue()[i]*f_youngFactor.getValue()) / (1+poissonRatio);
-        const Real gamma = ((f_young.getValue()[i]*f_youngFactor.getValue()) * poissonRatio) / (1-poissonRatio*poissonRatio);
+        const Real mu = (young[i]*youngFactor) / (1+poissonRatio);
+        const Real gamma = ((young[i]*youngFactor) * poissonRatio) / (1-poissonRatio*poissonRatio);
 
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
@@ -448,11 +451,13 @@ void TriangularFEMForceFieldOptim<DataTypes>::addKToMatrixT(const core::Mechanic
     const unsigned int nbTriangles = _topology->getNbTriangles();
     const VecElement& triangles = _topology->getTriangles();
     const Real poissonRatio = f_poisson.getValue();
+    sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
+    const Real youngFactor = f_youngFactor.getValue();
 
     for ( Index i=0; i<nbTriangles; i+=1)
     {
-        const Real mu = (f_young.getValue()[i]*f_youngFactor.getValue()) / (1+poissonRatio);
-        const Real gamma = ((f_young.getValue()[i]*f_youngFactor.getValue()) * poissonRatio) / (1-poissonRatio*poissonRatio);
+        const Real mu = (young[i]*youngFactor) / (1+poissonRatio);
+        const Real gamma = ((young[i]*youngFactor) * poissonRatio) / (1-poissonRatio*poissonRatio);
 
         Triangle t = triangles[i];
         const TriangleInfo& ti = triInfo[i];
@@ -889,7 +894,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
         std::vector< Vector3 > normals;
         std::vector< Vec4f > colors;
 
-        const VecReal& young = f_young.getValue();
+        sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > young = f_young;
         Real stiffnessMaxValue = young[0];
         for (unsigned int i=1; i<nbTriangles; ++i)
         {
