@@ -77,14 +77,19 @@ void MergePoints<DataTypes>::update()
     const VecCoord& x1 = f_X1.getValue();
     const VecCoord& x2 = f_X2.getValue();
 
-    SetIndex& indices1 = *(f_indices1.beginEdit());
-    SetIndex& indices2 = *(f_indices2.beginEdit());
-
-    VecCoord& points = *(f_points.beginEdit());
+    SetIndex indices1;
+    SetIndex indices2;
+    VecCoord points;
 
     indices1.clear();
     indices2.clear();
     points.clear();
+
+    unsigned int outsize = x1.size()+x2.size();
+
+    indices1.reserve(x1.size());
+    indices2.reserve(x2.size());
+    points.reserve(outsize);
 
     for( unsigned i=0; i<x1.size(); ++i )
     {
@@ -100,9 +105,9 @@ void MergePoints<DataTypes>::update()
         indices2.push_back(index+i);
     }
 
-    f_indices1.endEdit();
-    f_indices2.endEdit();
-    f_points.endEdit();
+    f_indices1.setValue(indices1);
+    f_indices2.setValue(indices2);
+    f_points.setValue(points);
 }
 
 } // namespace engine
