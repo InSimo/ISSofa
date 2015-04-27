@@ -90,6 +90,15 @@ public:
 
     MMechanicalState* createMapping(const char* name="contactPoints");
 
+    void setConstraintMode()
+    {
+        if (mapping!=NULL)
+        {
+            mapping->setForcesMapped(false);
+            mapping->setMassesMapped(false);
+        }
+    }
+
     void resize(int size)
     {
         if (mapping!=NULL)

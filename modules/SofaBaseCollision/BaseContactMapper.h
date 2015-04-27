@@ -88,6 +88,7 @@ public:
     typedef core::behavior::MechanicalState<DataTypes> MMechanicalState;
     virtual ~BaseContactMapper() {}
     virtual MMechanicalState* createMapping(const char* name = "contactPoints") = 0;
+    virtual void setConstraintMode() = 0;
     virtual void cleanup() = 0;
     virtual void resize(int size) = 0;
 

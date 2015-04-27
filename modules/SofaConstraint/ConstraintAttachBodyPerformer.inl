@@ -139,6 +139,7 @@ bool ConstraintAttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& p
         }
         std::string name = "contactMouse";
         mstateCollision = mapper->createMapping(name.c_str());
+        mapper->setConstraintMode();
         mapper->resize(1);
 
         const typename DataTypes::Coord pointPicked=picked.point;
