@@ -48,47 +48,12 @@ namespace linearsolver
 template<class VecInt,class VecReal>
 class SpaseLDLImplInvertData : public MatrixInvertData {
 public :
-    int n, P_nnz, L_nnz, group;
+    int n, P_nnz, L_nnz;
     VecInt P_rowind,P_colptr,L_rowind,L_colptr,LT_rowind,LT_colptr;
     VecInt perm, invperm;
     VecReal P_values,L_values,LT_values,invD;
-    VecReal Bdiag;
     helper::vector<int> Parent;
 };
-
-
-#ifdef SOFA_HAVE_METIS
-inline void CSPARSE_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm, int * xadj, int * adj)
-{
-    int it = 0;
-    for (int j=0; j<n; j++)
-    {
-        xadj[j] = M_colptr[j] - j;
-
-        for (int ip = M_colptr[j]; ip < M_colptr[j+1]; ip++)
-        {
-            int i = M_rowind[ip];
-            if (i != j) adj[it++] = i;
-        }
-    }
-    xadj[n] = M_colptr[n] - n;
-
-    //int numflag = 0, options = 0;
-    // The new API of metis requires pointers on numflag and "options" which are "structure" to parametrize the factorization
-    // We give NULL and NULL to use the default option (see doc of metis for details) !
-    // If you have the error "SparseLDLSolver failure to factorize, D(k,k) is zero" that probably means that you use the previsou version of metis.
-    // In this case you have to download and install the last version from : www.cs.umn.edu/~metis‎
-    METIS_NodeND(&n, xadj,adj, NULL, NULL, perm,invperm);
-}
-#endif
-inline void CSPARSE_no_ordering(int n,int * /*M_colptr*/,int * /*M_rowind*/,int * perm,int * invperm, int * /*xadj*/, int * /*adj*/)
-{
-    for (int i=0; i<n; i++)
-    {
-        perm[i] = i;
-        invperm[i] = i;
-    }
-}
 
 inline void CSPARSE_symbolic (int n,int * M_colptr,int * M_rowind,int * colptr,int * perm,int * invperm,int * Parent, int * Flag, int * Lnz)
 {
@@ -257,17 +222,50 @@ protected :
         }
     }
 
-    void LDL_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
+    void LDL_ordering_none(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
+        for (int i=0; i<n; i++)
+        {
+            perm[i] = i;
+            invperm[i] = i;
+        }
+    }
+
+#ifdef SOFA_HAVE_METIS
+    void LDL_ordering_metis(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
         xadj.resize(n+1);
         adj.resize(M_colptr[n]-n);
+
+        int it = 0;
+        for (int j=0; j<n; j++)
+        {
+            xadj[j] = M_colptr[j] - j;
+
+            for (int ip = M_colptr[j]; ip < M_colptr[j+1]; ip++)
+            {
+                int i = M_rowind[ip];
+                if (i != j) adj[it++] = i;
+            }
+        }
+        xadj[n] = M_colptr[n] - n;
+
+        //int numflag = 0, options = 0;
+        // The new API of metis requires pointers on numflag and "options" which are "structure" to parametrize the factorization
+        // We give NULL and NULL to use the default option (see doc of metis for details) !
+        // If you have the error "SparseLDLSolver failure to factorize, D(k,k) is zero" that probably means that you use the previsou version of metis.
+        // In this case you have to download and install the last version from : www.cs.umn.edu/~metis‎
+        METIS_NodeND(&n, &xadj[0],&adj[0], NULL, NULL, perm,invperm);
+    }
+#endif
+
+    void LDL_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
         const int orderingMode = this->d_orderingMode.getValue();
         switch (orderingMode) {
         case 0 :
-            CSPARSE_no_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+            LDL_ordering_none(n,M_colptr,M_rowind,perm,invperm);
             break;
 #ifdef SOFA_HAVE_METIS
         case 1 :
-            CSPARSE_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+            LDL_ordering_metis(n,M_colptr,M_rowind,perm,invperm);
             break;
 #endif
         default:
@@ -275,7 +273,7 @@ protected :
 #ifdef SOFA_HAVE_METIS
             if (orderingMode == 1) serr << "METIS is required at compilation" << sendl;
 #endif
-            CSPARSE_no_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+            LDL_ordering_none(n,M_colptr,M_rowind,perm,invperm);
         }
     }
 
@@ -298,7 +296,7 @@ protected :
     }
 
     template<class VecInt,class VecReal>
-    void factorize(int n,int * M_colptr, int * M_rowind, Real * M_values, SpaseLDLImplInvertData<VecInt,VecReal> * data,int group = 1) {
+    void factorize(int n,int * M_colptr, int * M_rowind, Real * M_values, SpaseLDLImplInvertData<VecInt,VecReal> * data) {
         bool new_factorization_needed = data->P_colptr.size() == 0 || data->P_rowind.size() == 0 
 			|| CSPARSE_need_symbolic_factorization(n, M_colptr, M_rowind, data->n, (int *) &data->P_colptr[0],(int *) &data->P_rowind[0]);
 
@@ -354,34 +352,6 @@ protected :
         for (int i=0;i<data->n;i++) D[i] = 1.0/D[i];
 
         // split the bloc diag in data->Bdiag
-
-        data->group=group;
-        if (group>1) {
-            data->Bdiag.clear();
-            data->Bdiag.resize(data->n * group);
-            Real * diag = &data->Bdiag[0];
-
-//            int ptr = 0;
-            int begin = colptr[0];
-
-            for (int j=0;j<data->n;j++) {
-                int bn = (j/group) * group;
-
-                for (int i=begin;i<colptr[j+1];i++) {
-                    if (rowind[i]-bn<group) {
-                        diag[j*group + rowind[i]-bn] = values[i];
-                        diag[rowind[i]*group + j-bn] = values[i];
-                    } else {
-//                        rowind[ptr] = rowind[i];
-//                        values[ptr] = values[i];
-//                        ptr++;
-                    }
-                }
-
-                begin = colptr[j+1];
-//                colptr[j+1] = ptr;
-            }
-        }
 
         if (new_factorization_needed) {
             //Compute transpose in tran_colptr, tran_rowind, tran_values, tran_D

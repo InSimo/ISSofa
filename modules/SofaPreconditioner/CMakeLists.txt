@@ -31,10 +31,7 @@ set(SOURCE_FILES
 set(GROUP_BASE_DIR "..")
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries( ${PROJECT_NAME} PUBLIC SofaImplicitOdeSolver SofaSimpleFem SofaBaseLinearSolver)
-#if(SOFA_HAVE_CSPARSE)
-#    target_link_libraries( ${PROJECT_NAME} SofaSparseSolver )
-#endif()
+target_link_libraries( ${PROJECT_NAME} PUBLIC SofaImplicitOdeSolver SofaSimpleFem SofaBaseLinearSolver SofaSparseSolver)
 #if(SOFA_HAVE_NEWMAT)
 #    target_link_libraries( ${PROJECT_NAME} SofaDenseSolver)
 #endif()

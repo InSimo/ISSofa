@@ -46,7 +46,7 @@ install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaGeneral.h
          DESTINATION "${SOFAGENERAL_INSTALL_INCLUDE_DIR}/sofa")
 
 set(SOFAGENERAL_TARGETS SofaValidation SofaExporter SofaGraphComponent SofaTopologyMapping SofaBoundaryCondition 
-    SofaComponentGeneral SofaEngine SofaUserInteraction SofaConstraint SofaHaptics SofaPreconditioner SofaSparseSolver)
+    SofaComponentGeneral SofaEngine SofaUserInteraction SofaConstraint SofaHaptics SofaSparseSolver SofaPreconditioner)
 
 if(SOFA_HAVE_NEWMAT)
   list(APPEND SOFAGENERAL_DEPENDENCY_LINK newmat )
