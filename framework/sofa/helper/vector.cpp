@@ -27,8 +27,10 @@
 #include <sofa/helper/integer_id.h>
 #include <sofa/helper/Factory.h>
 #include <sofa/helper/BackTrace.h>
+#include <sofa/helper/system/config.h>
 #include <cassert>
 #include <iostream>
+#include <stdlib.h>
 
 namespace sofa
 {
@@ -36,22 +38,40 @@ namespace sofa
 namespace helper
 {
 
+#if defined(_XBOX) || defined(__PS3__)
+static char* getenv(const char* varname) { return NULL; } // NOT IMPLEMENTED
+#endif
+
 #ifdef DEBUG_OUT_VECTOR
 int cptid = 0;
 #endif
+
+bool vector_access_call_assert()
+{
+    const char* val = getenv("SOFA_DEBUG_VECTOR_ASSERT");
+    return (val == NULL || (atoi(val) != 0));
+}
 
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type)
 {
     std::cerr << "ERROR in vector<"<<gettypename(type)<<"> " << std::hex << (long)vec << std::dec << " size " << size << " : invalid index " << (int)i << std::endl;
     BackTrace::dump();
-    assert(i < size);
+    static bool do_assert = vector_access_call_assert();
+    if (do_assert)
+    {
+        assert(i < size);
+    }
 }
 
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type, const char* tindex)
 {
     std::cerr << "ERROR in vector<"<<gettypename(type)<<", integer_id<"<<tindex<<"> > " << std::hex << (long)vec << std::dec << " size " << size << " : invalid index " << (int)i << std::endl;
     BackTrace::dump();
-    assert(i < size);
+    static bool do_assert = vector_access_call_assert();
+    if (do_assert)
+    {
+        assert(i < size);
+    }
 }
 
 } // namespace helper
