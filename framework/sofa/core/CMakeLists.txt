@@ -107,7 +107,6 @@ set(SOFACORE_HEADERS
 	objectmodel/BaseNode.h
 	objectmodel/BaseObject.h
 	objectmodel/BaseObjectDescription.h
-	objectmodel/ClassInfo.h
 	objectmodel/ConfigurationSetting.h
 	objectmodel/Context.h
 	objectmodel/ContextObject.h
@@ -149,7 +148,6 @@ set(SOFACORE_SOURCES
 	objectmodel/BaseNode.cpp
 	objectmodel/BaseObject.cpp
 	objectmodel/BaseObjectDescription.cpp
-	objectmodel/ClassInfo.cpp
 	objectmodel/ConfigurationSetting.cpp
 	objectmodel/Context.cpp
 	objectmodel/Data.cpp

@@ -38,18 +38,18 @@ using namespace collision;
 
 SOFA_DECL_CLASS(BarycentricLagrangianMultiplierContact)
 
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<PointModel, PointModel> > PointPointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<LineModel, PointModel> > LinePointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<LineModel, LineModel> > LineLineLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<TriangleModel, PointModel> > TrianglePointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<TriangleModel, LineModel> > TriangleLineLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<TriangleModel, TriangleModel> > TriangleTriangleLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<SphereModel, SphereModel> > SphereSphereLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<SphereModel, PointModel> > SpherePointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<LineModel, SphereModel> > LineSphereLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<TriangleModel, SphereModel> > TriangleSphereLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<SphereTreeModel,SphereTreeModel> > SphereTreeSphereTreeLagrangianMultiplierContactClass("LagrangianMultiplier",true);
-Creator<Contact::Factory, BarycentricLagrangianMultiplierContact<SphereTreeModel,TriangleModel> > SphereTreeTriangleLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<PointModel, PointModel> > PointPointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<LineModel, PointModel> > LinePointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<LineModel, LineModel> > LineLineLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<TriangleModel, PointModel> > TrianglePointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<TriangleModel, LineModel> > TriangleLineLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<TriangleModel, TriangleModel> > TriangleTriangleLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<SphereModel, SphereModel> > SphereSphereLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<SphereModel, PointModel> > SpherePointLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<LineModel, SphereModel> > LineSphereLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<TriangleModel, SphereModel> > TriangleSphereLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<SphereTreeModel,SphereTreeModel> > SphereTreeSphereTreeLagrangianMultiplierContactClass("LagrangianMultiplier",true);
+sofa::core::collision::ContactCreator< BarycentricLagrangianMultiplierContact<SphereTreeModel,TriangleModel> > SphereTreeTriangleLagrangianMultiplierContactClass("LagrangianMultiplier",true);
 
 } // namespace collision
 
