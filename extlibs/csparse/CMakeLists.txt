@@ -39,7 +39,9 @@ endif()
 
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
-set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}"  )
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
+endif()
 
 include(CMakePackageConfigHelpers)
 

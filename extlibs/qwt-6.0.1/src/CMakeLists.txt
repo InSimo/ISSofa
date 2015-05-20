@@ -68,9 +68,11 @@ endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE "-DQT_DLL" "-DQWT_DLL" "-DQWT_MAKEDLL" "-DQWT_NO_SVG" ${QT_DEFINITIONS} )
 
-set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
-set_target_properties( ${PROJECT_NAME}  PROPERTIES VERSION ${QWT_VERSION} )
-set_target_properties( ${PROJECT_NAME}  PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
+set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
+set_target_properties( ${PROJECT_NAME} PROPERTIES VERSION ${QWT_VERSION} )
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
+endif()
 		  
 install(TARGETS ${PROJECT_NAME}
         EXPORT  QwtTargets
