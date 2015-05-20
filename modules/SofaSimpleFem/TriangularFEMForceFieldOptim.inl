@@ -571,15 +571,24 @@ void TriangularFEMForceFieldOptim<DataTypes>::getTrianglePrincipalStress(unsigne
 
     Real tr = (s[0]+s[1]);
     Real det = s[0]*s[1]-s[2]*s[2];
-    Real deltaV = helper::rsqrt(tr*tr-4*det);
+    Real deltaV2 = tr*tr-4*det;
+    Real deltaV = helper::rsqrt(std::max((Real)0.0,deltaV2));
     Real eval1, eval2;
     defaulttype::Vec<2,Real> evec1, evec2;
     eval1 = (tr + deltaV)/2;
     eval2 = (tr - deltaV)/2;
     if (s[2] == 0)
     {
-        evec1[0] = 1; evec1[1] = 0;
-        evec2[0] = 0; evec2[1] = 1;
+        if (s[0] > s[1])
+        {
+            evec1[0] = 1; evec1[1] = 0;
+            evec2[0] = 0; evec2[1] = 1;
+        }
+        else
+        {
+            evec1[0] = 0; evec1[1] = 1;
+            evec2[0] = 1; evec2[1] = 0;
+        }
     }
     else
     {
@@ -908,7 +917,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
         std::vector< Vector3 > normals;
         std::vector< Vec4f > colors;
 
-        Real stiffnessMaxValue;
+        Real stiffnessMaxValue = 0;
 
         sofa::helper::ReadAccessor< core::objectmodel::Data< VecReal > > youngModuli = f_youngModuli;
         const Real youngFactor = f_youngFactor.getValue();
