@@ -268,6 +268,7 @@ install(TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION "${SOFAFRAMEWORK_INSTALL_LIB_DIR}"
     )
  
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(DIRECTORY ${SofaCore_SOURCE_DIR}/ 
         DESTINATION "${SOFAFRAMEWORK_INSTALL_INCLUDE_DIR}/sofa/core"
         COMPONENT SofaFramework_headers
@@ -277,5 +278,6 @@ install(DIRECTORY ${SofaCore_SOURCE_DIR}/
             PATTERN "*.hxx"
             PATTERN "*.hpp"
         )
+endif()
 
 

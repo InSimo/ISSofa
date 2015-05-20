@@ -34,6 +34,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${SOFASIMULATION_INSTALL_LIB_DIR}"
 )
 
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(DIRECTORY ${SofaSimulationGraph_SOURCE_DIR}/ DESTINATION "${SOFASIMULATION_INSTALL_INCLUDE_DIR}/sofa/simulation/graph"
         COMPONENT SofaSimulation_headers
         FILES_MATCHING 
@@ -42,4 +43,5 @@ install(DIRECTORY ${SofaSimulationGraph_SOURCE_DIR}/ DESTINATION "${SOFASIMULATI
             PATTERN "*.hxx"
             PATTERN "*.hpp"
         )
+endif()
 

@@ -69,9 +69,11 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/MiniFlowVR.h.in
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/MiniFlowVR.h
          DESTINATION "${MINIFLOWVR_INSTALL_INCLUDE_DIR}/miniFlowVR")
 
-set_target_properties( miniFlowVR  PROPERTIES DEBUG_POSTFIX "_d" )
-# set_target_properties( miniFlowVR  PROPERTIES VERSION ${MINIFLOWVR_VERSION} )
-set_target_properties( miniFlowVR  PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
+set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
+# set_target_properties( ${PROJECT_NAME} PROPERTIES VERSION ${MINIFLOWVR_VERSION} )
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
+endif()
 
 install(TARGETS miniFlowVR
         EXPORT  MiniFlowVRTargets

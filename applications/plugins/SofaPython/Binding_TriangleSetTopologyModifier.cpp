@@ -94,8 +94,8 @@ sofa::helper::vector< sofa::helper::vector< T > > parseVectorOfVector( PyObject*
 {
     sofa::helper::vector< sofa::helper::vector< T > > vectorOfvector;
 
-    bool isList = PyList_Check(args);
-    bool isTwoDimensionsList = PyList_Check(PyList_GetItem(args,0));
+    /*bool isList =*/ PyList_Check(args);
+    /*bool isTwoDimensionsList =*/ PyList_Check(PyList_GetItem(args,0));
 
     std::size_t nbRows = PyList_Size(args);
     for (std::size_t i=0; i<nbRows; ++i)

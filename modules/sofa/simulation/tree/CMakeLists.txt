@@ -44,6 +44,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${SOFASIMULATION_INSTALL_LIB_DIR}"
 )
 
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(DIRECTORY ${SofaSimulationTree_SOURCE_DIR}/ DESTINATION "${SOFASIMULATION_INSTALL_INCLUDE_DIR}/sofa/simulation/tree"
         COMPONENT SofaSimulation_headers
         FILES_MATCHING 
@@ -52,3 +53,4 @@ install(DIRECTORY ${SofaSimulationTree_SOURCE_DIR}/ DESTINATION "${SOFASIMULATIO
             PATTERN "*.hxx"
             PATTERN "*.hpp"
         )
+endif()

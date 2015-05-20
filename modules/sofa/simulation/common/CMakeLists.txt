@@ -169,6 +169,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${SOFASIMULATION_INSTALL_LIB_DIR}"
         )
         
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(DIRECTORY ${SofaSimulationCommon_SOURCE_DIR}/ DESTINATION "${SOFASIMULATION_INSTALL_INCLUDE_DIR}/sofa/simulation/common"
         COMPONENT SofaSimulation_headers
         FILES_MATCHING 
@@ -177,6 +178,7 @@ install(DIRECTORY ${SofaSimulationCommon_SOURCE_DIR}/ DESTINATION "${SOFASIMULAT
             PATTERN "*.hxx"
             PATTERN "*.hpp"
         )
+endif()
 
         
         

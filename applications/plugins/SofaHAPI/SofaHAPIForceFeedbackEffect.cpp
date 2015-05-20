@@ -73,7 +73,7 @@ ForceFeedbackEffect::EffectOutput ForceFeedbackEffect::calculateForces( const Ef
     Transform baseDevice_H_endDevice(pos*data.scale, quat);
     Transform world_H_virtualTool = data.world_H_baseDevice * baseDevice_H_endDevice * data.endDevice_H_virtualTool;
 
-    Vec3d world_pos_tool = world_H_virtualTool.getOrigin();
+    //Vec3d world_pos_tool = world_H_virtualTool.getOrigin();
     Quat world_quat_tool = world_H_virtualTool.getOrientation();
 
     SolidTypes<double>::SpatialVector Twist_tool_inWorld(Vec3d(0.0,0.0,0.0), Vec3d(0.0,0.0,0.0)); // Todo: compute a velocity !!
