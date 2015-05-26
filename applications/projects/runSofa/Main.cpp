@@ -322,13 +322,6 @@ int main(int argc, char** argv)
         return err;
     groot = dynamic_cast<sofa::simulation::Node*>( sofa::gui::GUIManager::CurrentSimulation() );
 
-    if (testMode)
-    {
-        std::string xmlname = fileName.substr(0,fileName.length()-4)+"-scene.scn";
-        std::cout << "Exporting to XML " << xmlname << std::endl;
-		sofa::simulation::getSimulation()->exportXML(groot.get(), xmlname.c_str());
-    }
-
     if (groot!=NULL)
         sofa::simulation::getSimulation()->unload(groot);
 
