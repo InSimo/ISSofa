@@ -212,7 +212,8 @@ unsigned int SofaPhysicsOutputMesh::Impl::getNbAttributes(int index)            
   if ((unsigned)index >= sVA.size())
     return 0;
   else 
-    return dynamic_cast< Data<ResizableExtVector<Real> >* >(sVA[index]->getSEValue())->getValue().size();
+    return sVA[index]->getSETotalSize();
+    //return dynamic_cast< Data<ResizableExtVector<Real> >* >(sVA[index]->getSEValue())->getValue().size();
 }
 
 const char*  SofaPhysicsOutputMesh::Impl::getVAttributeName(int index)          ///< vertices attribute name
