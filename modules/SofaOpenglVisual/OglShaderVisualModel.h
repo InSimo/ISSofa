@@ -62,10 +62,10 @@ protected:
     int restPosition_lastUpdate;
 public:
     // These attributes are public due to dynamic topologies updates.
-    OglFloat3Attribute* vrestpositions;
-    OglFloat3Attribute* vrestnormals;
+    OglFloat3Attribute::SPtr vrestpositions;
+    OglFloat3Attribute::SPtr vrestnormals;
 
-    OglMatrix4Variable* modelMatrixUniform;
+    OglMatrix4Variable::SPtr modelMatrixUniform;
 protected:
     OglShaderVisualModel();
     virtual ~OglShaderVisualModel();

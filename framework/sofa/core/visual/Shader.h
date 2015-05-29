@@ -67,6 +67,7 @@ class SOFA_CORE_API ShaderElement: public virtual objectmodel::BaseObject
 public:
     SOFA_ABSTRACT_CLASS(ShaderElement, objectmodel::BaseObject);
     enum ShaderElementType { SE_NONE = 0, SE_TEXTURE, SE_MACRO, SE_VARIABLE, SE_ATTRIBUTE };
+    enum ShaderValueType { SV_NONE = 0, SV_FLOAT, SV_DOUBLE, SV_INT, SV_UNSIGNED_INT };
 protected:
     /// Destructor
     virtual ~ShaderElement() { }
@@ -83,6 +84,10 @@ public:
     virtual int getSESizePerVertex() { return 0; }
     // For attributes : return the number of values
     virtual int getSETotalSize() { return 0; }
+    // For attributes : return the type of values
+    virtual ShaderValueType getSEValueType() const { return SV_NONE; }
+    // For attributes : return the pointer to the vector of values (castable to the type returned by getSEValueType)
+    virtual const void* getSEValuePointer() { return NULL; }
 };
 
 } // namespace visual

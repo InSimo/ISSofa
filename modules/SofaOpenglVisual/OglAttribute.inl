@@ -59,6 +59,26 @@ int OglAttribute< size, type, DataTypes >::getSETotalSize()
     return totalSize;
 }
 
+template<unsigned int gltype> struct ShaderTypeFromGL;
+
+template<> struct ShaderTypeFromGL<GL_FLOAT> { static sofa::core::visual::ShaderElement::ShaderValueType get() { return sofa::core::visual::ShaderElement::SV_FLOAT; } };
+template<> struct ShaderTypeFromGL<GL_DOUBLE> { static sofa::core::visual::ShaderElement::ShaderValueType get() { return sofa::core::visual::ShaderElement::SV_DOUBLE; } };
+template<> struct ShaderTypeFromGL<GL_INT> { static sofa::core::visual::ShaderElement::ShaderValueType get() { return sofa::core::visual::ShaderElement::SV_INT; } };
+template<> struct ShaderTypeFromGL<GL_UNSIGNED_INT> { static sofa::core::visual::ShaderElement::ShaderValueType get() { return sofa::core::visual::ShaderElement::SV_UNSIGNED_INT; } };
+
+template < int size, unsigned int type, class DataTypes>
+typename OglAttribute< size, type, DataTypes >::ShaderValueType OglAttribute< size, type, DataTypes >::getSEValueType() const
+{
+    return ShaderTypeFromGL<type>::get();
+}
+
+template < int size, unsigned int type, class DataTypes>
+const void* OglAttribute< size, type, DataTypes >::getSEValuePointer()
+{
+    const sofa::defaulttype::ResizableExtVector<DataTypes>& data = value.getValue();
+    return data.getData();
+}
+
 template < int size, unsigned int type, class DataTypes>
 OglAttribute< size, type, DataTypes>::~OglAttribute()
 {

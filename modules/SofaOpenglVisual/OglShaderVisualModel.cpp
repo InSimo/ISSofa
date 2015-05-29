@@ -118,7 +118,7 @@ void OglShaderVisualModel::init()
         //add restPosition as Attribute
         if (!vrestpositions)
         {
-            vrestpositions = new OglFloat3Attribute;
+            vrestpositions = sofa::core::objectmodel::New<OglFloat3Attribute>();
             vrestpositions->setName("restPosition");
             this->getContext()->addObject(vrestpositions);
             vrestpositions->setID( std::string("restPosition"));
@@ -128,7 +128,7 @@ void OglShaderVisualModel::init()
 
         if (!vrestnormals)
         {
-            vrestnormals = new OglFloat3Attribute;
+            vrestnormals = sofa::core::objectmodel::New<OglFloat3Attribute>();
             vrestnormals->setName("restNormal");
             this->getContext()->addObject(vrestnormals);
             vrestnormals->setID( std::string("restNormal"));
@@ -158,7 +158,7 @@ void OglShaderVisualModel::init()
 //    //add Model Matrix as Uniform
         if (!modelMatrixUniform)
         {
-            modelMatrixUniform = new OglMatrix4Variable;
+            modelMatrixUniform = sofa::core::objectmodel::New<OglMatrix4Variable>();
             modelMatrixUniform->setName("modelMatrix");
             this->getContext()->addObject(modelMatrixUniform);
             modelMatrixUniform->setID( std::string("modelMatrix") );

@@ -242,8 +242,10 @@ const Real*  SofaPhysicsOutputMesh::Impl::getVAttributeValue(int index)         
 {
     if ((unsigned)index >= sVA.size())
         return NULL;
+    else if (sVA[index]->getSEValueType() == SofaVAttribute::SV_FLOAT)
+        return (const Real*)sVA[index]->getSEValuePointer();
     else
-        return (const Real*)((ResizableExtVector<Real>*)sVA[index]->getSEValue()->getValueVoidPtr())->getData();
+        return NULL;
 }
 
 int          SofaPhysicsOutputMesh::Impl::getVAttributeRevision(int index)      ///< changes each time vertices attribute is updated
