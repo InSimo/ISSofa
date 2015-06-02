@@ -185,7 +185,9 @@ extern "C" PyObject * BaseContext_getObjects(PyObject * self, PyObject * args)
         {
             if ( name_str == "" || name_str == o->getName())
             {
-                PyList_SetItem(pyList,i,SP_BUILD_PYSPTR(o));
+                PyObject* obj= SP_BUILD_PYSPTR(o); // ref 1
+                PyList_Append(pyList,obj); // ref 2
+                Py_DECREF(obj); // ref 1 (now owned by list)
             }
         }
     }
