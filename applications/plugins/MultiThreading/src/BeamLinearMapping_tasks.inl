@@ -44,8 +44,8 @@ namespace mapping
 	BeamLinearMapping_mt< TIn, TOut>::applyTask::applyTask( const simulation::Task::Status* status ) 
 		: Task( status )
 		, _mapping(0)	
-		, _out(0)
 		, _in(0)
+		, _out(0)
 		, _firstPoint(0)
 		, _lastPoint(0)
 
@@ -95,8 +95,8 @@ namespace mapping
 	BeamLinearMapping_mt< TIn, TOut>::applyJTask::applyJTask( const simulation::Task::Status* status ) 
 		: Task( status )
 		, _mapping(0)	
-		, _out(0)
 		, _in(0)
+		, _out(0)
 		, _firstPoint(0)
 		, _lastPoint(0)
 
@@ -150,8 +150,8 @@ namespace mapping
 	BeamLinearMapping_mt< TIn, TOut>::applyJTmechTask::applyJTmechTask( const simulation::Task::Status* status ) 
 		: Task( status )
 		, _mapping(0)	
-		, _out(0)
 		, _in(0)
+		, _out(0)
 		, _firstPoint(0)
 		, _lastPoint(0)
 
@@ -162,8 +162,6 @@ namespace mapping
 	template <class TIn, class TOut>
 	bool BeamLinearMapping_mt< TIn, TOut>::applyJTmechTask::run( simulation::WorkerThread* )
 	{
-		bool result = true;
-
 		for(int i = _firstPoint; i < _lastPoint; ++i )	
 		{
 
