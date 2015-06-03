@@ -136,7 +136,7 @@ SparseGridTopology::SparseGridTopology(bool _isVirtual)
 
 SparseGridTopology::SparseGridTopology(Vec3i numVertices, BoundingBox box, bool _isVirtual)
     :
-    dataVoxels(initData(&dataVoxels, "dataVoxels", "dataVoxels")),
+    dataVoxels(initData(&dataVoxels, "dataVoxels", "dataVoxels", false, true)),
     _fillWeighted(initData(&_fillWeighted, true, "fillWeighted", "Is quantity of matter inside a cell taken into account? (.5 for boundary, 1 for inside)")),
     d_bOnlyInsideCells(initData(&d_bOnlyInsideCells, false, "onlyInsideCells", "Select only inside cells (exclude boundary cells)")),
     n(initData(&n, Vec3i(2,2,2), "n", "grid resolution")),
