@@ -28,6 +28,7 @@
 #include <sofa/SofaFramework.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/accessor.h>
+#include <sofa/defaulttype/DataTypeInfo.h>
 #include <limits>
 
 namespace sofa
@@ -592,13 +593,18 @@ struct VectorIdTypeInfo
     }
 };
 
+} // namespace helper
+
+namespace defaulttype
+{
+
 template <class T, class TIndex, bool CheckIndices, class MemoryManager>
-struct sofa::defaulttype::DataTypeInfo< vector_id<T, TIndex, CheckIndices, MemoryManager> > : public sofa::helper::VectorIdTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> >
+struct DataTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> > : public sofa::helper::VectorIdTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> >
 {
     static std::string name() { std::ostringstream o; o << "vector_id<" << DataTypeName<T>::name() << "," << DataTypeName<TIndex>::name() << ">"; return o.str(); }
 };
 
-} // namespace helper
+} // namespace defaulttype
 
 } // namespace sofa
 
