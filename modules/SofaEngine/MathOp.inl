@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_ENGINE_MATHOP_INL
 
 #include <SofaEngine/MathOp.h>
+#include <sofa/simulation/common/AnimateBeginEvent.h>
 
 namespace sofa
 {
@@ -423,6 +424,7 @@ MathOp<VecT>::MathOp()
     //ops.setSelectedItem(0);
     f_op.endEdit();
     createInputs();
+    this->f_listening.setValue(false);
 }
 
 template <class VecT>
@@ -515,6 +517,15 @@ void MathOp<VecT>::reinit()
     createInputs();
 
     update();
+}
+
+template <class VecT>
+void MathOp<VecT>::handleEvent(core::objectmodel::Event* e)
+{
+    if( dynamic_cast<simulation::AnimateBeginEvent*>(e) )
+    {
+        update();
+    }     
 }
 
 template <class VecT>

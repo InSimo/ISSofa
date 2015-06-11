@@ -68,6 +68,8 @@ public:
 
     void reinit();
 
+    void handleEvent(core::objectmodel::Event* e);
+
     void update();
 
     virtual std::string getTemplateName() const
