@@ -234,15 +234,12 @@ SofaPhysicsSimulation::Impl::~Impl()
     }
     outputMeshMap.clear();
 
+    if ( m_RootNode.get() ) {
+        m_Simulation->unload ( m_RootNode );
+    }
+
     if ( useGUI ) {
-      // GUI Cleanup
-      //groot = dynamic_cast<sofa::simulation::Node*>( sofa::gui::GUIManager::CurrentSimulation() );
-
-      //if (groot!=NULL)
-      //  sofa::simulation::getSimulation()->unload(groot);
-
-
-      //sofa::gui::GUIManager::closeGUI();
+        sofa::gui::GUIManager::closeGUI();
     }
 }
 
