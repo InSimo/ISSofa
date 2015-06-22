@@ -102,8 +102,18 @@ void Base::initData0( BaseData* field, BaseData::BaseInitData& res, const char* 
 /// Helper method used by initData()
 void Base::initData0( BaseData* field, BaseData::BaseInitData& res, const char* name, const char* help, BaseData::DataFlags dataFlags )
 {
-    static uint32_t draw_fourcc = MAKEFOURCC('d', 'r', 'a', 'w');
-    static uint32_t show_fourcc = MAKEFOURCC('s', 'h', 'o', 'w');
+    static const uint32_t draw_fourcc = MAKEFOURCC('d', 'r', 'a', 'w');
+    static const uint32_t show_fourcc = MAKEFOURCC('s', 'h', 'o', 'w');
+
+    if (name == NULL || help == NULL)
+    {
+        std::cerr << "Invalid inputs to "<<this->getClassName()<<"::initData0(): "
+                  << " name=" << (name ? name : "NULL")
+                  << " help=" << (help ? help : "NULL")
+                  << std::endl;
+        if (name == NULL) name="";
+        if (help == NULL) help="";
+    }
 
     /*
         std::string ln(name);
@@ -121,10 +131,13 @@ void Base::initData0( BaseData* field, BaseData::BaseInitData& res, const char* 
     res.helpMsg = help;
     res.dataFlags = dataFlags;
 
-    uint32_t prefix = *(uint32_t*) name;
+    if (name[0] && name[1] && name[2] && name[3]) // at least 4 characters
+    {
+        uint32_t prefix = *(uint32_t*) name;
 
-    if(prefix == draw_fourcc || prefix == show_fourcc)
-        res.group = "Visualization";
+        if(prefix == draw_fourcc || prefix == show_fourcc)
+            res.group = "Visualization";
+    }
 }
 
 /// Add a data field.
