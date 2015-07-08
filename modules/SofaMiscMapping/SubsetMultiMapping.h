@@ -101,12 +101,14 @@ public:
 
 
     Data< vector<unsigned> > indexPairs;                     ///< Two indices per child: the parent, and the index within the parent
+    Data< vector<unsigned> > d_identityIndices;              ///< One index per child to select the parent : the index in the parent is the same as the child index
 
 protected :
 
     SubsetMultiMapping()
         : Inherit()
         , indexPairs( initData( &indexPairs, vector<unsigned>(), "indexPairs", "list of couples (parent index + index in the parent)"))
+        , d_identityIndices( initData( &d_identityIndices, vector<unsigned>(), "identityIndices", "One index per child to select the parent : the index in the parent is the same as the child index"))
     {
     }
 
@@ -118,6 +120,7 @@ protected :
 
     vector<defaulttype::BaseMatrix*> baseMatrices;      ///< Jacobian of the mapping, in a vector
 
+    void fillIndexPairs();
 };
 
 

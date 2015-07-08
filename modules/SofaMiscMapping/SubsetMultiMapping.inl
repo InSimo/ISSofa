@@ -43,12 +43,35 @@ namespace mapping
 {
 
 template <class TIn, class TOut>
+void SubsetMultiMapping<TIn, TOut>::fillIndexPairs()
+{
+    const vector<unsigned>& identityIndices = d_identityIndices.getValue();
+
+    vector<unsigned>& w_indexPairs = *indexPairs.beginEdit();
+    w_indexPairs.clear();
+    w_indexPairs.resize(2 * identityIndices.size());
+
+    for (unsigned int i = 0; i < identityIndices.size(); ++i)
+    {
+        w_indexPairs[2 * i] = identityIndices[i];
+        w_indexPairs[2 * i + 1] = i;
+    }
+}
+
+
+template <class TIn, class TOut>
 void SubsetMultiMapping<TIn, TOut>::init()
 {
 
     Inherit::init();
 
     assert( indexPairs.getValue().size()%2==0 );
+    
+    if (indexPairs.getValue().empty() && !d_identityIndices.getValue().empty())
+    {
+        fillIndexPairs();
+    }
+
     const unsigned indexPairSize = indexPairs.getValue().size()/2;
 
     this->toModels[0]->resize( indexPairSize );
