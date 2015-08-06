@@ -74,6 +74,7 @@ PrecomputedConstraintCorrection<DataTypes>::PrecomputedConstraintCorrection(sofa
     , m_rotations(initData(&m_rotations, false, "rotations", ""))
     , m_restRotations(initData(&m_restRotations, false, "restDeformations", ""))
     , recompute(initData(&recompute, false, "recompute", "if true, always recompute the compliance"))
+    , f_freezeMatrixActivated(initData(&f_freezeMatrixActivated, true, "freezeMatrixActivated", "Data which activates matrix computation for the rest of the precomputation"))
     , debugViewFrameScale(initData(&debugViewFrameScale, 1.0, "debugViewFrameScale", "Scale on computed node's frame"))
     , f_fileCompliance(initData(&f_fileCompliance, "fileCompliance", "Precomputed compliance matrix data file"))
     , invM(NULL)
@@ -315,6 +316,8 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
 
         Deriv unitary_force;
 
+        const bool freezeMatrixActivated = f_freezeMatrixActivated.getValue();
+
         for (unsigned int f = 0; f < nbNodes; f++)
         {
             std::streamsize prevPrecision = sout.precision();
@@ -347,7 +350,7 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
 
                     eulerSolver->solve(core::ExecParams::defaultInstance(), dt, core::VecCoordId::position(), core::VecDerivId::velocity());
 
-                    if (linearSolver)
+                    if (linearSolver && freezeMatrixActivated)
                         linearSolver->freezeSystemMatrix(); // do not recompute the matrix for the rest of the precomputation
                 }
 
@@ -365,7 +368,7 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
         }
 
         // Do not recompute the matrix for the rest of the precomputation
-        if (linearSolver)
+        if (linearSolver && freezeMatrixActivated)
             linearSolver->freezeSystemMatrix();
 
         saveCompliance(invName);

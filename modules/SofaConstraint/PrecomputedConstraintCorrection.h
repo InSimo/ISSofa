@@ -71,8 +71,12 @@ public:
     Data<bool> m_restRotations;
 
     Data<bool> recompute;
+
+    Data<bool> f_freezeMatrixActivated; // Data which activates matrix computation for the rest of the precomputation
+
     Data<double> debugViewFrameScale;
     sofa::core::objectmodel::DataFileName f_fileCompliance;
+
 protected:
     PrecomputedConstraintCorrection(sofa::core::behavior::MechanicalState<DataTypes> *mm = NULL);
 
