@@ -78,6 +78,8 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
     {
         typename MechanicalState::ReadVecCoord restPosition = ff->mstate->readRestPositions();
 
+        const bool quadraticBendingModel = ff->d_quadraticBendingModel.getValue();
+
         helper::WriteAccessor<Data<vector<EdgeSpring> > > edgeData(ff->edgeSprings);
         const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
         const bool useRestCurvature = ff->d_useRestCurvature.getValue();
@@ -131,7 +133,16 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 					Deriv ve = restPosition[e2]-restPosition[e1];
 
 					if(vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
-						ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                    {
+                        if(!quadraticBendingModel)
+                        {
+						    ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                        }
+                        if(quadraticBendingModel)
+                        {
+                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                        }
+                    }
                 }
                 else
                     ei.is_activated = ei.is_initialized = false;
@@ -139,8 +150,6 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
         }
     }
 }
-
-
 
 
 template< class DataTypes>
@@ -153,6 +162,8 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 
         const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
         const bool useRestCurvature = ff->d_useRestCurvature.getValue();
+
+        const bool quadraticBendingModel = ff->d_quadraticBendingModel.getValue();
 
         for (unsigned int i=0; i<triangleRemoved.size(); ++i)
         {
@@ -235,7 +246,14 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 
 					if(vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
                     {
-						ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                        if(!quadraticBendingModel)
+                        {
+    						ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                        }
+                        if(quadraticBendingModel)
+                        {
+                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                        }
                     }
 					else
 						ei.is_activated = ei.is_initialized = false;
@@ -367,6 +385,7 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_minDistValidity(initData(&d_minDistValidity,(double) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
 , d_useRestCurvature(initData(&d_useRestCurvature, false, "useRestCurvature", "Use rest curvature as the zero potential energy"))
 , d_useOldAddForce(initData(&d_useOldAddForce, false,"useOldAddForce","Use old version of addForce"))
+, d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
 , edgeHandler(NULL)
 {
@@ -496,8 +515,6 @@ void FastTriangularBendingSprings<DataTypes>::addKToMatrix(sofa::defaulttype::Ba
         springs[i].addStiffness( mat, offset, scale, this);
     }
 }
-
-
 
 
 template<class DataTypes>

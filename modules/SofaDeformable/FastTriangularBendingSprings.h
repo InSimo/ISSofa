@@ -51,6 +51,10 @@
 #include <sofa/defaulttype/Mat.h>
 #include <SofaBaseTopology/TopologyData.h>
 
+#include <cassert>
+#include <math.h>
+#include <iostream>
+
 #ifdef SOFA_HAVE_EIGEN2
 #include <SofaEigen2Solver/EigenSparseMatrix.h>
 #endif
@@ -70,6 +74,8 @@ Bending elastic force added between vertices of triangles sharing a common edge.
 
 Adapted from: P. Volino, N. Magnenat-Thalmann. Simple Linear Bending Stiffness in Particle Systems.
 Eurographics Symposium on Computer Animation (SIGGRAPH), pp. 101-105, September 2006. http://www.miralab.ch/repository/papers/165.pdf
+
+EL: Add quadratic bending model for Inextensible Surfaces Eurographics Symposium on Geometry Processing (2006). http://www.cs.columbia.edu/cg/pdfs/9-QuadBend.pdf
 
  @author François Faure, 2012
 */
@@ -98,13 +104,14 @@ public:
     typedef defaulttype::Mat<N,N,Real> Mat;
 
 
-
     Data<double> f_bendingStiffness;  ///< Material parameter
+
 	Data<double> d_minDistValidity; ///< Minimal distance to consider a spring valid
 
     Data<bool>   d_useRestCurvature; ///< Use the rest curvature as the zero energy bending.
     Data<bool>   d_useOldAddForce; //warning: bug version
 
+    Data<bool>   d_quadraticBendingModel; /// Use quadratic bending model method for Inextensible Surfaces
 
     /// Searches triangle topology and creates the bending springs
     virtual void init();
@@ -119,8 +126,6 @@ public:
     void draw(const core::visual::VisualParams* vparams);
 
 protected:
-
-
 
     class EdgeSpring
     {
@@ -172,6 +177,60 @@ protected:
             //            cerr<<"EdgeInformation::setEdgeSpring, vertices = " << vid << endl;
         }
 
+        /// For each edge includes between two triangles -> calculate coefficients "coef" and "K0" used in Matrix Q(ei) function edge ei
+        void setEdgeSpringQuadratic( const VecCoord& p, unsigned iA, unsigned iB, unsigned iC, unsigned iD, Real materialBendingStiffness, bool computeRestCurvature=false )
+        {
+            is_activated = is_initialized = true;
+ 
+            vid[A]=iD;  ///< WARNING vertex names and orientation as in Bergou's paper, different compared Linear method from Volino's paper
+            vid[B]=iC;
+            vid[C]=iA;
+            vid[D]=iB;
+
+            Deriv e0 = p[vid[B]]-p[vid[A]];
+            Deriv e1 = p[vid[C]]-p[vid[A]];
+            Deriv e2 = p[vid[D]]-p[vid[A]];
+            Deriv e3 = p[vid[C]]-p[vid[B]];
+            Deriv e4 = p[vid[D]]-p[vid[B]];
+
+            double c01 = cotTheta( e0, e1);
+            double c02 = cotTheta( e0, e2);
+            double c03 = cotTheta(-e0, e3);
+            double c04 = cotTheta(-e0, e4);
+
+            alpha[A] = c03+c04;
+            alpha[B] = c01+c02;
+            alpha[C] = -c01-c03;
+            alpha[D] = -c02-c04;
+
+            double A0 = 0.5 * cross(e0,e1).norm();
+            double A1 = 0.5 * cross(e0,e2).norm();
+
+            lambda = ( 3. / (2.*(A0+A1))) * materialBendingStiffness;
+
+            if(computeRestCurvature )
+            {
+                R0 = computeBendingVector( p );
+            }
+
+            assert(finite(c01));
+            assert(finite(c02));
+            assert(finite(c03));
+            assert(finite(c04));
+        }
+
+        double cotTheta(const Deriv& v, const Deriv& w)
+        {
+            assert(finite(v.norm()));
+            assert(finite(w.norm()));
+            assert(v.norm() > 0);
+            assert(w.norm () > 0);
+            const double cosTheta = dot(v,w);
+            const double sinTheta = cross(v,w).norm();
+
+            return (cosTheta / sinTheta);
+        }
+
         Deriv computeBendingVector( const VecCoord& p) const
         {
            return ( p[vid[A]]*alpha[A] +  p[vid[B]]*alpha[B] +  p[vid[C]]*alpha[C] +  p[vid[D]]*alpha[D] );
@@ -188,6 +247,7 @@ protected:
             f[vid[B]] -= R * (lambda * alpha[B]);
             f[vid[C]] -= R * (lambda * alpha[C]);
             f[vid[D]] -= R * (lambda * alpha[D]);
+
             return (R * R) * lambda * (Real)0.5;
         }
 
