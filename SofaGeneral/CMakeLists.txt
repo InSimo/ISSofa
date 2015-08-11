@@ -31,9 +31,11 @@ set(SOFAGENERAL_INSTALL_CMAKE_DIR   ${SOFAGENERAL_INSTALL_LIB_DIR}/cmake/SofaGen
 find_package(SofaCommon REQUIRED)
 find_package(Newmat)
 find_package(Csparse)
+find_package(METIS)
 
 set(SOFA_HAVE_NEWMAT ${Newmat_FOUND} )
 set(SOFA_HAVE_CSPARSE ${Csparse_FOUND} )
+set(SOFA_HAVE_METIS ${METIS_FOUND} )
 
 set(SOFAGENERAL_DEPENDENCY_INCLUDE_DIR ${SofaCommon_INCLUDE_DIRS})
 

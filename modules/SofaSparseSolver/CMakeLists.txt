@@ -38,6 +38,11 @@ if( SOFA_HAVE_CSPARSE)
   target_link_libraries( ${PROJECT_NAME} PUBLIC csparse)
 endif()
 
+if( SOFA_HAVE_METIS)
+  target_include_directories(${PROJECT_NAME} PUBLIC ${METIS_INCLUDE_DIRS})
+  target_link_libraries( ${PROJECT_NAME} PUBLIC ${METIS_LIBRARIES})
+endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_BUILD_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_DEPENDENCY_INCLUDE_DIR}>")

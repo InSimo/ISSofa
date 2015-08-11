@@ -27,6 +27,7 @@
 
 #include <sofa/core/behavior/LinearSolver.h>
 #include <SofaBaseLinearSolver/MatrixLinearSolver.h>
+#include <sofa/SofaGeneral.h>
 
 #ifdef SOFA_HAVE_METIS
 extern "C" {
@@ -79,8 +80,8 @@ inline void CSPARSE_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int 
     // In this case you have to download and install the last version from : www.cs.umn.edu/~metis‎
     METIS_NodeND(&n, xadj,adj, NULL, NULL, perm,invperm);
 }
-#else
-inline void CSPARSE_ordering(int n,int * /*M_colptr*/,int * /*M_rowind*/,int * perm,int * invperm, int * /*xadj*/, int * /*adj*/)
+#endif
+inline void CSPARSE_no_ordering(int n,int * /*M_colptr*/,int * /*M_rowind*/,int * perm,int * invperm, int * /*xadj*/, int * /*adj*/)
 {
     for (int i=0; i<n; i++)
     {
@@ -88,7 +89,6 @@ inline void CSPARSE_ordering(int n,int * /*M_colptr*/,int * /*M_rowind*/,int * p
         invperm[i] = i;
     }
 }
-#endif
 
 inline void CSPARSE_symbolic (int n,int * M_colptr,int * M_rowind,int * colptr,int * perm,int * invperm,int * Parent, int * Flag, int * Lnz)
 {
@@ -201,9 +201,27 @@ public:
     typedef TThreadManager ThreadManager;
     typedef typename TMatrix::Real Real;
 
+    Data<int> d_orderingMode;
+
 protected :
 
-    SparseLDLSolverImpl() : Inherit() {}
+    SparseLDLSolverImpl()
+    : Inherit(),
+      d_orderingMode(initData(&d_orderingMode,
+#ifdef SOFA_HAVE_METIS
+                          1,
+#else
+                          0,
+#endif
+                          "orderingMode",
+                          "Permutation computation algorithm: 0 = disabled, 1 = METIS "
+#ifdef SOFA_HAVE_METIS
+                          "(available)"
+#else
+                          "(not available)"
+#endif
+                 ))
+    {}
 
     template<class VecInt,class VecReal>
     void solve_cpu(Real * x,const Real * b,SpaseLDLImplInvertData<VecInt,VecReal> * data) {
@@ -242,8 +260,23 @@ protected :
     void LDL_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
         xadj.resize(n+1);
         adj.resize(M_colptr[n]-n);
-
-        CSPARSE_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+        const int orderingMode = this->d_orderingMode.getValue();
+        switch (orderingMode) {
+        case 0 :
+            CSPARSE_no_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+            break;
+#ifdef SOFA_HAVE_METIS
+        case 1 :
+            CSPARSE_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+            break;
+#endif
+        default:
+            serr << "orderingMode " << orderingMode << " NOT SUPPORTED" << sendl;
+#ifdef SOFA_HAVE_METIS
+            if (orderingMode == 1) serr << "METIS is required at compilation" << sendl;
+#endif
+            CSPARSE_no_ordering(n,M_colptr,M_rowind,perm,invperm,&xadj[0],&adj[0]);
+        }
     }
 
     void LDL_symbolic (int n,int * M_colptr,int * M_rowind,int * colptr,int * perm,int * invperm,int * Parent) {

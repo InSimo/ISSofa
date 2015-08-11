@@ -34,6 +34,7 @@
 #include <math.h>
 #include <SofaSparseSolver/SparseLDLSolverImpl.h>
 #include <sofa/defaulttype/BaseMatrix.h>
+#include <sofa/SofaGeneral.h>
 
 namespace sofa
 {
