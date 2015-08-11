@@ -81,7 +81,7 @@ else(METIS_LIBRARIES AND METIS_INCLUDE_DIRS)
         endif()
     endif()
     if ( NOT METIS_INCLUDE_DIR )
-        message(SEND_ERROR "Can not locate METIS include directory")
+        message("Can not locate METIS include directory")
     endif()
 
     # Search for libraries
@@ -121,7 +121,7 @@ else(METIS_LIBRARIES AND METIS_INCLUDE_DIRS)
         endif()
     endif()
     if ( NOT METIS_LIBRARY )
-        message(SEND_ERROR "Can not locate METIS library")
+        message("Can not locate METIS library")
     endif()
 
     # Define prerequisite packages
