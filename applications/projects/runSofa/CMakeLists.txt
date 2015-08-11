@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 find_package(SofaGeneral REQUIRED)
 find_package(SofaMisc    REQUIRED)
-find_package(SofaGui     REQUIRED)
+if( NOT TARGET SofaGuiMain )
+    find_package(SofaGui     REQUIRED)
+endif()
 
 project(runSofa)
 
