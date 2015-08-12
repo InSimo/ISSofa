@@ -51,7 +51,8 @@ public :
     int n, P_nnz, L_nnz;
     VecInt P_rowind,P_colptr,L_rowind,L_colptr,LT_rowind,LT_colptr;
     VecInt perm, invperm;
-    VecReal P_values,L_values,LT_values,invD;
+    VecReal L_values,LT_values,invD;
+    //VecReal P_values;
     helper::vector<int> Parent;
 };
 
@@ -222,7 +223,7 @@ protected :
         }
     }
 
-    void LDL_ordering_none(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
+    void LDL_ordering_none(int n,int * /*M_colptr*/,int * /*M_rowind*/,int * perm,int * invperm) {
         for (int i=0; i<n; i++)
         {
             perm[i] = i;
@@ -337,13 +338,11 @@ protected :
 
         data->n = n;
         data->P_nnz = M_colptr[data->n];
-        data->P_values.clear();data->P_values.fastResize(data->P_nnz);
-        memcpy(&data->P_values[0],M_values,data->P_nnz * sizeof(Real));
+        //data->P_values.clear();data->P_values.fastResize(data->P_nnz);
+        //memcpy(&data->P_values[0],M_values,data->P_nnz * sizeof(Real));
 
         // we test if the matrix has the same struct as previous factorized matrix
         if (new_factorization_needed) {
-            sout << "RECOMPUTE NEW FACTORIZATION" << sendl;
-
             data->perm.clear();data->perm.fastResize(data->n);
             data->invperm.clear();data->invperm.fastResize(data->n);
             data->invD.clear();data->invD.fastResize(data->n);
@@ -365,6 +364,12 @@ protected :
             LDL_symbolic(data->n,M_colptr,M_rowind,&data->L_colptr[0],&data->perm[0],&data->invperm[0],&data->Parent[0]);
 
             data->L_nnz = data->L_colptr[data->n];
+
+            sout << "NEW FACTORIZATION: "
+                 << data->n << " DOFs, "
+                 << data->P_nnz << " values in M (" << (data->P_nnz*100.0)/(data->n*data->n) << " %), "
+                 << data->L_nnz << " values in L (" << (data->L_nnz*100.0)/((data->n*(data->n-1))/2) << " %)"
+                 << sendl;
 
             data->L_rowind.clear();data->L_rowind.fastResize(data->L_nnz);
             data->L_values.clear();data->L_values.fastResize(data->L_nnz);
