@@ -225,7 +225,11 @@ bool PrecomputedLinearSolver<TMatrix,TVector>::addJMInvJt(defaulttype::BaseMatri
     {
         computeActiveDofs(*j);
         ComputeResult(result, *j, (float) fact);
-    } return false;
+    }
+    else
+    {
+        return false;
+    }
 
     return true;
 }
@@ -234,8 +238,13 @@ template<class TMatrix,class TVector> template<class JMatrix>
 void PrecomputedLinearSolver<TMatrix,TVector>::ComputeResult(defaulttype::BaseMatrix * result,JMatrix& J, float fact)
 {
     unsigned nl = 0;
+    for (typename JMatrix::LineConstIterator jit1 = J.begin(); jit1 != J.end(); jit1++)
+    {
+        nl++;
+    }
+
     internalData.JMinv.clear();
-    internalData.JMinv.resize(J.rowSize(),internalData.idActiveDofs.size());
+    internalData.JMinv.resize(nl,internalData.idActiveDofs.size());
 
     nl=0;
     for (typename JMatrix::LineConstIterator jit1 = J.begin(); jit1 != J.end(); jit1++)
@@ -257,7 +266,7 @@ void PrecomputedLinearSolver<TMatrix,TVector>::ComputeResult(defaulttype::BaseMa
     for (typename JMatrix::LineConstIterator jit1 = J.begin(); jit1 != J.end(); jit1++)
     {
         int row = jit1->first;
-        for (typename JMatrix::LineConstIterator jit2 = J.begin(); jit2 != J.end(); jit2++)
+        for (typename JMatrix::LineConstIterator jit2 = J.begin(); ; jit2++)
         {
             int col = jit2->first;
             Real res = 0.0;
@@ -265,7 +274,10 @@ void PrecomputedLinearSolver<TMatrix,TVector>::ComputeResult(defaulttype::BaseMa
             {
                 res += internalData.JMinv.element(nl,internalData.invActiveDofs[i1->first]) * i1->second;
             }
-            result->add(row,col,res*fact);
+            res *= fact;
+            result->add(row,col,res);
+            if (row == col) break; // reached the diagonal
+            result->add(col,row,res); // else add the symmetric and continue
         }
         nl++;
     }
