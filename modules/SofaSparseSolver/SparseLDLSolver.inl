@@ -82,11 +82,11 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {
         { // L
             std::ofstream f;
             char name[100];
-            sprintf(name, "LDL_L_%04d.txt", numStep);
+            sprintf(name, "LDL_Lcsr_%04d.txt", numStep);
             f.open(name);
             f << data->n << std::endl;
-            f << data->L_rowind << std::endl;
             f << data->L_colptr << std::endl;
+            f << data->L_rowind << std::endl;
             f << data->L_values << std::endl;
             f << std::endl;
             f.close();
