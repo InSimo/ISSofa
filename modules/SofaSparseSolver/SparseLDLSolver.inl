@@ -128,7 +128,7 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {
                 {
                     int col = M_rowind[it];
                     for (;c < col; ++c) f << ' ';
-                    f << 'x';
+                    f << 'x'; ++c;
                 }
                 for (;c < nbCol; ++c) f << ' ';
                 f << ']';
@@ -154,7 +154,7 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {
                 {
                     int col = data->L_rowind[it];
                     for (;c < col; ++c) f << ' ';
-                    f << 'x';
+                    f << 'x'; c++;
                 }
                 for (;c < nbCol; ++c) f << ' ';
                 f << ']';
