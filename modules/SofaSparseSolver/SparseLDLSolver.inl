@@ -60,7 +60,7 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {
     if (f_saveMatrixToFile.getValue()) {
         std::ofstream f;
         char name[100];
-        sprintf(name, "matrixInLDLInvert_%04d.txt", numStep);
+        sprintf(name, "LDL_matrix_%04d.txt", numStep);
         f.open(name);
         f << M;
         f.close();
@@ -75,7 +75,95 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {
     int * M_rowind = (int *) &Mfiltered.getColsIndex()[0];
     Real * M_values = (Real *) &Mfiltered.getColsValue()[0];
 
-    Inherit::factorize(n,M_colptr,M_rowind,M_values,(InvertData *) this->getMatrixInvertData(&M));
+    InvertData * data = (InvertData *) this->getMatrixInvertData(&M);
+    Inherit::factorize(n,M_colptr,M_rowind,M_values,data);
+
+    if (f_saveMatrixToFile.getValue()) {
+        { // L
+            std::ofstream f;
+            char name[100];
+            sprintf(name, "LDL_L_%04d.txt", numStep);
+            f.open(name);
+            f << data->n << std::endl;
+            f << data->L_rowind << std::endl;
+            f << data->L_colptr << std::endl;
+            f << data->L_values << std::endl;
+            f << std::endl;
+            f.close();
+        }
+        { // Dinv
+            std::ofstream f;
+            char name[100];
+            sprintf(name, "LDL_Dinv_%04d.txt", numStep);
+            f.open(name);
+            f << data->n << std::endl;
+            f << data->invD << std::endl;
+            f << std::endl;
+            f.close();
+        }
+        { // Perm
+            std::ofstream f;
+            char name[100];
+            sprintf(name, "LDL_Perm_%04d.txt", numStep);
+            f.open(name);
+            f << data->perm << std::endl;
+            f << data->invperm << std::endl;
+            f << std::endl;
+            f.close();
+        }
+        { // M pattern
+            std::ofstream f;
+            char name[100];
+            sprintf(name, "LDL_Mpattern_%04d.txt", numStep);
+            f.open(name);
+            const int nbRow = Mfiltered.rowSize();
+            const int nbCol = Mfiltered.colSize();
+            for (int r = 0; r < nbRow; ++r)
+            {
+                const int rBegin = M_colptr[r];
+                const int rEnd = M_colptr[r+1];
+                int c = 0;
+                f << '[';
+                for (int it = rBegin; it != rEnd; ++it)
+                {
+                    int col = M_rowind[it];
+                    for (;c < col; ++c) f << ' ';
+                    f << 'x';
+                }
+                for (;c < nbCol; ++c) f << ' ';
+                f << ']';
+                f << std::endl;
+            }
+            f << std::endl;
+            f.close();
+        }
+        { // L pattern
+            std::ofstream f;
+            char name[100];
+            sprintf(name, "LDL_Lpattern_%04d.txt", numStep);
+            f.open(name);
+            const int nbRow = Mfiltered.rowSize();
+            const int nbCol = Mfiltered.colSize();
+            for (int r = 0; r < nbRow; ++r)
+            {
+                const int rBegin = data->L_colptr[r];
+                const int rEnd = data->L_colptr[r+1];
+                int c = 0;
+                f << '[';
+                for (int it = rBegin; it != rEnd; ++it)
+                {
+                    int col = data->L_rowind[it];
+                    for (;c < col; ++c) f << ' ';
+                    f << 'x';
+                }
+                for (;c < nbCol; ++c) f << ' ';
+                f << ']';
+                f << std::endl;
+            }
+            f << std::endl;
+            f.close();
+        }
+    }
 
     numStep++;
 }

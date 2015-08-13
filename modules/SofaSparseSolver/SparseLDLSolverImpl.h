@@ -46,9 +46,10 @@ namespace linearsolver
 
 //defaut structure for a LDL factorization
 template<class VecInt,class VecReal>
-class SpaseLDLImplInvertData : public MatrixInvertData {
+class SparseLDLImplInvertData : public MatrixInvertData {
 public :
     int n, P_nnz, L_nnz;
+    int orderingMode;
     VecInt P_rowind,P_colptr,L_rowind,L_colptr,LT_rowind,LT_colptr;
     VecInt perm, invperm;
     VecReal L_values,LT_values,invD;
@@ -190,7 +191,7 @@ protected :
     {}
 
     template<class VecInt,class VecReal>
-    void solve_cpu(Real * x,const Real * b,SpaseLDLImplInvertData<VecInt,VecReal> * data) {
+    void solve_cpu(Real * x,const Real * b,SparseLDLImplInvertData<VecInt,VecReal> * data) {
         int n = data->n;
         const Real * invD = &data->invD[0];
         const int * perm = &data->perm[0];
@@ -293,8 +294,7 @@ protected :
     }
 #endif
 
-    void LDL_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm) {
-        const int orderingMode = this->d_orderingMode.getValue();
+    void LDL_ordering(int n,int * M_colptr,int * M_rowind,int * perm,int * invperm,int orderingMode) {
         switch (orderingMode) {
         case 0 :
             LDL_ordering_none(n,M_colptr,M_rowind,perm,invperm);
@@ -332,8 +332,9 @@ protected :
     }
 
     template<class VecInt,class VecReal>
-    void factorize(int n,int * M_colptr, int * M_rowind, Real * M_values, SpaseLDLImplInvertData<VecInt,VecReal> * data) {
-        bool new_factorization_needed = data->P_colptr.size() == 0 || data->P_rowind.size() == 0 
+    void factorize(int n,int * M_colptr, int * M_rowind, Real * M_values, SparseLDLImplInvertData<VecInt,VecReal> * data) {
+        const int orderingMode = this->d_orderingMode.getValue();
+        bool new_factorization_needed = data->P_colptr.size() == 0 || data->P_rowind.size() == 0 || data->orderingMode != orderingMode
 			|| CSPARSE_need_symbolic_factorization(n, M_colptr, M_rowind, data->n, (int *) &data->P_colptr[0],(int *) &data->P_rowind[0]);
 
         data->n = n;
@@ -343,6 +344,7 @@ protected :
 
         // we test if the matrix has the same struct as previous factorized matrix
         if (new_factorization_needed) {
+            data->orderingMode = orderingMode;
             data->perm.clear();data->perm.fastResize(data->n);
             data->invperm.clear();data->invperm.fastResize(data->n);
             data->invD.clear();data->invD.fastResize(data->n);
@@ -355,7 +357,7 @@ protected :
             memcpy(&data->P_rowind[0],M_rowind,data->P_nnz * sizeof(int));
 
             //ordering function
-            LDL_ordering(data->n,M_colptr,M_rowind,&data->perm[0],&data->invperm[0]);
+            LDL_ordering(data->n,M_colptr,M_rowind,&data->perm[0],&data->invperm[0], orderingMode);
 
             data->Parent.clear();
             data->Parent.resize(data->n);
@@ -421,7 +423,7 @@ protected :
     }
 
     helper::vector<Real> Tmp;
-protected : //the folowing variables are used during the factorization they canno be used in the main thread !
+protected : //the following variables are used during the factorization they cannot be used in the main thread !
     helper::vector<int> xadj,adj,t_xadj,t_adj;
     helper::vector<Real> Y;
     helper::vector<int> Lnz,Flag,Pattern;
