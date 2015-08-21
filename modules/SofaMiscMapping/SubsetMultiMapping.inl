@@ -51,10 +51,13 @@ void SubsetMultiMapping<TIn, TOut>::fillIndexPairs()
     w_indexPairs.clear();
     w_indexPairs.resize(2 * identityIndices.size());
 
+    vector<unsigned int> fromModelsSizes(this->fromModels.size(), 0);
+
     for (unsigned int i = 0; i < identityIndices.size(); ++i)
     {
         w_indexPairs[2 * i] = identityIndices[i];
-        w_indexPairs[2 * i + 1] = i;
+        w_indexPairs[2 * i + 1] = fromModelsSizes[identityIndices[i]];
+        fromModelsSizes[identityIndices[i]]++;
     }
 }
 
