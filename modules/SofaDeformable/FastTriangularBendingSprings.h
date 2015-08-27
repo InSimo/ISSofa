@@ -48,11 +48,9 @@
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Mat.h>
 
-#include <sofa/defaulttype/Mat.h>
 #include <SofaBaseTopology/TopologyData.h>
 
 #include <cassert>
-#include <math.h>
 #include <iostream>
 
 #ifdef SOFA_HAVE_EIGEN2
@@ -212,17 +210,10 @@ protected:
             {
                 R0 = computeBendingVector( p );
             }
-
-            assert(finite(c01));
-            assert(finite(c02));
-            assert(finite(c03));
-            assert(finite(c04));
         }
 
         double cotTheta(const Deriv& v, const Deriv& w)
         {
-            assert(finite(v.norm()));
-            assert(finite(w.norm()));
             assert(v.norm() > 0);
             assert(w.norm () > 0);
             const double cosTheta = dot(v,w);
