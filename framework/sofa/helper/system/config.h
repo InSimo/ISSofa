@@ -35,7 +35,12 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#define snprintf _snprintf
+#endif
+
+// snprintf() has been provided since MSVC++ 14 (Visual Studio 2015).  For other
+// versions, it is simply #defined to _snprintf().
+#if (defined(_MSC_VER) && _MSC_VER < 1900) || defined(_XBOX)
+    #  define snprintf _snprintf
 #endif
 #include <windows.h>
 #endif
