@@ -52,6 +52,8 @@ public:
     SOFA_CLASS(DiscreteIntersection,sofa::core::collision::Intersection);
 protected:
     DiscreteIntersection();
+	virtual ~DiscreteIntersection() { }
+	
 public:
 
     typedef sofa::helper::vector< sofa::core::collision::DetectionOutput > OutputVector;

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
-*                (c) 2006-2011 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2011 MGH, INRIA, USTL, UJF, CNRS                    *
 *                                                                             *
 * This library is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -16,76 +16,73 @@
 * along with this library; if not, write to the Free Software Foundation,     *
 * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.          *
 *******************************************************************************
-*                              SOFA :: Framework                              *
+*                               SOFA :: Modules                               *
 *                                                                             *
-* Authors: The SOFA Team (see Authors.txt)                                    *
+* Authors: The SOFA Team and external contributors (see Authors.txt)          *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_CORE_BEHAVIOR_BASEANIMATIONLOOP_H
-#define SOFA_CORE_BEHAVIOR_BASEANIMATIONLOOP_H
+#ifndef SOFA_COMPONENT_FEM_BASEMATERIAL_H
+#define SOFA_COMPONENT_FEM_BASEMATERIAL_H
+#include "config.h"
 
 #include <sofa/core/objectmodel/BaseObject.h>
-#include <sofa/core/ExecParams.h>
+#include <sofa/defaulttype/Vec.h>
 
 namespace sofa
 {
-
-namespace core
+namespace component
+{
+namespace fem
 {
 
-namespace behavior
-{
+using namespace sofa::defaulttype;
 
 /**
- *  \brief Component responsible for main animation algorithms, managing how
- *  and when mechanical computation happens in one animation step.
- *
- *  This class can optionally replace the default computation scheme of computing
- *  collisions then doing an integration step.
- *
- *  Note that it is in a preliminary stage, hence its fonctionnalities and API will
- *  certainly change soon.
- *
+ * Generic material class
  */
-
-class SOFA_CORE_API BaseAnimationLoop : public virtual objectmodel::BaseObject
+class SOFA_MISC_FEM_API BaseMaterial : public virtual core::objectmodel::BaseObject
 {
-
 public:
-    SOFA_ABSTRACT_CLASS(BaseAnimationLoop, objectmodel::BaseObject);
+    SOFA_CLASS(BaseMaterial,core::objectmodel::BaseObject);
 
-protected:
-    BaseAnimationLoop();
+    BaseMaterial() {}
+    virtual ~BaseMaterial() {}
 
-    virtual ~BaseAnimationLoop();
+    virtual void init()
+    {
+        this->core::objectmodel::BaseObject::init();
+    }
 
-    /// Stores starting time of the simulation
-    double m_resetTime;
 
-    /// Save the initial state for later uses in reset()
-    virtual void storeResetState();
+    //virtual VecN computeStress (VecN & strain,int idElement,int id_QP){return stress in the i-th quadrature point}
+    //So here needed the shapefunctionvalue *  ,  quadratureformular*  (verifie if shapfunctionvalue compute with the local method)
+    // The same principe for computing the strain given the displacement
+
+
+    virtual void computeStress (Vector3 & ,Vector3 &,unsigned int &) {}
+    virtual void computeDStress (Vector3 & ,Vector3 &) {}
+
+    virtual void computeStress (unsigned int /*iElement*/)=0;//to be pure virtual
+    virtual void handleTopologyChange()
+    {
+        serr<<"ERROR(BaseMaterial) this method handleTopologyChange() is not already implemented in base class"<<sendl;
+    }
 	
-	
+
 private:
-	BaseAnimationLoop(const BaseAnimationLoop& n) ;
-	BaseAnimationLoop& operator=(const BaseAnimationLoop& n) ;
-
-public:
-    /// Main computation method.
-    ///
-    /// Specify and execute all computations for computing a timestep, such
-    /// as one or more collisions and integrations stages.
-    virtual void step(const core::ExecParams* params /* PARAMS FIRST =ExecParams::defaultInstance()*/, double dt) = 0;
-
-    /// Returns starting time of the simulation
-    double getResetTime() const;
+	BaseMaterial(const BaseMaterial& n) ;
+	BaseMaterial& operator=(const BaseMaterial& n) ;
+	
+	
 };
 
-} // namespace behavior
 
-} // namespace core
+
+} // namespace fem
+
+} // namespace component
 
 } // namespace sofa
 
-#endif /* SOFA_CORE_BEHAVIOR_BASEANIMATIONLOOP_H */
+#endif // SOFA_COMPONENT_FEM_BASEMATERIAL_H

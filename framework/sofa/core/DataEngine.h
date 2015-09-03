@@ -54,6 +54,10 @@ protected:
 
     /// Destructor. Do nothing
     virtual ~DataEngine();
+private:
+	DataEngine(const DataEngine& n) ;
+	DataEngine& operator=(const DataEngine& n) ;
+	
 public:
     /// Add a new input to this engine
     void addInput(objectmodel::BaseData* n);

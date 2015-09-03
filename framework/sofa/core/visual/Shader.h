@@ -47,8 +47,14 @@ class SOFA_CORE_API Shader : public virtual objectmodel::BaseObject
 public:
     SOFA_ABSTRACT_CLASS(Shader, objectmodel::BaseObject);
 protected:
+	Shader() {};
     /// Destructor
     virtual ~Shader() { }
+	
+private:
+	Shader(const Shader& n) ;
+	Shader& operator=(const Shader& n) ;
+	
 public:
     /// Start the shader
     virtual void start() = 0;
@@ -69,8 +75,14 @@ public:
     enum ShaderElementType { SE_NONE = 0, SE_TEXTURE, SE_MACRO, SE_VARIABLE, SE_ATTRIBUTE };
     enum ShaderValueType { SV_NONE = 0, SV_FLOAT, SV_DOUBLE, SV_INT, SV_UNSIGNED_INT };
 protected:
+	ShaderElement() {};
     /// Destructor
     virtual ~ShaderElement() { }
+	
+private:
+	ShaderElement(const ShaderElement& n) ;
+	ShaderElement& operator=(const ShaderElement& n) ;
+	
 public:
     /// Returns the type of shader element (texture, macro, variable, or attribute)
     virtual ShaderElementType getSEType() const = 0;

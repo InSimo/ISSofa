@@ -63,8 +63,14 @@ class SOFA_CORE_API BaseForceField : public virtual objectmodel::BaseObject
 public:
     SOFA_ABSTRACT_CLASS(BaseForceField, objectmodel::BaseObject);
 protected:
-    virtual ~BaseForceField() {}
     BaseForceField();
+    virtual ~BaseForceField() {}
+	
+private:
+	BaseForceField(const BaseForceField& n) ;
+	BaseForceField& operator=(const BaseForceField& n) ;	
+
+	
 public:
     /// @name Vector operations
     /// @{

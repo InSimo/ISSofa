@@ -112,7 +112,13 @@ public:
 
 
 protected:
+	State() {} ;
     virtual ~State() { }
+	
+private:
+	State(const State& n) ;
+	State& operator=(const State& n) ;
+	
 public:
     /// @name New vectors access API based on VecId
     /// @{
