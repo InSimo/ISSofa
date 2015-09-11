@@ -41,11 +41,11 @@ configure_package_config_file(MetisConfig.cmake.in
 set(METIS_INCLUDE_DIR include)
 configure_package_config_file(MetisConfig.cmake.in
                               ${CMAKE_CURRENT_BINARY_DIR}/MetisConfigInstall.cmake
-                              INSTALL_DESTINATION lib/metis/cmake
+                              INSTALL_DESTINATION lib/cmake/Metis
                               PATH_VARS METIS_INCLUDE_DIR)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MetisConfigInstall.cmake
-        DESTINATION lib/metis/cmake
+        DESTINATION lib/cmake/Metis
         RENAME MetisConfig.cmake)
 
 install(TARGETS ${PROJECT_NAME}
@@ -57,4 +57,9 @@ install(TARGETS ${PROJECT_NAME}
 
 # MetisTargets.cmake (installed)
 install(EXPORT MetisTargets
-        DESTINATION lib/metis/cmake)
+        DESTINATION lib/cmake/Metis)
+
+# compatibility with FindMETIS.cmake
+
+set(METIS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Path to search for METIS include files" FORCE )
+set(METIS_LIBRARIES "metis" CACHE PATH "METIS library files" FORCE )
