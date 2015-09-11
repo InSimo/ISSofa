@@ -31,7 +31,7 @@
 #include <boost/static_assert.hpp>
 #include <iostream>
 #include <sofa/defaulttype/Mat.h>
-
+#include <boost/static_assert.hpp>
 
 
 namespace sofa
@@ -39,15 +39,12 @@ namespace sofa
 
 namespace defaulttype
 {
-////class for 3*3 symmetric matrix only
 
+/// class for symmetric matrices
 template <int D,class real=float>
 class MatSym : public VecNoInit<D*(D+1)/2,real>
-//class Mat : public Vec<L,Vec<C,real> >
 {
 public:
-
-    // enum { N = L*C };
 
     typedef real Real;
     typedef Vec<D,Real> Coord;
@@ -61,9 +58,28 @@ public:
     explicit MatSym(NoInit)
     {
     }
-    /// Constructor from 6 elements
+
+    /// Constructor 1x1 from 1 element
+    explicit MatSym(const real& v1)
+    {
+        BOOST_STATIC_ASSERT(D == 1);
+        this->elems[0] = v1;
+    }
+
+
+    /// Constructor 2x2 from 3 elements
+    explicit MatSym(const real& v1,const real& v2,const real& v3)
+    {
+        BOOST_STATIC_ASSERT(D == 2);
+        this->elems[0] = v1;
+        this->elems[1] = v2;
+        this->elems[2] = v3;
+    }
+
+    /// Constructor 3x3 from 6 elements
     explicit MatSym(const real& v1,const real& v2,const real& v3,const real& v4,const real& v5,const real& v6)
     {
+        BOOST_STATIC_ASSERT(D == 3);
         this->elems[0] = v1;
         this->elems[1] = v2;
         this->elems[2] = v3;
@@ -129,7 +145,7 @@ public:
 
     //convert matrix to sym
     //template<int D>
-    void Mat2Sym( const Mat<D,D,real>& M, MatSym<D,real>& W)
+    static void Mat2Sym( const Mat<D,D,real>& M, MatSym<D,real>& W)
     {
         for (int j=0; j<D; j++)
             for (int i=0; i <= j; i++)
@@ -325,6 +341,12 @@ public:
         return r;
     }
 
+    /// Multiplication operator Vector * Matrix.
+    friend Coord operator*(const Coord& v, const MatSym< D,real>& m)
+    {
+        return m*v;
+    }
+
 
     /// Scalar multiplication operator.
     MatSym<D,real> operator*(real f) const
@@ -412,6 +434,12 @@ inline real determinant(const MatSym<2,real>& m)
     //     m(0,0)*m(1,1) - m(1,0)*m(0,1);
     return m(0,0)*m(1,1) - m(0,1)*m(0,1);
 }
+/// Determinant of a 1x1 matrix.
+template<class real>
+inline real determinant(const MatSym<1,real>& m)
+{
+    return m(0,0);
+}
 
 #define MIN_DETERMINANT  1.0e-100
 
@@ -428,6 +456,12 @@ template<class real>
 inline real trace(const MatSym<2,real>& m)
 {
     return m(0,0)+m(1,1);
+}
+/// Trace of a 1x1 matrix.
+template<class real>
+inline real trace(const MatSym<1,real>& m)
+{
+    return m(0,0);
 }
 
 /// Matrix inversion (general case).
@@ -553,31 +587,26 @@ bool invertMatrix(MatSym<2,real>& dest, const MatSym<2,real>& from)
 
     return true;
 }
+/// Matrix inversion (special case 1x1).
+template<class real>
+bool invertMatrix(MatSym<1,real>& dest, const MatSym<1,real>& from)
+{
+    real det=determinant(from);
+
+    if ( -(real) MIN_DETERMINANT<=det && det<=(real) MIN_DETERMINANT)
+    {
+        std::cerr<<"Warning: invertMatrix finds too small determinant, matrix = "<<from<<std::endl;
+        return false;
+    }
+
+    dest(0,0)=  (real)1.0/det;
+
+    return true;
+}
 #undef MIN_DETERMINANT
-/*
-typedef Mat<2,2,float> Mat2x2f;
-typedef Mat<2,2,double> Mat2x2d;
 
-typedef Mat<3,3,float> Mat3x3f;
-typedef Mat<3,3,double> Mat3x3d;
-
-typedef Mat<3,4,float> Mat3x4f;
-typedef Mat<3,4,double> Mat3x4d;
-
-typedef Mat<4,4,float> Mat4x4f;
-typedef Mat<4,4,double> Mat4x4d;
-
-#ifdef SOFA_FLOAT
-typedef Mat2x2f Matrix2;
-typedef Mat3x3f Matrix3;
-typedef Mat4x4f Matrix4;
-#else
-typedef Mat2x2d Matrix2;
-typedef Mat3x3d Matrix3;
-typedef Mat4x4d Matrix4;
-#endif
 //////////////////////////////////////////////////////////
-*/
+
 template<int D,class real>
 std::ostream& operator<<(std::ostream& o, const MatSym<D,real>& m)
 {
