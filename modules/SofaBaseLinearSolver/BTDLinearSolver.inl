@@ -951,7 +951,7 @@ bool BTDLinearSolver<Matrix,Vector>::addJMInvJt(RMatrix& result, JMatrix& J, dou
         MinvJt[i].first = row1;
         MinvJt[i].second.resize(dimConstraints);
 
-        for (TActiveDofs::const_iterator actDofIt = activeDofs.begin(), actDofItEnd = activeDofs.end(); actDofIt != actDofItEnd; ++actDofIt)
+        for (typename TActiveDofs::const_iterator actDofIt = activeDofs.begin(), actDofItEnd = activeDofs.end(); actDofIt != actDofItEnd; ++actDofIt)
         {
             const Index &dof1 = *actDofIt;
             double acc = 0.0;
@@ -970,13 +970,13 @@ bool BTDLinearSolver<Matrix,Vector>::addJMInvJt(RMatrix& result, JMatrix& J, dou
         ++i;
     }
 
-    TMinvJT::const_iterator mInvJtItBegin = MinvJt.begin();
+    typename TMinvJT::const_iterator mInvJtItBegin = MinvJt.begin();
 
     for (LineConstIterator jRowIt = J.begin(), jRowItEnd = J.end(); jRowIt != jRowItEnd; ++jRowIt)
     {
         const Index &row2 = jRowIt->first;
 
-        for (TMinvJT::const_iterator mInvJtIt = mInvJtItBegin, mInvJtItEnd = MinvJt.end(); mInvJtIt != mInvJtItEnd; ++mInvJtIt)
+        for (typename TMinvJT::const_iterator mInvJtIt = mInvJtItBegin, mInvJtItEnd = MinvJt.end(); mInvJtIt != mInvJtItEnd; ++mInvJtIt)
         {
             const Index &row1 = mInvJtIt->first;
 
