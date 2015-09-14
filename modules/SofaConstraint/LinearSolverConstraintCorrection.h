@@ -46,12 +46,6 @@ namespace component
 namespace constraintset
 {
 
-/// to avoid compilation problem under gcc3.3
-extern inline sofa::core::behavior::OdeSolver* getOdeSolver(sofa::core::objectmodel::BaseContext* context)
-{
-    return context->get<sofa::core::behavior::OdeSolver>();
-}
-
 /**
  *  \brief Component computing contact forces within a simulated body using the compliance method.
  */
@@ -133,7 +127,9 @@ public:
     template<class T>
     static bool canCreate(T*& obj, sofa::core::objectmodel::BaseContext* context, sofa::core::objectmodel::BaseObjectDescription* arg)
     {
-        if (getOdeSolver(context) == NULL)
+        sofa::core::behavior::OdeSolver* odesolver = NULL;
+        context->get(odesolver);
+        if (odesolver == NULL)
             return false;
 
         return Inherit::canCreate(obj, context, arg);
