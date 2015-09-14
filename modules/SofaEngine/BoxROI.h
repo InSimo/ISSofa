@@ -158,6 +158,12 @@ public:
     Data<helper::vector<Hexa> > f_hexahedraInROI;
     Data<helper::vector<Quad> > f_quadInROI;
 	Data< unsigned int > f_nbIndices;
+    Data<VecCoord > f_pointsOutROI;
+    Data<helper::vector<Edge> > f_edgesOutROI;
+    Data<helper::vector<Triangle> > f_trianglesOutROI;
+    Data<helper::vector<Tetra> > f_tetrahedraOutROI;
+    Data<helper::vector<Hexa> > f_hexahedraOutROI;
+    Data<helper::vector<Quad> > f_quadOutROI;
 
     //Parameter
     Data<bool> p_drawBoxes;

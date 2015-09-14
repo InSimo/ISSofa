@@ -72,6 +72,12 @@ BoxROI<DataTypes>::BoxROI()
     , f_hexahedraInROI( initData(&f_hexahedraInROI,"hexahedraInROI","Hexahedra contained in the ROI") )
     , f_quadInROI( initData(&f_quadInROI,"quadInROI","Quad contained in the ROI") )
     , f_nbIndices( initData(&f_nbIndices,"nbIndices", "Number of selected indices") )
+    , f_pointsOutROI( initData(&f_pointsOutROI,"pointsOutROI","Points contained out of the ROI") )
+    , f_edgesOutROI( initData(&f_edgesOutROI,"edgesOutROI","Edges contained out of the ROI") )
+    , f_trianglesOutROI( initData(&f_trianglesOutROI,"trianglesOutROI","Triangles contained out of the ROI") )
+    , f_tetrahedraOutROI( initData(&f_tetrahedraOutROI,"tetrahedraOutROI","Tetrahedra contained out of the ROI") )
+    , f_hexahedraOutROI( initData(&f_hexahedraOutROI,"hexahedraOutROI","Hexahedra contained out of the ROI") )
+    , f_quadOutROI( initData(&f_quadOutROI,"quadOutROI","Quad contained out of the ROI") )
     , p_drawBoxes( initData(&p_drawBoxes,false,"drawBoxes","Draw Box(es)") )
     , p_drawPoints( initData(&p_drawPoints,false,"drawPoints","Draw Points") )
     , p_drawEdges( initData(&p_drawEdges,false,"drawEdges","Draw Edges") )
@@ -217,6 +223,12 @@ void BoxROI<DataTypes>::init()
     addOutput(&f_hexahedraInROI);
     addOutput(&f_quadInROI);
 	addOutput(&f_nbIndices);
+    addOutput(&f_pointsOutROI);
+    addOutput(&f_edgesOutROI);
+    addOutput(&f_trianglesOutROI);
+    addOutput(&f_tetrahedraOutROI);
+    addOutput(&f_hexahedraOutROI);
+    addOutput(&f_quadOutROI);
     setDirtyValue();
 
     //cerr<<"BoxROI<DataTypes>::init() -> f_X0 = "<<f_X0<<endl;
@@ -360,6 +372,14 @@ void BoxROI<DataTypes>::update()
     helper::WriteAccessor< Data<helper::vector<Hexa> > > hexahedraInROI = f_hexahedraInROI;
     helper::WriteAccessor< Data<helper::vector<Quad> > > quadInROI = f_quadInROI;
 
+    // Write accessor for toplogical element out of the BOX
+    helper::WriteAccessor< Data<VecCoord > > pointsOutROI = f_pointsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesOutROI = f_edgesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesOutROI = f_trianglesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraOutROI = f_tetrahedraOutROI;
+    helper::WriteAccessor< Data<helper::vector<Hexa> > > hexahedraOutROI = f_hexahedraOutROI;
+    helper::WriteAccessor< Data<helper::vector<Quad> > > quadOutROI = f_quadOutROI;
+
 
     // Clear lists
     indices.clear();
@@ -369,7 +389,6 @@ void BoxROI<DataTypes>::update()
     hexahedronIndices.clear();
     quadIndices.clear();
 
-
     pointsInROI.clear();
     edgesInROI.clear();
     trianglesInROI.clear();
@@ -377,20 +396,32 @@ void BoxROI<DataTypes>::update()
     hexahedraInROI.clear();
     quadInROI.clear();
 
+    pointsOutROI.clear();
+    edgesOutROI.clear();
+    trianglesOutROI.clear();
+    tetrahedraOutROI.clear();
+    hexahedraOutROI.clear();
+    quadOutROI.clear();
+
     const VecCoord* x0 = &f_X0.getValue();
 
     //Points
     for( unsigned i=0; i<x0->size(); ++i )
     {
-        for (unsigned int bi=0; bi<vb.size(); ++bi)
+        bool in = false;
+        for (unsigned int bi=0; !in && bi<vb.size(); ++bi)
         {
-            if (isPointInBox(i, vb[bi]))
-            {
-                indices.push_back(i);
-                pointsInROI.push_back((*x0)[i]);
-                //sout<<"\nBoxROI<DataTypes>::update, add index "<< i << sendl;
-                break;
-            }
+            in = isPointInBox(i, vb[bi]);
+        }
+        if (in)
+        {
+            indices.push_back(i);
+            pointsInROI.push_back((*x0)[i]);
+            //sout<<"\nBoxROI<DataTypes>::update, add index "<< i << sendl;
+        }
+        else
+        {
+            pointsOutROI.push_back((*x0)[i]);
         }
     }
 
@@ -400,14 +431,19 @@ void BoxROI<DataTypes>::update()
         for(unsigned int i=0 ; i<edges.size() ; i++)
         {
             Edge e = edges[i];
-            for (unsigned int bi=0; bi<vb.size(); ++bi)
+            bool in = false;
+            for (unsigned int bi=0; !in && bi<vb.size(); ++bi)
             {
-                if (isEdgeInBox(e, vb[bi]))
-                {
-                    edgeIndices.push_back(i);
-                    edgesInROI.push_back(e);
-                    break;
-                }
+                in = isEdgeInBox(e, vb[bi]);
+            }
+            if (in)
+            {
+                edgeIndices.push_back(i);
+                edgesInROI.push_back(e);
+            }
+            else
+            {
+                edgesOutROI.push_back(e);
             }
         }
     }
@@ -418,14 +454,19 @@ void BoxROI<DataTypes>::update()
         for(unsigned int i=0 ; i<triangles.size() ; i++)
         {
             Triangle t = triangles[i];
-            for (unsigned int bi=0; bi<vb.size(); ++bi)
+            bool in = false;
+            for (unsigned int bi=0; !in && bi<vb.size(); ++bi)
             {
-                if (isTriangleInBox(t, vb[bi]))
-                {
-                    triangleIndices.push_back(i);
-                    trianglesInROI.push_back(t);
-                    break;
-                }
+                in = isTriangleInBox(t, vb[bi]);
+            }
+            if (in)
+            {
+                triangleIndices.push_back(i);
+                trianglesInROI.push_back(t);
+            }
+            else
+            {
+                trianglesOutROI.push_back(t);
             }
         }
     }
@@ -436,14 +477,19 @@ void BoxROI<DataTypes>::update()
         for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
         {
             Tetra t = tetrahedra[i];
-            for (unsigned int bi=0; bi<vb.size(); ++bi)
+            bool in = false;
+            for (unsigned int bi=0; !in && bi<vb.size(); ++bi)
             {
-                if (isTetrahedronInBox(t, vb[bi]))
-                {
-                    tetrahedronIndices.push_back(i);
-                    tetrahedraInROI.push_back(t);
-                    break;
-                }
+                in = isTetrahedronInBox(t, vb[bi]);
+            }
+            if (in)
+            {
+                tetrahedronIndices.push_back(i);
+                tetrahedraInROI.push_back(t);
+            }
+            else
+            {
+                tetrahedraOutROI.push_back(t);
             }
         }
     }
@@ -454,14 +500,19 @@ void BoxROI<DataTypes>::update()
         for(unsigned int i=0 ; i<hexahedra.size() ; i++)
         {
             Hexa t = hexahedra[i];
-            for (unsigned int bi=0; bi<vb.size(); ++bi)
+            bool in = false;
+            for (unsigned int bi=0; !in && bi<vb.size(); ++bi)
             {
-                if (isHexahedronInBox(t, vb[bi]))
-                {
-                    hexahedronIndices.push_back(i);
-                    hexahedraInROI.push_back(t);
-                    break;
-                }
+                in = isHexahedronInBox(t, vb[bi]);
+            }
+            if (in)
+            {
+                hexahedronIndices.push_back(i);
+                hexahedraInROI.push_back(t);
+            }
+            else
+            {
+                hexahedraOutROI.push_back(t);
             }
         }
     }
@@ -472,14 +523,19 @@ void BoxROI<DataTypes>::update()
         for(unsigned int i=0 ; i<quad.size() ; i++)
         {
             Quad q = quad[i];
-            for (unsigned int bi=0; bi<vb.size(); ++bi)
+            bool in = false;
+            for (unsigned int bi=0; !in && bi<vb.size(); ++bi)
             {
-                if (isQuadInBox(q, vb[bi]))
-                {
-                    quadIndices.push_back(i);
-                    quadInROI.push_back(q);
-                    break;
-                }
+                in = isQuadInBox(q, vb[bi]);
+            }
+            if (in)
+            {
+                quadIndices.push_back(i);
+                quadInROI.push_back(q);
+            }
+            else
+            {
+                quadOutROI.push_back(q);
             }
         }
     }
