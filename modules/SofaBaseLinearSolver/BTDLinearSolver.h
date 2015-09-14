@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_LINEARSOLVER_BTDLINEARSOLVER_H
 
 #include <sofa/core/behavior/LinearSolver.h>
+
 #include <SofaBaseLinearSolver/MatrixLinearSolver.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
@@ -202,6 +203,11 @@ public:
         Index bi = i / BSIZE; i = i % BSIZE;
         Index bj = j / BSIZE; j = j % BSIZE;
         return bloc(bi,bj)[i][j];
+    }
+
+    SReal element(Index bloc_i, Index i, Index bloc_j, Index j) const
+    {
+        return bloc(bloc_i, bloc_j)[i][j];
     }
 
     const Bloc& asub(Index bi, Index bj, Index, Index) const
@@ -787,6 +793,7 @@ protected:
         , verification(initData(&verification, false,"verification", "verification of the subpartSolve"))
         , test_perf(initData(&test_perf, false,"test_perf", "verification of performance"))
         , f_blockSize( initData(&f_blockSize,6,"blockSize","dimension of the blocks in the matrix") )
+        , m_state(NULL)
     {
         Index bsize = Matrix::getSubMatrixDim(0);
         if (bsize > 0)
@@ -795,6 +802,8 @@ protected:
             f_blockSize.setValue((int)bsize);
             f_blockSize.setReadOnly(true);
         }
+
+        m_blockSize = f_blockSize.getValue();
     }
 public:
     void my_identity(SubMatrix& Id, const Index size_id);
@@ -809,6 +818,26 @@ public:
 
     /// Solve Mx=b
     void solve (Matrix& /*M*/, Vector& x, Vector& b);
+
+    virtual void init()
+    {
+        m_state = this->getContext()->getMechanicalState();
+
+        Inherit1::init();
+    }
+
+    virtual void bwdInit()
+    {
+        const unsigned int fullMatrixDim = m_state->getSize() * m_blockSize;
+        m_blockIndicesHashMap.resize(fullMatrixDim);
+
+        for (unsigned int i = 0; i < fullMatrixDim; i++)
+        {
+            m_blockIndicesHashMap[i] = std::make_pair<Index, Index>(i / m_blockSize, i % m_blockSize);
+        }
+
+        Inherit1::bwdInit();
+    }
 
 
 
@@ -866,19 +895,14 @@ private:
     /// (and accumulate the potential local dRH (set in Vec_dRH) [set in step1] that have not been yet taken into account by the global bwd and fwd
     void fwdComputeLHinBloc(Index indMaxBloc);
 
+    template<class RMatrix, class JMatrix>
+    void logMatrices(const RMatrix &Res, const JMatrix &J);
 
+    int m_blockSize;
 
+    std::vector< std::pair<Index, Index> > m_blockIndicesHashMap;
 
-
-
-
-
-
-
-
-
-
-
+    core::behavior::BaseMechanicalState *m_state;
 };
 
 } // namespace linearsolver

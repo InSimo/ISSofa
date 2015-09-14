@@ -28,6 +28,13 @@
 #include "BTDLinearSolver.h"
 #include <SofaBaseLinearSolver/MatrixLinearSolver.inl>
 
+#include <sofa/helper/AdvancedTimer.h>
+
+#include <iomanip>
+
+// #define BLOC_INDICES_HASH
+#define NEWJMinvJt
+
 
 namespace sofa
 {
@@ -229,17 +236,17 @@ void BTDLinearSolver<Matrix,Vector>::invert(Matrix& M)
 template<class Matrix, class Vector>
 void BTDLinearSolver<Matrix,Vector>::computeMinvBlock(Index i, Index j)
 {
-    //serr<<"computeMinvBlock("<<i<<","<<j<<")"<<sendl;
-
     if (i < j)
     {
         // i < j correspond to the upper diagonal
         // for the computation, we use the lower diagonal matrix
         Index t = i; i = j; j = t;
     }
-    if (nBlockComputedMinv[i] > i-j) return; // the block was already computed
 
-
+    if (nBlockComputedMinv[i] > i-j) 
+    {
+        return; // the block was already computed
+    }
 
     ///// the block was not computed yet :
 
@@ -343,14 +350,30 @@ void BTDLinearSolver<Matrix,Vector>::computeMinvBlock(Index i, Index j)
 template<class Matrix, class Vector>
 double BTDLinearSolver<Matrix,Vector>::getMinvElement(Index i, Index j)
 {
-    const Index bsize = Matrix::getSubMatrixDim(f_blockSize.getValue());
+#ifndef BLOC_INDICES_HASH
+    const Index bsize = Matrix::getSubMatrixDim(m_blockSize);
+#endif
+
     if (i < j)
     {
         // lower diagonal
-        return getMinvElement(j,i);
+        return getMinvElement(j, i);
     }
-    computeMinvBlock(i/bsize, j/bsize);
+
+#ifdef BLOC_INDICES_HASH
+    const std::pair<Index, Index>& b_i = m_blockIndicesHashMap[i];
+    const std::pair<Index, Index>& b_j = m_blockIndicesHashMap[j];
+
+    computeMinvBlock(b_i.first, b_j.first);
+#else
+    computeMinvBlock(i / bsize, j / bsize);
+#endif
+
+#ifdef BLOC_INDICES_HASH
+    return Minv.element(b_i.first, b_i.second, b_j.first, b_j.second);
+#else
     return Minv.element(i,j);
+#endif
 }
 
 template<class Matrix, class Vector>
@@ -824,8 +847,163 @@ void BTDLinearSolver<Matrix,Vector>::partial_solve(ListIndex&  Iout, ListIndex& 
 }
 
 
+template<class Matrix, class Vector>
+template<class RMatrix, class JMatrix>
+void BTDLinearSolver<Matrix,Vector>::logMatrices(const RMatrix& result, const JMatrix &J)
+{
+    typedef typename JMatrix::LineConstIterator LineConstIterator;
+    typedef typename JMatrix::LElementConstIterator LElementConstIterator;
 
+    sout << "C = [" << sendl;
+    for  (Index mr = 0; mr < Minv.rowSize(); mr++)
+    {
+        sout << " " << sendl;
+        for (Index mc = 0; mc < Minv.colSize(); mc++)
+        {
+            sout << " " << getMinvElement(mr, mc);
+        }
+    }
+    sout << "];" << sendl;
+    sout << sendl;
 
+    sout << "J = [" << sendl;
+    for  (Index jr = 0; jr < J.rowSize(); jr++)
+    {
+        sout << " " << sendl;
+        for (Index jc = 0; jc < J.colSize(); jc++)
+        {
+            sout << " " << std::setprecision(2) << J.element(jr, jc) ;
+        }
+    }
+    sout << "];" << sendl;
+    sout << sendl;
+
+    sout << "Res = ["<<sendl;
+    for  (Index rr = 0; rr < result.rowSize(); rr++)
+    {
+        sout << " " << sendl;
+        for (Index rc = 0; rc < result.colSize(); rc++)
+        {
+            sout << " " << std::setprecision(2) << result.element(rr, rc) ;
+        }
+    }
+    sout << "];" << sendl;
+
+}
+
+#ifdef NEWJMinvJt
+
+template<class Matrix, class Vector>
+template<class RMatrix, class JMatrix>
+bool BTDLinearSolver<Matrix,Vector>::addJMInvJt(RMatrix& result, JMatrix& J, double fact)
+{
+    typedef typename JMatrix::LineConstIterator LineConstIterator;
+    typedef typename JMatrix::LElementConstIterator LElementConstIterator;
+
+    const Index Jcols = J.colSize();
+    if (Jcols != Minv.rowSize())
+    {
+        serr << "BTDLinearSolver::addJMInvJt ERROR: incompatible J matrix size." << sendl;
+        return false;
+    }
+
+    /*using sofa::helper::AdvancedTimer;
+    AdvancedTimer::stepBegin("BTDLinearSolver<Matrix,Vector>::addJMInvJt" + this->getName());*/
+
+    const bool verbose  = this->f_verbose.getValue();
+
+    if (verbose)
+    {
+        logMatrices(result, J);
+    }
+
+    typedef std::vector< std::pair< Index, std::vector< double > > > TMinvJT;
+    TMinvJT MinvJt;
+    typedef std::set< Index > TActiveDofs;
+    TActiveDofs activeDofs;
+
+    unsigned int nbConstraints = 0;
+
+    for (LineConstIterator jRowIt = J.begin(), jRowItEnd = J.end(); jRowIt != jRowItEnd; ++jRowIt)
+    {
+        for (LElementConstIterator jColIt = jRowIt->second.begin(), jColItEnd = jRowIt->second.end(); jColIt != jColItEnd; ++jColIt)
+        {
+            activeDofs.insert(jColIt->first);
+        }
+
+        nbConstraints++;
+    }
+
+    if (m_state == NULL)
+    {
+        serr << "ERROR : BTDLinearSolver has no MechanicalState associated" << sendl;
+        return false;
+    }
+
+    const unsigned int nbDofs = m_state->getSize();
+    const unsigned int dimConstraints = nbDofs * m_blockSize;
+    MinvJt.resize(nbConstraints);
+
+    unsigned int i = 0;
+    for (LineConstIterator jRowIt = J.begin(), jRowItEnd = J.end(); jRowIt != jRowItEnd; ++jRowIt)
+    {
+        const Index &row1 = jRowIt->first;
+        MinvJt[i].first = row1;
+        MinvJt[i].second.resize(dimConstraints);
+
+        for (TActiveDofs::const_iterator actDofIt = activeDofs.begin(), actDofItEnd = activeDofs.end(); actDofIt != actDofItEnd; ++actDofIt)
+        {
+            const Index &dof1 = *actDofIt;
+            double acc = 0.0;
+
+            for (LElementConstIterator jColIt = jRowIt->second.begin(), jColItEnd = jRowIt->second.end(); jColIt != jColItEnd; ++jColIt)
+            {
+                const Index& dof2 = jColIt->first;
+                const double& val2 = jColIt->second;
+
+                acc += getMinvElement(dof1, dof2) * val2; 
+            }
+
+            MinvJt[i].second[dof1] = acc;
+        }
+
+        ++i;
+    }
+
+    TMinvJT::const_iterator mInvJtItBegin = MinvJt.begin();
+
+    for (LineConstIterator jRowIt = J.begin(), jRowItEnd = J.end(); jRowIt != jRowItEnd; ++jRowIt)
+    {
+        const Index &row2 = jRowIt->first;
+
+        for (TMinvJT::const_iterator mInvJtIt = mInvJtItBegin, mInvJtItEnd = MinvJt.end(); mInvJtIt != mInvJtItEnd; ++mInvJtIt)
+        {
+            const Index &row1 = mInvJtIt->first;
+
+            double acc = 0.0;
+
+            for (LElementConstIterator jColIt = jRowIt->second.begin(), jColItEnd = jRowIt->second.end(); jColIt != jColItEnd; ++jColIt)
+            {
+                acc += jColIt->second * mInvJtIt->second[jColIt->first];
+            }
+
+            acc *= fact;
+
+            result.add(row1, row2, acc);
+            if (row1 != row2)
+            {
+                result.add(row2, row1, acc);
+            }
+        }
+
+        ++mInvJtItBegin;
+    }    
+
+    // AdvancedTimer::stepEnd("BTDLinearSolver<Matrix,Vector>::addJMInvJt" + this->getName());
+    return true;
+}
+
+#else
 
 template<class Matrix, class Vector>
 template<class RMatrix, class JMatrix>
@@ -839,35 +1017,15 @@ bool BTDLinearSolver<Matrix,Vector>::addJMInvJt(RMatrix& result, JMatrix& J, dou
         return false;
     }
 
+    /*using sofa::helper::AdvancedTimer;
+    AdvancedTimer::stepBegin("BTDLinearSolver<Matrix,Vector>::addJMInvJt" + this->getName());*/
+
     const bool verbose  = this->f_verbose.getValue();
 
     if (verbose)
     {
-// debug christian: print of the inverse matrix:
-        sout<< "C = ["<<sendl;
-        for  (Index mr=0; mr<Minv.rowSize(); mr++)
-        {
-            sout<<" "<<sendl;
-            for (Index mc=0; mc<Minv.colSize(); mc++)
-            {
-                sout<<" "<< getMinvElement(mr,mc);
-            }
-        }
-        sout<< "];"<<sendl;
-
-// debug christian: print of matrix J:
-        sout<< "J = ["<<sendl;
-        for  (Index jr=0; jr<J.rowSize(); jr++)
-        {
-            sout<<" "<<sendl;
-            for (Index jc=0; jc<J.colSize(); jc++)
-            {
-                sout<<" "<< J.element(jr, jc) ;
-            }
-        }
-        sout<< "];"<<sendl;
+        logMatrices(result, J);
     }
-
 
     const typename JMatrix::LineConstIterator jitend = J.end();
     for (typename JMatrix::LineConstIterator jit1 = J.begin(); jit1 != jitend; ++jit1)
@@ -877,29 +1035,44 @@ bool BTDLinearSolver<Matrix,Vector>::addJMInvJt(RMatrix& result, JMatrix& J, dou
         {
             Index row2 = jit2->first;
             double acc = 0.0;
+
             for (typename JMatrix::LElementConstIterator i1 = jit1->second.begin(), i1end = jit1->second.end(); i1 != i1end; ++i1)
             {
                 Index col1 = i1->first;
                 double val1 = i1->second;
-                for (typename JMatrix::LElementConstIterator i2 = jit2->second.begin(), i2end = jit2->second.end(); i2 != i2end; ++i2)
+                if (val1 != 0.0)
                 {
-                    Index col2 = i2->first;
-                    double val2 = i2->second;
-                    acc += val1 * getMinvElement(col1,col2) * val2;
+                    for (typename JMatrix::LElementConstIterator i2 = jit2->second.begin(), i2end = jit2->second.end(); i2 != i2end; ++i2)
+                    {
+                        Index col2 = i2->first;
+                        double val2 = i2->second;
+                        if (val2 != 0.0)
+                        {
+                            acc += val1 * getMinvElement(col1, col2) * val2;
+                        }
+                    }
                 }
             }
+
             if (verbose)
             {
                 sout << "W("<<row1<<","<<row2<<") += "<<acc<<" * "<<fact<<sendl;
             }
+            
             acc *= fact;
-            result.add(row1,row2,acc);
-            if (row1!=row2)
-                result.add(row2,row1,acc);
+            result.add(row1, row2, acc);
+            if (row1 != row2)
+            {
+                result.add(row2, row1, acc);
+            }
         }
     }
+
+    // AdvancedTimer::stepEnd("BTDLinearSolver<Matrix,Vector>::addJMInvJt" + this->getName());
     return true;
 }
+
+#endif
 
 #ifndef SOFA_FLOAT
 template<> const char* BTDMatrix<1,double>::Name() { return "BTDMatrix1d"; }
