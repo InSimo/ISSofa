@@ -50,6 +50,7 @@ template <class TIn, class TInRoot, class TOut>
 ArticulatedSystemMapping<TIn, TInRoot, TOut>::ArticulatedSystemMapping ()
     : ahc(NULL)
     , m_fromModel(NULL), m_toModel(NULL), m_fromRootModel(NULL)
+    , active(initData(&active,true,"active","Set to false to disable this mapping"))
 {
 
 }
@@ -137,6 +138,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::reset()
 template <class TIn, class TInRoot, class TOut>
 void ArticulatedSystemMapping<TIn, TInRoot, TOut>::apply( typename Out::VecCoord& out, const typename In::VecCoord& in, const typename InRoot::VecCoord* inroot  )
 {
+    if(!active.getValue()) return;
 //    std::cout << " --> ArticulatedSystemMapping<TIn, TOut>::apply called with in: " << in << "  -- inroot" << (*inroot) << std::endl;
 
     const Data< OutVecCoord > &xtoData = *m_toModel->read(core::VecCoordId::position());
@@ -343,6 +345,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::apply( typename Out::VecCoord
 template <class TIn, class TInRoot, class TOut>
 void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in, const typename InRoot::VecDeriv* inroot )
 {
+    if(!active.getValue()) return;
     Data<OutVecCoord>* xtoData = m_toModel->write(core::VecCoordId::position());
     //const Data<InVecCoord>* xfromData = m_fromModel->read(core::ConstVecCoordId::position());
 
@@ -438,6 +441,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJ( typename Out::VecDeri
 template <class TIn, class TInRoot, class TOut>
 void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in, typename InRoot::VecDeriv* outroot )
 {
+    if(!active.getValue()) return;
     //sout<<"\n ApplyJt";
     const OutVecCoord& xto = m_toModel->read(core::VecCoordId::position())->getValue();
 //	InVecCoord &xfrom= *m_fromModel->read(core::ConstVecCoordId::position());
@@ -521,6 +525,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJT( typename In::VecDeri
 template <class TIn, class TInRoot, class TOut>
 void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJT( InMatrixDeriv& out, const OutMatrixDeriv& in, InRootMatrixDeriv* outRoot )
 {
+    if(!active.getValue()) return;
     const OutVecCoord& xto = m_toModel->read(core::ConstVecCoordId::position())->getValue();
 
     //std::cout << "applyJT (constraints) : \n";

@@ -217,6 +217,7 @@ private:
     core::State<In>* m_fromModel;
     core::State<Out>* m_toModel;
     core::State<InRoot>* m_fromRootModel;
+    Data<bool> active;
 
     sofa::defaulttype::Vec<1,sofa::defaulttype::Quat> Buf_Rotation;
     std::vector< sofa::defaulttype::Vec<3,OutReal> > ArticulationAxis;
