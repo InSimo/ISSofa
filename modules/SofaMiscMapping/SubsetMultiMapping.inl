@@ -199,8 +199,8 @@ void SubsetMultiMapping<TIn, TOut>::apply(const core::MechanicalParams* mparams 
 //        cerr<<"SubsetMultiMapping<TIn, TOut>::apply, out = "<< out << endl;
         const InDataVecCoord* inPosPtr = dataVecInPos[indexPairs.getValue()[i*2]];
         const InVecCoord& inPos = (*inPosPtr).getValue();
-
-        out[i] =  inPos[indexPairs.getValue()[i*2+1]];
+        if (indexPairs.getValue()[i*2+1] < inPos.size())
+            out[i] =  inPos[indexPairs.getValue()[i*2+1]];
     }
 
     dataVecOutPos[0]->endEdit(mparams);
@@ -218,7 +218,8 @@ void SubsetMultiMapping<TIn, TOut>::applyJ(const core::MechanicalParams* mparams
         const InDataVecDeriv* inDerivPtr = dataVecInVel[indexPairs.getValue()[i*2]];
         const InVecDeriv& inDeriv = (*inDerivPtr).getValue();
 
-        out[i] = inDeriv[indexPairs.getValue()[i*2+1]];
+        if (indexPairs.getValue()[i*2+1] < inDeriv.size())
+            out[i] = inDeriv[indexPairs.getValue()[i*2+1]];
     }
 
     dataVecOutVel[0]->endEdit(mparams);
@@ -287,7 +288,8 @@ void SubsetMultiMapping<TIn, TOut>::applyJT(const core::MechanicalParams* mparam
         //(*parentDeriv[indexPairs.getValue()[i*2]])[indexPairs.getValue()[i*2+1]] += cder[i];
         InDataVecDeriv* inDerivPtr = dataVecOutForce[indexPairs.getValue()[i*2]];
         InVecDeriv& inDeriv = *(*inDerivPtr).beginEdit(mparams);
-        inDeriv[indexPairs.getValue()[i*2+1]] += cder[i];
+        if (indexPairs.getValue()[i*2+1] < inDeriv.size())
+            inDeriv[indexPairs.getValue()[i*2+1]] += cder[i];
         (*inDerivPtr).endEdit(mparams);
     }
 }
