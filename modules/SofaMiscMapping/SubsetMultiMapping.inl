@@ -199,7 +199,6 @@ void SubsetMultiMapping<TIn, TOut>::apply(const core::MechanicalParams* mparams 
         const InDataVecCoord* inPosPtr = dataVecInPos[indexP[i*2]];
         const InVecCoord& inPos = (*inPosPtr).getValue();
 
-        out[i] =  inPos[indexP[i*2+1]];
         if (indexP[i*2+1] < inPos.size())
         {
             out[i] = inPos[indexP[i*2+1]];
