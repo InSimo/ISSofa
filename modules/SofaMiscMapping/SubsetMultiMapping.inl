@@ -65,9 +65,6 @@ void SubsetMultiMapping<TIn, TOut>::fillIndexPairs()
 template <class TIn, class TOut>
 void SubsetMultiMapping<TIn, TOut>::init()
 {
-
-    Inherit::init();
-
     assert( indexPairs.getValue().size()%2==0 );
     
     if (indexPairs.getValue().empty() && !d_identityIndices.getValue().empty())
@@ -129,6 +126,8 @@ void SubsetMultiMapping<TIn, TOut>::init()
         baseMatrices[i]->compress();
     }
 #endif
+
+    Inherit::init();
 }
 
 template <class TIn, class TOut>
@@ -190,17 +189,25 @@ void SubsetMultiMapping<TIn, TOut>::apply(const core::MechanicalParams* mparams 
     //OutVecCoord& out = *outPos[0];
 
     OutVecCoord& out = *(dataVecOutPos[0]->beginEdit(mparams));
+    helper::ReadAccessor< Data< vector<unsigned> > > indexP = indexPairs;
 
-
-    out.resize(indexPairs.getValue().size()/2);
+    out.resize(indexP.size()/2);
     for(unsigned i=0; i<out.size(); i++)
     {
 //        cerr<<"SubsetMultiMapping<TIn, TOut>::apply, i = "<< i <<", indexPair = " << indexPairs[i*2] << ", " << indexPairs[i*2+1] <<", inPos size = "<< inPos.size() <<", inPos[i] = " << (*inPos[indexPairs[i*2]]) << endl;
 //        cerr<<"SubsetMultiMapping<TIn, TOut>::apply, out = "<< out << endl;
-        const InDataVecCoord* inPosPtr = dataVecInPos[indexPairs.getValue()[i*2]];
+        const InDataVecCoord* inPosPtr = dataVecInPos[indexP[i*2]];
         const InVecCoord& inPos = (*inPosPtr).getValue();
-        if (indexPairs.getValue()[i*2+1] < inPos.size())
-            out[i] =  inPos[indexPairs.getValue()[i*2+1]];
+
+        out[i] =  inPos[indexP[i*2+1]];
+        if (indexP[i*2+1] < inPos.size())
+        {
+            out[i] = inPos[indexP[i*2+1]];
+        }
+        else
+        {
+            serr << "Invalid indexPair for " << i << ": " << indexP[i*2] << " " << indexP[i*2+1] << " while in size is " << inPos.size() << sendl;
+        }
     }
 
     dataVecOutPos[0]->endEdit(mparams);
@@ -211,15 +218,20 @@ template <class TIn, class TOut>
 void SubsetMultiMapping<TIn, TOut>::applyJ(const core::MechanicalParams* mparams /* PARAMS FIRST */, const helper::vector<OutDataVecDeriv*>& dataVecOutVel, const helper::vector<const InDataVecDeriv*>& dataVecInVel)
 {
     OutVecDeriv& out = *(dataVecOutVel[0]->beginEdit(mparams));
-
-    out.resize(indexPairs.getValue().size()/2);
+    helper::ReadAccessor< Data< vector<unsigned> > > indexP = indexPairs;
+    out.resize(indexP.size()/2);
     for(unsigned i=0; i<out.size(); i++)
     {
-        const InDataVecDeriv* inDerivPtr = dataVecInVel[indexPairs.getValue()[i*2]];
+        const InDataVecDeriv* inDerivPtr = dataVecInVel[indexP[i*2]];
         const InVecDeriv& inDeriv = (*inDerivPtr).getValue();
-
-        if (indexPairs.getValue()[i*2+1] < inDeriv.size())
-            out[i] = inDeriv[indexPairs.getValue()[i*2+1]];
+        if (indexP[i*2+1] < inDeriv.size())
+        {
+            out[i] = inDeriv[indexP[i*2+1]];
+        }
+        else
+        {
+            serr << "Invalid indexPair for " << i << ": " << indexP[i*2] << " " << indexP[i*2+1] << " while in size is " << inDeriv.size() << "(mstate size = " << this->fromModels[indexP[i*2]]->getSize() << ")" << sendl;
+        }
     }
 
     dataVecOutVel[0]->endEdit(mparams);
@@ -228,7 +240,7 @@ void SubsetMultiMapping<TIn, TOut>::applyJ(const core::MechanicalParams* mparams
 template <class TIn, class TOut>
 void SubsetMultiMapping<TIn, TOut>::applyJT( const core::ConstraintParams* cparams /* PARAMS FIRST */, const helper::vector< InDataMatrixDeriv* >& dOut, const helper::vector< const OutDataMatrixDeriv* >& dIn)
 {
-    vector<unsigned>  indexP = indexPairs.getValue();
+    helper::ReadAccessor< Data< vector<unsigned> > > indexP = indexPairs;
 
     // hypothesis: one child only:
     const OutMatrixDeriv& in = dIn[0]->getValue();
@@ -258,11 +270,13 @@ void SubsetMultiMapping<TIn, TOut>::applyJT( const core::ConstraintParams* cpara
             unsigned int index_parent=  indexP[colIt.index()*2]; // 0 or 1 (for now...)
             // writeLine provide an iterator on the line... if this line does not exist, the line is created:
             typename InMatrixDeriv::RowIterator o = dOut[index_parent]->beginEdit()->writeLine(rowIt.index());
-            dOut[index_parent]->endEdit();
 
             // for each col of the constraint direction, it adds a col in the corresponding parent's constraint direction
-            if(indexPairs.getValue()[colIt.index()*2+1] < (unsigned int)this->fromModels[index_parent]->getSize())
+            if(indexP[colIt.index()*2+1] < (unsigned int)this->fromModels[index_parent]->getSize())
                 o.addCol(indexP[colIt.index()*2+1], colIt.val());
+
+            dOut[index_parent]->endEdit();
+
             ++colIt;
         }
 
@@ -282,14 +296,23 @@ void SubsetMultiMapping<TIn, TOut>::applyJT(const core::MechanicalParams* mparam
     const OutDataVecDeriv* cderData = dataVecInForce[0];
     const OutVecDeriv& cder = cderData->getValue();
     //const InVecDeriv& cder = *childDeriv[0];
+    helper::ReadAccessor< Data< vector<unsigned> > > indexP = indexPairs;
 
     for(unsigned i=0; i<cder.size(); i++)
     {
-        //(*parentDeriv[indexPairs.getValue()[i*2]])[indexPairs.getValue()[i*2+1]] += cder[i];
-        InDataVecDeriv* inDerivPtr = dataVecOutForce[indexPairs.getValue()[i*2]];
+        //(*parentDeriv[indexP[i*2]])[indexP[i*2+1]] += cder[i];
+        InDataVecDeriv* inDerivPtr = dataVecOutForce[indexP[i*2]];
         InVecDeriv& inDeriv = *(*inDerivPtr).beginEdit(mparams);
-        if (indexPairs.getValue()[i*2+1] < inDeriv.size())
-            inDeriv[indexPairs.getValue()[i*2+1]] += cder[i];
+
+        if (indexP[i*2+1] < inDeriv.size())
+        {
+            inDeriv[indexP[i*2+1]] += cder[i];
+        }
+        else
+        {
+            serr << "Invalid indexPair for " << i << ": " << indexP[i*2] << " " << indexP[i*2+1] << " while in size is " << inDeriv.size() << sendl;
+        }
+
         (*inDerivPtr).endEdit(mparams);
     }
 }
