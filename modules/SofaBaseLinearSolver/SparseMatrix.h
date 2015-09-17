@@ -84,6 +84,9 @@ public:
     LineConstIterator begin() const { return data.begin(); }
     LineConstIterator end()   const { return data.end();   }
 
+    LineIterator find(Index i) { return data.find(i); }
+    LineConstIterator find(Index i) const { return data.find(i); }
+
     Line& operator[](Index i)
     {
         return data[i];
