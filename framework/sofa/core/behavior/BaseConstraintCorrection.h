@@ -65,8 +65,6 @@ public:
 	/// @name Compliance Matrix API
     /// @{
 
-    virtual void prepareCompliance(const ConstraintParams *) {}
-
     virtual void addComplianceInConstraintSpace(const ConstraintParams *, defaulttype::BaseMatrix* W) = 0;
 
     /// Fill the matrix m with the full Compliance Matrix
