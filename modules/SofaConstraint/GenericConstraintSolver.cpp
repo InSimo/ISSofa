@@ -238,12 +238,6 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 	{
 		sofa::helper::AdvancedTimer::stepBegin("Get Compliance");
 		if (this->f_printLog.getValue()) sout<<" computeCompliance in "  << constraintCorrections.size()<< " constraintCorrections" <<sendl;
-		for (unsigned int i=0; i<constraintCorrections.size(); i++)
-		{
-			core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
-			if (!cc->isActive()) continue;
-			cc->prepareCompliance(cParams);
-		}
 
 		for (unsigned int i=0; i<constraintCorrections.size(); i++)
 		{
