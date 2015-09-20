@@ -53,10 +53,12 @@ public:
 
     typedef Bloc MatBloc;
 
+    typedef sofa::defaulttype::Vec<NL,Real> DBloc;
+
     class BaseMatrixWriter
     {
         defaulttype::BaseMatrix* m;
-        unsigned int offsetL, offsetC;
+        const unsigned int offsetL, offsetC;
     public:
         BaseMatrixWriter(defaulttype::BaseMatrix* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
@@ -67,12 +69,69 @@ public:
                 for (unsigned int j=0; j<NC; ++j)
                     m->add(i0+i,j0+j,b[i][j]);
         }
+        void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                m->add(i0+i,j0+i,b[i]);
+        }
+        void addDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                m->add(i0+i,j0+i,b);
+        }
+        void addDiag(unsigned int bi, const MatBloc& b)
+        {
+            add(bi, bi, b);
+        }
+        void addDiagDBloc(unsigned int bi, const DBloc& b)
+        {
+            addDBloc(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, const Real b)
+        {
+            addDValue(bi, bi, b);
+        }
+        void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                for (unsigned int j=0; j<NC; ++j)
+                {
+                    m->add(i0+i,j0+j,b[i][j]);
+                    m->add(j0+j,i0+i,b[i][j]);
+                }
+        }
+        void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                m->add(i0+i,j0+i,b[i]);
+                m->add(j0+i,i0+i,b[i]);
+            }
+        }
+        void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                m->add(i0+i,j0+i,b);
+                m->add(j0+i,i0+i,b);
+            }
+        }
     };
 
     class BlocBaseMatrixWriter
     {
         defaulttype::BaseMatrix* m;
-        unsigned int boffsetL, boffsetC;
+        const unsigned int boffsetL, boffsetC;
     public:
         BlocBaseMatrixWriter(defaulttype::BaseMatrix* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
@@ -81,13 +140,77 @@ public:
             unsigned int j0 = boffsetC + bj;
             m->blocAdd(i0,j0,b.ptr());
         }
+        void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::BaseMatrix::BlockAccessor mb = m->blocCreate(i0,j0);
+
+            for (unsigned int i=0; i<NL; ++i)
+                mb.add(i,i,b[i]);
+        }
+        void addDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::BaseMatrix::BlockAccessor mb = m->blocCreate(i0,j0);
+
+            for (unsigned int i=0; i<NL; ++i)
+                mb.add(i,i,b);
+        }
+        void addDiag(unsigned int bi, const MatBloc& b)
+        {
+            add(bi, bi, b);
+        }
+        void addDiagDBloc(unsigned int bi, const DBloc& b)
+        {
+            addDBloc(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, const Real b)
+        {
+            addDValue(bi, bi, b);
+        }
+        void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            m->blocAdd(i0,j0,b.ptr());
+            MatBloc bt = b.transposed();
+            m->blocAdd(j0,i0,bt.ptr());
+        }
+        void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::BaseMatrix::BlockAccessor mb1 = m->blocCreate(i0,j0);
+            defaulttype::BaseMatrix::BlockAccessor mb2 = m->blocCreate(j0,i0);
+
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                mb1.add(i,i,b[i]);
+                mb2.add(i,i,b[i]);
+            }
+        }
+        void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::BaseMatrix::BlockAccessor mb1 = m->blocCreate(i0,j0);
+            defaulttype::BaseMatrix::BlockAccessor mb2 = m->blocCreate(j0,i0);
+
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                mb1.add(i,i,b);
+                mb2.add(i,i,b);
+            }
+        }
     };
 
     template<class MReal>
     class BlocCRSMatrixWriter
     {
         sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m;
-        unsigned int boffsetL, boffsetC;
+        const unsigned int boffsetL, boffsetC;
     public:
         BlocCRSMatrixWriter(sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
@@ -97,13 +220,77 @@ public:
             //defaulttype::Mat<NL,NC,MReal> bconv = b;
             *m->wbloc(i0,j0,true) += b;
         }
+        void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::Mat<NL,NC,MReal>& mb = *m->wbloc(i0,j0,true);
+
+            for (unsigned int i=0; i<NL; ++i)
+                mb[i][i] += b[i];
+        }
+        void addDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::Mat<NL,NC,MReal>& mb = *m->wbloc(i0,j0,true);
+
+            for (unsigned int i=0; i<NL; ++i)
+                mb[i][i] += b;
+        }
+        void addDiag(unsigned int bi, const MatBloc& b)
+        {
+            add(bi, bi, b);
+        }
+        void addDiagDBloc(unsigned int bi, const DBloc& b)
+        {
+            addDBloc(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, const Real b)
+        {
+            addDValue(bi, bi, b);
+        }
+        void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            //defaulttype::Mat<NL,NC,MReal> bconv = b;
+            *m->wbloc(i0,j0,true) += b;
+            *m->wbloc(j0,i0,true) += b.transposed();
+        }
+        void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
+            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
+
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                mb1[i][i] += b[i];
+                mb2[i][i] += b[i];
+            }
+        }
+        void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
+            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
+
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                mb1[i][i] += b;
+                mb2[i][i] += b;
+            }
+        }
     };
 
     template<class MReal>
     class CRSMatrixWriter
     {
         sofa::component::linearsolver::CompressedRowSparseMatrix<MReal>* m;
-        unsigned int offsetL, offsetC;
+        const unsigned int offsetL, offsetC;
     public:
         CRSMatrixWriter(sofa::component::linearsolver::CompressedRowSparseMatrix<MReal>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
@@ -113,6 +300,63 @@ public:
             for (unsigned int i=0; i<NL; ++i)
                 for (unsigned int j=0; j<NC; ++j)
                     *m->wbloc(i0+i,j0+j,true) += (MReal)b[i][j];
+        }
+        void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                *m->wbloc(i0+i,j0+i,true) += (MReal)b[i];
+        }
+        void addDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                *m->wbloc(i0+i,j0+i,true) += (MReal)b;
+        }
+        void addDiag(unsigned int bi, const MatBloc& b)
+        {
+            add(bi, bi, b);
+        }
+        void addDiagDBloc(unsigned int bi, const DBloc& b)
+        {
+            addDBloc(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, const Real b)
+        {
+            addDValue(bi, bi, b);
+        }
+        void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                for (unsigned int j=0; j<NC; ++j)
+                {
+                    *m->wbloc(i0+i,j0+j,true) += (MReal)b[i][j];
+                    *m->wbloc(j0+j,i0+i,true) += (MReal)b[i][j];
+                }
+        }
+        void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                *m->wbloc(i0+i,j0+i,true) += (MReal)b[i];
+                *m->wbloc(j0+i,i0+i,true) += (MReal)b[i];
+            }
+        }
+        void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                *m->wbloc(i0+i,j0+i,true) += (MReal)b;
+                *m->wbloc(j0+i,i0+i,true) += (MReal)b;
+            }
         }
     };
 
@@ -173,6 +417,48 @@ public:
     {
         if (!r) return;
         DispatcherForceField_addKToMatrix<FF> dispatch(main, mparams);
+        apply(dispatch, r.matrix, r.offset, r.offset);
+    }
+
+    template<class FF>
+    struct DispatcherForceField_addMToMatrix
+    {
+        FF* main;
+        const sofa::core::MechanicalParams* mparams;
+        DispatcherForceField_addMToMatrix(FF* main, const sofa::core::MechanicalParams* mparams) : main(main), mparams(mparams) {}
+        template <class MatrixWriter>
+        void operator()(const MatrixWriter& m)
+        {
+            main->addMToMatrixT(mparams, m);
+        }
+    };
+
+    template<class FF>
+    void addMToMatrix(FF* main, const sofa::core::MechanicalParams* mparams, sofa::core::behavior::MultiMatrixAccessor::MatrixRef r)
+    {
+        if (!r) return;
+        DispatcherForceField_addMToMatrix<FF> dispatch(main, mparams);
+        apply(dispatch, r.matrix, r.offset, r.offset);
+    }
+
+    template<class FF>
+    struct DispatcherForceField_addMBKToMatrix
+    {
+        FF* main;
+        const sofa::core::MechanicalParams* mparams;
+        DispatcherForceField_addMBKToMatrix(FF* main, const sofa::core::MechanicalParams* mparams) : main(main), mparams(mparams) {}
+        template <class MatrixWriter>
+        void operator()(const MatrixWriter& m)
+        {
+            main->addMBKToMatrixT(mparams, m);
+        }
+    };
+
+    template<class FF>
+    void addMBKToMatrix(FF* main, const sofa::core::MechanicalParams* mparams, sofa::core::behavior::MultiMatrixAccessor::MatrixRef r)
+    {
+        if (!r) return;
+        DispatcherForceField_addMBKToMatrix<FF> dispatch(main, mparams);
         apply(dispatch, r.matrix, r.offset, r.offset);
     }
 };

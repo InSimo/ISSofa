@@ -118,7 +118,10 @@ public:
 
     virtual void addForce(const core::MechanicalParams* mparams, DataVecDeriv& d_f, const DataVecCoord& d_x, const DataVecDeriv& d_v);
     virtual void addDForce(const core::MechanicalParams* mparams, DataVecDeriv& d_df, const DataVecDeriv& d_dx);
-    virtual void addKToMatrix(sofa::defaulttype::BaseMatrix *mat, SReal k, unsigned int &offset); // compute and add all the element stiffnesses to the global stiffness matrix
+    /// compute and add all the element stiffnesses to the global stiffness matrix
+    virtual void addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix);
+    template<class MatrixWriter>
+    void addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter);
     virtual double getPotentialEnergy(const core::MechanicalParams* mparams, const DataVecCoord& d_x) const;
 
     void draw(const core::visual::VisualParams* vparams);
@@ -267,11 +270,20 @@ protected:
         }
 
         /// Stiffness matrix assembly
-        void addStiffness( sofa::defaulttype::BaseMatrix *bm, unsigned int offset, SReal scale, core::behavior::ForceField< _DataTypes>* ff ) const
+        template<class MWriter>
+        void addStiffness( MWriter& mwriter, SReal scale) const
         {
-            StiffnessMatrix K;
-            getStiffness( K );
-            ff->addToMatrix(bm,offset,vid,K,scale);
+            const SReal flambda = -lambda*scale;
+            for( unsigned j=0; j<4; j++ )
+            {
+                const Real flambda_aj = flambda*alpha[j];
+                mwriter.addDiagDValue(vid[j],flambda_aj*alpha[j]);
+
+                for( unsigned k=j+1; k<4; k++ )
+                {
+                    mwriter.addSymDValue(vid[j],vid[k],flambda_aj*alpha[k]);
+                }
+            }
         }
 
         /// Compliant stiffness matrix assembly
