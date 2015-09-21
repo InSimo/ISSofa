@@ -182,27 +182,27 @@ public:
         {
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
-            defaulttype::BaseMatrix::BlockAccessor mb1 = m->blocCreate(i0,j0);
-            defaulttype::BaseMatrix::BlockAccessor mb2 = m->blocCreate(j0,i0);
 
+            defaulttype::BaseMatrix::BlockAccessor mb1 = m->blocCreate(i0,j0);
             for (unsigned int i=0; i<NL; ++i)
-            {
                 mb1.add(i,i,b[i]);
+
+            defaulttype::BaseMatrix::BlockAccessor mb2 = m->blocCreate(j0,i0);
+            for (unsigned int i=0; i<NL; ++i)
                 mb2.add(i,i,b[i]);
-            }
         }
         void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
         {
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
-            defaulttype::BaseMatrix::BlockAccessor mb1 = m->blocCreate(i0,j0);
-            defaulttype::BaseMatrix::BlockAccessor mb2 = m->blocCreate(j0,i0);
 
+            defaulttype::BaseMatrix::BlockAccessor mb1 = m->blocCreate(i0,j0);
             for (unsigned int i=0; i<NL; ++i)
-            {
                 mb1.add(i,i,b);
+
+            defaulttype::BaseMatrix::BlockAccessor mb2 = m->blocCreate(j0,i0);
+            for (unsigned int i=0; i<NL; ++i)
                 mb2.add(i,i,b);
-            }
         }
     };
 
@@ -262,27 +262,27 @@ public:
         {
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
-            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
-            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
 
+            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
             for (unsigned int i=0; i<NL; ++i)
-            {
                 mb1[i][i] += b[i];
+
+            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
+            for (unsigned int i=0; i<NL; ++i)
                 mb2[i][i] += b[i];
-            }
         }
         void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
         {
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
-            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
-            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
 
+            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
             for (unsigned int i=0; i<NL; ++i)
-            {
                 mb1[i][i] += b;
+
+            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
+            for (unsigned int i=0; i<NL; ++i)
                 mb2[i][i] += b;
-            }
         }
     };
 
