@@ -53,7 +53,7 @@ RestShapeSpringsForceField<DataTypes>::RestShapeSpringsForceField()
     , angularStiffness(initData(&angularStiffness, "angularStiffness", "angularStiffness assigned when controlling the rotation of the points"))
     , pivotPoints(initData(&pivotPoints, "pivot_points", "global pivot points used when translations instead of the rigid mass centers"))
     , external_rest_shape(initData(&external_rest_shape, "external_rest_shape", "rest_shape can be defined by the position of an external Mechanical State"))
-    , external_points(initData(&external_points, "external_points", "points from the external Mechancial State that define the rest shape springs"))
+    , external_points(initData(&external_points, "external_points", "points from the external Mechanical State that define the rest shape springs"))
     , recompute_indices(initData(&recompute_indices, false, "recompute_indices", "Recompute indices (should be false for BBOX)"))
     , d_drawSpring(initData(&d_drawSpring, false, "drawSpring", "draw Spring"))
     , d_drawSpringLengthThreshold(initData(&d_drawSpringLengthThreshold, (Real)0.1, "drawSpringLengthThreshold", "Display : When spring length is under this threshold a sphere is displayed instead of a line"))
@@ -62,6 +62,7 @@ RestShapeSpringsForceField<DataTypes>::RestShapeSpringsForceField()
     , d_springSphereRadius(initData(&d_springSphereRadius, (Real)0.2, "springSphereRadius", "Display : spring sphere radius (used when springs are used as fixed constraint)"))
     , restMState(NULL)
     , d_useRestMState(initData(&d_useRestMState, "useRestMState", "An external MechanicalState is used as rest reference."))
+    , d_springLengthThreshold(initData(&d_springLengthThreshold, "springLengthThreshold", "Spring length threshold before spring breaking (only in Rigid Mode)"))
 {
 }
 
@@ -105,6 +106,15 @@ void RestShapeSpringsForceField<DataTypes>::bwdInit()
     matS.resize(state->getMatrixSize(),state->getMatrixSize());
     lastUpdatedStep = -1.0;
 #endif
+}
+
+
+template<class DataTypes>
+void RestShapeSpringsForceField<DataTypes>::reset()
+{
+    recomputeIndices();
+
+    Inherit1::reset();
 }
 
 
@@ -371,6 +381,33 @@ void RestShapeSpringsForceField<DataTypes>::addSubKToMatrix(const core::Mechanic
         }
     }
 }
+
+
+template<class DataTypes>
+bool RestShapeSpringsForceField<DataTypes>::breakElongatedSprings(const DataVecCoord& x)
+{
+    sofa::defaulttype::Vector3 point1, point2;
+    const Real maxLength = d_springLengthThreshold.getValue();
+
+    sofa::helper::ReadAccessor< DataVecCoord > p1 = x;
+    sofa::helper::ReadAccessor< DataVecCoord > p0 = *getExtPosition();
+
+    for (unsigned int i = 0; i < m_indices.size(); i++)
+    {
+        point1 = DataTypes::getCPos(p1[m_indices[i]]);
+        point2 = DataTypes::getCPos(p0[m_ext_indices[i]]);
+
+        if ((point2 - point1).norm() > maxLength)
+        {
+            m_indices.clear();
+            m_ext_indices.clear();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 template<class DataTypes>
 void RestShapeSpringsForceField<DataTypes>::draw(const core::visual::VisualParams *vparams)

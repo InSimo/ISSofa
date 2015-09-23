@@ -104,10 +104,13 @@ protected:
     RestShapeSpringsForceField();
 
     Data< bool > d_useRestMState; ///< An external MechanicalState is used as rest reference.
+    Data< Real > d_springLengthThreshold;
 
 public:
     /// BaseObject initialization method.
     void bwdInit();
+
+    virtual void reset();
 
     /// Add the forces.
     virtual void addForce(const core::MechanicalParams* mparams, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
@@ -138,6 +141,8 @@ protected :
 
     bool checkOutOfBoundsIndices();
     bool checkOutOfBoundsIndices(const VecIndex &indices, const unsigned int dimension);
+
+    bool breakElongatedSprings(const DataVecCoord &pos);
 
     VecIndex m_indices;
     VecIndex m_ext_indices;

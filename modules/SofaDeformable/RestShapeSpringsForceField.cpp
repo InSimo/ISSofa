@@ -52,6 +52,11 @@ void RestShapeSpringsForceField<Rigid3dTypes>::addForce(const core::MechanicalPa
 
     f1.resize(p1.size());
 
+    if (d_springLengthThreshold.isSet())
+    {
+        breakElongatedSprings(x);
+    }
+
     if (recompute_indices.getValue())
     {
         recomputeIndices();
@@ -166,6 +171,11 @@ void RestShapeSpringsForceField<Rigid3fTypes>::addForce(const core::MechanicalPa
     sofa::helper::ReadAccessor< DataVecCoord > p0 = *getExtPosition();
 
     f1.resize(p1.size());
+
+    if (d_springLengthThreshold.isSet())
+    {
+        breakElongatedSprings(x);
+    }
 
     if (recompute_indices.getValue())
     {
