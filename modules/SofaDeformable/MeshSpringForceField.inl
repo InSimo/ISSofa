@@ -231,6 +231,8 @@ void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event
       {
           helper::ReadAccessor< sofa::Data<VecCoord> > X01 = this->mstate1->readRestPositions();
           helper::ReadAccessor< sofa::Data<VecCoord> > X02 = this->mstate2->readRestPositions();
+
+          typedef typename Inherit1::Spring  Spring;
           sofa::helper::vector<Spring >& ss = *this->springs.beginEdit();
 
           for (unsigned int i=0; i<ss.size(); ++i)
