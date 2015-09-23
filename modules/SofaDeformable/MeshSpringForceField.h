@@ -64,7 +64,11 @@ protected:
     Data< Real >  cubesDamping;
     Data< bool >  noCompression;
     Data< Real >  defaultTension;
+    Data< Coord > d_scale3d;
     Data< Real >  prevDefaultTension;
+    Coord prevScale3d;
+    helper::vector<Real> initialStiffnessVec;
+    helper::vector<Real> initialDampingVec;
 
     /// optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)
     Data< defaulttype::Vec<2,int> > localRange;
@@ -86,6 +90,7 @@ protected:
         , localRange( initData(&localRange, defaulttype::Vec<2,int>(-1,-1), "localRange", "optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)" ) )
         , noCompression( initData(&noCompression, false, "noCompression", "Only consider elongation", false))
         , defaultTension( initData(&defaultTension, Real(1.0),"defaultTension", "Percentage to apply to length of edges to artificially create tension",true))
+        , d_scale3d(initData(&d_scale3d, "scale3d", "Scale of the rest length of the springs in n dimensions", true))
         , prevDefaultTension((Real)1.0)
     {
         this->ks.setDisplayed(false);
@@ -98,6 +103,15 @@ protected:
         this->addAlias(&cubesStiffness,     "stiffness"); this->addAlias(&cubesDamping,      "damping");
         //Name changes: keep compatibility with old version
         this->addAlias(&tetrahedraStiffness,"tetrasStiffness"); this->addAlias(&tetrahedraDamping, "tetrasDamping");
+
+        Coord& scale3d = *d_scale3d.beginEdit();
+
+        for (unsigned int i=0; i<scale3d.size(); ++i)
+        {
+            scale3d[i] = 1.0;
+            prevScale3d[i] = 1.0;
+        }
+        d_scale3d.endEdit();
     }
 
     virtual ~MeshSpringForceField();

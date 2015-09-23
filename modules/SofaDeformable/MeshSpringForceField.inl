@@ -77,19 +77,33 @@ void MeshSpringForceField<DataTypes>::addSpring(std::set<std::pair<int,int> >& s
         if (sset.count(std::make_pair(m2,m1))>0) return;
         sset.insert(std::make_pair(m2,m1));
     }
-    Real artificialTension = this->defaultTension.getValue();
+    
     helper::ReadAccessor< sofa::Data<VecCoord> > X01 = this->mstate1->readRestPositions();
     helper::ReadAccessor< sofa::Data<VecCoord> > X02 = this->mstate2->readRestPositions();
+    const Coord& scale3d = d_scale3d.getValue();
 
-    Real l = (X02[m2] - X01[m1]).norm() * artificialTension;
+    Deriv v = X02[m2] - X01[m1];
+
+    for (unsigned int i=0; i<scale3d.size(); ++i)
+    {
+        v[i] *= scale3d[i];
+    }
+
+    Real l = v.norm() * defaultTension.getValue();
     
     this->springs.beginEdit()->push_back(typename SpringForceField<DataTypes>::Spring(m1,m2,stiffness/l, damping/l, l, noCompression.getValue()));
     this->springs.endEdit();
+
+    initialStiffnessVec.push_back(stiffness);
+    initialDampingVec.push_back(damping);
 }
 
 template<class DataTypes>
 void MeshSpringForceField<DataTypes>::reinit()
 {
+    initialStiffnessVec.clear();
+    initialDampingVec.clear();
+
     this->StiffSpringForceField<DataTypes>::clear();
     if(!(this->mstate1) || !(this->mstate2))
         this->mstate2 = this->mstate1 = dynamic_cast<sofa::core::behavior::MechanicalState<DataTypes> *>(this->getContext()->getMechanicalState());
@@ -211,6 +225,30 @@ void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event
         //std::cout << "A new defaultTension value has been set : "<< this->defaultTension.getValue() << " -> reinint() is called in MeshSpringForceField" <<  std::endl;
         this->reinit();
         prevDefaultTension = this->defaultTension.getValue();
+      }
+      const Coord& scale3d = d_scale3d.getValue();
+      if (prevScale3d != scale3d)
+      {
+          helper::ReadAccessor< sofa::Data<VecCoord> > X01 = this->mstate1->readRestPositions();
+          helper::ReadAccessor< sofa::Data<VecCoord> > X02 = this->mstate2->readRestPositions();
+          sofa::helper::vector<Spring >& ss = *this->springs.beginEdit();
+
+          for (unsigned int i=0; i<ss.size(); ++i)
+          {
+              Spring& s = ss[i];
+
+              Deriv v = X02[s.m2] - X01[s.m1];
+
+              for (unsigned int j=0; j<scale3d.size(); ++j)
+              {
+                  v[j] *= scale3d[j];
+              }
+              Real l = v.norm() * defaultTension.getValue();
+              s.initpos = l;
+              s.ks = initialStiffnessVec[i]/l;
+              s.kd = initialDampingVec[i]/l;
+          }
+          this->springs.endEdit();
       }
     }
 }
