@@ -61,24 +61,23 @@ void StiffSpringForceField<DataTypes>::addSpringForce(
         const  VecCoord& p2,
         const  VecDeriv& v2,
         int i,
-        const Spring& spring,
-        const Real& sf)
+        const Spring& spring)
 {
     //    this->cpt_addForce++;
     int a = spring.m1;
     int b = spring.m2;
     Coord u = p2[b]-p1[a];
     Real d = u.norm();
-    if( spring.enabled && d>1.0e-4 && (!spring.elongationOnly || d>(spring.initpos*sf)))
+    if( spring.enabled && d>1.0e-4 && (!spring.elongationOnly || d>spring.initpos))
     {
         // F =   k_s.(l-l_0 ).U + k_d((V_b - V_a).U).U = f.U   where f is the intensity and U the direction
         Real inverseLength = 1.0f/d;
         u *= inverseLength;
-        Real elongation = (Real)(d - (spring.initpos*sf));
-        potentialEnergy += elongation * elongation * (spring.ks*(1/sf)) / 2;
+        Real elongation = (Real)(d - spring.initpos);
+        potentialEnergy += elongation * elongation * spring.ks / 2;
         Deriv relativeVelocity = v2[b]-v1[a];
         Real elongationVelocity = dot(u,relativeVelocity);
-        Real forceIntensity = (Real)((spring.ks*(1/sf))*elongation+spring.kd*elongationVelocity);
+        Real forceIntensity = (Real)(spring.ks*elongation+spring.kd*elongationVelocity);
         Deriv force = u*forceIntensity;
 //        serr<<"StiffSpringForceField<DataTypes>::addSpringForce, p1 = "<<p1<<sendl;
 //        serr<<"StiffSpringForceField<DataTypes>::addSpringForce, p2 = "<<p2<<sendl;
@@ -99,7 +98,7 @@ void StiffSpringForceField<DataTypes>::addSpringForce(
         {
             for( int k=0; k<N; ++k )
             {
-                m[j][k] = ((Real)(spring.ks*(1/sf))-tgt) * u[j] * u[k];
+                m[j][k] = ((Real)spring.ks-tgt) * u[j] * u[k];
             }
             m[j][j] += tgt;
         }
@@ -143,14 +142,13 @@ void StiffSpringForceField<DataTypes>::addForce(const core::MechanicalParams* /*
     const VecDeriv& v2 =  data_v2.getValue();
 
     const helper::vector<Spring>& springs= this->springs.getValue();
-    helper::ReadAccessor< Data<helper::vector<Real> > > sf = this->springFactors;
     this->dfdx.resize(springs.size());
     f1.resize(x1.size());
     f2.resize(x2.size());
     this->m_potentialEnergy = 0;
     for (unsigned int i=0; i<springs.size(); i++)
     {
-        this->addSpringForce(this->m_potentialEnergy,f1,x1,v1,f2,x2,v2, i, springs[i], sf[i]);
+        this->addSpringForce(this->m_potentialEnergy,f1,x1,v1,f2,x2,v2, i, springs[i]);
     }
     data_f1.endEdit();
     data_f2.endEdit();

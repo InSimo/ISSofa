@@ -57,7 +57,6 @@ SpringForceField<DataTypes>::SpringForceField(MechanicalState* mstate1, Mechanic
     , showArrowSize(initData(&showArrowSize,0.01f,"showArrowSize","size of the axis"))
     , drawMode(initData(&drawMode,0,"drawMode","The way springs will be drawn:\n- 0: Line\n- 1:Cylinder\n- 2: Arrow"))
     , springs(initData(&springs,"spring","pairs of indices, stiffness, damping, rest length"))
-    , springFactors(initData(&springFactors,"springFactors",""))
 {
 }
 
@@ -68,7 +67,6 @@ SpringForceField<DataTypes>::SpringForceField(SReal _ks, SReal _kd)
     , showArrowSize(initData(&showArrowSize,0.01f,"showArrowSize","size of the axis"))
     , drawMode(initData(&drawMode,0,"drawMode","The way springs will be drawn:\n- 0: Line\n- 1:Cylinder\n- 2: Arrow"))
     , springs(initData(&springs,"spring","pairs of indices, stiffness, damping, rest length"))
-    , springFactors(initData(&springFactors,"springFactors",""))
     , fileSprings(initData(&fileSprings, "fileSprings", "File describing the springs"))
 {
     this->addAlias(&fileSprings, "filename");
@@ -124,24 +122,11 @@ void SpringForceField<DataTypes>::init()
     // Load
     if (!fileSprings.getValue().empty())
         load(fileSprings.getFullPath().c_str());
-
-    helper::WriteAccessor< Data<helper::vector<Real> > > sf = this->springFactors;
-    helper::ReadAccessor< Data<helper::vector<Spring> > > s = this->springs;
-
-    if (s.size() != sf.size())
-    {
-        sf.resize(s.size());
-        for (unsigned int i=0; i<sf.size(); ++i)
-        {
-            sf[i] = 1.0;
-        }
-    }
-
     this->Inherit::init();
 }
 
 template<class DataTypes>
-void SpringForceField<DataTypes>::addSpringForce(Real& ener, VecDeriv& f1, const VecCoord& p1, const VecDeriv& v1, VecDeriv& f2, const VecCoord& p2, const VecDeriv& v2, int /*i*/, const Spring& spring, const Real& sf)
+void SpringForceField<DataTypes>::addSpringForce(Real& ener, VecDeriv& f1, const VecCoord& p1, const VecDeriv& v1, VecDeriv& f2, const VecCoord& p2, const VecDeriv& v2, int /*i*/, const Spring& spring)
 {
     int a = spring.m1;
     int b = spring.m2;
@@ -151,11 +136,11 @@ void SpringForceField<DataTypes>::addSpringForce(Real& ener, VecDeriv& f1, const
         return;
     Real inverseLength = 1.0f/d;
     u *= inverseLength;
-    Real elongation = (Real)(d - (spring.initpos*sf));
-    ener += elongation * elongation * (spring.ks*(1/sf)) /2;
+    Real elongation = (Real)(d - spring.initpos);
+    ener += elongation * elongation * spring.ks /2;
     Deriv relativeVelocity = v2[b]-v1[a];
     Real elongationVelocity = dot(u,relativeVelocity);
-    Real forceIntensity = (Real)((spring.ks*(1/sf))*elongation+spring.kd*elongationVelocity);
+    Real forceIntensity = (Real)(spring.ks*elongation+spring.kd*elongationVelocity);
     Deriv force = u*forceIntensity;
     f1[a]+=force;
     f2[b]-=force;
@@ -177,14 +162,13 @@ void SpringForceField<DataTypes>::addForce(
 
 
     const helper::vector<Spring>& springs= this->springs.getValue();
-    helper::ReadAccessor< Data<helper::vector<Real> > > sf = this->springFactors;
 
     f1.resize(x1.size());
     f2.resize(x2.size());
     this->m_potentialEnergy = 0;
     for (unsigned int i=0; i<this->springs.getValue().size(); i++)
     {
-        this->addSpringForce(this->m_potentialEnergy,f1,x1,v1,f2,x2,v2, i, springs[i], sf[i]);
+        this->addSpringForce(this->m_potentialEnergy,f1,x1,v1,f2,x2,v2, i, springs[i]);
     }
     data_f1.endEdit();
     data_f2.endEdit();
