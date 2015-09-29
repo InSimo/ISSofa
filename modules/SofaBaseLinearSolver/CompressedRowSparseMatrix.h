@@ -501,16 +501,16 @@ public:
     }
 
     // filtering-out part of a matrix
-    typedef bool filter_fn    (Index   i  , Index   j  , Bloc& val, const Bloc&   ref  );
-    static bool       nonzeros(Index /*i*/, Index /*j*/, Bloc& val, const Bloc& /*ref*/) { return (!traits::empty(val)); }
-    static bool       nonsmall(Index /*i*/, Index /*j*/, Bloc& val, const Bloc&   ref  )
+    typedef bool filter_fn    (Index   i  , Index   j  , Bloc& val, const Real   ref  );
+    static bool       nonzeros(Index /*i*/, Index /*j*/, Bloc& val, const Real /*ref*/) { return (!traits::empty(val)); }
+    static bool       nonsmall(Index /*i*/, Index /*j*/, Bloc& val, const Real   ref  )
     {
         for (Index bi = 0; bi < NL; ++bi)
             for (Index bj = 0; bj < NC; ++bj)
                 if (helper::rabs(traits::v(val, bi, bj)) >= ref) return true;
         return false;
     }
-    static bool upper         (Index   i  , Index   j  , Bloc& val, const Bloc& /*ref*/)
+    static bool upper         (Index   i  , Index   j  , Bloc& val, const Real /*ref*/)
     {
         if (NL>1 && i*NL == j*NC)
         {
@@ -520,7 +520,7 @@ public:
         }
         return i*NL <= j*NC;
     }
-    static bool lower         (Index   i  , Index   j  , Bloc& val, const Bloc& /*ref*/)
+    static bool lower         (Index   i  , Index   j  , Bloc& val, const Real /*ref*/)
     {
         if (NL>1 && i*NL == j*NC)
         {
@@ -530,13 +530,13 @@ public:
         }
         return i*NL >= j*NC;
     }
-    static bool upper_nonzeros(Index   i  , Index   j  , Bloc& val, const Bloc&   ref  ) { return upper(i,j,val,ref) && nonzeros(i,j,val,ref); }
-    static bool lower_nonzeros(Index   i  , Index   j  , Bloc& val, const Bloc&   ref  ) { return lower(i,j,val,ref) && nonzeros(i,j,val,ref); }
-    static bool upper_nonsmall(Index   i  , Index   j  , Bloc& val, const Bloc&   ref  ) { return upper(i,j,val,ref) && nonsmall(i,j,val,ref); }
-    static bool lower_nonsmall(Index   i  , Index   j  , Bloc& val, const Bloc&   ref  ) { return lower(i,j,val,ref) && nonsmall(i,j,val,ref); }
+    static bool upper_nonzeros(Index   i  , Index   j  , Bloc& val, const Real   ref  ) { return upper(i,j,val,ref) && nonzeros(i,j,val,ref); }
+    static bool lower_nonzeros(Index   i  , Index   j  , Bloc& val, const Real   ref  ) { return lower(i,j,val,ref) && nonzeros(i,j,val,ref); }
+    static bool upper_nonsmall(Index   i  , Index   j  , Bloc& val, const Real   ref  ) { return upper(i,j,val,ref) && nonsmall(i,j,val,ref); }
+    static bool lower_nonsmall(Index   i  , Index   j  , Bloc& val, const Real   ref  ) { return lower(i,j,val,ref) && nonsmall(i,j,val,ref); }
 
     template<class TMatrix>
-    void filterValues(TMatrix& M, filter_fn* filter = &nonzeros, const Bloc& ref = Bloc())
+    void filterValues(TMatrix& M, filter_fn* filter = &nonzeros, const Real ref = Real(), bool keepEmptyRows=false)
     {
         M.compress();
         nRow = M.rowSize();
@@ -572,7 +572,7 @@ public:
                     ++vid;
                 }
             }
-            if (rowBegin.back() == vid) // row was empty
+            if (!keepEmptyRows && rowBegin.back() == vid) // row was empty
             {
                 rowIndex.pop_back();
                 rowBegin.pop_back();
@@ -582,47 +582,47 @@ public:
     }
 
     template <class TMatrix>
-    void copyNonZeros(TMatrix& M)
+    void copyNonZeros(TMatrix& M, bool keepEmptyRows=false)
     {
-        filterValues(M, nonzeros, Bloc());
+        filterValues(M, nonzeros, Real(), keepEmptyRows);
     }
 
     template <class TMatrix>
-    void copyNonSmall(TMatrix& M, const Bloc& ref)
+    void copyNonSmall(TMatrix& M, const Real ref, bool keepEmptyRows=false)
     {
-        filterValues(M, nonsmall, ref);
+        filterValues(M, nonsmall, ref, keepEmptyRows);
     }
 
-    void copyUpper(Matrix& M)
+    void copyUpper(Matrix& M, bool keepEmptyRows=false)
     {
-        filterValues(M, upper);
+        filterValues(M, upper, Real(), keepEmptyRows);
     }
 
-    void copyLower(Matrix& M)
+    void copyLower(Matrix& M, bool keepEmptyRows=false)
     {
-        filterValues(M, lower);
-    }
-
-    template <class TMatrix>
-    void copyUpperNonZeros(TMatrix& M)
-    {
-        filterValues(M, upper_nonzeros);
+        filterValues(M, lower, Real(), keepEmptyRows);
     }
 
     template <class TMatrix>
-    void copyLowerNonZeros(TMatrix& M)
+    void copyUpperNonZeros(TMatrix& M, bool keepEmptyRows=false)
     {
-        filterValues(M, lower_nonzeros);
+        filterValues(M, upper_nonzeros, Real(), keepEmptyRows);
     }
 
-    void copyUpperNonSmall(Matrix& M, const Bloc& ref)
+    template <class TMatrix>
+    void copyLowerNonZeros(TMatrix& M, bool keepEmptyRows=false)
     {
-        filterValues(M, upper_nonsmall, ref);
+        filterValues(M, lower_nonzeros, Real(), keepEmptyRows);
     }
 
-    void copyLowerNonSmall(Matrix& M, const Bloc& ref)
+    void copyUpperNonSmall(Matrix& M, const Real ref, bool keepEmptyRows=false)
     {
-        filterValues(M, lower_nonsmall, ref);
+        filterValues(M, upper_nonsmall, ref, keepEmptyRows);
+    }
+
+    void copyLowerNonSmall(Matrix& M, const Real ref, bool keepEmptyRows=false)
+    {
+        filterValues(M, lower_nonsmall, ref, keepEmptyRows);
     }
 
     const Bloc& bloc(Index i, Index j) const

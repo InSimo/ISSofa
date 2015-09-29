@@ -37,7 +37,7 @@ namespace linearsolver
 {
 
 template <> template <>
-inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Bloc& ref)
+inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -91,7 +91,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
                 }
             }
 
-            if (rowBegin.back() == vid)   // row was empty
+            if (!keepEmptyRows && rowBegin.back() == vid)   // row was empty
             {
                 rowIndex.pop_back();
                 rowBegin.pop_back();
@@ -102,7 +102,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
 }
 
 template <> template <>
-inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Bloc& ref)
+inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -156,7 +156,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
                 }
             }
 
-            if (rowBegin.back() == vid)   // row was empty
+            if (!keepEmptyRows && rowBegin.back() == vid)   // row was empty
             {
                 rowIndex.pop_back();
                 rowBegin.pop_back();
@@ -167,7 +167,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
 }
 
 template <> template <>
-inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Bloc& ref)
+inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -221,7 +221,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
                 }
             }
 
-            if (rowBegin.back() == vid)   // row was empty
+            if (!keepEmptyRows && rowBegin.back() == vid)   // row was empty
             {
                 rowIndex.pop_back();
                 rowBegin.pop_back();
@@ -232,7 +232,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
 }
 
 template <> template <>
-inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Bloc& ref)
+inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -286,7 +286,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
                 }
             }
 
-            if (rowBegin.back() == vid)   // row was empty
+            if (!keepEmptyRows && rowBegin.back() == vid)   // row was empty
             {
                 rowIndex.pop_back();
                 rowBegin.pop_back();
