@@ -111,6 +111,9 @@ public:
     Data< bool > wire_optimization;
     Data< helper::vector< std::string > >  solverName;
 
+
+    Data< Real > d_complianceFactor; // Factor applied to the position factor and velocity factor used to calculate compliance matrix.
+
     void verify_constraints();
 
     virtual bool hasConstraintNumber(int index) ;  // virtual ???

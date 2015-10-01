@@ -52,6 +52,7 @@ LinearSolverConstraintCorrection<DataTypes>::LinearSolverConstraintCorrection(so
 : Inherit(mm)
 , wire_optimization(initData(&wire_optimization, false, "wire_optimization", "constraints are reordered along a wire-like topology (from tip to base)"))
 , solverName( initData(&solverName, "solverName", "name of the constraint solver") )
+, d_complianceFactor(initData(&d_complianceFactor, (Real)1.0, "complianceFactor", "Factor applied to the position factor and velocity factor used to calculate compliance matrix"))
 , odesolver(NULL)
 {
 }
@@ -128,6 +129,8 @@ template<class DataTypes>
 void LinearSolverConstraintCorrection<DataTypes>::addComplianceInConstraintSpace(const sofa::core::ConstraintParams *cparams, sofa::defaulttype::BaseMatrix* W)
 {
     if (!this->mstate || !odesolver || (linearsolvers.size()==0)) return;
+
+    const Real complianceFactor = d_complianceFactor.getValue();
 
     // use the OdeSolver to get the position integration factor
     double factor = 1.0;
@@ -211,6 +214,8 @@ void LinearSolverConstraintCorrection<DataTypes>::addComplianceInConstraintSpace
         }
     }
 
+    factor *= complianceFactor;
+
     // use the Linear solver to compute J*inv(M)*Jt, where M is the mechanical linear system matrix
     for (unsigned i = 0; i < linearsolvers.size(); i++)
     {
@@ -234,10 +239,12 @@ void LinearSolverConstraintCorrection<DataTypes>::getComplianceMatrix(defaulttyp
 {
     if (!this->mstate || !odesolver || (linearsolvers.size()==0)) return;
 
+    const Real complianceFactor = d_complianceFactor.getValue();
+
     // use the OdeSolver to get the position integration factor
     //const double factor = 1.0;
     //const double factor = odesolver->getPositionIntegrationFactor(); // dt
-    const double factor = odesolver->getPositionIntegrationFactor(); //*odesolver->getPositionIntegrationFactor(); // dt*dt
+    const double factor = odesolver->getPositionIntegrationFactor() * complianceFactor; //*odesolver->getPositionIntegrationFactor(); // dt*dt
 
     const unsigned int numDOFs = this->mstate->getSize();
     const unsigned int N = Deriv::size();
@@ -309,6 +316,8 @@ void LinearSolverConstraintCorrection< DataTypes >::computeAndApplyMotionCorrect
     {
         const unsigned int numDOFs = this->mstate->getSize();
 
+        const Real complianceFactor = d_complianceFactor.getValue();
+
         VecCoord& x = *(xId[this->mstate].write()->beginEdit());
         VecDeriv& v = *(vId[this->mstate].write()->beginEdit());
 
@@ -316,8 +325,8 @@ void LinearSolverConstraintCorrection< DataTypes >::computeAndApplyMotionCorrect
         const VecCoord& x_free = cparams->readX(this->mstate)->getValue();
         const VecDeriv& v_free = cparams->readV(this->mstate)->getValue();
 
-        const double positionFactor = odesolver->getPositionIntegrationFactor();
-        const double velocityFactor = odesolver->getVelocityIntegrationFactor();
+        const double positionFactor = odesolver->getPositionIntegrationFactor() * complianceFactor;
+        const double velocityFactor = odesolver->getVelocityIntegrationFactor() * complianceFactor;
 
         for (unsigned int i = 0; i < numDOFs; i++)
         {
@@ -346,12 +355,14 @@ void LinearSolverConstraintCorrection< DataTypes >::computeAndApplyPositionCorre
     {
         const unsigned int numDOFs = this->mstate->getSize();
 
+        const Real complianceFactor = d_complianceFactor.getValue();
+
         VecCoord& x = *(xId[this->mstate].write()->beginEdit());
 
         VecDeriv& dx = *(this->mstate->write(core::VecDerivId::dx())->beginEdit());
         const VecCoord& x_free = cparams->readX(this->mstate)->getValue();
 
-        const double positionFactor = odesolver->getPositionIntegrationFactor();
+        const double positionFactor = odesolver->getPositionIntegrationFactor() * complianceFactor;
 
         for (unsigned int i = 0; i < numDOFs; i++)
         {
@@ -377,12 +388,14 @@ void LinearSolverConstraintCorrection< DataTypes >::computeAndApplyVelocityCorre
     {
         const unsigned int numDOFs = this->mstate->getSize();
 
+        const Real complianceFactor = d_complianceFactor.getValue();
+
         VecDeriv& v = *(vId[this->mstate].write()->beginEdit());
 
         VecDeriv& dx = *(this->mstate->write(core::VecDerivId::dx())->beginEdit());
         const VecDeriv& v_free = cparams->readV(this->mstate)->getValue();
 
-        const double velocityFactor = odesolver->getVelocityIntegrationFactor();
+        const double velocityFactor = odesolver->getVelocityIntegrationFactor() * complianceFactor;
 
         for (unsigned int i = 0; i < numDOFs; i++)
         {
@@ -457,11 +470,13 @@ void LinearSolverConstraintCorrection<DataTypes>::applyContactForce(const defaul
 
     //TODO: tell the solver not to recompute the matrix
 
-    // use the OdeSolver to get the position integration factor
-    const double positionFactor = odesolver->getPositionIntegrationFactor();
+    const Real complianceFactor = d_complianceFactor.getValue();
 
     // use the OdeSolver to get the position integration factor
-    const double velocityFactor = odesolver->getVelocityIntegrationFactor();
+    const double positionFactor = odesolver->getPositionIntegrationFactor() * complianceFactor;
+
+    // use the OdeSolver to get the position integration factor
+    const double velocityFactor = odesolver->getVelocityIntegrationFactor() * complianceFactor;
 
     Data<VecCoord>& xData     = *this->mstate->write(core::VecCoordId::position());
     Data<VecDeriv>& vData     = *this->mstate->write(core::VecDerivId::velocity());
@@ -548,6 +563,10 @@ void LinearSolverConstraintCorrection<DataTypes>::verify_constraints()
 template<class DataTypes>
 void LinearSolverConstraintCorrection<DataTypes>::resetForUnbuiltResolution(double * f, std::list<unsigned int>& renumbering)
 {
+    if (d_complianceFactor.getValue() != 1)
+    {
+        sout << " compliance factor isn't taken into account in unbuild version " << sendl;
+    }
 
     //std::cout<<" \n \n \n +++++++ resetForUnbuiltResolution  +++++++++ "<<std::endl;
     verify_constraints();
