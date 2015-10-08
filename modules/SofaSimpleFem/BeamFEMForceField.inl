@@ -73,6 +73,8 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField()
     , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),defaulttype::Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
     , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
+    , _breakableBeamThreshold(initData(&_breakableBeamThreshold,(Real)0.0,"breakableBeamThreshold","Index of the beam that can be broken when brokenBeamThreshold is reached."))
+    , _breakableBeamIndex(initData(&_breakableBeamIndex,0,"breakableBeamIndex","Index of the beam that can be broken when breakableBeamThreshold is reached."))
     , _partial_list_segment(false)
     , _updateStiffnessMatrix(true)
     , _assembling(false)
@@ -100,6 +102,8 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField(Real poissonRatio, Real youngMod
     , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),defaulttype::Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
     , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
+    , _breakableBeamThreshold(initData(&_breakableBeamThreshold,(Real)0.0,"breakableBeamThreshold","Index of the beam that can be broken when brokenBeamThreshold is reached."))
+    , _breakableBeamIndex(initData(&_breakableBeamIndex,0,"breakableBeamIndex","Index of the beam that can be broken when breakableBeamThreshold is reached."))
     , _partial_list_segment(false)
     , _updateStiffnessMatrix(true)
     , _assembling(false)
@@ -686,26 +690,29 @@ void BeamFEMForceField<DataTypes>::draw(const core::visual::VisualParams* vparam
     if (!this->mstate) return;
 
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
+    const VecDeriv& f = this->mstate->read(core::ConstVecDerivId::force())->getValue();
 
-    std::vector< defaulttype::Vector3 > points[3];
+    std::vector< defaulttype::Vector3 > points[4];
 
     if (_partial_list_segment)
     {
         for (unsigned int j=0; j<_list_segment.getValue().size(); j++)
-            drawElement(_list_segment.getValue()[j], points, x);
+            drawElement(_list_segment.getValue()[j], points, x, f);
     }
     else
     {
         for (unsigned int i=0; i<_indexedElements->size(); ++i)
-            drawElement(i, points, x);
+            drawElement(i, points, x, f);
     }
     vparams->drawTool()->drawLines(points[0], 1, defaulttype::Vec<4,float>(1,0,0,1));
     vparams->drawTool()->drawLines(points[1], 1, defaulttype::Vec<4,float>(0,1,0,1));
     vparams->drawTool()->drawLines(points[2], 1, defaulttype::Vec<4,float>(0,0,1,1));
+
+    vparams->drawTool()->drawSpheres(points[3], 1.0f, defaulttype::Vec<4,float>(1,0,0,1));
 }
 
 template<class DataTypes>
-void BeamFEMForceField<DataTypes>::drawElement(int i, std::vector< defaulttype::Vector3 >* points, const VecCoord& x)
+void BeamFEMForceField<DataTypes>::drawElement(int i, std::vector< defaulttype::Vector3 >* points, const VecCoord& x, const VecDeriv& f)
 {
     Index a = (*_indexedElements)[i][0];
     Index b = (*_indexedElements)[i][1];
@@ -726,6 +733,16 @@ void BeamFEMForceField<DataTypes>::drawElement(int i, std::vector< defaulttype::
     beamVec[1]=0.0; beamVec[2] = beamsData.getValue()[i]._r*0.5;
     points[2].push_back(p);
     points[2].push_back(p + q.rotate(beamVec) );
+
+    const Real forceThreshold = _breakableBeamThreshold.getValue();
+    const unsigned int breakableBeamIndex = _breakableBeamIndex.getValue();
+    if ( forceThreshold > Real(0.0) && breakableBeamIndex == a )
+    {
+        if ( f[a].norm() > forceThreshold )
+        {
+            points[3].push_back(x[a].getCenter());
+        }
+    }
 }
 
 template<class DataTypes>
