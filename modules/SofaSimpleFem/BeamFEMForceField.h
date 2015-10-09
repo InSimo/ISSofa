@@ -217,9 +217,6 @@ protected:
     Data<Real> _rigidY;
     Data<Real> _rigidZ;
 
-    Data<Real>          _breakableBeamThreshold;
-    Data<unsigned int>  _breakableBeamIndex;
-
     bool _updateStiffnessMatrix;
     bool _assembling;
 
@@ -273,7 +270,7 @@ public:
 
 protected:
 
-    void drawElement(int i, std::vector< defaulttype::Vector3 >* points, const VecCoord& x, const VecDeriv& f);
+    void drawElement(int i, std::vector< defaulttype::Vector3 >* points, const VecCoord& x);
 
     //void computeStrainDisplacement( StrainDisplacement &J, Coord a, Coord b, Coord c, Coord d );
     Real peudo_determinant_for_coef ( const defaulttype::Mat<2, 3, Real>&  M );
