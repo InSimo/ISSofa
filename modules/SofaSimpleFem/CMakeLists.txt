@@ -6,8 +6,6 @@ set(HEADER_FILES
     initSimpleFEM.h
     BeamFEMForceField.h
     BeamFEMForceField.inl
-    BreakingBeamFEMForceField.h
-    BreakingBeamFEMForceField.inl
     HexahedralFEMForceField.h
     HexahedralFEMForceField.inl
     HexahedralFEMForceFieldAndMass.h
@@ -38,7 +36,6 @@ set(SOURCE_FILES
 
     initSimpleFEM.cpp
     BeamFEMForceField.cpp
-    BreakingBeamFEMForceField.cpp
     HexahedralFEMForceField.cpp
     HexahedralFEMForceFieldAndMass.cpp
     HexahedronFEMForceField.cpp
