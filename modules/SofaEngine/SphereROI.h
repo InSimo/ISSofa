@@ -138,6 +138,11 @@ protected:
     bool isQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad);
     bool isTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron);
 
+    bool isPartOfEdgeInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Edge& edge);
+    bool isPartOfTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle);
+    bool isPartOfQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad);
+    bool isPartOfTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron);
+
 public:
     //Input
     Data< helper::vector<Vec3> > centers;
@@ -157,6 +162,7 @@ public:
     Data<bool> f_computeTriangles;
     Data<bool> f_computeQuads;
     Data<bool> f_computeTetrahedra;
+    Data<bool> f_strictlyInROI;
 
     //Output
     Data<SetIndex> f_indices;
@@ -165,13 +171,23 @@ public:
     Data<SetIndex> f_quadIndices;
     Data<SetIndex> f_tetrahedronIndices;
 
-
     Data<VecCoord > f_pointsInROI;
     Data<helper::vector<Edge> > f_edgesInROI;
     Data<helper::vector<Triangle> > f_trianglesInROI;
     Data<helper::vector<Quad> > f_quadsInROI;
     Data<helper::vector<Tetra> > f_tetrahedraInROI;
+
     Data<SetIndex> f_indicesOut;
+    Data<SetIndex> f_edgeIndicesOut;
+    Data<SetIndex> f_triangleIndicesOut;
+    Data<SetIndex> f_quadIndicesOut;
+    Data<SetIndex> f_tetrahedronIndicesOut;
+
+    Data<VecCoord > f_pointsOutROI;
+    Data<helper::vector<Edge> > f_edgesOutROI;
+    Data<helper::vector<Triangle> > f_trianglesOutROI;
+    Data<helper::vector<Quad> > f_quadsOutROI;
+    Data<helper::vector<Tetra> > f_tetrahedraOutROI;
 
     //Parameter
     Data<bool> p_drawSphere;
@@ -191,6 +207,10 @@ template<> bool SphereROI<Rigid3dTypes>::isEdgeInSphere(const Vec3& c, const Rea
 template<> bool SphereROI<Rigid3dTypes>::isTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle);
 template<> bool SphereROI<Rigid3dTypes>::isQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad);
 template<> bool SphereROI<Rigid3dTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron);
+template<> bool SphereROI<Rigid3dTypes>::isPartOfEdgeInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Edge& edge);
+template<> bool SphereROI<Rigid3dTypes>::isPartOfTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle);
+template<> bool SphereROI<Rigid3dTypes>::isPartOfQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad);
+template<> bool SphereROI<Rigid3dTypes>::isPartOfTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron);
 template<> void SphereROI<Rigid3dTypes>::update();
 #endif
 
@@ -201,6 +221,10 @@ template<> bool SphereROI<Rigid3fTypes>::isEdgeInSphere(const Vec3& c, const Rea
 template<> bool SphereROI<Rigid3fTypes>::isTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle);
 template<> bool SphereROI<Rigid3fTypes>::isQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad);
 template<> bool SphereROI<Rigid3fTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron);
+template<> bool SphereROI<Rigid3fTypes>::isPartOfEdgeInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Edge& edge);
+template<> bool SphereROI<Rigid3fTypes>::isPartOfTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle);
+template<> bool SphereROI<Rigid3fTypes>::isPartOfQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad);
+template<> bool SphereROI<Rigid3fTypes>::isPartOfTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron);
 template<> void SphereROI<Rigid3fTypes>::update();
 #endif
 

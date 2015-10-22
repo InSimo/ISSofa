@@ -71,6 +71,16 @@ SphereROI<DataTypes>::SphereROI()
     , f_quadsInROI( initData(&f_quadsInROI,"quadsInROI","Quads contained in the ROI") )
     , f_tetrahedraInROI( initData(&f_tetrahedraInROI,"tetrahedraInROI","Tetrahedra contained in the ROI") )
     , f_indicesOut( initData(&f_indicesOut,"indicesOut","Indices of the points not contained in the ROI") )
+    , f_edgeIndicesOut( initData(&f_edgeIndicesOut,"edgeIndicesOut","Indices of the edges not contained in the ROI") )
+    , f_triangleIndicesOut( initData(&f_triangleIndicesOut,"triangleIndicesOut","Indices of the triangles not contained in the ROI") )
+    , f_quadIndicesOut( initData(&f_quadIndicesOut,"quadIndicesOut","Indices of the quads not contained in the ROI") )
+    , f_tetrahedronIndicesOut( initData(&f_tetrahedronIndicesOut,"tetrahedronIndicesOut","Indices of the tetrahedra not contained in the ROI") )
+    , f_pointsOutROI( initData(&f_pointsOutROI,"pointsOutROI","Points not contained in the ROI") )
+    , f_edgesOutROI( initData(&f_edgesOutROI,"edgesOutROI","Edges not contained in the ROI") )
+    , f_trianglesOutROI( initData(&f_trianglesOutROI,"trianglesOutROI","Triangles not contained in the ROI") )
+    , f_quadsOutROI( initData(&f_quadsOutROI,"quadsOutROI","Quads not contained in the ROI") )
+    , f_tetrahedraOutROI( initData(&f_tetrahedraOutROI,"tetrahedraOutROI","Tetrahedra not contained in the ROI") )
+    , f_strictlyInROI( initData(&f_strictlyInROI, true,"strictlyInROI","If true, all points of the a given primitive should be inside the ROI.") )
     , p_drawSphere( initData(&p_drawSphere,false,"drawSphere","Draw shpere(s)") )
     , p_drawPoints( initData(&p_drawPoints,false,"drawPoints","Draw Points") )
     , p_drawEdges( initData(&p_drawEdges,false,"drawEdges","Draw Edges") )
@@ -191,7 +201,17 @@ void SphereROI<DataTypes>::init()
     addOutput(&f_trianglesInROI);
     addOutput(&f_quadsInROI);
     addOutput(&f_tetrahedraInROI);
+
     addOutput(&f_indicesOut);
+    addOutput(&f_edgeIndicesOut);
+    addOutput(&f_triangleIndicesOut);
+    addOutput(&f_quadIndicesOut);
+    addOutput(&f_tetrahedronIndicesOut);
+    addOutput(&f_pointsOutROI);
+    addOutput(&f_edgesOutROI);
+    addOutput(&f_trianglesOutROI);
+    addOutput(&f_quadsOutROI);
+    addOutput(&f_tetrahedraOutROI);
 
     setDirtyValue();
 }
@@ -235,6 +255,20 @@ bool SphereROI<DataTypes>::isEdgeInSphere(const Vec3& c, const Real& r, const so
 }
 
 template <class DataTypes>
+bool SphereROI<DataTypes>::isPartOfEdgeInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Edge& edge)
+{
+    const VecCoord* x0 = &f_X0.getValue();
+    for (unsigned int i=0; i<2; ++i)
+    {
+        Coord p = (*x0)[edge[i]];
+
+        if((p-c).norm() < r)
+            return true;
+    }
+    return false;
+}
+
+template <class DataTypes>
 bool SphereROI<DataTypes>::isTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle)
 {
     const VecCoord* x0 = &f_X0.getValue();
@@ -246,6 +280,20 @@ bool SphereROI<DataTypes>::isTriangleInSphere(const Vec3& c, const Real& r, cons
             return false;
     }
     return true;
+}
+
+template <class DataTypes>
+bool SphereROI<DataTypes>::isPartOfTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle)
+{
+    const VecCoord* x0 = &f_X0.getValue();
+    for (unsigned int i=0; i<3; ++i)
+    {
+        Coord p = (*x0)[triangle[i]];
+
+        if((p-c).norm() < r)
+            return true;
+    }
+    return false;
 }
 
 template <class DataTypes>
@@ -262,6 +310,19 @@ bool SphereROI<DataTypes>::isQuadInSphere(const Vec3& c, const Real& r, const so
     return true;
 }
 
+template <class DataTypes>
+bool SphereROI<DataTypes>::isPartOfQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad)
+{
+    const VecCoord* x0 = &f_X0.getValue();
+    for (unsigned int i=0; i<4; ++i)
+    {
+        Coord p = (*x0)[quad[i]];
+
+        if((p-c).norm() < r)
+            return true;
+    }
+    return false;
+}
 
 template <class DataTypes>
 bool SphereROI<DataTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron)
@@ -277,6 +338,19 @@ bool SphereROI<DataTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r, c
     return true;
 }
 
+template <class DataTypes>
+bool SphereROI<DataTypes>::isPartOfTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron)
+{
+    const VecCoord* x0 = &f_X0.getValue();
+    for (unsigned int i=0; i<4; ++i)
+    {
+        Coord p = (*x0)[tetrahedron[i]];
+
+        if((p-c).norm() < r)
+            return true;
+    }
+    return false;
+}
 
 template <class DataTypes>
 void SphereROI<DataTypes>::update()
@@ -318,7 +392,6 @@ void SphereROI<DataTypes>::update()
     SetIndex& triangleIndices = *(f_triangleIndices.beginEdit());
     SetIndex& quadIndices = *(f_quadIndices.beginEdit());
     SetIndex& tetrahedronIndices = *f_tetrahedronIndices.beginEdit();
-    SetIndex& indicesOut = *(f_indicesOut.beginEdit());
 
     // Write accessor for toplogical element in SPHERE
     helper::WriteAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
@@ -327,13 +400,26 @@ void SphereROI<DataTypes>::update()
     helper::WriteAccessor< Data<helper::vector<Quad> > > quadsInROI = f_quadsInROI;
     helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
 
+    // Write accessor for topological element indices in SPHERE
+    SetIndex& indicesOut = *(f_indicesOut.beginEdit());
+    SetIndex& edgeIndicesOut = *(f_edgeIndicesOut.beginEdit());
+    SetIndex& triangleIndicesOut = *(f_triangleIndicesOut.beginEdit());
+    SetIndex& quadIndicesOut = *(f_quadIndicesOut.beginEdit());
+    SetIndex& tetrahedronIndicesOut = *f_tetrahedronIndicesOut.beginEdit();
+
+    // Write accessor for toplogical element in SPHERE
+    helper::WriteAccessor< Data<VecCoord > > pointsOutROI = f_pointsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesOutROI = f_edgesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesOutROI = f_trianglesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Quad> > > quadsOutROI = f_quadsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraOutROI = f_tetrahedraOutROI;
+
     // Clear lists
     indices.clear();
     edgeIndices.clear();
     triangleIndices.clear();
     quadIndices.clear();
     tetrahedronIndices.clear();
-    indicesOut.clear();
 
     pointsInROI.clear();
     edgesInROI.clear();
@@ -341,106 +427,270 @@ void SphereROI<DataTypes>::update()
     quadsInROI.clear();
     tetrahedraInROI.clear();
 
+    indicesOut.clear();
+    edgeIndicesOut.clear();
+    triangleIndicesOut.clear();
+    quadIndicesOut.clear();
+    tetrahedronIndicesOut.clear();
+
+    pointsOutROI.clear();
+    edgesOutROI.clear();
+    trianglesOutROI.clear();
+    quadsOutROI.clear();
+    tetrahedraOutROI.clear();
+
     const VecCoord* x0 = &f_X0.getValue();
 
-    //Points
-    for( unsigned i=0; i<x0->size(); ++i )
-    {
-        for (unsigned int j=0; j<cen.size(); ++j)
-        {
-            if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
-            {
-                indices.push_back(i);
-                pointsInROI.push_back((*x0)[i]);
-                break;
-            }
-            else
-            {
-                indicesOut.push_back(i);
-            }
-        }
-    }
+    bool strictlyInROI = f_strictlyInROI.getValue();
 
-    //Edges
-    if (f_computeEdges.getValue())
+    if (strictlyInROI)
     {
-        for(unsigned int i=0 ; i<edges.size() ; i++)
+        //Points
+        for( unsigned i=0; i<x0->size(); ++i )
         {
-            Edge edge = edges[i];
             for (unsigned int j=0; j<cen.size(); ++j)
             {
-                if (isEdgeInSphere(cen[j], rad[j], edge))
+                if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
                 {
-                    if (eAngle > 0)
+                    indices.push_back(i);
+                    pointsInROI.push_back((*x0)[i]);
+                    break;
+                }
+                else
+                {
+                    indicesOut.push_back(i);
+                    pointsOutROI.push_back((*x0)[i]);
+                }
+            }
+        }
+
+        //Edges
+        if (f_computeEdges.getValue())
+        {
+            for(unsigned int i=0 ; i<edges.size() ; i++)
+            {
+                Edge edge = edges[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isEdgeInSphere(cen[j], rad[j], edge))
                     {
-                        Coord n = (*x0)[edge[1]]-(*x0)[edge[0]];
-                        n.normalize();
-                        if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+                        if (eAngle > 0)
+                        {
+                            Coord n = (*x0)[edge[1]]-(*x0)[edge[0]];
+                            n.normalize();
+                            if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+                        }
+                        edgeIndices.push_back(i);
+                        edgesInROI.push_back(edge);
+                        break;
                     }
-                    edgeIndices.push_back(i);
-                    edgesInROI.push_back(edge);
-                    break;
-                }
-            }
-        }
-    }
-
-    //Triangles
-    if (f_computeTriangles.getValue())
-    {
-        for(unsigned int i=0 ; i<triangles.size() ; i++)
-        {
-            Triangle tri = triangles[i];
-            for (unsigned int j=0; j<cen.size(); ++j)
-            {
-                if (isTriangleInSphere(cen[j], rad[j], tri))
-                {
-                    if (tAngle > 0)
+                    else
                     {
-                        Coord n = cross((*x0)[tri[2]]-(*x0)[tri[0]], (*x0)[tri[1]]-(*x0)[tri[0]]);
-                        n.normalize();
-                        if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+                        edgeIndicesOut.push_back(i);
+                        edgesOutROI.push_back(edge);
                     }
-                    triangleIndices.push_back(i);
-                    trianglesInROI.push_back(tri);
-                    break;
+                }
+            }
+        }
+
+        //Triangles
+        if (f_computeTriangles.getValue())
+        {
+            for(unsigned int i=0 ; i<triangles.size() ; i++)
+            {
+                Triangle tri = triangles[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isTriangleInSphere(cen[j], rad[j], tri))
+                    {
+                        if (tAngle > 0)
+                        {
+                            Coord n = cross((*x0)[tri[2]]-(*x0)[tri[0]], (*x0)[tri[1]]-(*x0)[tri[0]]);
+                            n.normalize();
+                            if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+                        }
+                        triangleIndices.push_back(i);
+                        trianglesInROI.push_back(tri);
+                        break;
+                    }
+                    else
+                    {
+                        triangleIndicesOut.push_back(i);
+                        trianglesOutROI.push_back(tri);
+                    }
+                }
+            }
+        }
+
+        //Quads
+        if (f_computeQuads.getValue())
+        {
+            for(unsigned int i=0 ; i<quads.size() ; i++)
+            {
+                Quad qua = quads[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isQuadInSphere(cen[j], rad[j], qua))
+                    {
+                        quadIndices.push_back(i);
+                        quadsInROI.push_back(qua);
+                        break;
+                    }
+                    else
+                    {
+                        quadIndicesOut.push_back(i);
+                        quadsOutROI.push_back(qua);
+                    }
+                }
+            }
+        }
+
+        //Tetrahedra
+        if (f_computeTetrahedra.getValue())
+        {
+            for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+            {
+                Tetra t = tetrahedra[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isTetrahedronInSphere(cen[j], rad[j], t))
+                    {
+                        //tAngle > 0 ??
+                        tetrahedronIndices.push_back(i);
+                        tetrahedraInROI.push_back(t);
+                        break;
+                    }
+                    else
+                    {
+                        tetrahedronIndicesOut.push_back(i);
+                        tetrahedraOutROI.push_back(t);
+                    }
                 }
             }
         }
     }
-
-    //Quads
-    if (f_computeQuads.getValue())
+    else
     {
-        for(unsigned int i=0 ; i<quads.size() ; i++)
+        //Points
+        for( unsigned i=0; i<x0->size(); ++i )
         {
-            Quad qua = quads[i];
             for (unsigned int j=0; j<cen.size(); ++j)
             {
-                if (isQuadInSphere(cen[j], rad[j], qua))
+                if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
                 {
-                    quadIndices.push_back(i);
-                    quadsInROI.push_back(qua);
+                    indices.push_back(i);
+                    pointsInROI.push_back((*x0)[i]);
                     break;
+                }
+                else
+                {
+                    indicesOut.push_back(i);
+                    pointsOutROI.push_back((*x0)[i]);
                 }
             }
         }
-    }
 
-    //Tetrahedra
-    if (f_computeTetrahedra.getValue())
-    {
-        for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+        //Edges
+        if (f_computeEdges.getValue())
         {
-            Tetra t = tetrahedra[i];
-            for (unsigned int j=0; j<cen.size(); ++j)
+            for(unsigned int i=0 ; i<edges.size() ; i++)
             {
-                if (isTetrahedronInSphere(cen[j], rad[j], t))
+                Edge edge = edges[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
                 {
-                    //tAngle > 0 ??
-                    tetrahedronIndices.push_back(i);
-                    tetrahedraInROI.push_back(t);
-                    break;
+                    if (isPartOfEdgeInSphere(cen[j], rad[j], edge))
+                    {
+                        if (eAngle > 0)
+                        {
+                            Coord n = (*x0)[edge[1]]-(*x0)[edge[0]];
+                            n.normalize();
+                            if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+                        }
+                        edgeIndices.push_back(i);
+                        edgesInROI.push_back(edge);
+                        break;
+                    }
+                    else
+                    {
+                        edgeIndicesOut.push_back(i);
+                        edgesOutROI.push_back(edge);
+                    }
+                }
+            }
+        }
+
+        //Triangles
+        if (f_computeTriangles.getValue())
+        {
+            for(unsigned int i=0 ; i<triangles.size() ; i++)
+            {
+                Triangle tri = triangles[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isPartOfTriangleInSphere(cen[j], rad[j], tri))
+                    {
+                        if (tAngle > 0)
+                        {
+                            Coord n = cross((*x0)[tri[2]]-(*x0)[tri[0]], (*x0)[tri[1]]-(*x0)[tri[0]]);
+                            n.normalize();
+                            if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+                        }
+                        triangleIndices.push_back(i);
+                        trianglesInROI.push_back(tri);
+                        break;
+                    }
+                    else
+                    {
+                        triangleIndicesOut.push_back(i);
+                        trianglesOutROI.push_back(tri);
+                    }
+                }
+            }
+        }
+
+        //Quads
+        if (f_computeQuads.getValue())
+        {
+            for(unsigned int i=0 ; i<quads.size() ; i++)
+            {
+                Quad qua = quads[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isPartOfQuadInSphere(cen[j], rad[j], qua))
+                    {
+                        quadIndices.push_back(i);
+                        quadsInROI.push_back(qua);
+                        break;
+                    }
+                    else
+                    {
+                        quadIndicesOut.push_back(i);
+                        quadsOutROI.push_back(qua);
+                    }
+                }
+            }
+        }
+
+        //Tetrahedra
+        if (f_computeTetrahedra.getValue())
+        {
+            for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+            {
+                Tetra t = tetrahedra[i];
+                for (unsigned int j=0; j<cen.size(); ++j)
+                {
+                    if (isPartOfTetrahedronInSphere(cen[j], rad[j], t))
+                    {
+                        //tAngle > 0 ??
+                        tetrahedronIndices.push_back(i);
+                        tetrahedraInROI.push_back(t);
+                        break;
+                    }
+                    else
+                    {
+                        tetrahedronIndicesOut.push_back(i);
+                        tetrahedraOutROI.push_back(t);
+                    }
                 }
             }
         }
@@ -451,6 +701,12 @@ void SphereROI<DataTypes>::update()
     f_triangleIndices.endEdit();
     f_quadIndices.endEdit();
     f_tetrahedronIndices.endEdit();
+
+    f_indicesOut.endEdit();
+    f_edgeIndicesOut.endEdit();
+    f_triangleIndicesOut.endEdit();
+    f_quadIndicesOut.endEdit();
+    f_tetrahedronIndicesOut.endEdit();
 }
 
 template <class DataTypes>
@@ -631,6 +887,20 @@ bool SphereROI<Rigid3dTypes>::isEdgeInSphere(const Vec3& c, const Real& r, const
 }
 
 template <>
+bool SphereROI<Rigid3dTypes>::isPartOfEdgeInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Edge& edge)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<2; ++i)
+	{
+		Coord p = (*x0)[edge[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
+}
+
+template <>
 bool SphereROI<Rigid3dTypes>::isTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle)
 {
 	const VecCoord* x0 = &f_X0.getValue();
@@ -642,6 +912,20 @@ bool SphereROI<Rigid3dTypes>::isTriangleInSphere(const Vec3& c, const Real& r, c
 			return false;
 	}
 	return true;
+}
+
+template <>
+bool SphereROI<Rigid3dTypes>::isPartOfTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<3; ++i)
+	{
+		Coord p = (*x0)[triangle[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
 }
 
 template <>
@@ -658,6 +942,19 @@ bool SphereROI<Rigid3dTypes>::isQuadInSphere(const Vec3& c, const Real& r, const
 	return true;
 }
 
+template <>
+bool SphereROI<Rigid3dTypes>::isPartOfQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<4; ++i)
+	{
+		Coord p = (*x0)[quad[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
+}
 
 template <>
 bool SphereROI<Rigid3dTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron)
@@ -671,6 +968,20 @@ bool SphereROI<Rigid3dTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r
 			return false;
 	}
 	return true;
+}
+
+template <>
+bool SphereROI<Rigid3dTypes>::isPartOfTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<4; ++i)
+	{
+		Coord p = (*x0)[tetrahedron[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
 }
 
 
@@ -708,145 +1019,327 @@ void SphereROI<Rigid3dTypes>::update()
 	helper::ReadAccessor< Data<helper::vector<Quad> > > quads = f_quads;
 	helper::ReadAccessor< Data<helper::vector<Tetra> > > tetrahedra = f_tetrahedra;
 
-	// Write accessor for topological element indices in SPHERE
-	SetIndex& indices = *(f_indices.beginEdit());
-	SetIndex& edgeIndices = *(f_edgeIndices.beginEdit());
-	SetIndex& triangleIndices = *(f_triangleIndices.beginEdit());
-	SetIndex& quadIndices = *(f_quadIndices.beginEdit());
-	SetIndex& tetrahedronIndices = *f_tetrahedronIndices.beginEdit();
-	SetIndex& indicesOut = *(f_indicesOut.beginEdit());
+    // Write accessor for topological element indices in SPHERE
+    SetIndex& indices = *(f_indices.beginEdit());
+    SetIndex& edgeIndices = *(f_edgeIndices.beginEdit());
+    SetIndex& triangleIndices = *(f_triangleIndices.beginEdit());
+    SetIndex& quadIndices = *(f_quadIndices.beginEdit());
+    SetIndex& tetrahedronIndices = *f_tetrahedronIndices.beginEdit();
 
-	// Write accessor for toplogical element in SPHERE
-	helper::WriteAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
-	helper::WriteAccessor< Data<helper::vector<Edge> > > edgesInROI = f_edgesInROI;
-	helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesInROI = f_trianglesInROI;
-	helper::WriteAccessor< Data<helper::vector<Quad> > > quadsInROI = f_quadsInROI;
-	helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
+    // Write accessor for toplogical element in SPHERE
+    helper::WriteAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
+    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesInROI = f_edgesInROI;
+    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesInROI = f_trianglesInROI;
+    helper::WriteAccessor< Data<helper::vector<Quad> > > quadsInROI = f_quadsInROI;
+    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
 
-	// Clear lists
-	indices.clear();
-	edgeIndices.clear();
-	triangleIndices.clear();
-	quadIndices.clear();
-	tetrahedronIndices.clear();
-	indicesOut.clear();
+    // Write accessor for topological element indices in SPHERE
+    SetIndex& indicesOut = *(f_indicesOut.beginEdit());
+    SetIndex& edgeIndicesOut = *(f_edgeIndicesOut.beginEdit());
+    SetIndex& triangleIndicesOut = *(f_triangleIndicesOut.beginEdit());
+    SetIndex& quadIndicesOut = *(f_quadIndicesOut.beginEdit());
+    SetIndex& tetrahedronIndicesOut = *f_tetrahedronIndicesOut.beginEdit();
 
-	pointsInROI.clear();
-	edgesInROI.clear();
-	trianglesInROI.clear();
-	quadsInROI.clear();
-	tetrahedraInROI.clear();
+    // Write accessor for toplogical element in SPHERE
+    helper::WriteAccessor< Data<VecCoord > > pointsOutROI = f_pointsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesOutROI = f_edgesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesOutROI = f_trianglesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Quad> > > quadsOutROI = f_quadsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraOutROI = f_tetrahedraOutROI;
+
+    // Clear lists
+    indices.clear();
+    edgeIndices.clear();
+    triangleIndices.clear();
+    quadIndices.clear();
+    tetrahedronIndices.clear();
+
+    pointsInROI.clear();
+    edgesInROI.clear();
+    trianglesInROI.clear();
+    quadsInROI.clear();
+    tetrahedraInROI.clear();
+
+    indicesOut.clear();
+    edgeIndicesOut.clear();
+    triangleIndicesOut.clear();
+    quadIndicesOut.clear();
+    tetrahedronIndicesOut.clear();
+
+    pointsOutROI.clear();
+    edgesOutROI.clear();
+    trianglesOutROI.clear();
+    quadsOutROI.clear();
+    tetrahedraOutROI.clear();
 
 	const VecCoord* x0 = &f_X0.getValue();
 
-	//Points
-	for( unsigned i=0; i<x0->size(); ++i )
-	{
-		for (unsigned int j=0; j<cen.size(); ++j)
-		{
-			if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
-			{
-				indices.push_back(i);
-				pointsInROI.push_back((*x0)[i]);
-				break;
-			}
-			else
-			{
-				indicesOut.push_back(i);
-			}
-		}
-	}
+    bool strictlyInROI = f_strictlyInROI.getValue();
 
-	//Edges
-	if (f_computeEdges.getValue())
-	{
-		for(unsigned int i=0 ; i<edges.size() ; i++)
-		{
-			Edge edge = edges[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isEdgeInSphere(cen[j], rad[j], edge))
-				{
-					if (eAngle > 0)
-					{
-						Vec3 n = (*x0)[edge[1]].getCenter()-(*x0)[edge[0]].getCenter();
-						n.normalize();
-						if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
-					}
-					edgeIndices.push_back(i);
-					edgesInROI.push_back(edge);
-					break;
-				}
-			}
-		}
-	}
+    if (strictlyInROI)
+    {
+	    //Points
+	    for( unsigned i=0; i<x0->size(); ++i )
+	    {
+		    for (unsigned int j=0; j<cen.size(); ++j)
+		    {
+			    if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
+			    {
+				    indices.push_back(i);
+				    pointsInROI.push_back((*x0)[i]);
+				    break;
+			    }
+			    else
+                {
+                    indicesOut.push_back(i);
+                    pointsOutROI.push_back((*x0)[i]);
+                }
+		    }
+	    }
 
-	//Triangles
-	if (f_computeTriangles.getValue())
-	{
-		for(unsigned int i=0 ; i<triangles.size() ; i++)
-		{
-			Triangle tri = triangles[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isTriangleInSphere(cen[j], rad[j], tri))
-				{
-					if (tAngle > 0)
-					{
-						Vec3 n = cross((*x0)[tri[2]].getCenter()-(*x0)[tri[0]].getCenter(), (*x0)[tri[1]].getCenter()-(*x0)[tri[0]].getCenter());
-						n.normalize();
-						if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
-					}
-					triangleIndices.push_back(i);
-					trianglesInROI.push_back(tri);
-					break;
-				}
-			}
-		}
-	}
+	    //Edges
+	    if (f_computeEdges.getValue())
+	    {
+		    for(unsigned int i=0 ; i<edges.size() ; i++)
+		    {
+			    Edge edge = edges[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isEdgeInSphere(cen[j], rad[j], edge))
+				    {
+					    if (eAngle > 0)
+					    {
+						    Vec3 n = (*x0)[edge[1]].getCenter()-(*x0)[edge[0]].getCenter();
+						    n.normalize();
+						    if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+					    }
+					    edgeIndices.push_back(i);
+					    edgesInROI.push_back(edge);
+					    break;
+				    }
+                    else
+                    {
+                        edgeIndicesOut.push_back(i);
+                        edgesOutROI.push_back(edge);
+                    }
+			    }
+		    }
+	    }
 
-	//Quads
-	if (f_computeQuads.getValue())
-	{
-		for(unsigned int i=0 ; i<quads.size() ; i++)
-		{
-			Quad qua = quads[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isQuadInSphere(cen[j], rad[j], qua))
-				{
-					quadIndices.push_back(i);
-					quadsInROI.push_back(qua);
-					break;
-				}
-			}
-		}
-	}
+	    //Triangles
+	    if (f_computeTriangles.getValue())
+	    {
+		    for(unsigned int i=0 ; i<triangles.size() ; i++)
+		    {
+			    Triangle tri = triangles[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isTriangleInSphere(cen[j], rad[j], tri))
+				    {
+					    if (tAngle > 0)
+					    {
+						    Vec3 n = cross((*x0)[tri[2]].getCenter()-(*x0)[tri[0]].getCenter(), (*x0)[tri[1]].getCenter()-(*x0)[tri[0]].getCenter());
+						    n.normalize();
+						    if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+					    }
+					    triangleIndices.push_back(i);
+					    trianglesInROI.push_back(tri);
+					    break;
+				    }
+                    else
+                    {
+                        triangleIndicesOut.push_back(i);
+                        trianglesOutROI.push_back(tri);
+                    }
+			    }
+		    }
+	    }
 
-	//Tetrahedra
-	if (f_computeTetrahedra.getValue())
-	{
-		for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
-		{
-			Tetra t = tetrahedra[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isTetrahedronInSphere(cen[j], rad[j], t))
-				{
-					//tAngle > 0 ??
-					tetrahedronIndices.push_back(i);
-					tetrahedraInROI.push_back(t);
-					break;
-				}
-			}
-		}
-	}
+	    //Quads
+	    if (f_computeQuads.getValue())
+	    {
+		    for(unsigned int i=0 ; i<quads.size() ; i++)
+		    {
+			    Quad qua = quads[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isQuadInSphere(cen[j], rad[j], qua))
+				    {
+					    quadIndices.push_back(i);
+					    quadsInROI.push_back(qua);
+					    break;
+				    }
+                    else
+                    {
+                        quadIndicesOut.push_back(i);
+                        quadsOutROI.push_back(qua);
+                    }
+			    }
+		    }
+	    }
 
-	f_indices.endEdit();
-	f_edgeIndices.endEdit();
-	f_triangleIndices.endEdit();
-	f_quadIndices.endEdit();
-	f_tetrahedronIndices.endEdit();
+	    //Tetrahedra
+	    if (f_computeTetrahedra.getValue())
+	    {
+		    for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+		    {
+			    Tetra t = tetrahedra[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isTetrahedronInSphere(cen[j], rad[j], t))
+				    {
+					    //tAngle > 0 ??
+					    tetrahedronIndices.push_back(i);
+					    tetrahedraInROI.push_back(t);
+					    break;
+				    }
+                    else
+                    {
+                        tetrahedronIndicesOut.push_back(i);
+                        tetrahedraOutROI.push_back(t);
+                    }
+			    }
+		    }
+	    }
+    }
+    else
+    {
+	    //Points
+	    for( unsigned i=0; i<x0->size(); ++i )
+	    {
+		    for (unsigned int j=0; j<cen.size(); ++j)
+		    {
+			    if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
+			    {
+				    indices.push_back(i);
+				    pointsInROI.push_back((*x0)[i]);
+				    break;
+			    }
+			    else
+                {
+                    indicesOut.push_back(i);
+                    pointsOutROI.push_back((*x0)[i]);
+                }
+		    }
+	    }
+
+	    //Edges
+	    if (f_computeEdges.getValue())
+	    {
+		    for(unsigned int i=0 ; i<edges.size() ; i++)
+		    {
+			    Edge edge = edges[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfEdgeInSphere(cen[j], rad[j], edge))
+				    {
+					    if (eAngle > 0)
+					    {
+						    Vec3 n = (*x0)[edge[1]].getCenter()-(*x0)[edge[0]].getCenter();
+						    n.normalize();
+						    if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+					    }
+					    edgeIndices.push_back(i);
+					    edgesInROI.push_back(edge);
+					    break;
+				    }
+                    else
+                    {
+                        edgeIndicesOut.push_back(i);
+                        edgesOutROI.push_back(edge);
+                    }
+			    }
+		    }
+	    }
+
+	    //Triangles
+	    if (f_computeTriangles.getValue())
+	    {
+		    for(unsigned int i=0 ; i<triangles.size() ; i++)
+		    {
+			    Triangle tri = triangles[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfTriangleInSphere(cen[j], rad[j], tri))
+				    {
+					    if (tAngle > 0)
+					    {
+						    Vec3 n = cross((*x0)[tri[2]].getCenter()-(*x0)[tri[0]].getCenter(), (*x0)[tri[1]].getCenter()-(*x0)[tri[0]].getCenter());
+						    n.normalize();
+						    if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+					    }
+					    triangleIndices.push_back(i);
+					    trianglesInROI.push_back(tri);
+					    break;
+				    }
+                    else
+                    {
+                        triangleIndicesOut.push_back(i);
+                        trianglesOutROI.push_back(tri);
+                    }
+			    }
+		    }
+	    }
+
+	    //Quads
+	    if (f_computeQuads.getValue())
+	    {
+		    for(unsigned int i=0 ; i<quads.size() ; i++)
+		    {
+			    Quad qua = quads[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfQuadInSphere(cen[j], rad[j], qua))
+				    {
+					    quadIndices.push_back(i);
+					    quadsInROI.push_back(qua);
+					    break;
+				    }
+                    else
+                    {
+                        quadIndicesOut.push_back(i);
+                        quadsOutROI.push_back(qua);
+                    }
+			    }
+		    }
+	    }
+
+	    //Tetrahedra
+	    if (f_computeTetrahedra.getValue())
+	    {
+		    for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+		    {
+			    Tetra t = tetrahedra[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfTetrahedronInSphere(cen[j], rad[j], t))
+				    {
+					    //tAngle > 0 ??
+					    tetrahedronIndices.push_back(i);
+					    tetrahedraInROI.push_back(t);
+					    break;
+				    }
+                    else
+                    {
+                        tetrahedronIndicesOut.push_back(i);
+                        tetrahedraOutROI.push_back(t);
+                    }
+			    }
+		    }
+	    }
+    }
+
+    f_indices.endEdit();
+    f_edgeIndices.endEdit();
+    f_triangleIndices.endEdit();
+    f_quadIndices.endEdit();
+    f_tetrahedronIndices.endEdit();
+
+    f_indicesOut.endEdit();
+    f_edgeIndicesOut.endEdit();
+    f_triangleIndicesOut.endEdit();
+    f_quadIndicesOut.endEdit();
+    f_tetrahedronIndicesOut.endEdit();
 }
 #endif //#ifndef SOFA_FLOAT
 
@@ -891,6 +1384,20 @@ bool SphereROI<Rigid3fTypes>::isEdgeInSphere(const Vec3& c, const Real& r, const
 }
 
 template <>
+bool SphereROI<Rigid3fTypes>::isPartOfEdgeInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Edge& edge)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<2; ++i)
+	{
+		Coord p = (*x0)[edge[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
+}
+
+template <>
 bool SphereROI<Rigid3fTypes>::isTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle)
 {
 	const VecCoord* x0 = &f_X0.getValue();
@@ -902,6 +1409,20 @@ bool SphereROI<Rigid3fTypes>::isTriangleInSphere(const Vec3& c, const Real& r, c
 			return false;
 	}
 	return true;
+}
+
+template <>
+bool SphereROI<Rigid3fTypes>::isPartOfTriangleInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Triangle& triangle)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<3; ++i)
+	{
+		Coord p = (*x0)[triangle[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
 }
 
 template <>
@@ -918,6 +1439,19 @@ bool SphereROI<Rigid3fTypes>::isQuadInSphere(const Vec3& c, const Real& r, const
 	return true;
 }
 
+template <>
+bool SphereROI<Rigid3fTypes>::isPartOfQuadInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Quad& quad)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<4; ++i)
+	{
+		Coord p = (*x0)[quad[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
+}
 
 template <>
 bool SphereROI<Rigid3fTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron)
@@ -933,6 +1467,19 @@ bool SphereROI<Rigid3fTypes>::isTetrahedronInSphere(const Vec3& c, const Real& r
 	return true;
 }
 
+template <>
+bool SphereROI<Rigid3fTypes>::isPartOfTetrahedronInSphere(const Vec3& c, const Real& r, const sofa::core::topology::BaseMeshTopology::Tetra& tetrahedron)
+{
+	const VecCoord* x0 = &f_X0.getValue();
+	for (unsigned int i=0; i<4; ++i)
+	{
+		Coord p = (*x0)[tetrahedron[i]];
+
+		if((p.getCenter()-c).norm() < r)
+			return true;
+	}
+	return false;
+}
 
 template <>
 void SphereROI<Rigid3fTypes>::update()
@@ -968,145 +1515,327 @@ void SphereROI<Rigid3fTypes>::update()
 	helper::ReadAccessor< Data<helper::vector<Quad> > > quads = f_quads;
 	helper::ReadAccessor< Data<helper::vector<Tetra> > > tetrahedra = f_tetrahedra;
 
-	// Write accessor for topological element indices in SPHERE
-	SetIndex& indices = *(f_indices.beginEdit());
-	SetIndex& edgeIndices = *(f_edgeIndices.beginEdit());
-	SetIndex& triangleIndices = *(f_triangleIndices.beginEdit());
-	SetIndex& quadIndices = *(f_quadIndices.beginEdit());
-	SetIndex& tetrahedronIndices = *f_tetrahedronIndices.beginEdit();
-	SetIndex& indicesOut = *(f_indicesOut.beginEdit());
+    // Write accessor for topological element indices in SPHERE
+    SetIndex& indices = *(f_indices.beginEdit());
+    SetIndex& edgeIndices = *(f_edgeIndices.beginEdit());
+    SetIndex& triangleIndices = *(f_triangleIndices.beginEdit());
+    SetIndex& quadIndices = *(f_quadIndices.beginEdit());
+    SetIndex& tetrahedronIndices = *f_tetrahedronIndices.beginEdit();
 
-	// Write accessor for toplogical element in SPHERE
-	helper::WriteAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
-	helper::WriteAccessor< Data<helper::vector<Edge> > > edgesInROI = f_edgesInROI;
-	helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesInROI = f_trianglesInROI;
-	helper::WriteAccessor< Data<helper::vector<Quad> > > quadsInROI = f_quadsInROI;
-	helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
+    // Write accessor for toplogical element in SPHERE
+    helper::WriteAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
+    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesInROI = f_edgesInROI;
+    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesInROI = f_trianglesInROI;
+    helper::WriteAccessor< Data<helper::vector<Quad> > > quadsInROI = f_quadsInROI;
+    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
 
-	// Clear lists
-	indices.clear();
-	edgeIndices.clear();
-	triangleIndices.clear();
-	quadIndices.clear();
-	tetrahedronIndices.clear();
-	indicesOut.clear();
+    // Write accessor for topological element indices in SPHERE
+    SetIndex& indicesOut = *(f_indicesOut.beginEdit());
+    SetIndex& edgeIndicesOut = *(f_edgeIndicesOut.beginEdit());
+    SetIndex& triangleIndicesOut = *(f_triangleIndicesOut.beginEdit());
+    SetIndex& quadIndicesOut = *(f_quadIndicesOut.beginEdit());
+    SetIndex& tetrahedronIndicesOut = *f_tetrahedronIndicesOut.beginEdit();
 
-	pointsInROI.clear();
-	edgesInROI.clear();
-	trianglesInROI.clear();
-	quadsInROI.clear();
-	tetrahedraInROI.clear();
+    // Write accessor for toplogical element in SPHERE
+    helper::WriteAccessor< Data<VecCoord > > pointsOutROI = f_pointsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesOutROI = f_edgesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesOutROI = f_trianglesOutROI;
+    helper::WriteAccessor< Data<helper::vector<Quad> > > quadsOutROI = f_quadsOutROI;
+    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraOutROI = f_tetrahedraOutROI;
+
+    // Clear lists
+    indices.clear();
+    edgeIndices.clear();
+    triangleIndices.clear();
+    quadIndices.clear();
+    tetrahedronIndices.clear();
+
+    pointsInROI.clear();
+    edgesInROI.clear();
+    trianglesInROI.clear();
+    quadsInROI.clear();
+    tetrahedraInROI.clear();
+
+    indicesOut.clear();
+    edgeIndicesOut.clear();
+    triangleIndicesOut.clear();
+    quadIndicesOut.clear();
+    tetrahedronIndicesOut.clear();
+
+    pointsOutROI.clear();
+    edgesOutROI.clear();
+    trianglesOutROI.clear();
+    quadsOutROI.clear();
+    tetrahedraOutROI.clear();
 
 	const VecCoord* x0 = &f_X0.getValue();
 
-	//Points
-	for( unsigned i=0; i<x0->size(); ++i )
-	{
-		for (unsigned int j=0; j<cen.size(); ++j)
-		{
-			if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
-			{
-				indices.push_back(i);
-				pointsInROI.push_back((*x0)[i]);
-				break;
-			}
-			else
-			{
-				indicesOut.push_back(i);
-			}
-		}
-	}
+    bool strictlyInROI = f_strictlyInROI.getValue();
 
-	//Edges
-	if (f_computeEdges.getValue())
-	{
-		for(unsigned int i=0 ; i<edges.size() ; i++)
-		{
-			Edge edge = edges[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isEdgeInSphere(cen[j], rad[j], edge))
-				{
-					if (eAngle > 0)
-					{
-						Vec3 n = (*x0)[edge[1]].getCenter()-(*x0)[edge[0]].getCenter();
-						n.normalize();
-						if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
-					}
-					edgeIndices.push_back(i);
-					edgesInROI.push_back(edge);
-					break;
-				}
-			}
-		}
-	}
+    if (strictlyInROI)
+    {
+	    //Points
+	    for( unsigned i=0; i<x0->size(); ++i )
+	    {
+		    for (unsigned int j=0; j<cen.size(); ++j)
+		    {
+			    if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
+			    {
+				    indices.push_back(i);
+				    pointsInROI.push_back((*x0)[i]);
+				    break;
+			    }
+			    else
+                {
+                    indicesOut.push_back(i);
+                    pointsOutROI.push_back((*x0)[i]);
+                }
+		    }
+	    }
 
-	//Triangles
-	if (f_computeTriangles.getValue())
-	{
-		for(unsigned int i=0 ; i<triangles.size() ; i++)
-		{
-			Triangle tri = triangles[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isTriangleInSphere(cen[j], rad[j], tri))
-				{
-					if (tAngle > 0)
-					{
-						Vec3 n = cross((*x0)[tri[2]].getCenter()-(*x0)[tri[0]].getCenter(), (*x0)[tri[1]].getCenter()-(*x0)[tri[0]].getCenter());
-						n.normalize();
-						if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
-					}
-					triangleIndices.push_back(i);
-					trianglesInROI.push_back(tri);
-					break;
-				}
-			}
-		}
-	}
+	    //Edges
+	    if (f_computeEdges.getValue())
+	    {
+		    for(unsigned int i=0 ; i<edges.size() ; i++)
+		    {
+			    Edge edge = edges[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isEdgeInSphere(cen[j], rad[j], edge))
+				    {
+					    if (eAngle > 0)
+					    {
+						    Vec3 n = (*x0)[edge[1]].getCenter()-(*x0)[edge[0]].getCenter();
+						    n.normalize();
+						    if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+					    }
+					    edgeIndices.push_back(i);
+					    edgesInROI.push_back(edge);
+					    break;
+				    }
+                    else
+                    {
+                        edgeIndicesOut.push_back(i);
+                        edgesOutROI.push_back(edge);
+                    }
+			    }
+		    }
+	    }
 
-	//Quads
-	if (f_computeQuads.getValue())
-	{
-		for(unsigned int i=0 ; i<quads.size() ; i++)
-		{
-			Quad qua = quads[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isQuadInSphere(cen[j], rad[j], qua))
-				{
-					quadIndices.push_back(i);
-					quadsInROI.push_back(qua);
-					break;
-				}
-			}
-		}
-	}
+	    //Triangles
+	    if (f_computeTriangles.getValue())
+	    {
+		    for(unsigned int i=0 ; i<triangles.size() ; i++)
+		    {
+			    Triangle tri = triangles[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isTriangleInSphere(cen[j], rad[j], tri))
+				    {
+					    if (tAngle > 0)
+					    {
+						    Vec3 n = cross((*x0)[tri[2]].getCenter()-(*x0)[tri[0]].getCenter(), (*x0)[tri[1]].getCenter()-(*x0)[tri[0]].getCenter());
+						    n.normalize();
+						    if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+					    }
+					    triangleIndices.push_back(i);
+					    trianglesInROI.push_back(tri);
+					    break;
+				    }
+                    else
+                    {
+                        triangleIndicesOut.push_back(i);
+                        trianglesOutROI.push_back(tri);
+                    }
+			    }
+		    }
+	    }
 
-	//Tetrahedra
-	if (f_computeTetrahedra.getValue())
-	{
-		for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
-		{
-			Tetra t = tetrahedra[i];
-			for (unsigned int j=0; j<cen.size(); ++j)
-			{
-				if (isTetrahedronInSphere(cen[j], rad[j], t))
-				{
-					//tAngle > 0 ??
-					tetrahedronIndices.push_back(i);
-					tetrahedraInROI.push_back(t);
-					break;
-				}
-			}
-		}
-	}
+	    //Quads
+	    if (f_computeQuads.getValue())
+	    {
+		    for(unsigned int i=0 ; i<quads.size() ; i++)
+		    {
+			    Quad qua = quads[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isQuadInSphere(cen[j], rad[j], qua))
+				    {
+					    quadIndices.push_back(i);
+					    quadsInROI.push_back(qua);
+					    break;
+				    }
+                    else
+                    {
+                        quadIndicesOut.push_back(i);
+                        quadsOutROI.push_back(qua);
+                    }
+			    }
+		    }
+	    }
 
-	f_indices.endEdit();
-	f_edgeIndices.endEdit();
-	f_triangleIndices.endEdit();
-	f_quadIndices.endEdit();
-	f_tetrahedronIndices.endEdit();
+	    //Tetrahedra
+	    if (f_computeTetrahedra.getValue())
+	    {
+		    for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+		    {
+			    Tetra t = tetrahedra[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isTetrahedronInSphere(cen[j], rad[j], t))
+				    {
+					    //tAngle > 0 ??
+					    tetrahedronIndices.push_back(i);
+					    tetrahedraInROI.push_back(t);
+					    break;
+				    }
+                    else
+                    {
+                        tetrahedronIndicesOut.push_back(i);
+                        tetrahedraOutROI.push_back(t);
+                    }
+			    }
+		    }
+	    }
+    }
+    else
+    {
+	    //Points
+	    for( unsigned i=0; i<x0->size(); ++i )
+	    {
+		    for (unsigned int j=0; j<cen.size(); ++j)
+		    {
+			    if (isPointInSphere(cen[j], rad[j], (*x0)[i]))
+			    {
+				    indices.push_back(i);
+				    pointsInROI.push_back((*x0)[i]);
+				    break;
+			    }
+			    else
+                {
+                    indicesOut.push_back(i);
+                    pointsOutROI.push_back((*x0)[i]);
+                }
+		    }
+	    }
+
+	    //Edges
+	    if (f_computeEdges.getValue())
+	    {
+		    for(unsigned int i=0 ; i<edges.size() ; i++)
+		    {
+			    Edge edge = edges[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfEdgeInSphere(cen[j], rad[j], edge))
+				    {
+					    if (eAngle > 0)
+					    {
+						    Vec3 n = (*x0)[edge[1]].getCenter()-(*x0)[edge[0]].getCenter();
+						    n.normalize();
+						    if (fabs(dot(n,dir)) < fabs(cos(eAngle*M_PI/180.0))) continue;
+					    }
+					    edgeIndices.push_back(i);
+					    edgesInROI.push_back(edge);
+					    break;
+				    }
+                    else
+                    {
+                        edgeIndicesOut.push_back(i);
+                        edgesOutROI.push_back(edge);
+                    }
+			    }
+		    }
+	    }
+
+	    //Triangles
+	    if (f_computeTriangles.getValue())
+	    {
+		    for(unsigned int i=0 ; i<triangles.size() ; i++)
+		    {
+			    Triangle tri = triangles[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfTriangleInSphere(cen[j], rad[j], tri))
+				    {
+					    if (tAngle > 0)
+					    {
+						    Vec3 n = cross((*x0)[tri[2]].getCenter()-(*x0)[tri[0]].getCenter(), (*x0)[tri[1]].getCenter()-(*x0)[tri[0]].getCenter());
+						    n.normalize();
+						    if (dot(n,norm) < cos(tAngle*M_PI/180.0)) continue;
+					    }
+					    triangleIndices.push_back(i);
+					    trianglesInROI.push_back(tri);
+					    break;
+				    }
+                    else
+                    {
+                        triangleIndicesOut.push_back(i);
+                        trianglesOutROI.push_back(tri);
+                    }
+			    }
+		    }
+	    }
+
+	    //Quads
+	    if (f_computeQuads.getValue())
+	    {
+		    for(unsigned int i=0 ; i<quads.size() ; i++)
+		    {
+			    Quad qua = quads[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfQuadInSphere(cen[j], rad[j], qua))
+				    {
+					    quadIndices.push_back(i);
+					    quadsInROI.push_back(qua);
+					    break;
+				    }
+                    else
+                    {
+                        quadIndicesOut.push_back(i);
+                        quadsOutROI.push_back(qua);
+                    }
+			    }
+		    }
+	    }
+
+	    //Tetrahedra
+	    if (f_computeTetrahedra.getValue())
+	    {
+		    for(unsigned int i=0 ; i<tetrahedra.size() ; i++)
+		    {
+			    Tetra t = tetrahedra[i];
+			    for (unsigned int j=0; j<cen.size(); ++j)
+			    {
+				    if (isPartOfTetrahedronInSphere(cen[j], rad[j], t))
+				    {
+					    //tAngle > 0 ??
+					    tetrahedronIndices.push_back(i);
+					    tetrahedraInROI.push_back(t);
+					    break;
+				    }
+                    else
+                    {
+                        tetrahedronIndicesOut.push_back(i);
+                        tetrahedraOutROI.push_back(t);
+                    }
+			    }
+		    }
+	    }
+    }
+
+    f_indices.endEdit();
+    f_edgeIndices.endEdit();
+    f_triangleIndices.endEdit();
+    f_quadIndices.endEdit();
+    f_tetrahedronIndices.endEdit();
+
+    f_indicesOut.endEdit();
+    f_edgeIndicesOut.endEdit();
+    f_triangleIndicesOut.endEdit();
+    f_quadIndicesOut.endEdit();
+    f_tetrahedronIndicesOut.endEdit();
 }
 
 #endif //#ifndef SOFA_DOUBLE
