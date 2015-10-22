@@ -27,6 +27,7 @@
 
 #include <SofaHaptics/MechanicalStateForceFeedback.h>
 #include <sofa/core/behavior/MechanicalState.h>
+#include <sofa/core/behavior/PairInteractionConstraint.h>
 
 #include <sofa/helper/system/thread/CTime.h>
 
@@ -86,6 +87,10 @@ public:
 
     // Enable/disable constraint haptic influence from all frames
     Data< bool > d_localHapticConstraintAllFrames;
+
+    sofa::MultiLink< LCPForceFeedback<DataTypes>, core::behavior::PairInteractionConstraint<DataTypes>, sofa::BaseLink::FLAG_STRONGLINK > l_rigidRigidConstraints;
+    bool registerRigidRigidBilateralConstraint(typename core::behavior::PairInteractionConstraint<DataTypes>::SPtr c);
+    bool unregisterRigidRigidBilateralConstraint(typename core::behavior::PairInteractionConstraint<DataTypes>::SPtr c);
 
     virtual void computeForce(SReal x, SReal y, SReal z, SReal u, SReal v, SReal w, SReal q, SReal& fx, SReal& fy, SReal& fz);
     virtual void computeWrench(const sofa::defaulttype::SolidTypes<SReal>::Transform &world_H_tool, const sofa::defaulttype::SolidTypes<SReal>::SpatialVector &V_tool_world, sofa::defaulttype::SolidTypes<SReal>::SpatialVector &W_tool_world );

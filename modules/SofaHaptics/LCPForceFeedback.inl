@@ -182,6 +182,7 @@ LCPForceFeedback<DataTypes>::LCPForceFeedback()
     , solverTimeout(initData(&solverTimeout, 0.0008, "solverTimeout","max time to spend solving constraints."))
     , d_derivRotations(initData(&d_derivRotations, false, "derivRotations", "if true, deriv the rotations when updating the violations"))
     , d_localHapticConstraintAllFrames(initData(&d_localHapticConstraintAllFrames, false, "localHapticConstraintAllFrames", "Flag to enable/disable constraint haptic influence from all frames"))
+    , l_rigidRigidConstraints(initLink("RigidRigidConstraints","Stores active rigid/rigid constraints corresponding to linked grasped objects"))
     , mState(NULL)
     , mNextBufferId(0)
     , mCurBufferId(0)
@@ -462,6 +463,38 @@ void LCPForceFeedback<DataTypes>::computeWrench(const sofa::defaulttype::SolidTy
         sofa::defaulttype::SolidTypes<SReal>::SpatialVector & )
 {
 
+}
+
+
+template <typename DataTypes>
+bool LCPForceFeedback<DataTypes>::registerRigidRigidBilateralConstraint(typename core::behavior::PairInteractionConstraint<DataTypes>::SPtr c)
+{
+    for (unsigned int ci = 0; ci < l_rigidRigidConstraints.size(); ++ci)
+    {
+        if (l_rigidRigidConstraints[ci] == c)
+        {
+            return false;
+        }
+    }
+
+    l_rigidRigidConstraints.add(c);
+
+    return true;
+}
+
+template <typename DataTypes>
+bool LCPForceFeedback<DataTypes>::unregisterRigidRigidBilateralConstraint(typename core::behavior::PairInteractionConstraint<DataTypes>::SPtr c)
+{
+    for (unsigned int ci = 0; ci < l_rigidRigidConstraints.size(); ++ci)
+    {
+        if (l_rigidRigidConstraints[ci] == c)
+        {
+            l_rigidRigidConstraints.remove(c);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 
