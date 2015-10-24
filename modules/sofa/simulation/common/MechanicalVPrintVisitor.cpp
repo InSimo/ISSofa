@@ -42,6 +42,10 @@ MechanicalVPrintVisitor::MechanicalVPrintVisitor(const core::ExecParams* params 
 
 Visitor::Result MechanicalVPrintVisitor::processNodeTopDown(simulation::Node* node)
 {
+    if (node->mechanicalMapping != NULL)
+    {
+        return Visitor::RESULT_PRUNE;
+    }
     if( ! node->mechanicalState.empty() )
     {
         ConstVecId id = v_.getId(node->mechanicalState);
@@ -49,7 +53,7 @@ Visitor::Result MechanicalVPrintVisitor::processNodeTopDown(simulation::Node* no
         {
             out_<<"[ ";
             (*node->mechanicalState).printDOF(id,out_);
-            out_<<"] ";
+            out_<<" ] ";
         }
     }
     return Visitor::RESULT_CONTINUE;
