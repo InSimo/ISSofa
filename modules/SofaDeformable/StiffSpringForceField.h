@@ -106,6 +106,9 @@ public:
 
     virtual void addKToMatrix(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix);
 
+    template<class MatrixWriter>
+    void addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter m);
+
     const sofa::helper::vector<Mat>& getDfdx() const {return dfdx;}
 };
 

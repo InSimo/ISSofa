@@ -31,6 +31,7 @@
 #include <SofaDeformable/StiffSpringForceField.h>
 #include <SofaDeformable/SpringForceField.inl>
 #include <sofa/helper/AdvancedTimer.h>
+#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
 
 #include <sofa/core/visual/VisualParams.h>
 
@@ -182,50 +183,30 @@ void StiffSpringForceField<DataTypes>::addDForce(const core::MechanicalParams* m
 
 
 
-
 template<class DataTypes>
 void StiffSpringForceField<DataTypes>::addKToMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
-
-    Real kFact = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     if (this->mstate1 == this->mstate2)
     {
-        sofa::core::behavior::MultiMatrixAccessor::MatrixRef mat = matrix->getMatrix(this->mstate1);
-        if (!mat) return;
-        const sofa::helper::vector<Spring >& ss = this->springs.getValue();
-        const unsigned int n = ss.size() < this->dfdx.size() ? ss.size() : this->dfdx.size();
-        for (unsigned int e=0; e<n; e++)
-        {
-            const Spring& s = ss[e];
-            unsigned p1 = mat.offset+Deriv::total_size*s.m1;
-            unsigned p2 = mat.offset+Deriv::total_size*s.m2;
-            const Mat& m = this->dfdx[e];
-            for(int i=0; i<N; i++)
-            {
-                for (int j=0; j<N; j++)
-                {
-                    Real k = (Real)(m[i][j]*kFact);
-                    mat.matrix->add(p1+i,p1+j, -k);
-                    mat.matrix->add(p1+i,p2+j, k);
-                    mat.matrix->add(p2+i,p1+j, k);//or mat->add(p1+j,p2+i, k);
-                    mat.matrix->add(p2+i,p2+j, -k);
-                }
-            }
-        }
+        linearsolver::BlocMatrixWriter<Mat> writer;
+        writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate1));
     }
     else
     {
+        // TODO: optimize matrix constructions for springs between two mechanical states
         sofa::core::behavior::MultiMatrixAccessor::MatrixRef mat11 = matrix->getMatrix(this->mstate1);
         sofa::core::behavior::MultiMatrixAccessor::MatrixRef mat22 = matrix->getMatrix(this->mstate2);
         sofa::core::behavior::MultiMatrixAccessor::InteractionMatrixRef mat12 = matrix->getMatrix(this->mstate1, this->mstate2);
         sofa::core::behavior::MultiMatrixAccessor::InteractionMatrixRef mat21 = matrix->getMatrix(this->mstate2, this->mstate1);
 
         if (!mat11 && !mat22 && !mat12 && !mat21) return;
+        const Real kFact = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
         const sofa::helper::vector<Spring >& ss = this->springs.getValue();
         const unsigned int n = ss.size() < this->dfdx.size() ? ss.size() : this->dfdx.size();
         for (unsigned int e=0; e<n; e++)
         {
             const Spring& s = ss[e];
+            if (!s.enabled || this->dfdx[e] == Mat()) continue;
             unsigned p1 = /*mat.offset+*/Deriv::total_size*s.m1;
             unsigned p2 = /*mat.offset+*/Deriv::total_size*s.m2;
             Mat m = this->dfdx[e]* (Real) kFact;
@@ -271,7 +252,27 @@ void StiffSpringForceField<DataTypes>::addKToMatrix(const core::MechanicalParams
             }
         }
     }
+}
 
+template<class DataTypes>
+template<class MatrixWriter>
+void StiffSpringForceField<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
+{
+    // this is only called if mstate1 == mstate2
+
+    const Real kFact = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
+    const sofa::helper::vector<Spring >& ss = this->springs.getValue();
+    const unsigned int n = ss.size() < this->dfdx.size() ? ss.size() : this->dfdx.size();
+    for (unsigned int e=0; e<n; e++)
+    {
+        const Spring& s = ss[e];
+        Mat m = this->dfdx[e];
+        if (!s.enabled || m == Mat()) continue;
+        m *= -kFact;
+        mwriter.addDiag(s.m1, m);
+        mwriter.addDiag(s.m2, m);
+        mwriter.addSym(s.m1, s.m2, -m);
+    }
 }
 
 } // namespace interactionforcefield
