@@ -227,14 +227,25 @@ public:
         if (compressed && btemp.empty()) return;
         if (!btemp.empty())
         {
-#ifdef SPARSEMATRIX_VERBOSE
-            std::cout << /* this->Name()  <<  */"("<<rowSize()<<","<<colSize()<<"): sort "<<btemp.size()<<" temp blocs."<<std::endl;
-#endif
-            std::sort(btemp.begin(),btemp.end());
-#ifdef SPARSEMATRIX_VERBOSE
-            std::cout << /* this->Name()  <<  */"("<<rowSize()<<","<<colSize()<<"): blocs sorted."<<std::endl;
-#endif
+            compressBtemp();
         }
+        else
+        {
+            compressCSR();
+        }
+        compressed = true;
+    }
+protected:
+    virtual void compressBtemp()
+    {
+#ifdef SPARSEMATRIX_VERBOSE
+        std::cout << /* this->Name()  <<  */"("<<rowSize()<<","<<colSize()<<"): sort "<<btemp.size()<<" temp blocs."<<std::endl;
+#endif
+        std::sort(btemp.begin(),btemp.end());
+#ifdef SPARSEMATRIX_VERBOSE
+        std::cout << /* this->Name()  <<  */"("<<rowSize()<<","<<colSize()<<"): blocs sorted."<<std::endl;
+#endif
+
         oldRowIndex.swap(rowIndex);
         oldRowBegin.swap(rowBegin);
         oldColsIndex.swap(colsIndex);
@@ -291,16 +302,19 @@ public:
                 while (itbtemp != endbtemp && itbtemp->l == bRowIndex)
                 {
                     Index bColIndex = itbtemp->c;
-                    colsIndex.push_back(bColIndex);
-                    colsValue.push_back(itbtemp->value);
+                    Bloc value = itbtemp->value;
                     ++itbtemp;
-                    Bloc& value = colsValue.back();
                     while (itbtemp != endbtemp && itbtemp->c == bColIndex && itbtemp->l == bRowIndex)
                     {
                         value += itbtemp->value;
                         ++itbtemp;
                     }
-                    ++outValId;
+                    if (!traits::empty(value))
+                    {
+                        colsIndex.push_back(bColIndex);
+                        colsValue.push_back(value);
+                        ++outValId;
+                    }
                 }
                 bRowIndex = (itbtemp != endbtemp) ? itbtemp->l : EndRow;
             }
@@ -327,32 +341,38 @@ public:
                     }
                     else if (inColIndex > bColIndex)
                     {
-                        colsIndex.push_back(bColIndex);
-                        colsValue.push_back(itbtemp->value);
+                        Bloc value = itbtemp->value;
                         ++itbtemp;
-                        Bloc& value = colsValue.back();
                         while (itbtemp != endbtemp && itbtemp->c == bColIndex && itbtemp->l == bRowIndex)
                         {
                             value += itbtemp->value;
                             ++itbtemp;
                         }
+                        if (!traits::empty(value))
+                        {
+                            colsIndex.push_back(bColIndex);
+                            colsValue.push_back(value);
+                            ++outValId;
+                        }
                         bColIndex = (itbtemp != endbtemp && itbtemp->l == bRowIndex) ? itbtemp->c : EndCol;
-                        ++outValId;
                     }
                     else
                     {
-                        colsIndex.push_back(inColIndex);
-                        colsValue.push_back(oldColsValue[inRow.begin()]);
+                        Bloc value = oldColsValue[inRow.begin()];
                         ++inRow;
-                        inColIndex = (!inRow.empty()) ? oldColsIndex[inRow.begin()] : EndCol;
-                        Bloc& value = colsValue.back();
                         while (itbtemp != endbtemp && itbtemp->c == bColIndex && itbtemp->l == bRowIndex)
                         {
                             value += itbtemp->value;
                             ++itbtemp;
                         }
+                        if (!traits::empty(value))
+                        {
+                            colsIndex.push_back(inColIndex);
+                            colsValue.push_back(value);
+                            ++outValId;
+                        }
+                        inColIndex = (!inRow.empty()) ? oldColsIndex[inRow.begin()] : EndCol;
                         bColIndex = (itbtemp != endbtemp && itbtemp->l == bRowIndex) ? itbtemp->c : EndCol;
-                        ++outValId;
                     }
                 }
                 ++inRowId;
@@ -365,8 +385,55 @@ public:
         //          std::cout << /* this->Name()  <<  */"("<<rowSize()<<","<<colSize()<<"): compressed " << oldColsIndex.size()<<" old blocs and " << btemp.size() << " temp blocs into " << rowIndex.size() << " lines and " << colsIndex.size() << " blocs."<<std::endl;
         //#endif
         btemp.clear();
-        compressed = true;
     }
+    virtual void compressCSR()
+    {
+        Index outValues = 0;
+        Index outRows = 0;
+        for (Index r=0; r<rowIndex.size(); ++r)
+        {
+            Index row = rowIndex[r];
+            Index rBegin = rowBegin[r];
+            Index rEnd = rowBegin[r+1];
+            Index outRBegin = outValues;
+            for (Index p = rBegin; p != rEnd; ++p)
+            {
+                if (!traits::empty(colsValue[p]))
+                {
+                    // keep this value
+                    if (p != outValues)
+                    {
+                        colsValue[outValues] = colsValue[p];
+                        colsIndex[outValues] = colsIndex[p];
+                    }
+                    ++outValues;
+                }
+            }
+            if(outValues != outRBegin)
+            {
+                // keep this row
+                if (r != outRows)
+                {
+                    rowIndex[outRows] = row;
+                }
+                if (r != outRows || rBegin != outRBegin)
+                {
+                    rowBegin[outRows] = outRBegin;
+                }
+                ++outRows;
+            }
+        }
+        if (rowIndex.size() != outRows || colsIndex.size() != outValues)
+        {
+            rowBegin[outRows] = outValues;
+            rowIndex.resize(outRows);
+            rowBegin.resize(outRows+1);
+            colsIndex.resize(outValues);
+            colsValue.resize(outValues);
+        }
+    }
+
+public:
 
     void swap(Matrix& m)
     {
@@ -378,8 +445,6 @@ public:
         bool b;
         b = compressed; compressed = m.compressed; m.compressed = b;
         rowIndex.swap(m.rowIndex);
-        rowBegin.swap(m.rowBegin);
-        colsIndex.swap(m.colsIndex);
         rowBegin.swap(m.rowBegin);
         colsIndex.swap(m.colsIndex);
         colsValue.swap(m.colsValue);
