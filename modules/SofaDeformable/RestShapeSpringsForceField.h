@@ -104,7 +104,9 @@ protected:
     RestShapeSpringsForceField();
 
     Data< bool > d_useRestMState; ///< An external MechanicalState is used as rest reference.
-    Data< Real > d_springLengthThreshold;
+    Data< Real > d_springLengthThreshold; /// Global Threshold
+
+    Data< Real > d_springLengthThresholdZaxis; /// Threshold only on Z axis
 
 public:
     /// BaseObject initialization method.
@@ -143,6 +145,8 @@ protected :
     bool checkOutOfBoundsIndices(const VecIndex &indices, const unsigned int dimension);
 
     bool breakElongatedSprings(const DataVecCoord &pos);
+
+    bool releaseRestShapeFF(const DataVecCoord &pos );  
 
     VecIndex m_indices;
     VecIndex m_ext_indices;

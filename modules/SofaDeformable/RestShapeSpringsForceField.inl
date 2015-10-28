@@ -63,6 +63,7 @@ RestShapeSpringsForceField<DataTypes>::RestShapeSpringsForceField()
     , restMState(NULL)
     , d_useRestMState(initData(&d_useRestMState, "useRestMState", "An external MechanicalState is used as rest reference."))
     , d_springLengthThreshold(initData(&d_springLengthThreshold, "springLengthThreshold", "Spring length threshold before spring breaking (only in Rigid Mode)"))
+    , d_springLengthThresholdZaxis(initData(&d_springLengthThresholdZaxis,Real(0), "springLengthThresholdZaxis", "Spring length threshold before spring breaking only in Z axis. Active if positive."))
 {
 }
 
@@ -233,6 +234,11 @@ void RestShapeSpringsForceField<DataTypes>::addForce(const core::MechanicalParam
         recomputeIndices();
     }
 
+    if (d_springLengthThresholdZaxis.getValue() != 0)
+    {
+        releaseRestShapeFF(x);
+    }
+
     const VecReal& k = stiffness.getValue();
 
     if (k.size() != m_indices.size())
@@ -382,6 +388,33 @@ void RestShapeSpringsForceField<DataTypes>::addSubKToMatrix(const core::Mechanic
     }
 }
 
+
+template<class DataTypes>
+bool RestShapeSpringsForceField<DataTypes>::releaseRestShapeFF(const DataVecCoord& x) 
+{
+    if (d_springLengthThresholdZaxis.getValue() != 0)
+    {
+
+        const Real maxLength = d_springLengthThresholdZaxis.getValue();
+
+        sofa::helper::ReadAccessor< DataVecCoord > p1 = x;
+        sofa::helper::ReadAccessor< DataVecCoord > p0 = *getExtPosition();
+
+        for (unsigned int i = 0; i < m_indices.size(); i++)
+        {
+            Real p1Z = p1[m_indices[i]][2];
+            Real p2Z = p0[m_ext_indices[i]][2];
+
+            if (std::abs(p1Z - p2Z) > maxLength)
+            {
+                m_indices.clear();
+                m_ext_indices.clear();
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 template<class DataTypes>
 bool RestShapeSpringsForceField<DataTypes>::breakElongatedSprings(const DataVecCoord& x)
