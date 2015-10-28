@@ -405,7 +405,7 @@ bool RestShapeSpringsForceField<DataTypes>::releaseRestShapeFF(const DataVecCoor
             Real p1Z = p1[m_indices[i]][2];
             Real p2Z = p0[m_ext_indices[i]][2];
 
-            if (std::abs(p1Z - p2Z) > maxLength)
+            if (p1Z - p2Z > maxLength)
             {
                 m_indices.clear();
                 m_ext_indices.clear();
