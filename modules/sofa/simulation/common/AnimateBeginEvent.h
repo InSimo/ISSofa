@@ -57,9 +57,13 @@ public:
     ~AnimateBeginEvent();
 
     double getDt() const { return dt; }
+	void setTaskStatus(void* status) { taskStatus = status; }
+	void* getTaskStatus() const { return taskStatus; }
+
     virtual const char* getClassName() const { return "AnimateBeginEvent"; }
 protected:
     double dt;
+	void* taskStatus;
 };
 
 } // namespace simulation

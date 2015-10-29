@@ -44,6 +44,7 @@ namespace simulation
 AnimateBeginEvent::AnimateBeginEvent(double dt)
     : sofa::core::objectmodel::Event()
     , dt(dt)
+    , taskStatus(0)
 {
 }
 
