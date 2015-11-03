@@ -4,6 +4,7 @@
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/helper/vector.h>
+#include <sofa/defaulttype/Vec3Types.h>
 #include <iostream>
 
 namespace sofa
@@ -11,6 +12,45 @@ namespace sofa
 
 using namespace defaulttype;
 
+TEST( DataFundamentalTypeInfoTest, checkDataTypeInfoFundamentalIsOk)
+{
+    Data< int > d_int("integer");
+    const AbstractTypeInfo* typeInfo = d_int.getValueTypeInfo();
+
+    EXPECT_EQ( typeInfo->FixedSize(), true );
+    EXPECT_EQ( typeInfo->BaseType()->FixedSize(), true );
+
+    EXPECT_EQ( typeInfo->size( d_int.getValueVoidPtr() ) , 1 );
+    EXPECT_EQ( typeInfo->size(), 1 );
+}
+
+TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorSizeIsOk )
+{
+    Data< Vec3Types::VecCoord > d_x("position");
+    sofa::helper::WriteAccessor< Data< Vec3Types::VecCoord > > x = d_x;
+    x.resize( 10 );
+    const AbstractTypeInfo* typeInfo = d_x.getValueTypeInfo();
+    
+    EXPECT_EQ( typeInfo->BaseType()->FixedSize(), true );
+
+    EXPECT_EQ( typeInfo->size( d_x.getValueVoidPtr() ) / typeInfo->size() , 10 );
+}
+
+TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorOfVectorSizeIsOk )
+{
+    typedef sofa::helper::vector< sofa::helper::vector< Vec3Types::Coord > > VectorOfVectorOfCoord;
+    Data< VectorOfVectorOfCoord > d_x("position");
+    sofa::helper::WriteAccessor< Data< VectorOfVectorOfCoord > > x = d_x;
+    x.resize( 3 );
+    x[0].resize( 1 );
+    x[1].resize( 2 );
+    x[2].resize( 3 );
+    const AbstractTypeInfo* typeInfo = d_x.getValueTypeInfo();
+
+    EXPECT_EQ( typeInfo->BaseType()->FixedSize(), false );
+
+    EXPECT_EQ( typeInfo->size( ), 3 );
+}
 
 
 struct MyType
