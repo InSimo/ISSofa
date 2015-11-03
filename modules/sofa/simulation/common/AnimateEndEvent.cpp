@@ -45,6 +45,7 @@ namespace simulation
 AnimateEndEvent::AnimateEndEvent(double dt)
     : sofa::core::objectmodel::Event()
     , dt(dt)
+    , taskStatus(0)
 {
 }
 
