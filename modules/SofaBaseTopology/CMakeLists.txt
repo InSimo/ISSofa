@@ -133,3 +133,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${SOFABASE_INSTALL_LIB_DIR}" COMPONENT SofaBase_libraries
         PUBLIC_HEADER DESTINATION "${SOFABASE_INSTALL_INCLUDE_DIR}/SofaBaseTopology" COMPONENT SofaBase_headers
         )
+        
+if(TARGET gtest)
+    add_subdirectory("SofaBaseTopology_test")
+endif()
