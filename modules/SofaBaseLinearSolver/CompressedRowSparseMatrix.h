@@ -390,7 +390,7 @@ protected:
     {
         Index outValues = 0;
         Index outRows = 0;
-        for (Index r=0; r<rowIndex.size(); ++r)
+        for (Index r=0; r<(int)rowIndex.size(); ++r)
         {
             Index row = rowIndex[r];
             Index rBegin = rowBegin[r];
