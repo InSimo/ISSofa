@@ -290,14 +290,27 @@ void Mapping<In,Out>::setModels(State<In>* from, State<Out>* to)
 }
 
 template <class In, class Out>
+bool Mapping<In,Out>::setFrom(BaseState* from)
+{
+    if( !from ) return false;
+
+    State<In>* in = State<In>::DynamicCast(from);
+    this->fromModel.set( in );
+
+    return true;
+}
+
+template <class In, class Out>
 bool Mapping<In,Out>::setTo(BaseState* to)
 {
     if( to!=NULL && State<Out>::DynamicCast(to)==NULL )
         return false;
     State<Out>* out = State<Out>::DynamicCast(to);
     this->toModel.set( out );
+
     if( !testMechanicalState(out))
         setNonMechanical();
+
     return true;
 }
 
