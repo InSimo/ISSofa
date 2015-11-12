@@ -294,14 +294,15 @@ int main(int argc, char** argv)
     }
 
     sofa::simulation::getSimulation()->init(groot.get());
+
+    if (startAnim)
+        groot->setAnimate(true);
+
     sofa::gui::GUIManager::SetScene(groot,fileName.c_str(), temporaryFile);
 
 
     //=======================================
     //Apply Options
-
-    if (startAnim)
-        groot->setAnimate(true);
 
     if (printFactory)
     {
