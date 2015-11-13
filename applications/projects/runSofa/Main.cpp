@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     bool        loadRecent = false;
     bool        temporaryFile = false;
 	bool		testMode = false;
-    int	        nbIterations = sofa::gui::BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
+    int	        nbIterations = -1;
     unsigned    computationTimeSampling=0; ///< Frequency of display of the computation time statistics, in number of animation steps. 0 means never.
 
     std::string gui = "";
@@ -172,7 +172,7 @@ int main(int argc, char** argv)
     .option(&computationTimeSampling,'c',"computationTimeSampling","Frequency of display of the computation time statistics, in number of animation steps. 0 means never.")
     .option(&gui,'g',"gui",gui_help.c_str())
     .option(&plugins,'l',"load","load given plugins")
-    .option(&nbIterations,'n',"nb_iterations","(only batch) Number of iterations of the simulation")
+    .option(&nbIterations,'n',"nb_iterations","Number of iterations of the simulation")
     .option(&printFactory,'p',"factory","print factory logs")
     .option(&loadRecent,'r',"recent","load most recently opened file")
     .option(&simulationType,'s',"simu","select the type of simulation (bgl, dag, tree, smp)")
@@ -248,7 +248,12 @@ int main(int argc, char** argv)
 
     sofa::helper::system::PluginManager::getInstance().init();
 
-    if(gui.compare("batch") == 0 && nbIterations >= 0)
+    if (gui.compare("batch") == 0 && nbIterations <= 0)
+    {
+        nbIterations = sofa::gui::BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
+    }
+
+    if(nbIterations > 0)
     {
         std::ostringstream oss ;
         oss << "nbIterations=";
@@ -292,6 +297,9 @@ int main(int argc, char** argv)
     {
         loadVerificationData(verif, fileName, groot.get());
     }
+
+    if (startAnim)
+        groot->setAnimate(true);
 
     sofa::simulation::getSimulation()->init(groot.get());
 
