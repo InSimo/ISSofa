@@ -50,6 +50,18 @@ extern "C" PyObject * Base_findData(PyObject *self, PyObject * args)
     return SP_BUILD_PYPTR(Data,BaseData,data,false);
 }
 
+extern "C" PyObject * Base_getDataFields(PyObject *self, PyObject * /*args*/)
+{
+    Base* obj=dynamic_cast<Base*>(((PySPtr<Base>*)self)->object.get());
+    const BaseObject::VecData& datas = obj->getDataFields();
+
+    PyObject *list = PyList_New(datas.size());
+
+    for (unsigned int i=0; i<datas.size(); ++i)
+        PyList_SetItem(list, i, SP_BUILD_PYPTR(Data, BaseData, datas[i], false));
+    return list;
+}
+
 // Generic accessor to Data fields (in python native type)
 extern "C" PyObject* Base_GetAttr(PyObject *o, PyObject *attr_name)
 {
@@ -86,6 +98,7 @@ extern "C" int Base_SetAttr(PyObject *o, PyObject *attr_name, PyObject *v)
 
 SP_CLASS_METHODS_BEGIN(Base)
 SP_CLASS_METHOD(Base,findData)
+SP_CLASS_METHOD(Base,getDataFields)
 SP_CLASS_METHODS_END
 
 
