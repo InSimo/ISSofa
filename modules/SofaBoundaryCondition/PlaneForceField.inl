@@ -289,8 +289,8 @@ void PlaneForceField<DataTypes>::drawPlane(const core::visual::VisualParams* vpa
         point2 += planeNormal.getValue()*(-d);
         if (d<0)
         {
-			pointsLine.push_back(Vector3(point1) );
-			pointsLine.push_back(Vector3(point2) );
+			pointsLine.push_back(sofa::defaulttype::Vector3(point1) );
+			pointsLine.push_back(sofa::defaulttype::Vector3(point2) );
         }
     }
     vparams->drawTool()->drawLines(pointsLine, 1, defaulttype::Vec<4,float>(1,0,0,1));
