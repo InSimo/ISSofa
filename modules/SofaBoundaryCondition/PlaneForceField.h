@@ -30,6 +30,7 @@
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/SofaGeneral.h>
+#include <sofa/core/topology/BaseMeshTopology.h>
 
 namespace sofa
 {
@@ -64,8 +65,26 @@ public:
 	typedef typename DataTypes::CPos CPos;
 	typedef typename DataTypes::DPos DPos;
 
+    typedef sofa::SingleLink< PlaneForceField<DataTypes>, sofa::core::topology::BaseMeshTopology, 
+        sofa::BaseLink::FLAG_STRONGLINK | sofa::BaseLink::FLAG_STOREPATH > BaseMeshTopologyLink;
+
+
 protected:
-    sofa::helper::vector<unsigned int> contacts;
+
+    struct PlaneContact
+    {
+        unsigned int index;
+        Real         d;
+
+        PlaneContact(unsigned int index, Real d)
+            :index(index)
+            ,d(d)
+        {
+        }
+
+    };
+
+    sofa::helper::vector<PlaneContact > contacts;
 
     PlaneForceFieldInternalData<DataTypes> data;
 
@@ -76,16 +95,15 @@ public:
     Data<Real> stiffness;
     Data<Real> damping;
 	Data<Real> maxForce;
+    Data<sofa::helper::vector< unsigned > > indices; //< BaseMeshTopology should provide a way to get the PointID from the array of points.
     Data<defaulttype::Vec3f> color;
     Data<bool> bDraw;
     Data<Real> drawSize;
 
-
-    /// optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)
-    Data< defaulttype::Vec<2,int> > localRange;
-
     /// option bilateral : if true, the force field is applied on both side of the plane
    Data<bool> bilateral;
+
+
 protected:
     PlaneForceField()
         : planeNormal(initData(&planeNormal, "normal", "plane normal"))
@@ -93,20 +111,25 @@ protected:
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , maxForce(initData(&maxForce, (Real)0, "maxForce", "if non-null, the max force that can be applied to the object"))
+        , indices(initData(&indices,"indices","If not empty the list of indices where this forcefield is applied"))
 		, color(initData(&color, defaulttype::Vec3f(0.0f,.5f,.2f), "color", "plane color"))
         , bDraw(initData(&bDraw, false, "draw", "enable/disable drawing of plane"))
         , drawSize(initData(&drawSize, (Real)10.0f, "drawSize", "plane display size if draw is enabled"))
-        , localRange( initData(&localRange, defaulttype::Vec<2,int>(-1,-1), "localRange", "optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)" ) )
         , bilateral( initData(&bilateral, false, "bilateral", "if true the plane force field is applied on both sides"))
     {
 		Deriv n;
 		DataTypes::set(n, 0, 1, 0);
         planeNormal.setValue(DataTypes::getDPos(n));
     }
+
 public:
+
     void setPlane(const Deriv& normal, Real d);
 
-    void setMState(  core::behavior::MechanicalState<DataTypes>* mstate ) { this->mstate = mstate; }
+    void setMState(  core::behavior::MechanicalState<DataTypes>* mstate ) 
+    { 
+        this->mstate = mstate; 
+    }
 
     void setStiffness(Real stiff)
     {
