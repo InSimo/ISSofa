@@ -172,22 +172,19 @@ void  ProjectToPlaneConstraint<DataTypes>::reinit()
     f_normal.setValue(n);
 
     // create the matrix blocks corresponding to the projection to the plane: I-nn^t or to the identity
-    Block bProjection, bIdentity;
+    Block bProjection;
     for(unsigned i=0; i<bsize; i++)
         for(unsigned j=0; j<bsize; j++)
         {
             if(i==j)
             {
-                bIdentity[i][j]   = 1;
                 bProjection[i][j] = 1 - n[i]*n[j];
             }
             else
             {
-                bIdentity[i][j]   = 0;
                 bProjection[i][j] =    - n[i]*n[j];
             }
         }
-//    cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit() bIdentity[0] = " << endl << bIdentity[0] << endl;
 //    cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit() bProjection[0] = " << endl << bProjection[0] << endl;
 
     // get the indices sorted
@@ -205,18 +202,16 @@ void  ProjectToPlaneConstraint<DataTypes>::reinit()
     Indices::const_iterator it = tmp.begin();
     while( i<numBlocks )
     {
-        jacobian.beginBlockRow(i);
         if(  it!=tmp.end() && i==*it )  // constrained particle: set diagonal to projection block, and  the cursor to the next constraint
         {
-            jacobian.createBlock(i,bProjection); // only one block to create
+            jacobian.insertBackBlock(i,i,bProjection); // only one block to create
 //            cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit(), constrain index " << i << endl;
             it++;
         }
         else           // unconstrained particle: set diagonal to identity block
         {
-            jacobian.createBlock(i,bIdentity); // only one block to create
+            jacobian.insertBackBlock(i,i,Block::s_identity); // only one block to create
         }
-        jacobian.endBlockRow();
         i++;
     }
     jacobian.compress();

@@ -171,21 +171,12 @@ void  ProjectToLineConstraint<DataTypes>::reinit()
     f_direction.setValue(n);
 
     // create the matrix blocks corresponding to the projection to the line: nn^t or to the identity
-    Block bProjection, bIdentity;
+    Block bProjection;
     for(unsigned i=0; i<bsize; i++)
         for(unsigned j=0; j<bsize; j++)
         {
             bProjection[i][j] = n[i]*n[j];
-            if(i==j)
-            {
-                bIdentity[i][j]   = 1;
-            }
-            else
-            {
-                bIdentity[i][j]   = 0;
-            }
         }
-//    cerr<<"ProjectToLineConstraint<DataTypes>::reinit() bIdentity[0] = " << endl << bIdentity[0] << endl;
 //    cerr<<"ProjectToLineConstraint<DataTypes>::reinit() bProjection[0] = " << endl << bProjection[0] << endl;
 
     // get the indices sorted
@@ -202,17 +193,15 @@ void  ProjectToLineConstraint<DataTypes>::reinit()
     unsigned i = 0;
     while( i < numBlocks ) // (FF) do not stop after the last constrained particle, for the remainder of the diagonal would be null, while it must be identity.
     {
-        jacobian.beginBlockRow(i);
         if( it!=tmp.end() && i==*it )  // constrained particle: set diagonal to projection block, and  the cursor to the next constraint
         {
-            jacobian.createBlock(i,bProjection);
+            jacobian.insertBackBlock(i,i,bProjection);
             it++;
         }
         else           // unconstrained particle: set diagonal to identity block
         {
-            jacobian.createBlock(i,bIdentity);
+            jacobian.insertBackBlock(i,i,Block::s_identity);
         }
-        jacobian.endBlockRow();   // only one block to create
         i++;
     }
     jacobian.compress();
