@@ -143,7 +143,7 @@ public:
     ~BlocFullMatrix()
     {
         if (allocsize>0)
-            delete data;
+            delete[] data;
     }
 
     Bloc* ptr() { return data; }
@@ -524,7 +524,7 @@ public:
     ~BTDMatrix()
     {
         if (allocsize>0)
-            delete data;
+            delete[] data;
     }
 
     Bloc* ptr() { return data; }
