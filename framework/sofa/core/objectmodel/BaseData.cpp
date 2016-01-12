@@ -189,10 +189,7 @@ void BaseData::update()
     }
     for(DDGLinkIterator it=inputs.begin(); it!=inputs.end(); ++it)
     {
-        if ((*it)->isDirty())
-        {
-            (*it)->update();
-        }
+        (*it)->updateIfDirty();
     }
     if (parentBaseData)
     {
@@ -293,9 +290,9 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
 
     std::string m = msgs.str();
     if (m_owner
-#ifdef NDEBUG
+//#ifdef NDEBUG
         && (!m.empty() || m_owner->f_printLog.getValue())
-#endif
+//#endif
     )
     {
         m_owner->sout << "Data link from " << (parent->m_owner ? parent->m_owner->getName() : std::string("?")) << "." << parent->getName() << " to " << m_owner->getName() << "." << getName() << " : ";

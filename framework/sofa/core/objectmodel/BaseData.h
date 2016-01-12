@@ -292,8 +292,11 @@ public:
 
     BaseData* getParent() const { return parentBaseData.get(); }
 
+protected:
     /// Update the value of this Data
     void update();
+
+public:
 
     /// @name Links management
     /// @{
