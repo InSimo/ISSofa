@@ -64,7 +64,7 @@ void IndexValueMapper<VecT>::init()
 template <class VecT>
 void IndexValueMapper<VecT>::reinit()
 {
-    update();
+    this->requestUpdate();
 }
 
 template <class VecT>

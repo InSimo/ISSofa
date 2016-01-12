@@ -103,13 +103,13 @@ void ShapeMatching<DataTypes>::init()
     //- Topology Container
     this->getContext()->get(topo);
 
-    update();
+    this->requestUpdate();
 }
 
 template <class DataTypes>
 void ShapeMatching<DataTypes>::reinit()
 {
-    update();
+    this->requestUpdate();
 }
 
 template <class DataTypes>

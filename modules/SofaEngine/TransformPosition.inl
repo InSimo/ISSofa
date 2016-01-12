@@ -168,7 +168,7 @@ void TransformPosition<DataTypes>::init()
 template <class DataTypes>
 void TransformPosition<DataTypes>::reinit()
 {
-    update();
+    this->requestUpdate();
 }
 
 /**************************************************

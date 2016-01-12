@@ -69,7 +69,7 @@ void GenerateCylinder<DataTypes>::init()
 template <class DataTypes>
 void GenerateCylinder<DataTypes>::reinit()
 {
-    update();
+    this->requestUpdate();
 }
 
 template <class DataTypes>

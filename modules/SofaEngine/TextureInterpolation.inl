@@ -84,7 +84,7 @@ void TextureInterpolation<DataTypes>::reinit()
     if (_vertexPloted.isDirty())
         this->resetGraph();
 
-    update();
+    this->requestUpdate();
 }
 
 

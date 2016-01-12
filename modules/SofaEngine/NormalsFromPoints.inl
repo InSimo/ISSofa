@@ -71,7 +71,7 @@ void NormalsFromPoints<DataTypes>::init()
 template <class DataTypes>
 void NormalsFromPoints<DataTypes>::reinit()
 {
-    update();
+    this->requestUpdate();
 }
 
 template <class DataTypes>

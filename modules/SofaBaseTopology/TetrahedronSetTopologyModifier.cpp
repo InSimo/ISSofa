@@ -636,7 +636,7 @@ void TetrahedronSetTopologyModifier::propagateTopologicalEngineChanges()
 #ifndef NDEBUG
             std::cout << "TetrahedronSetTopologyModifier::performing: " << topoEngine->getName() << std::endl;
 #endif
-            topoEngine->update();
+            topoEngine->requestUpdate();
         }
     }
 

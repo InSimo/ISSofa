@@ -219,7 +219,7 @@ void SphereROI<DataTypes>::init()
 template <class DataTypes>
 void SphereROI<DataTypes>::reinit()
 {
-    update();
+    this->requestUpdate();
 }
 
 

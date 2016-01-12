@@ -125,7 +125,7 @@ template <class VecT>
 void MergeVectors<VecT>::reinit()
 {
     createInputs();
-    update();
+    this->requestUpdate();
 }
 
 template <class VecT>

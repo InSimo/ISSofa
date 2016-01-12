@@ -516,7 +516,7 @@ void MathOp<VecT>::reinit()
 {
     createInputs();
 
-    update();
+    this->requestUpdate();
 }
 
 template <class VecT>
@@ -524,8 +524,8 @@ void MathOp<VecT>::handleEvent(core::objectmodel::Event* e)
 {
     if( dynamic_cast<simulation::AnimateBeginEvent*>(e) )
     {
-        update();
-    }     
+        this->requestUpdate();
+    }
 }
 
 template <class VecT>
