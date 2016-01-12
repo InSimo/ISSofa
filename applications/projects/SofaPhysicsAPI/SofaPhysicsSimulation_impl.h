@@ -49,6 +49,11 @@ public:
     unsigned int getNbDataControllers();
     SofaPhysicsDataController** getDataControllers();
 
+#ifdef SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+    bool getCopyScreenRequest(SofaPhysicsCopyScreen* info);
+    void copyScreen(SofaPhysicsCopyScreen* info);
+#endif
+
     typedef SofaPhysicsOutputMesh::Impl::SofaOutputMesh SofaOutputMesh;
     typedef SofaPhysicsDataMonitor::Impl::SofaDataMonitor SofaDataMonitor;
     typedef SofaPhysicsDataController::Impl::SofaDataController SofaDataController;
@@ -85,6 +90,7 @@ protected:
     bool initTexturesDone;
     bool useGUI;
     int GUIFramerate;
+
     sofa::core::visual::VisualParams* vparams;
     sofa::core::visual::DrawToolGL   drawTool;
 

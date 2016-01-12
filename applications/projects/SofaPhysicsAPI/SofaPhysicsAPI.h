@@ -9,11 +9,16 @@
 #  define SOFA_SOFAPHYSICSAPI_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif
 
+#define SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+
 class SofaPhysicsSimulation;
 class SofaPhysicsOutputMesh;
 class SofaPhysicsOutputMeshTetrahedron;
 class SofaPhysicsDataMonitor;
 class SofaPhysicsDataController;
+#ifdef SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+class SofaPhysicsCopyScreen;
+#endif
 
 typedef unsigned int Index; ///< Type used for topology indices
 typedef float Real;         ///< Type used for coordinates
@@ -102,6 +107,11 @@ public:
 
     /// Return an array of pointers to active data controllers
     SofaPhysicsDataController** getDataControllers();
+
+#ifdef SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+    bool getCopyScreenRequest(SofaPhysicsCopyScreen* info);
+    void copyScreen(SofaPhysicsCopyScreen* info);
+#endif
 
     /// Internal implementation sub-class
     class Impl;
@@ -237,5 +247,31 @@ public:
     /// Internal implementation sub-class
     Impl* impl;
 };
+
+#ifdef SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+class SofaPhysicsCopyScreen
+{
+public:
+    void* ctx;
+    unsigned int name;
+    unsigned int target;
+    int level;
+    int srcX;
+    int srcY;
+    int srcZ;
+    int dstX;
+    int dstY;
+    int dstZ;
+    int width;
+    int height;
+    int depth;
+    SofaPhysicsCopyScreen()
+    : ctx(0), name(0), target(0), level(0),
+      srcX(0), srcY(0), srcZ(0), dstX(0), dstY(0), dstZ(0),
+      width(0), height(0), depth(0)
+    {
+    }
+};
+#endif
 
 #endif // SOFAPHYSICSAPI_H

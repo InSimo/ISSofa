@@ -158,6 +158,18 @@ SofaPhysicsDataController** SofaPhysicsSimulation::getDataControllers()
     return impl->getDataControllers();
 }
 
+#ifdef SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+bool SofaPhysicsSimulation::getCopyScreenRequest(SofaPhysicsCopyScreen* info)
+{
+    return impl->getCopyScreenRequest(info);
+}
+
+void SofaPhysicsSimulation::copyScreen(SofaPhysicsCopyScreen* info)
+{
+    impl->getCopyScreenRequest(info);
+}
+#endif
+
 ////////////////////////////////////////
 ////////////////////////////////////////
 ////////////////////////////////////////
@@ -374,11 +386,25 @@ void SofaPhysicsSimulation::Impl::resetView()
     if (getScene() && currentCamera)
     {
         currentCamera->setDefaultView(getScene()->getGravity());
+        bool fileRead = false;
         if (!sceneFileName.empty())
         {
             std::string viewFileName = sceneFileName + ".view";
-            if (!currentCamera->importParametersFromFile(viewFileName))
+            std::cout << "SofaPhysicsSimulation: Trying view file " << viewFileName << std::endl;
+            fileRead = currentCamera->importParametersFromFile(viewFileName);
+            if (!fileRead) // try default.scn.view
+            {
+                viewFileName = sofa::helper::system::SetDirectory::GetRelativeFromFile("default.scn.view", sceneFileName.c_str());
+                std::cout << "SofaPhysicsSimulation: Trying view file " << viewFileName << std::endl;
+                fileRead = currentCamera->importParametersFromFile(viewFileName);
+            }
+            //if there is no .view file , look at the center of the scene bounding box
+            // and with a Up vector in the same axis as the gravity
+            if (!fileRead)
+            {
+                std::cout << "SofaPhysicsSimulation: No view file" << std::endl;
                 currentCamera->setDefaultView(getScene()->getGravity());
+            }
         }
     }
 }
@@ -845,3 +871,56 @@ void SofaPhysicsSimulation::Impl::calcProjection()
 
     glMatrixMode(GL_MODELVIEW);
 }
+
+#ifdef SOFA_SOFAPHYSICSAPI_HAVE_COPYSCREEN
+bool SofaPhysicsSimulation::Impl::getCopyScreenRequest(SofaPhysicsCopyScreen* info)
+{
+    bool res = false;
+    if ( useGUI )
+    {
+        sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
+        sofa::gui::CopyScreenInfo ginfo;
+        res = gui->getCopyScreenRequest(&ginfo);
+        if (res)
+        {
+            info->ctx = ginfo.ctx;
+            info->name = ginfo.name;
+            info->target = ginfo.target;
+            info->level = 0;
+            info->srcX = ginfo.srcX;
+            info->srcY = ginfo.srcY;
+            info->srcZ = 0;
+            info->dstX = ginfo.dstX;
+            info->dstY = ginfo.dstY;
+            info->dstZ = 0;
+            info->width = ginfo.width;
+            info->height = ginfo.height;
+            info->depth = 1;
+        }
+    }
+    return res;
+}
+
+void SofaPhysicsSimulation::Impl::copyScreen(SofaPhysicsCopyScreen* info)
+{
+    if ( useGUI )
+    {
+        sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
+        sofa::gui::CopyScreenInfo ginfo;
+        ginfo.ctx = info->ctx;
+        ginfo.name = info->name;
+        ginfo.target = info->target;
+        //ginfo.level = 0;
+        ginfo.srcX = info->srcX;
+        ginfo.srcY = info->srcY;
+        //ginfo.srcZ = 0;
+        ginfo.dstX = info->dstX;
+        ginfo.dstY = info->dstY;
+        //ginfo.dstZ = 0;
+        ginfo.width = info->width;
+        ginfo.height = info->height;
+        //ginfo.depth = 1;
+        gui->useCopyScreen(&ginfo);
+    }
+}
+#endif
