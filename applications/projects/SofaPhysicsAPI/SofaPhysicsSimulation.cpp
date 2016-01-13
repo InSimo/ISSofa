@@ -32,9 +32,10 @@
 
 #include <math.h>
 #include <iostream>
+#include <sstream>
 
-SofaPhysicsSimulation::SofaPhysicsSimulation(bool useGUI, int GUIFramerate)
-    : impl(new Impl(useGUI, GUIFramerate))
+SofaPhysicsSimulation::SofaPhysicsSimulation(bool useGUI, int GUIFramerate, void* shareRenderingContext)
+    : impl(new Impl(useGUI, GUIFramerate, shareRenderingContext))
 {
 }
 
@@ -166,7 +167,7 @@ bool SofaPhysicsSimulation::getCopyScreenRequest(SofaPhysicsCopyScreen* info)
 
 void SofaPhysicsSimulation::copyScreen(SofaPhysicsCopyScreen* info)
 {
-    impl->getCopyScreenRequest(info);
+    impl->copyScreen(info);
 }
 #endif
 
@@ -180,8 +181,8 @@ using namespace sofa::core::objectmodel;
 
 static sofa::core::ObjectFactory::ClassEntry::SPtr classVisualModel;
 
-SofaPhysicsSimulation::Impl::Impl(bool useGUI_, int GUIFramerate_) :
-useGUI(useGUI_), GUIFramerate(GUIFramerate_)
+SofaPhysicsSimulation::Impl::Impl(bool useGUI_, int GUIFramerate_, void* shareRenderingContext) :
+useGUI(useGUI_), GUIFramerate(GUIFramerate_), GUIShareRenderingContext(shareRenderingContext)
 {
     static bool first = true;
     if (first)
@@ -203,6 +204,14 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_)
           int argc= 1;
           char* argv[]= { const_cast<char*>("a") };
           glutInit(&argc,argv);
+
+          if (GUIShareRenderingContext)
+          {
+              std::ostringstream o;
+              o << "shareRenderingContext="<<(unsigned long long)GUIShareRenderingContext;
+              std::cout << o.str() << std::endl;
+              sofa::gui::GUIManager::AddGUIOption(o.str().c_str());
+          }
 
           if (sofa::gui::GUIManager::Init(argv[0],"qt"))
               std::cerr << "ERROR in sofa::gui::GUIManager::Init()" << std::endl;
@@ -880,6 +889,19 @@ bool SofaPhysicsSimulation::Impl::getCopyScreenRequest(SofaPhysicsCopyScreen* in
     {
         sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
         sofa::gui::CopyScreenInfo ginfo;
+        ginfo.ctx = info->ctx;
+        ginfo.name = info->name;
+        ginfo.target = info->target;
+        //ginfo.level = 0;
+        ginfo.srcX = info->srcX;
+        ginfo.srcY = info->srcY;
+        //ginfo.srcZ = 0;
+        ginfo.dstX = info->dstX;
+        ginfo.dstY = info->dstY;
+        //ginfo.dstZ = 0;
+        ginfo.width = info->width;
+        ginfo.height = info->height;
+        //ginfo.depth = 1;
         res = gui->getCopyScreenRequest(&ginfo);
         if (res)
         {
