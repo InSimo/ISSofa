@@ -440,6 +440,61 @@ public:
 };
 
 template<class TDataType>
+struct IntegerIdTypeInfo
+{
+    typedef TDataType DataType;
+    typedef DataType BaseType;
+    typedef typename DataType::index_type  index_type;
+    typedef DataType ValueType;
+    typedef long long ConvType; ///< preferred type for conversions (i.e. long long for integers, double for scalars)
+    typedef IntegerIdTypeInfo<DataType> BaseTypeInfo;
+    typedef IntegerIdTypeInfo<DataType> ValueTypeInfo;
+
+    enum { ValidInfo = 1 }; ///< 1 if this type has valid infos
+    enum { FixedSize = 1 }; ///< 1 if this type has a fixed size
+    enum { ZeroConstructor = 1 }; ///< 1 if the constructor is equivalent to setting memory to 0
+    enum { SimpleCopy = 1 }; ///< 1 if copying the data can be done with a memcpy
+    enum { SimpleLayout = 1 }; ///< 1 if the layout in memory is simply N values of the same base type
+    enum { Integer = 1 }; ///< 1 if this type uses integer values
+    enum { Scalar = 0 }; ///< 1 if this type uses scalar values
+    enum { Text = 0 }; ///< 1 if this type uses text values
+    enum { CopyOnWrite = 0 }; ///< 1 if this type uses copy-on-write
+
+    enum { Size = 1 }; ///< largest known fixed size for this type, as returned by size()
+    static size_t size() { return 1; }
+
+    static size_t size(const DataType& /*data*/) { return 1; }
+
+    static void setSize(DataType& /*data*/, size_t /*size*/) {  }
+
+    template <typename T>
+    static void getValue(const DataType &data, size_t index, T& value)
+    {
+        if (index != 0) return;
+        value = T(data.getId());
+    }
+
+    template<typename T>
+    static void setValue(DataType &data, size_t index, const T& value)
+    {
+        if (index != 0) return;
+        data.setId(index_type(value));
+    }
+
+    static void getValueString(const DataType &data, size_t index, std::string& value)
+    {
+        if (index != 0) return;
+        std::ostringstream o; o << data; value = o.str();
+    }
+
+    static void setValueString(DataType &data, size_t index, const std::string& value)
+    {
+        if (index != 0) return;
+        std::istringstream i(value); i >> data;
+    }
+};
+
+template<class TDataType>
 struct VectorIdTypeInfo
 {
     typedef TDataType DataType;
@@ -597,6 +652,12 @@ struct VectorIdTypeInfo
 
 namespace defaulttype
 {
+
+template <sofa::helper::integer_id_name Name, typename Index, Index DefaultId>
+struct DataTypeInfo< sofa::helper::integer_id<Name, Index, DefaultId> > : public sofa::helper::IntegerIdTypeInfo<sofa::helper::integer_id<Name, Index, DefaultId> >
+{
+    static std::string name() { std::ostringstream o; o << "integer_id<" << Name() << "," << DataTypeName<Index>::name() << "," << DefaultId << ">"; return o.str(); }
+};
 
 template <class T, class TIndex, bool CheckIndices, class MemoryManager>
 struct DataTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> > : public sofa::helper::VectorIdTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> >
