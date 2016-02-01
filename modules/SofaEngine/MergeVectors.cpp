@@ -46,6 +46,7 @@ int MergeVectorsClass = core::RegisterObject("Apply a merge operation to combine
     .add< MergeVectors< helper::vector<double> > >(true)
     .add< MergeVectors< helper::vector<float> > >()
 #endif
+    .add< MergeVectors< helper::vector<unsigned int> > >()
     .add< MergeVectors< helper::vector<int> > >()
     .add< MergeVectors< helper::vector<bool> > >()
     //.add< MergeVectors< helper::vector<std::string> > >()
@@ -69,6 +70,7 @@ int MergeVectorsClass = core::RegisterObject("Apply a merge operation to combine
 #endif //SOFA_DOUBLE
         ;
 
+template class SOFA_ENGINE_API MergeVectors< helper::vector<unsigned int> >;
 template class SOFA_ENGINE_API MergeVectors< helper::vector<int> >;
 template class SOFA_ENGINE_API MergeVectors< helper::vector<bool> >;
 //template class SOFA_ENGINE_API MergeVectors< helper::vector<std::string> >;
