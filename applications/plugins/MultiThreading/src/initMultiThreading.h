@@ -25,7 +25,7 @@
 #ifndef PLUGIN_MULTITHREADING_INIT_H
 #define PLUGIN_MULTITHREADING_INIT_H
 
-#include <sofa/helper/system/config.h>
+#include <sofa/SofaGeneral.h>
 
 #ifndef WIN32
     #define SOFA_EXPORT_DYNAMIC_LIBRARY 

@@ -75,9 +75,3 @@ namespace component
 
 
 } // namespace sofa
-
-#ifdef SOFA_HAVE_BOOST
-	SOFA_LINK_CLASS(AnimationLoopParallelScheduler)
-#endif
-SOFA_LINK_CLASS(DataExchange)
-
