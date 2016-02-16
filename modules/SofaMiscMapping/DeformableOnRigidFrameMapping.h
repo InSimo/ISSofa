@@ -102,16 +102,11 @@ class DeformableOnRigidFrameMapping : public core::Multi2Mapping<TIn, TInRoot, T
 
     OutVecCoord rotatedPoints;
     DeformableOnRigidFrameMappingInternalData<In, Out> data;
-    Data<unsigned int> index;
-    Data< bool > indexFromEnd;
-    Data<sofa::helper::vector<unsigned int> >  repartition;
-    Data< bool > globalToLocalCoords;
-
-    Data< Real > m_rootAngularForceScaleFactor;
-    Data< Real > m_rootLinearForceScaleFactor;
-
-    int addPoint ( const OutCoord& c );
-    int addPoint ( const OutCoord& c, int indexFrom );
+    
+    Data<unsigned int> d_index;
+    Data< bool >       d_globalToLocalCoords;
+    Data< Real >       d_rootAngularForceScaleFactor;
+    Data< Real >       d_rootLinearForceScaleFactor;
 
     void init();
 
@@ -124,77 +119,60 @@ class DeformableOnRigidFrameMapping : public core::Multi2Mapping<TIn, TInRoot, T
     virtual bool sameTopology() const { return true; }
 
     //Apply
-    void apply( OutVecCoord& out, const InVecCoord& in, const InRootVecCoord* inroot  );
+    void apply( OutVecCoord& out, const InVecCoord& in, const InRootVecCoord& inRigid  );
     void apply(
-        const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, const helper::vector<OutDataVecCoord*>& dataVecOutPos,
+        const core::MechanicalParams* mparams, const helper::vector<OutDataVecCoord*>& dataVecOutPos,
         const helper::vector<const InDataVecCoord*>& dataVecInPos ,
         const helper::vector<const InRootDataVecCoord*>& dataVecInRootPos)
     {
-        if(dataVecOutPos.empty() || dataVecInPos.empty())
+        if(dataVecOutPos.empty() || dataVecInPos.empty() || dataVecInRootPos.empty() )
+        {
             return;
+        }
 
-        const InRootVecCoord* inroot = NULL;
+        sofa::helper::WriteAccessor< sofa::Data< OutVecCoord > > out(mparams, dataVecOutPos[0] );
+        sofa::helper::ReadAccessor< sofa::Data< InVecCoord > > in(mparams,dataVecInPos[0] );
+        sofa::helper::ReadAccessor< sofa::Data< InRootVecCoord > > inRigid( mparams, dataVecInRootPos[0] );
 
-        //We need only one input In model and input Root model (if present)
-        OutVecCoord& out = *dataVecOutPos[0]->beginEdit();
-        const InVecCoord& in = dataVecInPos[0]->getValue();
-
-        if (!dataVecInRootPos.empty())
-            inroot = &dataVecInRootPos[0]->getValue();
-
-        apply(out, in, inroot);
-
-        dataVecOutPos[0]->endEdit();
+        apply(out.wref(), in.ref(), inRigid.ref());
     }
 
     //ApplyJ
-    void applyJ( OutVecDeriv& out, const InVecDeriv& in, const InRootVecDeriv* inroot );
+    void applyJ( OutVecDeriv& out, const InVecDeriv& in, const InRootVecDeriv& inRigid );
     void applyJ(
-        const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, const helper::vector< OutDataVecDeriv*>& dataVecOutVel,
+        const core::MechanicalParams* mparams , const helper::vector< OutDataVecDeriv*>& dataVecOutVel,
         const helper::vector<const InDataVecDeriv*>& dataVecInVel,
         const helper::vector<const InRootDataVecDeriv*>& dataVecInRootVel)
     {
-        if(dataVecOutVel.empty() || dataVecInVel.empty())
+        if(dataVecOutVel.empty() || dataVecInVel.empty() || dataVecInRootVel.empty() )
+        {
             return;
+        }
 
-        const InRootVecDeriv* inroot = NULL;
+        sofa::helper::ReadAccessor< sofa::Data< InRootVecDeriv > > inRigid( mparams, dataVecInRootVel[0] );
+        sofa::helper::ReadAccessor< sofa::Data< InVecDeriv  > >    in(mparams, dataVecInVel[0] );
+        sofa::helper::WriteAccessor< sofa::Data< OutVecDeriv > >   out(mparams, dataVecOutVel[0] );
 
-        //We need only one input In model and input Root model (if present)
-        OutVecDeriv& out = *dataVecOutVel[0]->beginEdit();
-        const InVecDeriv& in = dataVecInVel[0]->getValue();
-
-        if (!dataVecInRootVel.empty())
-            inroot = &dataVecInRootVel[0]->getValue();
-
-        applyJ(out,in, inroot);
-
-        dataVecOutVel[0]->endEdit();
+        applyJ(out.wref(),in.ref(), inRigid.ref() );
     }
 
     //ApplyJT Force
-    void applyJT( InVecDeriv& out, const OutVecDeriv& in, InRootVecDeriv* outroot );
+    void applyJT( InVecDeriv& out, const OutVecDeriv& in, InRootVecDeriv& outroot );
     void applyJT(
-        const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, const helper::vector< InDataVecDeriv*>& dataVecOutForce,
+        const core::MechanicalParams*  mparams, const helper::vector< InDataVecDeriv*>& dataVecOutForce,
         const helper::vector< InRootDataVecDeriv*>& dataVecOutRootForce,
         const helper::vector<const OutDataVecDeriv*>& dataVecInForce)
     {
-        if(dataVecOutForce.empty() || dataVecInForce.empty())
+        if(dataVecOutForce.empty() || dataVecInForce.empty() || dataVecOutRootForce.empty())
+        {
             return;
+        }
 
-        InRootVecDeriv* outroot = NULL;
-
-        //We need only one input In model and input Root model (if present)
-        InVecDeriv& out = *dataVecOutForce[0]->beginEdit();
-        const OutVecDeriv& in = dataVecInForce[0]->getValue();
-
-        if (!dataVecOutRootForce.empty())
-            outroot = dataVecOutRootForce[0]->beginEdit();
-
-        applyJT(out,in, outroot);
-
-        dataVecOutForce[0]->endEdit();
-        if (outroot != NULL)
-            dataVecOutRootForce[0]->endEdit();
+        sofa::helper::WriteAccessor< sofa::Data< InVecDeriv>  > out( mparams, dataVecOutForce[0] );
+        sofa::helper::WriteAccessor< sofa::Data< InRootVecDeriv > > outRigid( mparams, dataVecOutRootForce[0] );
+        sofa::helper::ReadAccessor< sofa::Data< OutVecDeriv> > in  ( mparams, dataVecInForce[0]  ); 
+        
+        applyJT(out.wref(),in.ref(), outRigid.wref() );
     }
 
     virtual void applyDJT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, core::MultiVecDerivId /*inForce*/, core::ConstMultiVecDerivId /*outForce*/)
@@ -204,46 +182,28 @@ class DeformableOnRigidFrameMapping : public core::Multi2Mapping<TIn, TInRoot, T
 
 
     //ApplyJT Constraint
-    void applyJT( InMatrixDeriv& out, const OutMatrixDeriv& in, InRootMatrixDeriv* outroot );
+    void applyJT( InMatrixDeriv& out, const OutMatrixDeriv& in, InRootMatrixDeriv& outroot );
     void applyJT(
-        const core::ConstraintParams* /* cparams */ /* PARAMS FIRST */, const helper::vector< InDataMatrixDeriv*>& dataMatOutConst ,
+        const core::ConstraintParams* cparams, const helper::vector< InDataMatrixDeriv*>& dataMatOutConst ,
         const helper::vector< InRootDataMatrixDeriv*>&  dataMatOutRootConst ,
         const helper::vector<const OutDataMatrixDeriv*>& dataMatInConst)
     {
-        if(dataMatOutConst.empty() || dataMatInConst.empty())
+        if(dataMatOutConst.empty() || dataMatInConst.empty() || dataMatOutRootConst.empty())
             return;
-
-        InRootMatrixDeriv* outroot = NULL;
-
+        
         //We need only one input In model and input Root model (if present)
-        InMatrixDeriv& out = *dataMatOutConst[0]->beginEdit();
-        const OutMatrixDeriv& in = dataMatInConst[0]->getValue();
+        sofa::helper::WriteAccessor< sofa::Data<InMatrixDeriv> >          out( cparams, dataMatOutConst[0] );
+        sofa::helper::WriteAccessor< sofa::Data<InRootMatrixDeriv> >  outroot( cparams, dataMatOutRootConst[0] );
+        sofa::helper::ReadAccessor<  sofa::Data<OutMatrixDeriv> >          in( cparams, dataMatInConst[0] );
 
-        if (!dataMatOutRootConst.empty())
-            outroot = dataMatOutRootConst[0]->beginEdit();
+        applyJT(out.wref(),in.ref(), outroot.wref() );
 
-        applyJT(out,in, outroot);
-
-        dataMatOutConst[0]->endEdit();
-        if (outroot != NULL)
-            dataMatOutRootConst[0]->endEdit();
     }
-
-    /**
-      * @brief
-      MAP the mass: this function recompute the rigid mass (gravity center position and inertia) of the object
-          based on its deformed shape
-      */
-    void recomputeRigidMass() {}
-
-    //@}
 
     void draw(const core::visual::VisualParams* vparams);
 
     void clear ( int reserve=0 );
 
-    void setRepartition ( unsigned int value );
-    void setRepartition ( sofa::helper::vector<unsigned int> values );
 
 protected:
     DeformableOnRigidFrameMapping();
@@ -251,11 +211,11 @@ protected:
     virtual ~DeformableOnRigidFrameMapping()
     {}
 
-    core::State<In>* m_fromModel;
-    core::State<Out>* m_toModel;
+    core::State<In>*     m_fromModel;
+    core::State<Out>*    m_toModel;
     core::State<InRoot>* m_fromRootModel;
 
-    InRootCoord rootX;
+    InRootCoord          m_rootX;
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_MAPPING_DEFORMABLEONRIGIDFRAME_CPP)  //// ATTENTION PB COMPIL WIN3Z
