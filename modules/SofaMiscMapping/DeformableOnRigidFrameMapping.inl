@@ -59,9 +59,9 @@ namespace mapping
 template <class TIn, class TInRoot, class TOut>
 DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::DeformableOnRigidFrameMapping()
     : d_index ( initData ( &d_index, ( unsigned ) 0,"d_index","input DOF d_index" ) )
-    , d_globalToLocalCoords ( initData ( &d_globalToLocalCoords,"d_globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) )
     , d_rootAngularForceScaleFactor(initData(&d_rootAngularForceScaleFactor, (Real)1.0, "rootAngularForceScaleFactor", "Scale factor applied on the angular force accumulated on the rigid model"))
     , d_rootLinearForceScaleFactor(initData(&d_rootLinearForceScaleFactor, (Real)1.0, "rootLinearForceScaleFactor", "Scale factor applied on the linear force accumulated on the rigid model"))
+    , d_invertRigidFrame(initData(&d_invertRigidFrame, false, "invertRigidFrame","Use the inverse of the rigid frame when applying transform to output. Will force the mapping to be non mechanical")) 
     , m_fromModel(NULL)
     , m_toModel(NULL)
     , m_fromRootModel(NULL)
@@ -94,6 +94,12 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::init()
         sout << "Root Model found : Name = " << m_fromRootModel->getName() << sendl;
     }
 
+    if( d_invertRigidFrame.getValue() && this->isMechanical() )
+    {
+        serr<< "invertRigidFrame  is true : disable accumulation through mapping" << sendl;
+        this->setNonMechanical();
+    }
+
     Inherit::init();
 }
 
@@ -111,17 +117,14 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::apply( typename Out::Vec
 
     const typename InRoot::Coord& inRigid_i = inRigid[d_index.getValue()];
 
-    Coord translation = inRigid_i.getCenter();
-    Mat rotation;
-    inRigid_i.writeRotationMatrix(rotation);
-    m_rootX = inRigid_i; // save the coordinate that is begin currently used ( ie position() versus freePosition() ), 
-    //  so that we are consistent during subsequent calls to applyJ 
+    m_rootX = d_invertRigidFrame.getValue() ?  -inRigid_i : inRigid_i;  
+              // save the coordinate that is begin currently used ( ie position() versus freePosition() ), 
+              //  so that we are consistent during subsequent calls to applyJ 
 
     for(unsigned int i=0; i<inDeformed.size(); i++)
     {
-        rotatedPoints[i] = rotation*inDeformed[i];
-        out[i] = rotatedPoints[i];
-        out[i] += translation;
+        rotatedPoints[i] = m_rootX.rotate(inDeformed[i]);
+        out[i] = m_rootX.getCenter() + rotatedPoints[i];
     }
 
 
@@ -134,15 +137,12 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJ( typename Out::Ve
     out.resize(inDeformed.size());
 
     const typename InRoot::Deriv& inRigid_i = (inRigid)[ d_index.getValue() ];
-
-    const Deriv& v     = getVCenter(inRigid_i);
-    const Deriv& omega = getVOrientation(inRigid_i);
-
+    const typename InRoot::Deriv  inRigidVelocity = d_invertRigidFrame.getValue() ? -inRigid_i : inRigid_i;
+    
     for(unsigned int i=0; i<inDeformed.size(); i++)
     {
-        out[i]  = cross(omega,rotatedPoints[i]);
-        out[i] += m_rootX.getOrientation().rotate(inDeformed[i]); //velocity on the local system : (Vrigid + Vdeform)
-        out[i] += v; //center velocity
+        out[i]  = inRigidVelocity.velocityAtRotatedPoint( rotatedPoints[i] );
+        out[i] += m_rootX.rotate(inDeformed[i]); //velocity on the local system : (Vrigid + Vdeform)
     }
 
 }

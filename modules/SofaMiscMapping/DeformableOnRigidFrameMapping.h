@@ -104,9 +104,9 @@ class DeformableOnRigidFrameMapping : public core::Multi2Mapping<TIn, TInRoot, T
     DeformableOnRigidFrameMappingInternalData<In, Out> data;
     
     Data<unsigned int> d_index;
-    Data< bool >       d_globalToLocalCoords;
     Data< Real >       d_rootAngularForceScaleFactor;
     Data< Real >       d_rootLinearForceScaleFactor;
+    Data< bool >       d_invertRigidFrame;
 
     void init();
 
