@@ -60,9 +60,12 @@ template <class DataTypes>
 float PointSetGeometryAlgorithms< DataTypes >::getIndicesScale() const
 {
     const sofa::defaulttype::BoundingBox& bbox = this->getContext()->f_bbox.getValue();
-    return (float)((bbox.maxBBox() - bbox.minBBox()).norm() * showIndicesScale.getValue());
+    if (bbox.isValid() && !bbox.isFlat())
+    {
+        return (float)((bbox.maxBBox() - bbox.minBBox()).norm() * showIndicesScale.getValue());
+    }
+    return (float)(showIndicesScale.getValue());
 }
-
 
 template <class DataTypes>
 typename DataTypes::Coord PointSetGeometryAlgorithms<DataTypes>::getPointSetCenter() const
