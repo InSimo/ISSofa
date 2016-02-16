@@ -66,6 +66,10 @@ protected:
     Data< Real >  defaultTension;
     Data< Coord > d_scale3d;
     Data< Real >  prevDefaultTension;
+    Data< bool  > d_draw; // Activation of draw
+    Data< Real >  d_drawMinElongationRange;
+    Data< Real >  d_drawMaxElongationRange;
+    Data< Real >  d_drawSpringSize;
     Coord prevScale3d;
     helper::vector<Real> initialStiffnessVec;
     helper::vector<Real> initialDampingVec;
@@ -92,6 +96,10 @@ protected:
         , defaultTension( initData(&defaultTension, Real(1.0),"defaultTension", "Percentage to apply to length of edges to artificially create tension",true))
         , d_scale3d(initData(&d_scale3d, "scale3d", "Scale of the rest length of the springs in n dimensions", true))
         , prevDefaultTension((Real)1.0)
+        , d_draw(initData(&d_draw, false, "draw","Activation of draw"))
+        , d_drawMinElongationRange(initData(&d_drawMinElongationRange, Real(8.), "drawMinElongationRange","Min range of elongation (red eongation - blue neutral - green compression)"))
+        , d_drawMaxElongationRange(initData(&d_drawMaxElongationRange, Real(15.), "drawMaxElongationRange","Max range of elongation (red eongation - blue neutral - green compression)"))
+        , d_drawSpringSize(initData(&d_drawSpringSize, Real(8.), "drawSpringSize","Size of drawed lines"))
     {
         this->ks.setDisplayed(false);
         this->kd.setDisplayed(false);
@@ -194,7 +202,8 @@ public:
     virtual void init();
     virtual void reset();
     virtual void reinit();
-
+    
+    void draw(const core::visual::VisualParams* vparams);
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFORMABLE)
