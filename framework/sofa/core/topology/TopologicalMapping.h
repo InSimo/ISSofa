@@ -162,13 +162,13 @@ public:
 
         if (stin == NULL)
         {
-            //context->serr << "Cannot create "<<className(obj)<<" as input model is missing or invalid." << context->sendl;
+            context->serr << "Cannot create "<<className(obj)<<" as input model is missing or invalid." << context->sendl;
             return false;
         }
 
         if (stout == NULL)
         {
-            //context->serr << "Cannot create "<<className(obj)<<" as output model is missing or invalid." << context->sendl;
+            context->serr << "Cannot create "<<className(obj)<<" as output model is missing or invalid." << context->sendl;
             return false;
         }
 
