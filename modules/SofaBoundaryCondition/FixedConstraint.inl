@@ -234,11 +234,11 @@ void FixedConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalPar
     {
         while (rowIt != rowItEnd)
         {
-            unsigned i=0;
-            for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end() && i<rowIt.row().size(); ++it, ++i)
+            for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
             {
                 rowIt.row().erase(*it);
             }
+
             ++rowIt;
         }
     }
