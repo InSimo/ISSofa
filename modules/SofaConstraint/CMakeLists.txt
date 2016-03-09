@@ -22,7 +22,6 @@ set(HEADER_FILES
     LinearSolverConstraintCorrection.h
     LinearSolverConstraintCorrection.inl
     GenericConstraintCorrection.h
-    GenericConstraintCorrection.inl
     LCPConstraintSolver.h
     ConstraintSolverImpl.h
     FreeMotionAnimationLoop.h
