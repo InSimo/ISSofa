@@ -34,7 +34,6 @@
 #include <sofa/core/behavior/ForceField.inl>
 
 #include <sofa/core/visual/VisualParams.h>
-#include <SofaOpenglVisual/ColorMap.h>
 #include <sofa/helper/gl/template.h>
 #include <sofa/helper/system/gl.h>
 
@@ -853,7 +852,7 @@ void TriangularFEMForceField<DataTypes>::computePrincipalStrain(Index elementInd
 // ---	Compute direction of maximum stress (stress = KJtD = KBD)
 // --------------------------------------------------------------------------------------
 template <class DataTypes>
-void TriangularFEMForceField<DataTypes>::computePrincipalStress(Index elementIndex, Vec<3,Real> &stress)
+void TriangularFEMForceField<DataTypes>::computePrincipalStress(Index elementIndex, sofa::defaulttype::Vec<3,Real> &stress)
 {
     NEWMAT::SymmetricMatrix e(2);
     e = 0.0;
@@ -1206,7 +1205,7 @@ void TriangularFEMForceField<DataTypes>::computeStressAlongDirection(Real &stres
 }
 
 template <class DataTypes>
-void TriangularFEMForceField<DataTypes>::computeStressAcrossDirection(Real &stress_across_dir, Index elementIndex, const Coord &dir, const Vec<3,Real> &stress)
+void TriangularFEMForceField<DataTypes>::computeStressAcrossDirection(Real &stress_across_dir, Index elementIndex, const Coord &dir, const sofa::defaulttype::Vec<3,Real> &stress)
 {
     Index a = _topology->getTriangle(elementIndex)[0];
     Index b = _topology->getTriangle(elementIndex)[1];
@@ -1831,22 +1830,22 @@ void TriangularFEMForceField<DataTypes>::draw(const core::visual::VisualParams* 
                 maxStress = averageStress;
         }
 
-        visualmodel::ColorMap::evaluator<double> evalColor = visualmodel::ColorMap::getDefault()->getEvaluator(minStress, maxStress);
-        glBegin(GL_TRIANGLES);
-        for(unsigned int i=0; i<nbTriangles; ++i)
-        {
-            Index a = _topology->getTriangle(i)[0];
-            Index b = _topology->getTriangle(i)[1];
-            Index c = _topology->getTriangle(i)[2];
+        //visualmodel::ColorMap::evaluator<double> evalColor = visualmodel::ColorMap::getDefault()->getEvaluator(minStress, maxStress);
+        //glBegin(GL_TRIANGLES);
+        //for(unsigned int i=0; i<nbTriangles; ++i)
+        //{
+        //    Index a = _topology->getTriangle(i)[0];
+        //    Index b = _topology->getTriangle(i)[1];
+        //    Index c = _topology->getTriangle(i)[2];
 
-            glColor4fv(evalColor(vertexInf[a].stress).ptr());
-            helper::gl::glVertexT(x[a]);
-            glColor4fv(evalColor(vertexInf[b].stress).ptr());
-            helper::gl::glVertexT(x[b]);
-            glColor4fv(evalColor(vertexInf[c].stress).ptr());
-            helper::gl::glVertexT(x[c]);
-        }
-        glEnd();
+        //    glColor4fv(evalColor(vertexInf[a].stress).ptr());
+        //    helper::gl::glVertexT(x[a]);
+        //    glColor4fv(evalColor(vertexInf[b].stress).ptr());
+        //    helper::gl::glVertexT(x[b]);
+        //    glColor4fv(evalColor(vertexInf[c].stress).ptr());
+        //    helper::gl::glVertexT(x[c]);
+        //}
+        //glEnd();
 
         /*
         if (nbPoints > 0)

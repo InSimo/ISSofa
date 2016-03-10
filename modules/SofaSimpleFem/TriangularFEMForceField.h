@@ -34,7 +34,7 @@
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/Mat.h>
 #include <SofaBaseTopology/TopologyData.h>
-
+#include <sofa/SofaCommon.h>
 #include <map>
 #include <sofa/helper/map.h>
 
@@ -66,7 +66,7 @@ using sofa::helper::vector;
 * }
 */
 template<class DataTypes>
-class SOFA_SIMPLE_FEM_API TriangularFEMForceField : public core::behavior::ForceField<DataTypes>
+class TriangularFEMForceField : public core::behavior::ForceField<DataTypes>
 {
 public:
     SOFA_CLASS(SOFA_TEMPLATE(TriangularFEMForceField, DataTypes), SOFA_TEMPLATE(core::behavior::ForceField, DataTypes));

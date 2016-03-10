@@ -27,7 +27,6 @@
 #include "TriangleFEMForceField.inl"
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/defaulttype/Vec3Types.h>
-#include <sofa/component/component.h>
 
 // #define DEBUG_TRIANGLEFEM
 
