@@ -4,9 +4,10 @@ project(SofaFramework_test)
 
 set(SOURCE_FILES
     main.cpp
-    defaulttype/MapMapSparseMatrix_test
+    defaulttype/MapMapSparseMatrix_test.cpp
     defaulttype/VecTypesTest.cpp
     #defaulttype/MatTypesTest.cpp
+    defaulttype/RigidMass_test.cpp
     helper/system/atomicTest.cpp
     helper/system/FileSystemTest.cpp
     helper/system/UtilsTest.cpp
