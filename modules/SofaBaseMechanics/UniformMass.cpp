@@ -88,11 +88,13 @@ void UniformMass<Rigid3dTypes, Rigid3dMass>::reinit()
     }
     else
     {
-        this->totalMass.setValue(  this->mstate->read(core::ConstVecCoordId::position())->getValue().size()*this->mass.getValue());
+        this->totalMass.setValue(  this->mstate->read(core::ConstVecCoordId::position())->getValue().size()*this->mass.getValue().mass);
     }
 
     this->mass.beginEdit()->recalc();
     this->mass.endEdit();
+
+    sout<< "mass =" << this->mass.getValue() << sendl;
 }
 
 template<> SOFA_BASE_MECHANICS_API
@@ -217,7 +219,10 @@ void UniformMass<Rigid3dTypes, Rigid3dMass>::loadRigidMass(std::string filename)
         }
         this->setMass(m);
     }
-    else if (this->totalMass.getValue()>0 && this->mstate!=NULL) this->mass.setValue((Real)this->totalMass.getValue() / mstate->read(core::ConstVecCoordId::position())->getValue().size());
+    else if (this->totalMass.getValue()>0 && this->mstate!=NULL)
+    {
+        this->mass.setValue( MassType( (Real)this->totalMass.getValue() / mstate->read(core::ConstVecCoordId::position())->getValue().size() ) );
+    }
 
 }
 
@@ -464,7 +469,7 @@ void UniformMass<Rigid3fTypes, Rigid3fMass>::reinit()
     }
     else
     {
-        this->totalMass.setValue(  this->mstate->read(core::ConstVecCoordId::position())->getValue().size()*this->mass.getValue());
+        this->totalMass.setValue(  this->mstate->read(core::ConstVecCoordId::position())->getValue().size()*this->mass.getValue().mass);
     }
 
     this->mass.beginEdit()->recalc();
@@ -591,7 +596,10 @@ void UniformMass<Rigid3fTypes, Rigid3fMass>::loadRigidMass(std::string filename)
 
         this->setMass(m);
     }
-    else if (this->totalMass.getValue()>0 ) this->mass.setValue((Real)this->totalMass.getValue());
+    else if (this->totalMass.getValue()>0 ) 
+    {
+        this->mass.setValue( MassType( (Real)this->totalMass.getValue() ) );
+    }
     this->totalMass.setValue(0.0f);
 
 }

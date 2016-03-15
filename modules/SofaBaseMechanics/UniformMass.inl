@@ -134,7 +134,7 @@ void UniformMass<DataTypes, MassType>::handleTopologyChange()
                 if ( m_handleTopoChange.getValue() )
                 {
                     MassType* m = this->mass.beginEdit();
-                    *m = ( ( typename DataTypes::Real ) this->totalMass.getValue() / this->mstate->read(core::ConstVecCoordId::position())->getValue().size() );
+                    *m = MassType( ( typename DataTypes::Real ) this->totalMass.getValue() / this->mstate->read(core::ConstVecCoordId::position())->getValue().size() );
                     this->mass.endEdit();
                 }
                 break;
@@ -142,7 +142,8 @@ void UniformMass<DataTypes, MassType>::handleTopologyChange()
             case core::topology::POINTSREMOVED:
                 if ( m_handleTopoChange.getValue() )
                 {
-                    this->totalMass.setValue (this->mstate->read(core::ConstVecCoordId::position())->getValue().size() * (Real)this->mass.getValue() );
+                    sofa::defaulttype::MassAccessor<MassType> accessor;
+                    this->totalMass.setValue (this->mstate->read(core::ConstVecCoordId::position())->getValue().size() * accessor( this->mass.getValue() ) );
                 }
                 break;
 
@@ -416,7 +417,8 @@ void UniformMass<DataTypes, MassType>::addMToMatrix (const core::MechanicalParam
 template <class DataTypes, class MassType>
 double UniformMass<DataTypes, MassType>::getElementMass ( unsigned int ) const
 {
-    return ( double ) ( mass.getValue() );
+    sofa::defaulttype::MassAccessor<MassType> accessor;
+    return static_cast<double>( accessor( mass.getValue() ) );
 }
 
 template <class DataTypes, class MassType>

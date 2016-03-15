@@ -698,33 +698,53 @@ public:
     Mat3x3 inertiaMassMatrix;    // Inertia matrix of the object * mass of the object
     Mat3x3 invInertiaMatrix;	  // inverse of inertiaMatrix
     Mat3x3 invInertiaMassMatrix; // inverse of inertiaMassMatrix
-    RigidMass(Real m=1)
+    
+    RigidMass()
+    :mass(1)
+    ,volume(1)
+    ,inertiaMatrix(Mat3x3::Identity())
     {
-        mass = m;
-        volume = 1;
-        inertiaMatrix.identity();
         recalc();
     }
+    
+    explicit RigidMass(Real m)
+    :mass(m)
+    ,volume(1)
+    ,inertiaMatrix(Mat3x3::Identity())
+    {
+        recalc();
+    }
+
+    RigidMass(Real m, Real v)
+    :mass(m)
+    ,volume(v)
+    ,inertiaMatrix(Mat3x3::Identity())
+    {
+        recalc();
+    }
+
     void operator=(Real m)
     {
         mass = m;
         recalc();
     }
-    void operator+=(Real m)
+
+    template< class Real2>
+    RigidMass<3,Real>& operator+=(Real2 m)
     {
-        mass += m;
+        mass += (Real)m;
         recalc();
+        return *this;
     }
-    void operator-=(Real m)
+
+    template< class Real2>
+    RigidMass<3,Real>& operator-=(Real2 m)
     {
-        mass -= m;
+        mass -= (Real)m;
         recalc();
+        return *this;
     }
-    // operator to cast to const Real
-    operator const Real() const
-    {
-        return mass;
-    }
+
     void recalc()
     {
         inertiaMassMatrix = inertiaMatrix * mass;
@@ -746,19 +766,33 @@ public:
         in>>m.inertiaMatrix;
         return in;
     }
-    void operator *=(Real fact)
+
+    template< class Real2>
+    RigidMass<3,Real>& operator *=(Real2 fact)
     {
-        mass *= fact;
-        inertiaMassMatrix *= fact;
-        invInertiaMassMatrix /= fact;
+        mass *= (Real)fact;
+        inertiaMassMatrix *= (Real)fact;
+        invInertiaMassMatrix /= (Real)fact;
+        return *this;
     }
-    void operator /=(Real fact)
+
+    template< class Real2>
+    RigidMass<3,Real>& operator /=(Real2 fact)
     {
-        mass /= fact;
-        inertiaMassMatrix /= fact;
-        invInertiaMassMatrix *= fact;
+        mass /= (Real)fact;
+        inertiaMassMatrix /= (Real)fact;
+        invInertiaMassMatrix *= (Real)fact;
+        return *this;
     }
 };
+
+template< typename real1, typename real2>
+inline RigidMass<3,real1> operator*(const RigidMass<3,real1>& lhs, const real2& factor )
+{
+    RigidMass<3,real1> res = lhs;
+    res*=factor;
+    return res;
+}
 
 template<typename real>
 inline RigidDeriv<3,real> operator*(const RigidDeriv<3,real>& d, const RigidMass<3,real>& m)
@@ -775,6 +809,14 @@ inline RigidDeriv<3,real> operator*(const RigidMass<3,real>& m, const RigidDeriv
     RigidDeriv<3,real> res;
     getVCenter(res) = getVCenter(d) * m.mass;
     getVOrientation(res) = m.inertiaMassMatrix * getVOrientation(d);
+    return res;
+}
+
+template< typename real1, typename real2>
+inline RigidMass<3,real1> operator/(const RigidMass<3,real1>& lhs, const real2& factor )
+{
+    RigidMass<3,real1> res = lhs;
+    res/=factor;
     return res;
 }
 
@@ -1843,6 +1885,29 @@ typedef Rigid2dMass Rigid2Mass;
 #endif
 
 
+/** 
+Functor to access the mass scalar value in a generic way.
+*/
+template< class MassType >
+struct MassAccessor
+{
+    MassType operator()( const MassType& m )
+    {
+        return m;
+    }
+};
+
+template<int N, typename Real>
+struct MassAccessor< sofa::defaulttype::RigidMass<N,Real> >
+{
+    Real operator()( const sofa::defaulttype::RigidMass<N,Real>& m )
+    {
+        return m.mass;
+    }
+};
+
+
+
 
 // Specialization of the defaulttype::DataTypeInfo type traits template
 
@@ -1857,6 +1922,7 @@ struct DataTypeInfo< sofa::defaulttype::RigidCoord<N,real> > : public FixedArray
 {
     static std::string name() { std::ostringstream o; o << "RigidCoord<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); }
 };
+
 
 // The next line hides all those methods from the doxygen documentation
 /// \cond TEMPLATE_OVERRIDES
@@ -1927,6 +1993,9 @@ static void rigidTransform ( V1& points, V2& velocities, SReal tx, SReal ty, SRe
     rotate(velocities,rotation);
 }
 //@}
+
+
+
 
 
 }

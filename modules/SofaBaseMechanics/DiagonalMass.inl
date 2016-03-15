@@ -524,7 +524,8 @@ void DiagonalMass<DataTypes, MassType>::addMToMatrix(const core::MechanicalParam
 template <class DataTypes, class MassType>
 double DiagonalMass<DataTypes, MassType>::getElementMass(unsigned int index) const
 {
-    return (SReal)(f_mass.getValue()[index]);
+    sofa::defaulttype::MassAccessor< MassType > accessor;
+    return (SReal)( accessor( f_mass.getValue() [index] ) );
 }
 
 
