@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
 #include <sofa/defaulttype/RigidTypes.h>
+#include <sofa/defaulttype/Mat.h>
+#include <sofa/defaulttype/Quat.h>
+#include <sofa/helper/system/config.h>
+#include <math.h>
 
 namespace 
 {
@@ -29,8 +33,6 @@ TEST( RigidMassTest, checkAssignementOperatorGivesConsistentResult )
             EXPECT_EQ(mass.inertiaMassMatrix[i], otherMass.inertiaMassMatrix[i] );
         }
     }
-
-
 }
 
 TEST( RigidMassTest, checkOperatorMultiplicationWithScalarGivesConsistentResult )
@@ -51,24 +53,43 @@ TEST( RigidMassTest, checkOperatorMultiplicationWithScalarGivesConsistentResult 
     Rigid3Mass massMultEqFactor = mass;
     massMultEqFactor*=factor;
 
-
     EXPECT_EQ( massEqMassMultFactor.mass, massMultEqFactor.mass );
 
     for(std::size_t i=0;i<3;++i)
     {
         for(std::size_t j=0; j<3;++j)
         {
-            EXPECT_EQ(massEqMassMultFactor.inertiaMassMatrix[i], massMultEqFactor.inertiaMassMatrix[i] );
+            EXPECT_EQ(massEqMassMultFactor.inertiaMassMatrix[i][j], massMultEqFactor.inertiaMassMatrix[i][j] );
         }
     }
+}
 
-    //RigidDeriv dx;
-    //dx.getLinear()  = RigidDeriv::Vec3( -5.26601e-005, 7.911e-006, -0.00146761 );
-    //dx.getAngular() = RigidDeriv::Vec3( 0.604655, -1.12543e-005, 5.2351e-006 );
-    //
-    //RigidDeriv df1 = massEqMassMultFactor * dx;
-    //RigidDeriv df2 = massMultEqFactor * dx;
+TEST( RigidMassTest, checkInertiaLocalToWorldOperation )
+{
+    Rigid3Mass mass;
+    mass.mass          = Real(1);
+    mass.volume        = Real(1);
+    mass.inertiaMatrix[0][0] = Real(0.008416676);
+    mass.inertiaMatrix[1][1] = Real(0.041416667);
+    mass.inertiaMatrix[2][2] = Real(0.035166666);
+    mass.recalc();
 
+    Rigid3Mass::Mat3x3 rotation(sofa::defaulttype::NOINIT);
+    sofa::defaulttype::Quat q( sofa::defaulttype::Vec3d(1,0,0), Real(M_PI/2) );
+    q.toMatrix(rotation);
+
+    const Rigid3Mass::Mat3x3::Line inertiaDiagonalMassMatrix = sofa::defaulttype::diagonal(mass.inertiaMassMatrix);
+    const Rigid3Mass::Mat3x3 inertiaMassMatrixWorld = rotation.multDiagonal( inertiaDiagonalMassMatrix ) * rotation.transposed();
+
+    const Rigid3Mass::Mat3x3 inertiaMassMatrixWorld2 = rotation *  mass.inertiaMassMatrix  * rotation.transposed();
+   
+    for(std::size_t i=0;i<3;++i)
+    {
+        for(std::size_t j=0; j<3;++j)
+        {
+            EXPECT_EQ(inertiaMassMatrixWorld[i][j], inertiaMassMatrixWorld2[i][j] );
+        }
+    }
 }
 
 
