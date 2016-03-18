@@ -30,6 +30,8 @@ set(HEADER_FILES
     BilateralInteractionConstraint.h
     BilateralInteractionConstraint.inl
     ConstraintAnimationLoop.h
+    RigidMassComplianceEngine.h
+    RigidMassComplianceEngine.inl
     StopperConstraint.h
     StopperConstraint.inl
     SlidingConstraint.h
@@ -57,6 +59,7 @@ set(SOURCE_FILES
     GenericConstraintSolver.cpp
     BilateralInteractionConstraint.cpp
     ConstraintAnimationLoop.cpp
+    RigidMassComplianceEngine.cpp
     StopperConstraint.cpp
     SlidingConstraint.cpp
     ConstraintAttachBodyPerformer.cpp
