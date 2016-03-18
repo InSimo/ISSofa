@@ -14,22 +14,6 @@ namespace component
 namespace mass
 {
 
-template<class Real>
-sofa::defaulttype::Mat<3, 3, Real> skewSymmetricMatrix(const sofa::defaulttype::Vec<3, Real>& v)
-{
-    sofa::defaulttype::Mat<3, 3, Real> res(sofa::defaulttype::NOINIT);
-    res[0][0]=0;
-    res[0][1]=-v[2];
-    res[0][2]=v[1];
-    res[1][0]=v[2];
-    res[1][1]=0;
-    res[1][2]=-v[0];
-    res[2][0]=-v[1];
-    res[2][1]=v[0];
-    res[2][2]=0;
-    return res;
-}
-
 /// Convert to global coordinates the local matrix using the given orientation quaternion.
 /// local is a diagonal matrix ( either the local inertia mass matrix, or its inverse )
 template< typename TQuat , typename TReal >
@@ -74,58 +58,13 @@ TVec3 computeGyroscopicForceExplicit(const TRigidCoord& x,
     return wxIw;
 }
 
-
-/// returns an implicit computation of the gyroscopic force. 
-/// see http://box2d.org/files/GDC2015/ErinCatto_NumericalMethods.pdf slide 71.
-/// in an implicit setting the gyroscopic force is formulated as an implicit function of the angular velocity
-/// we need to solve f( w ) = 0, using one step of newton raphson descent.  
-/// with f( w ) =  Ibody.(w - w0) + h w x Ibody.w 
-/// df/dw = Ibody + h.[ skew(w).Ibody - skew( Ibody.w )
-/// which gives the gyroscopic force in the body frame.
-/// - w0      is the angular velocity at the begining of the time step in body frame coordinates
-/// - Ibody   is the inertia mass matrix in body coordinates.
-/// - skew(.) is the skew symmetric matrix operator which turns a vector 
-///           into its cross product matrix counter part
-/// the gyroscopic force in then converted back to world coordinates.
-template< typename TRigidCoord, typename TVec3, typename TRigidMass, typename Real  >
-TVec3 computeGyroscopicAngularImpulseImplicit(const TRigidCoord& x, const TVec3& w, 
-                                              const TRigidMass& mass, Real dt)
-{
-    const typename TRigidMass::Mat3x3& Ib = mass.inertiaMassMatrix;
-    TVec3    wb         = x.getOrientation().inverseRotate( w );
-    const TVec3   Iwb   = Ib * wb;
-    const TVec3  wbxIwb = sofa::defaulttype::cross( wb, Iwb );
-    const TVec3  f      = wbxIwb * dt; // Ib( wb - wb ) + wbxIwb * dt  
-
-    const typename TRigidMass::Mat3x3 skew_wb  = skewSymmetricMatrix( wb  );
-    const typename TRigidMass::Mat3x3 skew_Iwb = skewSymmetricMatrix( Iwb );
-
-    const typename TRigidMass::Mat3x3  J = Ib + ( skew_wb * Ib - skew_Iwb ) * dt;
-    typename TRigidMass::Mat3x3 Jinv(sofa::defaulttype::NOINIT);
-
-    TVec3 gf;
-
-    if( sofa::defaulttype::invertMatrix(Jinv, J ) )
-    {
-        wb -= Jinv*f;
-
-        const TVec3 w1 = x.getOrientation().rotate( wb );
-        gf = w1 - w;
-    }
-    else
-    {
-        std::cerr<<__FUNCTION__<<std::endl;
-    }
-
-    return gf;
-}
-
 template< class RigidDataTypes >
 UniformRigidMass<RigidDataTypes>::UniformRigidMass()
 :d_mass(initData(&d_mass,sofa::helper::vector<TRigidMass>(1,TRigidMass() ),"mass","The uniform mass for each dof that compose the rigid object"))
-,d_useGyroscopicExplicit(initData(&d_useGyroscopicExplicit,false,"useGyroscopicExplicit","Specify if the gyroscopic term should be computed using explicit formulation"))
-,d_useGyroscopicImplicit(initData(&d_useGyroscopicImplicit,false,"useGyroscopicImplicit","Specify if the gyroscopic term should be computed using implicit formulation"))
-,d_maxGyroscopicForce(initData(&d_maxGyroscopicForce,Real(0.0),"maxGyroscopicForce","Used only for explicit computation of gyroscopic term. Clamp value that must be specified, since explicit computation diverges"))
+,d_useGyroscopicExplicit(initData(&d_useGyroscopicExplicit,false,"useGyroscopicExplicit","Specify if the gyroscopic term should be computed using explicit formulation.\
+                                                                                          Only for debug / comparsion purposes, since explicit formulation diverges."))
+,d_maxGyroscopicForce(initData(&d_maxGyroscopicForce,Real(0.0),"maxGyroscopicForce","Used only for explicit computation of gyroscopic term. \
+                                                                                     Clamp value must be specified, since explicit computation diverges"))
 ,d_drawAxisFactor(initData(&d_drawAxisFactor,1.0f,"drawAxisFactor","Draw: the factor applied on the size of the axis"))
 {
 }
@@ -151,14 +90,7 @@ void UniformRigidMass<RigidDataTypes>::reinit()
         rigidMass[i].recalc();
     }
 
-    if( d_useGyroscopicImplicit.getValue() && d_useGyroscopicExplicit.getValue() )
-    {
-        serr<<"Cannot set both implicit and explicit gyroscopic term. Force implicit computation only" << sendl;
-        d_useGyroscopicExplicit.setValue(false);
-    }
-
     this->sout << "mass= " << d_mass.getValue() << this->sendl;
-
 }
 
 template< class RigidDataTypes >
@@ -201,29 +133,6 @@ void UniformRigidMass<RigidDataTypes>::addForce( const sofa::core::MechanicalPar
 }
 
 template< class RigidDataTypes >
-void UniformRigidMass<RigidDataTypes>::projectVelocity( const sofa::core::MechanicalParams* mparams,  DataVecDeriv& vData)
-{
-    if( d_useGyroscopicImplicit.getValue(mparams) )
-    {
-        bool isFreeMotion = (mparams->v().getId(getMState()) == sofa::core::VecDerivId::freeVelocity());
-        sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass(mparams,d_mass);
-
-        if(!isFreeMotion)
-        {
-            sofa::helper::WriteAccessor< DataVecDeriv > v( mparams, vData );
-            sofa::helper::ReadAccessor< DataVecCoord  > x(mparams, mparams->readX( getMState() ) );
-            
-            for(std::size_t i=0;i<x.size();++i)
-            {
-                const TRigidMass& mass = i<rigidMass.size() ? rigidMass[i] : rigidMass[0];
-                v[i].getAngular() += computeGyroscopicAngularImpulseImplicit( x[i], v[i].getAngular(), mass, Real( this->getContext()->getDt() ) );
-            }
-        }
-    }
-
-}
-
-template< class RigidDataTypes >
 void UniformRigidMass<RigidDataTypes>::addMDx( const sofa::core::MechanicalParams* mparams, DataVecDeriv& d_df, const DataVecDeriv& d_dx, double factor )
 {
     if( factor == 0 )
@@ -234,7 +143,7 @@ void UniformRigidMass<RigidDataTypes>::addMDx( const sofa::core::MechanicalParam
     sofa::helper::ReadAccessor< DataVecDeriv > dx(mparams,d_dx);
     sofa::helper::WriteAccessor< DataVecDeriv> df(mparams,d_df);
     df.resize( dx.size() );
-    sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( getMState()  ) );
+    sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( this->getMState()  ) );
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass(mparams,d_mass);
     const bool verbose = this->f_printLog.getValue();
 
@@ -258,15 +167,15 @@ void UniformRigidMass<RigidDataTypes>::addMToMatrix(const core::MechanicalParams
     //sofa::component::linearsolver::BlocMatrixWriter<MatBloc> writer;
     //writer.addMToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 
-    sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix( getMState() );
+    sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix( this->getMState() );
     const unsigned size = sofa::defaulttype::DataTypeInfo<typename DataTypes::Deriv>::size();
 
-    sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( getMState()  ) );
+    sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( this->getMState()  ) );
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass(mparams,d_mass);
 
     Real mFactor = Real( mparams->mFactor() );
 
-    for(std::size_t i=0; i< (std::size_t)getMState()->getSize(); ++i)
+    for(std::size_t i=0; i< (std::size_t)this->getMState()->getSize(); ++i)
     {
         TRigidMass mass = i < rigidMass.size() ? rigidMass[i] : rigidMass[0];
         mass *= mFactor;
@@ -293,13 +202,6 @@ void UniformRigidMass<RigidDataTypes>::addMToMatrix(const core::MechanicalParams
     }
 }
 
-//template<class MatrixWriter>
-//template< class RigidDataTypes >
-//void UniformRigidMass<RigidDataTypes>::addMToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
-//{
-//
-//}
-
 template< class RigidDataTypes >
 void UniformRigidMass<RigidDataTypes>::draw(const sofa::core::visual::VisualParams* vparams)
 {
@@ -307,7 +209,7 @@ void UniformRigidMass<RigidDataTypes>::draw(const sofa::core::visual::VisualPara
    {
         return;
    }
-    sofa::helper::ReadAccessor< DataVecCoord > x = getMState()->readPositions();
+    sofa::helper::ReadAccessor< DataVecCoord > x = this->getMState()->readPositions();
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass(vparams,d_mass);
 
     typename RigidDataTypes::CPos gravityCenter;
