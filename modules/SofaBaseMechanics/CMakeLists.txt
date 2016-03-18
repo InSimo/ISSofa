@@ -12,6 +12,8 @@ set(HEADER_FILES
     DiagonalMass.inl
     UniformMass.h
     UniformMass.inl
+    UniformRigidMass.h
+    UniformRigidMass.inl
     BarycentricMapping.h
     BarycentricMapping.inl
     IdentityMapping.h
@@ -26,6 +28,7 @@ set(SOURCE_FILES
     MechanicalObject.cpp
     DiagonalMass.cpp
     UniformMass.cpp
+    UniformRigidMass.cpp
     BarycentricMapping.cpp
     IdentityMapping.cpp
     SubsetMapping.cpp
