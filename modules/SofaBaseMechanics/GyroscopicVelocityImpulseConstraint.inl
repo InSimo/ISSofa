@@ -135,13 +135,13 @@ void GyroscopicVelocityImpulseConstraint<RigidDataTypes>::init()
 template< class RigidDataTypes >
 void GyroscopicVelocityImpulseConstraint<RigidDataTypes>::projectVelocity( const sofa::core::MechanicalParams* mparams,  DataVecDeriv& vData)
 {
-    bool isFreeMotion = (mparams->v().getId(getMState()) == sofa::core::VecDerivId::freeVelocity());
+    bool isFreeMotion = (mparams->v().getId(this->getMState()) == sofa::core::VecDerivId::freeVelocity());
     bool active       = d_active.getValue(mparams);
     bool apply        = active && ( isFreeMotion == d_projectFreeMotion.getValue() );
     if(apply)
     {
         sofa::helper::WriteAccessor< DataVecDeriv > v( mparams, vData );
-        sofa::helper::ReadAccessor< DataVecCoord  > x( mparams, mparams->readX( getMState() ) );
+        sofa::helper::ReadAccessor< DataVecCoord  > x( mparams, mparams->readX( this->getMState() ) );
         sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector<TRigidMass> > > rigidMass(mparams,l_rigidMass->d_mass);
 
         for(std::size_t i=0;i<x.size();++i)

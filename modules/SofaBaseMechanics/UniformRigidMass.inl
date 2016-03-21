@@ -73,7 +73,6 @@ template< class RigidDataTypes >
 void UniformRigidMass<RigidDataTypes>::init()
 {
     Inherit1::init();
-    Inherit2::init();
     reinit();
 }
 
@@ -81,7 +80,6 @@ template< class RigidDataTypes >
 void UniformRigidMass<RigidDataTypes>::reinit()
 {
     Inherit1::reinit();
-    Inherit2::reinit();
 
     sofa::helper::WriteAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass = d_mass;
 
@@ -107,7 +105,7 @@ void UniformRigidMass<RigidDataTypes>::addForce( const sofa::core::MechanicalPar
     for(std::size_t i=0;i<f.size();++i)
     {
         const TRigidMass& m = i < rigidMass.size() ? rigidMass[i] : rigidMass[0];
-        typename DataTypes::DPos mg = this->getContext()->getGravity()*rigidMass[i].mass;
+        typename RigidDataTypes::DPos mg = this->getContext()->getGravity()*m.mass;
         f[i].getLinear() += mg;
     }
 
@@ -145,15 +143,12 @@ void UniformRigidMass<RigidDataTypes>::addMDx( const sofa::core::MechanicalParam
     df.resize( dx.size() );
     sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( this->getMState()  ) );
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass(mparams,d_mass);
-    const bool verbose = this->f_printLog.getValue();
+    //const bool verbose = this->f_printLog.getValue();
 
     for(std::size_t i=0;i<df.size();++i)
     {
         const TRigidMass& mass = i < rigidMass.size() ? rigidMass[i] : rigidMass[0];
         df[i].getLinear() +=  dx[i].getLinear() * mass.mass * factor ;
-
-        typename TRigidMass::Mat3x3 rotation;
-        x[i].getOrientation().toMatrix(rotation);
 
         typename TRigidMass::Mat3x3 inertiaMassMatrixWorld  = computeInertiaMassMatrixWorld(x[i], mass );
         inertiaMassMatrixWorld *= (Real)factor;
@@ -168,7 +163,7 @@ void UniformRigidMass<RigidDataTypes>::addMToMatrix(const core::MechanicalParams
     //writer.addMToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix( this->getMState() );
-    const unsigned size = sofa::defaulttype::DataTypeInfo<typename DataTypes::Deriv>::size();
+    const unsigned size = sofa::defaulttype::DataTypeInfo<typename RigidDataTypes::Deriv>::size();
 
     sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( this->getMState()  ) );
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< TRigidMass > > > rigidMass(mparams,d_mass);
