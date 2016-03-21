@@ -50,6 +50,7 @@ RigidMassComplianceEngine<TRigidDataTypes>::RigidMassComplianceEngine()
     addInput(&d_rigidPosition);
     addInput(&d_rigidMass);
     addOutput(&d_rigidCompliance);
+    addOutput(&d_rigidComplianceUnzipped);
 }
 
 template< class TRigidDataTypes>
