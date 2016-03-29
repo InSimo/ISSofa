@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-//#ifndef SOFA_COMPONENT_COLLISION_TRIANGLEMODEL_INL
-//#define SOFA_COMPONENT_COLLISION_TRIANGLEMODEL_INL
+#ifndef SOFA_COMPONENT_COLLISION_TRIANGLEMODEL_INL
+#define SOFA_COMPONENT_COLLISION_TRIANGLEMODEL_INL
 
 #include <SofaMeshCollision/TriangleModel.h>
 #include <sofa/core/visual/VisualParams.h>
@@ -896,4 +896,4 @@ int TTriangleModel<DataTypes>::getTriangleFlags(int i)
 
 } // namespace sofa
 
-//#endif
+#endif

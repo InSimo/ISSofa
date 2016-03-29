@@ -25,8 +25,8 @@
 
 
 
-#ifndef SOFA_COMPONENT_MISC_WRITESTATE_H
-#define SOFA_COMPONENT_MISC_WRITESTATE_H
+#ifndef SOFA_COMPONENT_MISC_BLENDEREXPORTER_H
+#define SOFA_COMPONENT_MISC_BLENDEREXPORTER_H
 
 #include <sofa/core/State.h>
 #include <sofa/core/objectmodel/BaseObject.h>

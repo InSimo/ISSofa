@@ -22,6 +22,10 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+
+#ifndef SOFA_COMPONENT_MISC_BLENDEREXPORTER_INL
+#define SOFA_COMPONENT_MISC_BLENDEREXPORTER_INL
+
 #include <SofaExporter/BlenderExporter.h>
 #include <iomanip>
 #include <iostream>
@@ -239,3 +243,5 @@ namespace sofa
     } // namespace component
 
 } // namespace sofa
+
+#endif
