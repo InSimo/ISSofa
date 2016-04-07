@@ -88,7 +88,12 @@ set(SOFAHELPER_HEADERS
     kdTree.h
 	)
 
-set(SOFAHELPER_SOURCES
+set (SOFAHELPER_SOURCES_OUTSIDE_UNITY
+     AdvancedTimer.cpp
+     io/ImageDDS.cpp
+     io/SphereLoader.cpp )
+ 
+set(SOFAHELPER_SOURCES_UNITY
 	ArgumentParser.cpp
     BackTrace.cpp
     DualQuat.cpp
@@ -105,7 +110,6 @@ set(SOFAHELPER_SOURCES
     io/MeshSTL.cpp
     io/MeshTopologyLoader.cpp
     io/MeshTrian.cpp
-    io/SphereLoader.cpp
     io/TriangleLoader.cpp
     io/bvh/BVHJoint.cpp
     io/bvh/BVHLoader.cpp
@@ -132,8 +136,6 @@ set(SOFAHELPER_SOURCES
     polygon_cube_intersection/fast_polygon_cube_intersection.cpp
     vector.cpp
     proximity.cpp
-    AdvancedTimer.cpp
-    io/ImageDDS.cpp
     OptionsGroup.cpp
     Polynomial_LD.cpp
     UnitTest.cpp
@@ -141,12 +143,12 @@ set(SOFAHELPER_SOURCES
 
 if(SOFA_HAVE_PNG)
 	list(APPEND SOFAHELPER_HEADERS  io/ImagePNG.h  )
-	list(APPEND SOFAHELPER_SOURCES  io/ImagePNG.cpp) 
+	list(APPEND SOFAHELPER_SOURCES_UNITY  io/ImagePNG.cpp) 
 endif()
 
 if(Boost_thread_FOUND )
 	list(APPEND SOFAHELPER_HEADERS "system/thread/TimeoutWatchdog.h")
-	list(APPEND SOFAHELPER_SOURCES "system/thread/TimeoutWatchdog.cpp")
+	list(APPEND SOFAHELPER_SOURCES_UNITY "system/thread/TimeoutWatchdog.cpp")
 endif()
 
 if(NOT SOFA-MISC_NO_OPENGL)
@@ -159,11 +161,14 @@ if(NOT SOFA-MISC_NO_OPENGL)
 		gl/glText.inl
 		gl/glText.h
 		)
-		list(APPEND SOFAHELPER_SOURCES
+		list(APPEND SOFAHELPER_SOURCES_UNITY
 		gl/Axis.cpp
-		gl/Cylinder.cpp
 		gl/glText.cpp
 		)
+
+		list( APPEND SOFAHELPER_SOURCES_OUTSIDE_UNITY
+		      gl/Cylinder.cpp
+                )
 	endif(SOFA_HAVE_GLUT)
 	
 	list(APPEND SOFAHELPER_HEADERS
@@ -173,18 +178,21 @@ if(NOT SOFA-MISC_NO_OPENGL)
 	gl/RAII.h
 	gl/template.h)
 			
-	list(APPEND SOFAHELPER_SOURCES
-	gl/Capture.cpp
+	list(APPEND SOFAHELPER_SOURCES_UNITY
 	gl/Color.cpp
 	gl/glfont.cpp
 	)
+
+        list(APPEND SOFAHELPER_SOURCES_OUTSIDE_UNITY
+	gl/Capture.cpp
+        )
 	
 	if(SOFA_HAVE_GLEW)
 		list(APPEND SOFAHELPER_HEADERS
 			gl/Texture.h
 			gl/FrameBufferObject.h
 			gl/GLSLShader.h)
-		list(APPEND SOFAHELPER_SOURCES
+		list(APPEND SOFAHELPER_SOURCES_UNITY
 			gl/Texture.cpp
 			gl/FrameBufferObject.cpp
 			gl/GLSLShader.cpp)
@@ -193,12 +201,12 @@ endif(NOT SOFA-MISC_NO_OPENGL)
 
 if(SOFA-EXTERNAL_HAVE_FFMPEG)
 	list(APPEND SOFAHELPER_HEADERS "gl/VideoRecorder.h")
-	list(APPEND SOFAHELPER_SOURCES "gl/VideoRecorder.cpp")
+	list(APPEND SOFAHELPER_SOURCES_UNITY "gl/VideoRecorder.cpp")
 endif()
 
 if(PS3)
 	list(APPEND SOFAHELPER_HEADERS "gl/ps3gl_compat.h")
-	list(APPEND SOFAHELPER_SOURCES "gl/ps3gl_compat.cpp")
+	list(APPEND SOFAHELPER_SOURCES_UNITY "gl/ps3gl_compat.cpp")
 endif()
 
 if(WIN32)
@@ -210,6 +218,27 @@ if(UNIX)
   list(APPEND SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES dl)
 endif()
 
+
+
+
+include( CMakeDependentOption )
+cmake_dependent_option(UNITY_BUILD_${PROJECT_NAME} "Decides if a the generated project files should build through a unity build instead of a normal build. A unity builds packs all .cpp files into a UnityBuild.cpp file and then only include this in the project. This greatly reduces build times." ON  SOFA_ALLOW_UNITY_BUILDS OFF)
+
+if( UNITY_BUILD_${PROJECT_NAME} )
+  # Generate a unity build, by creating the UnityBuild.cpp and only including the required 
+  # source files.
+  set( UNITYBUILD_INCLUDES "" )
+  foreach(filename ${SOFAHELPER_SOURCES_UNITY})
+    SET( UNITYBUILD_INCLUDES "${UNITYBUILD_INCLUDES}#include \"${filename}\"\n" )
+  endforeach(filename)
+
+  file(WRITE UnityBuild.cpp ${UNITYBUILD_INCLUDES} )
+
+  # overwrite the source files to only include the generated unity build file.
+  set( SOFAHELPER_SOURCES ${SOFAHELPER_SOURCES_OUTSIDE_UNITY} UnityBuild.cpp )
+else()
+  set( SOFAHELPER_SOURCES ${SOFAHELPER_SOURCES_OUTSIDE_UNITY} ${SOFAHELPER_SOURCES_UNITY} )
+endif()
 
 add_library(${PROJECT_NAME} SHARED ${SOFAHELPER_HEADERS} ${SOFAHELPER_SOURCES})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} )

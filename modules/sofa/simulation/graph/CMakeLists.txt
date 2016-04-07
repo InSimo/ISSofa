@@ -14,6 +14,25 @@ set(SOFASIMULATION_SOURCES
 	DAGSimulation.cpp 
 	)
 
+
+
+include( CMakeDependentOption )
+cmake_dependent_option(UNITY_BUILD_${PROJECT_NAME} "Decides if a the generated project files should build through a unity build instead of a normal build. A unity builds packs all .cpp files into a UnityBuild.cpp file and then only include this in the project. This greatly reduces build times." ON  SOFA_ALLOW_UNITY_BUILDS OFF)
+
+if( UNITY_BUILD_${PROJECT_NAME} )
+  # Generate a unity build, by creating the UnityBuild.cpp and only including the required 
+  # source files.
+  set( UNITYBUILD_INCLUDES "" )
+  foreach(filename ${SOFASIMULATION_SOURCES})
+    SET( UNITYBUILD_INCLUDES "${UNITYBUILD_INCLUDES}#include \"${filename}\"\n" )
+  endforeach(filename)
+
+  file(WRITE UnityBuild.cpp ${UNITYBUILD_INCLUDES} )
+
+  # overwrite the source files to only include the generated unity build file.
+  set( SOFASIMULATION_SOURCES UnityBuild.cpp )
+endif()
+
 add_library(${PROJECT_NAME} SHARED ${SOFASIMULATION_HEADERS} ${SOFASIMULATION_SOURCES})
 target_link_libraries( ${PROJECT_NAME} PUBLIC SofaSimulationCommon )
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../>")
