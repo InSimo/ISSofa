@@ -29,6 +29,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/behavior/ForceField.inl>
 #include <SofaSphFluid/SpatialGridContainer.inl>
+#include <SofaSphFluid/SPHKernel.h>
 #include <sofa/helper/system/config.h>
 #include <sofa/helper/gl/template.h>
 #include <math.h>

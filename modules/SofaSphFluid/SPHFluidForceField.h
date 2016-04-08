@@ -29,7 +29,6 @@
 #include <sofa/core/behavior/ForceField.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <SofaSphFluid/SpatialGridContainer.h>
-#include <SofaSphFluid/SPHKernel.h>
 #include <sofa/helper/rmath.h>
 #include <vector>
 #include <math.h>
