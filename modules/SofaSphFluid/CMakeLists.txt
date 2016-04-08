@@ -10,6 +10,7 @@ set(HEADER_FILES
     SPHFluidForceField.inl
     SPHFluidSurfaceMapping.h
     SPHFluidSurfaceMapping.inl
+    SPHKernel.h
     ParticleSink.h
     ParticleSource.h
     ParticlesRepulsionForceField.h
