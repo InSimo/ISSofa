@@ -389,33 +389,33 @@ public:
 
     Real W(Real r_h) const
     {
-        return K::W(r_h, cW);
+        return (r_h <= 1 ? K::W(r_h, cW) : 0);
     }
 
     Deriv gradW(const Deriv& d, Real r_h) const
     {
-        return K::gradW(d, r_h, cGW);
+        return (r_h <= 1 ? K::gradW(d, r_h, cGW) : Deriv());
     }
 
     Real laplacianW(Real r_h) const
     {
-        return K::laplacianW(r_h, cLW);
+        return (r_h <= 1 ? K::laplacianW(r_h, cLW) : 0);
     }
 
 
     Real W2(Real r2_h2) const
     {
-        return K::W2(r2_h2, cW);
+        return (r2_h2 <= 1 ? K::W2(r2_h2, cW) : 0);
     }
 
     Deriv gradW2(const Deriv& d, Real r2_h2) const
     {
-        return K::gradW2(d, r2_h2, cGW);
+        return (r2_h2 <= 1 ? K::gradW2(d, r2_h2, cGW) : Deriv());
     }
 
     Real laplacianW2(Real r2_h2) const
     {
-        return K::laplacianW2(r2_h2, cLW);
+        return (r2_h2 <= 1 ? K::laplacianW2(r2_h2, cLW) : 0);
     }
 
     // Check kernel constants and derivatives
