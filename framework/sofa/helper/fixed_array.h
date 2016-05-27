@@ -231,14 +231,14 @@ public:
     // operator[]
     reference operator[](size_type i)
     {
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
         assert(i<N && "index in fixed_array must be smaller than size");
 #endif
         return elems[i];
     }
     const_reference operator[](size_type i) const
     {
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
         assert(i<N && "index in fixed_array must be smaller than size");
 #endif
         return elems[i];

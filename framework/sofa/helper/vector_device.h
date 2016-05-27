@@ -833,15 +833,15 @@ protected:
         DEBUG_OUT_V(SPACEM << "copyToHostSingle " << std::endl);
     }
 
-#ifdef NDEBUG
-    void checkIndex ( size_type ) const {}
-#else
+#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
     void checkIndex ( size_type i ) const
     {
         //assert ( i<this->size() );
         if (i>=this->size())
             vector_access_failure(this, this->size(), i, typeid(T));
     }
+#else
+    void checkIndex ( size_type ) const {}
 #endif
 
     void registerBuffer() const
