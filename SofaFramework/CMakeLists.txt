@@ -98,6 +98,16 @@ if( GLUT_FOUND )
 endif()
 set(SOFA_HAVE_GLUT ${GLUT_FOUND})
 
+# X11
+if(UNIX AND NOT APPLE)
+    find_package(X11 REQUIRED)
+    sofa_create_target(X11 SofaFramework  "${X11_X11_LIB}" "${X11_INCLUDE_DIR}" )
+    list(APPEND SOFAFRAMEWORK_DEPENDENCY_LINK ${X11_Target} )
+    set(SOFA_HAVE_X11 ${X11_FOUND})
+else()
+    set(SOFA_HAVE_X11 FALSE)
+endif()
+
 # Boost
 find_package(Boost COMPONENTS thread system date_time chrono QUIET)
 
