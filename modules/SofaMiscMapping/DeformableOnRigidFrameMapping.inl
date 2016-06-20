@@ -97,7 +97,6 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::init()
     if( d_invertRigidFrame.getValue() && this->isMechanical() )
     {
         serr<< "invertRigidFrame  is true : disable accumulation through mapping" << sendl;
-        this->setNonMechanical();
     }
 
     Inherit::init();
@@ -149,6 +148,10 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJ( typename Out::Ve
 template <class TIn, class TInRoot, class TOut>
 void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in, typename InRoot::VecDeriv& outRoot)
 {
+    if (d_invertRigidFrame.getValue())
+    {
+        return;
+    }
 
     Deriv v,omega;
 
@@ -173,6 +176,11 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJT( typename In::Ve
 template <class TIn, class TInRoot, class TOut>
 void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJT( typename In::MatrixDeriv&  out , const typename Out::MatrixDeriv&  in , typename InRoot::MatrixDeriv&  outroot)
 {
+
+    if (d_invertRigidFrame.getValue())
+    {
+        return;
+    }
 
     typename Out::MatrixDeriv::RowConstIterator rowItEnd = in.end();
 
