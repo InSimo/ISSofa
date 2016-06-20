@@ -29,7 +29,7 @@
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/core/objectmodel/Data.h>
 #include "Binding_LinearSpring.h"
-
+#include <sofa/core/objectmodel/DataFileName.h>
 #include <SofaDeformable/SpringForceField.h>
 
 using namespace sofa::component::interactionforcefield;
@@ -575,6 +575,26 @@ bool SetDataValuePython(BaseData* data, PyObject* args)
 }
 
 
+SP_CLASS_ATTR_GET(Data, fullPath)(PyObject *self, void*)
+{
+    BaseData* data = ((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
+
+    if (sofa::core::objectmodel::DataFileName* dataFilename = dynamic_cast<sofa::core::objectmodel::DataFileName*>(data))
+    {
+        return PyString_FromString(dataFilename->getFullPath().c_str());
+    }
+
+    Py_RETURN_NONE;
+}
+
+
+SP_CLASS_ATTR_SET(Data, fullPath)(PyObject *self, PyObject * args, void*)
+{
+    SP_MESSAGE_ERROR("fullPath attribute is read only")
+        PyErr_BadArgument();
+    return -1;
+}
+
 
 SP_CLASS_ATTR_GET(Data,value)(PyObject *self, void*)
 {
@@ -718,6 +738,7 @@ SP_CLASS_ATTRS_BEGIN(Data)
 SP_CLASS_ATTR(Data,name)
 //SP_CLASS_ATTR(BaseData,owner)
 SP_CLASS_ATTR(Data,value)
+SP_CLASS_ATTR(Data,fullPath)
 SP_CLASS_ATTRS_END
 
 SP_CLASS_TYPE_BASE_PTR_ATTR(Data,BaseData)
