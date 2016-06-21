@@ -98,18 +98,24 @@ void RigidMassComplianceEngine<TRigidDataTypes>::update()
 
 template< class TRigidDataTypes>
 typename RigidMassComplianceEngine<TRigidDataTypes>::RigidCompliance
-RigidMassComplianceEngine<TRigidDataTypes>::rigidComplianceFromInertiaMassMatrix( const typename TRigidMass::Mat3x3& invInertiaGlobal, Real mass, Real h2 ) const
+RigidMassComplianceEngine<TRigidDataTypes>::rigidComplianceFromInertiaMassMatrix( const typename TRigidMass::Mat3x3& invInertiaGlobal, Real mass, Real /*h2*/ ) const
 {
 
     RigidCompliance compliance(sofa::defaulttype::NOINIT);
 
-    compliance[0] = (h2 / mass);
-    compliance[1] = (h2 * invInertiaGlobal[0][0]);
-    compliance[2] = (h2 * invInertiaGlobal[0][1]);
-    compliance[3] = (h2 * invInertiaGlobal[0][2]);
-    compliance[4] = (h2 * invInertiaGlobal[1][1]);
-    compliance[5] = (h2 * invInertiaGlobal[1][2]);
-    compliance[6] = (h2 * invInertiaGlobal[2][2]);
+    // W = dt^2 * invInertiaGlobal is only correct when solving the system in position
+    //Thus, the formulation compliance = (h2 * invInertiaGlobal) should be deprecated 
+    //Instead we just return the invert of inertiaMassMatrix and the contribution of the timestep is done within the constraintCorrection class
+    //This way we ensure homogeneity when dealing with objects that use different constraintCorrection schemes.
+    //WARNING: In this case when dealing with an uncoupledConstraintCorrection, the data useOdeIntegrationFactors must be set to true
+
+    compliance[0] = (1 / mass);
+    compliance[1] = invInertiaGlobal[0][0];
+    compliance[2] = invInertiaGlobal[0][1];
+    compliance[3] = invInertiaGlobal[0][2];
+    compliance[4] = invInertiaGlobal[1][1];
+    compliance[5] = invInertiaGlobal[1][2];
+    compliance[6] = invInertiaGlobal[2][2];
 
     return compliance;
 }
