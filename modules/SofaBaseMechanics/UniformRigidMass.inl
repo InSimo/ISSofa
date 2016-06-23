@@ -35,14 +35,6 @@ typename TRigidMass::Mat3x3 computeInertiaMassMatrixWorld( const TRigidCoord& x,
     return localToGlobal( x.getOrientation(), inertiaMassMatrixLocal );
 }
 
-template< typename TRigidCoord, typename TRigidMass >
-typename TRigidMass::Mat3x3 computeInvInertiaMassMatrixWorld( const TRigidCoord& x, const TRigidMass& mass)
-{
-    const typename TRigidMass::Mat3x3 invInertiaMassMatrixLocal = mass.invInertiaMatrix * mass.mass;
-    return localToGlobal( x.getOrientation(), invInertiaMassMatrixLocal );
-}
-
-
 /// returns an explicit computation of the gyroscopic force.
 /// in an explicit setting the gyroscopic force is gf = w x I.w  where : 
 /// - w is the angular velocity
