@@ -35,7 +35,7 @@ sofa::defaulttype::Mat<3,3,TReal> localToGlobal(const TQuat& orientation, const 
 template< typename TRigidCoord, typename TRigidMass >
 typename TRigidMass::Mat3x3 computeInvInertiaMassMatrixWorld( const TRigidCoord& x, const TRigidMass& mass)
 {
-    const typename TRigidMass::Mat3x3 invInertiaMassMatrixLocal = mass.invInertiaMatrix * mass.mass;
+    const typename TRigidMass::Mat3x3 invInertiaMassMatrixLocal = mass.invInertiaMatrix / mass.mass;
     return localToGlobal( x.getOrientation(), invInertiaMassMatrixLocal );
 }
 
