@@ -61,17 +61,17 @@ public:
 
 public:
     /// indices of the points the force applies to
-    SetIndex points;
+    SetIndex m_points;
     /// Per-point forces.
-    Data< VecDeriv > forces;
+    Data< VecDeriv > d_forces;
     /// Force applied at each point, if per-point forces are not specified
-    Data< Deriv > force;
+    Data< Deriv > d_force;
     /// Sum of the forces applied at each point, if per-point forces are not specified
-    Data< Deriv > totalForce;
+    Data< Deriv > d_totalForce;
     ///S for drawing. The sign changes the direction, 0 doesn't draw arrow
-    Data< double > arrowSizeCoef; // for drawing. The sign changes the direction, 0 doesn't draw arrow
+    Data< double > d_arrowSizeCoef; // for drawing. The sign changes the direction, 0 doesn't draw arrow
     /// Concerned DOFs indices are numbered from the end of the MState DOFs vector
-    Data< bool > indexFromEnd;
+    Data< bool > d_indexFromEnd;
     /// Enable support of topological changes for point indices (disable if another component takes care of this)
     Data < bool > d_handleTopologyChange;
     /// Start of time which the force is activated
@@ -91,15 +91,15 @@ public:
     void init();
 
     /// Add the forces
-    virtual void addForce (const core::MechanicalParams* params /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
+    virtual void addForce (const core::MechanicalParams* mparams, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
 
     /// Constant force has null variation
-    virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& d_df , const DataVecDeriv& d_dx)
+    virtual void addDForce(const core::MechanicalParams* mparams, DataVecDeriv& d_df , const DataVecDeriv& d_dx)
     {
         //TODO: remove this line (avoid warning message) ...
         mparams->setKFactorUsed(true);
-        sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > _f1 = d_df;
-        _f1.resize(d_dx.getValue().size());
+        sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > df = d_df;
+        df.resize(d_dx.getValue().size());
     }
 
     /// Constant force has null variation
@@ -117,8 +117,7 @@ public:
 
 protected:
     /// Pointer to the current topology
-    sofa::core::topology::BaseMeshTopology* topology;
-
+    sofa::core::topology::BaseMeshTopology* m_topology;
 };
 
 #ifndef SOFA_FLOAT
