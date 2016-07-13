@@ -79,7 +79,8 @@ set(SOFAHELPER_HEADERS
     SimpleTimer.h
     AdvancedTimer.h
     io/ImageDDS.h
-	OptionsGroup.h 
+    OptionsGroup.h
+    pair.h
     Polynomial_LD.h
     Polynomial_LD.inl
     UnitTest.h
