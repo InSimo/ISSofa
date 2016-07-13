@@ -77,7 +77,7 @@ class ptr_stable_compare<T*>
 {
 public:
     // wrap the ptr_stable_id<T> into an opaque type
-    typedef ptr_stable_id<T> stable_map_type;
+    typedef ptr_stable_id<T> stable_id_map_type;
 	// This operator must be declared const in order to be used within const methods
 	// such as std::map::find()
 	bool operator()(T* a, T* b) const
@@ -85,9 +85,14 @@ public:
 		return (m_ids->id(a) < m_ids->id(b));
 	}
 
-    explicit ptr_stable_compare( const ptr_stable_id<T>* ids ):m_ids(ids)
+    explicit ptr_stable_compare( ptr_stable_id<T>* ids ):m_ids(ids)
     {
     } 
+
+    ptr_stable_id<T>* get_stable_id_map() const
+    {
+        return m_ids;
+    }
 
 protected:
     /// memory is owned by the map_ptr_stable_compare instance
