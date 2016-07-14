@@ -56,6 +56,7 @@
 #include <sofa/helper/system/gl.h>
 #include <sofa/helper/system/glut.h>
 #include <sofa/helper/system/atomic.h>
+#include <cstdlib>
 #ifdef SOFA_SMP
 #include <athapascan-1>
 #endif /* SOFA_SMP */
@@ -147,6 +148,7 @@ int main(int argc, char** argv)
     int	        nbIterations = -1;
     unsigned    computationTimeSampling=0; ///< Frequency of display of the computation time statistics, in number of animation steps. 0 means never.
     std::vector<std::string> guiOptions;
+    std::string viewerDimension = "800x600";
 
     std::string gui = "";
     std::string verif = "";
@@ -173,6 +175,7 @@ int main(int argc, char** argv)
     .option(&computationTimeSampling,'c',"computationTimeSampling","Frequency of display of the computation time statistics, in number of animation steps. 0 means never.")
     .option(&gui,'g',"gui",gui_help.c_str())
     .option(&guiOptions,'o',"guiOption","Options for the chosen GUI")
+    .option(&viewerDimension,'d',"dimension","Set the GUI viewer dimension in WIDTHxHEIGHT format or with any other separator")
     .option(&plugins,'l',"load","load given plugins")
     .option(&nbIterations,'n',"nb_iterations","Number of iterations of the simulation")
     .option(&printFactory,'p',"factory","print factory logs")
@@ -289,8 +292,19 @@ int main(int argc, char** argv)
     if (int err=sofa::gui::GUIManager::createGUI(NULL))
         return err;
 
-    //To set a specific resolution for the viewer, use the component ViewerSetting in you scene graph
-    sofa::gui::GUIManager::SetDimension(800,600);
+    //To set a specific resolution for the viewer, you can also use the component ViewerSetting in you scene graph
+    if (!viewerDimension.empty())
+    {
+        std::size_t sep = viewerDimension.find_first_not_of("0123456789");
+        if (sep != std::string::npos)
+        {
+            std::string widthStr(viewerDimension,0,sep);
+            int width = atoi(widthStr.c_str());
+            std::string heightStr(viewerDimension,sep+1);
+            int height = atoi(heightStr.c_str());
+            sofa::gui::GUIManager::SetDimension(width, height);
+        }
+    }
 
     sofa::simulation::Node::SPtr groot = sofa::core::objectmodel::SPtr_dynamic_cast<sofa::simulation::Node>( sofa::simulation::getSimulation()->load(fileName.c_str()));
     if (groot==NULL)
