@@ -180,6 +180,7 @@ int main(int argc, char** argv)
     int	        nbIterations = -1;
     unsigned int nbMSSASamples = 1;
     unsigned    computationTimeSampling=0; ///< Frequency of display of the computation time statistics, in number of animation steps. 0 means never.
+    std::vector<std::string> guiOptions;
 
     string gui = "";
     string verif = "";
@@ -210,6 +211,7 @@ int main(int argc, char** argv)
     .option(&startAnim,'a',"start","start the animation loop")
     .option(&computationTimeSampling,'c',"computationTimeSampling","Frequency of display of the computation time statistics, in number of animation steps. 0 means never.")
     .option(&gui,'g',"gui",gui_help.c_str())
+    .option(&guiOptions,'o',"guiOption","Options for the chosen GUI")
     .option(&plugins,'l',"load","load given plugins")
     .option(&nbIterations,'n',"nb_iterations","Number of iterations of the simulation")
     .option(&printFactory,'p',"factory","print factory logs")
@@ -367,6 +369,9 @@ int main(int argc, char** argv)
         oss << nbMSSASamples;
         GUIManager::AddGUIOption(oss.str().c_str());
     }
+
+    for (unsigned int i=0; i<guiOptions.size(); i++)
+        GUIManager::AddGUIOption(guiOptions[i].c_str());
 
     if (int err = GUIManager::Init(argv[0],gui.c_str()))
         return err;
