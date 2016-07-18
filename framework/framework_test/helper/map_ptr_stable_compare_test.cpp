@@ -28,9 +28,10 @@ TEST(ptr_stable_id, CheckPtrStableId)
 }
 
 
-TEST(map_ptr_stable_compare, checkPtrStableCompare)
+TEST(map_ptr_stable_compare, checkMapPtrStableCompare)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
+    typedef sofa::helper::ptr_stable_id< int > IntegerStableId;
 
     int a = 0;
     int b = 1;
@@ -39,24 +40,75 @@ TEST(map_ptr_stable_compare, checkPtrStableCompare)
 
     IntegerMap map;
 
-    map[&a] = a;
     map[&b] = b;
-    map[&c] = c;
     map[&d] = d;
+    map[&a] = a;
+    map[&c] = c;
+
+    IntegerStableId* idMap = map.key_comp().get_stable_id_map();
+
+    EXPECT_EQ(idMap->id(&b), 0);
+    EXPECT_EQ(idMap->id(&d), 1);
+    EXPECT_EQ(idMap->id(&a), 2);
+    EXPECT_EQ(idMap->id(&c), 3);
 
     typename IntegerMap::const_iterator it = map.begin();
 
+    EXPECT_EQ(it->second, b);
+    ++it;
+    EXPECT_EQ(it->second, d);
+    ++it;
     EXPECT_EQ(it->second, a);
+    ++it;
+    EXPECT_EQ(it->second, c);
+}
+
+
+TEST(map_ptr_stable_compare, checkMapPairPtrStableCompare)
+{
+    typedef sofa::helper::map_ptr_stable_compare<std::pair<int*,int*>, int> IntegerPairMap;
+    typedef sofa::helper::ptr_stable_id< int > IntegerStableId;
+    int a = 1;
+    int b = 2;
+    int c = 4;
+    int d = 8;
+
+    IntegerPairMap map;
+
+    map[std::make_pair(&a, &a)] = a;
+    map[std::make_pair(&a, &b)] = a+b;
+    map[std::make_pair(&b, &b)] = b;
+    map[std::make_pair(&b, &c)] = b+c;
+    map[std::make_pair(&c, &c)] = c;
+    map[std::make_pair(&c, &d)] = c+d;
+    map[std::make_pair(&d, &d)] = d;
+
+    IntegerStableId* idMap = map.key_comp().get_stable_id_map();
+
+    EXPECT_EQ(idMap->id(&a), 0);
+    EXPECT_EQ(idMap->id(&b), 1);
+    EXPECT_EQ(idMap->id(&c), 2);
+    EXPECT_EQ(idMap->id(&d), 3);
+
+    typename IntegerPairMap::const_iterator it = map.begin();
+
+    EXPECT_EQ(it->second, a);
+    ++it;
+    EXPECT_EQ(it->second, a+b);
     ++it;
     EXPECT_EQ(it->second, b);
     ++it;
+    EXPECT_EQ(it->second, b+c);
+    ++it;
     EXPECT_EQ(it->second, c);
+    ++it;
+    EXPECT_EQ(it->second, c+d);
     ++it;
     EXPECT_EQ(it->second, d);
 }
 
 
-TEST(map_ptr_stable_compare, checkAssignementOperator)
+TEST(map_ptr_stable_compare, checkMapPtrAssignementOperator)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
 
@@ -78,6 +130,34 @@ TEST(map_ptr_stable_compare, checkAssignementOperator)
 
     for (typename IntegerMap::const_iterator itCopy = mapCopy.begin(), it = map.begin(); it != map.end(); 
          ++itCopy, ++it)
+    {
+        EXPECT_EQ(it->first, itCopy->first);
+        EXPECT_EQ(it->second, itCopy->second);
+    }
+}
+
+TEST(map_ptr_stable_compare, checkMapPairPtrAssignementOperator)
+{
+    typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
+
+    int a = 0;
+    int b = 1;
+    int c = 2;
+    int d = 3;
+
+    IntegerMap map;
+
+    map[&a] = a;
+    map[&b] = b;
+    map[&c] = c;
+    map[&d] = d;
+
+    IntegerMap mapCopy = map;
+
+    ASSERT_EQ(mapCopy.size(), map.size());
+
+    for (typename IntegerMap::const_iterator itCopy = mapCopy.begin(), it = map.begin(); it != map.end();
+        ++itCopy, ++it)
     {
         EXPECT_EQ(it->first, itCopy->first);
         EXPECT_EQ(it->second, itCopy->second);
