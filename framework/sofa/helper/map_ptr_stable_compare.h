@@ -26,6 +26,7 @@
 #define SOFA_HELPER_MAP_PTR_STABLE_COMPARE_H
 
 #include <sofa/SofaFramework.h>
+#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <map>
 
@@ -55,7 +56,7 @@ public:
 		}
 		else
 		{
-			id = ++(*counter);
+			id = (*counter)++;
 			idMap->insert(std::make_pair(p, id));
 		}
 		return id;
