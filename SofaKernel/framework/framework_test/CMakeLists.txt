@@ -13,6 +13,7 @@ set(SOURCE_FILES
     defaulttype/MatTypes_test.cpp
     defaulttype/VecTypes_test.cpp
     defaulttype/RigidMass_test.cpp
+    helper/map_ptr_stable_compare_test.cpp
     helper/KdTree_test.cpp
     helper/Utils_test.cpp
     helper/Quater_test.cpp
