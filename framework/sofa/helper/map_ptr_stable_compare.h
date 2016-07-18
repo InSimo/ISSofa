@@ -86,7 +86,9 @@ public:
 	// such as std::map::find()
 	bool operator()(T* a, T* b) const
 	{
-		return (m_ids->id(a) < m_ids->id(b));
+        unsigned int id_a = m_ids->id(a);
+        unsigned int id_b = m_ids->id(b);
+        return (id_a < id_b);
 	}
 
     explicit ptr_stable_compare( ptr_stable_id<T>* ids ):m_ids(ids)
@@ -113,7 +115,11 @@ public:
 	// such as std::map::find()
 	bool operator()(const std::pair<T*,T*>& a, const std::pair<T*,T*>& b) const
 	{
-		return (std::make_pair(m_ids->id(a.first), m_ids->id(a.second)) < std::make_pair(m_ids->id(b.first), m_ids->id(b.second)) );
+        unsigned int id_a_first  = m_ids->id(a.first);
+        unsigned int id_a_second = m_ids->id(a.second);
+        unsigned int id_b_first  = m_ids->id(b.first);
+        unsigned int id_b_second = m_ids->id(b.second);
+        return (std::make_pair(id_a_first, id_a_second) < std::make_pair(id_b_first, id_b_second) );
 	}
 
     explicit ptr_stable_compare( ptr_stable_id<T>* ids):m_ids(ids)
