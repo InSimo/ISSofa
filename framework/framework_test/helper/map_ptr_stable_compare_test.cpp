@@ -166,6 +166,33 @@ TEST(map_ptr_stable_compare, checkMapPtrAssignementOperator)
     }
 }
 
+TEST(map_ptr_stable_compare, CheckIdMapPersistsAfterClear)
+{
+    typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
+    typedef sofa::helper::ptr_stable_id< int > IntegerStableId;
+
+    int a = 0;
+    int b = 1;
+    int c = 2;
+    int d = 3;
+
+    IntegerMap map;
+
+    map[&a] = a;
+    map[&b] = b;
+    map[&c] = c;
+    map[&d] = d;
+
+    IntegerStableId* idMap = map.key_comp().get_stable_id_map();
+
+    EXPECT_EQ(map.size(), 4);
+
+    map.clear();
+
+    EXPECT_EQ(map.size(), 0);
+    EXPECT_EQ(idMap->size(), 4);
+}
+
 
 
 
