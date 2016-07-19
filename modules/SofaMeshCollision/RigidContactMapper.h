@@ -150,6 +150,11 @@ public:
             map->apply(core::MechanicalParams::defaultInstance(), core::VecCoordId::freePosition(), core::ConstVecCoordId::freePosition());
         }
     }
+
+    virtual sofa::core::BaseMapping* getMapping()
+    {
+        return mapping.get();
+    }
 };
 
 
