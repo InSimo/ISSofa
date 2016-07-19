@@ -63,6 +63,11 @@ public:
        return this->operator()(p);
     }
 
+    inline unsigned int size() const
+    {
+        return *counter;
+    }
+
 protected:
     mutable std::shared_ptr<unsigned int> counter;
     mutable std::shared_ptr< std::map<T*,unsigned int> > idMap;
