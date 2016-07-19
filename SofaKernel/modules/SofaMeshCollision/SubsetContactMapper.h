@@ -155,6 +155,11 @@ public:
         }
     }
 
+    virtual sofa::core::BaseMapping* getMapping()
+    {
+        return mapping.get();
+    }
+
     //double radius(const typename TCollisionModel::Element& /*e*/)
     //{
     //    return 0.0;

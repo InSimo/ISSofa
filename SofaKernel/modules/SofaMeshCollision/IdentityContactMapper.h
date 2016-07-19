@@ -124,6 +124,11 @@ public:
              mapping->apply(core::MechanicalParams::defaultInstance(), core::VecCoordId::restPosition(), core::ConstVecCoordId::restPosition());
         }
     }
+
+    virtual sofa::core::BaseMapping* getMapping()
+    {
+        return mapping.get();
+    }
 };
 
 /// Specialization of IdentityContactMapper when mapping to the same DataTypes, as no mapping is required in this case
@@ -183,6 +188,11 @@ public:
 
     void updateX0()
     {
+    }
+
+    virtual sofa::core::BaseMapping* getMapping()
+    {
+        return NULL;
     }
 
 };

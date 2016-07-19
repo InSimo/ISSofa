@@ -30,6 +30,7 @@
 
 #include <sofa/helper/Factory.h>
 
+#include <sofa/core/BaseMapping.h>
 
 namespace sofa
 {
@@ -117,7 +118,10 @@ public:
 
 
     virtual void update() = 0;
+
     virtual void updateXfree() = 0;
+
+    virtual sofa::core::BaseMapping* getMapping() = 0;
 
     typedef helper::Factory< std::string, BaseContactMapper<DataTypes>, core::CollisionModel* > ContactMapperFactory;
     static BaseContactMapper<DataTypes>* Create(core::CollisionModel* model, const std::string& name = std::string("default"))

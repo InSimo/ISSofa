@@ -132,6 +132,11 @@ public:
             map->apply(core::MechanicalParams::defaultInstance(), core::VecCoordId::restPosition(), core::ConstVecCoordId::restPosition());
         }
     }
+
+    sofa::core::BaseMapping* getMapping()
+    {
+        return mapping.get();
+    }
 };
 
 /// Mapper for LineModel
