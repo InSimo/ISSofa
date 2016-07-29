@@ -130,22 +130,58 @@ void ConstantForceField<DataTypes>::addForce(const core::MechanicalParams* /*mpa
     {
         for (; i < forces.size(); i++)
         {
-            f[indices.empty() ? i : indices[i]] += forces[i];  // if indices are not set, use the force indices
+            // if indices are not set, use the force indices
+            const unsigned int index = (i >= indices.size() ? i : indices[i]);
+            if (index >= f.size())
+            {
+                serr << "WARNING in " << __FUNCTION__ << " forces dimension exceeds DOFs dimension" << sendl;
+            }
+            else
+            {
+                f[index] += forces[i];
+            }
         }
+
         for (; i < indices.size(); i++)
         {
-            f[indices[i]] += f_end;
+            const unsigned int index = indices[i];
+            if (index >= f.size())
+            {
+                serr << "WARNING in " << __FUNCTION__ << " stored indices exceeds DOFs dimension" << sendl;
+            }
+            else
+            {
+                f[index] += f_end;
+            }
         }
     }
     else
     {
         for (; i < forces.size(); i++)
         {
-            f[f.size() - indices[i] - 1] += forces[i];
+            // if indices are not set, use the force indices
+            const int index = f.size() - indices[i] - 1;
+            if (index < 0 || index >= (int)f.size())
+            {
+                serr << "WARNING in " << __FUNCTION__ << " forces dimension exceeds DOFs dimension" << sendl;
+            }
+            else
+            {
+                f[index] += forces[i];
+            }
         }
+
         for (; i < indices.size(); i++)
         {
-            f[f.size() - indices[i] - 1] += f_end;
+            const int index = f.size() - indices[i] - 1;
+            if (index < 0 || index >= (int)f.size())
+            {
+                serr << "WARNING in " << __FUNCTION__ << " index exceeds DOFs dimension" << sendl;
+            }
+            else
+            {
+                f[index] += f_end;
+            }
         }
     }
 }
