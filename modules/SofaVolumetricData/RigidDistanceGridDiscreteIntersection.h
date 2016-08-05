@@ -33,6 +33,9 @@
 #include <SofaUserInteraction/RayModel.h>
 #include <SofaVolumetricData/DistanceGridCollisionModel.h>
 #include <SofaBaseCollision/DiscreteIntersection.h>
+#include <sofa/defaulttype/Mat.h>
+#include <sofa/defaulttype/Vec.h>
+#include <sofa/core/collision/DetectionOutput.h>
 
 namespace sofa
 {
@@ -46,22 +49,25 @@ class SOFA_VOLUMETRIC_DATA_API RigidDistanceGridDiscreteIntersection : public co
 {
 
     typedef DiscreteIntersection::OutputVector OutputVector;
+    typedef defaulttype::Matrix3 Matrix3;
+    typedef defaulttype::Vector3 Vector3;
+    typedef core::collision::DetectionOutput DetectionOutput;
 
 public:
     RigidDistanceGridDiscreteIntersection(DiscreteIntersection* object);
 
     bool testIntersection(RigidDistanceGridCollisionElement&, RigidDistanceGridCollisionElement&);
     bool testIntersection(RigidDistanceGridCollisionElement&, Point&);
-    template<class T> bool testIntersection(RigidDistanceGridCollisionElement&, TSphere<T>&);
+    bool testIntersection(RigidDistanceGridCollisionElement&, Sphere&);
     bool testIntersection(RigidDistanceGridCollisionElement&, Line&);
     bool testIntersection(RigidDistanceGridCollisionElement&, Triangle&);
     bool testIntersection(Ray&, RigidDistanceGridCollisionElement&);
 
     int computeIntersection(RigidDistanceGridCollisionElement&, RigidDistanceGridCollisionElement&, OutputVector*);
-    int computeIntersection(RigidDistanceGridCollisionElement&, Point&, OutputVector*);
-    template<class T> int computeIntersection(RigidDistanceGridCollisionElement&, TSphere<T>&, OutputVector*);
-    int computeIntersection(RigidDistanceGridCollisionElement&, Line&, OutputVector*);
-    int computeIntersection(RigidDistanceGridCollisionElement&, Triangle&, OutputVector*);
+    template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Point&, TOutputVector*);
+    template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Sphere&, TOutputVector*);
+    template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Line&, TOutputVector*);
+    template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Triangle&, TOutputVector*);
     int computeIntersection(Ray&, RigidDistanceGridCollisionElement&, OutputVector*);
 
 protected:
