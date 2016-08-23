@@ -96,27 +96,31 @@ public:
     {
         return a->getExecDuration() > b->getExecDuration();
     }
+
+    void enable(const Task::Status* pStatus);
+
+    virtual void disable();
+
+    bool isEnabled() const;
+
 protected:
     
     virtual bool run(WorkerThread* thread) = 0;
 
-    Task(const Task::Status* status);
+    Task();
 
     virtual ~Task();
 
     inline Task::Status* getStatus(void) const;
 
-    const Task::Status*	m_Status;
-
     friend class WorkerThread;
 
     TimeInterval execTime;
+
     int execThreadIndex;
 
 private:
-
-    //Task(const Task& /*task*/) {}
-    //Task& operator= (const Task& /*task*/) {return *this;}
+    const Task::Status*	m_Status;
 };
 
 } // namespace simulation
