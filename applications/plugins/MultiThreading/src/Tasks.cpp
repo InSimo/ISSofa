@@ -46,8 +46,8 @@ namespace simulation
 {
 
 
-Task::Task(const Task::Status* pStatus) 
-: m_Status(pStatus)
+Task::Task() 
+: m_Status(NULL)
 , execTime(ctime_t(),ctime_t()), execThreadIndex(-1)
 {
 }
@@ -74,6 +74,22 @@ Task::Color Task::getColor() const
 {
     return Color(0.5f,0.5f,0.5f,1.0f);
 }
+
+void Task::enable(const Task::Status* pStatus)
+{
+    m_Status = pStatus;
+}
+
+void Task::disable()
+{
+    m_Status = NULL;
+}
+
+bool Task::isEnabled() const
+{
+    return m_Status != NULL;
+}
+
 
 } // namespace simulation
 
