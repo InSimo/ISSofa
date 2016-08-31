@@ -388,7 +388,7 @@ protected:
     {
         Index outValues = 0;
         Index outRows = 0;
-        for (Index r=0; r<rowIndex.size(); ++r)
+        for (Index r=0; r<(int)rowIndex.size(); ++r)
         {
             Index row = rowIndex[r];
             Index rBegin = rowBegin[r];
@@ -856,17 +856,6 @@ public:
 #endif
         Index bi=0; split_row_index(i, bi);
         compress();
-        /*
-        for (Index j=0; j<nBlocCol; ++j)
-        {
-            Bloc* b = wbloc(i,j,false);
-            if (b)
-            {
-                for (Index bj = 0; bj < NC; ++bj)
-                    traits::v(*b, bi, bj) = 0;
-            }
-        }
-        */
         Index rowId = i * (Index)rowIndex.size() / nBlocRow;
         if (sortedFind(rowIndex, i, rowId))
         {
@@ -905,6 +894,7 @@ public:
         }
     }
 
+    /// Clear both row i and column i in a symmetric matrix
     void clearRowCol(Index i)
     {
 #ifdef SPARSEMATRIX_VERBOSE
@@ -928,30 +918,37 @@ public:
             // Here we assume the matrix is symmetric
             Index bi=0; split_row_index(i, bi);
             compress();
-            Index rowId = i * (Index)rowIndex.size() / nBlocRow;
+            Index rowId = i * rowIndex.size() / nBlocRow;
             if (sortedFind(rowIndex, i, rowId))
             {
                 Range rowRange(rowBegin[rowId], rowBegin[rowId+1]);
                 for (Index xj = rowRange.begin(); xj < rowRange.end(); ++xj)
                 {
-                    Bloc& b = colsValue[xj];
+                    Bloc* b = &colsValue[xj];
+                    // first clear line i
                     for (Index bj = 0; bj < NC; ++bj)
-                        traits::v(b, bi, bj) = 0;
+                        traits::v(*b, bi, bj) = 0;
+                    // then clean column i
                     Index j = colsIndex[xj];
-
-                    //Removed "if (j!=i)" commented as "non-diagonal bloc" optimization that was in fact a bug
-                    //TODO : This whole block of code may then need refactoring
-
-                    Bloc* bloc = wbloc(j,i,false);
-                    if (bloc)
+                    if (j != i)
                     {
-                        for (Index bj = 0; bj < NL; ++bj)
-                            traits::v(*bloc, bj, bi) = 0;
+                        // non diagonal bloc
+                        b = wbloc(j,i,false);
+#ifdef SPARSEMATRIX_CHECK
+                        if (!b)
+                        {
+                            std::cerr << "ERROR: transpose of bloc ("<<i<<","<<j<<") not found, clearRowCol() called on non-symetrical matrix "<< this->Name() <<" of bloc size ("<<rowBSize()<<","<<colBSize()<<")"<<std::endl;
+                            continue;
+                        }
+#endif
                     }
+                    for (Index bj = 0; bj < NL; ++bj)
+                        traits::v(*b, bj, bi) = 0;
                 }
             }
         }
     }
+
 
     void clear()
     {
