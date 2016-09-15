@@ -669,4 +669,19 @@ struct DataTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryMana
 
 } // namespace sofa
 
+
+namespace std
+{
+
+template <sofa::helper::integer_id_name Name, typename Index, Index DefaultId>
+struct hash<sofa::helper::integer_id<Name, Index, DefaultId> >
+{
+    std::size_t operator()(const sofa::helper::integer_id<Name, Index, DefaultId>& iid) const
+    {
+        return std::hash<Index>()(iid.getId());
+    }
+};
+
+} // namespace std
+
 #endif
