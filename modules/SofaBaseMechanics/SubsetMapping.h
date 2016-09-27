@@ -116,6 +116,8 @@ public:
 
     void init();
 
+    void handleEvent(sofa::core::objectmodel::Event* e);
+
     // handle topology changes depending on the topology
     //void handleTopologyChange(core::topology::Topology* t);
 
@@ -149,6 +151,8 @@ protected:
 
     /// Pointer to the current topology
     sofa::core::topology::BaseMeshTopology* topology;
+
+    unsigned m_indicesEditCounter;
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_MAPPING_SUBSETMAPPING_CPP)

@@ -29,6 +29,7 @@
 
 #include <sofa/core/Mapping.inl>
 #include <SofaBaseTopology/TopologySubsetData.inl>
+#include <sofa/simulation/common/AnimateBeginEvent.h>
 
 namespace sofa
 {
@@ -52,7 +53,9 @@ SubsetMapping<TIn, TOut>::SubsetMapping()
     , f_resizeToModel( initData(&f_resizeToModel, false, "resizeToModel", "True to resize the output MechanicalState to match the size of indices"))
     , matrixJ()
     , updateJ(false)
+    , m_indicesEditCounter(0)
 {
+    this->f_listening.setValue(true);
 }
 
 template <class TIn, class TOut>
@@ -181,12 +184,40 @@ void SubsetMapping<TIn, TOut>::init()
         f_indices.registerTopologicalData();
     }
 
+    m_indicesEditCounter = f_indices.getCounter();
+
     postInit();
 }
+
+
 
 template <class TIn, class TOut>
 void SubsetMapping<TIn, TOut>::postInit()
 {
+}
+
+
+template <class TIn, class TOut>
+void SubsetMapping<TIn, TOut>::handleEvent(core::objectmodel::Event *e)
+{
+    if (dynamic_cast<sofa::simulation::AnimateBeginEvent*>(e))
+    {
+        f_indices.getValue();
+        unsigned indicesCurrentEditCounter = f_indices.getCounter();
+
+        if (indicesCurrentEditCounter != m_indicesEditCounter)
+        {
+            this->sofa::core::Mapping<TIn, TOut>::apply(sofa::core::MechanicalParams::defaultInstance(), sofa::core::VecCoordId::position(), sofa::core::ConstVecCoordId::position());
+            if (this->f_applyRestPosition.getValue())
+            {
+                this->sofa::core::Mapping<TIn, TOut>::apply(sofa::core::MechanicalParams::defaultInstance(), sofa::core::VecCoordId::restPosition(), sofa::core::ConstVecCoordId::restPosition());
+            }
+            this->sofa::core::Mapping<TIn, TOut>::applyJ(sofa::core::MechanicalParams::defaultInstance(), sofa::core::VecDerivId::velocity(), sofa::core::ConstVecDerivId::velocity());
+            m_indicesEditCounter = indicesCurrentEditCounter;
+        }
+
+    }
+
 }
 
 template <class TIn, class TOut>
