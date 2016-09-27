@@ -17,9 +17,9 @@ template<class Real>
 bool matrix33Solve(const sofa::defaulttype::Mat<3,3,Real>& A, const sofa::defaulttype::Vec<3,Real>& b, sofa::defaulttype::Vec<3,Real>& x, Real epsilon = Real(1e-6) )
 {
 
-    const sofa::defaulttype::Vec<3,Real> col0 = A.col(0);
-	const sofa::defaulttype::Vec<3,Real> col1 = A.col(1);
-	const sofa::defaulttype::Vec<3,Real> col2 = A.col(2);
+    const sofa::defaulttype::Vec<3,Real>& col0 = A.col(0);
+	const sofa::defaulttype::Vec<3,Real>& col1 = A.col(1);
+	const sofa::defaulttype::Vec<3,Real>& col2 = A.col(2);
 		
     const Real det = sofa::defaulttype::dot(col0, sofa::defaulttype::cross(col1, col2));
 	if (std::abs(det) > epsilon)
