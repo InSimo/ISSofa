@@ -136,7 +136,7 @@ RigidMapping<TIn, TOut>::RigidMapping()
     , useX0(initData(&useX0, false, "useX0", "Use x0 instead of local copy of initial positions (to support topo changes)"))
     , indexFromEnd(initData(&indexFromEnd, false, "indexFromEnd", "input DOF index starts from the end of input DOFs vector"))
     , pointsPerFrame(initData(&pointsPerFrame, "repartition", "number of dest dofs per entry dof"))
-    , globalToLocalCoords(initData(&globalToLocalCoords, "globalToLocalCoords", "are the output DOFs initially expressed in global coordinates"))
+    , globalToLocalCoords(initData(&globalToLocalCoords, false, "globalToLocalCoords", "are the output DOFs initially expressed in global coordinates"))
     , matrixJ()
     , updateJ(false)
 {
