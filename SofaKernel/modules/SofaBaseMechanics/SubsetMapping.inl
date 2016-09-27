@@ -25,7 +25,7 @@
 #include "SubsetMapping.h"
 
 #include <SofaBaseTopology/TopologySubsetData.inl>
-#include <sofa/simulation/common/AnimateBeginEvent.h>
+#include <sofa/simulation/AnimateBeginEvent.h>
 
 namespace sofa
 {
