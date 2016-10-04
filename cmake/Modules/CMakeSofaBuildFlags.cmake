@@ -39,12 +39,11 @@ set(compilerDefines ${GLOBAL_COMPILER_DEFINES})
 # windows specific
 if(WIN32)
     add_definitions( "-DUNICODE")
-    add_definitions("-wd4250 -wd4251 -wd4275 -wd4675 -wd4996 /bigobj")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4250 /wd4251 /wd4275 /wd4675 /wd4996 /bigobj")
 endif()
 
 if(XBOX)
-    add_definitions("-wd4250 -wd4231 /GR /EHsc /bigobj")
+	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /wd4231 /GR /EHsc /bigobj")
 endif()
 
 # NDEBUG preprocessor macro
