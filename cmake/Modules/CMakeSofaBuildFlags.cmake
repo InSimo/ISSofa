@@ -6,7 +6,22 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # build flags
+set(CXX_WARNING_FLAGS "-Wall -Wextra -pedantic")
+set(CXX_DEBUG_FLAGS "-g")
+
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    set(CMAKE_CXX_FLAGS_DEBUG
+        "${CXX_WARNING_FLAGS} ${CXX_DEBUG_FLAGS}"
+        CACHE STRING "Flags used by the compiler in debug builds" FORCE)
+
+elseif(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+        set(CXX_OPTIMIZATION_FLAGS "-O2")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
+            "${CXX_OPTIMIZATION_FLAGS} ${CXX_WARNING_FLAGS} ${CXX_DEBUG_FLAGS}"
+            CACHE STRING "Flags used by the compiler in RelWithDebInfo builds" FORCE)
+    endif()
+
 elseif(CMAKE_BUILD_TYPE MATCHES "Release")
     if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
         if(CMAKE_CXX_COMPILER_ARG1)
@@ -16,10 +31,9 @@ elseif(CMAKE_BUILD_TYPE MATCHES "Release")
         else()
             execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCXX_VERSION)
         endif()
-        set(CXX_OPTIMIZATION_FLAGS "-O2")
+        set(CXX_OPTIMIZATION_FLAGS "-O2 -DNDEBUG")
         set(CXX_STACKPROTECTOR_FLAGS "-fstack-protector --param=ssp-buffer-size=4")
         set(CXX_FORTIFYSOURCE_FLAGS  "-D_FORTIFY_SOURCE=2")
-        set(CXX_WARNING_FLAGS "-Wall -W")
         set(CMAKE_CXX_FLAGS_RELEASE
             "${CXX_OPTIMIZATION_FLAGS} ${CXX_WARNING_FLAGS} ${CXX_ARCH_FLAGS} ${CXX_STACKPROTECTOR_FLAGS} ${CXX_FORTIFYSOURCE_FLAGS}"
             CACHE STRING "Flags used by the compiler in Release builds" FORCE)
@@ -30,7 +44,6 @@ elseif(CMAKE_BUILD_TYPE MATCHES "Release")
         set ( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
         set ( CMAKE_MODULE_LINKER_FLAGS "-Wl,--no-undefined -lc ${CMAKE_MODULE_LINKER_FLAGS}")
     endif()
-elseif(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
 elseif(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
 endif()
 
