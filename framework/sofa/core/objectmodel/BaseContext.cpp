@@ -62,9 +62,9 @@ BaseContext* BaseContext::getDefault()
 ////////////////
 
 /// The Context is active
-bool BaseContext::isActive() const { return true;};
+bool BaseContext::isActive() const { return true;}
 #ifdef SOFA_SMP
-bool BaseContext::is_partition() const { return false;};
+bool BaseContext::is_partition() const { return false;}
 #endif
 
 #ifdef SOFA_SUPPORT_MOVING_FRAMES

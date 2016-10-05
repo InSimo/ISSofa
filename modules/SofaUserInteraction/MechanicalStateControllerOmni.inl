@@ -192,7 +192,7 @@ void MechanicalStateControllerOmni<DataTypes>::applyController(double /*dt*/)
        sofa::simulation::MechanicalPropagatePositionAndVelocityVisitor mechaVisitor(core::MechanicalParams::defaultInstance()); mechaVisitor.execute(node);
        sofa::simulation::UpdateMappingVisitor updateVisitor(core::ExecParams::defaultInstance()); updateVisitor.execute(node);
        */
-};
+}
 
 
 

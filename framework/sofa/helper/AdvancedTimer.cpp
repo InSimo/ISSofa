@@ -838,12 +838,12 @@ void printVal(std::ostream& out, double v)
                 out << '.' << dec;
         }
     }
-};
+}
 
 void printNoVal(std::ostream& out)
 {
     out << "       ";
-};
+}
 
 void printVal(std::ostream& out, double v, int niter)
 {

@@ -160,7 +160,7 @@ void MechanicalStateController<Vec1dTypes>::applyController()
     //	//sofa::simulation::MechanicalPropagatePositionAndVelocityVisitor mechaVisitor; mechaVisitor.execute(node);
     //	//sofa::simulation::UpdateMappingVisitor updateVisitor; updateVisitor.execute(node);
     //}
-};
+}
 #endif
 
 
@@ -255,7 +255,7 @@ void MechanicalStateController<Vec1fTypes>::applyController()
     //	//sofa::simulation::MechanicalPropagatePositionAndVelocityVisitor mechaVisitor; mechaVisitor.execute(node);
     //	//sofa::simulation::UpdateMappingVisitor updateVisitor; updateVisitor.execute(node);
     //}
-};
+}
 #endif
 
 #ifndef SOFA_DOUBLE

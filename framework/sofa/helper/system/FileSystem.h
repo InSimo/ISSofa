@@ -74,7 +74,7 @@ SOFA_HELPER_API bool exists(const std::string& path);
 /// The path must exist.
 SOFA_HELPER_API bool isDirectory(const std::string& path);
 
-};
+}
 
 
 } // namespace system

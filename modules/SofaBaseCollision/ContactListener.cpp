@@ -42,7 +42,7 @@ namespace sofa
 		namespace collision
 		{
 
-			SOFA_DECL_CLASS(ContactListener);
+			SOFA_DECL_CLASS(ContactListener)
 			int ContactListenerClass = core::RegisterObject("ContactListener .. ").add< ContactListener >();
 
 

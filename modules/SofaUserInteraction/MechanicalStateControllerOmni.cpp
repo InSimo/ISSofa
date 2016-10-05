@@ -116,7 +116,7 @@ void MechanicalStateControllerOmni<Vec1dTypes>::applyController(const double dt)
         }
     }
 
-};
+}
 #endif
 
 
@@ -147,7 +147,7 @@ void MechanicalStateControllerOmni<Vec1fTypes>::applyController(const double dt)
         }
     }
 
-};
+}
 #endif
 /*
 #ifndef SOFA_DOUBLE

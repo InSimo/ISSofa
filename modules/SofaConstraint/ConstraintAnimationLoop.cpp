@@ -1044,7 +1044,7 @@ SOFA_DECL_CLASS ( ConstraintAnimationLoop )
 int ConstraintAnimationLoopClass = core::RegisterObject ( "Constraint animation loop manager" )
         .add< ConstraintAnimationLoop >()
         .addAlias("MasterConstraintSolver");
-;
+
 
 } // namespace animationloop
 

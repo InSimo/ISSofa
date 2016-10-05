@@ -78,7 +78,7 @@ void BaseMouseInteractor::cleanup()
         removeInteractionPerformer(*performers.begin());
     }
     lastPicked=BodyPicked();
-};
+}
 
 
 void BaseMouseInteractor::handleEvent(core::objectmodel::Event *e)
