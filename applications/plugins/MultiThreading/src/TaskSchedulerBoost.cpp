@@ -37,6 +37,10 @@
 #include "TaskSchedulerBoost.h"
 #include <sofa/helper/system/thread/CTime.h>
 
+//#define TASKSCHEDULER_DEBUG
+
+
+
 namespace sofa
 {
 
@@ -59,6 +63,7 @@ TaskScheduler::TaskScheduler()
 
     readyForWork = false;
 
+    //set ourselves up as thread[0]
     mThread[0] = new WorkerThread( this, 0 );
     mThread[0]->attachToThisThread( this );
 
@@ -103,7 +108,7 @@ bool TaskScheduler::start(const unsigned int NbThread )
     //if ( !mIsInitialized ) 
     {
         mIsClosing		= false;
-        mWorkersIdle		= false;
+        mWorkersIdle    = false;
         mainTaskStatus	= NULL;
 
         // only physical cores. no advantage from hyperthreading.
@@ -148,17 +153,15 @@ bool TaskScheduler::stop()
 
     if ( mIsInitialized ) 
     {
-        // wait for all
+        // wait for all to finish
         WaitForWorkersToBeReady();
         wakeUpWorkers();
 
         for(iThread=1; iThread<mThreadCount; ++iThread)
         {
             while (!mThread[iThread]->mFinished)
-            { 
-                //mThread[iThread]->join();
-                //WorkerThread::release( mThread[iThread] );
-                //mThread[iThread].reset();						
+            {
+                //spin
             }
         }
         for(iThread=1; iThread<mThreadCount; ++iThread)
@@ -179,22 +182,32 @@ bool TaskScheduler::stop()
 
 void TaskScheduler::wakeUpWorkers()
 {
+#ifdef TASKSCHEDULER_DEBUG
+    if (mWorkersIdle == false)
+    {
+        std::cerr << __FUNCTION__ << ": expect mWorkersIdle to be true" << std::endl;
+    }
+#endif
 
     mWorkersIdle = false;
-
     {
         boost::lock_guard<boost::mutex> lock(wakeUpMutex);
         readyForWork = true;
     }
-
     wakeUpEvent.notify_all();
-
 }
 
 
 void TaskScheduler::WaitForWorkersToBeReady()
 {
+#ifdef TASKSCHEDULER_DEBUG
+    if (mWorkersIdle == true)
+    {
+        std::cerr << __FUNCTION__ << ": expect mWorkersIdle to be false" << std::endl;
+    }
+#endif
 
+    // MISSING: should wait on a condition variable that would be released once each worker thread would has notified it has gone Idle.
     for(unsigned i=0; i<mThreadCount-1; ++i)
     {}
 
@@ -310,6 +323,7 @@ void WorkerThread::run(void)
     }
 
     mFinished = true;
+
     return;
 }
 
@@ -346,7 +360,12 @@ const std::vector<Task*>& WorkerThread::getTaskLog()
 
 void WorkerThread::Idle()
 {
+    // CHANGE: original intel code was also advertising the scheduler this thread was going to sleep, 
+    //         one of the consequences is that the mWorkersIdle member variable is never set to true.
 
+
+
+    // Sleep until there is work
     boost::unique_lock<boost::mutex> lock( mTaskScheduler->wakeUpMutex );
 
     while(!mTaskScheduler->readyForWork)
@@ -359,9 +378,25 @@ void WorkerThread::Idle()
 
 void WorkerThread::doWork(Task::Status* status)
 {
+    //NOTE:
+    //If status is NULL, then we'll work until there is nothing left to do. This
+    //is normally happening only in the case of a worker's thread loop (above).
+
+    //if it isn't NULL, then it means the caller is waiting for this particular thing
+    //to complete (and will want to carry on something once it is). We will do our work
+    //and steal some until the condition happens. This is normally happening when as
+    //part of WorkUntilDone (below)
+    
+
+    // NOTE: This method needs to be reentrant (!)
+    //A task can be spawing more tasks and may have to wait for their completion.
+    //So, as part of our pTask->runTask() we can be called again, via the WorkUntilDone
+    //method, below.
+    //
+
     do
     {
-        Task*		    pTask;
+        Task*		    pTask       = NULL;
         Task::Status*	pPrevStatus = NULL;
 
         while (popTask(&pTask))
@@ -378,6 +413,7 @@ void WorkerThread::doWork(Task::Status* status)
             mCurrentStatus->MarkBusy(false);
             mCurrentStatus = pPrevStatus;
 
+            // check if work we're expecting is done
             if ( status && !status->IsBusy() ) 
                 return;
         }
@@ -388,31 +424,30 @@ void WorkerThread::doWork(Task::Status* status)
 
     } while (stealTasks());	
 
-
+    // Nothing left to do, for now
     return;
-
 }
 
 
 void WorkerThread::workUntilDone(Task::Status* status)
 {
-    //PROFILE_SYNC_PREPARE( this );
 
     while (status->IsBusy())
     {
-        //boost::this_thread::yield();
         doWork(status);
     }
-
-    //PROFILE_SYNC_CANCEL( this );
-
+    
     if (mTaskScheduler->mainTaskStatus == status)
     {	
-
+        // This is the root task status. As this is finished, the scheduler can go idle.		
+        // What happens next: (eventually,) each worker thread will see that there		
+        // is no main task status any more and go idle waiting for semaphore to signal	
+        // that new work nees to be done (see WorkerThread::run)				
         mTaskScheduler->mainTaskStatus = NULL;
 
+        // CHANGE: these two lines are not part of the original intel code, where there is no attempt whatsoever to acquire a wakeUpMutex
         boost::lock_guard<boost::mutex> lock(mTaskScheduler->wakeUpMutex);
-        mTaskScheduler->readyForWork = false;
+        mTaskScheduler->readyForWork = false;    
     }
 }
 
@@ -437,6 +472,7 @@ bool WorkerThread::popTask(Task** outTask)
 
     if(task == NULL || taskCount==NULL)
     {
+        // there is no work
         return false;
     }
 
@@ -452,6 +488,11 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
     // if we're single threaded return false
     if ( mTaskScheduler->getThreadCount()<2 ) 
         return false;
+    // MISSING: this was part of the original code 
+    // if (!mTaskScheduler->mainTaskStatus)
+    // {
+    //    mTaskScheduler->WaitForWorkersToBeReady();
+    // }
 
     {
         SpinMutexLock lock( &mTaskMutex );
@@ -468,7 +509,9 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
 
     if (!mTaskScheduler->mainTaskStatus)
     {
+        // Mark this task status as the root task status ( see WorkUntilDone )
         mTaskScheduler->mainTaskStatus = task->getStatus();
+        // notify all the threads that have gone Idle, that there is some work to do for them now.
         mTaskScheduler->wakeUpWorkers();
     }
 
@@ -483,6 +526,8 @@ bool WorkerThread::addStealableTask(Task* task)
     if (mTaskLogEnabled)
         mTaskLog.push_back(task);
 
+    // if we can't queue it, run it 
+    // we don't touch the task status since it is not necessary - ie MarkBusy method : not set, not cleared 
     task->runTask(this);
 
     return false;
@@ -496,6 +541,8 @@ bool WorkerThread::addSpecificTask(Task* task)
     if (mTaskLogEnabled)
         mTaskLog.push_back(task);
 
+    // if we can't queue it, run it 
+    // we don't touch the task status since it is not necessary - ie MarkBusy method : not set, not cleared 
     task->runTask(this);
 
     return false;
@@ -516,17 +563,19 @@ bool WorkerThread::giveUpSomeWork(WorkerThread* idleThread)
     if ( !lock.try_lock( &mTaskMutex ) ) 
         return false;
 
+    // anything to share ? 
     if (!mStealableTaskCount)
         return false;
 
     SpinMutexLock	lockIdleThread;
 
     if ( !lockIdleThread.try_lock( &idleThread->mTaskMutex ) )
-        return false;
+        return false; 
 
     if ( idleThread->mStealableTaskCount )
         return false;
 
+    // grab half the remaining tasks (rounding up) 
     unsigned int count = (mStealableTaskCount+1) /2;
 
     Task** p = idleThread->mStealableTask;
@@ -539,6 +588,7 @@ bool WorkerThread::giveUpSomeWork(WorkerThread* idleThread)
     }
     idleThread->mStealableTaskCount = count;
 
+    // move remaning task down
     for( p = mStealableTask; iTask<mStealableTaskCount; ++iTask)
     {
         *p++ = mStealableTask[iTask];
@@ -551,11 +601,16 @@ bool WorkerThread::giveUpSomeWork(WorkerThread* idleThread)
 
 bool WorkerThread::stealTasks()
 {
+
+    // avoid always starting with same other thread. This aims at avoiding a potential	
+    // for problematic patterns. Note: the necessity of doing is largely speculative.
+    // Offset = (GetWorkerIndex() + GetTickCount()) % m_pTaskPool->m_ThreadCount;
+
     for( unsigned int iThread=0; iThread<mTaskScheduler->getThreadCount(); ++iThread)
     {
         //WorkerThread*	pThread;
 
-        WorkerThread* pThread = mTaskScheduler->mThread[ (iThread)% mTaskScheduler->getThreadCount() ];
+        WorkerThread* pThread = mTaskScheduler->mThread[ (iThread /* + Offset */)% mTaskScheduler->getThreadCount() ];
         if ( pThread == this) 
             continue;
 
