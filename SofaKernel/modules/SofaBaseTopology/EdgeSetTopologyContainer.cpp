@@ -134,17 +134,26 @@ void EdgeSetTopologyContainer::createEdgeSetArray()
 #endif
 }
 
-const sofa::helper::vector<EdgeSetTopologyContainer::Edge> &EdgeSetTopologyContainer::getEdgeArray()
+const sofa::helper::vector<EdgeSetTopologyContainer::Edge> &EdgeSetTopologyContainer::getEdgeArray() const
 {
-    if(!hasEdges() && getNbPoints()>0)
-    {
-#ifndef NDEBUG
-        sout << "Warning. [EdgeSetTopologyContainer::getEdgeArray] creating edge array." << sendl;
-#endif
-        createEdgeSetArray();
-    }
-
     return d_edge.getValue();
+}
+
+
+
+int EdgeSetTopologyContainer::getEdgeIndex(PointID v1, PointID v2) const
+{
+    const sofa::helper::vector< unsigned int > &es1 = getEdgesAroundVertex(v1);
+    helper::ReadAccessor< Data< sofa::helper::vector<Edge> > > m_edge = d_edge;
+
+    int result = -1;
+    for (size_t i = 0; (i < es1.size()) && (result == -1); ++i)
+    {
+        const Edge &e = m_edge[es1[i]];
+        if ((e[0] == v2) || (e[1] == v2))
+            result = (int)es1[i];
+    }
+    return result;
 }
 
 int EdgeSetTopologyContainer::getEdgeIndex(PointID v1, PointID v2)
@@ -160,17 +169,7 @@ int EdgeSetTopologyContainer::getEdgeIndex(PointID v1, PointID v2)
     if(!hasEdgesAroundVertex())
         createEdgesAroundVertexArray();
 
-    const sofa::helper::vector< unsigned int > &es1 = getEdgesAroundVertex(v1) ;
-    helper::ReadAccessor< Data< sofa::helper::vector<Edge> > > m_edge = d_edge;
-
-    int result = -1;
-    for(size_t i=0; (i < es1.size()) && (result == -1); ++i)
-    {
-        const Edge &e = m_edge[ es1[i] ];
-        if ((e[0] == v2) || (e[1] == v2))
-            result = (int) es1[i];
-    }
-    return result;
+    return static_cast<const EdgeSetTopologyContainer*>(this)->getEdgeIndex(v1,v2);
 }
 
 const EdgeSetTopologyContainer::Edge EdgeSetTopologyContainer::getEdge (EdgeID i)
@@ -488,6 +487,11 @@ unsigned int EdgeSetTopologyContainer::getNumberOfElements() const
     return this->getNumberOfEdges();
 }
 
+const sofa::helper::vector< sofa::helper::vector<unsigned int> > & EdgeSetTopologyContainer::getEdgesAroundVertexArray() const
+{
+    return m_edgesAroundVertex;
+}
+
 const sofa::helper::vector< sofa::helper::vector<unsigned int> > &EdgeSetTopologyContainer::getEdgesAroundVertexArray()
 {
     if(!hasEdgesAroundVertex())
@@ -497,8 +501,13 @@ const sofa::helper::vector< sofa::helper::vector<unsigned int> > &EdgeSetTopolog
 #endif
         createEdgesAroundVertexArray();
     }
+    // call the const version of the method.
+    return static_cast<const EdgeSetTopologyContainer*>(this)->getEdgesAroundVertexArray();
+}
 
-    return m_edgesAroundVertex;
+const EdgeSetTopologyContainer::EdgesAroundVertex& EdgeSetTopologyContainer::getEdgesAroundVertex(PointID i) const
+{
+    return m_edgesAroundVertex[i];
 }
 
 const EdgeSetTopologyContainer::EdgesAroundVertex& EdgeSetTopologyContainer::getEdgesAroundVertex(PointID i)
@@ -517,7 +526,7 @@ const EdgeSetTopologyContainer::EdgesAroundVertex& EdgeSetTopologyContainer::get
                 << i << " >= " << m_edgesAroundVertex.size() << sendl;
 #endif
 
-    return m_edgesAroundVertex[i];
+    return static_cast<const EdgeSetTopologyContainer*>(this)->getEdgesAroundVertex(i);
 }
 
 sofa::helper::vector< unsigned int > &EdgeSetTopologyContainer::getEdgesAroundVertexForModification(const unsigned int i)
