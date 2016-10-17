@@ -74,13 +74,23 @@ public:
     /// BaseMeshTopology API
     /// @{
 
-    /** \brief Returns the edge array.
+    /** \brief Returns the edge array. 
+     *         Not thread safe in general.
      *
      */
     virtual const SeqEdges& getEdges()
     {
         return getEdgeArray();
     }
+
+    /** \brief Returns the edge array. Thread safe 
+    *
+    */
+    const SeqEdges& getEdges() const
+    {
+        return getEdgeArray();
+    }
+
 
     /** \brief Get an Edge from its ID.
      *
@@ -91,6 +101,7 @@ public:
 
 
     /** \brief Get the index of the edge joining two vertices.
+     *         Not thread safe, can recompute adjacency information for the vertices.
      *
      * @param v1 The first vertex
      * @param v@ The second vertex
@@ -98,13 +109,31 @@ public:
     */
     virtual int getEdgeIndex(PointID v1, PointID v2);
 
+    /** \brief Get the index of the edge joining two vertices.
+    *         Thread safe, does not recompute adjacency information for the vertices.
+    *
+    * @param v1 The first vertex
+    * @param v@ The second vertex
+    * @return The index of the Edge if it exists, -1 otherwise.
+    */
+    int getEdgeIndex(PointID v1, PointID v2) const;
+
 
     /** \brief Get the indices of the edges around a vertex.
+     *         Not thread safe, can recompute adjacency information for the vertices if it is not up to date
      *
      * @param i The ID of the vertex.
      * @return An EdgesAroundVertex containing the indices of the edges.
      */
     virtual const EdgesAroundVertex& getEdgesAroundVertex(PointID i);
+
+    /** \brief Get the indices of the edges around a vertex.
+    *          Thread safe, does not recompute adjacency information
+    *
+    * @param i The ID of the vertex.
+    * @return An EdgesAroundVertex containing the indices of the edges.
+    */
+    const EdgesAroundVertex& getEdgesAroundVertex(PointID i) const;
 
     /// @}
 
@@ -149,16 +178,26 @@ public:
      */
     virtual const sofa::helper::vector<Edge>& getEdgeArray();
 
+    const sofa::helper::vector<Edge>& getEdgeArray() const;
+
     /** \brief Returns a reference to the Data of edges array container. */
     Data< sofa::helper::vector<Edge> >& getEdgeDataArray() {return d_edge;}
 
 
-    /** \brief Returns the list of Edge indices around each DOF.
+    /** \brief Returns the list of Edge indices around each DOF. 
+     *     Create and the adjacency information if it is currently empty, so this method is not thread safe
      *
-     * @return EdgesAroundVertex lists.
+     * @return EdgesAroundVertex lists. 
      */
     virtual const sofa::helper::vector< sofa::helper::vector<EdgeID> >& getEdgesAroundVertexArray();
 
+
+    /** \brief Returns the list of Edge indices around each DOF. 
+    *          Does not create the adjacency information if it is currently empty, so this method is thread safe.
+    *
+    * @return EdgesAroundVertex lists.
+    */
+    const sofa::helper::vector< sofa::helper::vector<EdgeID> >& getEdgesAroundVertexArray() const;
 
     bool hasEdges() const;
 
