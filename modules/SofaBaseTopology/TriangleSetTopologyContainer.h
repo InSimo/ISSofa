@@ -92,15 +92,35 @@ public:
 
 
     /** \brief Returns the triangle corresponding to the TriangleID i.
+     *         Not thread safe can recompute adjacency information
      *
      * @param ID of a triangle.
      * @return The corresponding triangle.
      */
     virtual const Triangle getTriangle(TriangleID i);
 
+    /** \brief Returns the triangle corresponding to the TriangleID i. 
+    *          Thread safe
+    *
+    * @param ID of a triangle.
+    * @return The corresponding triangle.
+    */
+    const Triangle& getTriangle(TriangleID i) const;
+
 
     /* Returns the indices of a triangle given three vertex indices.
-     *
+    *  Thread safe : does not recompute any adjacency information.
+    *
+    * @param the three vertex indices.
+    * @return the ID of the corresponding triangle.
+    * @return -1 if none
+    */
+    int getTriangleIndex(PointID v1, PointID v2, PointID v3) const;
+
+
+    /* Returns the indices of a triangle given three vertex indices.
+     * Not thread safe if the adjacency information for the vertex indices is not up to date.
+     * 
      * @param the three vertex indices.
      * @return the ID of the corresponding triangle.
      * @return -1 if none
@@ -109,6 +129,15 @@ public:
 
 
     /** \brief Returns the 3 edges adjacent to a given triangle.
+    *          Thread safe, does not recompute any adjacency information for the edges.
+    *
+    * @param ID of a triangle.
+    * @return EdgesInTriangle list composing the input triangle.
+    */
+    const EdgesInTriangle& getEdgesInTriangle(TriangleID i) const;
+
+    /** \brief Returns the 3 edges adjacent to a given triangle. 
+     *         Not thread safe since it can recompute the adjacency informations for the edges.
      *
      * @param ID of a triangle.
      * @return EdgesInTriangle list composing the input triangle.
@@ -116,15 +145,32 @@ public:
     virtual const EdgesInTriangle& getEdgesInTriangle(TriangleID i);
 
 
-    /** \brief Returns the set of triangles adjacent to a given vertex.
+    /** \brief Returns the set of triangles adjacent to a given vertex. 
+     *         Thread safe, does not recompute any adjacency information.
      *
      * @param ID of a vertex
      * @return TrianglesAroundVertex list around the input vertex
      */
+    const TrianglesAroundVertex& getTrianglesAroundVertex(PointID i) const;
+
+    /** \brief Returns the set of triangles adjacent to a given vertex.
+    *
+    * @param ID of a vertex
+    * @return TrianglesAroundVertex list around the input vertex
+    */
     virtual const TrianglesAroundVertex& getTrianglesAroundVertex(PointID i);
 
 
     /** \brief Returns the set of triangles adjacent to a given edge.
+    *          Thread safe, does not recompute any adjacency information.
+    *
+    * @param ID of an edge.
+    * @return TrianglesAroundEdge list around the input edge.
+    */
+    const TrianglesAroundEdge& getTrianglesAroundEdge(EdgeID i) const;
+
+    /** \brief Returns the set of triangles adjacent to a given edge.
+     *         Not thread safe, can recompute adjacency information.
      *
      * @param ID of an edge.
      * @return TrianglesAroundEdge list around the input edge.
@@ -179,21 +225,30 @@ public:
      */
     virtual unsigned int getNumberOfElements() const;
 
+    /** \brief Returns the Triangle array. Thread safe */
+    const sofa::helper::vector<Triangle> &getTriangleArray() const;
+
     /** \brief Returns the Triangle array. */
     const sofa::helper::vector<Triangle> &getTriangleArray();
 
+    /** \brief Returns the EdgesInTriangle array (i.e. provide the 3 edge indices for each triangle). Thread safe*/
+    const sofa::helper::vector< EdgesInTriangle > &getEdgesInTriangleArray() const;
 
     /** \brief Returns the EdgesInTriangle array (i.e. provide the 3 edge indices for each triangle). */
     const sofa::helper::vector< EdgesInTriangle > &getEdgesInTriangleArray() ;
 
 
+    /** \brief Returns the TrianglesAroundVertex array (i.e. provide the triangles indices adjacent to each vertex). Thread safe*/
+    const sofa::helper::vector< TrianglesAroundVertex > &getTrianglesAroundVertexArray() const;
+
     /** \brief Returns the TrianglesAroundVertex array (i.e. provide the triangles indices adjacent to each vertex). */
     const sofa::helper::vector< TrianglesAroundVertex > &getTrianglesAroundVertexArray();
 
+    /** \brief Returns the TrianglesAroundEdge array (i.e. provide the triangles indices adjacent to each edge). Thread safe*/
+    const sofa::helper::vector< TrianglesAroundEdge > &getTrianglesAroundEdgeArray() const;
 
     /** \brief Returns the TrianglesAroundEdge array (i.e. provide the triangles indices adjacent to each edge). */
     const sofa::helper::vector< TrianglesAroundEdge > &getTrianglesAroundEdgeArray() ;
-
 
     /** \brief: Return a list of TriangleID which are on a border.
      * @see createElementsOnBorder()

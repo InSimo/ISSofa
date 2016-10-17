@@ -425,6 +425,10 @@ void TriangleSetTopologyContainer::reOrientateTriangle(TriangleID id)
     return;
 }
 
+const sofa::helper::vector<Triangle> & TriangleSetTopologyContainer::getTriangleArray() const
+{
+    return d_triangle.getValue();
+}
 
 const sofa::helper::vector<Triangle> & TriangleSetTopologyContainer::getTriangleArray()
 {
@@ -436,25 +440,24 @@ const sofa::helper::vector<Triangle> & TriangleSetTopologyContainer::getTriangle
         createTriangleSetArray();
     }
 
-    return d_triangle.getValue();
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTriangleArray();
 }
 
+const Triangle& TriangleSetTopologyContainer::getTriangle(TriangleID i) const
+{
+    return (d_triangle.getValue())[i];
+}
 
 const Triangle TriangleSetTopologyContainer::getTriangle (TriangleID i)
 {
     if(!hasTriangles())
         createTriangleSetArray();
 
-    return (d_triangle.getValue())[i];
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTriangle(i);
 }
 
-
-
-int TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, PointID v3)
+int TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, PointID v3) const
 {
-    if(!hasTrianglesAroundVertex())
-        createTrianglesAroundVertexArray();
-
     sofa::helper::vector<unsigned int> set1 = getTrianglesAroundVertex(v1);
     sofa::helper::vector<unsigned int> set2 = getTrianglesAroundVertex(v2);
     sofa::helper::vector<unsigned int> set3 = getTrianglesAroundVertex(v3);
@@ -464,25 +467,46 @@ int TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, Point
     sort(set3.begin(), set3.end());
 
     // The destination vector must be large enough to contain the result.
-    sofa::helper::vector<unsigned int> out1(set1.size()+set2.size());
+    sofa::helper::vector<unsigned int> out1(set1.size() + set2.size());
     sofa::helper::vector<unsigned int>::iterator result1;
-    result1 = std::set_intersection(set1.begin(),set1.end(),set2.begin(),set2.end(),out1.begin());
-    out1.erase(result1,out1.end());
+    result1 = std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), out1.begin());
+    out1.erase(result1, out1.end());
 
-    sofa::helper::vector<unsigned int> out2(set3.size()+out1.size());
+    sofa::helper::vector<unsigned int> out2(set3.size() + out1.size());
     sofa::helper::vector<unsigned int>::iterator result2;
-    result2 = std::set_intersection(set3.begin(),set3.end(),out1.begin(),out1.end(),out2.begin());
-    out2.erase(result2,out2.end());
+    result2 = std::set_intersection(set3.begin(), set3.end(), out1.begin(), out1.end(), out2.begin());
+    out2.erase(result2, out2.end());
 
 #ifndef NDEBUG
-    if(out2.size() > 1)
+    if (out2.size() > 1)
         sout << "Warning. [TriangleSetTopologyContainer::getTriangleIndex] more than one triangle found" << sendl;
 #endif
 
-    if (out2.size()==1)
-        return (int) (out2[0]);
+    if (out2.size() == 1)
+        return (int)(out2[0]);
     else
         return -1;
+}
+
+int TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, PointID v3)
+{
+    if (!hasTrianglesAroundVertex())
+    {
+        createTrianglesAroundVertexArray();
+    }
+
+    if (v1 >= m_trianglesAroundVertex.size() ||
+        v2 >= m_trianglesAroundVertex.size() || 
+        v3 >= m_trianglesAroundVertex.size() )
+    {
+#ifndef NDEBUG
+        sout << "Error. [TriangleSetTopologyContainer::getTrianglesAroundVertex] index out of bounds." << sendl;
+#endif
+        createTrianglesAroundVertexArray();
+    }
+
+
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTriangleIndex(v1, v2, v3);
 }
 
 unsigned int TriangleSetTopologyContainer::getNumberOfTriangles() const
@@ -495,6 +519,11 @@ unsigned int TriangleSetTopologyContainer::getNumberOfElements() const
     return this->getNumberOfTriangles();
 }
 
+const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTopologyContainer::getTrianglesAroundVertexArray() const
+{
+    return m_trianglesAroundVertex;
+}
+
 const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTopologyContainer::getTrianglesAroundVertexArray()
 {
     if(!hasTrianglesAroundVertex())	// this method should only be called when the shell array exists
@@ -505,12 +534,17 @@ const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTop
         createTrianglesAroundVertexArray();
     }
 
-    return m_trianglesAroundVertex;
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundVertexArray();
+}
+
+const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTopologyContainer::getTrianglesAroundEdgeArray() const
+{
+    return m_trianglesAroundEdge;
 }
 
 const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTopologyContainer::getTrianglesAroundEdgeArray()
 {
-    if(!hasTrianglesAroundEdge())	// this method should only be called when the shell array exists
+    if (!hasTrianglesAroundEdge())	// this method should only be called when the shell array exists
     {
 #ifndef NDEBUG
         sout << "Warning. [TriangleSetTopologyContainer::getTrianglesAroundEdgeArray] triangle edge shell array is empty." << sendl;
@@ -518,7 +552,12 @@ const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTop
         createTrianglesAroundEdgeArray();
     }
 
-    return m_trianglesAroundEdge;
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundEdgeArray();
+}
+
+const sofa::helper::vector<EdgesInTriangle> &TriangleSetTopologyContainer::getEdgesInTriangleArray() const
+{
+    return m_edgesInTriangle;
 }
 
 const sofa::helper::vector<EdgesInTriangle> &TriangleSetTopologyContainer::getEdgesInTriangleArray()
@@ -526,7 +565,12 @@ const sofa::helper::vector<EdgesInTriangle> &TriangleSetTopologyContainer::getEd
     if(m_edgesInTriangle.empty())
         createEdgesInTriangleArray();
 
-    return m_edgesInTriangle;
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getEdgesInTriangleArray();
+}
+
+const TrianglesAroundVertex& TriangleSetTopologyContainer::getTrianglesAroundVertex(PointID i) const
+{
+    return m_trianglesAroundVertex[i];
 }
 
 const TrianglesAroundVertex& TriangleSetTopologyContainer::getTrianglesAroundVertex(PointID i)
@@ -546,7 +590,12 @@ const TrianglesAroundVertex& TriangleSetTopologyContainer::getTrianglesAroundVer
         createTrianglesAroundVertexArray();
     }
 
-    return m_trianglesAroundVertex[i];
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundVertex(i);
+}
+
+const TrianglesAroundEdge& TriangleSetTopologyContainer::getTrianglesAroundEdge(EdgeID i) const
+{
+    return m_trianglesAroundEdge[i];
 }
 
 const TrianglesAroundEdge& TriangleSetTopologyContainer::getTrianglesAroundEdge(EdgeID i)
@@ -566,7 +615,12 @@ const TrianglesAroundEdge& TriangleSetTopologyContainer::getTrianglesAroundEdge(
         createTrianglesAroundEdgeArray();
     }
 
-    return m_trianglesAroundEdge[i];
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundEdge(i);
+}
+
+const EdgesInTriangle &TriangleSetTopologyContainer::getEdgesInTriangle(const unsigned int i) const
+{
+    return m_edgesInTriangle[i];
 }
 
 const EdgesInTriangle &TriangleSetTopologyContainer::getEdgesInTriangle(const unsigned int i)
@@ -581,8 +635,7 @@ const EdgesInTriangle &TriangleSetTopologyContainer::getEdgesInTriangle(const un
 #endif
         createEdgesInTriangleArray();
     }
-
-    return m_edgesInTriangle[i];
+    return static_cast<const TriangleSetTopologyContainer*>(this)->getEdgesInTriangle(i);
 }
 
 int TriangleSetTopologyContainer::getVertexIndexInTriangle(const Triangle &t, PointID vertexIndex) const
