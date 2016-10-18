@@ -253,19 +253,22 @@ void Bezier2MeshTopologicalMapping::init()
 	
 //			std::cerr<< macroTriangleIndexArray<<std::endl;
 			// now add subtriangles to the list
+            sofa::helper::vector<core::topology::BaseMeshTopology::Triangle> trianglestoadd;
 			for (j=0;j<sta.size();++j,++rank){
 				for(k=0;k<3;++k){
 					subtriangle[k]=macroTriangleIndexArray[sta[j][k]];
 				}
 				// add the subtriangle
 				if (toTriangleMod)
-					toTriangleMod->addTriangleProcess(subtriangle);
+                    trianglestoadd.push_back(subtriangle);
 				else
 					tstc->addTriangle(subtriangle[0],subtriangle[1],subtriangle[2]);
 				// update the topological maps
 				loc2glob[rank]=i;
 				Glob2LocMap.insert(std::pair<unsigned int, unsigned int>(i,rank));
 			}
+            if( toTriangleMod && !trianglestoadd.empty() )
+                toTriangleMod->addTrianglesProcess(trianglestoadd);
 		  }
 	}
    

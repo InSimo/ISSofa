@@ -420,7 +420,7 @@ void TriangleSetTopologyContainer::reOrientateTriangle(TriangleID id)
     return;
 }
 
-const sofa::helper::vector<Triangle> & TriangleSetTopologyContainer::getTriangleArray() const
+const sofa::helper::vector<TriangleSetTopologyContainer::Triangle> & TriangleSetTopologyContainer::getTriangleArray() const
 {
     return d_triangle.getValue();
 }
@@ -438,7 +438,7 @@ const sofa::helper::vector<TriangleSetTopologyContainer::Triangle> & TriangleSet
     return static_cast<const TriangleSetTopologyContainer*>(this)->getTriangleArray();
 }
 
-const Triangle& TriangleSetTopologyContainer::getTriangle(TriangleID i) const
+const TriangleSetTopologyContainer::Triangle& TriangleSetTopologyContainer::getTriangle(TriangleID i) const
 {
     return (d_triangle.getValue())[i];
 }
@@ -550,7 +550,7 @@ const sofa::helper::vector< sofa::helper::vector<unsigned int> > &TriangleSetTop
     return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundEdgeArray();
 }
 
-const sofa::helper::vector<EdgesInTriangle> &TriangleSetTopologyContainer::getEdgesInTriangleArray() const
+const sofa::helper::vector<TriangleSetTopologyContainer::EdgesInTriangle> &TriangleSetTopologyContainer::getEdgesInTriangleArray() const
 {
     return m_edgesInTriangle;
 }
@@ -563,7 +563,7 @@ const sofa::helper::vector<TriangleSetTopologyContainer::EdgesInTriangle> &Trian
     return static_cast<const TriangleSetTopologyContainer*>(this)->getEdgesInTriangleArray();
 }
 
-const TrianglesAroundVertex& TriangleSetTopologyContainer::getTrianglesAroundVertex(PointID i) const
+const TriangleSetTopologyContainer::TrianglesAroundVertex& TriangleSetTopologyContainer::getTrianglesAroundVertex(PointID i) const
 {
     return m_trianglesAroundVertex[i];
 }
@@ -588,7 +588,7 @@ const TriangleSetTopologyContainer::TrianglesAroundVertex& TriangleSetTopologyCo
     return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundVertex(i);
 }
 
-const TrianglesAroundEdge& TriangleSetTopologyContainer::getTrianglesAroundEdge(EdgeID i) const
+const TriangleSetTopologyContainer::TrianglesAroundEdge& TriangleSetTopologyContainer::getTrianglesAroundEdge(EdgeID i) const
 {
     return m_trianglesAroundEdge[i];
 }
@@ -613,7 +613,7 @@ const TriangleSetTopologyContainer::TrianglesAroundEdge& TriangleSetTopologyCont
     return static_cast<const TriangleSetTopologyContainer*>(this)->getTrianglesAroundEdge(i);
 }
 
-const EdgesInTriangle &TriangleSetTopologyContainer::getEdgesInTriangle(const unsigned int i) const
+const TriangleSetTopologyContainer::EdgesInTriangle &TriangleSetTopologyContainer::getEdgesInTriangle(const unsigned int i) const
 {
     return m_edgesInTriangle[i];
 }

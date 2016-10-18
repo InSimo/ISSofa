@@ -119,7 +119,7 @@ void BezierTetra2BezierTriangleTopologicalMapping::init()
 			std::set<size_t> vertexSet;
 			// set the boolean indicating if the triangulation is rational
 			helper::WriteOnlyAccessor<Data <BezierTriangleSetTopologyContainer::SeqBools> >  isRationalSpline=to_btstc->d_isRationalSpline;
-
+            sofa::helper::vector< core::topology::BaseMeshTopology::Triangle > trianglesToAdd;
 			for (unsigned int i=0; i<triangleArray.size(); ++i)
 			{
 				/// find triangles on the border of the tetrahedral mesh 
@@ -134,7 +134,8 @@ void BezierTetra2BezierTriangleTopologicalMapping::init()
 						t[2] = t[1];
 						t[1] = tmp;
 					}
-					to_tstm->addTriangleProcess(t);
+                    trianglesToAdd.push_back(t);
+
 					// add vertices in set
 					vertexSet.insert(t[0]);vertexSet.insert(t[1]);vertexSet.insert(t[2]);
 					//  if the adjacent tetrahedron is rational then the triangle is also rational
@@ -174,6 +175,11 @@ void BezierTetra2BezierTriangleTopologicalMapping::init()
 					rankTriangle++;
 				}
 			}
+
+            if( !trianglesToAdd.empty())
+            {
+                to_tstm->addTrianglesProcess(trianglesToAdd);
+            }
 			// copy the weights 
 			const BezierTetrahedronSetTopologyContainer::SeqWeights &swFrom=from_btstc->getWeightArray();
 

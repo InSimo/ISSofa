@@ -109,6 +109,8 @@ void Tetra2TriangleTopologicalMapping::init()
                 Loc2GlobVec.clear();
                 Glob2LocMap.clear();
 
+                sofa::helper::vector< core::topology::BaseMeshTopology::Triangle > trianglesToAdd;
+                trianglesToAdd.reserve(triangleArray.size());
                 for (unsigned int i=0; i<triangleArray.size(); ++i)
                 {
 
@@ -120,14 +122,16 @@ void Tetra2TriangleTopologicalMapping::init()
                             unsigned int tmp = t[2];
                             t[2] = t[1];
                             t[1] = tmp;
-                            to_tstm->addTriangleProcess(t);
+                            trianglesToAdd.push_back(t);
                         }
-                        else	to_tstm->addTriangleProcess(triangleArray[i]);
+                        else	trianglesToAdd.push_back(triangleArray[i]);
 
                         Loc2GlobVec.push_back(i);
                         Glob2LocMap[i]=Loc2GlobVec.size()-1;
                     }
                 }
+
+                to_tstm->addTrianglesProcess(trianglesToAdd);
 
                 //to_tstm->propagateTopologicalChanges();
                 to_tstm->notifyEndingEvent();

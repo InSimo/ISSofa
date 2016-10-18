@@ -99,9 +99,6 @@ public:
             const sofa::helper::vector< sofa::helper::vector< unsigned int > > & ancestors,
             const sofa::helper::vector< sofa::helper::vector< double > >& baryCoefs) ;
 
-    /** \brief Effectively add a triangle to the topology.
-     */
-    void addTriangleProcess (Triangle t);
 
     /** \brief Effectively Add some triangles. Test precondition and apply:
     */
@@ -141,7 +138,7 @@ public:
      *
      * \sa addEdgesWarning
      */
-    void addEdgesProcess(const sofa::helper::vector< Edge > &edges);
+    virtual void addEdgesProcess(const sofa::helper::vector< Edge > &edges);
 
 
     /** \brief Generic method to remove a list of items.
@@ -261,6 +258,9 @@ public:
 
 
 protected:
+    /** \brief Effectively add a triangle to the topology.
+    */
+    void addTriangleProcess(Triangle t);
 
     /** \brief Precondition to fulfill before removing triangles. No preconditions are needed in this class. This function should be inplemented in children classes.
      *
