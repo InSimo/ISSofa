@@ -67,6 +67,8 @@ EdgeSetTopologyContainer::EdgeSetTopologyContainer()
 
 void EdgeSetTopologyContainer::init()
 {
+    PointSetTopologyContainer::init();
+
     d_edge.updateIfDirty(); // make sure m_edge is up to date
 
     helper::ReadAccessor< Data< sofa::helper::vector<Edge> > > m_edge = d_edge;
@@ -82,8 +84,7 @@ void EdgeSetTopologyContainer::init()
         }
     }
     // std::cout << "coords: " << getPX(m_edge[1][0]) << " " << getPY(m_edge[1][0]) << " " << getPZ(m_edge[1][0]) << std::endl;
-
-    PointSetTopologyContainer::init();
+    createEdgesAroundVertexArray();
 }
 
 void EdgeSetTopologyContainer::addEdge(int a, int b)
@@ -96,14 +97,6 @@ void EdgeSetTopologyContainer::addEdge(int a, int b)
 
 void EdgeSetTopologyContainer::createEdgesAroundVertexArray()
 {
-    if(!hasEdges())	// this method should only be called when edges exist
-    {
-#ifndef NDEBUG
-        sout << "Warning. [EdgeSetTopologyContainer::createEdgesAroundVertexArray] edge array is empty." << sendl;
-#endif
-        createEdgeSetArray();
-    }
-
     if(hasEdgesAroundVertex())
     {
         clearEdgesAroundVertex();

@@ -63,8 +63,14 @@ void QuadSetTopologyContainer::addQuad( int a, int b, int c, int d )
 
 void QuadSetTopologyContainer::init()
 {
+    createEdgeSetArray();
+
     EdgeSetTopologyContainer::init();
     d_quad.updateIfDirty(); // make sure m_quad is up to date
+
+    createEdgesInQuadArray();
+    createQuadsAroundVertexArray();
+    createQuadsAroundEdgeArray();
 }
 
 

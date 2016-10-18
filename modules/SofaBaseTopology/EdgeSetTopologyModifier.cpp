@@ -92,16 +92,15 @@ void EdgeSetTopologyModifier::addEdgeProcess(Edge e)
         }
     }
 #endif
-    if (m_container->hasEdgesAroundVertex())
-    {
-        const unsigned int edgeId = m_container->getNumberOfEdges();
+    // udpate the neighborhood information
+    const unsigned int edgeId = m_container->getNumberOfEdges();
 
-        sofa::helper::vector< unsigned int > &shell0 = m_container->getEdgesAroundVertexForModification( e[0] );
-        shell0.push_back(edgeId);
+    sofa::helper::vector< unsigned int > &shell0 = m_container->getEdgesAroundVertexForModification(e[0]);
+    shell0.push_back(edgeId);
 
-        sofa::helper::vector< unsigned int > &shell1 = m_container->getEdgesAroundVertexForModification( e[1] );
-        shell1.push_back(edgeId);
-    }
+    sofa::helper::vector< unsigned int > &shell1 = m_container->getEdgesAroundVertexForModification(e[1]);
+    shell1.push_back(edgeId);
+
 
     helper::WriteAccessor< Data< sofa::helper::vector<Edge> > > m_edge = m_container->d_edge;
     m_edge.push_back(e);
@@ -221,11 +220,6 @@ void EdgeSetTopologyModifier::removeEdgesProcess(const sofa::helper::vector<unsi
         return;
     }
 
-    if(removeIsolatedItems && !m_container->hasEdgesAroundVertex())
-    {
-        m_container->createEdgesAroundVertexArray();
-    }
-
     sofa::helper::vector<unsigned int> vertexToBeRemoved;
     helper::WriteAccessor< Data< sofa::helper::vector<Edge> > > m_edge = m_container->d_edge;
 
@@ -233,40 +227,36 @@ void EdgeSetTopologyModifier::removeEdgesProcess(const sofa::helper::vector<unsi
     for (unsigned int i=0; i<indices.size(); ++i, --lastEdgeIndex)
     {
         // now updates the shell information of the edge formely at the end of the array
-        if(m_container->hasEdgesAroundVertex())
+        const Edge &e = m_edge[indices[i]];
+        const Edge &q = m_edge[lastEdgeIndex];
+        const unsigned int point0 = e[0], point1 = e[1];
+        const unsigned int point2 = q[0], point3 = q[1];
+
+        sofa::helper::vector< unsigned int > &shell0 = m_container->m_edgesAroundVertex[point0];
+        shell0.erase(std::remove(shell0.begin(), shell0.end(), indices[i]), shell0.end());
+        if (removeIsolatedItems && shell0.empty())
         {
-
-
-            const Edge &e = m_edge[ indices[i] ];
-            const Edge &q = m_edge[ lastEdgeIndex ];
-            const unsigned int point0 = e[0], point1 = e[1];
-            const unsigned int point2 = q[0], point3 = q[1];
-
-            sofa::helper::vector< unsigned int > &shell0 = m_container->m_edgesAroundVertex[ point0 ];
-            shell0.erase( std::remove( shell0.begin(), shell0.end(), indices[i] ), shell0.end() );
-            if(removeIsolatedItems && shell0.empty())
-            {
-                vertexToBeRemoved.push_back(point0);
-            }
-
-            sofa::helper::vector< unsigned int > &shell1 = m_container->m_edgesAroundVertex[ point1 ];
-            shell1.erase( std::remove( shell1.begin(), shell1.end(), indices[i] ), shell1.end() );
-            if(removeIsolatedItems && shell1.empty())
-            {
-                vertexToBeRemoved.push_back(point1);
-            }
-
-            if(indices[i] < lastEdgeIndex)
-            {
-                //replaces the edge index oldEdgeIndex with indices[i] for the first vertex
-                sofa::helper::vector< unsigned int > &shell2 = m_container->m_edgesAroundVertex[ point2 ];
-                replace(shell2.begin(), shell2.end(), lastEdgeIndex, indices[i]);
-
-                //replaces the edge index oldEdgeIndex with indices[i] for the second vertex
-                sofa::helper::vector< unsigned int > &shell3 = m_container->m_edgesAroundVertex[ point3 ];
-                replace(shell3.begin(), shell3.end(), lastEdgeIndex, indices[i]);
-            }
+            vertexToBeRemoved.push_back(point0);
         }
+
+        sofa::helper::vector< unsigned int > &shell1 = m_container->m_edgesAroundVertex[point1];
+        shell1.erase(std::remove(shell1.begin(), shell1.end(), indices[i]), shell1.end());
+        if (removeIsolatedItems && shell1.empty())
+        {
+            vertexToBeRemoved.push_back(point1);
+        }
+
+        if (indices[i] < lastEdgeIndex)
+        {
+            //replaces the edge index oldEdgeIndex with indices[i] for the first vertex
+            sofa::helper::vector< unsigned int > &shell2 = m_container->m_edgesAroundVertex[point2];
+            replace(shell2.begin(), shell2.end(), lastEdgeIndex, indices[i]);
+
+            //replaces the edge index oldEdgeIndex with indices[i] for the second vertex
+            sofa::helper::vector< unsigned int > &shell3 = m_container->m_edgesAroundVertex[point3];
+            replace(shell3.begin(), shell3.end(), lastEdgeIndex, indices[i]);
+        }
+
 
         // removes the edge from the edgelist
         m_edge[ indices[i] ] = m_edge[ lastEdgeIndex ]; // overwriting with last valid value.
@@ -286,44 +276,37 @@ void EdgeSetTopologyModifier::addPointsProcess(const unsigned int nPoints)
 {
     // start by calling the parent's method.
     PointSetTopologyModifier::addPointsProcess( nPoints );
-
-    if(m_container->hasEdgesAroundVertex())
-        m_container->m_edgesAroundVertex.resize( m_container->getNbPoints() );
+    // update neighborhood information
+    m_container->m_edgesAroundVertex.resize( m_container->getNbPoints() );
 }
 
 void EdgeSetTopologyModifier::removePointsProcess(const sofa::helper::vector<unsigned int> &indices,
         const bool removeDOF)
 {
     // Note: edges connected to the points being removed are not removed here (this situation should not occur)
+    helper::WriteAccessor< Data< sofa::helper::vector<Edge> > > m_edge = m_container->d_edge;
 
-    if(m_container->hasEdges())
+    unsigned int lastPoint = m_container->getNbPoints() - 1;
+    for (unsigned int i = 0; i < indices.size(); ++i, --lastPoint)
     {
-        helper::WriteAccessor< Data< sofa::helper::vector<Edge> > > m_edge = m_container->d_edge;
-        // forces the construction of the edge shell array if it does not exists
-        if(!m_container->hasEdgesAroundVertex())
-            m_container->createEdgesAroundVertexArray();
-
-        unsigned int lastPoint = m_container->getNbPoints() - 1;
-        for (unsigned int i=0; i<indices.size(); ++i, --lastPoint)
+        // updating the edges connected to the point replacing the removed one:
+        // for all edges connected to the last point
+        for (unsigned int j = 0; j < m_container->m_edgesAroundVertex[lastPoint].size(); ++j)
         {
-            // updating the edges connected to the point replacing the removed one:
-            // for all edges connected to the last point
-            for (unsigned int j=0; j<m_container->m_edgesAroundVertex[lastPoint].size(); ++j)
-            {
-                const int edgeId = m_container->m_edgesAroundVertex[lastPoint][j];
-                // change the old index for the new one
-                if ( m_edge[ edgeId ][0] == lastPoint )
-                    m_edge[ edgeId ][0] = indices[i];
-                else
-                    m_edge[ edgeId ][1] = indices[i];
-            }
-
-            // updating the edge shell itself (change the old index for the new one)
-            m_container->m_edgesAroundVertex[ indices[i] ] = m_container->m_edgesAroundVertex[ lastPoint ];
+            const int edgeId = m_container->m_edgesAroundVertex[lastPoint][j];
+            // change the old index for the new one
+            if (m_edge[edgeId][0] == lastPoint)
+                m_edge[edgeId][0] = indices[i];
+            else
+                m_edge[edgeId][1] = indices[i];
         }
 
-        m_container->m_edgesAroundVertex.resize( m_container->m_edgesAroundVertex.size() - indices.size() );
+        // updating the edge shell itself (change the old index for the new one)
+        m_container->m_edgesAroundVertex[indices[i]] = m_container->m_edgesAroundVertex[lastPoint];
     }
+
+    m_container->m_edgesAroundVertex.resize(m_container->m_edgesAroundVertex.size() - indices.size());
+
 
     // Important : the points are actually deleted from the mechanical object's state vectors iff (removeDOF == true)
     // call the parent method.

@@ -72,8 +72,14 @@ void TriangleSetTopologyContainer::addTriangle( int a, int b, int c )
 void TriangleSetTopologyContainer::init()
 {
     //std::cout << "TriangleSetTopologyContainer::init()" << std::endl;
-    EdgeSetTopologyContainer::init();
     d_triangle.updateIfDirty(); // make sure m_triangle is up to date
+    createEdgeSetArray(); // create the edges for the triangles
+    EdgeSetTopologyContainer::init(); 
+    
+    // udpate the neighborhood information.
+    createTrianglesAroundEdgeArray();
+    createTrianglesAroundVertexArray();
+    createEdgesInTriangleArray();
 }
 
 void TriangleSetTopologyContainer::reinit()
@@ -91,14 +97,6 @@ void TriangleSetTopologyContainer::createTriangleSetArray()
 
 void TriangleSetTopologyContainer::createTrianglesAroundVertexArray ()
 {
-    if(!hasTriangles()) // this method should only be called when triangles exist
-    {
-#ifndef NDEBUG
-        sout << "Warning. [TriangleSetTopologyContainer::createTrianglesAroundVertexArray] triangle array is empty." << sendl;
-#endif
-        createTriangleSetArray();
-    }
-
     if(hasTrianglesAroundVertex())
     {
         clearTrianglesAroundVertex();
@@ -117,14 +115,6 @@ void TriangleSetTopologyContainer::createTrianglesAroundVertexArray ()
 
 void TriangleSetTopologyContainer::createTrianglesAroundEdgeArray ()
 {
-    if(!hasTriangles()) // this method should only be called when triangles exist
-    {
-#ifndef NDEBUG
-        sout << "Warning. [TriangleSetTopologyContainer::createTrianglesAroundEdgeArray] triangle array is empty." << sendl;
-#endif
-        createTriangleSetArray();
-    }
-
     if(!hasEdges()) // this method should only be called when edges exist
     {
 #ifndef NDEBUG
