@@ -138,17 +138,27 @@ void Mesh2PointTopologicalMapping::init()
             if (copyEdges.getValue())
             {
                 sout << "Copying " << fromModel->getNbEdges() << " edges" << sendl;
+                sofa::helper::vector<Edge> edgesToAdd;
+                edgesToAdd.reserve(fromModel->getNbEdges());
                 for (int i=0; i<fromModel->getNbEdges(); i++)
                 {
                     Edge e = fromModel->getEdge(i);
                     for (unsigned int j=0; j<e.size(); ++j)
                         e[j] = pointsMappedFrom[POINT][e[j]][0];
                     if (toEdgeMod)
-                        toEdgeMod->addEdgeProcess(e);
+                    {
+                        edgesToAdd.push_back(e);
+                    }
                     else
                         toModel->addEdge(e[0],e[1]);
                 }
+
+                if (toEdgeMod)
+                {
+                    toEdgeMod->addEdgesProcess(edgesToAdd);
+                }
             }
+
 
             // triangle to point mapping
             if (!triangleBaryCoords.getValue().empty())
@@ -164,15 +174,23 @@ void Mesh2PointTopologicalMapping::init()
             if (copyTriangles.getValue())
             {
                 sout << "Copying " << fromModel->getNbTriangles() << " triangles" << sendl;
+                sofa::helper::vector< Triangle > trianglesToAdd;
+                trianglesToAdd.reserve(fromModel->getNbTriangles());
                 for (int i=0; i<fromModel->getNbTriangles(); i++)
                 {
                     Triangle t = fromModel->getTriangle(i);
                     for (unsigned int j=0; j<t.size(); ++j)
                         t[j] = pointsMappedFrom[POINT][t[j]][0];
                     if (toTriangleMod)
-                        toTriangleMod->addTriangleProcess(t);
+                    {
+                        trianglesToAdd.push_back(t);
+                    }
                     else
                         toModel->addTriangle(t[0],t[1],t[2]);
+                }
+                if (toTriangleMod)
+                {
+                    toTriangleMod->addTrianglesProcess(trianglesToAdd);
                 }
             }
 

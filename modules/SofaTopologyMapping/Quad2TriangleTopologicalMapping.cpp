@@ -144,7 +144,8 @@ void Quad2TriangleTopologicalMapping::init()
                 return;
             }
 
-
+            sofa::helper::vector< Triangle > trianglesToAdd;
+            trianglesToAdd.reserve(quadArray.size() * 2);
             for (unsigned int i=0; i<quadArray.size(); ++i)
             {
 
@@ -155,15 +156,17 @@ void Quad2TriangleTopologicalMapping::init()
                 unsigned int p1 = quadArray[i][1];
                 unsigned int p2 = quadArray[i][2];
                 unsigned int p3 = quadArray[i][3];
+
+
                 if (((i%scale) ^ (i/scale)) & 1)
                 {
-                    to_tstm->addTriangleProcess(Triangle((unsigned int) p0, (unsigned int) p1, (unsigned int) p3));
-                    to_tstm->addTriangleProcess(Triangle((unsigned int) p2, (unsigned int) p3, (unsigned int) p1));
+                    trianglesToAdd.push_back(Triangle((unsigned int) p0, (unsigned int) p1, (unsigned int) p3));
+                    trianglesToAdd.push_back(Triangle((unsigned int) p2, (unsigned int) p3, (unsigned int) p1));
                 }
                 else
                 {
-                    to_tstm->addTriangleProcess(Triangle((unsigned int) p1, (unsigned int) p2, (unsigned int) p0));
-                    to_tstm->addTriangleProcess(Triangle((unsigned int) p3, (unsigned int) p0, (unsigned int) p2));
+                    trianglesToAdd.push_back(Triangle((unsigned int) p1, (unsigned int) p2, (unsigned int) p0));
+                    trianglesToAdd.push_back(Triangle((unsigned int) p3, (unsigned int) p0, (unsigned int) p2));
                 }
 
                 Loc2GlobVec.push_back(i);
@@ -173,6 +176,8 @@ void Quad2TriangleTopologicalMapping::init()
                 out_info.push_back(Loc2GlobVec.size()-1);
                 In2OutMap[i]=out_info;
             }
+
+            to_tstm->addTrianglesProcess(trianglesToAdd);
 
             //to_tstm->propagateTopologicalChanges();
             to_tstm->notifyEndingEvent();

@@ -130,10 +130,6 @@ public:
             const sofa::helper::vector< unsigned int >& edgesIndexList,
             const sofa::helper::vector< core::topology::EdgeAncestorElem >& ancestorElems);
 
-    /** \brief Effectively add an edge.
-    */
-    void addEdgeProcess(Edge e);
-
     /** \brief Effectively add some edges to this topology.
     *
     * \sa addEdgesWarning
@@ -305,6 +301,11 @@ public:
     * @return false if something goes wrong during the process.
     */
     virtual bool removeIsolatedElements(unsigned int scaleElem);
+
+protected:
+    /** \brief Effectively add an edge.
+    */
+    void addEdgeProcess(Edge e);
 
 private:
     EdgeSetTopologyContainer* 	m_container;

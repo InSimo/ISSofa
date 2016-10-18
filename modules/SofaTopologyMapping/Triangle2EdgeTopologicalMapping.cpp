@@ -102,18 +102,19 @@ void Triangle2EdgeTopologicalMapping::init()
             Loc2GlobVec.clear();
             Glob2LocMap.clear();
 
+            sofa::helper::vector< Edge > edgesToAdd;
+            edgesToAdd.reserve(edgeArray.size());
+
             for (unsigned int i=0; i<edgeArray.size(); ++i)
             {
                 if (fromModel->getTrianglesAroundEdge(i).size()==1)
                 {
-
-                    to_tstm->addEdgeProcess(edgeArray[i]);
-
+                    edgesToAdd.push_back(edgeArray[i]);
                     Loc2GlobVec.push_back(i);
                     Glob2LocMap[i]=Loc2GlobVec.size()-1;
                 }
             }
-
+            to_tstm->addEdgesProcess(edgesToAdd);
             //to_tstm->propagateTopologicalChanges();
             to_tstm->notifyEndingEvent();
             //to_tstm->propagateTopologicalChanges();
