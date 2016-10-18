@@ -1,15 +1,8 @@
-/*******************************************************************************
-*          Private SOFA components, (c) 2015 InSimo                            *
-* CONFIDENTIAL SOURCE CODE. This file is the property of InSimo and should not *
-* be redistributed. Commercial use is prohibited without a specific license.   *
-*******************************************************************************/
-
 #include <gtest/gtest.h>
 #include <SofaBaseTopology/PointSetTopologyContainer.h>
 #include <sofa/simulation/tree/GNode.h>
 
 using namespace sofa::component::topology;
-
 
 namespace
 {
