@@ -10,6 +10,11 @@ using namespace sofa::simulation::tree;
 namespace
 {
 
+bool compareEdgesInTriangle(const TriangleSetTopologyContainer::EdgesInTriangle& lhs, const TriangleSetTopologyContainer::EdgesInTriangle& rhs)
+{
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
 TEST(TriangleSetTopology_test, checkTriangleSetTopologyIsEmptyWhenConstructed)
 {
     TriangleSetTopologyContainer::SPtr triangleContainer = sofa::core::objectmodel::New< TriangleSetTopologyContainer >();
@@ -95,9 +100,9 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyInitializationOfNeighborh
             EXPECT_EQ(TriangleID(0), eati[0]);
         }
 
-        //const auto eitArrayExpected = triangleContainer->getEdgesInTriangleArray();
-        //EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
-        //EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin()));
+        const auto eitArrayExpected = triangleContainer->getEdgesInTriangleArray();
+        EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
+        EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin(), compareEdgesInTriangle ));
 
         const auto tavArrayExpected = triangleContainer->getTrianglesAroundVertexArray();
         EXPECT_EQ(tavArrayExpected.size(), tavArray.size());
@@ -180,6 +185,8 @@ bool TriangleSetTopology::removeLastPoint()
 
     triangleModifier->removePointsWarning(indices, false);
     triangleModifier->removePointsProcess(indices, false);
+
+    return true;
 }
 
 bool TriangleSetTopology::removeLastEdge(bool removePoints)
@@ -192,6 +199,8 @@ bool TriangleSetTopology::removeLastEdge(bool removePoints)
     sofa::helper::vector<EdgeID>  edgesToRemove;
     edgesToRemove.push_back(triangleContainer->getNbEdges() - 1);
     triangleModifier->removeEdges(edgesToRemove, removePoints);
+
+    return true;
 }
 
 bool TriangleSetTopology::removeLastTriangle(bool removeEdges, bool removePoints)
@@ -367,10 +376,9 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyAddTriangle)
         }
 
 
-        // commented beacuse it does not trivially compile 
-        //const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
-        //EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
-        //EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin()));
+        const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
+        EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
+        EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin(), compareEdgesInTriangle));
 
         const auto taeArrayExpected = topology.triangleContainer->getTrianglesAroundEdgeArray();
         EXPECT_EQ(taeArrayExpected.size(), taeArray.size());
@@ -448,10 +456,9 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyRemoveTriangleKeepPointsK
         EXPECT_EQ(0, taei.size());
     }
 
-    // commented beacuse it does not trivially compile 
-    //const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
-    //EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
-    //EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin()));
+    const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
+    EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
+    EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin(), compareEdgesInTriangle));
 
     const auto taeArrayExpected = topology.triangleContainer->getTrianglesAroundEdgeArray();
     EXPECT_EQ(taeArrayExpected.size(), taeArray.size());
@@ -504,11 +511,9 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyRemoveTriangleKeepPointsR
         EXPECT_EQ(0, tavi.size());
     }
 
-
-    // commented beacuse it does not trivially compile 
-    //const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
-    //EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
-    //EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin()));
+    const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
+    EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
+    EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin(), compareEdgesInTriangle ));
 
     const auto taeArrayExpected = topology.triangleContainer->getTrianglesAroundEdgeArray();
     EXPECT_EQ(taeArrayExpected.size(), taeArray.size());
@@ -548,10 +553,9 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyRemoveTriangleRemovePoint
     const auto tavArray = constTriangleContainer->getTrianglesAroundVertexArray();
     EXPECT_EQ(0, tavArray.size());
 
-    // commented beacuse it does not trivially compile 
-    //const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
-    //EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
-    //EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin()));
+    const auto eitArrayExpected = topology.triangleContainer->getEdgesInTriangleArray();
+    EXPECT_EQ(eitArrayExpected.size(), eitArray.size());
+    EXPECT_TRUE(std::equal(eitArray.begin(), eitArray.end(), eitArrayExpected.begin(), compareEdgesInTriangle));
 
     const auto taeArrayExpected = topology.triangleContainer->getTrianglesAroundEdgeArray();
     EXPECT_EQ(taeArrayExpected.size(), taeArray.size());
