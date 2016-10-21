@@ -2,13 +2,15 @@ cmake_minimum_required(VERSION 2.8)
 project(SofaConstraint)
 
 set(HEADER_FILES
-
-    initConstraint.h
-    ContactIdentifier.h
-    LocalMinDistance.h
-    LocalMinDistance.inl
-    LMDNewProximityIntersection.h
-    LMDNewProximityIntersection.inl
+    BilateralConstraintResolution.h
+    BilateralInteractionConstraint.h
+    BilateralInteractionConstraint.inl
+    ConstraintAnimationLoop.h
+    ConstraintAttachBodyPerformer.h
+    ConstraintAttachBodyPerformer.inl
+    ConstraintSolverImpl.h
+    ContactDescription.h
+    FreeMotionAnimationLoop.h
     FrictionContact.h
     FrictionContact.inl
     StickContactConstraint.h
