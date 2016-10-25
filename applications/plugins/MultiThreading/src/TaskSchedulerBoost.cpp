@@ -212,12 +212,6 @@ WorkerThread::WorkerThread(TaskScheduler* const& pScheduler, int index)
 
 WorkerThread::~WorkerThread()
 {
-    if (mThread &&  mThread->joinable())
-    {
-        std::stringstream msg;
-        msg << __FUNCTION__ << ": WorkerThread(" << mThreadIndex << ") has not joined yet!\n";
-        std::cerr << msg.str();
-    }
 }
 
 void WorkerThread::join()
