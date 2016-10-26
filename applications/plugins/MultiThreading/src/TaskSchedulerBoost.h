@@ -40,10 +40,10 @@
 #include <MultiThreading/config.h>
 #include "Tasks.h"
 
-#include <boost/thread/thread.hpp>
-#include <boost/thread/tss.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
+#include <memory>
 
 namespace sofa
 {
@@ -54,59 +54,26 @@ namespace simulation
 class TaskScheduler;
 class WorkerThread;
 
-class SpinMutexLock
+
+namespace detail
 {
-public:
+// detail::createThreadLocalWorkerThreadInstance is the "factory" method for WorkerThreads.
+// on top of constructing a WorkerThread object, its purpose is to guarantee that each execution thread 
+// can have at most one WorkerThread instance attached to it.
+WorkerThread* createThreadLocalWorkerThreadInstance(TaskScheduler* scheduler, unsigned index);
 
-    SpinMutexLock() : mMutex(0)
-    {
-    }
+// the main method for threads created by the TaskScheduler.
+void run(TaskScheduler* scheduler, unsigned index);
 
-    SpinMutexLock(boost::detail::spinlock* pMutex, bool bLock = true)
-        : mMutex(pMutex)
-    {
-
-        if (bLock) 
-        {
-            mMutex->lock();
-        }
-    }
-
-    bool try_lock(boost::detail::spinlock* pMutex)
-    {
-        if (!pMutex->try_lock()) 
-        {
-            return false;
-        }
-
-        mMutex = pMutex;
-        return true;
-    }
-
-    ~SpinMutexLock()
-    {
-        if (mMutex) 
-            mMutex->unlock();
-    }
-
-private:
-    boost::detail::spinlock* mMutex;
-};
+}
 
 class SOFA_MULTITHREADING_PLUGIN_API WorkerThread
 {
 public:
-
-    WorkerThread(TaskScheduler* const& taskScheduler, int index);
-
     ~WorkerThread();
-
+    
     static WorkerThread* GetCurrent();
-
-    void start();
-
-    void join();
-
+    
     /// queue task if there is space, and run it otherwise
     bool addStealableTask(Task* pTask);
 
@@ -131,11 +98,12 @@ public:
     const TaskScheduler* getTaskScheduler() { return mTaskScheduler; }
 
 private:
+    // detail::createThreadLocalWorkerThreadInstance is the "factory" method for WorkerThreads.
+    WorkerThread(TaskScheduler* const& taskScheduler, int index);
+    
     // non copy-able
     WorkerThread(const WorkerThread&) {}
-
-    boost::thread::id getId() const;
-
+    
     // queue task if there is space (or do nothing)
     bool pushTask(Task* pTask, Task* taskArray[], unsigned* taskCount );
 
@@ -150,9 +118,11 @@ private:
 
     void doWork(Task::Status* status);		
 
-    void run();
-
     void idle();
+
+    friend void detail::run(TaskScheduler*, unsigned);
+
+    friend WorkerThread* detail::createThreadLocalWorkerThreadInstance(TaskScheduler* scheduler, unsigned index);
 
 private:
 
@@ -161,7 +131,7 @@ private:
         Max_TasksPerThread = 256
     };
 
-    boost::detail::spinlock	          mTaskMutex;
+    std::mutex                        mTaskMutex;
     TaskScheduler*                    mTaskScheduler; 
     Task*		                      mStealableTask[Max_TasksPerThread];///< shared task list, stealable by other threads
     Task*                             mSpecificTask[Max_TasksPerThread];///< thread specific task list, not stealable. They have a higher priority compared to the shared task list
@@ -170,7 +140,6 @@ private:
     Task::Status*	                  mCurrentStatus;	
     unsigned                          mThreadIndex;
     bool                              mTaskLogEnabled;
-    boost::shared_ptr<boost::thread>  mThread;
     std::vector<Task*>                mTaskLog;
 };
 
@@ -190,13 +159,11 @@ public:
     TaskScheduler();
 
     ~TaskScheduler();
-
-    void setWorkerThreadLifeTimeThreadLocal(WorkerThread* worker);
-    
+        
     bool start(const unsigned int NbThread = 0);
 
     bool stop();
-
+    
     void notifyWorkersForWork(Task::Status* status);
 
     void notifyWorkersForClosing();
@@ -205,11 +172,13 @@ public:
 
     void idleWorkerUntilNotified(const WorkerThread* worker);
 
+    void setWorkerThread(WorkerThread* worker, unsigned index);
+
     WorkerThread* getWorkerThread(const unsigned int index) const;
 
     bool isMainWorkerThread(const WorkerThread* worker) const;
 
-    volatile Task::Status* getRootTaskStatus() const { return mRootTaskStatus; }
+    Task::Status* getRootTaskStatus() const { return mRootTaskStatus; }
 
     bool isClosing() const { return mIsClosing; }
 
@@ -219,22 +188,29 @@ private:
 
     TaskScheduler(const TaskScheduler&) {}
 
-    static boost::thread_specific_ptr<WorkerThread>	mWorkerThreadTLS;
+    void notifyWorkerThreadCreated(WorkerThread*);
 
-    WorkerThread*               mThread[MAX_THREADS];
+    void waitUntilWorkerThreadsAreCreated();
 
-    // The following members may be accessed by _multiple_ threads at the same time:
-    volatile Task::Status*	    mRootTaskStatus;
+    WorkerThread*               mWorker[MAX_THREADS];
+    std::thread                 mThread[MAX_THREADS];
 
+    Task::Status*	            mRootTaskStatus;
     unsigned                    mThreadCount;
     unsigned                    mMainThreadIndex;
+    unsigned                    mWorkerThreadCreateCount; // guarded by startMutex
     bool                        mIsInitialized;
     bool                        mIsClosing; // guarded by wakeUpMutex
     bool                        mHasWorkToDo; // guarded by wakeUpMutex
-    boost::mutex                mWakeUpMutex;
-    boost::condition_variable   mWakeUpEvent;
+    
+    std::mutex                  mWorkerThreadCreateCountMutex;
+    std::condition_variable     mWorkerThreadCreateEvent;
 
-};		
+    std::mutex                  mWakeUpMutex;
+    std::condition_variable     mWakeUpEvent;
+};
+
+
 
 } // namespace simulation
 

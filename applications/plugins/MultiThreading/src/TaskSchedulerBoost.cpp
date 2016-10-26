@@ -44,40 +44,93 @@ namespace sofa
 namespace simulation
 {
 
-boost::thread_specific_ptr<WorkerThread> TaskScheduler::mWorkerThreadTLS;
+namespace detail
+{
+
+thread_local std::unique_ptr<WorkerThread> workerThreadTLS;
+
+WorkerThread* createThreadLocalWorkerThreadInstance(TaskScheduler* scheduler, unsigned index)
+{
+    // create and attach a WorkerThread instance to this execution thread
+    // the lifetime of this instance of WorkerThread is now tied to the thread that executed this method.
+    // once the thread exits, it will destroy the WorkerThread instance as well.
+    workerThreadTLS.reset(new WorkerThread(scheduler, index));
+    WorkerThread* worker = workerThreadTLS.get();
+    return worker;
+}
+
+void run(TaskScheduler* scheduler, unsigned index)
+{
+    // create and attach a WorkerThread instance to this execution thread
+    WorkerThread* worker = createThreadLocalWorkerThreadInstance(scheduler, index);
+    scheduler->setWorkerThread(worker,worker->getThreadIndex() );
+
+    // main loop 
+    for (;;)
+    {
+        worker->idle();
+
+        if (worker->getTaskScheduler()->isClosing())
+            break;
+
+
+        while (worker->getTaskScheduler()->getRootTaskStatus())
+        {
+            worker->doWork(0);
+            if (worker->mTaskScheduler->isClosing())
+            {
+                break;
+            }
+        }
+    }
+}
+
+} // namespace detail
 
 TaskScheduler::TaskScheduler()
-:mRootTaskStatus(NULL)
+:mWorker{NULL}
+,mRootTaskStatus(NULL)
 ,mThreadCount(0)
 ,mMainThreadIndex(0)
+, mWorkerThreadCreateCount(0)
 ,mIsInitialized(false)
 ,mIsClosing(false)
 ,mHasWorkToDo(false)
 {   
     //setup the main WorkerThread
-    mThread[mMainThreadIndex] = new WorkerThread(this, mMainThreadIndex);
-    setWorkerThreadLifeTimeThreadLocal(mThread[mMainThreadIndex]);
+    WorkerThread* worker = detail::createThreadLocalWorkerThreadInstance(this, mMainThreadIndex);
+    this->setWorkerThread(worker, worker->getThreadIndex() );
 }
 
 TaskScheduler::~TaskScheduler()
 {
-}
-
-void TaskScheduler::setWorkerThreadLifeTimeThreadLocal(WorkerThread* worker)
-{
-    // the lifetime of this instance of WorkerThread is now tied to the thread that executed this method.
-    // once the thread exits, it will destroy the WorkerThread instance as well.
-    mWorkerThreadTLS.reset(worker);
+    stop();
 }
 
 WorkerThread* TaskScheduler::GetCurrentWorkerThread()
 {
-    return mWorkerThreadTLS.get();
+    return detail::workerThreadTLS.get();
 }
 
 unsigned TaskScheduler::GetHardwareThreadsCount()
 {
-    return boost::thread::hardware_concurrency();
+    return std::thread::hardware_concurrency();
+}
+
+void TaskScheduler::notifyWorkerThreadCreated(WorkerThread*)
+{
+    std::lock_guard<std::mutex> l(mWorkerThreadCreateCountMutex);
+    ++mWorkerThreadCreateCount;
+    mWorkerThreadCreateEvent.notify_one();
+}
+
+void TaskScheduler::waitUntilWorkerThreadsAreCreated()
+{
+    std::unique_lock<std::mutex> l(mWorkerThreadCreateCountMutex);
+    // wait until everyone is created
+    mWorkerThreadCreateEvent.wait(l, [this] { return mWorkerThreadCreateCount == mThreadCount; });
+    //reset counter to one (the main thread is still around) for next start.
+    mWorkerThreadCreateCount = 1;
 }
 
 WorkerThread* TaskScheduler::getWorkerThread(const unsigned int index) const
@@ -85,9 +138,15 @@ WorkerThread* TaskScheduler::getWorkerThread(const unsigned int index) const
     WorkerThread* thread = 0;
     if ( index < mThreadCount ) 
     {
-        thread = mThread[index];
+        thread = mWorker[index];
     }
     return thread;
+}
+
+void TaskScheduler::setWorkerThread(WorkerThread* worker, unsigned index)
+{
+    notifyWorkerThreadCreated(worker);
+    mWorker[index] = worker;
 }
 
 bool TaskScheduler::isMainWorkerThread(const WorkerThread* worker) const
@@ -117,9 +176,15 @@ bool TaskScheduler::start(const unsigned int NbThread )
     // start worker threads
     for (unsigned int iThread = 1; iThread < mThreadCount; ++iThread)
     {
-        mThread[iThread] = new WorkerThread(this, iThread);
-        mThread[iThread]->start();
+        if (mThread[iThread].joinable())
+        {
+            std::cerr << __FUNCTION__ << ": thread(" << iThread << ") is joinable whereas we do not have started the scheduler yet. Something went awfully wrong" << std::endl;
+        }
+        mThread[iThread] = std::thread(detail::run, this, iThread);
     }
+    // we want to guarantee that the mWorker array is initialized before we exit the start method,
+    // so we hang here a little...
+    waitUntilWorkerThreadsAreCreated();
 
     mIsInitialized = true;
     return true;
@@ -134,7 +199,8 @@ bool TaskScheduler::stop()
         // eventually everyone will exit the WorkerThread::run method and join 
         for(unsigned iThread=1; iThread<mThreadCount; ++iThread)
         {
-            mThread[iThread]->join();
+            mThread[iThread].join();
+            mWorker[iThread] = NULL;
         }
 
         mIsInitialized = false;
@@ -147,7 +213,7 @@ bool TaskScheduler::stop()
 
 void TaskScheduler::notifyWorkersForWork(Task::Status* status)
 {
-    boost::lock_guard<boost::mutex> lock(mWakeUpMutex);
+    std::lock_guard<std::mutex> lock(mWakeUpMutex);
     mHasWorkToDo = true;
     if (mRootTaskStatus == NULL)
     {
@@ -165,7 +231,7 @@ void TaskScheduler::notifyWorkersForWork(Task::Status* status)
 
 void TaskScheduler::notifyWorkersForClosing()
 {
-    boost::lock_guard<boost::mutex> lock(mWakeUpMutex);
+    std::lock_guard<std::mutex> lock(mWakeUpMutex);
     mIsClosing = true;
     // make all Idle threads wake up so that they can see we are closing.
     // see WorkerThread::run() break conditions in the while loop. 
@@ -174,7 +240,7 @@ void TaskScheduler::notifyWorkersForClosing()
 
 bool TaskScheduler::goIdle()
 {
-    boost::lock_guard<boost::mutex> lock(mWakeUpMutex);
+    std::lock_guard<std::mutex> lock(mWakeUpMutex);
     mHasWorkToDo   = false;
     mRootTaskStatus = NULL;
     return true;
@@ -192,7 +258,7 @@ void TaskScheduler::idleWorkerUntilNotified(const WorkerThread* worker)
         return;
     }
 
-    boost::unique_lock<boost::mutex> lock(mWakeUpMutex);
+    std::unique_lock<std::mutex> lock(mWakeUpMutex);
     mWakeUpEvent.wait(lock, [this] { return mHasWorkToDo == true || mIsClosing == true;  });
 }
 
@@ -206,64 +272,18 @@ WorkerThread::WorkerThread(TaskScheduler* const& pScheduler, int index)
 ,mTaskLogEnabled(false)
 {
     assert(pScheduler);
-    mTaskMutex.v_ = 0L;
 }
-
 
 WorkerThread::~WorkerThread()
 {
-}
-
-void WorkerThread::join()
-{
-    if (!mThread)
-    {
-        std::cerr << __FUNCTION__ << ": must not be called by the main thread" << std::endl;
-    }
-    else
-    {
-        mThread->join();
-    }
-}
-
-void WorkerThread::start()
-{
-    mThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&WorkerThread::run, this)));
+    std::stringstream msg;
+    msg << "WorkerThread(" << mThreadIndex << ") detroyed\n";
+    std::cout << msg.str();
 }
 
 WorkerThread* WorkerThread::GetCurrent()
 {
     return TaskScheduler::GetCurrentWorkerThread();
-}
-
-void WorkerThread::run(void)
-{
-    // Thread Local Storage to retrieve the WorkerThread from within a task will manage the lifetime of this object, ie call
-    mTaskScheduler->setWorkerThreadLifeTimeThreadLocal(this);
-
-    // main loop 
-    for(;;)
-    {
-        idle();
-
-        if ( mTaskScheduler->isClosing() ) 
-            break;
-
-
-        while (mTaskScheduler->getRootTaskStatus())
-        {
-            doWork(0);
-            if (mTaskScheduler->isClosing())
-            {
-                break;
-            }
-        }
-    }
-}
-
-boost::thread::id WorkerThread::getId() const
-{
-    return mThread->get_id();
 }
 
 unsigned WorkerThread::getThreadIndex() const
@@ -340,14 +360,6 @@ void WorkerThread::doWork(Task::Status* status)
 
     } while (stealTasks());
 
-#ifdef TASKSCHEDULER_DEBUG
-    {
-        std::stringstream msg;
-        msg << __FUNCTION__ << ": WorkerThread(" << mThreadIndex << ") is leaving probably to go Idle\n";
-        std::cout << msg.str();
-    }
-#endif 
-
     // Nothing left to do, for now
     return;
 }
@@ -374,7 +386,7 @@ void WorkerThread::workUntilDone(Task::Status* status)
 
 bool WorkerThread::popTask(Task** outTask)
 {
-    SpinMutexLock lock( &mTaskMutex );
+    std::lock_guard<std::mutex> lock(mTaskMutex);
     
     Task* task=NULL;
     unsigned* taskCount=NULL;
@@ -410,7 +422,7 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
         return false;
 
     {
-        SpinMutexLock lock( &mTaskMutex );
+        std::lock_guard<std::mutex> lock(mTaskMutex);
 
         if (*taskCount >= Max_TasksPerThread )
             return false;
@@ -470,21 +482,21 @@ void WorkerThread::runTask(Task* task)
 
 bool WorkerThread::giveUpSomeWork(WorkerThread* idleThread)
 {
-    SpinMutexLock lock;
+    std::unique_lock<std::mutex> lockThis(mTaskMutex, std::defer_lock);
+    std::unique_lock<std::mutex> lockIdle(idleThread->mTaskMutex, std::defer_lock);
 
-    if ( !lock.try_lock( &mTaskMutex ) ) 
+    // -1 result means success in acquiring both locks
+    if (std::try_lock(lockThis, lockIdle) != -1)
+    {
         return false;
+    }
 
     // anything to share ? 
-    if (!mStealableTaskCount)
+    if (mStealableTaskCount == 0)
         return false;
 
-    SpinMutexLock	lockIdleThread;
-
-    if ( !lockIdleThread.try_lock( &idleThread->mTaskMutex ) )
-        return false; 
-
-    if ( idleThread->mStealableTaskCount )
+    // is idleThread really idle ?
+    if ( idleThread->mStealableTaskCount != 0 )
         return false;
 
     // grab half the remaining tasks (rounding up) 
