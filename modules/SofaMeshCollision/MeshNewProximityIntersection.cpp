@@ -94,7 +94,7 @@ int MeshNewProximityIntersection::computeIntersection(Point& e1, Point& e2, Outp
 int MeshNewProximityIntersection::computeIntersection(Line& e1, Point& e2, OutputVector* contacts)
 {
     const SReal alarmDist = intersection->getAlarmDistance() + e1.getProximity() + e2.getProximity();
-    int n = doIntersectionLinePoint(alarmDist*alarmDist, e1.p1(),e1.p2(), e2.p(), contacts, e2.getIndex());
+    int n = doBarycentricIntersectionLinePoint(alarmDist*alarmDist, e1.p1(),e1.p2(),Vector3(0,0,0), e2.p(), contacts, e2.getIndex());
     if (n>0)
     {
         const SReal contactDist = intersection->getContactDistance() + e1.getProximity() + e2.getProximity();
@@ -161,19 +161,19 @@ int MeshNewProximityIntersection::computeIntersection(Triangle& e1, Line& e2, Ou
 
     if (f1&TriangleModel::FLAG_P1)
     {
-        n += doIntersectionLinePoint(dist2, q1, q2, p1, contacts, e2.getIndex(), true);
+        n += doBarycentricIntersectionLinePoint(dist2, q1, q2, Vector3(0,0,0),p1, contacts, e2.getIndex(), true);
     }
     if (f1&TriangleModel::FLAG_P2)
     {
-        n += doIntersectionLinePoint(dist2, q1, q2, p2, contacts, e2.getIndex(), true);
+        n += doBarycentricIntersectionLinePoint(dist2, q1, q2, Vector3(1,0,0),p2, contacts, e2.getIndex(), true);
     }
     if (f1&TriangleModel::FLAG_P3)
     {
-        n += doIntersectionLinePoint(dist2, q1, q2, p3, contacts, e2.getIndex(), true);
+        n += doBarycentricIntersectionLinePoint(dist2, q1, q2, Vector3(0,1,0),p3, contacts, e2.getIndex(), true);
     }
 
-    n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, pn, q1, contacts, e2.getIndex(), false);
-    n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, pn, q2, contacts, e2.getIndex(), false);
+    n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, Vector3(0,0,0), q1, contacts, e2.getIndex(), false);
+    n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, Vector3(1,0,0), q2, contacts, e2.getIndex(), false);
 
     if (intersection->useLineLine.getValue())
     {
@@ -220,11 +220,11 @@ int MeshNewProximityIntersection::computeIntersection(Triangle& e1, Triangle& e2
     const Vector3& p1 = e1.p1();
     const Vector3& p2 = e1.p2();
     const Vector3& p3 = e1.p3();
-    const Vector3& pn = e1.n();
+//    const Vector3& pn = e1.n();
     const Vector3& q1 = e2.p1();
     const Vector3& q2 = e2.p2();
     const Vector3& q3 = e2.p3();
-    const Vector3& qn = e2.n();
+//    const Vector3& qn = e2.n();
 
     const int f1 = e1.flags();
     const int f2 = e2.flags();
@@ -235,18 +235,18 @@ int MeshNewProximityIntersection::computeIntersection(Triangle& e1, Triangle& e2
     int n = 0;
 
     if (f1&TriangleModel::FLAG_P1)
-        n += doIntersectionTrianglePoint(dist2, f2, q1, q2, q3, qn, p1, contacts, id1+0, true);
+        n += doIntersectionTrianglePoint(dist2, f2, q1, q2, q3, Vector3(0,0,0), p1, contacts, id1+0, true);
     if (f1&TriangleModel::FLAG_P2)
-        n += doIntersectionTrianglePoint(dist2, f2, q1, q2, q3, qn, p2, contacts, id1+1, true);
+        n += doIntersectionTrianglePoint(dist2, f2, q1, q2, q3, Vector3(1,0,0), p2, contacts, id1+1, true);
     if (f1&TriangleModel::FLAG_P3)
-        n += doIntersectionTrianglePoint(dist2, f2, q1, q2, q3, qn, p3, contacts, id1+2, true);
+        n += doIntersectionTrianglePoint(dist2, f2, q1, q2, q3, Vector3(0,1,0), p3, contacts, id1+2, true);
 
     if (f2&TriangleModel::FLAG_P1)
-        n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, pn, q1, contacts, id2+0, false);
+        n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, Vector3(0,0,0), q1, contacts, id2+0, false);
     if (f2&TriangleModel::FLAG_P2)
-        n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, pn, q2, contacts, id2+1, false);
+        n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, Vector3(1,0,0), q2, contacts, id2+1, false);
     if (f2&TriangleModel::FLAG_P3)
-        n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, pn, q3, contacts, id2+2, false);
+        n += doIntersectionTrianglePoint(dist2, f1, p1, p2, p3, Vector3(0,1,0), q3, contacts, id2+2, false);
 
     if (intersection->useLineLine.getValue())
     {

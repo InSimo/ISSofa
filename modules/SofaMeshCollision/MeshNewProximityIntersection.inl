@@ -50,7 +50,8 @@ inline int MeshNewProximityIntersection::doIntersectionLineLine(SReal dist2, con
 {  
     defaulttype::Vector3 p,q;
     IntrUtil<SReal>::segNearestPoints(p1,p2,q1,q2,p,q);
-
+    SReal alpha1 = (p-p1).norm()/(p2-p1).norm();
+    SReal alpha2 = (q-q1).norm()/(q2-q1).norm();
     defaulttype::Vector3 pq = p-q;
     SReal norm2 = pq.norm2();
 
@@ -65,7 +66,53 @@ inline int MeshNewProximityIntersection::doIntersectionLineLine(SReal dist2, con
     detection->point[0]=p;
     detection->point[1]=q;
     detection->value = helper::rsqrt(norm2);
-    detection->normal = pq / detection->value;
+    detection->normal =- pq / detection->value;
+
+#ifdef DETECTIONOUTPUT_BARYCENTRICINFO
+    detection->baryCoords[0] = defaulttype::Vector3(alpha1,0,0);
+    detection->baryCoords[1] = defaulttype::Vector3(alpha2,0,0);
+#endif
+
+    //detection->value -= contactDist;
+    return 1;
+}
+
+inline int MeshNewProximityIntersection::doBarycentricIntersectionLinePoint(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& barycentre, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems)
+{
+    defaulttype::Vector3 p;
+    p = IntrUtil<SReal>::nearestPointOnSeg(p1,p2,q);
+    SReal alpha = (p-p1).norm()/(p2-p1).norm();
+    defaulttype::Vector3 pq = q-p;
+    SReal norm2 = pq.norm2();
+    if (norm2 >= dist2)
+        return 0;
+    if( alpha < - 1e-7 || 1-alpha < - 1e-7 )
+        return 0;
+
+    //const SReal contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
+    contacts->resize(contacts->size()+1);
+    core::collision::DetectionOutput *detection = &*(contacts->end()-1);
+
+    //detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e2, e1);
+    detection->id = id;
+    detection->value = helper::rsqrt(norm2);
+    if (swapElems)
+    {
+        detection->point[0]=q;
+        detection->point[1]=p;
+        detection->normal = -pq / detection->value;
+    }
+    else
+    {
+        detection->point[0]=p;
+        detection->point[1]=q;
+        detection->normal = pq / detection->value;
+    }
+#ifdef DETECTIONOUTPUT_BARYCENTRICINFO
+    detection->baryCoords[1] = defaulttype::Vector3(alpha,0,0);
+    detection->baryCoords[0] = barycentre;
+#endif
+
     //detection->value -= contactDist;
     return 1;
 }
@@ -74,12 +121,10 @@ inline int MeshNewProximityIntersection::doIntersectionLinePoint(SReal dist2, co
 {
     defaulttype::Vector3 p;
     p = IntrUtil<SReal>::nearestPointOnSeg(p1,p2,q);
-
     defaulttype::Vector3 pq = q-p;
     SReal norm2 = pq.norm2();
     if (norm2 >= dist2)
         return 0;
-
     //const SReal contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
     contacts->resize(contacts->size()+1);
     core::collision::DetectionOutput *detection = &*(contacts->end()-1);
@@ -103,6 +148,7 @@ inline int MeshNewProximityIntersection::doIntersectionLinePoint(SReal dist2, co
     //detection->value -= contactDist;
     return 1;
 }
+
 
 inline int MeshNewProximityIntersection::doIntersectionTrianglePoint2(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& /*n*/, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems)
 {
@@ -224,7 +270,7 @@ inline int MeshNewProximityIntersection::doIntersectionTrianglePoint2(SReal dist
 
 
 
-inline int MeshNewProximityIntersection::doIntersectionTrianglePoint(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& /*n*/, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems)
+inline int MeshNewProximityIntersection::doIntersectionTrianglePoint(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& barycoord, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems)
 {
     const defaulttype::Vector3 AB = p2-p1;
     const defaulttype::Vector3 AC = p3-p1;
@@ -325,13 +371,22 @@ inline int MeshNewProximityIntersection::doIntersectionTrianglePoint(SReal dist2
         detection->point[0]=q;
         detection->point[1]=p;
         detection->normal = -pq / detection->value;
+#ifdef DETECTIONOUTPUT_BARYCENTRICINFO
+    detection->baryCoords[1] = defaulttype::Vector3(alpha,beta,0);
+    detection->baryCoords[0] = barycoord;
+#endif
     }
     else
     {
         detection->point[0]=p;
         detection->point[1]=q;
         detection->normal = pq / detection->value;
+#ifdef DETECTIONOUTPUT_BARYCENTRICINFO
+    detection->baryCoords[0] = defaulttype::Vector3(alpha,beta,0);
+    detection->baryCoords[1] = barycoord;
+#endif
     }
+
     //printf("\n normale : x = %f , y = %f, z = %f",detection->normal.x(),detection->normal.y(),detection->normal.z());
     //if (e2.getCollisionModel()->isStatic() && detection->normal * e2.n() < -0.95)
     //{ // The elements are interpenetrating
@@ -363,7 +418,7 @@ template<class T>
 int MeshNewProximityIntersection::computeIntersection(Line& e1, TSphere<T>& e2, OutputVector* contacts)
 {
     const SReal alarmDist = intersection->getAlarmDistance() + e1.getProximity() + e2.getProximity() + e2.r();
-    int n = doIntersectionLinePoint(alarmDist*alarmDist, e1.p1(),e1.p2(), e2.center(), contacts, e2.getIndex());
+    int n = doIntersectionLinePoint(alarmDist*alarmDist, e1.p1(),e1.p2(),e2.center(), contacts, e2.getIndex());
     if (n>0)
     {
         const SReal contactDist = intersection->getContactDistance() + e1.getProximity() + e2.getProximity() + e2.r();
