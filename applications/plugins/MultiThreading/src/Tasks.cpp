@@ -37,14 +37,12 @@
 
 #include "Tasks.h"
 #include "TaskSchedulerBoost.h"
-#include <boost/thread/thread.hpp>
 
 namespace sofa
 {
 
 namespace simulation
 {
-
 
 Task::Task() 
 : m_Status(NULL)

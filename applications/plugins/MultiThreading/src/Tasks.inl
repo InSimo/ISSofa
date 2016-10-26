@@ -47,13 +47,13 @@ namespace simulation
 
 
 inline Task::Status::Status()
-: mBusy(0L)
+:mBusy(0)
 {
 }
 
 inline bool Task::Status::IsBusy() const
 {
-	return mBusy.operator long() != 0L;
+    return mBusy != 0;
 }
 
 inline void Task::Status::MarkBusy(bool bBusy)

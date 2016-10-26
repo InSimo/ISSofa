@@ -38,12 +38,9 @@
 #define MultiThreadingTasks_h__
 
 #include "initMultiThreading.h"
-
-#include <boost/detail/atomic_count.hpp>
-#include <sofa/helper/system/atomic.h>
+#include <atomic>
 #include <sofa/helper/system/thread/CTime.h>
 #include <sofa/defaulttype/Vec.h>
-#include <boost/thread/mutex.hpp>
 
 namespace sofa
 {
@@ -69,7 +66,7 @@ public:
 
         void MarkBusy(bool bBusy);
 
-        /*volatile*/ boost::detail::atomic_count mBusy;
+        std::atomic_uint mBusy;
 
         friend class WorkerThread;
     };
