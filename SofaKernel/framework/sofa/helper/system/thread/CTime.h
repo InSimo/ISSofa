@@ -22,13 +22,9 @@
 #ifndef SOFA_HELPER_SYSTEM_THREAD_CTIME_H
 #define SOFA_HELPER_SYSTEM_THREAD_CTIME_H
 
+#include <sofa/helper/system/config.h>
 #include <time.h>
 #include <sofa/helper/helper.h>
-
-#ifdef WIN32
-# include <windows.h>
-#endif
-
 
 /********************
  * Time measurement *
