@@ -157,7 +157,7 @@ target_link_libraries( ${PROJECT_NAME} PUBLIC SofaBaseTopology )
 #if(SOFA_HAVE_EIGEN2)
 #    target_link_libraries( ${PROJECT_NAME} SofaEigen2Solver )
 #endif()
-target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>")
+target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_SOURCE_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_BUILD_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_DEPENDENCY_INCLUDE_DIR}>")
 

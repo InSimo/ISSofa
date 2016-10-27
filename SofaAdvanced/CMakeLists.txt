@@ -3,7 +3,9 @@ set(SOLUTION_NAME "SofaAdvanced")
 project(${SOLUTION_NAME})
 
 #temporary until we move the sub projects
-set( SofaAdvanced_ACTUAL_SOURCE_DIR ${SofaAdvanced_SOURCE_DIR}/../modules/)
+get_filename_component(SofaAdvanced_PARENT_SOURCE_DIR ${SofaAdvanced_SOURCE_DIR} DIRECTORY)
+set(SofaAdvanced_ACTUAL_SOURCE_DIR ${SofaAdvanced_PARENT_SOURCE_DIR}/modules)
+set(SOFAADVANCED_SOURCE_INCLUDE_DIR ${SofaAdvanced_PARENT_SOURCE_DIR}/modules)
 
 ##
 ## SofaAdvanced version
@@ -40,9 +42,6 @@ configure_file( ${SofaAdvanced_SOURCE_DIR}/SofaAdvanced.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaAdvanced.h )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaAdvanced.h
          DESTINATION "${SOFAADVANCED_INSTALL_INCLUDE_DIR}/sofa")
-# make sure everyone in the build tree can see <sofa/SofaAdvanced.h>
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#include_directories(${SofaAdvanced_ACTUAL_SOURCE_DIR}/../../)
 
 set(SOFAADVANCED_TARGETS SofaEulerianFluid SofaSphFluid SofaVolumetricData SofaNonUniformFem SofaComponentAdvanced)
 

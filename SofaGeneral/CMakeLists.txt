@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 2.8.12)
 set(SOLUTION_NAME "SofaGeneral")
 project(${SOLUTION_NAME})
 
-
 #temporary until we move the sub projects
-set( SofaGeneral_ACTUAL_SOURCE_DIR ${SofaGeneral_SOURCE_DIR}/../modules)
+get_filename_component(SofaGeneral_PARENT_SOURCE_DIR ${SofaGeneral_SOURCE_DIR} DIRECTORY)
+set(SofaGeneral_ACTUAL_SOURCE_DIR ${SofaGeneral_PARENT_SOURCE_DIR}/modules)
+set(SOFAGENERAL_SOURCE_INCLUDE_DIR ${SofaGeneral_PARENT_SOURCE_DIR}/modules)
 
 ##
 ## SofaGeneral version

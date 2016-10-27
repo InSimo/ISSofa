@@ -8,7 +8,9 @@ set(SOLUTION_NAME "SofaFramework")
 project(${SOLUTION_NAME})
 
 # Temporary variable until we move the sub projects
-set( SofaFramework_ACTUAL_SOURCE_DIR ${SofaFramework_SOURCE_DIR}/../framework)
+get_filename_component(SofaFramework_PARENT_SOURCE_DIR ${SofaFramework_SOURCE_DIR} DIRECTORY)
+set( SofaFramework_ACTUAL_SOURCE_DIR ${SofaFramework_PARENT_SOURCE_DIR}/framework)
+set(SOFAFRAMEWORK_SOURCE_INCLUDE_DIR ${SofaFramework_ACTUAL_SOURCE_DIR})
 
 ##
 ## SofaFramework options
@@ -34,7 +36,7 @@ set( SOFAFRAMEWORK_BUILD_VERSION 1 )
 
 set( SOFAFRAMEWORK_VERSION ${SOFAFRAMEWORK_MAJOR_VERSION}.${SOFAFRAMEWORK_MINOR_VERSION}.${SOFAFRAMEWORK_BUILD_VERSION} CACHE INTERNAL "Set to internal so it can be changed by sub directories.")
 
-set( SOFAFRAMEWORK_EXTLIBS_DIR "${SofaFramework_ACTUAL_SOURCE_DIR}/../extlibs")
+set( SOFAFRAMEWORK_EXTLIBS_DIR "${SofaFramework_PARENT_SOURCE_DIR}/extlibs")
 
 set(SOFAFRAMEWORK_BUILD_LIB_DIR     ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(SOFAFRAMEWORK_BUILD_BIN_DIR     ${CMAKE_CURRENT_BINARY_DIR}/bin)

@@ -3,7 +3,9 @@ set(SOLUTION_NAME "SofaCommon")
 project(${SOLUTION_NAME})
 
 #temporary until we move the sub projects
-set( SofaCommon_ACTUAL_SOURCE_DIR ${SofaCommon_SOURCE_DIR}/../modules)
+get_filename_component(SofaCommon_PARENT_SOURCE_DIR ${SofaCommon_SOURCE_DIR} DIRECTORY)
+set(SofaCommon_ACTUAL_SOURCE_DIR ${SofaCommon_PARENT_SOURCE_DIR}/modules)
+set(SOFACOMMON_SOURCE_INCLUDE_DIR ${SofaCommon_PARENT_SOURCE_DIR}/modules)
 
 ##
 ## SofaCommon version

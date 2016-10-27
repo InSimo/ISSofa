@@ -3,8 +3,9 @@ set(SOLUTION_NAME "SofaBase")
 project(${SOLUTION_NAME})
 
 #temporary until we move the sub projects
-set( SofaBase_ACTUAL_SOURCE_DIR ${SofaBase_SOURCE_DIR}/../modules/)
-
+get_filename_component(SofaBase_PARENT_SOURCE_DIR ${SofaBase_SOURCE_DIR} DIRECTORY)
+set(SofaBase_ACTUAL_SOURCE_DIR ${SofaBase_PARENT_SOURCE_DIR}/modules/)
+set(SOFABASE_SOURCE_INCLUDE_DIR ${SofaBase_ACTUAL_SOURCE_DIR})
 ##
 ## SofaBase version
 ##
@@ -36,9 +37,6 @@ configure_file( ${SofaBase_SOURCE_DIR}/SofaBase.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaBase.h )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaBase.h
          DESTINATION "${SOFABASE_INSTALL_INCLUDE_DIR}/sofa")
-# make sure everyone in the build tree can see <sofa/SofaBase.h>
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#include_directories(${SofaBase_ACTUAL_SOURCE_DIR}/../../)
 
 set(SOFABASE_TARGETS SofaBaseTopology SofaBaseLinearSolver SofaBaseMechanics SofaBaseCollision
                        SofaBaseAnimationLoop SofaBaseVisual SofaComponentBase)

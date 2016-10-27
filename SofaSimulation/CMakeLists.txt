@@ -3,7 +3,10 @@ set(SOLUTION_NAME "SofaSimulation")
 project(${SOLUTION_NAME})
 
 #temporary until we move the sub projects
-set( SofaSimulation_ACTUAL_SOURCE_DIR ${SofaSimulation_SOURCE_DIR}/../modules/sofa/simulation)
+get_filename_component(SofaSimulation_PARENT_SOURCE_DIR ${SofaSimulation_SOURCE_DIR} DIRECTORY)
+set(SofaSimulation_ACTUAL_SOURCE_DIR ${SofaSimulation_PARENT_SOURCE_DIR}/modules/sofa/simulation)
+set(SOFASIMULATION_SOURCE_INCLUDE_DIR ${SofaSimulation_PARENT_SOURCE_DIR}/modules)
+
 
 ##
 ## SofaSimulation version
@@ -37,9 +40,6 @@ configure_file( ${SofaSimulation_SOURCE_DIR}/SofaSimulation.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaSimulation.h )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaSimulation.h
          DESTINATION "${SOFASIMULATION_INSTALL_INCLUDE_DIR}/sofa")
-# make sure everyone in the build tree can see <sofa/SofaSimulation.h>
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#include_directories(${SofaSimulation_ACTUAL_SOURCE_DIR}/../../)
 
 add_subdirectory(${SofaSimulation_ACTUAL_SOURCE_DIR}/common ${CMAKE_CURRENT_BINARY_DIR}/SofaSimulationCommon )
 add_subdirectory(${SofaSimulation_ACTUAL_SOURCE_DIR}/tree   ${CMAKE_CURRENT_BINARY_DIR}/SofaSimulationTree   )

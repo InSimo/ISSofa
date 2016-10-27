@@ -10,6 +10,7 @@ set( SOFAPYTHON_BUILD_VERSION 1 )
 
 set( SOFAPYTHON_VERSION ${SOFAPYTHON_MAJOR_VERSION}.${SOFAPYTHON_MINOR_VERSION}.${SOFAPYTHON_BUILD_VERSION} CACHE INTERNAL "Set to internal so it can be changed by sub directories.")
 
+get_filename_component(SOFAPYTHON_SOURCE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 
 set(SOFAPYTHON_BUILD_LIB_DIR     ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(SOFAPYTHON_BUILD_BIN_DIR     ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -181,7 +182,7 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} )
 target_link_libraries( ${PROJECT_NAME} PUBLIC SofaSimulationCommon SofaUserInteraction SofaGuiCommon SofaComponentMisc SofaComponentGeneral ${PYTHON_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>") 
-target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>") 
+target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPYTHON_SOURCE_INCLUDE_DIR}>") 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPYTHON_DEPENDENCY_INCLUDE_DIR}>")
 set( SOFAPYTHON_COMPILER_FLAGS "-DSOFA_BUILD_SOFAPYTHON")
 # Python's implementation deliberately breaks strict-aliasing rules, so we

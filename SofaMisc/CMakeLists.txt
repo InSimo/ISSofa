@@ -3,7 +3,9 @@ set(SOLUTION_NAME "SofaMisc")
 project(${SOLUTION_NAME})
 
 #temporary until we move the sub projects
-set( SofaMisc_ACTUAL_SOURCE_DIR ${SofaMisc_SOURCE_DIR}/../modules/)
+get_filename_component(SofaMisc_PARENT_SOURCE_DIR ${SofaMisc_SOURCE_DIR} DIRECTORY)
+set(SofaMisc_ACTUAL_SOURCE_DIR ${SofaMisc_PARENT_SOURCE_DIR}/modules)
+set(SOFAMISC_SOURCE_INCLUDE_DIR ${SofaMisc_PARENT_SOURCE_DIR}/modules)
 
 ##
 ## SofaMisc version
@@ -34,9 +36,6 @@ configure_file( ${SofaMisc_SOURCE_DIR}/SofaMisc.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaMisc.h )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaMisc.h
          DESTINATION "${SOFAMISC_INSTALL_INCLUDE_DIR}/sofa")
-# make sure everyone in the build tree can see <sofa/SofaMisc.h>
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#include_directories(${SofaMisc_ACTUAL_SOURCE_DIR}/../../)
 
 set(SOFAMISC_TARGETS SofaMiscTopology SofaMiscMapping SofaMiscForceField SofaMiscFem SofaMiscEngine 
     SofaMiscCollision SofaMiscSolver SofaMisc SofaComponentMisc)
