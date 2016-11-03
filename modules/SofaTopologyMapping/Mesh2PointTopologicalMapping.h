@@ -44,14 +44,14 @@ namespace component
 namespace topology
 {
 /**
- * This class, called Mesh2PointTopologicalMapping, is a specific implementation of the interface TopologicalMapping where :
+ * \brief Creates a new topology containing additional points from an existing one
  *
- * INPUT TOPOLOGY = any MeshTopology
- * OUTPUT TOPOLOGY = A PointSetTopologie, as the boundary of the INPUT TOPOLOGY
+ * For each primitive in the input topology a new point will be created in the output topology computed from a parameter vector 
+ * (pointBaryCoords, edgeBaryCoords, triangleBaryCoords, quadBaryCoords, tetraBaryCoords, hexaBaryCoords) containing the barycentric coordinate of the point 
+ *  with respect to the primitive
  *
- * Each primitive in the input Topology will be mapped to a point in the output topology computed from a parameter vector (pointBaryCoords, edgeBaryCoords, triangleBaryCoords, quadBaryCoords, tetraBaryCoords, hexaBaryCoords)
- *
- * Mesh2PointTopologicalMapping class is templated by the pair (INPUT TOPOLOGY, OUTPUT TOPOLOGY)
+ * Example: if the input topology is a triangle mesh using this mapping with pointBaryCoords="0 0 0" edgeBaryCoords="0.5 0 0" copyEdges="true" copyTriangles="true"
+ * will produce the same triangle and edge topology for the output topology as the input, with additional isolated points created in the middle of each edge. 
  *
 */
 
