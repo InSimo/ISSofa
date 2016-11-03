@@ -407,7 +407,8 @@ bool Mesh2PointTopologicalMapping::internalCheck(const char* step, const helper:
 }
 
 
-size_t Mesh2PointTopologicalMapping::addInputPoint(unsigned int i, PointSetTopologyModifier* toPointMod)
+size_t Mesh2PointTopologicalMapping::addInputPoint(unsigned int i, const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestorsFrom, 
+                    const sofa::helper::vector< sofa::helper::vector< double > >& coefsFrom, PointSetTopologyModifier* toPointMod)
 {
     if( pointsMappedFrom[POINT].size() < i+1)
         pointsMappedFrom[POINT].resize(i+1);
@@ -438,7 +439,14 @@ size_t Mesh2PointTopologicalMapping::addInputPoint(unsigned int i, PointSetTopol
     {  
         helper::vector< helper::vector< unsigned int > > ancestors;
         helper::vector< helper::vector< double       > > coefs;
-        toPointMod->addPointsWarning(pBaryCoords.size(), ancestors, coefs);
+
+        ancestors.resize(ancestorsFrom.size());
+        ancestors[0].push_back(pointsMappedFrom[POINT][ancestorsFrom[0][0]][0]);
+
+        coefs.resize(1);
+        coefs[0].push_back(coefsFrom[0][0]);
+
+        toPointMod->addPointsWarning(pBaryCoords.size(), ancestors, coefs, true);
     }
     
     return pointBaryCoords.getValue().size();
@@ -484,7 +492,17 @@ void Mesh2PointTopologicalMapping::addInputEdge(unsigned int i, PointSetTopology
     {
         helper::vector< helper::vector< unsigned int > > ancestors;
         helper::vector< helper::vector< double       > > coefs;
-        toPointMod->addPointsWarning(eBaryCoords.size(), ancestors, coefs);
+
+        ancestors.resize(1);
+
+        ancestors[0].push_back(pointsMappedFrom[POINT][e[0]][0]);
+        ancestors[0].push_back(pointsMappedFrom[POINT][e[1]][0]);
+
+        coefs.resize(1);
+        coefs[0].push_back(eBaryCoords[0][0]);
+        coefs[0].push_back(1- eBaryCoords[0][0]);
+
+        toPointMod->addPointsWarning(eBaryCoords.size(), ancestors, coefs, true);
     }
 }
 
@@ -617,11 +635,14 @@ void Mesh2PointTopologicalMapping::updateTopologicalMappingTopDown()
             }
             case core::topology::POINTSADDED:
             {
-                const sofa::helper::vector<unsigned int>& tab= ( static_cast< const PointsAdded *>( *changeIt ) )->pointIndexArray;
+                const PointsAdded * pAdd = static_cast< const PointsAdded * >(*changeIt);
+                const sofa::helper::vector<unsigned int>& tab= pAdd->pointIndexArray;
+                const helper::vector< helper::vector< unsigned int > >& ancestors = pAdd->ancestorsList;
+                const helper::vector< helper::vector< double       > >& coefs = pAdd->coefs;
 				sout << "INPUT ADD POINTS " << tab << sendl;
                 for (unsigned int i=0; i<tab.size(); i++)
                 {
-                    addInputPoint(tab[i], toPointMod);
+                    addInputPoint(tab[i], ancestors, coefs, toPointMod);
                 }
                 check = true;
                 break;
