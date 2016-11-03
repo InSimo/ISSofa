@@ -436,19 +436,22 @@ size_t Mesh2PointTopologicalMapping::addInputPoint(unsigned int i, const sofa::h
     }
     
     if (toPointMod)
-    {  
+    {
         helper::vector< helper::vector< unsigned int > > ancestors;
-        helper::vector< helper::vector< double       > > coefs;
 
         ancestors.resize(ancestorsFrom.size());
-        ancestors[0].push_back(pointsMappedFrom[POINT][ancestorsFrom[0][0]][0]);
+        for (unsigned int i = 0; i < ancestorsFrom.size(); ++i)
+        {
+            for (unsigned int j = 0; j < ancestorsFrom[i].size(); ++j)
+            {
+                ancestors[i].push_back(pointsMappedFrom[POINT][ancestorsFrom[i][j]][0]);
+            }
+        }
 
-        coefs.resize(1);
-        coefs[0].push_back(coefsFrom[0][0]);
-
-        toPointMod->addPointsWarning(pBaryCoords.size(), ancestors, coefs, true);
+        toPointMod->addPointsWarning(pBaryCoords.size(), ancestors, coefsFrom, true);
     }
-    
+
+
     return pointBaryCoords.getValue().size();
 
 }
