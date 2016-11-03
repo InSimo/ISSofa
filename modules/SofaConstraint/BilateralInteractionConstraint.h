@@ -120,11 +120,11 @@ protected:
     Data<helper::vector<int> > m1;
     Data<helper::vector<int> > m2;
     Data<VecDeriv> restVector;
+    Data<double> d_numericalTolerance;
     Data<int> activateAtIteration;
     Data<bool> merge;
     Data<bool> derivative;
     std::vector<Vec3d> prevForces;
-
 
     // grouped square constraints
     bool squareXYZ[3];
@@ -169,7 +169,6 @@ public:
 
     void draw(const core::visual::VisualParams* vparams);
 
-public:
     void clear(int reserve = 0) ;
 
     virtual void addContact(Deriv norm, Coord P, Coord Q, Real contactDistance,
@@ -181,6 +180,9 @@ public:
 
     void addContact(Deriv norm, Real contactDistance, int m1, int m2,
                     long id=0, PersistentID localid=0) ;
+
+private:
+     void unspecializedInit() ;
 };
 
 #ifndef SOFA_FLOAT

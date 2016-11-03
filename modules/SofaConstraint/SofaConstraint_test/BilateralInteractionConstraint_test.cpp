@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
-*                (c) 2006-2011 INRIA, USTL, UJF, CNRS, MGH                    *
+*       SOFA, Simulation Open-Framework Architecture, development version     *
+*                (c) 2006-2016 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -14,7 +14,7 @@
 *                                                                             *
 * You should have received a copy of the GNU General Public License along     *
 * with this program; if not, write to the Free Software Foundation, Inc., 51  *
-* Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.                   *
+* Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.                   *
 *******************************************************************************
 *                            SOFA :: Applications                             *
 *                                                                             *
@@ -24,9 +24,8 @@
 ******************************************************************************/
 
 
-#include "Sofa_test.h"
-#include <SofaComponentMain/init.h>
-#include <sofa/simulation/graph/DAGSimulation.h>
+#include <SofaTest/Sofa_test.h>
+#include <SofaSimulationGraph/DAGSimulation.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <SofaBaseTopology/PointSetTopologyContainer.h>
 #include <SofaConstraint/BilateralInteractionConstraint.h>
@@ -34,8 +33,9 @@
 #include <sofa/core/MechanicalParams.h>
 #include <sofa/defaulttype/VecTypes.h>
 
-#include <sofa/simulation/common/SceneLoaderXML.h>
-
+#include <SofaSimulationCommon/SceneLoaderXML.h>
+#include <SofaTest/TestMessageHandler.h>
+#include <sofa/helper/logging/Message.h>
 
 namespace sofa {
 
@@ -45,9 +45,16 @@ namespace {
 using std::cout;
 using std::cerr;
 using std::endl;
+
+using sofa::simulation::Node ;
+using sofa::core::ExecParams ;
+using sofa::simulation::SceneLoaderXML ;
+
 using namespace component;
 using namespace defaulttype;
 
+using sofa::helper::logging::ExpectMessage ;
+using sofa::helper::logging::Message ;
 
 template <typename _DataTypes>
 struct BilateralInteractionConstraint_test : public Sofa_test<typename _DataTypes::Real>
@@ -69,13 +76,16 @@ struct BilateralInteractionConstraint_test : public Sofa_test<typename _DataType
     /// Create the context for the tests.
     void SetUp()
     {
-        sofa::component::init();
         sofa::simulation::setSimulation(simulation = new sofa::simulation::graph::DAGSimulation());
 
         /// Load the scene
         std::string sceneName = "BilateralInteractionConstraint.scn";
         std::string fileName  = std::string(SOFATEST_SCENES_DIR) + "/" + sceneName;
-        root = sofa::core::objectmodel::SPtr_dynamic_cast<sofa::simulation::Node>( sofa::simulation::getSimulation()->load(fileName.c_str()));
+        root = sofa::simulation::getSimulation()->load(fileName.c_str()).get();
+
+        //TODO(dmarchal): I'm very surprised that scene.loadSucceed could contain
+        // a state about the load results that happens "before" maybe a side effect
+        // of the static variable.
 
         // Test if load has succeeded
         sofa::simulation::SceneLoaderXML scene;
@@ -100,18 +110,19 @@ struct BilateralInteractionConstraint_test : public Sofa_test<typename _DataType
         std::vector<Coord> points;
         points.resize(2);
 
-        if(meca.size()==2)
-        {
-            for(int i=0; i<meca.size(); i++)
-                points[i] = meca[i]->read(core::ConstVecCoordId::position())->getValue()[0];
-        }
-        else
+        if(meca.size()!=2)
         {
             ADD_FAILURE() << "Error while searching mechanical object" << std::endl;
         }
 
         for(int i=0; i<10; i++)
             sofa::simulation::getSimulation()->animate(root.get(),(double)0.001);
+
+        if(meca.size()==2)
+        {
+            for(unsigned int i=0; i<meca.size(); i++)
+                points[i] = meca[i]->read(core::ConstVecCoordId::position())->getValue()[0];
+        }
 
         if(points[0] == points[1]) return true;
         else
@@ -122,8 +133,69 @@ struct BilateralInteractionConstraint_test : public Sofa_test<typename _DataType
         return false;
     }
 
+    /// It is important to freeze what are the available Data field
+    /// of a component and rise warning/errors when some are removed.
+    /// If you remove/renamed a data field please add a deprecation
+    /// message as well as update this test.
+    void attributesTests(){
 
+        BilateralInteractionConstraint* constraint = root->getTreeObject<BilateralInteractionConstraint>() ;
+        EXPECT_TRUE( constraint != nullptr ) ;
+
+        EXPECT_TRUE( constraint->findData("first_point") != nullptr ) ;
+        EXPECT_TRUE( constraint->findData("second_point") != nullptr ) ;
+        EXPECT_TRUE( constraint->findData("rest_vector") != nullptr ) ;
+        EXPECT_TRUE( constraint->findData("activateAtIteration") != nullptr ) ;
+        EXPECT_TRUE( constraint->findData("numericalTolerance") != nullptr ) ;
+
+        EXPECT_TRUE( constraint->findData("merge") != nullptr ) ;
+        EXPECT_TRUE( constraint->findData("derivative") != nullptr ) ;
+        return ;
+    }
+
+
+    /// This component requires to be used in conjonction with MechanicalObjects.
+    void checkMstateRequiredAssumption(){
+        ExpectMessage e(Message::Error) ;
+
+        /// I'm using '\n' so that the XML parser correctly report the line number
+        /// in case of problems.
+        std::stringstream scene;
+        scene << "<?xml version='1.0'?>                                       \n"
+                 "<Node 	name='Root' gravity='0 0 0' time='0' animate='0'   > \n"
+                 "   <BilateralConstraintCorrection template='"<< DataTypes::Name() << "'/>     \n"
+                 "</Node>                                                     \n" ;
+
+        Node::SPtr root = SceneLoaderXML::loadFromMemory (__FILE__,
+                                                          scene.str().c_str(),
+                                                          scene.str().size()) ;
+        root->init(ExecParams::defaultInstance()) ;
+
+        return ;
+    }
+
+    void checkRigid3fFixForBackwardCompatibility(){}
  };
+
+template<>
+void BilateralInteractionConstraint_test<Rigid3fTypes>::checkRigid3fFixForBackwardCompatibility(){
+    ExpectMessage e(Message::Warning) ;
+
+    /// I'm using '\n' so that the XML parser correctly report the line number
+    /// in case of problems.
+    std::stringstream scene;
+    scene << "<?xml version='1.0'?>                                       \n"
+             "<Node 	name='Root' gravity='0 0 0' time='0' animate='0'   > \n"
+             "   <BilateralConstraintCorrection template=' " << Rigid3fTypes::Name() << " '/>  \n"
+             "</Node>                                                     \n" ;
+
+    Node::SPtr root = SceneLoaderXML::loadFromMemory (__FILE__,
+                                                      scene.str().c_str(),
+                                                      scene.str().size()) ;
+    root->init(ExecParams::defaultInstance()) ;
+
+    return ;
+}
 
 
 // Define the list of DataTypes to instanciate
@@ -137,6 +209,23 @@ TYPED_TEST( BilateralInteractionConstraint_test , constrainedPositions )
     this->init_Setup();
     ASSERT_TRUE(  this->test_constrainedPositions() );
 }
+
+
+TYPED_TEST( BilateralInteractionConstraint_test , attributesTests )
+{
+    ASSERT_NO_THROW(  this->attributesTests() );
+}
+
+TYPED_TEST( BilateralInteractionConstraint_test , checkMstateRequiredAssumption )
+{
+    ASSERT_NO_THROW(  this->checkMstateRequiredAssumption() );
+}
+
+TYPED_TEST( BilateralInteractionConstraint_test ,  checkRigid3fFixForBackwardCompatibility)
+{
+    ASSERT_NO_THROW(  this->checkRigid3fFixForBackwardCompatibility() );
+}
+
 
 }
 

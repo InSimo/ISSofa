@@ -45,6 +45,7 @@ namespace bilateralinteractionconstraint
 
 class RigidImpl {};
 
+
 template<>
 class BilateralInteractionConstraintSpecialization<RigidImpl>
 {
@@ -203,13 +204,18 @@ public:
 
 #ifndef SOFA_FLOAT
 template<>
+void BilateralInteractionConstraint<Rigid3dTypes>::init(){
+    unspecializedInit() ;
+}
+
+template<>
 void BilateralInteractionConstraint<Rigid3dTypes>::getConstraintResolution(const ConstraintParams* cParams,
                                                                            std::vector<ConstraintResolution*>& resTab,
                                                                            unsigned int& offset)
 {
     BilateralInteractionConstraintSpecialization<RigidImpl>::getConstraintResolution(*this,
                                                                                      cParams, resTab, offset,
-                                                                                     0.01) ;
+                                                                                     d_numericalTolerance.getValue()) ;
 }
 
 template <>
@@ -262,6 +268,12 @@ void BilateralInteractionConstraint<defaulttype::Rigid3dTypes>::addContact(Deriv
 
 #ifndef SOFA_DOUBLE
 template<>
+void BilateralInteractionConstraint<Rigid3fTypes>::init()
+{
+    unspecializedInit() ;
+}
+
+template<>
 void BilateralInteractionConstraint<Rigid3fTypes>::getConstraintResolution(const ConstraintParams* cParams,
                                                                            std::vector<ConstraintResolution*>& resTab,
                                                                            unsigned int& offset)
@@ -269,7 +281,7 @@ void BilateralInteractionConstraint<Rigid3fTypes>::getConstraintResolution(const
 
     BilateralInteractionConstraintSpecialization<RigidImpl>::getConstraintResolution(*this,
                                                                                      cParams, resTab, offset,
-                                                                                     0.0001) ;
+                                                                                     d_numericalTolerance.getValue());
 }
 
 template <>
