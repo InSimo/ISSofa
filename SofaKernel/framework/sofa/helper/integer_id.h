@@ -208,7 +208,7 @@ public:
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type, const char* tindex);
 
 template <class T, class TIndex, bool CheckIndices =
-#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
+#if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
     true
 #else
     false

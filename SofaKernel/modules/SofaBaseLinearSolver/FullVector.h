@@ -58,7 +58,7 @@ protected:
     Index cursize;
     Index allocsize;
 
-#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
+#if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
     void checkIndex(Index n) const
     {
         if (n >= cursize)

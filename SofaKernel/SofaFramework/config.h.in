@@ -51,8 +51,6 @@
 #cmakedefine DETECTIONOUTPUT_BARYCENTRICINFO
 
 #cmakedefine SOFA_FLOAT
-#cmakedefine SOFA_CONTAINER_ACCESS_FAILURE
-
 #cmakedefine SOFA_DOUBLE
 
 #cmakedefine SOFA_WITH_FLOAT

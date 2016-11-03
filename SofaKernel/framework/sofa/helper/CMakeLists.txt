@@ -348,6 +348,13 @@ if(APPLE)
 endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES})
 
+# Never activate additional checks for containers in release for obvious performance reasons.
+if (SOFAFRAMEWORK_CHECK_CONTAINER_ACCESS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SOFA_CHECK_CONTAINER_ACCESS>)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:RelWithDebInfo>:SOFA_CHECK_CONTAINER_ACCESS>)
+endif()
+
+
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:include>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAMEWORK_DEPENDENCY_INCLUDE_DIRECTORIES}>")
