@@ -252,6 +252,13 @@ else()
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${SOFAHELPER_HEADERS} ${SOFAHELPER_SOURCES})
+
+# Never activate additional checks for containers in release for obvious performance reasons.
+if (SOFAFRAMEWORK_CHECK_CONTAINER_ACCESS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SOFA_CHECK_CONTAINER_ACCESS>)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:RelWithDebInfo>:SOFA_CHECK_CONTAINER_ACCESS>)
+endif()
+
 target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} )
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAMEWORK_SOURCE_INCLUDE_DIR}>" 

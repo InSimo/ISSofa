@@ -106,7 +106,7 @@ public:
 #endif /* __STL_MEMBER_TEMPLATES */
 
 
-#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
+#if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
 
     /// Read/write random access
     reference operator[](size_type n)
@@ -126,7 +126,7 @@ public:
         return *(this->begin() + n);
     }
 
-#endif // SOFA_CONTAINER_ACCESS_FAILURE
+#endif // SOFA_CHECK_CONTAINER_ACCESS
 
 
     std::ostream& write(std::ostream& os) const
@@ -375,7 +375,7 @@ void removeValue( T1& v, const T2& elem )
 template<class T, class TT>
 void removeIndex( std::vector<T,TT>& v, size_t index )
 {
-#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
+#if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
     //assert( 0<= static_cast<int>(index) && index <v.size() );
     if (index>=v.size())
         vector_access_failure(&v, v.size(), index, typeid(T));

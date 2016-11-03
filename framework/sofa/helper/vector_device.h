@@ -833,7 +833,7 @@ protected:
         DEBUG_OUT_V(SPACEM << "copyToHostSingle " << std::endl);
     }
 
-#if !defined(NDEBUG) || defined(SOFA_CONTAINER_ACCESS_FAILURE)
+#if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
     void checkIndex ( size_type i ) const
     {
         //assert ( i<this->size() );
