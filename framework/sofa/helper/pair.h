@@ -45,6 +45,11 @@ public:
     // inherit constructors from std::pair
     using std::pair<T1,T2>::pair;
 
+    //**************************
+    //   Serialization format :
+    //   first,second
+    //**************************
+
     std::ostream& write(std::ostream& os) const
     {
         os << this->first << "," << this->second;
@@ -53,11 +58,29 @@ public:
 
     std::istream& read(std::istream& in)
     {
-        in >> this->first;
-        in.ignore(std::numeric_limits<std::streamsize>::max(), ',');
-        in >> this->second;
+        T1 f;
+        T2 s;
 
-        if (in.rdstate() & std::ios_base::eofbit) { in.clear(); }
+        if (! (in >> f))
+        {
+            return in;
+        }
+
+        in.ignore(std::numeric_limits<std::streamsize>::max(), ',');
+
+        if (! (in >> s))
+        {
+            return in;
+        }
+
+        this->first = f;
+        this->second = s;
+
+        if (in.eof())
+        {
+            in.clear();
+        }
+
         return in;
     }
 
