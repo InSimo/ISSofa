@@ -38,24 +38,12 @@ namespace helper
 {
 
 template<class T1, class T2>
-class pair : std::pair<T1, T2>
+class pair : public std::pair<T1, T2>
 {
 public:
-
-    pair() : std::pair<T1, T2>() {}
-
-    pair(const T1& v1, const T2& v2) : std::pair<T1, T2>(v1,v2) {}
-
-    pair(const pair& p) : std::pair(p) {}
     
-    pair(const std::pair<T1, T2>& p) : std::pair<T1, T2>(p) {}
-    
-    pair<T1, T2>& operator=(const std::pair<T1, T2>& p)
-    {
-        this->first = p.first;
-        this->second = p.second;
-        return (*this);
-    }
+    // inherit constructors from std::pair
+    using std::pair<T1,T2>::pair;
 
     std::ostream& write(std::ostream& os) const
     {
