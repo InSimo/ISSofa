@@ -140,10 +140,7 @@ protected:
 
     std::set<unsigned int> pointsToRemove;
 
-    size_t addInputPoint(unsigned int i,
-        const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestorsFrom= helper::vector< helper::vector< unsigned int > >(),
-        const sofa::helper::vector< sofa::helper::vector< double > >& coefsFrom= helper::vector< sofa::helper::vector< double > >(),
-        PointSetTopologyModifier* toPointMod=NULL); ///< Returns the number of points added inside the output topology. 
+    size_t addInputPoint(unsigned int i, PointSetTopologyModifier* toPointMod=NULL); ///< Returns the number of points added inside the output topology. 
     void addInputEdge(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
     void addInputTriangle(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
     void addInputTetrahedron(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
