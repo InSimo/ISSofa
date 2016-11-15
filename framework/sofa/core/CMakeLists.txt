@@ -130,6 +130,7 @@ set(SOFACORE_HEADERS
 	objectmodel/JoystickEvent.h
 	objectmodel/KeypressedEvent.h
 	objectmodel/KeyreleasedEvent.h
+	objectmodel/IdleEvent.h
 	objectmodel/MouseEvent.h
 	objectmodel/Tag.h
 	visual/DisplayFlags.h
@@ -178,6 +179,7 @@ set(SOFACORE_SOURCES
 	objectmodel/JoystickEvent.cpp
 	objectmodel/KeypressedEvent.cpp
 	objectmodel/KeyreleasedEvent.cpp
+	objectmodel/IdleEvent.cpp
 	objectmodel/MouseEvent.cpp
 	objectmodel/Tag.cpp
 	ObjectFactory.cpp
