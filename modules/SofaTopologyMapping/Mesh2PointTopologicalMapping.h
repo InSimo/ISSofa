@@ -25,6 +25,7 @@
 
 #include <sofa/core/topology/TopologicalMapping.h>
 #include <SofaBaseTopology/PointSetTopologyModifier.h>
+#include <sofa/core/topology/TopologyChange.h>
 
 #include <sofa/defaulttype/Vec.h>
 #include <map>
@@ -140,7 +141,7 @@ protected:
 
     std::set<unsigned int> pointsToRemove;
 
-    size_t addInputPoint(unsigned int i, PointSetTopologyModifier* toPointMod=NULL); ///< Returns the number of points added inside the output topology. 
+    void addInputPoints(const sofa::core::topology::PointsAdded * pAdd, PointSetTopologyModifier* toPointMod=NULL); ///< Returns the number of points added inside the output topology. 
     void addInputEdge(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
     void addInputTriangle(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
     void addInputTetrahedron(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
