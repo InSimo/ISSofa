@@ -85,6 +85,12 @@ public:
     typedef ptr_stable_id<T> stable_id_map_type;
 	// This operator must be declared const in order to be used within const methods
 	// such as std::map::find()
+
+    void insert(const T* a)
+    {
+        m_ids->id(a);
+    }
+
 	bool operator()(T* a, T* b) const
 	{
         unsigned int id_a = m_ids->id(a);
@@ -112,7 +118,14 @@ class ptr_stable_compare< std::pair<T*,T*> >
 public:
     // wrap the ptr_stable_id<T> into an opaque type
     typedef ptr_stable_id<T> stable_id_map_type;
-	// This operator must be declared const in order to be used within const methods
+	
+    void insert(const std::pair<T*, T*>& a)
+    {
+        m_ids->id(a.first);
+        m_ids->id(a.second);
+    }
+    
+    // This operator must be declared const in order to be used within const methods
 	// such as std::map::find()
 	bool operator()(const std::pair<T*,T*>& a, const std::pair<T*,T*>& b) const
 	{
@@ -196,6 +209,29 @@ public:
     ,m_stable_id_map(Inherit::key_comp().get_stable_id_map())
     {}
 #endif /* __STL_MEMBER_TEMPLATES */
+
+    std::pair<iterator, bool> insert(const value_type& val)
+    {
+        Inherit::key_comp().insert(val.first);
+        return Inherit::insert(val);
+    }
+
+    iterator insert(iterator position, const value_type& val)
+    {
+        Inherit::key_comp().insert(val.first);
+        return Inherit::insert(position, val);
+    }
+
+    template<class InputIterator>
+    void insert(InputIterator first, InputIterator last)
+    {
+        for (InputIterator it = first; it != last; ++it)
+        {
+            Inherit::key_comp().insert(it->first);
+        }
+        return Inherit::insert(first, last);
+    }
+
 
 private:
     /// smart ptr for memory ownership
