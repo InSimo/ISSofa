@@ -28,7 +28,7 @@ TEST(ptr_stable_id, CheckPtrStableId)
 }
 
 
-TEST(map_ptr_stable_compare, checkMapPtrStableCompare)
+TEST(map_ptr_stable_compare, checkMapPtrStableCompareOrdering)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
     typedef sofa::helper::ptr_stable_id< int > IntegerStableId;
@@ -64,7 +64,7 @@ TEST(map_ptr_stable_compare, checkMapPtrStableCompare)
 }
 
 
-TEST(map_ptr_stable_compare, checkMapPairPtrStableCompare)
+TEST(map_ptr_stable_compare, checkMapPairPtrStableCompareOrdering)
 {
     typedef sofa::helper::map_ptr_stable_compare<std::pair<int*,int*>, int> IntegerPairMap;
     typedef sofa::helper::ptr_stable_id< int > IntegerStableId;
@@ -108,7 +108,7 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableCompare)
 }
 
 
-TEST(map_ptr_stable_compare, checkMapPairPtrAssignementOperator)
+TEST(map_ptr_stable_compare, checkMapPairPtrCopyAssignementOperator)
 {
     typedef sofa::helper::map_ptr_stable_compare < std::pair<int*, int*>, int > IntegerPairMap;
 
@@ -138,7 +138,7 @@ TEST(map_ptr_stable_compare, checkMapPairPtrAssignementOperator)
     }
 }
 
-TEST(map_ptr_stable_compare, checkMapPtrAssignementOperator)
+TEST(map_ptr_stable_compare, checkMapPtrCopyAssignementOperator)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
 
@@ -166,6 +166,41 @@ TEST(map_ptr_stable_compare, checkMapPtrAssignementOperator)
     }
 }
 
+TEST(map_ptr_stable_compare, checkMapPairPtrCopyForLoopInsert)
+{
+    typedef sofa::helper::map_ptr_stable_compare < std::pair<int*, int*>, int > IntegerPairMap;
+    typedef sofa::helper::ptr_stable_id< int > IntegerStableId;
+
+    IntegerPairMap map;
+
+    int a = 0;
+    int b = 1;
+    int c = 2;
+    int d = 3;
+
+    map[std::make_pair(&a, &b)] = a + b;
+    map[std::make_pair(&b, &c)] = b + c;
+    map[std::make_pair(&c, &d)] = c + d;
+
+    IntegerPairMap mapCopy;
+
+    //std::copy(map.begin(), map.end(), std::inserter(mapCopy, mapCopy.begin()));
+
+    for (const auto& kv : map)
+    {
+        mapCopy.insert(IntegerPairMap::value_type(kv.first, kv.second));
+    }
+
+
+    for (typename IntegerPairMap::const_iterator itCopy = mapCopy.begin(), it = map.begin(); it != map.end();
+        ++itCopy, ++it)
+    {
+        EXPECT_EQ(it->first, itCopy->first);
+        EXPECT_EQ(it->second, itCopy->second);
+    }
+}
+
+
 TEST(map_ptr_stable_compare, CheckIdMapPersistsAfterClear)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
@@ -192,6 +227,7 @@ TEST(map_ptr_stable_compare, CheckIdMapPersistsAfterClear)
     EXPECT_EQ(map.size(), 0);
     EXPECT_EQ(idMap->size(), 4);
 }
+
 
 
 
