@@ -152,6 +152,27 @@ extern "C" PyObject * Sofa_sendGUIMessage(PyObject * /*self*/, PyObject * args)
     Py_RETURN_NONE;
 }
 
+extern "C" PyObject * Sofa_setGUIMaxFPS(PyObject* /*self*/, PyObject* args)
+{
+    double maxFps = -1.0;
+    if (!PyArg_ParseTuple(args, "d", &maxFps))
+    {
+        PyErr_BadArgument();
+        return 0;
+    }
+
+    BaseGUI *gui = GUIManager::getGUI();
+    if (!gui)
+    {
+        SP_MESSAGE_ERROR("setGUIMaxFPS(" << maxFps << "): no GUI!")
+        return Py_BuildValue("i", -1);
+    }
+
+    gui->setMaxFPS(maxFps);
+
+    return Py_BuildValue("i", 0);
+}
+
 // ask the GUI to save a screenshot
 extern "C" PyObject * Sofa_saveScreenshot(PyObject * /*self*/, PyObject * args)
 {
@@ -625,6 +646,7 @@ SP_MODULE_METHOD_KW(Sofa,createObject)
 SP_MODULE_METHOD(Sofa,getObject)        // deprecated on date 2012/07/18
 SP_MODULE_METHOD(Sofa,getChildNode)     // deprecated on date 2012/07/18
 SP_MODULE_METHOD(Sofa,sendGUIMessage)
+SP_MODULE_METHOD(Sofa,setGUIMaxFPS)
 SP_MODULE_METHOD(Sofa,saveScreenshot)
 SP_MODULE_METHOD(Sofa,setViewerResolution)
 SP_MODULE_METHOD(Sofa,setViewerBackgroundColor)
