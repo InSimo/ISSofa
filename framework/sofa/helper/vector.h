@@ -105,6 +105,8 @@ public:
     vector(typename vector<T>::const_iterator first, typename vector<T>::const_iterator last): std::vector<T>(first,last) {}
 #endif /* __STL_MEMBER_TEMPLATES */
 
+    vector(std::initializer_list<T> init) : std::vector<T, Alloc>(init) {}
+
 
 #if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
 
