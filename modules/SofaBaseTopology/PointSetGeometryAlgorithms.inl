@@ -203,10 +203,7 @@ void PointSetGeometryAlgorithms<DataTypes>::initPointsAdded(const helper::vector
 
     for (unsigned int i=0; i < indices.size(); i++)
     {
-        if (ancestorElems[i].index != BaseMeshTopology::InvalidID)
-        {
-            initPointAdded(indices[i], ancestorElems[i], pointsAddedVecCoords, pointsAddedVecDerivs);
-        }
+        initPointAdded(indices[i], ancestorElems[i], pointsAddedVecCoords, pointsAddedVecDerivs);
     }
 
     for (unsigned int i=0; i < nbPointCoords; i++)
@@ -228,10 +225,26 @@ void PointSetGeometryAlgorithms<DataTypes>::initPointAdded(unsigned int index, c
 {
     using namespace sofa::core::topology;
 
-    for (unsigned int i = 0; i < coordVecs.size(); i++)
+    if (ancestorElem.type != sofa::core::topology::POINT)
     {
-        (*coordVecs[i])[index] = (*coordVecs[i])[ancestorElem.index];
-        DataTypes::add((*coordVecs[i])[index], ancestorElem.localCoords[0], ancestorElem.localCoords[1], ancestorElem.localCoords[2]);
+       serr << __FUNCTION__ << ": expect ancestorElem.type POINT, "<< ancestorElem.type  << " provided instead"<< sendl;
+       return;
+    }
+
+    if (ancestorElem.index != BaseMeshTopology::InvalidID)
+    {
+        for (unsigned int i = 0; i < coordVecs.size(); i++)
+        {
+            (*coordVecs[i])[index] = (*coordVecs[i])[ancestorElem.index];
+            DataTypes::add((*coordVecs[i])[index], ancestorElem.localCoords[0], ancestorElem.localCoords[1], ancestorElem.localCoords[2]);
+        }
+    }
+    else
+    {
+        for (unsigned int i = 0; i < coordVecs.size(); i++)
+        {
+            DataTypes::set((*coordVecs[i])[index], ancestorElem.localCoords[0], ancestorElem.localCoords[1], ancestorElem.localCoords[2]);
+        }
     }
 }
 
