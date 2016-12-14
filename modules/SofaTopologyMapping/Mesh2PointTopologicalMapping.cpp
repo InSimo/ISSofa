@@ -444,60 +444,42 @@ void Mesh2PointTopologicalMapping::addInputPoints(const sofa::core::topology::Po
     {
         sofa::helper::vector< PointAncestorElem > ancestors;
         ancestors.reserve(pIdArray.size()*pBaryCoords.size());
+
         for (unsigned int i = 0; i < pIdArray.size(); ++i)
         {
-            PointAncestorElem pAncestor;
-            if (i < ancestorsElem.size())
-            {
-                pAncestor = ancestorsElem[i];
-                assert(pAncestor.type == sofa::core::topology::POINT);
-                if (ancestorsElem[i].index != sofa::core::topology::Topology::InvalidID)
-                {
-                    pAncestor.index = pointsMappedFrom[POINT][ancestorsElem[i].index][0];
-                }
-            }
-
             for (unsigned int j = 0; j < pBaryCoords.size(); ++j)
             {
+                PointAncestorElem pAncestor;
+                if (i < ancestorsElem.size())
+                {
+                    if (ancestorsElem[i].type == sofa::core::topology::POINT)
+                    {
+                        pAncestor.type  = sofa::core::topology::POINT;
+                        if (ancestorsElem[i].index != sofa::core::topology::Topology::InvalidID)
+                        {
+                            pAncestor.index = pointsMappedFrom[POINT][ancestorsElem[i].index][j];
+                        }
+                        pAncestor.localCoords = ( ancestorsElem[i].localCoords + pBaryCoords[j] );
+                    }
+                    else if (ancestorsElem[i].type == sofa::core::topology::EDGE &&
+                             copyEdges.getValue())
+                    {
+                        pAncestor = ancestorsElem[i];
+                    }
+                    else if (ancestorsElem[i].type == sofa::core::topology::TRIANGLE &&
+                             copyTriangles.getValue())
+                    {
+                        pAncestor = ancestorsElem[i];
+                    }
+                    else if (ancestorsElem[i].type == sofa::core::topology::TETRAHEDRON &&
+                             copyTetrahedra.getValue())
+                    {
+                        pAncestor = ancestorsElem[i];
+                    }
+                }
                 ancestors.push_back(pAncestor);
             }
         }
-
-        //for (unsigned int i = 0; i < pIdArray.size(); ++i)
-        //{
-        //    for (unsigned int j = 0; j < pBaryCoords.size(); ++j)
-        //    {
-        //        PointAncestorElem pAncestor;
-        //        if (i < ancestorsElem.size())
-        //        {
-        //            if (ancestorsElem[i].type == sofa::core::topology::POINT)
-        //            {
-        //                pAncestor.type  = sofa::core::topology::POINT;
-        //                if (ancestorsElem[i].index != sofa::core::topology::Topology::InvalidID)
-        //                {
-        //                    pAncestor.index = pointsMappedFrom[POINT][ancestorsElem[i].index][j];
-        //                }
-        //                pAncestor.localCoords = ( ancestorsElem[i].localCoords + pBaryCoords[j] );
-        //            }
-        //            else if (ancestorsElem[i].type == sofa::core::topology::EDGE &&
-        //                     copyEdges.getValue())
-        //            {
-        //                pAncestor = ancestorsElem[i];
-        //            }
-        //            else if (ancestorsElem[i].type == sofa::core::topology::TRIANGLE &&
-        //                     copyTriangles.getValue())
-        //            {
-        //                pAncestor = ancestorsElem[i];
-        //            }
-        //            else if (ancestorsElem[i].type == sofa::core::topology::TETRAHEDRON &&
-        //                     copyTetrahedra.getValue())
-        //            {
-        //                pAncestor = ancestorsElem[i];
-        //            }
-        //        }
-        //        ancestors.push_back(pAncestor);
-        //    }
-        //}
 
         toPointMod->addPointsProcess(pIdArray.size() * pBaryCoords.size());
         toPointMod->addPointsWarning(pIdArray.size() * pBaryCoords.size(), ancestors);
