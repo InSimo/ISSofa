@@ -428,10 +428,6 @@ public:
         , nVertices(nV), pointIndexArray(indices)
     { }
 
-    PointsAdded(const unsigned int nV,
-        const sofa::helper::vector< unsigned int >& indices) : core::topology::TopologyChange(core::topology::POINTSADDED)
-        , nVertices(nV), pointIndexArray(indices)
-    { }
 
     PointsAdded(const unsigned int nV,
             const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestors,

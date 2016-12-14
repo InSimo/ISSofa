@@ -168,7 +168,7 @@ extern "C" PyObject * Sofa_setGUIMaxFPS(PyObject* /*self*/, PyObject* args)
         return Py_BuildValue("i", -1);
     }
 
-    gui->setMaxFPS(maxFps);
+//    gui->setMaxFPS(maxFps);
 
     return Py_BuildValue("i", 0);
 }
