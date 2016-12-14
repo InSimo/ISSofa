@@ -91,6 +91,10 @@ if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
 endif()
 
+if(TARGET gtest)
+    add_subdirectory(SofaTopologyMapping_test)
+endif()
+
 
 install(TARGETS ${PROJECT_NAME}
         EXPORT    SofaGeneralTargets

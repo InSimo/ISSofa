@@ -125,6 +125,17 @@ public:
 
     const helper::vector< std::pair<Element,int> >& getPointSource() const { return pointSource;}
 
+    void setPointBaryCoords(const sofa::helper::vector<Vec3d> pBaryCoords)    { pointBaryCoords.setValue(pBaryCoords);    }
+    void setEdgeBaryCoords(const sofa::helper::vector<Vec3d> eBaryCoords)     { edgeBaryCoords.setValue(eBaryCoords);     }
+    void setTriangleBaryCoords(const sofa::helper::vector<Vec3d> tBaryCoords) { triangleBaryCoords.setValue(tBaryCoords); }
+    void setQuadBaryCoords(const sofa::helper::vector<Vec3d> qBaryCoords)     { quadBaryCoords.setValue(qBaryCoords);     }
+    void setTetraBaryCoords(const sofa::helper::vector<Vec3d> tetBaryCoords)  { tetraBaryCoords.setValue(tetBaryCoords);  }
+    void setHexaBaryCoords(const sofa::helper::vector<Vec3d> hBaryCoords)     { hexaBaryCoords.setValue(hBaryCoords);     }
+
+    void setCopyEdges(bool copy)      { copyEdges.setValue(copy);      }
+    void setCopyTriangles(bool copy)  { copyTriangles.setValue(copy);  }
+    void setCopyTetrahedra(bool copy) { copyTetrahedra.setValue(copy); }
+
 protected:
 
     Data< helper::vector< Vec3d > > pointBaryCoords; ///< Coordinates for the points of the output topology created from the points of the input topology
