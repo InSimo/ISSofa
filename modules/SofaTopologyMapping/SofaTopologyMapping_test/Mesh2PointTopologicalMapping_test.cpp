@@ -286,6 +286,8 @@ TEST_F(TriangleMesh2PointTopologicalMapping_test, checkCoarseTriangleRemoval)
     addPointInMiddleOfLastTriangle();
     addRefinedTriangles();
     removeCoarseTriangle();
+    m_triangleModifierFrom->notifyEndingEvent();
+    m_triangleModifierFrom->propagateTopologicalChanges();
 
     EXPECT_EQ(4, m_triangleContainerFrom->getNbPoints());
     EXPECT_EQ(6, m_triangleContainerFrom->getNbEdges());
@@ -310,6 +312,43 @@ TEST_F(TriangleMesh2PointTopologicalMapping_test, checkDuplicateLastPoint)
     auto readPosFrom = m_mechanicalObjectFrom->readPositions();
     auto readPosTo   = m_mechanicalObjectTo->readPositions();
     EXPECT_EQ(readPosFrom.ref().back(), readPosTo.ref().back());
+}
+
+TEST_F(TriangleMesh2PointTopologicalMapping_test, checkFromRemovedTopologyToATriangle)
+{
+    createScene();
+    initScene();
+    addOneTriangleFrom();
+
+    ASSERT_EQ(3, m_triangleContainerFrom->getNbPoints());
+    ASSERT_EQ(3, m_triangleContainerFrom->getNbEdges());
+    ASSERT_EQ(1, m_triangleContainerFrom->getNbTriangles());
+
+    EXPECT_EQ(3 + 3, m_triangleContainerTo->getNbPoints());
+    EXPECT_EQ(3, m_triangleContainerTo->getNbEdges());
+    EXPECT_EQ(1, m_triangleContainerTo->getNbTriangles());
+
+    removeCoarseTriangle();
+    m_triangleModifierFrom->notifyEndingEvent();
+    m_triangleModifierFrom->propagateTopologicalChanges();
+
+    ASSERT_EQ(0, m_triangleContainerFrom->getNbPoints());
+    ASSERT_EQ(0, m_triangleContainerFrom->getNbEdges());
+    ASSERT_EQ(0, m_triangleContainerFrom->getNbTriangles());
+
+    EXPECT_EQ(0, m_triangleContainerTo->getNbPoints());
+    EXPECT_EQ(0, m_triangleContainerTo->getNbEdges());
+    EXPECT_EQ(0, m_triangleContainerTo->getNbTriangles());
+
+    addOneTriangleFrom();
+
+    ASSERT_EQ(3, m_triangleContainerFrom->getNbPoints());
+    ASSERT_EQ(3, m_triangleContainerFrom->getNbEdges());
+    ASSERT_EQ(1, m_triangleContainerFrom->getNbTriangles());
+
+    EXPECT_EQ(3 + 3, m_triangleContainerTo->getNbPoints());
+    EXPECT_EQ(3, m_triangleContainerTo->getNbEdges());
+    EXPECT_EQ(1, m_triangleContainerTo->getNbTriangles());
 }
 
 }
