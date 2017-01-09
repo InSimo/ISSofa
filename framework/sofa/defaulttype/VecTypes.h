@@ -237,8 +237,10 @@ public:
     }
     T* begin() { return getData(); }
     const T* begin() const { return getData(); }
+    const T* cbegin() const { return getData(); }
     T* end() { return getData()+size(); }
     const T* end() const { return getData()+size(); }
+    const T* cend() const { return getData()+size(); }
 
     ExtVector& operator=(const ExtVector& ev)
     {
@@ -526,22 +528,14 @@ typedef ExtVec1dTypes ExtVec1Types;
 // Specialization of the defaulttype::DataTypeInfo type traits template
 
 template<class T>
-struct DataTypeInfo< sofa::defaulttype::ExtVector<T> > : public VectorTypeInfo<sofa::defaulttype::ExtVector<T> >
-{
-    // Remove copy-on-write behavior which is normally activated for vectors
-//    enum { CopyOnWrite     = 0 };
-
-    static std::string name() { std::ostringstream o; o << "ExtVector<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::ExtVector<T> > : public ContainerTypeInfo<sofa::defaulttype::ExtVector<T>, ContainerKindEnum::Array, 0> {};
+template<class T>
+struct DataTypeName< sofa::defaulttype::ExtVector<T> > { static std::string name() { std::ostringstream o; o << "ExtVector<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
 template<class T>
-struct DataTypeInfo< sofa::defaulttype::ResizableExtVector<T> > : public VectorTypeInfo<sofa::defaulttype::ResizableExtVector<T> >
-{
-    // Remove copy-on-write behavior which is normally activated for vectors
-//    enum { CopyOnWrite     = 0 };
-
-    static std::string name() { std::ostringstream o; o << "ResizableExtVector<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::ResizableExtVector<T> > : public ContainerTypeInfo<sofa::defaulttype::ResizableExtVector<T>, ContainerKindEnum::Array, 0> {};
+template<class T>
+struct DataTypeName< sofa::defaulttype::ResizableExtVector<T> > { static std::string name() { std::ostringstream o; o << "ResizableExtVector<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
 } // namespace defaulttype
 

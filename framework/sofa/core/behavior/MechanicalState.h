@@ -84,8 +84,8 @@ public:
 protected:
     virtual ~MechanicalState() {}
 public:
-    virtual unsigned int getCoordDimension() const { return (unsigned int)defaulttype::DataTypeInfo<Coord>::size(); }
-    virtual unsigned int getDerivDimension() const { return (unsigned int)defaulttype::DataTypeInfo<Deriv>::size(); }
+    virtual unsigned int getCoordDimension() const { return (unsigned int)defaulttype::DataTypeInfo<Coord>::FinalSize; }
+    virtual unsigned int getDerivDimension() const { return (unsigned int)defaulttype::DataTypeInfo<Deriv>::FinalSize; }
 
     /// Get the indices of the particles located in the given bounding box
     virtual void getIndicesInSpace(sofa::helper::vector<unsigned>& /*indices*/, Real /*xmin*/, Real /*xmax*/,Real /*ymin*/, Real /*ymax*/, Real /*zmin*/, Real /*zmax*/) const=0;
@@ -115,24 +115,24 @@ public:
 		switch(src.type) {
 		case V_COORD: {
 			helper::ReadAccessor< Data<VecCoord> > vec = this->read(ConstVecCoordId(src));
-			const size_t dim = defaulttype::DataTypeInfo<Coord>::size();
+			constexpr size_t dim = defaulttype::DataTypeInfo<Coord>::FinalSize;
 			assert( n == dim * size );
 			
 			for(size_t i = 0; i < size; ++i) {
 				for(size_t j = 0; j < dim; ++j) {
-					defaulttype::DataTypeInfo<Coord>::getValue(vec[i], j, *(dst++));
+					defaulttype::DataTypeInfo<Coord>::getFinalValue(vec[i], j, *(dst++));
 				}
 			}
 			
 		}; break;
 		case V_DERIV: {
             helper::ReadAccessor< Data<VecDeriv> > vec = this->read(ConstVecDerivId(src));
-            const size_t dim = defaulttype::DataTypeInfo<Deriv>::size();
+            constexpr size_t dim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
             assert( n == dim * size );
 			
             for(size_t i = 0; i < size; ++i) {
                 for(size_t j = 0; j < dim; ++j) {
-                    defaulttype::DataTypeInfo<Deriv>::getValue(vec[i], j, *(dst++));
+                    defaulttype::DataTypeInfo<Deriv>::getFinalValue(vec[i], j, *(dst++));
                 }
             }
 			
@@ -151,24 +151,24 @@ public:
 		switch(dst.type) {
 		case V_COORD: {
 			helper::WriteAccessor< Data<VecCoord> > vec = this->write(VecCoordId(dst));
-			const size_t dim = defaulttype::DataTypeInfo<Coord>::size();
+			constexpr size_t dim = defaulttype::DataTypeInfo<Coord>::FinalSize;
 			assert( n == dim * size );
 			
 			for(size_t i = 0; i < size; ++i) {
 				for(size_t j = 0; j < dim; ++j) {
-					defaulttype::DataTypeInfo<Coord>::setValue(vec[i], j, *(src++));
+					defaulttype::DataTypeInfo<Coord>::setFinalValue(vec[i], j, *(src++));
 				}
 			}
 			
 		}; break;
 		case V_DERIV: {
 			helper::WriteAccessor< Data<VecDeriv> > vec = this->write(VecDerivId(dst));
-			const size_t dim = defaulttype::DataTypeInfo<Deriv>::size();
+			constexpr size_t dim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
 			assert( n == dim * size );
 			
 			for(size_t i = 0; i < size; ++i) {
 				for(size_t j = 0; j < dim; ++j) {
-                    defaulttype::DataTypeInfo<Deriv>::setValue(vec[i], j, *(src++));
+                    defaulttype::DataTypeInfo<Deriv>::setFinalValue(vec[i], j, *(src++));
 				}
 			}
 			
@@ -187,30 +187,30 @@ public:
         switch(dst.type) {
         case V_COORD: {
             helper::WriteAccessor< Data<VecCoord> > vec = this->write(VecCoordId(dst));
-            const size_t dim = defaulttype::DataTypeInfo<Coord>::size();
+            constexpr size_t dim = defaulttype::DataTypeInfo<Coord>::FinalSize;
             assert( n == dim * size );
 
             for(size_t i = 0; i < size; ++i) {
                 for(size_t j = 0; j < dim; ++j) {
                     typename Coord::value_type tmp;
-                    defaulttype::DataTypeInfo<Coord>::getValue(vec[i], j, tmp);
+                    defaulttype::DataTypeInfo<Coord>::getFinalValue(vec[i], j, tmp);
                     tmp += (typename Coord::value_type) *(src++);
-                    defaulttype::DataTypeInfo<Coord>::setValue(vec[i], j, tmp);
+                    defaulttype::DataTypeInfo<Coord>::setFinalValue(vec[i], j, tmp);
                 }
             }
 
         }; break;
         case V_DERIV: {
             helper::WriteAccessor< Data<VecDeriv> > vec = this->write(VecDerivId(dst));
-            const size_t dim = defaulttype::DataTypeInfo<Deriv>::size();
+            constexpr size_t dim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
             assert( n == dim * size );
 
             for(size_t i = 0; i < size; ++i) {
                 for(size_t j = 0; j < dim; ++j) {
                     typename Deriv::value_type tmp;
-                    defaulttype::DataTypeInfo<Deriv>::getValue(vec[i], j, tmp);
+                    defaulttype::DataTypeInfo<Deriv>::getFinalValue(vec[i], j, tmp);
                     tmp += (typename Coord::value_type) *(src++);
-                    defaulttype::DataTypeInfo<Deriv>::setValue(vec[i], j, tmp);
+                    defaulttype::DataTypeInfo<Deriv>::setFinalValue(vec[i], j, tmp);
                 }
             }
 

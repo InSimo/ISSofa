@@ -842,14 +842,14 @@ void MechanicalObject<DataTypes>::copyToBaseVector(defaulttype::BaseVector * des
     if (src.type == sofa::core::V_COORD)
     {
         helper::ReadAccessor< Data<VecCoord> > vSrc = *this->read(sofa::core::ConstVecCoordId(src));
-        const unsigned int coordDim = sofa::defaulttype::DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = sofa::defaulttype::DataTypeInfo<Coord>::FinalSize;
 
         for (unsigned int i = 0; i < vSrc.size(); i++)
         {
             for (unsigned int j = 0; j < coordDim; j++)
             {
                 Real tmp = (Real)0.0;
-                sofa::defaulttype::DataTypeInfo<Coord>::getValue(vSrc[i], j, tmp);
+                sofa::defaulttype::DataTypeInfo<Coord>::getFinalValue(vSrc[i], j, tmp);
                 dest->set(offset + i * coordDim + j, tmp);
             }
         }
@@ -859,14 +859,14 @@ void MechanicalObject<DataTypes>::copyToBaseVector(defaulttype::BaseVector * des
     else
     {
         helper::ReadAccessor< Data<VecDeriv> > vSrc = *this->read(sofa::core::ConstVecDerivId(src));
-        const unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
 
         for (unsigned int i = 0; i < vSrc.size(); i++)
         {
             for (unsigned int j = 0; j < derivDim; j++)
             {
                 Real tmp;
-                sofa::defaulttype::DataTypeInfo<Deriv>::getValue(vSrc[i], j, tmp);
+                sofa::defaulttype::DataTypeInfo<Deriv>::getFinalValue(vSrc[i], j, tmp);
                 dest->set(offset + i * derivDim + j, tmp);
             }
         }
@@ -881,7 +881,7 @@ void MechanicalObject<DataTypes>::copyFromBaseVector(sofa::core::VecId dest, con
     if (dest.type == sofa::core::V_COORD)
     {
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(sofa::core::VecCoordId(dest));
-        const unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::FinalSize;
 
         for (unsigned int i = 0; i < vDest.size(); i++)
         {
@@ -889,7 +889,7 @@ void MechanicalObject<DataTypes>::copyFromBaseVector(sofa::core::VecId dest, con
             {
                 Real tmp;
                 tmp = (Real)src->element(offset + i * coordDim + j);
-                sofa::defaulttype::DataTypeInfo<Coord>::setValue(vDest[i], j, tmp);
+                sofa::defaulttype::DataTypeInfo<Coord>::setFinalValue(vDest[i], j, tmp);
             }
         }
 
@@ -898,7 +898,7 @@ void MechanicalObject<DataTypes>::copyFromBaseVector(sofa::core::VecId dest, con
     else
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(sofa::core::VecDerivId(dest));
-        const unsigned int derivDim = sofa::defaulttype::DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = sofa::defaulttype::DataTypeInfo<Deriv>::FinalSize;
 
         for (unsigned int i = 0; i < vDest.size(); i++)
         {
@@ -906,7 +906,7 @@ void MechanicalObject<DataTypes>::copyFromBaseVector(sofa::core::VecId dest, con
             {
                 Real tmp;
                 tmp = (Real)src->element(offset + i * derivDim + j);
-                defaulttype::DataTypeInfo<Deriv>::setValue(vDest[i], j, tmp);
+                defaulttype::DataTypeInfo<Deriv>::setFinalValue(vDest[i], j, tmp);
             }
         }
 
@@ -920,14 +920,14 @@ void MechanicalObject<DataTypes>::addToBaseVector(defaulttype::BaseVector* dest,
     if (src.type == sofa::core::V_COORD)
     {
         helper::ReadAccessor< Data<VecCoord> > vSrc = *this->read(core::ConstVecCoordId(src));
-        const unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::FinalSize;
 
         for (unsigned int i = 0; i < vSrc.size(); i++)
         {
             for (unsigned int j = 0; j < coordDim; j++)
             {
                 Real tmp = (Real)0.0;
-                defaulttype::DataTypeInfo<Coord>::getValue(vSrc[i], j, tmp);
+                defaulttype::DataTypeInfo<Coord>::getFinalValue(vSrc[i], j, tmp);
                 dest->add(offset + i * coordDim + j, tmp);
             }
         }
@@ -937,14 +937,14 @@ void MechanicalObject<DataTypes>::addToBaseVector(defaulttype::BaseVector* dest,
     else
     {
         helper::ReadAccessor< Data<VecDeriv> > vSrc = *this->read(core::ConstVecDerivId(src));
-        const unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
 
         for (unsigned int i = 0; i < vSrc.size(); i++)
         {
             for (unsigned int j = 0; j < derivDim; j++)
             {
                 Real tmp;
-                defaulttype::DataTypeInfo<Deriv>::getValue(vSrc[i], j, tmp);
+                defaulttype::DataTypeInfo<Deriv>::getFinalValue(vSrc[i], j, tmp);
                 dest->add(offset + i * derivDim + j, tmp);
             }
         }
@@ -959,15 +959,15 @@ void MechanicalObject<DataTypes>::addFromBaseVectorSameSize(sofa::core::VecId de
     if (dest.type == sofa::core::V_COORD)
     {
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(core::VecCoordId(dest));
-        const unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::FinalSize;
 
         for (unsigned int i = 0; i < vDest.size(); i++)
         {
             for (unsigned int j = 0; j < coordDim; j++)
             {
                 Real tmp = (Real)0.0;
-                defaulttype::DataTypeInfo<Coord>::getValue(vDest[i], j, tmp);
-                defaulttype::DataTypeInfo<Coord>::setValue(vDest[i], j, tmp + src->element(offset + i * coordDim + j));
+                defaulttype::DataTypeInfo<Coord>::getFinalValue(vDest[i], j, tmp);
+                defaulttype::DataTypeInfo<Coord>::setFinalValue(vDest[i], j, tmp + src->element(offset + i * coordDim + j));
             }
         }
 
@@ -976,15 +976,15 @@ void MechanicalObject<DataTypes>::addFromBaseVectorSameSize(sofa::core::VecId de
     else
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(core::VecDerivId(dest));
-        const unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
 
         for (unsigned int i = 0; i < vDest.size(); i++)
         {
             for (unsigned int j = 0; j < derivDim; j++)
             {
                 Real tmp = (Real)0.0;
-                defaulttype::DataTypeInfo<Deriv>::getValue(vDest[i], j, tmp);
-                defaulttype::DataTypeInfo<Deriv>::setValue(vDest[i], j, tmp + src->element(offset + i * derivDim + j));
+                defaulttype::DataTypeInfo<Deriv>::getFinalValue(vDest[i], j, tmp);
+                defaulttype::DataTypeInfo<Deriv>::setFinalValue(vDest[i], j, tmp + src->element(offset + i * derivDim + j));
             }
         }
 
@@ -998,15 +998,15 @@ void MechanicalObject<DataTypes>::addFromBaseVectorDifferentSize(sofa::core::Vec
     if (dest.type == sofa::core::V_COORD)
     {
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(core::VecCoordId(dest));
-        const unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = defaulttype::DataTypeInfo<Coord>::FinalSize;
         const unsigned int nbEntries = src->size()/coordDim;
         for (unsigned int i=0; i<nbEntries; i++)
         {
             for (unsigned int j=0; j<coordDim; ++j)
             {
                 Real tmp = (Real)0.0;
-                defaulttype::DataTypeInfo<Coord>::getValue(vDest[i+offset],j,tmp);
-                defaulttype::DataTypeInfo<Coord>::setValue(vDest[i+offset],j, tmp + src->element(i*coordDim+j));
+                defaulttype::DataTypeInfo<Coord>::getFinalValue(vDest[i+offset],j,tmp);
+                defaulttype::DataTypeInfo<Coord>::setFinalValue(vDest[i+offset],j, tmp + src->element(i*coordDim+j));
             }
         }
         offset += nbEntries;
@@ -1015,15 +1015,15 @@ void MechanicalObject<DataTypes>::addFromBaseVectorDifferentSize(sofa::core::Vec
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(core::VecDerivId(dest));
 
-        const unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = defaulttype::DataTypeInfo<Deriv>::FinalSize;
         const unsigned int nbEntries = src->size()/derivDim;
         for (unsigned int i=0; i<nbEntries; i++)
         {
             for (unsigned int j=0; j<derivDim; ++j)
             {
                 Real tmp = (Real)0.0;
-                defaulttype::DataTypeInfo<Deriv>::getValue(vDest[i+offset],j,tmp);
-                defaulttype::DataTypeInfo<Deriv>::setValue(vDest[i+offset],j, tmp + src->element(i*derivDim+j));
+                defaulttype::DataTypeInfo<Deriv>::getFinalValue(vDest[i+offset],j,tmp);
+                defaulttype::DataTypeInfo<Deriv>::setFinalValue(vDest[i+offset],j, tmp + src->element(i*derivDim+j));
             }
         }
         offset += nbEntries;
@@ -2574,7 +2574,7 @@ void MechanicalObject<DataTypes>::renumberConstraintId(const sofa::helper::vecto
 template <class DataTypes>
 std::list< core::behavior::BaseMechanicalState::ConstraintBlock > MechanicalObject<DataTypes>::constraintBlocks( const std::list<unsigned int> &indices) const
 {
-    const unsigned int dimensionDeriv = defaulttype::DataTypeInfo< Deriv >::size();
+    constexpr unsigned int dimensionDeriv = defaulttype::DataTypeInfo< Deriv >::FinalSize;
     assert( indices.size() > 0 );
     assert( dimensionDeriv > 0 );
 
@@ -2620,7 +2620,7 @@ std::list< core::behavior::BaseMechanicalState::ConstraintBlock > MechanicalObje
                 for (unsigned int i = 0; i < dimensionDeriv; ++i)
                 {
                     SReal value;
-                    defaulttype::DataTypeInfo< Deriv >::getValue(curValue, i, value);
+                    defaulttype::DataTypeInfo< Deriv >::getFinalValue(curValue, i, value);
                     block.set(block_row, i, value);
                 }
             }
@@ -3383,8 +3383,8 @@ template <class DataTypes>
 bool MechanicalObject<DataTypes>::pickParticles(const core::ExecParams* /* params */ /* PARAMS FIRST */, double rayOx, double rayOy, double rayOz, double rayDx, double rayDy, double rayDz, double radius0, double dRadius,
                                                 std::multimap< double, std::pair<sofa::core::behavior::BaseMechanicalState*, int> >& particles)
 {
-    if (defaulttype::DataTypeInfo<Coord>::size() == 2 || defaulttype::DataTypeInfo<Coord>::size() == 3
-            || (defaulttype::DataTypeInfo<Coord>::size() == 7 && defaulttype::DataTypeInfo<Deriv>::size() == 6))
+    if (defaulttype::DataTypeInfo<Coord>::FinalSize == 2 || defaulttype::DataTypeInfo<Coord>::FinalSize == 3
+            || (defaulttype::DataTypeInfo<Coord>::FinalSize == 7 && defaulttype::DataTypeInfo<Deriv>::FinalSize == 6))
     {
         // seems to be valid DOFs
         const VecCoord& x =this->read(core::ConstVecCoordId::position())->getValue();

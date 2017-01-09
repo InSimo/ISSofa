@@ -217,7 +217,7 @@ void MatrixMass<DataTypes, MassType>::addMToMatrix(const core::MechanicalParams 
 
 {
     const VecMass &masses= *_usedMassMatrices;
-    const int N = defaulttype::DataTypeInfo<Deriv>::size();
+    constexpr int N = defaulttype::DataTypeInfo<Deriv>::FinalSize;
     AddMToMatrixFunctor<Deriv,MassType> calc;
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
     Real mFactor = (Real)mparams->mFactorIncludingRayleighDamping(this->rayleighMass.getValue());

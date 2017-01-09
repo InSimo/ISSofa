@@ -404,7 +404,7 @@ template <class DataTypes, class MassType>
 void UniformMass<DataTypes, MassType>::addMToMatrix (const core::MechanicalParams *mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
     const MassType& m = mass.getValue();
-    const int N = defaulttype::DataTypeInfo<Deriv>::size();
+    constexpr int N = defaulttype::DataTypeInfo<Deriv>::FinalSize;
     const unsigned int size = this->mstate->getSize();
     AddMToMatrixFunctor<Deriv,MassType> calc;
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
@@ -424,7 +424,7 @@ double UniformMass<DataTypes, MassType>::getElementMass ( unsigned int ) const
 template <class DataTypes, class MassType>
 void UniformMass<DataTypes, MassType>::getElementMass ( unsigned int /* index */, defaulttype::BaseMatrix *m ) const
 {
-    static const defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Deriv>::size();
+    constexpr defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Deriv>::FinalSize;
     if ( m->rowSize() != dimension || m->colSize() != dimension ) m->resize ( dimension, dimension );
 
     m->clear();

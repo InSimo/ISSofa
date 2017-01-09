@@ -17,11 +17,15 @@ TEST( DataFundamentalTypeInfoTest, checkDataTypeInfoFundamentalIsOk)
     Data< int > d_int("integer");
     const AbstractTypeInfo* typeInfo = d_int.getValueTypeInfo();
 
-    EXPECT_EQ( typeInfo->FixedSize(), true );
-    EXPECT_EQ( typeInfo->BaseType()->FixedSize(), true );
+    EXPECT_TRUE( typeInfo->IsSingleValue() );
+    EXPECT_TRUE( typeInfo->IsMultiValue() );
+    EXPECT_FALSE( typeInfo->IsContainer() );
+    const AbstractMultiValueTypeInfo* typeMVInfo = typeInfo->MultiValueType();
+    EXPECT_TRUE( typeMVInfo->FixedFinalSize() );
+    EXPECT_TRUE( typeMVInfo->getFinalValueType()->FixedFinalSize() );
 
-    EXPECT_EQ( typeInfo->size( d_int.getValueVoidPtr() ) , 1 );
-    EXPECT_EQ( typeInfo->size(), 1 );
+    EXPECT_EQ( 1, typeMVInfo->FinalSize() );
+    EXPECT_EQ( 1, typeMVInfo->finalSize( d_int.getValueVoidPtr() ) );
 }
 
 TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorSizeIsOk )
@@ -30,10 +34,21 @@ TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorSizeIsOk )
     sofa::helper::WriteAccessor< Data< Vec3Types::VecCoord > > x = d_x;
     x.resize( 10 );
     const AbstractTypeInfo* typeInfo = d_x.getValueTypeInfo();
-    
-    EXPECT_EQ( typeInfo->BaseType()->FixedSize(), true );
 
-    EXPECT_EQ( typeInfo->size( d_x.getValueVoidPtr() ) / typeInfo->size() , 10 );
+    EXPECT_FALSE( typeInfo->IsSingleValue() );
+    EXPECT_TRUE( typeInfo->IsMultiValue() );
+    EXPECT_TRUE( typeInfo->IsContainer() );
+    const AbstractMultiValueTypeInfo* typeMVInfo = typeInfo->MultiValueType();
+    const AbstractContainerTypeInfo* typeCInfo = typeInfo->ContainerType();
+    EXPECT_FALSE( typeMVInfo->FixedFinalSize() );
+    const AbstractTypeInfo* baseInfo = typeCInfo->getMappedType();
+    EXPECT_TRUE( baseInfo->IsMultiValue() );
+    const AbstractMultiValueTypeInfo* baseMVInfo = baseInfo->MultiValueType();
+    EXPECT_TRUE( baseMVInfo->FixedFinalSize() );
+
+    EXPECT_EQ( baseMVInfo->FinalSize(), 3 );
+    EXPECT_EQ( typeCInfo->containerSize( d_x.getValueVoidPtr() ), 10 );
+    EXPECT_EQ( typeMVInfo->finalSize( d_x.getValueVoidPtr() ), baseMVInfo->FinalSize()*typeCInfo->containerSize( d_x.getValueVoidPtr() ) );
 }
 
 TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorOfVectorSizeIsOk )
@@ -47,9 +62,15 @@ TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorOfVectorSizeIsOk )
     x[2].resize( 3 );
     const AbstractTypeInfo* typeInfo = d_x.getValueTypeInfo();
 
-    EXPECT_EQ( typeInfo->BaseType()->FixedSize(), false );
-
-    EXPECT_EQ( typeInfo->size( ), 3 );
+    EXPECT_FALSE( typeInfo->IsSingleValue() );
+    EXPECT_FALSE( typeInfo->IsMultiValue() );
+    EXPECT_TRUE( typeInfo->IsContainer() );
+    const AbstractContainerTypeInfo* typeCInfo = typeInfo->ContainerType();
+    const AbstractTypeInfo* baseInfo = typeCInfo->getMappedType();
+    EXPECT_TRUE( baseInfo->IsMultiValue() );
+    const AbstractMultiValueTypeInfo* baseMVInfo = baseInfo->MultiValueType();
+    EXPECT_FALSE( baseMVInfo->FixedFinalSize() );
+    EXPECT_EQ( baseMVInfo->FinalSize(), 3 );
 }
 
 
@@ -97,6 +118,7 @@ struct DataTypeInfoMyType_test : public ::testing::Test
 
         myVectorData.setValue( VectorMyType( DataTypeInfoMyType_test::size ) );
         myVectorTypeInfo     = myVectorData.getValueTypeInfo();
+        myVectorCTypeInfo     = myVectorTypeInfo->ContainerType();
         myVectorValueVoidPtr = myVectorData.getValueVoidPtr(); 
     }
     
@@ -104,6 +126,7 @@ struct DataTypeInfoMyType_test : public ::testing::Test
     DataVectorMyType        myVectorData;
     const AbstractTypeInfo* myTypeInfo;
     const AbstractTypeInfo* myVectorTypeInfo;
+    const AbstractContainerTypeInfo* myVectorCTypeInfo;
     const void*             myValueVoidPtr;
     const void*             myVectorValueVoidPtr;
 };
@@ -112,72 +135,72 @@ std::size_t DataTypeInfoMyType_test::size = 7;
 
 TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotValidInfo )
 {
-    ASSERT_EQ(myTypeInfo->ValidInfo(),false);
+    ASSERT_FALSE(myTypeInfo->ValidInfo());
 }
 
-TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotFixedSize )
+TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotSingleValue )
 {
-    ASSERT_EQ( myTypeInfo->FixedSize(), false );
+    ASSERT_FALSE( myTypeInfo->IsSingleValue());
+}
+
+TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotMultiValue )
+{
+    ASSERT_FALSE( myTypeInfo->IsMultiValue());
+}
+
+TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotContainer )
+{
+    ASSERT_FALSE( myTypeInfo->IsContainer());
 }
 
 TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotZeroConstructor )
 {
-    ASSERT_EQ(myTypeInfo->ZeroConstructor(), false);
+    ASSERT_FALSE(myTypeInfo->ZeroConstructor());
 }
 
 TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotSimpleCopy )
 {
-    ASSERT_EQ(myTypeInfo->SimpleCopy(), false);
+    ASSERT_FALSE(myTypeInfo->SimpleCopy());
 }
 
 TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotSimpleLayout )
 {
-    ASSERT_EQ(myTypeInfo->SimpleLayout(), false);
-}
-
-TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotInteger )
-{
-    ASSERT_EQ( myTypeInfo->Integer(), false );
-}
-
-TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotScalar )
-{
-    ASSERT_EQ( myTypeInfo->Scalar(), false);
-}
-
-TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotText )
-{
-    ASSERT_EQ( myTypeInfo->Text(), false );
+    ASSERT_FALSE(myTypeInfo->SimpleLayout());
 }
 
 TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoIsNotCopyOnWrite )
 {
-    ASSERT_EQ(myTypeInfo->CopyOnWrite(), false);
+    ASSERT_FALSE(myTypeInfo->CopyOnWrite());
 }
 
-TEST_F(DataTypeInfoMyType_test, checkAbstractTypeInfoSizeEqualsOne)
+TEST_F(DataTypeInfoMyType_test, checkAbstractVectorTypeInfoIsNotSingleValue )
 {
-    ASSERT_EQ( myTypeInfo->size(), std::size_t(1) );
+    ASSERT_FALSE( myVectorTypeInfo->IsSingleValue());
+}
+
+TEST_F(DataTypeInfoMyType_test, checkAbstractVectorTypeInfoIsNotMultiValue )
+{
+    ASSERT_FALSE( myVectorTypeInfo->IsMultiValue());
+}
+
+TEST_F(DataTypeInfoMyType_test, checkAbstractVectorTypeInfoIsContainer )
+{
+    ASSERT_TRUE( myVectorTypeInfo->IsContainer());
 }
 
 TEST_F(DataTypeInfoMyType_test, checkVectorAbstractTypeInfoSizeIsOK)
 {
-    ASSERT_EQ( myVectorTypeInfo->size(myVectorValueVoidPtr), DataTypeInfoMyType_test::size );
-}
-
-TEST_F(DataTypeInfoMyType_test, checkVectorAbstractTypeInfoSizeEqualsDataTypeInfoSize )
-{
-    ASSERT_EQ( myTypeInfo->size(), DataTypeInfoMyType_test::DataTypeInfoMyType::size() );
+    ASSERT_EQ( myVectorCTypeInfo->containerSize(myVectorValueVoidPtr), DataTypeInfoMyType_test::size );
 }
 
 TEST_F(DataTypeInfoMyType_test, checkVectorAbstractTypeInfoIsNotValid )
 {
-    ASSERT_EQ( myTypeInfo->ValidInfo(),false );
+    ASSERT_EQ( myVectorTypeInfo->ValidInfo(),false );
 }
 
 TEST_F(DataTypeInfoMyType_test, checkVectorAbstractTypeInfoBaseTypeIsNotValid )
 {
-    ASSERT_EQ( myTypeInfo->BaseType()->ValidInfo() ,false );
+    ASSERT_EQ( myVectorCTypeInfo->getMappedType()->ValidInfo() ,false );
 }
 
 // This test does not work because the default implementation of DataTypeInfo<DataType>::getValueString 

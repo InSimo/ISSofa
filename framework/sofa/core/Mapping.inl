@@ -329,7 +329,7 @@ bool Mapping<In,Out>::checkApplyJ( const MechanicalParams* mparams, OutDataVecDe
     matrixApplyJ(out2, in, J);
 
     // compare out and out2
-    const int NOut = sofa::defaulttype::DataTypeInfo<typename Out::Deriv>::Size;
+    const int NOut = sofa::defaulttype::DataTypeInfo<typename Out::Deriv>::FinalSize;
     double diff_mean = 0, diff_max = 0, val1_mean = 0, val2_mean = 0;
     for (unsigned int i=0; i<out.size(); ++i)
         for (int j=0; j<NOut; ++j)
@@ -375,8 +375,8 @@ void Mapping<In,Out>::matrixApplyJ( OutVecDeriv& out, const InVecDeriv& in, cons
     typedef typename In::Deriv InDeriv;
     if (!J) return;
     if (J->rowSize() == 0) return;
-    const int NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::Size;
-    const int NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::Size;
+    const int NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize;
+    const int NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize;
     out.resize(J->rowSize() / NOut);
     OutReal* in_alloc = NULL;
     OutReal* out_alloc = NULL;
@@ -457,7 +457,7 @@ bool Mapping<In,Out>::checkApplyJT(const MechanicalParams* mparams, InDataVecDer
     matrixApplyJT(tmp2, in, J);
 
     // compare tmp and tmp2
-    const int NOut = sofa::defaulttype::DataTypeInfo<typename In::Deriv>::Size;
+    const int NOut = sofa::defaulttype::DataTypeInfo<typename In::Deriv>::FinalSize;
     double diff_mean = 0, diff_max = 0, val1_mean = 0, val2_mean = 0;
     for (unsigned int i=0; i<tmp.size(); ++i)
         for (int j=0; j<NOut; ++j)
@@ -504,8 +504,8 @@ void Mapping<In,Out>::matrixApplyJT( InVecDeriv& out, const OutVecDeriv& in, con
     typedef typename In::Deriv InDeriv;
     if (!J) return;
     if (J->rowSize() == 0) return;
-    const int NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::Size;
-    const int NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::Size;
+    const int NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize;
+    const int NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize;
     out.resize(J->colSize() / NOut);
     InReal* in_alloc = NULL;
     InReal* out_alloc = NULL;

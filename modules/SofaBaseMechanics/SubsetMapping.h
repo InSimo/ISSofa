@@ -89,8 +89,8 @@ public:
     typedef typename Out::Coord       OutCoord;
     typedef typename Out::Deriv       OutDeriv;
 
-    enum { NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::Size };
-    enum { NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::Size };
+    enum { NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize };
+    enum { NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize };
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
     typedef sofa::component::linearsolver::CompressedRowSparseMatrix<MBloc> MatrixType;
 

@@ -144,7 +144,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorDifferentSize
     {
 
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(core::VecCoordId(dest));
-        const unsigned int coordDim = DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = DataTypeInfo<Coord>::FinalSize;
         const unsigned int nbEntries = src->size()/coordDim;
 
         for (unsigned int i=0; i<nbEntries; i++)
@@ -152,8 +152,8 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorDifferentSize
             for (unsigned int j=0; j<3; ++j)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i+offset],j,tmp);
-                DataTypeInfo<Coord>::setValue(vDest[i+offset],j, tmp + src->element(i*coordDim+j));
+                DataTypeInfo<Coord>::getFinalValue(vDest[i+offset],j,tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i+offset],j, tmp + src->element(i*coordDim+j));
             }
 
             helper::Quater<double> q_src;
@@ -161,7 +161,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorDifferentSize
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i+offset],j+3,tmp);
+                DataTypeInfo<Coord>::getFinalValue(vDest[i+offset],j+3,tmp);
                 q_dest[j]=tmp;
                 q_src[j]=src->element(i * coordDim + j+3);
             }
@@ -170,7 +170,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorDifferentSize
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp=q_dest[j];
-                DataTypeInfo<Coord>::setValue(vDest[i+offset], j+3, tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i+offset], j+3, tmp);
             }
         }
         offset += nbEntries;
@@ -179,15 +179,15 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorDifferentSize
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(core::VecDerivId(dest));
 
-        const unsigned int derivDim = DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = DataTypeInfo<Deriv>::FinalSize;
         const unsigned int nbEntries = src->size()/derivDim;
         for (unsigned int i=0; i<nbEntries; i++)
         {
             for (unsigned int j=0; j<derivDim; ++j)
             {
                 Real tmp;
-                DataTypeInfo<Deriv>::getValue(vDest[i+offset],j,tmp);
-                DataTypeInfo<Deriv>::setValue(vDest[i+offset],j, tmp + src->element(i*derivDim+j));
+                DataTypeInfo<Deriv>::getFinalValue(vDest[i+offset],j,tmp);
+                DataTypeInfo<Deriv>::setFinalValue(vDest[i+offset],j, tmp + src->element(i*derivDim+j));
             }
         }
         offset += nbEntries;
@@ -202,15 +202,15 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorSameSize(core
     if (dest.type == sofa::core::V_COORD)
     {
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(core::VecCoordId(dest));
-        const unsigned int coordDim = DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = DataTypeInfo<Coord>::FinalSize;
 
         for (unsigned int i=0; i<vDest.size(); i++)
         {
             for (unsigned int j=0; j<3; j++)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i],j,tmp);
-                DataTypeInfo<Coord>::setValue(vDest[i],j,tmp + src->element(offset + i * coordDim + j));
+                DataTypeInfo<Coord>::getFinalValue(vDest[i],j,tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i],j,tmp + src->element(offset + i * coordDim + j));
             }
 
             helper::Quater<double> q_src;
@@ -218,7 +218,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorSameSize(core
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i],j+3,tmp);
+                DataTypeInfo<Coord>::getFinalValue(vDest[i],j+3,tmp);
                 q_dest[j]=tmp;
                 q_src[j]=src->element(offset + i * coordDim + j+3);
             }
@@ -227,7 +227,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorSameSize(core
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp=q_dest[j];
-                DataTypeInfo<Coord>::setValue(vDest[i], j+3, tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i], j+3, tmp);
             }
         }
 
@@ -236,14 +236,14 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorSameSize(core
     else
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(core::VecDerivId(dest));
-        const unsigned int derivDim = DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = DataTypeInfo<Deriv>::FinalSize;
         for (unsigned int i=0; i<vDest.size(); i++)
         {
             for (unsigned int j=0; j<derivDim; j++)
             {
                 Real tmp;
-                DataTypeInfo<Deriv>::getValue(vDest[i],j,tmp);
-                DataTypeInfo<Deriv>::setValue(vDest[i], j, tmp + src->element(offset + i * derivDim + j));
+                DataTypeInfo<Deriv>::getFinalValue(vDest[i],j,tmp);
+                DataTypeInfo<Deriv>::setFinalValue(vDest[i], j, tmp + src->element(offset + i * derivDim + j));
             }
         }
         offset += vDest.size() * derivDim;
@@ -404,7 +404,7 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorDifferentSize
     {
 
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(core::VecCoordId(dest));
-        const unsigned int coordDim = DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = DataTypeInfo<Coord>::FinalSize;
         const unsigned int nbEntries = src->size()/coordDim;
 
         for (unsigned int i=0; i<nbEntries; i++)
@@ -412,8 +412,8 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorDifferentSize
             for (unsigned int j=0; j<3; ++j)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i+offset],j,tmp);
-                DataTypeInfo<Coord>::setValue(vDest[i+offset],j, tmp + src->element(i*coordDim+j));
+                DataTypeInfo<Coord>::getFinalValue(vDest[i+offset],j,tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i+offset],j, tmp + src->element(i*coordDim+j));
             }
 
             helper::Quater<double> q_src;
@@ -421,7 +421,7 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorDifferentSize
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i+offset],j+3,tmp);
+                DataTypeInfo<Coord>::getFinalValue(vDest[i+offset],j+3,tmp);
                 q_dest[j]=tmp;
                 q_src[j]=src->element(i * coordDim + j+3);
             }
@@ -430,7 +430,7 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorDifferentSize
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp=(Real)q_dest[j];
-                DataTypeInfo<Coord>::setValue(vDest[i+offset], j+3, tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i+offset], j+3, tmp);
             }
         }
         offset += nbEntries;
@@ -439,15 +439,15 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorDifferentSize
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(core::VecDerivId(dest));
 
-        const unsigned int derivDim = DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = DataTypeInfo<Deriv>::FinalSize;
         const unsigned int nbEntries = src->size()/derivDim;
         for (unsigned int i=0; i<nbEntries; i++)
         {
             for (unsigned int j=0; j<derivDim; ++j)
             {
                 Real tmp;
-                DataTypeInfo<Deriv>::getValue(vDest[i+offset],j,tmp);
-                DataTypeInfo<Deriv>::setValue(vDest[i+offset],j, tmp + src->element(i*derivDim+j));
+                DataTypeInfo<Deriv>::getFinalValue(vDest[i+offset],j,tmp);
+                DataTypeInfo<Deriv>::setFinalValue(vDest[i+offset],j, tmp + src->element(i*derivDim+j));
             }
         }
         offset += nbEntries;
@@ -461,15 +461,15 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorSameSize(core
     if (dest.type == sofa::core::V_COORD)
     {
         helper::WriteAccessor< Data<VecCoord> > vDest = *this->write(core::VecCoordId(dest));
-        const unsigned int coordDim = DataTypeInfo<Coord>::size();
+        constexpr unsigned int coordDim = DataTypeInfo<Coord>::FinalSize;
 
         for (unsigned int i=0; i<vDest.size(); i++)
         {
             for (unsigned int j=0; j<3; j++)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i],j,tmp);
-                DataTypeInfo<Coord>::setValue(vDest[i],j,tmp + src->element(offset + i * coordDim + j));
+                DataTypeInfo<Coord>::getFinalValue(vDest[i],j,tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i],j,tmp + src->element(offset + i * coordDim + j));
             }
 
             helper::Quater<double> q_src;
@@ -477,7 +477,7 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorSameSize(core
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp;
-                DataTypeInfo<Coord>::getValue(vDest[i],j+3,tmp);
+                DataTypeInfo<Coord>::getFinalValue(vDest[i],j+3,tmp);
                 q_dest[j]=tmp;
                 q_src[j]=src->element(offset + i * coordDim + j+3);
             }
@@ -486,7 +486,7 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorSameSize(core
             for (unsigned int j=0; j<4; j++)
             {
                 Real tmp=(Real)q_dest[j];
-                DataTypeInfo<Coord>::setValue(vDest[i], j+3, tmp);
+                DataTypeInfo<Coord>::setFinalValue(vDest[i], j+3, tmp);
             }
         }
 
@@ -495,14 +495,14 @@ void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorSameSize(core
     else
     {
         helper::WriteAccessor< Data<VecDeriv> > vDest = *this->write(core::VecDerivId(dest));
-        const unsigned int derivDim = DataTypeInfo<Deriv>::size();
+        constexpr unsigned int derivDim = DataTypeInfo<Deriv>::FinalSize;
         for (unsigned int i=0; i<vDest.size(); i++)
         {
             for (unsigned int j=0; j<derivDim; j++)
             {
                 Real tmp;
-                DataTypeInfo<Deriv>::getValue(vDest[i],j,tmp);
-                DataTypeInfo<Deriv>::setValue(vDest[i], j, tmp + src->element(offset + i * derivDim + j));
+                DataTypeInfo<Deriv>::getFinalValue(vDest[i],j,tmp);
+                DataTypeInfo<Deriv>::setFinalValue(vDest[i], j, tmp + src->element(offset + i * derivDim + j));
             }
         }
         offset += vDest.size() * derivDim;

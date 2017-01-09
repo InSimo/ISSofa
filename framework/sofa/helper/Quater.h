@@ -321,7 +321,16 @@ public:
     }
 
     enum { static_size = 4 };
-    static unsigned int size() {return 4;};
+    static unsigned int size() {return static_size;};
+
+    typedef Real* iterator;
+    typedef const Real* const_iterator;
+    iterator begin() { return ptr(); }
+    iterator end() { return ptr()+size(); }
+    const_iterator begin() const { return ptr(); }
+    const_iterator end() const { return ptr()+size(); }
+    const_iterator cbegin() const { return ptr(); }
+    const_iterator cend() const { return ptr()+size(); }
 
     /// Compile-time constant specifying the number of scalars within this vector (equivalent to the size() method)
     enum { total_size = 4 };

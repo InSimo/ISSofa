@@ -4,6 +4,7 @@ project(SofaHelper)
 set(SOFAHELPER_HEADERS
     ArgumentParser.h
     BackTrace.h
+    DecodeTypeName.h
 	deque.h
     DualQuat.inl
     DualQuat.h
@@ -48,6 +49,7 @@ set(SOFAHELPER_HEADERS
     rmath.h
     RandomGenerator.h
     set.h
+    SSOBuffer.h
     SVector.h
     system/config.h
     system/gl.h
@@ -97,6 +99,7 @@ set (SOFAHELPER_SOURCES_OUTSIDE_UNITY
 set(SOFAHELPER_SOURCES_UNITY
 	ArgumentParser.cpp
     BackTrace.cpp
+    DecodeTypeName.cpp
     DualQuat.cpp
     Factory.cpp
     gl/Trackball.cpp
@@ -206,6 +209,9 @@ if(SOFA-EXTERNAL_HAVE_FFMPEG)
 endif()
 
 if(PS3)
+	list(APPEND SOFACORE_HEADERS "ps3/cxa_demangle.h")
+	list(APPEND SOFACORE_HEADERS "ps3/cxxabi.h")
+	list(APPEND SOFACORE_SOURCES "ps3/cxa_demangle.cpp")
 	list(APPEND SOFAHELPER_HEADERS "gl/ps3gl_compat.h")
 	list(APPEND SOFAHELPER_SOURCES_UNITY "gl/ps3gl_compat.cpp")
 endif()

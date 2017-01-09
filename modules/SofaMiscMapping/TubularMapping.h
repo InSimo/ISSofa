@@ -76,11 +76,11 @@ public:
     };
     enum
     {
-        NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::Size
+        NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize
     };
     enum
     {
-        NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::Size
+        NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize
     };
 
     typedef defaulttype::Mat<N,N,Real> Mat;

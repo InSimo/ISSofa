@@ -22,44 +22,41 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_DEFAULTTYPE_QUAT_H
-#define SOFA_DEFAULTTYPE_QUAT_H
-
-#include <sofa/helper/Quater.h>
-#include <sofa/defaulttype/DataTypeInfo.h>
+#ifndef SOFA_DEFAULTTYPE_DATATYPEKIND_H
+#define SOFA_DEFAULTTYPE_DATATYPEKIND_H
 
 namespace sofa
 {
 
 namespace defaulttype
 {
-typedef helper::Quater<double> Quatd; ///< alias
-typedef helper::Quater<float>  Quatf; ///< alias
-#ifdef SOFA_FLOAT
-typedef Quatf Quat; ///< alias
-#else
-typedef Quatd Quat; ///< alias
-#endif
-typedef Quat Quaternion; ///< alias
 
-// Specialization of the defaulttype::DataTypeInfo type traits template
+/** The different types exposed by DataTypeInfo.
+ */
+enum class ContainerKindEnum
+{
+    Single = 0,
+    Array,       ///< An ordered list of arbitrary values, all having the same type (vector, pair, tuple, ...)
+    Set,         ///< An unordered list of unique keys, all having the same type (set, unordered_set)
+    Map,         ///< An unordered list of key/value pairs, all having the same type (map, unordered_map)
+    Struct,      ///< An unordered list of key/value pairs, keys being pre-determined and values can each have a different type
+};
 
-template<class T>
-struct DataTypeInfo< sofa::helper::Quater<T> > : public ContainerTypeInfo<sofa::helper::Quater<T>, ContainerKindEnum::Array, sofa::helper::Quater<T>::total_size> {};
-template<class T>
-struct DataTypeName< sofa::helper::Quater<T> > { static std::string name() { std::ostringstream o; o << "Quater<" << DataTypeName<T>::name() << ">"; return o.str(); } };
-
-// The next line hides all those methods from the doxygen documentation
-/// \cond TEMPLATE_OVERRIDES
-
-template<> struct DataTypeName<defaulttype::Quatf> { static const char* name() { return "Quatf"; } };
-template<> struct DataTypeName<defaulttype::Quatd> { static const char* name() { return "Quatd"; } };
-
-/// \endcond
+/** The different types for DTK_VALUE
+ */
+enum class ValueKindEnum
+{
+    Void = 0,
+    Integer,
+    Scalar,
+    String,
+    Enum,
+    Bool,
+    Pointer,
+};
 
 } // namespace defaulttype
 
 } // namespace sofa
 
-#endif
-
+#endif  // SOFA_DEFAULTTYPE_DATATYPEKIND_H

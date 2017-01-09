@@ -31,6 +31,7 @@
 
 #include <sofa/SofaFramework.h>
 #include <sofa/core/objectmodel/BaseData.h>
+#include <sofa/defaulttype/VirtualTypeInfo.h>
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
 #include <boost/shared_ptr.hpp>

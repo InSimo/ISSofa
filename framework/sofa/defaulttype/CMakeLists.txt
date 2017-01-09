@@ -3,10 +3,12 @@ project(SofaDefaultType)
 
 
 set(SOFADEFAULTTYPE_HEADERS
+	AbstractTypeInfo.h
 	BaseMatrix.h	
 	BaseVector.h	
 	BoundingBox.h	
 	DataTypeInfo.h	
+	DataTypeKind.h	
 	Frame.h	 
 	LaparoscopicRigidTypes.h	
 	MapMapSparseMatrix.h	
@@ -28,10 +30,11 @@ set(SOFADEFAULTTYPE_HEADERS
 	VecTypes.h	
 	MatSym.h	
 	Vec3Types.h
+	VirtualTypeInfo.h
 	)
 
 set(SOFADEFAULTTYPE_SOURCES
-
+	AbstractTypeInfo.cpp
 	BaseMatrix.cpp
 	BoundingBox.cpp
 	Frame.cpp

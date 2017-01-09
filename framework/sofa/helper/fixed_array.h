@@ -219,11 +219,19 @@ public:
     {
         return elems;
     }
+    const_iterator cbegin() const
+    {
+        return elems;
+    }
     iterator end()
     {
         return elems+N;
     }
     const_iterator end() const
+    {
+        return elems+N;
+    }
+    const_iterator cend() const
     {
         return elems+N;
     }

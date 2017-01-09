@@ -1534,7 +1534,7 @@ void MeshMatrixMass<DataTypes, MassType>::addMToMatrix(const core::MechanicalPar
     size_t nbEdges=_topology->getNbEdges();
     size_t v0,v1;
 
-    const int N = defaulttype::DataTypeInfo<Deriv>::size();
+    constexpr int N = defaulttype::DataTypeInfo<Deriv>::FinalSize;
     AddMToMatrixFunctor<Deriv,MassType> calc;
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
     sofa::defaulttype::BaseMatrix* mat = r.matrix;
@@ -1659,7 +1659,7 @@ double MeshMatrixMass<DataTypes, MassType>::getElementMass(unsigned int index) c
 template <class DataTypes, class MassType>
 void MeshMatrixMass<DataTypes, MassType>::getElementMass(unsigned int index, defaulttype::BaseMatrix *m) const
 {
-    static const defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Deriv>::size();
+    constexpr defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Deriv>::FinalSize;
     if (m->rowSize() != dimension || m->colSize() != dimension) m->resize(dimension,dimension);
 
     m->clear();
