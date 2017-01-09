@@ -86,6 +86,8 @@ public:
 
 protected:
     void createInputs(int nb = -1);
+    // storage for help strings
+    helper::vector<std::string*> m_inputsHelp;
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_ENGINE_MATHOP_CPP)

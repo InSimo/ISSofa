@@ -431,8 +431,10 @@ MathOp<VecT>::~MathOp()
     {
         this->delInput(vf_inputs[i]);
         delete vf_inputs[i];
+        delete m_inputsHelp[i];
     }
     vf_inputs.clear();
+    m_inputsHelp.clear();
 }
 
 template <class VecT>
@@ -445,10 +447,11 @@ void MathOp<VecT>::createInputs(int nb)
         oname << "input" << (i+1);
         ohelp << "input values " << (i+1);
         std::string name_i = oname.str();
-        std::string help_i = ohelp.str();
-        Data<VecValue>* d = new Data<VecValue>(help_i.c_str(), true, false);
+        std::string* help_i = new std::string(ohelp.str());
+        Data<VecValue>* d = new Data<VecValue>(help_i->c_str(), true, false);
         d->setName(name_i);
         vf_inputs.push_back(d);
+        m_inputsHelp.push_back(help_i);
         this->addData(d);
         this->addInput(d);
     }
@@ -456,8 +459,10 @@ void MathOp<VecT>::createInputs(int nb)
     {
         this->delInput(vf_inputs[i]);
         delete vf_inputs[i];
+        delete m_inputsHelp[i];
     }
     vf_inputs.resize(n);
+    m_inputsHelp.resize(n);
     if (n != f_nbInputs.getValue())
         f_nbInputs.setValue(n);
 }
