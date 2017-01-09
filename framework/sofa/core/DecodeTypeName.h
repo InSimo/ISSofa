@@ -22,43 +22,45 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/core/objectmodel/BaseClass.h>
+#ifndef SOFA_CORE_HELPER_DECODETYPENAME_H
+#define SOFA_CORE_HELPER_DECODETYPENAME_H
+
+#include <sofa/helper/system/config.h>
+#include <sofa/SofaFramework.h>
+#include <string>
+#include <typeinfo>
 
 namespace sofa
 {
 
-namespace core
+namespace helper
 {
 
-namespace objectmodel
+/**
+ *  \brief Utility methods to demangle and split c++ type identifiers
+ */
+class SOFA_HELPER_API DecodeTypeName
 {
+public:
 
-BaseClass::BaseClass()
-{
-}
+    /// Helper method to decode the type name
+    static std::string decodeFullName(const std::type_info& t);
 
-BaseClass::~BaseClass()
-{
-}
+    /// Helper method to decode the type name to a more readable form if possible
+    static std::string decodeTypeName(const std::type_info& t);
 
-void BaseClass::logNewClass()
-{
-    /*std::cout << "NEW class " << className;
-    if (!templateName.empty()) std::cout << '<' << templateName << '>';
-    if (!namespaceName.empty()) std::cout << " in " << namespaceName;
-    if (!shortName.empty()) std::cout << " short " << shortName;
-    for (std::size_t i = 0; i < parents.size(); ++i)
-    {
-        std::cout << ((i == 0) ? ": " : ", ");
-        std::cout << parents[i]->className;
-        if (!parents[i]->templateName.empty()) std::cout << '<' << parents[i]->templateName << '>';
-    }
-    std::cout << std::endl;*/
-}
+    /// Helper method to extract the class name (removing namespaces and templates)
+    static std::string decodeClassName(const std::type_info& t);
 
-} // namespace objectmodel
+    /// Helper method to extract the namespace (removing class name and templates)
+    static std::string decodeNamespaceName(const std::type_info& t);
 
-} // namespace core
+    /// Helper method to extract the template name (removing namespaces and class name)
+    static std::string decodeTemplateName(const std::type_info& t);
+};
+
+} // namespace helper
 
 } // namespace sofa
 
+#endif

@@ -244,12 +244,6 @@ if(SOFA-MISC_SUPPORT_MOVING_FRAMES)
 	list(APPEND SOFACORE_HEADERS "behavior/InertiaForce.h")
 endif()
 
-if(PS3)
-	list(APPEND SOFACORE_HEADERS "ps3/cxa_demangle.h")
-	list(APPEND SOFACORE_HEADERS "ps3/cxxabi.h")
-	list(APPEND SOFACORE_SOURCES "ps3/cxa_demangle.cpp")
-endif()
-
 include( CMakeDependentOption )
 cmake_dependent_option(UNITY_BUILD_${PROJECT_NAME} "Decides if a the generated project files should build through a unity build instead of a normal build. A unity builds packs all .cpp files into a UnityBuild.cpp file and then only include this in the project. This greatly reduces build times." ON  SOFA_ALLOW_UNITY_BUILDS OFF)
 

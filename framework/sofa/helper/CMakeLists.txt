@@ -219,7 +219,11 @@ if(UNIX)
   list(APPEND SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES dl)
 endif()
 
-
+if(PS3)
+	list(APPEND SOFAHELPER_HEADERS "ps3/cxa_demangle.h")
+	list(APPEND SOFAHELPER_HEADERS "ps3/cxxabi.h")
+	list(APPEND SOFAHELPER_SOURCES_OUTSIDE_UNITY "ps3/cxa_demangle.cpp")
+endif()
 
 
 include( CMakeDependentOption )
