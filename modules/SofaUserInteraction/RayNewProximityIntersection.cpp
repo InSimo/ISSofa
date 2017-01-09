@@ -147,10 +147,10 @@ typedef Mat<3, 3, SReal> Mat33;
 int  RayNewProximityIntersection::computeIntersection(Ray& rRay, OBB& rObb, OutputVector* contacts)
 {
 	//Near intersection: ray to closest plat of slab
-	float fNear = c_fMin;
+    SReal fNear = c_fMin;
 
 	//Far intersection: ray to farthest plane of slab
-	float fFar = c_fMax;
+    SReal fFar = c_fMax;
 
 	//Epsilon: for checks between planes and direction of ray
 	float fEPSILON = 1e-4f;
@@ -177,10 +177,10 @@ int  RayNewProximityIntersection::computeIntersection(Ray& rRay, OBB& rObb, Outp
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		Vector3 v3CurrAxis = m33Orientation.col(i); //TODO: implement the return of a reference instead of a copy of the column
-		float fR = v3CurrAxis*v3RayOriginToBoxCenter;
-		float fBoxMax = v3HalfExtents[i];
-		float fBoxMin = - v3HalfExtents[i];  
-		float fNormal = 1.f;
+		SReal fR = v3CurrAxis*v3RayOriginToBoxCenter;
+		SReal fBoxMax = v3HalfExtents[i];
+		SReal fBoxMin = - v3HalfExtents[i];
+		SReal fNormal = 1.f;
 
 		//Check if planes are parallel
 		if(fabs(v3Direction*v3CurrAxis) < fEPSILON)
@@ -193,15 +193,15 @@ int  RayNewProximityIntersection::computeIntersection(Ray& rRay, OBB& rObb, Outp
 		else
 		{
 			// Ray not parallel to planes, so find intersection parameters
-			float fS = v3Direction*v3CurrAxis; 
-			float fT0 = (fR + fBoxMax)/ fS;
-			float fT1 = (fR + fBoxMin)/ fS;
+			SReal fS = v3Direction*v3CurrAxis;
+			SReal fT0 = (fR + fBoxMax)/ fS;
+			SReal fT1 = (fR + fBoxMin)/ fS;
 
 			// Check ordering
 			if(fT0 > fT1)
 			{
 				//Swap them
-				float fTemp = fT0;
+				SReal fTemp = fT0;
 				fT0 = fT1;
 				fT1 = fTemp;
 				fNormal = -1.f;
@@ -241,7 +241,7 @@ int  RayNewProximityIntersection::computeIntersection(Ray& rRay, OBB& rObb, Outp
 
 	bool bHit = false;
 
-	float fHitFraction = 0;
+	SReal fHitFraction = 0;
 	Vector3 v3Normal;
 	Vector3 v3HitLocation;
 	// If ray starts inside box

@@ -59,7 +59,7 @@ public:
         plane(initData(&plane, std::string("z"),  "plane", "Plane of the grid")),
         size(initData(&size, (float)(10.0),  "size", "Size of the squared grid")),
         nbSubdiv(initData(&nbSubdiv, 16,  "nbSubdiv", "Number of subdivisions")),
-        color(initData(&color, sofa::defaulttype::Vec<4, float>(0.34117647058,0.34117647058,0.34117647058,1.0),  "color", "Color of the lines in the grid")),
+        color(initData(&color, sofa::defaulttype::Vec<4, float>(0.34117647058f,0.34117647058f,0.34117647058f,1.0f),  "color", "Color of the lines in the grid")),
         thickness(initData(&thickness, (float)(1.0),  "thickness", "Thickness of the lines in the grid")),
         draw(initData(&draw, true,  "draw", "Display the grid or not"))
     {}

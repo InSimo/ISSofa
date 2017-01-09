@@ -297,17 +297,17 @@ void MeshSpringForceField<DataTypes>::draw(const core::visual::VisualParams* vpa
             {
                 elongation = std::abs(elongation);
                 B = (range-std::min(elongation - minElongationRange, range))/range;
-                B = (B < 0.) ? 0. : B;
-                R = 1. - B;
+                B = (B < 0.f) ? 0.f : B;
+                R = 1.f - B;
             }
             else
             {
                 B = (range-std::min(elongation - minElongationRange, range))/range;
-                B = (B < 0.) ? 0. : B;
-                G = 1. - B;
+                B = (B < 0.f) ? 0.f : B;
+                G = 1.f - B;
             }
 
-            vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
+            vparams->drawTool()->drawLines(points, (float)drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
         }
         this->springs.endEdit();
     }
