@@ -12,6 +12,7 @@ set(HEADER_FILES
     ConstraintParams.h
     DataEngine.h
     DataTracker.h
+    DecodeTypeName.h
     ExecParams.h
     Mapping.h
     Mapping.inl
@@ -150,6 +151,7 @@ set(SOURCE_FILES
     ConstraintParams.cpp
     DataEngine.cpp
     DataTracker.cpp
+    DecodeTypeName.cpp
     ExecParams.cpp
     Mapping.cpp
     MechanicalParams.cpp
@@ -264,11 +266,7 @@ endif()
 #     list(APPEND HEADER_FILES behavior/InertiaForce.h)
 # endif()
 
-if(PS3)
-    list(APPEND HEADER_FILES ps3/cxa_demangle.h)
-    list(APPEND HEADER_FILES ps3/cxxabi.h)
-    list(APPEND SOURCE_FILES ps3/cxa_demangle.cpp)
-endif()
+
 
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})

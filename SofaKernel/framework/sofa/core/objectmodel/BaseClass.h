@@ -24,7 +24,9 @@
 
 #include <sofa/helper/system/config.h>
 #include <sofa/helper/vector.h>
-#include <sofa/core/core.h>
+//#include <sofa/helper/DecodeTypeName.h>
+#include <sofa/core/DecodeTypeName.h>
+//#include <sofa/SofaFramework.h>
 #include <sofa/core/objectmodel/SPtr.h>
 #include <string>
 #include <map>
@@ -105,19 +107,34 @@ public:
     virtual bool isInstance(Base* obj) const = 0;
 
     /// Helper method to decode the type name
-    static std::string decodeFullName(const std::type_info& t);
+    static std::string decodeFullName(const std::type_info& t)
+    {
+        return sofa::helper::DecodeTypeName::decodeFullName(t);
+    }
 
     /// Helper method to decode the type name to a more readable form if possible
-    static std::string decodeTypeName(const std::type_info& t);
+    static std::string decodeTypeName(const std::type_info& t)
+    {
+        return sofa::helper::DecodeTypeName::decodeTypeName(t);
+    }
 
     /// Helper method to extract the class name (removing namespaces and templates)
-    static std::string decodeClassName(const std::type_info& t);
+    static std::string decodeClassName(const std::type_info& t)
+    {
+        return sofa::helper::DecodeTypeName::decodeClassName(t);
+    }
 
     /// Helper method to extract the namespace (removing class name and templates)
-    static std::string decodeNamespaceName(const std::type_info& t);
+    static std::string decodeNamespaceName(const std::type_info& t)
+    {
+        return sofa::helper::DecodeTypeName::decodeNamespaceName(t);
+    }
 
     /// Helper method to extract the template name (removing namespaces and class name)
-    static std::string decodeTemplateName(const std::type_info& t);
+    static std::string decodeTemplateName(const std::type_info& t)
+    {
+        return sofa::helper::DecodeTypeName::decodeTemplateName(t);
+    }
 
     /// Helper method to get the type name
     template<class T>
