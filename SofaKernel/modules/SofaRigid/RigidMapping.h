@@ -80,11 +80,11 @@ public:
     };
     enum
     {
-        NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::Size
+        NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize
     };
     enum
     {
-        NOut = sofa::defaulttype::DataTypeInfo<Deriv>::Size
+        NOut = sofa::defaulttype::DataTypeInfo<Deriv>::FinalSize
     };
     typedef defaulttype::Mat<N, N, Real> Mat;
     typedef defaulttype::Vec<N, Real> Vector;

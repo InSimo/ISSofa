@@ -230,34 +230,38 @@ namespace defaulttype
 {
 
 template<>
-struct DataTypeInfo< sofa::core::topology::Topology::Edge > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,2> >
-{
-    static std::string name() { return "Edge"; }
-};
+struct DataTypeInfo< sofa::core::topology::Topology::Edge > : public ContainerTypeInfo<sofa::core::topology::Topology::Edge, ContainerKindEnum::Array, 2> {};
+template<>
+struct DataTypeName< sofa::core::topology::Topology::Edge > { static const char* name() { return "Edge"; } };
 
 template<>
-struct DataTypeInfo< sofa::core::topology::Topology::Triangle > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,3> >
-{
-    static std::string name() { return "Triangle"; }
-};
+struct DataTypeInfo< sofa::core::topology::Topology::Triangle > : public ContainerTypeInfo<sofa::core::topology::Topology::Triangle, ContainerKindEnum::Array, 3> {};
+template<>
+struct DataTypeName< sofa::core::topology::Topology::Triangle > { static const char* name() { return "Triangle"; } };
 
 template<>
-struct DataTypeInfo< sofa::core::topology::Topology::Quad > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,4> >
-{
-    static std::string name() { return "Quad"; }
-};
+struct DataTypeInfo< sofa::core::topology::Topology::Quad > : public ContainerTypeInfo<sofa::core::topology::Topology::Quad, ContainerKindEnum::Array, 4> {};
+template<>
+struct DataTypeName< sofa::core::topology::Topology::Quad > { static const char* name() { return "Quad"; } };
 
 template<>
-struct DataTypeInfo< sofa::core::topology::Topology::Tetrahedron > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,4> >
-{
-    static std::string name() { return "Tetrahedron"; }
-};
+struct DataTypeInfo< sofa::core::topology::Topology::Tetrahedron > : public ContainerTypeInfo<sofa::core::topology::Topology::Tetrahedron, ContainerKindEnum::Array, 4> {};
+template<>
+struct DataTypeName< sofa::core::topology::Topology::Tetrahedron > { static const char* name() { return "Tetrahedron"; } };
 
 template<>
 struct DataTypeInfo< sofa::core::topology::Topology::Pyramid > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,5> >
 {
     static std::string name() { return "Pyramid"; }
 };
+
+struct DataTypeInfo< sofa::core::topology::Topology::Pyramid > : public ContainerTypeInfo<sofa::core::topology::Topology::Pyramid, ContainerKindEnum::Array, 5> {};
+template<>
+struct DataTypeName< sofa::core::topology::Topology::Pyramid > { static const char* name() { return "Pyramid"; } };
+
+struct DataTypeInfo< sofa::core::topology::Topology::Hexahedron > : public ContainerTypeInfo<sofa::core::topology::Topology::Hexahedron, ContainerKindEnum::Array, 8> {};
+template<>
+struct DataTypeName< sofa::core::topology::Topology::Hexahedron > { static const char* name() { return "Hexahedron"; } };
 
 template<>
 struct DataTypeInfo< sofa::core::topology::Topology::Pentahedron > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,6> >
@@ -266,10 +270,6 @@ struct DataTypeInfo< sofa::core::topology::Topology::Pentahedron > : public Fixe
 };
 
 template<>
-struct DataTypeInfo< sofa::core::topology::Topology::Hexahedron > : public FixedArrayTypeInfo<sofa::helper::fixed_array<unsigned int,8> >
-{
-    static std::string name() { return "Hexahedron"; }
-};
 
 
 

@@ -33,7 +33,7 @@
 #include <sofa/core/ExecParams.h>
 #include <sofa/core/objectmodel/DDGNode.h>
 #include <sofa/core/objectmodel/BaseLink.h>
-#include <sofa/defaulttype/DataTypeInfo.h>
+#include <sofa/defaulttype/AbstractTypeInfo.h>
 
 namespace sofa
 {
@@ -367,19 +367,13 @@ protected:
     /// Parent Data
     SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentBaseData;
 
-    /// Helper method to decode the type name to a more readable form if possible
-    static std::string decodeTypeName(const std::type_info& t);
 
 public:
-
     /// Helper method to get the type name of type T
     template<class T>
     static std::string typeName(const T* = NULL)
     {
-        if (defaulttype::DataTypeInfo<T>::ValidInfo)
-            return defaulttype::DataTypeName<T>::name();
-        else
-            return decodeTypeName(typeid(T));
+        return defaulttype::DataTypeName<T>::name();
     }
 };
 

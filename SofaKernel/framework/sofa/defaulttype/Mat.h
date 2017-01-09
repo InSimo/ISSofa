@@ -1107,10 +1107,9 @@ static Mat<L,L,Real> tensorProduct(const Vec<L,Real> a, const Vec<L,Real> b )
 ////////////////////////////////////////////
 
 template<int L, int C, typename real>
-struct DataTypeInfo< sofa::defaulttype::Mat<L,C,real> > : public FixedArrayTypeInfo<sofa::defaulttype::Mat<L,C,real> >
-{
-    static std::string name() { std::ostringstream o; o << "Mat<" << L << "," << C << "," << DataTypeName<real>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::Mat<L,C,real> > : public ContainerTypeInfo<sofa::defaulttype::Mat<L,C,real>, ContainerKindEnum::Array, L> {};
+template<int L, int C, typename real>
+struct DataTypeName< sofa::defaulttype::Mat<L,C,real> > { static std::string name() { std::ostringstream o; o << "Mat<" << L << "," << C << "," << DataTypeName<real>::name() << ">"; return o.str(); } };
 
 // The next line hides all those methods from the doxygen documentation
 /// \cond TEMPLATE_OVERRIDES

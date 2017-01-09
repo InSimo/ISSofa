@@ -262,6 +262,15 @@ public:
 
     /// @}
 
+    typedef real* iterator;
+    typedef const real* const_iterator;
+    iterator begin() { return ptr(); }
+    iterator end() { return ptr()+size(); }
+    const_iterator begin() const { return ptr(); }
+    const_iterator end() const { return ptr()+size(); }
+    const_iterator cbegin() const { return ptr(); }
+    const_iterator cend() const { return ptr()+size(); }
+
 };
 
 template<typename real, typename real2>
@@ -682,6 +691,15 @@ public:
     }
 
     /// @}
+
+    typedef real* iterator;
+    typedef const real* const_iterator;
+    iterator begin() { return ptr(); }
+    iterator end() { return ptr()+size(); }
+    const_iterator begin() const { return ptr(); }
+    const_iterator end() const { return ptr()+size(); }
+    const_iterator cbegin() const { return ptr(); }
+    const_iterator cend() const { return ptr()+size(); }
 
 };
 
@@ -1255,6 +1273,15 @@ public:
     }
 
     /// @}
+
+    typedef real* iterator;
+    typedef const real* const_iterator;
+    iterator begin() { return ptr(); }
+    iterator end() { return ptr()+size(); }
+    const_iterator begin() const { return ptr(); }
+    const_iterator end() const { return ptr()+size(); }
+    const_iterator cbegin() const { return ptr(); }
+    const_iterator cend() const { return ptr()+size(); }
 };
 
 template<typename real, typename real2>
@@ -1608,6 +1635,15 @@ public:
     }
 
     /// @}
+
+    typedef real* iterator;
+    typedef const real* const_iterator;
+    iterator begin() { return ptr(); }
+    iterator end() { return ptr()+size(); }
+    const_iterator begin() const { return ptr(); }
+    const_iterator end() const { return ptr()+size(); }
+    const_iterator cbegin() const { return ptr(); }
+    const_iterator cend() const { return ptr()+size(); }
 };
 
 template<class real>
@@ -1915,16 +1951,14 @@ struct MassAccessor< sofa::defaulttype::RigidMass<N,Real> >
 // Specialization of the defaulttype::DataTypeInfo type traits template
 
 template<int N, typename real>
-struct DataTypeInfo< sofa::defaulttype::RigidDeriv<N,real> > : public FixedArrayTypeInfo< sofa::defaulttype::RigidDeriv<N,real>, sofa::defaulttype::RigidDeriv<N,real>::total_size >
-{
-    static std::string name() { std::ostringstream o; o << "RigidDeriv<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::RigidDeriv<N,real> > : public ContainerTypeInfo<sofa::defaulttype::RigidDeriv<N,real>, ContainerKindEnum::Array, sofa::defaulttype::RigidDeriv<N,real>::total_size> {};
+template<int N, typename real>
+struct DataTypeName< sofa::defaulttype::RigidDeriv<N,real> > { static std::string name() { std::ostringstream o; o << "RigidDeriv<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); } };
 
 template<int N, typename real>
-struct DataTypeInfo< sofa::defaulttype::RigidCoord<N,real> > : public FixedArrayTypeInfo< sofa::defaulttype::RigidCoord<N,real>, sofa::defaulttype::RigidCoord<N,real>::total_size >
-{
-    static std::string name() { std::ostringstream o; o << "RigidCoord<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::RigidCoord<N,real> > : public ContainerTypeInfo<sofa::defaulttype::RigidCoord<N,real>, ContainerKindEnum::Array, sofa::defaulttype::RigidCoord<N,real>::total_size> {};
+template<int N, typename real>
+struct DataTypeName< sofa::defaulttype::RigidCoord<N,real> > { static std::string name() { std::ostringstream o; o << "RigidCoord<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); } };
 
 
 // The next line hides all those methods from the doxygen documentation

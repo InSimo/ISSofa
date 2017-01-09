@@ -82,9 +82,9 @@ protected:
 	  template<class VecDeriv>
 	  struct map_traits {
 		  typedef typename VecDeriv::value_type value_type;
-		  typedef typename defaulttype::DataTypeInfo<value_type>::ValueType real_type;
+		  typedef typename defaulttype::DataTypeInfo<value_type>::FinalValueType real_type;
 		  
-		  static const unsigned size = defaulttype::DataTypeInfo<value_type>::Size;
+		  static constexpr unsigned size = defaulttype::DataTypeInfo<value_type>::FinalSize;
 		  
 		  typedef Eigen::Matrix< real_type, Eigen::Dynamic, 1 > matrix_type;
 

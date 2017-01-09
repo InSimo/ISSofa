@@ -6,6 +6,7 @@ set(HEADER_FILES
     ArgumentParser.h
     BackTrace.h
     cast.h
+    DecodeTypeName.h
     ColorMap.h
     DualQuat.h
     DualQuat.inl
@@ -82,6 +83,7 @@ set(HEADER_FILES
     rmath.h
     set.h
     stable_vector.h
+    SSOBuffer.h
     system/DynamicLibrary.h
     system/FileSystem.h
     system/Locale.h
@@ -130,6 +132,7 @@ set(SOURCE_FILES
     ArgumentParser.cpp
     BackTrace.cpp
     ColorMap.cpp
+    DecodeTypeName.cpp
     DecodeTypeName.cpp
     DualQuat.cpp
     Factory.cpp
@@ -274,6 +277,9 @@ if(NOT SOFA_NO_OPENGL)
         )
     endif()
 
+	list(APPEND SOFACORE_HEADERS "ps3/cxa_demangle.h")
+	list(APPEND SOFACORE_HEADERS "ps3/cxxabi.h")
+	list(APPEND SOFACORE_SOURCES "ps3/cxa_demangle.cpp")
 endif()
 
 

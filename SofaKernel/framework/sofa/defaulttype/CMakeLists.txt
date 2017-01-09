@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.1)
 project(SofaDefaultType)
 
 set(HEADER_FILES
+    AbstractTypeInfo.h
     BaseMatrix.h
     BaseVector.h
     BoundingBox.h
     DataTypeInfo.h
+    DataTypeKind.h
     Frame.h
     LaparoscopicRigidTypes.h
     MapMapSparseMatrix.h
@@ -27,11 +29,13 @@ set(HEADER_FILES
     Vec.h
     Vec3Types.h
     VecTypes.h
+    VirtualTypeInfo.h
     defaulttype.h
     init.h
 )
 
 set(SOURCE_FILES
+    AbstractTypeInfo.cpp
     BaseMatrix.cpp
     BoundingBox.cpp
     Frame.cpp

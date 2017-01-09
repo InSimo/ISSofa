@@ -294,7 +294,7 @@ SReal Mass<DataTypes>::getElementMass(unsigned int ) const
 template <class DataTypes>
 void Mass<DataTypes>::getElementMass(unsigned int , defaulttype::BaseMatrix *m) const
 {
-    static const defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Coord>::size();
+    static constexpr defaulttype::BaseMatrix::Index dimension = (defaulttype::BaseMatrix::Index) defaulttype::DataTypeInfo<Coord>::FinalSize;
     if (m->rowSize() != dimension || m->colSize() != dimension) m->resize(dimension,dimension);
 
     m->clear();

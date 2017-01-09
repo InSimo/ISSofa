@@ -436,231 +436,145 @@ public:
     WriteAccessor(container_type& c) : Inherit(c) {}
 };
 
-template<class TDataType>
-struct IntegerIdTypeInfo
+template<sofa::helper::integer_id_name Name, typename Index, Index DefaultId, class T>
+extern inline void DataTypeInfo_GetValue(const sofa::helper::integer_id<Name, Index, DefaultId>& data, T& value)
 {
-    typedef TDataType DataType;
-    typedef DataType BaseType;
-    typedef typename DataType::index_type  index_type;
-    typedef DataType ValueType;
-    typedef long long ConvType; ///< preferred type for conversions (i.e. long long for integers, double for scalars)
-    typedef IntegerIdTypeInfo<DataType> BaseTypeInfo;
-    typedef IntegerIdTypeInfo<DataType> ValueTypeInfo;
+    value = static_cast<T>(data.getId());
+}
 
-    enum { ValidInfo = 1 }; ///< 1 if this type has valid infos
-    enum { FixedSize = 1 }; ///< 1 if this type has a fixed size
-    enum { ZeroConstructor = 1 }; ///< 1 if the constructor is equivalent to setting memory to 0
-    enum { SimpleCopy = 1 }; ///< 1 if copying the data can be done with a memcpy
-    enum { SimpleLayout = 1 }; ///< 1 if the layout in memory is simply N values of the same base type
-    enum { Integer = 1 }; ///< 1 if this type uses integer values
-    enum { Scalar = 0 }; ///< 1 if this type uses scalar values
-    enum { Text = 0 }; ///< 1 if this type uses text values
-    enum { CopyOnWrite = 0 }; ///< 1 if this type uses copy-on-write
-
-    enum { Size = 1 }; ///< largest known fixed size for this type, as returned by size()
-    static size_t size() { return 1; }
-
-    static size_t size(const DataType& /*data*/) { return 1; }
-
-    static void setSize(DataType& /*data*/, size_t /*size*/) {  }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (index != 0) return;
-        value = T(data.getId());
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value)
-    {
-        if (index != 0) return;
-        data.setId(index_type(value));
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (index != 0) return;
-        std::ostringstream o; o << data; value = o.str();
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value)
-    {
-        if (index != 0) return;
-        std::istringstream i(value); i >> data;
-    }
-};
-
-template<class TDataType>
-struct VectorIdTypeInfo
+template<sofa::helper::integer_id_name Name, typename Index, Index DefaultId>
+extern inline void DataTypeInfo_GetValue(const sofa::helper::integer_id<Name, Index, DefaultId>& data, std::string& value)
 {
-    typedef TDataType DataType;
-    typedef typename DataType::size_type size_type;
-    typedef typename DataType::index_type index_type;
-    typedef typename DataType::value_type BaseType;
-    typedef sofa::defaulttype::DataTypeInfo<BaseType> BaseTypeInfo;
-    typedef typename BaseTypeInfo::ValueType ValueType;
-    typedef sofa::defaulttype::DataTypeInfo<ValueType> ValueTypeInfo;
-
-    enum { ValidInfo       = BaseTypeInfo::ValidInfo       }; ///< 1 if this type has valid infos
-    enum { FixedSize       = 0                             }; ///< 1 if this type has a fixed size
-    enum { ZeroConstructor = 0                             }; ///< 1 if the constructor is equivalent to setting memory to 0
-    enum { SimpleCopy      = 0                             }; ///< 1 if copying the data can be done with a memcpy
-    enum { SimpleLayout    = BaseTypeInfo::SimpleLayout    }; ///< 1 if the layout in memory is simply N values of the same base type
-    enum { Integer         = BaseTypeInfo::Integer         }; ///< 1 if this type uses integer values
-    enum { Scalar          = BaseTypeInfo::Scalar          }; ///< 1 if this type uses scalar values
-    enum { Text            = BaseTypeInfo::Text            }; ///< 1 if this type uses text values
-    enum { CopyOnWrite     = 1                             }; ///< 1 if this type uses copy-on-write
-
-    enum { Size = BaseTypeInfo::Size }; ///< largest known fixed size for this type, as returned by size()
-    static size_t size()
-    {
-        return BaseTypeInfo::size();
-    }
-
-    static size_t size(const DataType& data)
-    {
-        if (BaseTypeInfo::FixedSize)
-            return data.size()*BaseTypeInfo::size();
-        else
-        {
-            size_t n = data.size();
-            size_t s = 0;
-            for (size_t i=0; i<n; ++i)
-                s+= BaseTypeInfo::size(data[index_type(i)]);
-            return s;
-        }
-    }
-
-    static void setSize(DataType& data, size_t size)
-    {
-        if (BaseTypeInfo::FixedSize)
-            data.resize(size/BaseTypeInfo::size());
-    }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::getValue(data[index_type(index)], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::getValue(data[index_type((index/BaseTypeInfo::size()))], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[index_type(i)]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValue(data[index_type(i)], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::setValue(data[index_type(index)], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::setValue(data[index_type((index/BaseTypeInfo::size()))], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[index_type(i)]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::setValue(data[index_type(i)], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::getValueString(data[index_type(index)], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::getValueString(data[index_type((index/BaseTypeInfo::size()))], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[index_type(i)]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValueString(data[index_type(i)], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::setValueString(data[index_type(index)], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::setValueString(data[index_type((index/BaseTypeInfo::size()))], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[index_type(i)]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::setValueString(data[index_type(i)], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-};
+    std::ostringstream o; o << data; value = o.str();
+}
 
 } // namespace helper
 
 namespace defaulttype
 {
 
-template <sofa::helper::integer_id_name Name, typename Index, Index DefaultId>
-struct DataTypeInfo< sofa::helper::integer_id<Name, Index, DefaultId> > : public sofa::helper::IntegerIdTypeInfo<sofa::helper::integer_id<Name, Index, DefaultId> >
+template<class TValue, class TIndex, bool CheckIndices, class MemoryManager, size_t TFixedSize>
+struct DataTypeInfo_ContainerTypes<helper::vector_id<TValue,TIndex,CheckIndices,MemoryManager>, ContainerKindEnum::Array, TFixedSize>
 {
-    static std::string name() { std::ostringstream o; o << "integer_id<" << Name() << "," << DataTypeName<Index>::name() << "," << DefaultId << ">"; return o.str(); }
+    typedef helper::vector_id<TValue,TIndex,CheckIndices,MemoryManager> TDataType;
+    typedef typename TDataType::index_type      KeyType;
+    typedef typename TDataType::value_type     MappedType;
+    typedef typename TDataType::const_iterator const_iterator;
+    typedef typename TDataType::iterator       iterator;
+    static auto value(const TDataType&, const const_iterator& it) -> decltype(*it) { return *it; }
+    static auto value(      TDataType&, const       iterator& it) -> decltype(*it) { return *it; }
+    static KeyType key(const TDataType& data, const const_iterator& it) { return KeyType(it - data.begin()); }
+    static const KeyType& key(const TDataType& data, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
+    {
+        KeyType& key = *keyBuffer.getOrCreate<KeyType>();
+        key = KeyType(it - data.begin());
+        return key;
+    }
+    static auto valueAtIndex(const TDataType& data, size_t index) -> decltype(data[KeyType(index)]) { return data[KeyType(index)]; }
+    static auto valueAtIndex(      TDataType& data, size_t index) -> decltype(data[KeyType(index)]) { return data[KeyType(index)]; }
+    static KeyType keyAtIndex(const TDataType& data, size_t index) { return KeyType(index); }
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    {
+        KeyType& key = *keyBuffer.getOrCreate<KeyType>();
+        key = KeyType(index);
+        return key;
+    }
+    static const MappedType* find(const TDataType& data, const KeyType& k)
+    {
+        if (k < data.size())
+        {
+            return &(data[k]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    static MappedType* findEdit(TDataType& data, const KeyType& k)
+    {
+        if (k < data.size())
+        {
+            return &(data[k]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    static bool erase(TDataType& data, KeyType k)
+    {
+        return false;
+    }
+    static MappedType* insert(TDataType& data, const KeyType& k)
+    {
+        if (k >= data.size())
+        {
+            if (TFixedSize==0)
+            {
+                resizeIfNotFixed(data, k.getId()+1, std::integral_constant<bool, TFixedSize!=0>());
+            }
+            else
+            {
+                return NULL; // fixed size, resize is not available
+            }
+        }
+        return &(data[k]);
+    }
+    static void clear(TDataType& data)
+    {
+        clearBasedOnFixed(data, std::integral_constant<bool, TFixedSize!=0>());
+    }
+    static void reserve(TDataType& data, size_t reserve)
+    {
+        reserveIfNotFixed(data, reserve, std::integral_constant<bool, TFixedSize!=0>());
+    }
+    static void resize(TDataType& data, size_t size)
+    {
+        resizeIfNotFixed(data, size, std::integral_constant<bool, TFixedSize!=0>());
+    }
+
+protected:
+    template<class T>
+    static void clearBasedOnFixed(T& data, std::false_type)
+    {
+        DataTypeInfo_ContainerClear(data);
+    }
+    template<class T>
+    static void reserveIfNotFixed(T& data, size_t reserve, std::false_type)
+    {
+        DataTypeInfo_ContainerReserve(data, reserve);
+    }
+    template<class T>
+    static void resizeIfNotFixed(T& data, size_t size, std::false_type)
+    {
+        DataTypeInfo_ContainerResize(data, size);
+    }
+    template<class T>
+    static void clearBasedOnFixed(T& data, std::true_type)
+    {
+        DataTypeInfo_Clear(data);
+    }
+    template<class T>
+    static void reserveIfNotFixed(T& /*data*/, size_t /*reserve*/, std::true_type)
+    {
+    }
+    template<class T>
+    static void resizeIfNotFixed(T& /*data*/, size_t /*size*/, std::true_type)
+    {
+    }
 };
 
+template <sofa::helper::integer_id_name Name, typename Index, Index DefaultId>
+struct DataTypeInfo< sofa::helper::integer_id<Name, Index, DefaultId> > : public SingleValueTypeInfo<sofa::helper::integer_id<Name, Index, DefaultId>, ValueKindEnum::Integer > {};
+template <sofa::helper::integer_id_name Name, typename Index, Index DefaultId>
+struct DataTypeName< sofa::helper::integer_id<Name, Index, DefaultId> >
+{ static std::string name() { std::ostringstream o; o << "integer_id<" << Name() << "," << DataTypeName<Index>::name() << "," << DefaultId << ">"; return o.str(); } };
+
 template <class T, class TIndex, bool CheckIndices, class MemoryManager>
-struct DataTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> > : public sofa::helper::VectorIdTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> >
-{
-    static std::string name() { std::ostringstream o; o << "vector_id<" << DataTypeName<T>::name() << "," << DataTypeName<TIndex>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> > : public ContainerTypeInfo< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager>, ContainerKindEnum::Array, 0 > {};
+template <class T, class TIndex, bool CheckIndices, class MemoryManager>
+struct DataTypeName< sofa::helper::vector_id<T, TIndex, CheckIndices, MemoryManager> >
+{ static std::string name() { std::ostringstream o; o << "vector_id<" << DataTypeName<T>::name() << "," << DataTypeName<TIndex>::name() << ">"; return o.str(); } };
 
 } // namespace defaulttype
 

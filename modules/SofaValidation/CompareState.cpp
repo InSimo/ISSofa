@@ -221,16 +221,16 @@ void CompareState::draw(const core::visual::VisualParams* vparams)
         const core::objectmodel::BaseData* dataRefX = mmodel->baseRead(refX);
         if (dataX && dataRefX)
         {
-            const sofa::defaulttype::AbstractTypeInfo* infoX = dataX->getValueTypeInfo();
-            const sofa::defaulttype::AbstractTypeInfo* infoRefX = dataRefX->getValueTypeInfo();
+            const sofa::defaulttype::AbstractMultiValueTypeInfo* infoX = dataX->getValueTypeInfo()->MultiValueType();
+            const sofa::defaulttype::AbstractMultiValueTypeInfo* infoRefX = dataRefX->getValueTypeInfo()->MultiValueType();
             const void* valueX = dataX->getValueVoidPtr();
             const void* valueRefX = dataRefX->getValueVoidPtr();
             if (valueX && infoX && infoX->ValidInfo() && valueRefX && infoRefX && infoRefX->ValidInfo())
             {
-                int ncX = infoX->size();
-                int ncRefX = infoRefX->size();
-                int sizeX = infoX->size(valueX);
-                int sizeRefX = infoRefX->size(valueRefX);
+                int ncX = infoX->FinalSize();
+                int ncRefX = infoRefX->FinalSize();
+                int sizeX = infoX->finalSize(valueX);
+                int sizeRefX = infoRefX->finalSize(valueRefX);
                 if (ncX > 1 && ncRefX > 1)
                 {
                     int nc = std::min(3,std::min(ncX,ncRefX));
@@ -243,9 +243,9 @@ void CompareState::draw(const core::visual::VisualParams* vparams)
                         Vector3& pX = points[2*p+0];
                         Vector3& pRefX = points[2*p+1];
                         for (int c=0; c<nc; ++c)
-                            pX[c] = infoX->getScalarValue(valueX, p*ncX+c);
+                            pX[c] = infoX->getFinalValueScalar(valueX, p*ncX+c);
                         for (int c=0; c<nc; ++c)
-                            pRefX[c] = infoRefX->getScalarValue(valueRefX, p*ncRefX+c);
+                            pRefX[c] = infoRefX->getFinalValueScalar(valueRefX, p*ncRefX+c);
                     }
                     vparams->drawTool()->drawLines(points, 1, Vec<4,float>(1.0f,0.0f,0.5f,1.0f));
                 }

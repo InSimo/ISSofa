@@ -109,17 +109,12 @@ public:
 namespace defaulttype
 {
 
-template<>
-struct DataTypeInfo< sofa::core::objectmodel::Tag > : public TextTypeInfo<sofa::core::objectmodel::Tag >
-{
-    static const char* name() { return "Tag"; }
-};
+template<> struct DataTypeInfo<sofa::core::objectmodel::Tag> : public SingleValueTypeInfo<sofa::core::objectmodel::Tag, ValueKindEnum::String> {};
+template<> struct DataTypeName<sofa::core::objectmodel::Tag> { static const char* name() { return "Tag"; } };
 
 template<>
-struct DataTypeInfo< sofa::core::objectmodel::TagSet > : public SetTypeInfo<sofa::core::objectmodel::TagSet >
-{
-    static const char* name() { return "TagSet"; }
-};
+struct DataTypeInfo< sofa::core::objectmodel::TagSet > : public ContainerTypeInfo<sofa::core::objectmodel::TagSet, ContainerKindEnum::Set, 0> {};
+template<> struct DataTypeName<sofa::core::objectmodel::TagSet> { static const char* name() { return "TagSet"; } };
 
 } // namespace defaulttype
 

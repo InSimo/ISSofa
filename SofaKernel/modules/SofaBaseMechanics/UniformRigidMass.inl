@@ -117,7 +117,7 @@ void UniformRigidMass<RigidDataTypes>::addMToMatrix(const core::MechanicalParams
     //writer.addMToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix( this->getMState() );
-    const unsigned size = sofa::defaulttype::DataTypeInfo<typename RigidDataTypes::Deriv>::size();
+    constexpr unsigned size = sofa::defaulttype::DataTypeInfo<typename RigidDataTypes::Deriv>::FinalSize;
 
     sofa::helper::ReadAccessor< DataVecCoord > x( mparams, mparams->readX( this->getMState()  ) );
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector< RigidMass > > > rigidMass(mparams,d_mass);

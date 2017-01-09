@@ -23,12 +23,16 @@
 #define SOFA_DEFAULTTYPE_DATATYPEINFO_H
 
 #include <vector>
+#include <type_traits>
 #include <sofa/helper/fixed_array.h>
-#include <sofa/helper/vector.h>
+#include <sofa/helper/SSOBuffer.h>
+#include <sofa/helper/DecodeTypeName.h>
+//#include <sofa/helper/vector.h>
 #include <sofa/helper/set.h>
+#include <sofa/defaulttype/DataTypeKind.h>
+#include <map>
 #include <sstream>
 #include <typeinfo>
-#include <sofa/helper/logging/Messaging.h>
 
 namespace sofa
 {
@@ -42,1248 +46,1229 @@ class vector;
 namespace defaulttype
 {
 
-/** Type traits class for objects stored in Data.
+#define DEFAULT_DataTypeInfo
+#define DEFAULT_DataTypeName
 
-    %DataTypeInfo is part of the introspection/reflection capabilities of the
-    Sofa scene graph API; it is used to manipulate Data values generically in \a
-    template code, working transparently with different types of containers
-    (vector, fixed_array, etc), and different types of values (integers, scalars
-    (float, double), strings, etc). For example, it can be used to work with
-    arrays without having to handle all the possible array classes used in Sofa:
-    fixed or dynamic size, CPU or GPU, etc.
+template<class TDataType>
+struct DataTypeName
+#ifdef DEFAULT_DataTypeName
+{
+    static std::string name()
+    {
+        return sofa::helper::DecodeTypeName::decodeTypeName(typeid(TDataType));
+    }
+}
+#endif
+;
 
-    <h4>Small example</h4>
+template<class TDataType>
+extern inline void DataTypeInfo_ContainerClear(TDataType& array)
+{
+    array.clear();
+}
 
-    Iterate over the values of a DataType in templated code:
+template<class TDataType>
+extern inline void DataTypeInfo_ContainerReserve(TDataType& array, size_t reserve)
+{
+    array.reserve(reserve);
+}
 
-    \code{.cpp}
-    template<DataType>
-    MyComponent::someMethod(DataType& data) {
-        const size_t dim = defaulttype::DataTypeInfo<Coord>::size();
-        for(size_t i = 0; i < dim; ++i) {
-            DataTypeInfo<DataType>::ValueType value;
-            DataTypeInfo<Coord>::getValue(data, i, value);
-            // [...] Do something with 'value'
+template <class TDataType>
+extern inline void DataTypeInfo_ContainerResize(TDataType& array, size_t size)
+{
+    array.resize(size);
+}
+
+
+template<class TDataType>
+extern inline void DataTypeInfo_Clear(TDataType& data)
+{
+    data = TDataType();
+}
+
+#if defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable:4244) // possible loss of data warnings, unavoidable here without overloading all combinations of basic types...
+#endif
+
+template<class TDataType, class T>
+extern inline void DataTypeInfo_GetValue(const TDataType& data, T& value)
+{
+    value = static_cast<T>(data);
+}
+
+template<class TDataType, class T>
+extern inline void DataTypeInfo_SetValue(TDataType& data, const T& value)
+{
+    data = static_cast<TDataType>(value);
+}
+
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
+
+template<class TDataType>
+extern inline void DataTypeInfo_GetValue(const TDataType& data, TDataType& value)
+{
+    value = data;
+}
+
+template<class TDataType>
+extern inline void DataTypeInfo_SetValue(TDataType& data, const TDataType& value)
+{
+    data = value;
+}
+
+template<class TDataType>
+extern inline void DataTypeInfo_GetValue(const TDataType& data, std::string& value)
+{
+    std::ostringstream o; o << data; value = o.str();
+}
+
+template<class TDataType>
+extern inline void DataTypeInfo_SetValue(TDataType& data, const std::string& value)
+{
+    std::istringstream i(value); i >> data;
+}
+
+// string overloads
+
+template<class T>
+extern inline void DataTypeInfo_GetValue(const std::string& data, T& value)
+{
+    DataTypeInfo_SetValue(value, data);
+}
+
+template<class T>
+extern inline void DataTypeInfo_SetValue(std::string& data, const T& value)
+{
+    DataTypeInfo_GetValue(value, data);
+}
+
+extern inline void DataTypeInfo_GetValue(const std::string& data, std::string& value)
+{
+    value = data;
+}
+
+extern inline void DataTypeInfo_SetValue(std::string& data, const std::string& value)
+{
+    data = value;
+}
+
+// bool overloads
+
+extern inline void DataTypeInfo_GetValue(const bool& data, std::string& value)
+{
+    std::ostringstream o; o << data; value = o.str();
+}
+
+template<class T>
+extern inline void DataTypeInfo_SetValue(bool& data, const T& value)
+{
+    data = (value != 0);
+}
+
+extern inline void DataTypeInfo_SetValue(bool& data, const std::string& value)
+{
+    std::istringstream i(value); i >> data;
+}
+
+template<class T>
+extern inline void DataTypeInfo_SetValue(std::vector<bool>::reference& data, const T& value)
+{
+    data = (value != 0);
+}
+
+extern inline void DataTypeInfo_SetValue(std::vector<bool>::reference& data, const std::string& value)
+{
+    bool val = false;
+    std::istringstream i(value); i >> val;
+    data = val;
+}
+
+// to / from string
+
+template<class TDataType>
+extern inline void DataTypeInfo_ToString(const TDataType& data, std::string& value)
+{
+    DataTypeInfo_GetValue(data, value);
+}
+
+template<class TDataType>
+extern inline void DataTypeInfo_FromString(TDataType& data, const std::string& value)
+{
+    DataTypeInfo_SetValue(data, value);
+}
+
+
+/** Type traits class for objects stored in Data
+
+    DataTypeInfo is part of the introspection/reflection capabilities of the
+    Sofa scene graph API; it is used to manipulate Data values generically
+    in template code, and work with different types of containers, integers,
+    scalars (float, double...), strings, etc
+
+    For example, it can be used to work with arrays without having to handle all
+    the possible array classes used in Sofa: fixed or dynamic size, CPU or GPU,
+    etc.
+*/
+
+template<class TDataType>
+struct DataTypeInfo;
+
+template<class TDataType>
+struct InvalidDataTypeInfo
+{
+    typedef TDataType DataType;
+    typedef void      KeyType;         ///< type uniquely identifying items (or void if not applicable)
+    typedef void      MappedType;      ///< type contained in DataType
+    typedef void      FinalValueType;  ///< type of the final atomic values (or void if not applicable)
+
+    static constexpr ContainerKindEnum ContainerKind  = ContainerKindEnum::Single;
+    static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Void;
+
+    static constexpr bool IsContainer        = false; ///< true if this type is a container
+    static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+    static constexpr bool IsMultiValue       = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+
+    static constexpr bool ValidInfo          = false;  ///< true if this type has valid infos
+    static constexpr bool Integer            = false;  ///< true if this type uses integer values
+    static constexpr bool Scalar             = false;  ///< true if this type uses scalar values
+    static constexpr bool String             = false;  ///< true if this type uses text values
+    static constexpr bool Unsigned           = false;  ///< true if this type is unsigned
+    //static constexpr bool FixedContainerSize = true; ///< true if this type has a fixed size for this container level
+    static constexpr bool FixedFinalSize     = false;  ///< true if this type has a fixed size for all level until the final values
+    
+    static constexpr bool ZeroConstructor    = false;  ///< true if the constructor is equivalent to setting memory to 0
+    static constexpr bool SimpleCopy         = false;  ///< true if copying the data can be done with a memcpy
+    static constexpr bool SimpleLayout       = false;  ///< true if the layout in memory is simply N values of the same base type
+    static constexpr bool CopyOnWrite        = false; ///< true if this type uses copy-on-write
+    static constexpr bool StoreKeys          = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool StoreValues        = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
+    static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
+
+    static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+
+    static void resetValue(DataType& data, size_t /*reserve*/)
+    {
+        DataTypeInfo_Clear(data);
+    }
+
+    // Single Value API
+
+    template <class DataTypeRef, typename T>
+    static void getDataValue(const DataTypeRef& data, T& value)
+    {
+        DataTypeInfo_GetValue(data, value);
+    }
+
+    template<class DataTypeRef, typename T>
+    static void setDataValue(DataTypeRef& data, const T& value)
+    {
+        DataTypeInfo_SetValue(data, value);
+    }
+
+    template<class DataTypeRef>
+    static void getDataValueString(const DataTypeRef& data, std::string& value)
+    {
+        DataTypeInfo_ToString(data, value);
+    }
+
+    template<class DataTypeRef>
+    static void setDataValueString(DataTypeRef& data, const std::string& value)
+    {
+        DataTypeInfo_FromString(data, value);
+    }
+};
+
+#ifdef DEFAULT_DataTypeInfo
+template<class TDataType>
+struct DataTypeInfo : public InvalidDataTypeInfo<TDataType>
+{
+};
+#endif
+
+typedef sofa::helper::SSOBuffer<> TypeInfoKeyBuffer;
+
+template<class TDataType, ValueKindEnum TValueKind, bool TUnsigned = false>
+struct SingleValueTypeInfo
+{
+    typedef TDataType DataType;
+    typedef void      KeyType;         ///< type uniquely identifying items (or void if not applicable)
+    typedef DataType  MappedType;      ///< type contained in DataType
+    typedef DataType  FinalValueType;  ///< type of the final atomic values (or void if not applicable)
+
+    static constexpr ContainerKindEnum ContainerKind  = ContainerKindEnum::Single;
+    static constexpr ValueKindEnum     FinalValueKind = TValueKind;
+
+    static constexpr bool IsContainer        = false; ///< true if this type is a container
+    static constexpr bool IsSingleValue      = true;  ///< true if this type is a single value
+    static constexpr bool IsMultiValue       = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+
+    static constexpr bool ValidInfo          = true;  ///< true if this type has valid infos
+    /// true if this type uses integer values
+    static constexpr bool Integer            = (TValueKind == ValueKindEnum::Integer ||
+                                                TValueKind == ValueKindEnum::Enum  ||
+                                                TValueKind == ValueKindEnum::Bool  );
+    /// true if this type uses scalar values
+    static constexpr bool Scalar             = (TValueKind == ValueKindEnum::Scalar);
+    /// true if this type uses text values
+    static constexpr bool String             = (TValueKind == ValueKindEnum::String);
+    /// true if this type is unsigned
+    static constexpr bool Unsigned           = TUnsigned;
+    //static constexpr bool FixedContainerSize = true;  ///< true if this type has a fixed size for this container level
+    static constexpr bool FixedFinalSize     = true;  ///< true if this type has a fixed size for all level until the final values
+    
+    static constexpr bool ZeroConstructor    = true;  ///< true if the constructor is equivalent to setting memory to 0
+    static constexpr bool SimpleCopy         = true;  ///< true if copying the data can be done with a memcpy
+    static constexpr bool SimpleLayout       = true;  ///< true if the layout in memory is simply N values of the same base type
+    static constexpr bool CopyOnWrite        = false; ///< true if this type uses copy-on-write
+    static constexpr bool StoreKeys          = true;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool StoreValues        = true;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
+    static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
+
+    //static constexpr size_t containerSize(const DataType& /*data*/) { return ContainerSize; }
+    static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+
+    static void resetValue(DataType& data, size_t /*reserve*/)
+    {
+        DataTypeInfo_Clear(data);
+    }
+
+    // Single Value API
+protected:
+    template <typename DataTypeRef, typename T>
+    static void getDataValueForString(const DataTypeRef& data, T& value, std::false_type)
+    {
+        DataTypeInfo_GetValue(data, value);
+    }
+    template <typename DataTypeRef, typename T>
+    static void getDataValueForString(const DataTypeRef& data, T& value, std::true_type)
+    {
+        std::string s;
+        DataTypeInfo_ToString(data, s);
+        DataTypeInfo_FromString(value, s);
+    }
+
+    template<typename DataTypeRef, typename T>
+    static void setDataValueForString(DataTypeRef& data, const T& value, std::false_type)
+    {
+        DataTypeInfo_SetValue(data, value);
+    }
+    template<typename DataTypeRef, typename T>
+    static void setDataValueForString(DataTypeRef& data, const T& value, std::true_type)
+    {
+        std::string s;
+        DataTypeInfo_ToString(value, s);
+        DataTypeInfo_FromString(data, s);
+    }
+public:
+    template <typename DataTypeRef, typename T>
+    static void getDataValue(const DataTypeRef& data, T& value)
+    {
+        getDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+    }
+
+    template<typename DataTypeRef, typename T>
+    static void setDataValue(DataTypeRef& data, const T& value)
+    {
+        setDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+    }
+
+    template<typename DataTypeRef>
+    static void getDataValueString(const DataTypeRef& data, std::string& value)
+    {
+        DataTypeInfo_ToString(data, value);
+    }
+
+    template<typename DataTypeRef>
+    static void setDataValueString(DataTypeRef& data, const std::string& value)
+    {
+        DataTypeInfo_FromString(data, value);
+    }
+
+    // Multi Value API
+
+    static void setFinalSize(DataType& /*data*/, size_t /*size*/)
+    {
+    }
+    
+    template <typename DataTypeRef, typename T>
+    static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
+    {
+        if (index != 0) return;
+        getDataValue(data, value);
+    }
+
+    template<typename DataTypeRef, typename T>
+    static void setFinalValue(DataTypeRef& data, size_t index, const T& value)
+    {
+        if (index != 0) return;
+        setDataValue(data, value);
+    }
+
+    template<typename DataTypeRef>
+    static void getFinalValueString(const DataTypeRef& data, size_t index, std::string& value)
+    {
+        if (index != 0) return;
+        getDataValueString(data, value);
+    }
+
+    template<typename DataTypeRef>
+    static void setFinalValueString(DataTypeRef& data, size_t index, const std::string& value)
+    {
+        if (index != 0) return;
+        setDataValueString(data, value);
+    }
+
+#if 0
+    // iterators support (trivial here)
+    
+    template<class DataPtr> class single_iterator
+    {
+        DataPtr m_data;
+    public:
+        single_iterator(DataPtr data) : m_data(data) {}
+        void operator++() { m_data = NULL; }
+        void operator++(int) { m_data = NULL; }
+        DataPtr value() const { return m_data; }
+        KeyType key() const { }
+        bool operator==(const single_iterator<DataPtr>& i2) const { return m_data == i2.m_data; }
+        bool operator!=(const single_iterator<DataPtr>& i2) const { return !(*this == i2); }
+    };
+
+    typedef single_iterator<DataType*> iterator;
+    typedef single_iterator<const DataType*> const_iterator;
+    static iterator begin(DataType& data)
+    {
+        return iterator(&data);
+    }
+    static iterator end(DataType& data)
+    {
+        return iterator(NULL);
+    }
+    static const_iterator cbegin(const DataType& data)
+    {
+        return const_iterator(&data);
+    }
+    static const_iterator cend(const DataType& data)
+    {
+        return const_iterator(NULL);
+    }
+#endif
+};
+
+
+template<> struct DataTypeInfo<bool> : public SingleValueTypeInfo<bool, ValueKindEnum::Bool> {};
+template<> struct DataTypeName<bool> { static const char* name() { return "bool"; } };
+
+template<> struct DataTypeInfo<char> : public SingleValueTypeInfo<char, ValueKindEnum::Integer> {};
+template<> struct DataTypeName<char> { static const char* name() { return "char"; } };
+
+template<> struct DataTypeInfo<unsigned char> : public SingleValueTypeInfo<unsigned char, ValueKindEnum::Integer, true> {};
+template<> struct DataTypeName<unsigned char> { static const char* name() { return "unsigned char"; } };
+
+template<> struct DataTypeInfo<short> : public SingleValueTypeInfo<short, ValueKindEnum::Integer> {};
+template<> struct DataTypeName<short> { static const char* name() { return "short"; } };
+
+template<> struct DataTypeInfo<unsigned short> : public SingleValueTypeInfo<unsigned short, ValueKindEnum::Integer, true> {};
+template<> struct DataTypeName<unsigned short> { static const char* name() { return "unsigned short"; } };
+
+template<> struct DataTypeInfo<int> : public SingleValueTypeInfo<int, ValueKindEnum::Integer> {};
+template<> struct DataTypeName<int> { static const char* name() { return "int"; } };
+
+template<> struct DataTypeInfo<unsigned int> : public SingleValueTypeInfo<unsigned int, ValueKindEnum::Integer, true> {};
+template<> struct DataTypeName<unsigned int> { static const char* name() { return "unsigned int"; } };
+
+template<> struct DataTypeInfo<long> : public SingleValueTypeInfo<long, ValueKindEnum::Integer> {};
+template<> struct DataTypeName<long> { static const char* name() { return "long"; } };
+
+template<> struct DataTypeInfo<unsigned long> : public SingleValueTypeInfo<unsigned long, ValueKindEnum::Integer, true> {};
+template<> struct DataTypeName<unsigned long> { static const char* name() { return "unsigned long"; } };
+
+template<> struct DataTypeInfo<long long> : public SingleValueTypeInfo<long long, ValueKindEnum::Integer> {};
+template<> struct DataTypeName<long long> { static const char* name() { return "long long"; } };
+
+template<> struct DataTypeInfo<unsigned long long> : public SingleValueTypeInfo<unsigned long long, ValueKindEnum::Integer, true> {};
+template<> struct DataTypeName<unsigned long long> { static const char* name() { return "unsigned long long"; } };
+
+template<> struct DataTypeInfo<float> : public SingleValueTypeInfo<float, ValueKindEnum::Scalar> {};
+template<> struct DataTypeName<float> { static const char* name() { return "float"; } };
+
+template<> struct DataTypeInfo<double> : public SingleValueTypeInfo<double, ValueKindEnum::Scalar> {};
+template<> struct DataTypeName<double> { static const char* name() { return "double"; } };
+
+template<> struct DataTypeInfo<std::string> : public SingleValueTypeInfo<std::string, ValueKindEnum::String> {};
+template<> struct DataTypeName<std::string> { static const char* name() { return "string"; } };
+
+
+template<class TDataType, class TMappedType, int TFixedSize>
+struct MultiValueTypeInfo
+{
+    typedef TDataType DataType;
+    typedef void      KeyType;         ///< type uniquely identifying items (or void if not applicable)
+    typedef TMappedType MappedType;      ///< type contained in DataType
+    typedef typename DataTypeInfo<MappedType> MappedTypeInfo;
+    typedef typename MappedTypeInfo::FinalValueType  FinalValueType;  ///< type of the final atomic values (or void if not applicable)
+
+    static constexpr ContainerKindEnum ContainerKind = ContainerKindEnum::Single;
+    static constexpr ValueKindEnum     FinalValueKind = MappedTypeInfo::FinalValueKind;
+
+    static constexpr bool IsContainer = false; ///< true if this type is a container
+    static constexpr bool IsSingleValue = false;  ///< true if this type is a single value
+    static constexpr bool IsMultiValue = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+
+    static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
+                                             /// true if this type uses integer values
+    static constexpr bool Integer = MappedTypeInfo::Integer;
+    /// true if this type uses scalar values
+    static constexpr bool Scalar = MappedTypeInfo::Scalar;
+    /// true if this type uses text values
+    static constexpr bool String = MappedTypeInfo::String;
+    /// true if this type is unsigned
+    static constexpr bool Unsigned = MappedTypeInfo::Unsigned;
+
+    static constexpr bool FixedFinalSize = MappedTypeInfo::FixedFinalSize && TFixedSize>0;  ///< true if this type has a fixed size for all level until the final values
+
+    static constexpr bool ZeroConstructor = MappedTypeInfo::ZeroConstructor;  ///< true if the constructor is equivalent to setting memory to 0
+    static constexpr bool SimpleCopy = TFixedSize>0 && MappedTypeInfo::SimpleCopy;  ///< true if copying the data can be done with a memcpy
+    static constexpr bool SimpleLayout = MappedTypeInfo::SimpleLayout;  ///< true if the layout in memory is simply N values of the same base type
+    static constexpr bool CopyOnWrite = TFixedSize == 0; ///< true if this type uses copy-on-write
+    static constexpr bool StoreKeys = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool StoreValues = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    static constexpr size_t FinalSize = (TFixedSize==0?1: TFixedSize)*MappedTypeInfo::FinalSize; ///< 1, or fixed final size if FixedFinalSize is 1
+
+    static size_t finalSize(const DataType& data)
+    {
+        if (FixedFinalSize)
+        {
+            return FinalSize;
         }
-    }
-    \endcode
-
-
-    <h4>Note about size and indices</h4>
-
-    The getValue() and setValue() methods take an index as a parameter, with the
-    following conventions:
-
-    - If a type is not a container, then the index \b must be 0.
-
-    - Multi-dimensional containers are abstracted to a single dimension.  This
-      allows iterating over any container using a single index, at the price of
-      some limitations.
-
-    \see AbstractTypeInfo provides similar mechanisms to manipulate Data objects
-    generically in non-template code.
-*/
-template<class TDataType>
-struct DataTypeInfo
-{
-    /// Template parameter.
-    typedef TDataType DataType;
-    /// If the type is a container, this the type of the values inside this
-    /// container, otherwise this is DataType.
-    typedef DataType BaseType;
-    /// Type of the final atomic values (i.e. the values indexed by getValue()).
-    typedef DataType ValueType;
-    /// TypeInfo for BaseType
-    typedef DataTypeInfo<BaseType> BaseTypeInfo;
-    /// TypeInfo for ValueType
-    typedef DataTypeInfo<ValueType> ValueTypeInfo;
-    /**
-       \{
-     */
-    enum { ValidInfo       = 0 /**< 1 if this type has valid infos*/ };
-    enum { FixedSize       = 0 /**< 1 if this type has a fixed size*/ };
-    enum { ZeroConstructor = 0 /**< 1 if the constructor is equivalent to setting memory to 0*/ };
-    enum { SimpleCopy      = 0 /**< 1 if copying the data can be done with a memcpy*/ };
-    enum { SimpleLayout    = 0 /**< 1 if the layout in memory is simply N values of the same base type*/ };
-    enum { Integer         = 0 /**< 1 if this type uses integer values*/ };
-    enum { Scalar          = 0 /**< 1 if this type uses scalar values*/ };
-    enum { Text            = 0 /**< 1 if this type uses text values*/ };
-    enum { CopyOnWrite     = 0 /**< 1 if this type uses copy-on-write. The memory is shared with its source Data while only the source is changing (and the source modifications are then visible in the current Data). As soon as modifications are applied to the current Data, it will allocate its own value, and no longer shares memory with the source.*/ };
-    enum { Container       = 0 /**< 1 if this type is a container*/ };
-    enum { Size = 1 /**< largest known fixed size for this type, as returned by size() */ };
-
-    // \}
-
-    static size_t size() { return 1; }
-    static size_t byteSize() { return 1; }
-
-    static size_t size(const DataType& /*data*/) { return 1; }
-
-    template <typename T>
-    static void getValue(const DataType& /*data*/, size_t /*index*/, T& /*value*/)
-    {
-    }
-
-    static bool setSize(DataType& /*data*/, size_t /*size*/) { return false; }
-
-    template<typename T>
-    static void setValue(DataType& /*data*/, size_t /*index*/, const T& /*value*/)
-    {
-    }
-
-    static void getValueString(const DataType& /*data*/, size_t /*index*/, std::string& /*value*/)
-    {
-    }
-
-    static void setValueString(DataType& /*data*/, size_t /*index*/, const std::string& /*value*/)
-    {
-    }
-
-    static const void* getValuePtr(const DataType& /*type*/)
-    {
-        return NULL;
-    }
-
-    static void* getValuePtr(DataType& /*type*/)
-    {
-        return NULL;
-    }
-
-    static const char* name() { return "unknown"; }
-
-};
-
-/// Type name template: default to using DataTypeInfo::name(), but can be overriden for types with shorter typedefs
-template<class TDataType>
-struct DataTypeName : public DataTypeInfo<TDataType>
-{
-};
-
-
-/** Information about the type of a value stored in a Data.
-
-    %AbstractTypeInfo is part of the introspection/reflection capabilities of
-    the Sofa scene graph API. It provides information about the type of the
-    content of Data objects (Is it a simple type?  A container? How much memory
-    should be allocated to copy it?), and allows manipulating Data generically,
-    without knowing their exact type.
-
-    This class is primarily used to copy information accross BaseData objects,
-    for example when there exists a link between two instances of BaseData.
-    E.g. this mecanism allows you to copy the content of a Data<vector<int>>
-    into a Data<vector<double>>, because there is an acceptable conversion
-    between integer and double, and because both Data use a resizable container.
-
-    <h4>Using TypeInfo</h4>
-
-    Use BaseData::getValueTypeInfo() to get a pointer to an AbtractTypeInfo, and
-    BaseData::getValueVoidPtr() to get a pointer to the content of a Data. You
-    can then use the methods of AbtractTypeInfo to access the Data generically.
-
-    Very basic example:
-    \code{.cpp}
-    BaseData *data = getADataFromSomewhere();
-    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
-    const void* ptr = data->getValueVoidPtr();
-    for (int i = 0 ; i < typeinfo->size(ptr) ; i++)
-    std::string value = typeinfo->getTextValue(ptr, 0);
-    \endcode
-
-    <h4>Note about size and indices</h4>
-
-    All the getValue() and setValue() methods take an index as a parameter,
-    which means that every type is abstracted to a one-dimensional container.
-    See the detailed description of DataTypeInfo for more explanations.
-
-    \see DataTypeInfo provides similar mechanisms to manipulate Data objects
-    generically in template code.
-*/
-class AbstractTypeInfo
-{
-public:
-    /// If the type is a container, returns the TypeInfo for the type of the
-    /// values inside this container.
-    /// For example, if the type is `fixed_array<fixed_array<int, 2> 3>`, it
-    /// returns the TypeInfo for `fixed_array<int, 2>`.
-    virtual const AbstractTypeInfo* BaseType() const = 0;
-    /// Returns the TypeInfo for the type of the values accessible by the
-    /// get*Value() functions.
-    /// For example, if the type is `fixed_array<fixed_array<int, 2> 3>`, it
-    /// returns the TypeInfo for `int`.
-    virtual const AbstractTypeInfo* ValueType() const = 0;
-
-    /// \brief Returns the name of this type.
-    virtual std::string name() const = 0;
-
-    /// True iff the TypeInfo for this type contains valid information.
-    virtual bool ValidInfo() const = 0;
-    /// True iff this type has a fixed size.
-    virtual bool FixedSize() const = 0;
-    /// True iff the default constructor of this type is equivalent to setting the memory to 0.
-    virtual bool ZeroConstructor() const = 0;
-    /// True iff copying the data can be done with a memcpy().
-    virtual bool SimpleCopy() const = 0;
-    /// True iff the layout in memory is simply N values of the same base type.
-    virtual bool SimpleLayout() const = 0;
-    /// True iff this type uses integer values.
-    virtual bool Integer() const = 0;
-    /// True iff this type uses scalar values.
-    virtual bool Scalar() const = 0;
-    /// True iff this type uses text values.
-    virtual bool Text() const = 0;
-    /// True iff this type uses copy-on-write.
-    virtual bool CopyOnWrite() const = 0;
-    /// True iff this type is a container of some sort.
-    ///
-    /// That is, if it can contain several values. In particular, strings are
-    /// not considered containers.
-    virtual bool Container() const = 0;
-
-    /// The size of this type, in number of elements.
-    /// For example, the size of a `fixed_array<fixed_array<int, 2> 3>` is 6,
-    /// and those six elements are conceptually numbered from 0 to 5.  This is
-    /// relevant only if FixedSize() is true.
-    virtual size_t size() const = 0;
-    /// The size in bytes of the ValueType
-    virtual size_t byteSize() const = 0;
-
-    /// The size of \a data, in number of elements.
-    virtual size_t size(const void* data) const = 0;
-    /// Resize \a data to \a size elements, if relevant.
-
-    /// But resizing is not always relevant, for example:
-    /// - nothing happens if FixedSize() is true;
-    /// - sets can't be resized; they are cleared instead;
-    /// - nothing happens for vectors containing resizable values (i.e. when
-    ///   BaseType()::FixedSize() is false), because of the "single index"
-    ///   abstraction;
-    ///
-    /// Returns true iff the data was resizable
-    virtual bool setSize(void* data, size_t size) const = 0;
-
-    /// Get the value at \a index of \a data as an integer.
-    /// Relevant only if this type can be casted to `long long`.
-    virtual long long   getIntegerValue(const void* data, size_t index) const = 0;
-    /// Get the value at \a index of \a data as a scalar.
-    /// Relevant only if this type can be casted to `double`.
-    virtual double      getScalarValue (const void* data, size_t index) const = 0;
-    /// Get the value at \a index of \a data as a string.
-    virtual std::string getTextValue   (const void* data, size_t index) const = 0;
-
-    /// Set the value at \a index of \a data from an integer value.
-    virtual void setIntegerValue(void* data, size_t index, long long value) const = 0;
-    /// Set the value at \a index of \a data from a scalar value.
-    virtual void setScalarValue (void* data, size_t index, double value) const = 0;
-    /// Set the value at \a index of \a data from a string value.
-    virtual void setTextValue(void* data, size_t index, const std::string& value) const = 0;
-
-    /// Get a read pointer to the underlying memory
-    /// Relevant only if this type is SimpleLayout
-    virtual const void* getValuePtr(const void* type) const = 0;
-
-    /// Get a write pointer to the underlying memory
-    /// Relevant only if this type is SimpleLayout
-    virtual void* getValuePtr(void* type) const = 0;
-
-    /// Get the type_info for this type.
-    virtual const std::type_info* type_info() const = 0;
-
-protected: // only derived types can instantiate this class
-    AbstractTypeInfo() {}
-    virtual ~AbstractTypeInfo() {}
-
-private: // copy constructor or operator forbidden
-    AbstractTypeInfo(const AbstractTypeInfo&) {}
-    void operator=(const AbstractTypeInfo&) {}
-};
-
-/// Abstract type traits class
-template<class TDataType>
-class VirtualTypeInfo : public AbstractTypeInfo
-{
-public:
-    typedef TDataType DataType;
-    typedef DataTypeInfo<DataType> Info;
-
-    static VirtualTypeInfo* get() { static VirtualTypeInfo<DataType> t; return &t; }
-
-    virtual const AbstractTypeInfo* BaseType() const  { return VirtualTypeInfo<typename Info::BaseType>::get(); }
-    virtual const AbstractTypeInfo* ValueType() const { return VirtualTypeInfo<typename Info::ValueType>::get(); }
-
-    virtual std::string name() const { return DataTypeName<DataType>::name(); }
-
-    virtual bool ValidInfo() const       { return Info::ValidInfo; }
-    virtual bool FixedSize() const       { return Info::FixedSize; }
-    virtual bool ZeroConstructor() const { return Info::ZeroConstructor; }
-    virtual bool SimpleCopy() const      { return Info::SimpleCopy; }
-    virtual bool SimpleLayout() const    { return Info::SimpleLayout; }
-    virtual bool Integer() const         { return Info::Integer; }
-    virtual bool Scalar() const          { return Info::Scalar; }
-    virtual bool Text() const            { return Info::Text; }
-    virtual bool CopyOnWrite() const     { return Info::CopyOnWrite; }
-    virtual bool Container() const       { return Info::Container; }
-
-    virtual size_t size() const
-    {
-        return Info::size();
-    }
-    size_t byteSize() const
-    {
-        return Info::byteSize();
-    }
-    virtual size_t size(const void* data) const
-    {
-        return Info::size(*(const DataType*)data);
-    }
-    virtual bool setSize(void* data, size_t size) const
-    {
-        return Info::setSize(*(DataType*)data, size);
-    }
-
-    virtual long long getIntegerValue(const void* data, size_t index) const
-    {
-        long long v = 0;
-        Info::getValue(*(const DataType*)data, index, v);
-        return v;
-    }
-
-    virtual double    getScalarValue (const void* data, size_t index) const
-    {
-        double v = 0;
-        Info::getValue(*(const DataType*)data, index, v);
-        return v;
-    }
-
-    virtual std::string getTextValue   (const void* data, size_t index) const
-    {
-        std::string v;
-        Info::getValueString(*(const DataType*)data, index, v);
-        return v;
-    }
-
-    virtual void setIntegerValue(void* data, size_t index, long long value) const
-    {
-        Info::setValue(*(DataType*)data, index, value);
-    }
-
-    virtual void setScalarValue (void* data, size_t index, double value) const
-    {
-        Info::setValue(*(DataType*)data, index, value);
-    }
-
-    virtual void setTextValue(void* data, size_t index, const std::string& value) const
-    {
-        Info::setValueString(*(DataType*)data, index, value);
-    }
-    virtual const void* getValuePtr(const void* data) const
-    {
-        return Info::getValuePtr(*(const DataType*)data);
-    }
-    virtual void* getValuePtr(void* data) const
-    {
-        return Info::getValuePtr(*(DataType*)data);
-    }
-
-    virtual const std::type_info* type_info() const { return &typeid(DataType); }
-
-
-protected: // only derived types can instantiate this class
-    VirtualTypeInfo() {}
-};
-
-template<class TDataType>
-struct IntegerTypeInfo
-{
-    typedef TDataType DataType;
-    typedef DataType BaseType;
-    typedef DataType ValueType;
-    typedef long long ConvType;
-    typedef IntegerTypeInfo<DataType> BaseTypeInfo;
-    typedef IntegerTypeInfo<DataType> ValueTypeInfo;
-
-    enum { ValidInfo       = 1 };
-    enum { FixedSize       = 1 };
-    enum { ZeroConstructor = 1 };
-    enum { SimpleCopy      = 1 };
-    enum { SimpleLayout    = 1 };
-    enum { Integer         = 1 };
-    enum { Scalar          = 0 };
-    enum { Text            = 0 };
-    enum { CopyOnWrite     = 0 };
-    enum { Container       = 0 };
-
-    enum { Size = 1 };
-    static size_t size() { return 1; }
-    static size_t byteSize() { return sizeof(DataType); }
-
-    static size_t size(const DataType& /*data*/) { return 1; }
-
-    static bool setSize(DataType& /*data*/, size_t /*size*/) { return false; }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (index != 0) return;
-        value = static_cast<T>(data);
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
-    {
-        if (index != 0) return;
-        data = static_cast<DataType>(value);
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (index != 0) return;
-        std::ostringstream o; o << data; value = o.str();
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
-    {
-        if (index != 0) return;
-        std::istringstream i(value); i >> data;
-    }
-
-    static const void* getValuePtr(const DataType& data)
-    {
-        return &data;
-    }
-
-    static void* getValuePtr(DataType& data)
-    {
-        return &data;
-    }
-};
-
-struct BoolTypeInfo
-{
-    typedef bool DataType;
-    typedef DataType BaseType;
-    typedef DataType ValueType;
-    typedef long long ConvType;
-    typedef IntegerTypeInfo<DataType> BaseTypeInfo;
-    typedef IntegerTypeInfo<DataType> ValueTypeInfo;
-
-    enum { ValidInfo       = 1 };
-    enum { FixedSize       = 1 };
-    enum { ZeroConstructor = 1 };
-    enum { SimpleCopy      = 1 };
-    enum { SimpleLayout    = 1 };
-    enum { Integer         = 1 };
-    enum { Scalar          = 0 };
-    enum { Text            = 0 };
-    enum { CopyOnWrite     = 0 };
-    enum { Container       = 0 };
-
-    enum { Size = 1 };
-    static size_t size() { return 1; }
-    static size_t byteSize() { return sizeof(DataType); }
-
-    static size_t size(const DataType& /*data*/) { return 1; }
-
-    static bool setSize(DataType& /*data*/, size_t /*size*/) { return false; }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (index != 0) return;
-        value = static_cast<T>(data);
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
-    {
-        if (index != 0) return;
-        data = (value != 0);
-    }
-
-    template<typename T>
-    static void setValue(std::vector<DataType>::reference data, size_t index, const T& v )
-    {
-        if (index != 0) return;
-        data = (v != 0);
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (index != 0) return;
-        std::ostringstream o; o << data; value = o.str();
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
-    {
-        if (index != 0) return;
-        std::istringstream i(value); i >> data;
-    }
-
-    static void setValueString(std::vector<DataType>::reference data, size_t index, const std::string& value )
-    {
-        if (index != 0) return;
-        bool b = data;
-        std::istringstream i(value); i >> b;
-        data = b;
-    }
-
-    static const void* getValuePtr(const DataType& data)
-    {
-        return &data;
-    }
-
-    static void* getValuePtr(DataType& data)
-    {
-        return &data;
-    }
-};
-
-template<class TDataType>
-struct ScalarTypeInfo
-{
-    typedef TDataType DataType;
-    typedef DataType BaseType;
-    typedef DataType ValueType;
-    typedef long long ConvType;
-    typedef ScalarTypeInfo<TDataType> BaseTypeInfo;
-    typedef ScalarTypeInfo<TDataType> ValueTypeInfo;
-
-    enum { ValidInfo       = 1 };
-    enum { FixedSize       = 1 };
-    enum { ZeroConstructor = 1 };
-    enum { SimpleCopy      = 1 };
-    enum { SimpleLayout    = 1 };
-    enum { Integer         = 0 };
-    enum { Scalar          = 1 };
-    enum { Text            = 0 };
-    enum { CopyOnWrite     = 0 };
-    enum { Container       = 0 };
-
-    enum { Size = 1 };
-    static size_t size() { return 1; }
-    static size_t byteSize() { return sizeof(DataType); }
-
-    static size_t size(const DataType& /*data*/) { return 1; }
-
-    static bool setSize(DataType& /*data*/, size_t /*size*/) { return false; }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (index != 0) return;
-        value = static_cast<T>(data);
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
-    {
-        if (index != 0) return;
-        data = static_cast<DataType>(value);
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (index != 0) return;
-        std::ostringstream o; o << data; value = o.str();
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
-    {
-        if (index != 0) return;
-        std::istringstream i(value); i >> data;
-    }
-
-    static const void* getValuePtr(const DataType& data)
-    {
-        return &data;
-    }
-
-    static void* getValuePtr(DataType& data)
-    {
-        return &data;
-    }
-};
-
-template<class TDataType>
-struct TextTypeInfo
-{
-    typedef TDataType DataType;
-    typedef DataType BaseType;
-    typedef DataType ValueType;
-    typedef long long ConvType;
-    typedef ScalarTypeInfo<TDataType> BaseTypeInfo;
-    typedef ScalarTypeInfo<TDataType> ValueTypeInfo;
-
-    enum { ValidInfo       = 1 };
-    enum { FixedSize       = 0 };
-    enum { ZeroConstructor = 0 };
-    enum { SimpleCopy      = 0 };
-    enum { SimpleLayout    = 0 };
-    enum { Integer         = 0 };
-    enum { Scalar          = 0 };
-    enum { Text            = 1 };
-    enum { CopyOnWrite     = 1 };
-    enum { Container       = 0 };
-
-    enum { Size = 1 };
-    static size_t size() { return 1; }
-    static size_t byteSize() { return 1; }
-
-    static size_t size(const DataType& /*data*/) { return 1; }
-
-    static bool setSize(DataType& /*data*/, size_t /*size*/) { return false; }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (index != 0) return;
-        std::istringstream i(data); i >> value;
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
-    {
-        if (index != 0) return;
-        std::ostringstream o; o << value; data = o.str();
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (index != 0) return;
-        value = data;
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
-    {
-        if (index != 0) return;
-        data = value;
-    }
-
-    static const void* getValuePtr(const DataType& /*data*/)
-    {
-        return NULL;
-    }
-
-    static void* getValuePtr(DataType& /*data*/)
-    {
-        return NULL;
-    }
-};
-
-template<class TDataType, int static_size = TDataType::static_size>
-struct FixedArrayTypeInfo
-{
-    typedef TDataType DataType;
-    typedef typename DataType::size_type size_type;
-    typedef typename DataType::value_type BaseType;
-    typedef DataTypeInfo<BaseType> BaseTypeInfo;
-    typedef typename BaseTypeInfo::ValueType ValueType;
-    typedef DataTypeInfo<ValueType> ValueTypeInfo;
-
-    enum { ValidInfo       = BaseTypeInfo::ValidInfo       };
-    enum { FixedSize       = BaseTypeInfo::FixedSize       };
-    enum { ZeroConstructor = BaseTypeInfo::ZeroConstructor };
-    enum { SimpleCopy      = BaseTypeInfo::SimpleCopy      };
-    enum { SimpleLayout    = BaseTypeInfo::SimpleLayout    };
-    enum { Integer         = BaseTypeInfo::Integer         };
-    enum { Scalar          = BaseTypeInfo::Scalar          };
-    enum { Text            = BaseTypeInfo::Text            };
-    enum { CopyOnWrite     = 1                             };
-    enum { Container       = 1                             };
-
-    enum { Size = static_size * BaseTypeInfo::Size };
-    static size_t size()
-    {
-        return DataType::size() * BaseTypeInfo::size();
-    }
-
-    static size_t byteSize()
-    {
-        return ValueTypeInfo::byteSize();
-    }
-
-    static size_t size(const DataType& data)
-    {
-        if (FixedSize)
-            return size();
         else
         {
-            size_t s = 0;
-            for (size_t i=0; i<DataType::size(); ++i)
-                s+= BaseTypeInfo::size(data[(size_type)i]);
-            return s;
+            return data.size() * FinalSize;
         }
     }
 
-    static bool setSize(DataType& data, size_t size)
+    static void resetValue(DataType& data, size_t /*reserve*/)
     {
-        if (!FixedSize)
+        DataTypeInfo_Clear(data);
+    }
+
+    // Single Value API
+protected:
+    template <typename T>
+    static void getDataValueForString(const DataType& data, T& value, std::false_type)
+    {
+        DataTypeInfo_GetValue(data, value);
+    }
+    template <typename T>
+    static void getDataValueForString(const DataType& data, T& value, std::true_type)
+    {
+        std::string s;
+        DataTypeInfo_ToString(data, s);
+        DataTypeInfo_FromString(value, s);
+    }
+
+    template<typename T>
+    static void setDataValueForString(DataType& data, const T& value, std::false_type)
+    {
+        DataTypeInfo_SetValue(data, value);
+    }
+    template<typename T>
+    static void setDataValueForString(DataType& data, const T& value, std::true_type)
+    {
+        std::string s;
+        DataTypeInfo_ToString(value, s);
+        DataTypeInfo_FromString(data, s);
+    }
+public:
+    template <typename DataTypeRef, typename T>
+    static void getDataValue(const DataTypeRef& data, T& value)
+    {
+        getDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+    }
+
+    template <typename DataTypeRef, typename T>
+    static void setDataValue(DataTypeRef& data, const T& value)
+    {
+        setDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+    }
+
+    template<typename DataTypeRef>
+    static void getDataValueString(const DataTypeRef& data, std::string& value)
+    {
+        DataTypeInfo_ToString(data, value);
+    }
+
+    template<typename DataTypeRef>
+    static void setDataValueString(DataTypeRef& data, const std::string& value)
+    {
+        DataTypeInfo_FromString(data, value);
+    }
+
+    // Multi Value API
+
+    static void setFinalSize(DataType& data, size_t size)
+    {
+        if (!FixedFinalSize)
         {
-            size /= DataType::size();
-            for (size_t i=0; i<DataType::size(); ++i)
-                if( !BaseTypeInfo::setSize(data[(size_type)i], size) ) return false;
-            return true;
+            DataTypeInfo_ContainerResize(data, size / FinalSize);
         }
+    }
+
+    template <typename DataTypeRef, typename T>
+    static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
+    {
+        MappedTypeInfo::getFinalValue(data[index / FinalSize], index % FinalSize, value);
+    }
+
+    template<typename DataTypeRef, typename T>
+    static void setFinalValue(DataTypeRef& data, size_t index, const T& value)
+    {
+        MappedTypeInfo::setFinalValue(data[index / FinalSize], index % FinalSize, value);
+    }
+
+    template<typename DataTypeRef>
+    static void getFinalValueString(const DataTypeRef& data, size_t index, std::string& value)
+    {
+        MappedTypeInfo::getFinalValueString(data[index / FinalSize], index % FinalSize, value);
+    }
+
+    template<typename DataTypeRef>
+    static void setFinalValueString(DataTypeRef& data, size_t index, const std::string& value)
+    {
+        MappedTypeInfo::setFinalValueString(data[index / FinalSize], index % FinalSize, value);
+    }
+};
+
+
+
+
+
+
+template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize> struct DataTypeInfo_ContainerTypes;
+template<class TDataType, size_t TFixedSize> struct DataTypeInfo_ContainerTypes<TDataType, ContainerKindEnum::Array, TFixedSize>
+{
+    typedef typename TDataType::size_type      KeyType;
+    typedef typename TDataType::value_type     MappedType;
+    typedef typename TDataType::const_iterator const_iterator;
+    typedef typename TDataType::iterator       iterator;
+    static auto value(const TDataType&, const const_iterator& it) -> decltype(*it) { return *it; }
+    static auto value(      TDataType&, const       iterator& it) -> decltype(*it) { return *it; }
+    static KeyType key(const TDataType& data, const const_iterator& it) { return (it - data.begin()); }
+    static const KeyType& key(const TDataType& data, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
+    {
+        KeyType& key = *keyBuffer.getOrCreate<KeyType>();
+        key = (it - data.begin());
+        return key;
+    }
+    static auto valueAtIndex(const TDataType& data, size_t index) -> decltype(data[index]) { return data[index]; }
+    static auto valueAtIndex(      TDataType& data, size_t index) -> decltype(data[index]) { return data[index]; }
+    static KeyType keyAtIndex(const TDataType& data, size_t index) { return index; }
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    {
+        KeyType& key = *keyBuffer.getOrCreate<KeyType>();
+        key = index;
+        return key;
+    }
+    static const MappedType* find(const TDataType& data, const KeyType& k)
+    {
+        if (k < static_cast<KeyType>(data.size()))
+        {
+            return &(data[k]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    static MappedType* findEdit(TDataType& data, const KeyType& k)
+    {
+        if (k < static_cast<KeyType>(data.size()))
+        {
+            return &(data[k]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    static bool erase(TDataType& data, KeyType k)
+    {
         return false;
     }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
+    static MappedType* insert(TDataType& data, const KeyType& k)
     {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
+        if (k >= static_cast<KeyType>(data.size()))
         {
-            BaseTypeInfo::getValue(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::getValue(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<DataType::size(); ++i)
+            if (TFixedSize==0)
             {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValue(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
+                resizeIfNotFixed(data, k+1, std::integral_constant<bool, TFixedSize!=0>());
+            }
+            else
+            {
+                return NULL; // fixed size, resize is not available
             }
         }
+        return &(data[k]);
+    }
+    static void clear(TDataType& data)
+    {
+        clearBasedOnFixed(data, std::integral_constant<bool, TFixedSize!=0>());
+    }
+    static void reserve(TDataType& data, size_t reserve)
+    {
+        reserveIfNotFixed(data, reserve, std::integral_constant<bool, TFixedSize!=0>());
+    }
+    static void resize(TDataType& data, size_t size)
+    {
+        resizeIfNotFixed(data, size, std::integral_constant<bool, TFixedSize!=0>());
     }
 
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
+protected:
+    template<class T>
+    static void clearBasedOnFixed(T& data, std::false_type)
     {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::setValue(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::setValue(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<DataType::size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::setValue(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
+        DataTypeInfo_ContainerClear(data);
     }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
+    template<class T>
+    static void reserveIfNotFixed(T& data, size_t reserve, std::false_type)
     {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::getValueString(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::getValueString(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<DataType::size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValueString(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
+        DataTypeInfo_ContainerReserve(data, reserve);
     }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
+    template<class T>
+    static void resizeIfNotFixed(T& data, size_t size, std::false_type)
     {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::setValueString(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::setValueString(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<DataType::size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::setValueString(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
+        DataTypeInfo_ContainerResize(data, size);
     }
-
-    static const void* getValuePtr(const DataType& data)
+    template<class T>
+    static void clearBasedOnFixed(T& data, std::true_type)
     {
-        return &data[0];
+        DataTypeInfo_Clear(data);
     }
-
-    static void* getValuePtr(DataType& data)
+    template<class T>
+    static void reserveIfNotFixed(T& /*data*/, size_t /*reserve*/, std::true_type)
     {
-        return &data[0];
+    }
+    template<class T>
+    static void resizeIfNotFixed(T& /*data*/, size_t /*size*/, std::true_type)
+    {
     }
 };
 
-template<class TDataType>
-struct VectorTypeInfo
+template<class TDataType> struct DataTypeInfo_ContainerTypes<TDataType, ContainerKindEnum::Set, 0>
 {
-    typedef TDataType DataType;
-    typedef typename DataType::size_type size_type;
-    typedef typename DataType::value_type BaseType;
-    typedef DataTypeInfo<BaseType> BaseTypeInfo;
-    typedef typename BaseTypeInfo::ValueType ValueType;
-    typedef DataTypeInfo<ValueType> ValueTypeInfo;
-
-    enum { ValidInfo       = BaseTypeInfo::ValidInfo       };
-    enum { FixedSize       = 0                             };
-    enum { ZeroConstructor = 0                             };
-    enum { SimpleCopy      = 0                             };
-    enum { SimpleLayout    = BaseTypeInfo::SimpleLayout    };
-    enum { Integer         = BaseTypeInfo::Integer         };
-    enum { Scalar          = BaseTypeInfo::Scalar          };
-    enum { Text            = BaseTypeInfo::Text            };
-    enum { CopyOnWrite     = 1                             };
-    enum { Container       = 1                             };
-
-    enum { Size = BaseTypeInfo::Size };
-    static size_t size()
+    typedef typename TDataType::key_type KeyType;
+    typedef typename TDataType::value_type MappedType;
+    typedef typename TDataType::const_iterator const_iterator;
+    typedef typename TDataType::iterator       iterator;
+    typedef const KeyType& KeyTypeReturn;
+    static const MappedType& value(const TDataType&, const const_iterator& it) { return *it; }
+    static const KeyType&    key  (const TDataType&, const const_iterator& it) { return *it; }
+    static const KeyType&    key  (const TDataType&, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer) { return *it; }
+    static const MappedType& valueAtIndex(const TDataType& data, size_t index)
     {
-        return BaseTypeInfo::size();
+        const_iterator it = data.cbegin();
+        std::advance(it, index);
+        return *it;
     }
-
-    static size_t byteSize()
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index)
     {
-        return ValueTypeInfo::byteSize();
+        const_iterator it = data.cbegin();
+        std::advance(it, index);
+        return *it;
     }
-
-    static size_t size(const DataType& data)
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
     {
-        if (BaseTypeInfo::FixedSize)
-            return data.size()*BaseTypeInfo::size();
-        else
-        {
-            size_t n = data.size();
-            size_t s = 0;
-            for (size_t i=0; i<n; ++i)
-                s+= BaseTypeInfo::size(data[(size_type)i]);
-            return s;
-        }
+        return keyAtIndex(data, index);
     }
-
-    static bool setSize(DataType& data, size_t size)
+    static const MappedType* find(const TDataType& data, const KeyType& k)
     {
-        if (BaseTypeInfo::FixedSize)
-        {
-            data.resize(size/BaseTypeInfo::size());
-            return true;
-        }
-        return false;
+        const_iterator it = data.find(k);
+        return (it == data.end()) ? NULL : &(*it);
     }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::getValue(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::getValue(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValue(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t index, const T& value )
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::setValue(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::setValue(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::setValue(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::getValueString(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::getValueString(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValueString(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    static void setValueString(DataType &data, size_t index, const std::string& value )
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseTypeInfo::setValueString(data[(size_type)index], 0, value);
-        }
-        else if (BaseTypeInfo::FixedSize)
-        {
-            BaseTypeInfo::setValueString(data[(size_type)(index/BaseTypeInfo::size())], (size_type)(index%BaseTypeInfo::size()), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (size_t i=0; i<data.size(); ++i)
-            {
-                size_t n = BaseTypeInfo::size(data[(size_type)i]);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::setValueString(data[(size_type)i], index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    static const void* getValuePtr(const DataType& data)
-    {
-        return &data[0];
-    }
-
-    static void* getValuePtr(DataType& data)
-    {
-        return &data[0];
-    }
-};
-
-
-template<class TDataType>
-struct SetTypeInfo
-{
-    typedef TDataType DataType;
-    typedef typename DataType::value_type BaseType;
-    typedef DataTypeInfo<BaseType> BaseTypeInfo;
-    typedef typename BaseTypeInfo::ValueType ValueType;
-    typedef DataTypeInfo<ValueType> ValueTypeInfo;
-
-    enum { ValidInfo       = BaseTypeInfo::ValidInfo       };
-    enum { FixedSize       = 0                             };
-    enum { ZeroConstructor = 0                             };
-    enum { SimpleCopy      = 0                             };
-    enum { SimpleLayout    = 0                             };
-    enum { Integer         = BaseTypeInfo::Integer         };
-    enum { Scalar          = BaseTypeInfo::Scalar          };
-    enum { Text            = BaseTypeInfo::Text            };
-    enum { CopyOnWrite     = 1                             };
-    enum { Container       = 1                             };
-
-    enum { Size = BaseTypeInfo::Size };
-    static size_t size()
-    {
-        return BaseTypeInfo::size();
-    }
-
-    static size_t byteSize()
-    {
-        return ValueTypeInfo::byteSize();
-    }
-
-    static size_t size(const DataType& data)
-    {
-        if (BaseTypeInfo::FixedSize)
-            return data.size()*BaseTypeInfo::size();
-        else
-        {
-            size_t s = 0;
-            for (typename DataType::const_iterator it = data.begin(), end=data.end(); it!=end; ++it)
-                s+= BaseTypeInfo::size(*it);
-            return s;
-        }
-    }
-
-    static bool setSize(DataType& data, size_t /*size*/)
-    {
-        data.clear(); // we can't "resize" a set, so the only meaningfull operation is to clear it, as values will be added dynamically in setValue
-        return true;
-    }
-
-    template <typename T>
-    static void getValue(const DataType &data, size_t index, T& value)
-    {
-        if (BaseTypeInfo::FixedSize)
-        {
-            typename DataType::const_iterator it = data.begin();
-            for (size_t i=0; i<index/BaseTypeInfo::size(); ++i) ++it;
-            BaseTypeInfo::getValue(*it, index%BaseTypeInfo::size(), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (typename DataType::const_iterator it = data.begin(), end=data.end(); it!=end; ++it)
-            {
-                size_t n = BaseTypeInfo::size(*it);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValue(*it, index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    template<typename T>
-    static void setValue(DataType &data, size_t /*index*/, const T& value )
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseType t;
-            BaseTypeInfo::setValue(t, 0, value);
-            data.insert(t);
-        }
-        else
-        {
-            msg_error("SetTypeInfo") << "setValue not implemented for set with composite values.";
-        }
-    }
-
-    static void getValueString(const DataType &data, size_t index, std::string& value)
-    {
-        if (BaseTypeInfo::FixedSize)
-        {
-            typename DataType::const_iterator it = data.begin();
-            for (size_t i=0; i<index/BaseTypeInfo::size(); ++i) ++it;
-            BaseTypeInfo::getValueString(*it, index%BaseTypeInfo::size(), value);
-        }
-        else
-        {
-            size_t s = 0;
-            for (typename DataType::const_iterator it = data.begin(), end=data.end(); it!=end; ++it)
-            {
-                size_t n = BaseTypeInfo::size(*it);
-                if (index < s+n)
-                {
-                    BaseTypeInfo::getValueString(*it, index-s, value);
-                    break;
-                }
-                s += n;
-            }
-        }
-    }
-
-    static void setValueString(DataType &data, size_t /*index*/, const std::string& value )
-    {
-        if (BaseTypeInfo::FixedSize && BaseTypeInfo::size() == 1)
-        {
-            BaseType t;
-            BaseTypeInfo::setValueString(t, 0, value);
-            data.insert(t);
-        }
-        else
-        {
-            msg_error("SetTypeInfo") << "setValueString not implemented for set with composite values.";
-        }
-    }
-
-    static const void* getValuePtr(const DataType& /*data*/)
+    static MappedType* findEdit(TDataType& /*data*/, const KeyType& /*k*/)
     {
         return NULL;
     }
-
-    static void* getValuePtr(DataType& /*data*/)
+    static MappedType* insert(TDataType& data, const KeyType& k)
     {
-    return NULL;
+        data.insert(k);
+        return NULL;
+    }
+    static bool erase(TDataType& data, KeyType k)
+    {
+        return data.erase(k) != 0;
+    }
+    static void clear(TDataType& data)
+    {
+        DataTypeInfo_ContainerClear(data);
+    }
+    static void reserve(TDataType& /*data*/, size_t /*reserve*/)
+    {
+    }
+    static void resize(TDataType& /*data*/, size_t /*size*/)
+    {
     }
 };
 
-template<>
-struct DataTypeInfo<bool> : public BoolTypeInfo
+template<class TDataType> struct DataTypeInfo_ContainerTypes<TDataType, ContainerKindEnum::Map, 0>
 {
-    static const char* name() { return "bool"; }
+    typedef typename TDataType::key_type KeyType;
+    typedef typename TDataType::mapped_type MappedType;
+    typedef typename TDataType::const_iterator const_iterator;
+    typedef typename TDataType::iterator       iterator;
+    static const MappedType& value(const TDataType&, const const_iterator& it) { return it->second; }
+    static       MappedType& value(      TDataType&, const       iterator& it) { return it->second; }
+    static const KeyType& key(const TDataType& data, const const_iterator& it) { return it->first; }
+    static const KeyType& key(const TDataType& data, const const_iterator& it, TypeInfoKeyBuffer&) { return it->first; }
+    static const MappedType& valueAtIndex(const TDataType& data, size_t index)
+    {
+        const_iterator it = data.cbegin();
+        std::advance(it, index);
+        return it->second;
+    }
+    static       MappedType& valueAtIndex(      TDataType& data, size_t index)
+    {
+        iterator it = data.begin();
+        std::advance(it, index);
+        return it->second;
+    }
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index)
+    {
+        const_iterator it = data.cbegin();
+        std::advance(it, index);
+        return it->first;
+    }
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer&)
+    {
+        const_iterator it = data.cbegin();
+        std::advance(it, index);
+        return it->first;
+    }
+    static const MappedType* find(const TDataType& data, const KeyType& k)
+    {
+        const_iterator it = data.find(k);
+        return (it == data.end()) ? NULL : &(it->second);
+    }
+    static MappedType* findEdit(TDataType& data, const KeyType& k)
+    {
+        iterator it = data.find(k);
+        return (it == data.end()) ? NULL : &(it->second);
+    }
+    static MappedType* insert(TDataType& data, const KeyType& k)
+    {
+        return &(data[k]);
+    }
+    static bool erase(TDataType& data, KeyType k)
+    {
+        return data.erase(k)!=0;
+    }
+    static void clear(TDataType& data)
+    {
+        DataTypeInfo_ContainerClear(data);
+    }
+    static void reserve(TDataType& /*data*/, size_t /*reserve*/)
+    {
+    }
+    static void resize(TDataType& /*data*/, size_t /*size*/)
+    {
+    }
 };
 
-template<>
-struct DataTypeInfo<char> : public IntegerTypeInfo<char>
+template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize = 0>
+struct IsContainerMultiValue
 {
-    static const char* name() { return "char"; }
+    typedef DataTypeInfo_ContainerTypes<TDataType, TContainerKind, TFixedSize> ContainerTypes;
+    typedef typename ContainerTypes::MappedType MappedType;      ///< type contained in DataType
+    typedef DataTypeInfo<MappedType> MappedTypeInfo;
+
+    static constexpr bool value =
+        (TContainerKind==ContainerKindEnum::Array ||
+         (TContainerKind==ContainerKindEnum::Set && MappedTypeInfo::FinalSize == 1)) &&
+        MappedTypeInfo::IsMultiValue && MappedTypeInfo::FixedFinalSize;
 };
 
-template<>
-struct DataTypeInfo<unsigned char> : public IntegerTypeInfo<unsigned char>
+template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize, bool TMultiValue>
+struct ContainerMultiValueTypeInfo;
+
+template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize>
+struct ContainerMultiValueTypeInfo<TDataType, TContainerKind, TFixedSize, false>
 {
-    static const char* name() { return "unsigned char"; }
+    typedef TDataType DataType;
+
+    /// true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsMultiValue = false;
+    /// true if this type has a fixed size for all level until the final values
+    static constexpr bool FixedFinalSize = false;
+    typedef void FinalValueType;  ///< type of the final atomic values (or void if not applicable)
+    static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Void;
+    static constexpr size_t FinalSize = 1; ///< 0, or fixed final size if FixedFinalSize is 1
+    static size_t finalSize(const DataType& data)
+    {
+        return 0;
+    }
 };
 
-template<>
-struct DataTypeInfo<short> : public IntegerTypeInfo<short>
+template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize>
+struct ContainerMultiValueTypeInfo<TDataType, TContainerKind, TFixedSize, true>
 {
-    static const char* name() { return "short"; }
+    typedef TDataType DataType;
+    typedef DataTypeInfo_ContainerTypes<TDataType, TContainerKind, TFixedSize> ContainerTypes;
+    typedef typename ContainerTypes::KeyType    KeyType;         ///< type uniquely identifying items (or void if not applicable)
+    typedef typename ContainerTypes::MappedType MappedType;      ///< type contained in DataType
+
+    typedef DataTypeInfo<KeyType> KeyTypeInfo;
+    typedef DataTypeInfo<MappedType> MappedTypeInfo;
+
+    /// true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsMultiValue = true;
+    /// true if this type has a fixed size for all level until the final values
+    static constexpr bool FixedFinalSize     = TFixedSize>0 && KeyTypeInfo::FixedFinalSize && MappedTypeInfo::FixedFinalSize;
+
+    typedef typename MappedTypeInfo::FinalValueType  FinalValueType;  ///< type of the final atomic values (or void if not applicable)
+    static constexpr ValueKindEnum     FinalValueKind = MappedTypeInfo::FinalValueKind;
+
+
+    static constexpr size_t FinalSize = (TFixedSize>0 ? TFixedSize : 1)*MappedTypeInfo::FinalSize; ///< 0, or fixed final size if FixedFinalSize is 1
+    static size_t finalSize(const DataType& data)
+    {
+        if (FixedFinalSize)
+        {
+            return FinalSize;
+        }
+        else
+        {
+            return data.size() * MappedTypeInfo::FinalSize;
+        }
+    }
+
+    static void setFinalSize(DataType& data, size_t size)
+    {
+        if (!TFixedSize && TContainerKind == ContainerKindEnum::Array)
+        {
+            ContainerTypes::resize(data, size / MappedTypeInfo::FinalSize);
+        }
+    }
+
+    template <typename T>
+    static void getFinalValue(const DataType& data, size_t index, T& value)
+    {
+        MappedTypeInfo::getFinalValue(ContainerTypes::valueAtIndex(data, index / MappedTypeInfo::FinalSize),
+                                      index % MappedTypeInfo::FinalSize, value);
+    }
+
+    static void getFinalValueString(const DataType& data, size_t index, std::string& value)
+    {
+        MappedTypeInfo::getFinalValueString(ContainerTypes::valueAtIndex(data, index / MappedTypeInfo::FinalSize),
+                                            index % MappedTypeInfo::FinalSize, value);
+    }
+
+protected:
+
+    template<typename T>
+    static void setFinalValueIfSet(DataType& data, size_t index, const T& value, std::false_type)
+    {
+        MappedTypeInfo::setFinalValue(ContainerTypes::valueAtIndex(data, index / MappedTypeInfo::FinalSize),
+                                      index % MappedTypeInfo::FinalSize, value);
+    }
+
+    template<typename T>
+    static void setFinalValueIfSet(DataType& data, size_t index, const T& value, std::true_type)
+    {
+        KeyType t;
+        KeyTypeInfo::setDataValue(t, value);
+        ContainerTypes::insert(data, t);
+    }
+
+    template<typename T>
+    static void setFinalValueStringIfSet(DataType& data, size_t index, const T& value, std::false_type)
+    {
+        MappedTypeInfo::setFinalValueString(ContainerTypes::valueAtIndex(data, index / MappedTypeInfo::FinalSize),
+                                      index % MappedTypeInfo::FinalSize, value);
+    }
+
+    template<typename T>
+    static void setFinalValueStringIfSet(DataType& data, size_t index, const T& value, std::true_type)
+    {
+        KeyType t;
+        KeyTypeInfo::setDataValueString(t, value);
+        ContainerTypes::insert(data, t);
+    }
+
+public:
+    template<typename T>
+    static void setFinalValue(DataType& data, size_t index, const T& value)
+    {
+        setFinalValueIfSet(data, index, value, std::integral_constant<bool, TContainerKind == ContainerKindEnum::Set>());
+    }
+
+    static void setFinalValueString(DataType& data, size_t index, const std::string& value)
+    {
+        setFinalValueStringIfSet(data, index, value, std::integral_constant<bool, TContainerKind == ContainerKindEnum::Set>());
+    }
 };
 
-template<>
-struct DataTypeInfo<unsigned short> : public IntegerTypeInfo<unsigned short>
+template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize = 0>
+struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContainerKind, TFixedSize,
+    IsContainerMultiValue<TDataType, TContainerKind, TFixedSize>::value>
 {
-    static const char* name() { return "unsigned short"; }
+    typedef TDataType DataType;
+    typedef DataTypeInfo_ContainerTypes<TDataType, TContainerKind, TFixedSize> ContainerTypes;
+    typedef typename ContainerTypes::KeyType    KeyType;         ///< type uniquely identifying items (or void if not applicable)
+    typedef typename ContainerTypes::MappedType MappedType;      ///< type contained in DataType
+
+    typedef DataTypeInfo<KeyType> KeyTypeInfo;
+    typedef DataTypeInfo<MappedType> MappedTypeInfo;
+
+    static constexpr ContainerKindEnum ContainerKind  = TContainerKind;
+
+    static constexpr bool IsContainer        = true; ///< true if this type is a container
+    static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+    //static constexpr bool IsMultiValue       =
+    //    (TContainerKind==ContainerKindEnum::Array ||
+    //     (TContainerKind==ContainerKindEnum::Set && MappedTypeInfo::FinalSize == 1)) &&
+    //    MappedTypeInfo::IsMultiValue && MappedTypeInfo::FixedFinalSize;
+
+    static constexpr bool ValidInfo          = MappedTypeInfo::ValidInfo; ///< true if this type has valid infos
+    static constexpr bool Integer            = MappedTypeInfo::Integer;   ///< true if this type uses integer values
+    static constexpr bool Scalar             = MappedTypeInfo::Scalar;    ///< true if this type uses scalar values
+    static constexpr bool String             = MappedTypeInfo::String;    ///< true if this type uses text values
+    static constexpr bool Unsigned           = MappedTypeInfo::Unsigned;  ///< true if this type is unsigned
+    static constexpr bool FixedContainerSize = TFixedSize>0;  ///< true if this type has a fixed size for this container level
+
+    /// true if the constructor is equivalent to setting memory to 0
+    static constexpr bool ZeroConstructor    = (TContainerKind==ContainerKindEnum::Array && TFixedSize>0 && MappedTypeInfo::ZeroConstructor);
+    /// true if copying the data can be done with a memcpy
+    static constexpr bool SimpleCopy         = (TContainerKind==ContainerKindEnum::Array && MappedTypeInfo::SimpleCopy);
+    /// true if the layout in memory is simply N values of the same base type
+    static constexpr bool SimpleLayout       = (TContainerKind==ContainerKindEnum::Array && MappedTypeInfo::SimpleLayout);
+    /// true if this type uses copy-on-write
+    static constexpr bool CopyOnWrite        = !(TContainerKind==ContainerKindEnum::Array && TFixedSize==0);
+    /// true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool StoreKeys          = (TContainerKind==ContainerKindEnum::Set || TContainerKind==ContainerKindEnum::Map);
+    /// true if the item values are stored within the data structure
+    static constexpr bool StoreValues        = (TContainerKind!=ContainerKindEnum::Set);
+
+    static constexpr size_t ContainerSize = TFixedSize>0 ? TFixedSize : 1; ///< 0, or fixed container size if FixedContainerSize is 1
+
+    static std::string name()
+    {
+        return DataTypeName<TDataType>::name();
+    }
+
+    static size_t containerSize(const DataType& data)
+    {
+        if (FixedContainerSize)
+        {
+            return ContainerSize;
+        }
+        else
+        {
+            return data.size();
+        }
+    }
+
+    static void resetValue(DataType& data, size_t reserve)
+    {
+        ContainerTypes::clear(data);
+        ContainerTypes::reserve(data, reserve);
+    }
+
+    static void getDataValueString(const DataType& data, std::string& value)
+    {
+        DataTypeInfo_ToString(data, value);
+    }
+
+    static void setDataValueString(DataType& data, const std::string& value)
+    {
+        DataTypeInfo_FromString(data, value);
+    }
+
+    static void setContainerSize(DataType& data, size_t size)
+    {
+        ContainerTypes::resize(data, size);
+    }
+
+    static const MappedType& getItemValue(const DataType& data, size_t index)
+    {
+        return ContainerTypes::valueAtIndex(data, index);
+    }
+
+    static auto getItemKey(const DataType& data, size_t index) -> decltype(ContainerTypes::keyAtIndex(data, index))
+    {
+        return ContainerTypes::keyAtIndex(data, index);
+    }
+
+    static const KeyType& getItemKey(const DataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    {
+        return ContainerTypes::keyAtIndex(data, index, keyBuffer);
+    }
+
+    static MappedType* editItemValue(DataType& data, size_t index)
+    {
+        return editItemValueIf(data, index, std::integral_constant<bool, StoreValues>());
+    }
+protected:
+    template<class T>
+    static MappedType* editItemValueIf(T& data, size_t index, std::true_type)
+    {
+        return &ContainerTypes::valueAtIndex(data, index);
+    }
+    template<class T>
+    static MappedType* editItemValueIf(T& data, size_t index, std::false_type)
+    {
+        return NULL;
+    }
+public:
+
+    static void getItemValueString(const DataType& data, size_t index, std::string& value)
+    {
+        MappedTypeInfo::getDataValueString(getItemValue(data, index), value);
+    }
+
+    static void setItemValueString(DataType& data, size_t index, const std::string& value)
+    {
+        if (StoreValues)
+        {
+            MappedTypeInfo::setDataValueString(*editItemValue(data, index), value);
+        }
+        else // std::set can only write keys
+        {
+            KeyType key;
+            KeyTypeInfo::getDataValueString(key, value);
+            insertItem(data, key);
+        }
+    }
+
+    template<typename T>
+    static void insertItemValueString(DataType& data, const KeyType& key, const std::string& value)
+    {
+        MappedType* mappedValue = insertItem(data, key);
+        if (StoreValues)
+        {
+            MappedTypeInfo::setDataValueString(mappedValue, value);
+        }
+    }
+
+    static const MappedType* findItem(const DataType& data, const KeyType& key)
+    {
+        return ContainerTypes::find(data, key);
+    }
+
+    static MappedType* findEditItem(DataType& data, const KeyType& key)
+    {
+        return ContainerTypes::findEdit(data, key);
+    }
+
+    static MappedType* insertItem(DataType& data, const KeyType& key)
+    {
+        return ContainerTypes::insert(data, key);
+    }
+
+    static bool eraseItem(DataType& data, const KeyType& key)
+    {
+        return ContainerTypes::erase(data, key);
+    }
+
+    
+    typedef typename ContainerTypes::iterator iterator;
+    typedef typename ContainerTypes::const_iterator const_iterator;
+    static iterator begin(DataType& data)
+    {
+        return data.begin();
+    }
+    static iterator end(DataType& data)
+    {
+        return data.end();
+    }
+    static const_iterator cbegin(const DataType& data)
+    {
+        return data.cbegin();
+    }
+    static const_iterator cend(const DataType& data)
+    {
+        return data.cend();
+    }
+
+    static auto value(const DataType& data, const const_iterator& it) -> decltype(ContainerTypes::value(data, it))
+    {
+        return ContainerTypes::value(data, it);
+    }
+
+    static auto key(const DataType& data, const const_iterator& it) -> decltype(ContainerTypes::key(data, it))
+    {
+        return ContainerTypes::key(data, it);
+    }
+
+    static const KeyType& key(const DataType& data, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
+    {
+        return ContainerTypes::key(data, it, keyBuffer);
+    }
+
+    static auto value(DataType& data, const iterator& it) -> decltype(ContainerTypes::value(data, it))
+    {
+        return ContainerTypes::value(data, it);
+    }
+
+    static auto key(DataType& data, const iterator& it) -> decltype(ContainerTypes::key(data, it))
+    {
+        return ContainerTypes::key(data, it);
+    }
+
+    static const KeyType& key(DataType& data, const iterator& it, TypeInfoKeyBuffer& keyBuffer)
+    {
+        return ContainerTypes::key(data, it, keyBuffer);
+    }
 };
 
-template<>
-struct DataTypeInfo<int> : public IntegerTypeInfo<int>
-{
-    static const char* name() { return "int"; }
-};
-
-template<>
-struct DataTypeInfo<unsigned int> : public IntegerTypeInfo<unsigned int>
-{
-    static const char* name() { return "unsigned int"; }
-};
-
-template<>
-struct DataTypeInfo<long> : public IntegerTypeInfo<long>
-{
-    static const char* name() { return "long"; }
-};
-
-template<>
-struct DataTypeInfo<unsigned long> : public IntegerTypeInfo<unsigned long>
-{
-    static const char* name() { return "unsigned long"; }
-};
-
-template<>
-struct DataTypeInfo<long long> : public IntegerTypeInfo<long long>
-{
-    static const char* name() { return "long long"; }
-};
-
-template<>
-struct DataTypeInfo<unsigned long long> : public IntegerTypeInfo<unsigned long long>
-{
-    static const char* name() { return "unsigned long long"; }
-};
-
-template<>
-struct DataTypeInfo<float> : public ScalarTypeInfo<float>
-{
-    static const char* name() { return "float"; }
-};
-
-template<>
-struct DataTypeInfo<double> : public ScalarTypeInfo<double>
-{
-    static const char* name() { return "double"; }
-};
-
-template<>
-struct DataTypeInfo<std::string> : public TextTypeInfo<std::string>
-{
-    static const char* name() { return "string"; }
-
-    static const void* getValuePtr(const std::string& data) { return &data[0]; }
-    static void* getValuePtr(std::string& data) { return &data[0]; }
-};
 
 template<class T, std::size_t N>
-struct DataTypeInfo< sofa::helper::fixed_array<T,N> > : public FixedArrayTypeInfo<sofa::helper::fixed_array<T,N> >
-{
-    static std::string name() { std::ostringstream o; o << "fixed_array<" << DataTypeName<T>::name() << "," << N << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::helper::fixed_array<T,N> > : public ContainerTypeInfo<sofa::helper::fixed_array<T,N>, ContainerKindEnum::Array, N> {};
+template<class T, std::size_t N>
+struct DataTypeName< sofa::helper::fixed_array<T,N> > { static std::string name() { std::ostringstream o; o << "fixed_array<" << DataTypeName<T>::name() << "," << N << ">"; return o.str(); } };
 
 template<class T, class Alloc>
-struct DataTypeInfo< std::vector<T,Alloc> > : public VectorTypeInfo<std::vector<T,Alloc> >
-{
-    static std::string name() { std::ostringstream o; o << "std::vector<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< std::vector<T,Alloc> > : public ContainerTypeInfo<std::vector<T,Alloc>, ContainerKindEnum::Array, 0> {};
+template<class T, class Alloc>
+struct DataTypeName< std::vector<T,Alloc> > { static std::string name() { std::ostringstream o; o << "std::vector<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
 template<class T, class Alloc>
-struct DataTypeInfo< sofa::helper::vector<T,Alloc> > : public VectorTypeInfo<sofa::helper::vector<T,Alloc> >
-{
-    static std::string name() { std::ostringstream o; o << "vector<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::helper::vector<T,Alloc> > : public ContainerTypeInfo<sofa::helper::vector<T,Alloc>, ContainerKindEnum::Array, 0> {};
+template<class T, class Alloc>
+struct DataTypeName< sofa::helper::vector<T,Alloc> > { static std::string name() { std::ostringstream o; o << "vector<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
-// vector<bool> is a bitset, cannot get a pointer to the values
+// specialization for vector<bool>, container API not supported due to inability to get pointer to contained values, only multivalue API
+//template<class Alloc>
+//struct DataTypeInfo< std::vector<bool, Alloc> > : public InvalidDataTypeInfo< std::vector<bool, Alloc> > {};
+//template<class Alloc>
+//struct DataTypeInfo< sofa::helper::vector<bool, Alloc> > : public InvalidDataTypeInfo< sofa::helper::vector<bool, Alloc> > {};
 template<class Alloc>
-struct DataTypeInfo< sofa::helper::vector<bool,Alloc> > : public VectorTypeInfo<sofa::helper::vector<bool,Alloc> >
-{
-    enum { SimpleLayout = 0 };
-
-    static std::string name() { std::ostringstream o; o << "vector<bool>"; return o.str(); }
-
-    static const void* getValuePtr(const sofa::helper::vector<bool,Alloc>& /*data*/) { return NULL; }
-    static void* getValuePtr(sofa::helper::vector<bool,Alloc>& /*data*/) { return NULL; }
-};
+struct DataTypeInfo< sofa::helper::vector<bool, Alloc> > : public MultiValueTypeInfo<sofa::helper::vector<bool, Alloc>, bool, 0> {};
+template<class Alloc>
+struct DataTypeInfo< std::vector<bool, Alloc> > : public MultiValueTypeInfo < std::vector<bool, Alloc>, bool, 0 > {};
 
 template<class T, class Compare, class Alloc>
-struct DataTypeInfo< std::set<T,Compare,Alloc> > : public SetTypeInfo<std::set<T,Compare,Alloc> >
-{
-    static std::string name() { std::ostringstream o; o << "std::set<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< std::set<T,Compare,Alloc> > : public ContainerTypeInfo<std::set<T,Compare,Alloc>, ContainerKindEnum::Set, 0> {};
+template<class T, class Compare, class Alloc>
+struct DataTypeName< std::set<T,Compare,Alloc> > { static std::string name() { std::ostringstream o; o << "std::set<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
 template<class T, class Compare, class Alloc>
-struct DataTypeInfo< helper::set<T,Compare,Alloc> > : public SetTypeInfo<helper::set<T,Compare,Alloc> >
-{
-    static std::string name() { std::ostringstream o; o << "set<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::helper::set<T,Compare,Alloc> > : public ContainerTypeInfo<sofa::helper::set<T,Compare,Alloc>, ContainerKindEnum::Set, 0> {};
+template<class T, class Compare, class Alloc>
+struct DataTypeName< sofa::helper::set<T,Compare,Alloc> > { static std::string name() { std::ostringstream o; o << "set<" << DataTypeName<T>::name() << ">"; return o.str(); } };
+
+template<class K, class T, class Compare, class Alloc>
+struct DataTypeInfo< std::map<K,T,Compare,Alloc> > : public ContainerTypeInfo<std::map<K,T,Compare,Alloc>, ContainerKindEnum::Map, 0> {};
+template<class K, class T, class Compare, class Alloc>
+struct DataTypeName< std::map<K,T,Compare,Alloc> > { static std::string name() { std::ostringstream o; o << "std::map<" << DataTypeName<K>::name() << "," << DataTypeName<T>::name() << ">"; return o.str(); } };
+
 
 } // namespace defaulttype
 

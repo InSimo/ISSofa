@@ -140,6 +140,14 @@ public:
             else       return this->vOrientation(i-1);
         }
 
+        typedef Real* iterator;
+        typedef const Real* const_iterator;
+        iterator begin() { return ptr(); }
+        iterator end() { return ptr()+size(); }
+        const_iterator begin() const { return ptr(); }
+        const_iterator end() const { return ptr()+size(); }
+        const_iterator cbegin() const { return ptr(); }
+        const_iterator cend() const { return ptr()+size(); }
         /// @name Comparison operators
         /// @{
 
@@ -290,6 +298,15 @@ public:
             if (i < 1) return this->translation;
             else       return this->orientation[i-1];
         }
+
+        typedef Real* iterator;
+        typedef const Real* const_iterator;
+        iterator begin() { return ptr(); }
+        iterator end() { return ptr()+size(); }
+        const_iterator begin() const { return ptr(); }
+        const_iterator end() const { return ptr()+size(); }
+        const_iterator cbegin() const { return ptr(); }
+        const_iterator cend() const { return ptr()+size(); }
     };
 
     enum { spatial_dimensions = Coord::spatial_dimensions };
@@ -410,16 +427,14 @@ typedef LaparoscopicRigid3Types LaparoscopicRigidTypes; ///< Alias
 // Specialization of the defaulttype::DataTypeInfo type traits template
 
 template<>
-struct DataTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Deriv > : public FixedArrayTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Deriv, sofa::defaulttype::LaparoscopicRigid3Types::Deriv::total_size >
-{
-    static const char* name() { return "LaparoscopicRigid3Types::Deriv"; }
-};
+struct DataTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Deriv > : public ContainerTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Deriv, ContainerKindEnum::Array, sofa::defaulttype::LaparoscopicRigid3Types::Deriv::total_size > {};
+template<>
+struct DataTypeName< sofa::defaulttype::LaparoscopicRigid3Types::Deriv > { static const char* name() { return "LaparoscopicRigid3Types::Deriv"; } };
 
 template<>
-struct DataTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Coord > : public FixedArrayTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Coord, sofa::defaulttype::LaparoscopicRigid3Types::Coord::total_size >
-{
-    static const char* name() { return "LaparoscopicRigid3Types::Coord"; }
-};
+struct DataTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Coord > : public ContainerTypeInfo< sofa::defaulttype::LaparoscopicRigid3Types::Coord, ContainerKindEnum::Array, sofa::defaulttype::LaparoscopicRigid3Types::Coord::total_size > {};
+template<>
+struct DataTypeName< sofa::defaulttype::LaparoscopicRigid3Types::Coord > { static const char* name() { return "LaparoscopicRigid3Types::Coord"; } };
 
 } // namespace defaulttype
 

@@ -441,7 +441,7 @@ public:
     template<class real2>
     Vec<N,real> mulscalar(real2 f) const
     {
-        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::Size==1, "");
+        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
         Vec<N,real> r(NOINIT);
         for (int i=0; i<N; i++)
             r[i] = this->elems[i]*(real)f;
@@ -461,7 +461,7 @@ public:
     template<class real2>
     void eqmulscalar(real2 f)
     {
-        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::Size==1, "");
+        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
         for (int i=0; i<N; i++)
             this->elems[i]*=(real)f;
     }
@@ -479,7 +479,7 @@ public:
     template<class real2>
     Vec<N,real> divscalar(real2 f) const
     {
-        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::Size==1, "");
+        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
         Vec<N,real> r(NOINIT);
         for (int i=0; i<N; i++)
             r[i] = this->elems[i]/(real)f;
@@ -499,7 +499,7 @@ public:
     template<class real2>
     void eqdivscalar(real2 f)
     {
-        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::Size==1, "");
+        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
         for (int i=0; i<N; i++)
             this->elems[i]/=(real)f;
     }
@@ -873,16 +873,14 @@ namespace defaulttype
 {
 
 template<int N, typename real>
-struct DataTypeInfo< sofa::defaulttype::Vec<N,real> > : public FixedArrayTypeInfo<sofa::defaulttype::Vec<N,real> >
-{
-    static std::string name() { std::ostringstream o; o << "Vec<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::Vec<N,real> > : public ContainerTypeInfo<sofa::defaulttype::Vec<N,real>, ContainerKindEnum::Array, N> {};
+template<int N, typename real>
+struct DataTypeName< sofa::defaulttype::Vec<N,real> > { static std::string name() { std::ostringstream o; o << "Vec<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); } };
 
 template<int N, typename real>
-struct DataTypeInfo< sofa::defaulttype::VecNoInit<N,real> > : public FixedArrayTypeInfo<sofa::defaulttype::VecNoInit<N,real> >
-{
-    static std::string name() { std::ostringstream o; o << "VecNoInit<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::defaulttype::VecNoInit<N,real> > : public ContainerTypeInfo<sofa::defaulttype::VecNoInit<N,real>, ContainerKindEnum::Array, N> {};
+template<int N, typename real>
+struct DataTypeName< sofa::defaulttype::VecNoInit<N,real> > { static std::string name() { std::ostringstream o; o << "VecNoInit<" << N << "," << DataTypeName<real>::name() << ">"; return o.str(); } };
 
 
 

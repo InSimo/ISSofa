@@ -491,7 +491,7 @@ void UniformMass<DataTypes, MassType>::addMToMatrix (const MechanicalParams *mpa
 {
     const MassType& m = d_mass.getValue();
 
-    const size_t N = DataTypeInfo<Deriv>::size();
+    constexpr int N = DataTypeInfo<Deriv>::Finalesize;
 
     AddMToMatrixFunctor<Deriv,MassType> calc;
     MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(mstate);
@@ -518,7 +518,7 @@ void UniformMass<DataTypes, MassType>::getElementMass ( unsigned int  index ,
 {
     SOFA_UNUSED(index);
 
-    static const BaseMatrix::Index dimension = (BaseMatrix::Index) DataTypeInfo<Deriv>::size();
+    constexpr BaseMatrix::Index dimension = (BaseMatrix::Index) DataTypeInfo<Deriv>::FinalSize;
     if ( m->rowSize() != dimension || m->colSize() != dimension )
         m->resize ( dimension, dimension );
 

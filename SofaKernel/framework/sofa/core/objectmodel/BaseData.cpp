@@ -99,7 +99,7 @@ bool BaseData::validParent(BaseData* parent)
     if (this->getValueTypeInfo()->ValidInfo() && parent->getValueTypeInfo()->ValidInfo())
         return true;
     // Check if one of the data is a simple string
-    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name() || parent->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name())
+    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeName<std::string>::name() || parent->getValueTypeInfo()->name() == defaulttype::DataTypeName<std::string>::name())
         return true;
     // No conversion found
     return false;
@@ -213,7 +213,7 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     const defaulttype::AbstractTypeInfo* parentInfo = parent->getValueTypeInfo();
 
     // Check if one of the data is a simple string
-    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name() || parent->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name())
+    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeName<std::string>::name() || parent->getValueTypeInfo()->name() == defaulttype::DataTypeName<std::string>::name())
     {
         std::string text = parent->getValueString();
         return this->read(text);
@@ -222,6 +222,14 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     // Check if automatic conversion is possible
     if (!dataInfo->ValidInfo() || !parentInfo->ValidInfo())
         return false; // No conversion found
+    // Currently we only support arrays of values for automatic conversions
+    if (!dataInfo->IsMultiValue() || !parentInfo->IsMultiValue())
+        return false; // No conversion found
+    const defaulttype::AbstractMultiValueTypeInfo* dataMVInfo = dataInfo->MultiValueType();
+    const defaulttype::AbstractMultiValueTypeInfo* parentMVInfo = parentInfo->MultiValueType();
+    if (!dataMVInfo || !parentMVInfo)
+        return false; // No conversion found
+    
     std::ostringstream msgs;
     const void* parentValue = parent->getValueVoidPtr();
     void* dataValue = this->beginEditVoidPtr();
@@ -231,10 +239,10 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     std::size_t outSize = 1;
     std::size_t copySize = 1;
     std::size_t nbl = 1;
-    if (dataInfo->FixedSize())
+    if (dataMVInfo->FixedFinalSize())
     {
-        outSize = dataInfo->size();
-        inSize = parentInfo->size(parentValue);
+        outSize = dataMVInfo->FinalSize();
+        inSize = parentMVInfo->finalSize(parentValue);
         if (outSize > inSize)
         {
             msgs << "parent Data type " << parentInfo->name() << " contains " << inSize << " values while Data type " << dataInfo->name() << " requires " << outSize << " values.";
@@ -250,42 +258,42 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     }
     else
     {
-        std::size_t dataBSize = dataInfo->size();
-        std::size_t parentBSize = parentInfo->size();
+        std::size_t dataBSize = dataMVInfo->FinalSize();
+        std::size_t parentBSize = parentMVInfo->FinalSize();
         if (dataBSize > parentBSize)
             msgs << "parent Data type " << parentInfo->name() << " contains " << parentBSize << " values per element while Data type " << dataInfo->name() << " requires " << dataBSize << " values.";
         else if (dataBSize < parentBSize)
             msgs << "parent Data type " << parentInfo->name() << " contains " << parentBSize << " values per element while Data type " << dataInfo->name() << " only requires " << dataBSize << " values.";
-        std::size_t parentSize = parentInfo->size(parentValue);
+        std::size_t parentSize = parentMVInfo->finalSize(parentValue);
         inSize = parentBSize;
         outSize = dataBSize;
         nbl = parentSize / parentBSize;
         copySize = (dataBSize < parentBSize) ? dataBSize : parentBSize;
-        dataInfo->setSize(dataValue, outSize * nbl);
+        dataMVInfo->setFinalSize(dataValue, outSize * nbl);
     }
 
     // Then select the besttype for values transfer
 
-    if (dataInfo->Integer() && parentInfo->Integer())
+    if (dataMVInfo->Integer() && parentMVInfo->Integer())
     {
         // integer conversion
         for (size_t l=0; l<nbl; ++l)
             for (size_t c=0; c<copySize; ++c)
-                dataInfo->setIntegerValue(dataValue, l*outSize+c, parentInfo->getIntegerValue(parentValue, l*inSize+c));
+                dataMVInfo->setFinalValueInteger(dataValue, l*outSize+c, parentMVInfo->getFinalValueInteger(parentValue, l*inSize+c));
     }
-    else if ((dataInfo->Integer() || dataInfo->Scalar()) && (parentInfo->Integer() || parentInfo->Scalar()))
+    else if ((dataMVInfo->Integer() || dataMVInfo->Scalar()) && (parentMVInfo->Integer() || parentMVInfo->Scalar()))
     {
         // scalar conversion
         for (size_t l=0; l<nbl; ++l)
             for (size_t c=0; c<copySize; ++c)
-                dataInfo->setScalarValue(dataValue, l*outSize+c, parentInfo->getScalarValue(parentValue, l*inSize+c));
+                dataMVInfo->setFinalValueScalar(dataValue, l*outSize+c, parentMVInfo->getFinalValueScalar(parentValue, l*inSize+c));
     }
     else
     {
         // text conversion
         for (size_t l=0; l<nbl; ++l)
             for (size_t c=0; c<copySize; ++c)
-                dataInfo->setTextValue(dataValue, l*outSize+c, parentInfo->getTextValue(parentValue, l*inSize+c));
+                dataMVInfo->setFinalValueString(dataValue, l*outSize+c, parentMVInfo->getFinalValueString(parentValue, l*inSize+c));
     }
 
     std::string m = msgs.str();
@@ -356,11 +364,6 @@ void BaseData::releaseAspect(int aspect)
     {
         (*iLink)->releaseAspect(aspect);
     }
-}
-
-std::string BaseData::decodeTypeName(const std::type_info& t)
-{
-    return BaseClass::decodeTypeName(t);
 }
 
 } // namespace objectmodel

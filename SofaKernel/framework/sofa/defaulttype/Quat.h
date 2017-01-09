@@ -42,10 +42,9 @@ typedef Quat Quaternion; ///< alias
 // Specialization of the defaulttype::DataTypeInfo type traits template
 
 template<class T>
-struct DataTypeInfo< sofa::helper::Quater<T> > : public FixedArrayTypeInfo< sofa::helper::Quater<T> >
-{
-    static std::string name() { std::ostringstream o; o << "Quater<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::helper::Quater<T> > : public ContainerTypeInfo<sofa::helper::Quater<T>, ContainerKindEnum::Array, sofa::helper::Quater<T>::total_size> {};
+template<class T>
+struct DataTypeName< sofa::helper::Quater<T> > { static std::string name() { std::ostringstream o; o << "Quater<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
 // The next line hides all those methods from the doxygen documentation
 /// \cond TEMPLATE_OVERRIDES
