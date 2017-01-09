@@ -118,8 +118,8 @@ public:
     virtual const vector<sofa::defaulttype::BaseMatrix*>* getJs();
 
     virtual void draw(const core::visual::VisualParams* vparams);
-    SReal _arrowSize;
-    defaulttype::Vec<4,SReal> _color;
+    float _arrowSize;
+    defaulttype::Vec<4, float> _color;
 
 protected:
     DistanceFromTargetMapping();

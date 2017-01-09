@@ -196,7 +196,7 @@ bool SparseLDLSolver<TMatrix,TVector,TThreadManager>::addJMInvJtLocal(TMatrix * 
             int col = data->invperm[it->first];
             double val = it->second;
 
-            line[col] = val;
+            line[col] = (Real)val;
         }
     }
 
@@ -208,7 +208,7 @@ bool SparseLDLSolver<TMatrix,TVector,TThreadManager>::addJMInvJtLocal(TMatrix * 
             for (int p = data->LT_colptr[j] ; p<data->LT_colptr[j+1] ; p++) {
                 int col = data->LT_rowind[p];
                 double val = data->LT_values[p];
-                line[j] -= val * line[col];
+                line[j] -= (Real)(val * line[col]);
             }
         }
     }

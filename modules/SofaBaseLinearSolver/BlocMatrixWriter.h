@@ -236,7 +236,7 @@ public:
             defaulttype::Mat<NL,NC,MReal>& mb = *m->wbloc(i0,j0,true);
 
             for (unsigned int i=0; i<NL; ++i)
-                mb[i][i] += b;
+                mb[i][i] += (MReal)b;
         }
         void addDiag(unsigned int bi, const MatBloc& b)
         {
@@ -278,11 +278,11 @@ public:
 
             defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,true);
             for (unsigned int i=0; i<NL; ++i)
-                mb1[i][i] += b;
+                mb1[i][i] += (MReal)b;
 
             defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,true);
             for (unsigned int i=0; i<NL; ++i)
-                mb2[i][i] += b;
+                mb2[i][i] += (MReal)b;
         }
     };
 
