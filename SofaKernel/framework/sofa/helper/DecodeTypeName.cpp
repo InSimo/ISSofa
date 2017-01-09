@@ -22,7 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/core/DecodeTypeName.h>
+#include <sofa/helper/DecodeTypeName.h>
 #ifdef __GNUC__
 #include <sofa/core/ps3/cxxabi.h>
 #endif

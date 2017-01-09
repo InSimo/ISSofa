@@ -12,7 +12,6 @@ set(HEADER_FILES
     ConstraintParams.h
     DataEngine.h
     DataTracker.h
-    DecodeTypeName.h
     ExecParams.h
     Mapping.h
     Mapping.inl
@@ -151,7 +150,6 @@ set(SOURCE_FILES
     ConstraintParams.cpp
     DataEngine.cpp
     DataTracker.cpp
-    DecodeTypeName.cpp
     ExecParams.cpp
     Mapping.cpp
     MechanicalParams.cpp

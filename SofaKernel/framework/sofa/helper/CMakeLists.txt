@@ -9,6 +9,7 @@ set(HEADER_FILES
     ColorMap.h
     DualQuat.h
     DualQuat.inl
+    DecodeTypeName.h
     Factory.h
     Factory.inl
     FnDispatcher.h
@@ -129,6 +130,7 @@ set(SOURCE_FILES
     ArgumentParser.cpp
     BackTrace.cpp
     ColorMap.cpp
+    DecodeTypeName.cpp
     DualQuat.cpp
     Factory.cpp
     GenerateRigid.cpp
