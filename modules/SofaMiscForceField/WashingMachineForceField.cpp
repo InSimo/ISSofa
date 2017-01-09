@@ -56,7 +56,7 @@ template class WashingMachineForceField<Vec3dTypes>;
 #ifndef SOFA_DOUBLE
 template class WashingMachineForceField<Vec3fTypes>;
 #endif
-;
+
 
 } // namespace forcefield
 

@@ -58,7 +58,6 @@ int WarpPreconditionerClass = core::RegisterObject("Linear system solver wrappin
 .add< WarpPreconditioner< RotationMatrix<float>, FullVector<float>,NoThreadManager > > ()
 #endif
 ;
-;
 
 } // namespace linearsolver
 

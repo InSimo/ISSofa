@@ -35,7 +35,7 @@ namespace simulation
 {
 
 // register the loader in the factory
-static SceneLoader* loaderPHP = SceneLoaderFactory::getInstance()->addEntry(new SceneLoaderPHP());
+SceneLoader* loaderPHP = SceneLoaderFactory::getInstance()->addEntry(new SceneLoaderPHP());
 
 
 

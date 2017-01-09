@@ -246,25 +246,13 @@ protected:
     DDGLink inputs;
     DDGLink outputs;
 
-    virtual void doAddInput(DDGNode* n)
-    {
-        inputs.add(n);
-    }
+    virtual void doAddInput(DDGNode* n);
 
-    virtual void doDelInput(DDGNode* n)
-    {
-        inputs.remove(n);
-    }
+    virtual void doDelInput(DDGNode* n);
 
-    virtual void doAddOutput(DDGNode* n)
-    {
-        outputs.add(n);
-    }
+    virtual void doAddOutput(DDGNode* n);
 
-    virtual void doDelOutput(DDGNode* n)
-    {
-        outputs.remove(n);
-    }
+    virtual void doDelOutput(DDGNode* n);
 
 private:
 

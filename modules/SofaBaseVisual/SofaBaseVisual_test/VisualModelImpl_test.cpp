@@ -65,27 +65,27 @@ TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
 {
     StubVisualModelImpl visualModel;
 
-    ASSERT_EQ(false, visualModel.useTopology);
+    ASSERT_FALSE(    visualModel.useTopology);
     ASSERT_EQ(-1,    visualModel.lastMeshRev);
-    ASSERT_EQ(true,  visualModel.castShadow);
-    ASSERT_EQ(false, visualModel.m_initRestPositions.getValue());
-    ASSERT_EQ(true,  visualModel.getUseNormals());
-    ASSERT_EQ(true,  visualModel.m_updateNormals.getValue());
-    ASSERT_EQ(false, visualModel.m_computeTangents.getValue());
-    ASSERT_EQ(true,  visualModel.m_updateTangents.getValue());
-    ASSERT_EQ(true,  visualModel.m_handleDynamicTopology.getValue());
-    ASSERT_EQ(true,  visualModel.m_fixMergedUVSeams.getValue());
+    ASSERT_TRUE(     visualModel.castShadow);
+    ASSERT_FALSE(    visualModel.m_initRestPositions.getValue());
+    ASSERT_TRUE(     visualModel.getUseNormals());
+    ASSERT_TRUE(     visualModel.m_updateNormals.getValue());
+    ASSERT_FALSE(    visualModel.m_computeTangents.getValue());
+    ASSERT_TRUE(     visualModel.m_updateTangents.getValue());
+    ASSERT_TRUE(     visualModel.m_handleDynamicTopology.getValue());
+    ASSERT_TRUE(     visualModel.m_fixMergedUVSeams.getValue());
 
 
-    ASSERT_EQ(true, ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vertices2.getValue()));
-    ASSERT_EQ(true, ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vtangents.getValue()));
-    ASSERT_EQ(true, ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vbitangents.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vertices2.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vtangents.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vbitangents.getValue()));
 
-    ASSERT_EQ(true, ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Edge >(), visualModel.m_edges.getValue()));
-    ASSERT_EQ(true, ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Triangle >(), visualModel.m_triangles.getValue()));
-    ASSERT_EQ(true, ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Quad >(), visualModel.m_quads.getValue()));
-    ASSERT_EQ(true, ResizableVector_Comparison(defaulttype::ResizableExtVector<int>(), visualModel.m_vertPosIdx.getValue()));
-    ASSERT_EQ(true, ResizableVector_Comparison(defaulttype::ResizableExtVector<int>(), visualModel.m_vertNormIdx.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Edge >(), visualModel.m_edges.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Triangle >(), visualModel.m_triangles.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Quad >(), visualModel.m_quads.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(defaulttype::ResizableExtVector<int>(), visualModel.m_vertPosIdx.getValue()));
+    ASSERT_TRUE(    ResizableVector_Comparison(defaulttype::ResizableExtVector<int>(), visualModel.m_vertNormIdx.getValue()));
 
     ASSERT_EQ(core::objectmodel::DataFileName().getValue(), visualModel.fileMesh.getValue());
     ASSERT_EQ(core::objectmodel::DataFileName().getValue(), visualModel.texturename.getValue());
@@ -96,18 +96,18 @@ TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
     ASSERT_EQ(component::visualmodel::VisualModelImpl::TexCoord(0.0,0.0), visualModel.m_translationTex.getValue());
 
 #ifdef SOFA_SMP
-    ASSERT_EQ(false, visualModel.previousProcessorColor);
+    ASSERT_FALSE(    visualModel.previousProcessorColor);
 #endif
     ASSERT_EQ(core::loader::Material().name, visualModel.material.getValue().name);
-    ASSERT_EQ(false, visualModel.putOnlyTexCoords.getValue());
-    ASSERT_EQ(false, visualModel.srgbTexturing.getValue());
-    ASSERT_EQ(false, visualModel.xformsModified);
+    ASSERT_FALSE(    visualModel.putOnlyTexCoords.getValue());
+    ASSERT_FALSE(    visualModel.srgbTexturing.getValue());
+    ASSERT_FALSE(    visualModel.xformsModified);
 
 #ifdef SOFA_SMP
     ASSERT_EQ(core::loader::Material().name, visualModel.originalMaterial.getValue().name);
 #endif
     ASSERT_EQ(0, visualModel.m_topology);
-    ASSERT_EQ(true, visualModel.getDataAliases().find("filename") != visualModel.getDataAliases().end());
+    ASSERT_TRUE(    visualModel.getDataAliases().find("filename") != visualModel.getDataAliases().end());
 
     ASSERT_EQ("Vector", std::string(visualModel.m_vertices2.getGroup()));
     ASSERT_EQ("Vector", std::string(visualModel.m_vnormals.getGroup()));
@@ -122,7 +122,7 @@ TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
     ASSERT_EQ("Transformation", std::string(visualModel.m_rotation.getGroup()));
     ASSERT_EQ("Transformation", std::string(visualModel.m_scale.getGroup()));
 
-    ASSERT_EQ(false, visualModel.m_edges.getFlag(core::objectmodel::BaseData::FLAG_AUTOLINK));
+    ASSERT_FALSE(    visualModel.m_edges.getFlag(core::objectmodel::BaseData::FLAG_AUTOLINK));
 
     ASSERT_EQ(1, visualModel.xforms.size());
 }

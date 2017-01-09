@@ -210,7 +210,7 @@ SOFA_DECL_CLASS(NewmarkImplicitSolver)
 int NewmarkImplicitSolverClass = core::RegisterObject("Implicit time integratorusing Newmark scheme")
         .add< NewmarkImplicitSolver >()
         .addAlias("Newmark");
-;
+
 
 } // namespace odesolver
 

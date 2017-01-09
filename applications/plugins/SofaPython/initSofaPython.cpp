@@ -81,10 +81,6 @@ const char* getModuleComponentList()
 
 
 
-}
-
-}
-
 /// Use the SOFA_LINK_CLASS macro for each class, to enable linking on all platforms
 //SOFA_LINK_CLASS(MyMappingPendulumInPlane)
 //SOFA_LINK_CLASS(MyBehaviorModel)
@@ -93,7 +89,11 @@ SOFA_LINK_CLASS(PythonController)
 
 
 // register the loader in the factory
-static sofa::simulation::SceneLoader* loaderPY = sofa::simulation::SceneLoaderFactory::getInstance()->addEntry(new sofa::simulation::SceneLoaderPY());
+sofa::simulation::SceneLoader* loaderPY = sofa::simulation::SceneLoaderFactory::getInstance()->addEntry(new sofa::simulation::SceneLoaderPY());
 
 
 
+
+}
+
+}

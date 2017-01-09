@@ -37,7 +37,7 @@ namespace component
 {
 namespace topology
 {
-SOFA_DECL_CLASS ( DynamicSparseGridTopologyModifier );
+SOFA_DECL_CLASS ( DynamicSparseGridTopologyModifier )
 int DynamicSparseGridTopologyModifierClass = core::RegisterObject ( "Hexahedron set topology modifier" )
         .add< DynamicSparseGridTopologyModifier >();
 

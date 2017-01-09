@@ -172,7 +172,7 @@ SOFA_DECL_CLASS(CentralDifferenceSolver)
 
 int CentralDifferenceSolverClass = core::RegisterObject("Explicit time integrator using central difference (also known as Verlet of Leap-frop)")
         .add< CentralDifferenceSolver >()
-        .addAlias("CentralDifference");
+        .addAlias("CentralDifference")
 ;
 
 } // namespace odesolver

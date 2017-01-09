@@ -36,7 +36,7 @@ namespace component
 namespace mapping
 {
 
-SOFA_DECL_CLASS(CatmullRomSplineMapping);
+SOFA_DECL_CLASS(CatmullRomSplineMapping)
 
 using namespace defaulttype;
 using namespace core;

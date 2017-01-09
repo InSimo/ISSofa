@@ -54,7 +54,7 @@ int MultiStepAnimationLoopClass = core::RegisterObject("Multi steps animation lo
         .addAlias("MultiStepMasterSolver")
         ;
 
-SOFA_DECL_CLASS(MultiStepAnimationLoop);
+SOFA_DECL_CLASS(MultiStepAnimationLoop)
 
 MultiStepAnimationLoop::MultiStepAnimationLoop(simulation::Node* gnode)
     : Inherit(gnode)
