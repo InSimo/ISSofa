@@ -223,7 +223,7 @@ void SubsetMapping<TIn, TOut>::apply ( const core::MechanicalParams* /*mparams*/
 {
     const IndexArray& indices = f_indices.getValue();
     
-    if (f_resizeToModel.getValue() || this->toModel->getSize() < indices.size())
+    if (f_resizeToModel.getValue() || this->toModel->getSize() < (int)indices.size())
     { 
         if (this->toModel->getSize() != indices.size()) 
         { 

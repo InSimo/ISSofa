@@ -220,7 +220,7 @@ void DistanceFromTargetMapping<TIn, TOut>::applyDJT(const core::MechanicalParams
 
     helper::WriteAccessor<Data<InVecDeriv> > parentForce (*parentDfId[this->fromModel.get(mparams)].write());
     helper::ReadAccessor<Data<InVecDeriv> > parentDisplacement (*mparams->readDx(this->fromModel));  // parent displacement
-    const SReal kfactor = mparams->kFactor();
+    Real kfactor = (Real)mparams->kFactor();
     helper::ReadAccessor<Data<OutVecDeriv> > childForce (*mparams->readF(this->toModel));
     helper::ReadAccessor< Data<helper::vector<unsigned> > > indices(f_indices);
 

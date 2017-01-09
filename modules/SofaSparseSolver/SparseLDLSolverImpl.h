@@ -391,7 +391,7 @@ protected :
         LDL_numeric(data->n,M_colptr,M_rowind,M_values,colptr,rowind,values,D,&data->perm[0],&data->invperm[0],&data->Parent[0]);
 
         //inverse the diagonal
-        for (int i=0;i<data->n;i++) D[i] = 1.0/D[i];
+        for (int i=0;i<data->n;i++) D[i] = 1.0f/D[i];
 
         // split the bloc diag in data->Bdiag
 

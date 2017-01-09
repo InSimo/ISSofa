@@ -90,8 +90,8 @@ template< class DataTypes>
 			for (j=0;j<=(degree-i-1);++j) {
 				for (k=0;k<=(degree-j-i-1);++k) {
 					l=degree-1-i-j-k;
-					tbi=TetrahedronBezierIndex(i,j,k,l);
-					bernsteinCoeffMap.insert(std::pair<TetrahedronBezierIndex,Real>(tbi,(Real)multinomial(degree-1,tbi)));
+					tbi=TetrahedronBezierIndex((BezierDegreeType)i, (BezierDegreeType)j, (BezierDegreeType)k, (BezierDegreeType)l);
+					bernsteinCoeffMap.insert(std::pair<TetrahedronBezierIndex,Real>(tbi,(Real) multinomial(degree-1,tbi)));
 				}
 			}
 		}
@@ -103,7 +103,7 @@ template< class DataTypes>
 			for (j=0;j<=(degree-i);++j) {
 				for (k=0;k<=(degree-j-i);++k) {
 					l=degree-i-j-k;
-					tbi=TetrahedronBezierIndex(i,j,k,l);
+					tbi=TetrahedronBezierIndex((BezierDegreeType)i, (BezierDegreeType)j, (BezierDegreeType)k, (BezierDegreeType)l);
 					index1=container->getLocalIndexFromTetrahedronBezierIndex(tbi);
 					for(m=0;m<4;++m) {
 						if (tbi[m]<degree) {
@@ -182,13 +182,13 @@ typename DataTypes::Coord BezierTetrahedronSetGeometryAlgorithms< DataTypes >::c
 template<class DataTypes>
 typename DataTypes::Real BezierTetrahedronSetGeometryAlgorithms<DataTypes>::computeBernsteinPolynomial(const TetrahedronBezierIndex tbi, const Vec4 barycentricCoordinate)
 {
-	Real  val=pow(barycentricCoordinate[0],tbi[0])*pow(barycentricCoordinate[1],tbi[1])*pow(barycentricCoordinate[2],tbi[2])*pow(barycentricCoordinate[3],tbi[3]);
+	Real  val=(Real)(pow(barycentricCoordinate[0],tbi[0])*pow(barycentricCoordinate[1],tbi[1])*pow(barycentricCoordinate[2],tbi[2])*pow(barycentricCoordinate[3],tbi[3]));
     typename std::map<TetrahedronBezierIndex,Real>::iterator it=bernsteinCoeffMap.find(tbi);
 	if (it!=bernsteinCoeffMap.end()) {
 		val*=(*it).second;
 		return(val);
 	} else {
-		val*=multinomial(tbi[0]+tbi[1]+tbi[2]+tbi[3],tbi);
+		val*=(Real)multinomial(tbi[0]+tbi[1]+tbi[2]+tbi[3],tbi);
 		return(val);
 	}
 }
@@ -213,7 +213,7 @@ typename DataTypes::Real BezierTetrahedronSetGeometryAlgorithms<DataTypes>::comp
 		for(size_t i=0; i<tbiArray.size(); ++i)
 		{
 			tbi=tbiArray[i];
-			val=bernsteinCoefficientArray[i]*pow(barycentricCoordinate[0],tbi[0])*pow(barycentricCoordinate[1],tbi[1])*pow(barycentricCoordinate[2],tbi[2])*pow(barycentricCoordinate[3],tbi[3]);
+		val=(Real)(bernsteinCoefficientArray[i]*pow(barycentricCoordinate[0],tbi[0])*pow(barycentricCoordinate[1],tbi[1])*pow(barycentricCoordinate[2],tbi[2])*pow(barycentricCoordinate[3],tbi[3]));
 			Vec4 dval(0,0,0,0);
 			pos+=wa[indexArray[i]]*val*p[indexArray[i]];
 			weight+=wa[indexArray[i]]*val;
@@ -264,7 +264,7 @@ typename DataTypes::Real BezierTetrahedronSetGeometryAlgorithms<DataTypes>::comp
 	 BezierTetrahedronSetGeometryAlgorithms<DataTypes>::computeJacobian(const size_t tetrahedronIndex, const Vec4 barycentricCoordinate)
  {
 	 const typename DataTypes::VecCoord& p =(this->object->read(core::ConstVecCoordId::position())->getValue());
-	 return(computeJacobian(tetrahedronIndex,barycentricCoordinate,p));
+	 return (Real)(computeJacobian(tetrahedronIndex,barycentricCoordinate,p));
 
  }
 template<class DataTypes>
@@ -316,7 +316,7 @@ void BezierTetrahedronSetGeometryAlgorithms<DataTypes>::computeDeCasteljeauPoint
 		for(size_t i=0; i<tbiArray.size(); ++i)
 		{
 			tbi=tbiArray[i];
-			val=bernsteinCoefficientArray[i]*pow(barycentricCoordinate[0],tbi[0])*pow(barycentricCoordinate[1],tbi[1])*pow(barycentricCoordinate[2],tbi[2])*pow(barycentricCoordinate[3],tbi[3]);
+		val=(Real)(bernsteinCoefficientArray[i]*pow(barycentricCoordinate[0],tbi[0])*pow(barycentricCoordinate[1],tbi[1])*pow(barycentricCoordinate[2],tbi[2])*pow(barycentricCoordinate[3],tbi[3]));
 			Vec4 dval(0,0,0,0);
 			for (j=0;j<4;++j) {
 				if(tbi[j] && barycentricCoordinate[j]){
@@ -384,7 +384,7 @@ bool BezierTetrahedronSetGeometryAlgorithms<DataTypes>::isBezierTetrahedronAffin
          if(barycentricCoordinate[i])
              for(unsigned j=0;j<4;++j)
              {
-                 if(i==j) { if(tbi[i]>1) ddval[j][i]=((Real)tbi[i]-1.)*dval[j]/barycentricCoordinate[i]; }
+                 if(i==j) { if(tbi[i]>1) ddval[j][i]=((Real)tbi[i]-1.f)*dval[j]/barycentricCoordinate[i]; }
                  else { if(tbi[i]) ddval[j][i]=(Real)tbi[i]*dval[j]/barycentricCoordinate[i]; }
              }
      return ddval;

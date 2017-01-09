@@ -193,15 +193,15 @@ protected:
             double c03 = cotTheta(-e0, e3);
             double c04 = cotTheta(-e0, e4);
 
-            alpha[A] = c03+c04;
-            alpha[B] = c01+c02;
-            alpha[C] = -c01-c03;
-            alpha[D] = -c02-c04;
+            alpha[A] = (Real)(c03+c04);
+            alpha[B] = (Real)(c01+c02);
+            alpha[C] = (Real)(-c01-c03);
+            alpha[D] = (Real)(-c02-c04);
 
             double A0 = 0.5 * cross(e0,e1).norm();
             double A1 = 0.5 * cross(e0,e2).norm();
 
-            lambda = ( 3. / (2.*(A0+A1))) * materialBendingStiffness;
+            lambda = (Real)(( 3. / (2.*(A0+A1))) * materialBendingStiffness);
 
             if(computeRestCurvature )
             {
@@ -271,7 +271,7 @@ protected:
             const SReal flambda = -lambda*scale;
             for( unsigned j=0; j<4; j++ )
             {
-                const Real flambda_aj = flambda*alpha[j];
+                const Real flambda_aj = (Real)(flambda*alpha[j]);
                 mwriter.addDiagDValue(vid[j],flambda_aj*alpha[j]);
 
                 for( unsigned k=j+1; k<4; k++ )

@@ -196,7 +196,7 @@ void MeshSpringForceField<DataTypes>::draw(const core::visual::VisualParams* vpa
         const Real minElongationRange = d_drawMinElongationRange.getValue();
         const Real maxElongationRange = d_drawMaxElongationRange.getValue();
         Real range = std::min(std::max(maxElongation, std::abs(minElongation)), maxElongationRange) - minElongationRange;
-        range = (range < 0.) ? 1. : range;
+        range = (range < 0.f) ? 1.f : range;
         const Real drawSpringSize = d_drawSpringSize.getValue();
 
         for (unsigned int i=0; i<ss.size(); ++i)
@@ -206,19 +206,19 @@ void MeshSpringForceField<DataTypes>::draw(const core::visual::VisualParams* vpa
             const std::vector<sofa::defaulttype::Vector3> points(pa, pa+2);
             Deriv v = pa[0] - pa[1];
             Real elongation = (s.initpos - v.norm()) / s.initpos;
-            Real R = 0.;
-            Real G = 0.;
-            Real B = 1.;
+            float R = 0.;
+            float G = 0.;
+            float B = 1.;
             if(elongation < 0.)
             {
                 elongation = std::abs(elongation);
-                B = (range-std::min(elongation - minElongationRange, range))/range;
+                B = (float)((range-std::min(elongation - minElongationRange, range))/range);
                 B = (B < 0.f) ? 0.f : B;
                 R = 1.f - B;
             }
             else
             {
-                B = (range-std::min(elongation - minElongationRange, range))/range;
+                B = (float)((range-std::min(elongation - minElongationRange, range))/range);
                 B = (B < 0.f) ? 0.f : B;
                 G = 1.f - B;
             }
