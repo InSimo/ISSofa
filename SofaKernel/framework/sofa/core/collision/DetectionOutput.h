@@ -60,7 +60,7 @@ namespace collision
  *
  */
 
-class DetectionOutput
+class SOFA_CORE_API DetectionOutput
 {
 public:
     typedef sofa::defaulttype::Vector3 Vector3;
@@ -99,7 +99,7 @@ public:
  *  \brief Abstract description of a set of contact point.
  */
 
-class DetectionOutputVector
+class SOFA_CORE_API DetectionOutputVector
 {
 protected:
     virtual ~DetectionOutputVector() {}

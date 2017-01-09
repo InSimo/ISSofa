@@ -272,6 +272,26 @@ void DDGNode::delOutput(DDGNode* n)
     n->doDelInput(this);
 }
 
+void DDGNode::doAddInput(DDGNode* n)
+{
+    inputs.add(n);
+}
+
+void DDGNode::doDelInput(DDGNode* n)
+{
+    inputs.remove(n);
+}
+
+void DDGNode::doAddOutput(DDGNode* n)
+{
+    outputs.add(n);
+}
+
+void DDGNode::doDelOutput(DDGNode* n)
+{
+    outputs.remove(n);
+}
+
 const DDGNode::DDGLinkContainer& DDGNode::getInputs()
 {
     return inputs.getValue();

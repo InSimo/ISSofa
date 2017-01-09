@@ -51,7 +51,7 @@ int MultiTagAnimationLoopClass = core::RegisterObject("Simple animation loop tha
         .addAlias("MultiTagMasterSolver")
         ;
 
-SOFA_DECL_CLASS(MultiTagAnimationLoop);
+SOFA_DECL_CLASS(MultiTagAnimationLoop)
 
 MultiTagAnimationLoop::MultiTagAnimationLoop(simulation::Node* gnode)
     : Inherit(gnode)

@@ -62,12 +62,12 @@ SOFA_SOFAPYTHON_API const char* getModuleComponentList()
     return "PythonScriptController";
 }
 
-}
-
-
 /// Use the SOFA_LINK_CLASS macro for each class, to enable linking on all platforms
 SOFA_LINK_CLASS(PythonScriptController)
 
 
 // register the loader in the factory
-const sofa::simulation::SceneLoader* loaderPY = sofa::simulation::SceneLoaderFactory::getInstance()->addEntry(new sofa::simulation::SceneLoaderPY());
+sofa::simulation::SceneLoader* loaderPY = sofa::simulation::SceneLoaderFactory::getInstance()->addEntry(new sofa::simulation::SceneLoaderPY());
+
+}
+

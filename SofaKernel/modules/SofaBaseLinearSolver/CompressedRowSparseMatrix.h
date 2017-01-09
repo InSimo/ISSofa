@@ -453,7 +453,7 @@ public:
     void fullRows()
     {
         compress();
-        if (rowIndex.size() >= nBlocRow) return;
+        if ((int)rowIndex.size() >= nBlocRow) return;
         oldRowIndex.swap(rowIndex);
         oldRowBegin.swap(rowBegin);
         rowIndex.resize(nBlocRow);
@@ -461,7 +461,7 @@ public:
         for (Index i=0; i<nBlocRow; ++i) rowIndex[i] = i;
         Index j = 0;
         Index b = 0;
-        for (Index i=0; i<oldRowIndex.size(); ++i)
+        for (Index i=0; i<(Index)oldRowIndex.size(); ++i)
         {
             b = oldRowBegin[i];
             for (; j<=oldRowIndex[i]; ++j)

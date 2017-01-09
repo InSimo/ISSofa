@@ -230,7 +230,7 @@ SOFA_DECL_CLASS(ShewchukPCGLinearSolver)
 
 int ShewchukPCGLinearSolverClass = core::RegisterObject("Linear system solver using the conjugate gradient iterative algorithm")
 .add< ShewchukPCGLinearSolver<GraphScatteredMatrix,GraphScatteredVector> >(true)
-.addAlias("PCGLinearSolver");
+.addAlias("PCGLinearSolver")
 ;
 
 } // namespace linearsolver

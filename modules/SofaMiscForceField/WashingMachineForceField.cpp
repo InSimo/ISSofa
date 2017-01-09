@@ -55,6 +55,7 @@ template class WashingMachineForceField<Vec3dTypes>;
 template class WashingMachineForceField<Vec3fTypes>;
 #endif
 
+
 } // namespace forcefield
 
 } // namespace component

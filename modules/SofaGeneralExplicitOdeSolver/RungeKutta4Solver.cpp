@@ -46,7 +46,7 @@ int RungeKutta4SolverClass = core::RegisterObject("A popular explicit time integ
         .addAlias("RungeKutta4")
         ;
 
-SOFA_DECL_CLASS(RungeKutta4);
+SOFA_DECL_CLASS(RungeKutta4)
 
 
 
