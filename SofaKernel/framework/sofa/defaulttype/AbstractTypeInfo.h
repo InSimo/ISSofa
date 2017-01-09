@@ -25,7 +25,7 @@
 #ifndef SOFA_DEFAULTTYPE_ABSTRACTTYPEINFO_H
 #define SOFA_DEFAULTTYPE_ABSTRACTTYPEINFO_H
 
-#include <sofa/SofaFramework.h>
+#include <sofa/config.h>
 #include <sofa/defaulttype/DataTypeKind.h>
 #include <sofa/helper/SSOBuffer.h>
 #include <typeinfo>

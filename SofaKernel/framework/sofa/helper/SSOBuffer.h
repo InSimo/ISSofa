@@ -25,7 +25,7 @@
 #ifndef SOFA_HELPER_SSOBUFFER_H
 #define SOFA_HELPER_SSOBUFFER_H
 
-#include <sofa/SofaFramework.h>
+//#include <sofa/SofaFramework.h>
 #include <type_traits>
 #include <utility>
 

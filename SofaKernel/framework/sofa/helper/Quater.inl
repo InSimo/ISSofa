@@ -497,9 +497,9 @@ void Quater<Real>::quatToAxis(defaulttype::Vec<3,Real> & axis, Real &angle) cons
 
     assert(sin_half_theta>=0);
     if (sin_half_theta < std::numeric_limits<Real>::epsilon())
-        axis = defaulttype::Vec<3,Real>(0.0, 1.0, 0.0);
+        axis = defaulttype::Vec<3,Real>(0.0f,1.0f,0.0f);
     else
-        axis = defaulttype::Vec<3,Real>(q[0], q[1], q[2])/sin_half_theta;
+        axis = defaulttype::Vec<3,Real>(_q[0],_q[1],_q[2])/ sine;
 }
 
 /// Returns the log of the quaternion

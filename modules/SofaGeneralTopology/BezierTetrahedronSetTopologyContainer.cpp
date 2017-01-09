@@ -341,7 +341,7 @@ sofa::helper::vector<TetrahedronBezierIndex> BezierTetrahedronSetTopologyContain
 	sofa::helper::vector<TetrahedronBezierIndex> tbiArray;
 	for (i=0;i<4;++i) {
 		TetrahedronBezierIndex bti(0,0,0,0);
-		bti[i]=deg;
+		bti[i]=(BezierDegreeType)deg;
 		tbiArray.push_back(bti);
 	}
 	// edge index
@@ -349,8 +349,8 @@ sofa::helper::vector<TetrahedronBezierIndex> BezierTetrahedronSetTopologyContain
 		for (i=0;i<6;++i) {
 			for (j=1;j<deg;++j) {
 				TetrahedronBezierIndex bti(0,0,0,0);
-				bti[edgesInTetrahedronArray[i][0]]=deg-j;
-				bti[edgesInTetrahedronArray[i][1]]=j;
+				bti[edgesInTetrahedronArray[i][0]]=(BezierDegreeType)(deg-j);
+				bti[edgesInTetrahedronArray[i][1]]=(BezierDegreeType)j;
 				tbiArray.push_back(bti);
 			}
 		}
@@ -361,9 +361,9 @@ sofa::helper::vector<TetrahedronBezierIndex> BezierTetrahedronSetTopologyContain
 			for (j=1;j<(size_t)(deg-1);++j) {
 				for (k=1;k<(deg-j);++k) {
 					TetrahedronBezierIndex bti(0,0,0,0);
-					bti[trianglesInTetrahedronArray[i][0]]=j;
-					bti[trianglesInTetrahedronArray[i][1]]=k;
-					bti[trianglesInTetrahedronArray[i][2]]=deg-j-k;
+					bti[trianglesInTetrahedronArray[i][0]]=(BezierDegreeType)j;
+					bti[trianglesInTetrahedronArray[i][1]]=(BezierDegreeType)k;
+					bti[trianglesInTetrahedronArray[i][2]]=(BezierDegreeType)(deg-j-k);
 					tbiArray.push_back(bti);
 				}
 			}
@@ -375,8 +375,8 @@ sofa::helper::vector<TetrahedronBezierIndex> BezierTetrahedronSetTopologyContain
 			for (j=1;j<(size_t)(deg-i-1);++j) {
 				for (k=1;k<(deg-j-i);++k) {
 					TetrahedronBezierIndex bti(0,0,0,0);
-					bti[0]=i;bti[1]=j;bti[2]=k;
-					bti[3]=deg-i-j-k;
+					bti[0]=(BezierDegreeType)i;bti[1]=(BezierDegreeType)j;bti[2]=(BezierDegreeType)k;
+					bti[3]=(BezierDegreeType)(deg-i-j-k);
 					tbiArray.push_back(bti);
 				}
 			}
@@ -474,9 +474,9 @@ void BezierTetrahedronSetTopologyContainer::getGlobalIndexArrayOfBezierPointsInT
 			for (j=1;j<(size_t)(degree-1);++j) {
 				for (k=1;k<(degree-j);++k) {
 					TetrahedronBezierIndex bti(0,0,0,0);
-					bti[trianglesInTetrahedronArray[i][indexTriangle[0]]]=j;
-					bti[trianglesInTetrahedronArray[i][indexTriangle[1]]]=k;
-					bti[trianglesInTetrahedronArray[i][indexTriangle[2]]]=degree-j-k;
+					bti[trianglesInTetrahedronArray[i][indexTriangle[0]]]=(BezierDegreeType)j;
+					bti[trianglesInTetrahedronArray[i][indexTriangle[1]]]=(BezierDegreeType)k;
+					bti[trianglesInTetrahedronArray[i][indexTriangle[2]]]=(BezierDegreeType)(degree-j-k);
 					OffsetMapIterator omi=triangleOffsetMap.find(bti);
 					if (locationToGlobalIndexMap.empty()) {
 						indexArray.push_back(offset+(*omi).second);

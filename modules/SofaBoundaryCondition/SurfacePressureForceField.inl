@@ -375,7 +375,7 @@ typename SurfacePressureForceField<DataTypes>::Real SurfacePressureForceField<Da
     }
 
     // Divide by 6 when computing tetrahedron volume
-    return volume / 6.0;
+    return volume / 6.0f;
 }
 
 
@@ -931,7 +931,7 @@ SurfacePressureForceField<defaulttype::Rigid3fTypes>::Real SurfacePressureForceF
     }
 
     // Divide by 6 when computing tetrahedron volume
-    return volume / 6.0;
+    return volume / 6.0f;
 }
 
 template <>

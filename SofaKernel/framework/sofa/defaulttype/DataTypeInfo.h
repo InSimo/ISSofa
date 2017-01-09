@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <type_traits>
+#include <sofa/config.h>
 #include <sofa/helper/fixed_array.h>
 #include <sofa/helper/SSOBuffer.h>
 #include <sofa/helper/DecodeTypeName.h>

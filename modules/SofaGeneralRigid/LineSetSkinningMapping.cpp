@@ -21,6 +21,7 @@
 ******************************************************************************/
 #define SOFA_COMPONENT_MAPPING_LINESETSKINNINGMAPPING_CPP
 #include <SofaGeneralRigid/LineSetSkinningMapping.inl>
+#include <sofa/core/Mapping.inl>
 
 #include <sofa/core/ObjectFactory.h>
 
