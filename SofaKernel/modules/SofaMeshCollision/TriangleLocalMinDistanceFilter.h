@@ -45,7 +45,7 @@ using sofa::helper::AdvancedTimer;
 /**
  * @brief LocalMinDistance cone information class for a Triangle collision primitive.
  */
-class TriangleInfo : public InfoFilter //< Triangle >
+class SOFA_MESH_COLLISION_API TriangleInfo : public InfoFilter //< Triangle >
 {
     typedef sofa::core::topology::BaseMeshTopology::Triangle Triangle;
 public:
