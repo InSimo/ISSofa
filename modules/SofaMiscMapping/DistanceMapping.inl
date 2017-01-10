@@ -193,7 +193,7 @@ void DistanceMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams,
 {
     helper::WriteAccessor<Data<InVecDeriv> > parentForce (*parentDfId[this->fromModel.get(mparams)].write());
     helper::ReadAccessor<Data<InVecDeriv> > parentDisplacement (*mparams->readDx(this->fromModel));  // parent displacement
-    Real kfactor = mparams->kFactor();
+    Real kfactor = (Real)mparams->kFactor();
     helper::ReadAccessor<Data<OutVecDeriv> > childForce (*mparams->readF(this->toModel));
     SeqEdges links = edgeContainer->getEdges();
 
@@ -205,9 +205,9 @@ void DistanceMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams,
             for(unsigned k=0; k<Nin; k++)
             {
                 if( j==k )
-                    b[j][k] = 1. - directions[i][j]*directions[i][k];
+                    b[j][k] = 1.f - directions[i][j]*directions[i][k];
                 else
-                    b[j][k] =    - directions[i][j]*directions[i][k];
+                    b[j][k] =     - directions[i][j]*directions[i][k];
             }
         }
         b *= childForce[i][0] * invlengths[i] * kfactor;  // (I - uu^T)*f/l*kfactor     do not forget kfactor !
@@ -265,9 +265,9 @@ const vector<defaulttype::BaseMatrix*>* DistanceMapping<TIn, TOut>::getKs()
             for(unsigned k=0; k<Nin; k++)
             {
                 if( j==k )
-                    b[j][k] = 1. - directions[i][j]*directions[i][k];
+                    b[j][k] = 1.f - directions[i][j]*directions[i][k];
                 else
-                    b[j][k] =    - directions[i][j]*directions[i][k];
+                    b[j][k] =     - directions[i][j]*directions[i][k];
             }
         }
         b *= childForce[i][0] * invlengths[i];  // (I - uu^T)*f/l
@@ -311,7 +311,7 @@ void DistanceMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
         {
             defaulttype::Vector3 p0 = TIn::getCPos(pos[links[i][0]]);
             defaulttype::Vector3 p1 = TIn::getCPos(pos[links[i][1]]);
-            vparams->drawTool()->drawCylinder( p0, p1, d_showObjectScale.getValue(), d_color.getValue() );
+            vparams->drawTool()->drawCylinder( p0, p1, (float)d_showObjectScale.getValue(), d_color.getValue() );
         }
     }
 }

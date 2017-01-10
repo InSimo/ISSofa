@@ -85,7 +85,10 @@ public:
 
     Coord computeTetrahedronCenter(const TetraID i) const;
 
-    Coord computeTetrahedronCircumcenter(const TetraID i) const;
+    template<int dim = DataTypes::spatial_dimensions>
+    Coord computeTetrahedronCircumcenter(typename std::enable_if<dim == 3, TetraID>::type i) const;
+    template<int dim = DataTypes::spatial_dimensions>
+    Coord computeTetrahedronCircumcenter(typename std::enable_if<dim != 3, TetraID>::type i) const;
 
     bool isPointInTetrahedron(const TetraID i, const sofa::defaulttype::Vec<3,Real>& p) const;
 
