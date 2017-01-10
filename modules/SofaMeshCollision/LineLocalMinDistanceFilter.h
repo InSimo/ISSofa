@@ -45,7 +45,7 @@ namespace collision
 /**
  * @brief LocalMinDistance cone information class for a Line collision primitive.
  */
-class LineInfo : public InfoFilter //< topology::Edge >
+class SOFA_MESH_COLLISION_API LineInfo : public InfoFilter //< topology::Edge >
 {
     typedef sofa::core::topology::BaseMeshTopology::Edge Edge;
     typedef sofa::core::topology::BaseMeshTopology::Triangle Triangle;
