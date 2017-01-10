@@ -316,8 +316,8 @@ typename DataTypes::Coord TetrahedronSetGeometryAlgorithms<DataTypes>::computeTe
     return (p[t[0]] + p[t[1]] + p[t[2]] + p[t[3]]) * (Real) 0.25;
 }
 
-template<class DataTypes>
-typename DataTypes::Coord TetrahedronSetGeometryAlgorithms<DataTypes>::computeTetrahedronCircumcenter(const TetraID i) const
+template<class DataTypes> template<int dim>
+typename DataTypes::Coord TetrahedronSetGeometryAlgorithms<DataTypes>::computeTetrahedronCircumcenter(typename std::enable_if<dim == 3, TetraID>::type i) const
 {
     const Tetrahedron t = this->m_topology->getTetrahedron(i);
     const typename DataTypes::VecCoord& p =(this->object->read(core::ConstVecCoordId::position())->getValue());
@@ -336,6 +336,12 @@ typename DataTypes::Coord TetrahedronSetGeometryAlgorithms<DataTypes>::computeTe
     center[2] += d[2];
 
     return center;
+}
+
+template<class DataTypes> template<int dim>
+typename DataTypes::Coord TetrahedronSetGeometryAlgorithms<DataTypes>::computeTetrahedronCircumcenter(typename std::enable_if<dim != 3, TetraID>::type i) const
+{
+    return computeTetrahedronCenter(i); // no valid circumcenter in 1D or 2D...
 }
 
 template< class DataTypes>
