@@ -175,12 +175,12 @@ extern inline void DataTypeInfo_SetValue(bool& data, const std::string& value)
 }
 
 template<class T>
-extern inline void DataTypeInfo_SetValue(std::vector<bool>::reference& data, const T& value)
+extern inline void DataTypeInfo_SetValue(std::vector<bool>::reference data, const T& value)
 {
     data = (value != 0);
 }
 
-extern inline void DataTypeInfo_SetValue(std::vector<bool>::reference& data, const std::string& value)
+extern inline void DataTypeInfo_SetValue(std::vector<bool>::reference data, const std::string& value)
 {
     bool val = false;
     std::istringstream i(value); i >> val;
@@ -196,9 +196,9 @@ extern inline void DataTypeInfo_ToString(const TDataType& data, std::string& val
 }
 
 template<class TDataType>
-extern inline void DataTypeInfo_FromString(TDataType& data, const std::string& value)
+extern inline void DataTypeInfo_FromString(TDataType&& data, const std::string& value)
 {
-    DataTypeInfo_SetValue(data, value);
+    DataTypeInfo_SetValue(std::forward<TDataType>(data), value);
 }
 
 
@@ -266,9 +266,9 @@ struct InvalidDataTypeInfo
     }
 
     template<class DataTypeRef, typename T>
-    static void setDataValue(DataTypeRef& data, const T& value)
+    static void setDataValue(DataTypeRef&& data, const T& value)
     {
-        DataTypeInfo_SetValue(data, value);
+        DataTypeInfo_SetValue(std::forward<DataTypeRef>(data), value);
     }
 
     template<class DataTypeRef>
@@ -278,9 +278,9 @@ struct InvalidDataTypeInfo
     }
 
     template<class DataTypeRef>
-    static void setDataValueString(DataTypeRef& data, const std::string& value)
+    static void setDataValueString(DataTypeRef&& data, const std::string& value)
     {
-        DataTypeInfo_FromString(data, value);
+        DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 };
 
@@ -356,16 +356,16 @@ protected:
     }
 
     template<typename DataTypeRef, typename T>
-    static void setDataValueForString(DataTypeRef& data, const T& value, std::false_type)
+    static void setDataValueForString(DataTypeRef&& data, const T& value, std::false_type)
     {
-        DataTypeInfo_SetValue(data, value);
+        DataTypeInfo_SetValue(std::forward<DataTypeRef>(data), value);
     }
     template<typename DataTypeRef, typename T>
-    static void setDataValueForString(DataTypeRef& data, const T& value, std::true_type)
+    static void setDataValueForString(DataTypeRef&& data, const T& value, std::true_type)
     {
         std::string s;
         DataTypeInfo_ToString(value, s);
-        DataTypeInfo_FromString(data, s);
+        DataTypeInfo_FromString(std::forward<DataTypeRef>(data), s);
     }
 public:
     template <typename DataTypeRef, typename T>
@@ -375,9 +375,9 @@ public:
     }
 
     template<typename DataTypeRef, typename T>
-    static void setDataValue(DataTypeRef& data, const T& value)
+    static void setDataValue(DataTypeRef&& data, const T& value)
     {
-        setDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+        setDataValueForString(std::forward<DataTypeRef>(data), value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
     }
 
     template<typename DataTypeRef>
@@ -387,9 +387,9 @@ public:
     }
 
     template<typename DataTypeRef>
-    static void setDataValueString(DataTypeRef& data, const std::string& value)
+    static void setDataValueString(DataTypeRef&& data, const std::string& value)
     {
-        DataTypeInfo_FromString(data, value);
+        DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
     // Multi Value API
@@ -406,10 +406,10 @@ public:
     }
 
     template<typename DataTypeRef, typename T>
-    static void setFinalValue(DataTypeRef& data, size_t index, const T& value)
+    static void setFinalValue(DataTypeRef&& data, size_t index, const T& value)
     {
         if (index != 0) return;
-        setDataValue(data, value);
+        setDataValue(std::forward<DataTypeRef>(data), value);
     }
 
     template<typename DataTypeRef>
@@ -420,10 +420,10 @@ public:
     }
 
     template<typename DataTypeRef>
-    static void setFinalValueString(DataTypeRef& data, size_t index, const std::string& value)
+    static void setFinalValueString(DataTypeRef&& data, size_t index, const std::string& value)
     {
         if (index != 0) return;
-        setDataValueString(data, value);
+        setDataValueString(std::forward<DataTypeRef>(data), value);
     }
 
 #if 0
@@ -513,7 +513,7 @@ struct MultiValueTypeInfo
     typedef TDataType DataType;
     typedef void      KeyType;         ///< type uniquely identifying items (or void if not applicable)
     typedef TMappedType MappedType;      ///< type contained in DataType
-    typedef typename DataTypeInfo<MappedType> MappedTypeInfo;
+    typedef DataTypeInfo<MappedType> MappedTypeInfo;
     typedef typename MappedTypeInfo::FinalValueType  FinalValueType;  ///< type of the final atomic values (or void if not applicable)
 
     static constexpr ContainerKindEnum ContainerKind = ContainerKindEnum::Single;
@@ -563,30 +563,30 @@ struct MultiValueTypeInfo
 
     // Single Value API
 protected:
-    template <typename T>
-    static void getDataValueForString(const DataType& data, T& value, std::false_type)
+    template <typename DataTypeRef, typename T>
+    static void getDataValueForString(const DataTypeRef& data, T& value, std::false_type)
     {
         DataTypeInfo_GetValue(data, value);
     }
-    template <typename T>
-    static void getDataValueForString(const DataType& data, T& value, std::true_type)
+    template <typename DataTypeRef, typename T>
+    static void getDataValueForString(const DataTypeRef& data, T& value, std::true_type)
     {
         std::string s;
         DataTypeInfo_ToString(data, s);
         DataTypeInfo_FromString(value, s);
     }
 
-    template<typename T>
-    static void setDataValueForString(DataType& data, const T& value, std::false_type)
+    template<typename DataTypeRef, typename T>
+    static void setDataValueForString(DataTypeRef&& data, const T& value, std::false_type)
     {
-        DataTypeInfo_SetValue(data, value);
+        DataTypeInfo_SetValue(std::forward<DataTypeRef>(data), value);
     }
-    template<typename T>
-    static void setDataValueForString(DataType& data, const T& value, std::true_type)
+    template<typename DataTypeRef, typename T>
+    static void setDataValueForString(DataTypeRef&& data, const T& value, std::true_type)
     {
         std::string s;
         DataTypeInfo_ToString(value, s);
-        DataTypeInfo_FromString(data, s);
+        DataTypeInfo_FromString(std::forward<DataTypeRef>(data), s);
     }
 public:
     template <typename DataTypeRef, typename T>
@@ -596,9 +596,9 @@ public:
     }
 
     template <typename DataTypeRef, typename T>
-    static void setDataValue(DataTypeRef& data, const T& value)
+    static void setDataValue(DataTypeRef&& data, const T& value)
     {
-        setDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+        setDataValueForString(std::forward<DataTypeRef>(data), value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
     }
 
     template<typename DataTypeRef>
@@ -608,18 +608,19 @@ public:
     }
 
     template<typename DataTypeRef>
-    static void setDataValueString(DataTypeRef& data, const std::string& value)
+    static void setDataValueString(DataTypeRef&& data, const std::string& value)
     {
-        DataTypeInfo_FromString(data, value);
+        DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
     // Multi Value API
 
-    static void setFinalSize(DataType& data, size_t size)
+    template<typename DataTypeRef>
+    static void setFinalSize(DataTypeRef&& data, size_t size)
     {
         if (!FixedFinalSize)
         {
-            DataTypeInfo_ContainerResize(data, size / FinalSize);
+            DataTypeInfo_ContainerResize(std::forward<DataTypeRef>(data), size / FinalSize);
         }
     }
 
@@ -630,7 +631,7 @@ public:
     }
 
     template<typename DataTypeRef, typename T>
-    static void setFinalValue(DataTypeRef& data, size_t index, const T& value)
+    static void setFinalValue(DataTypeRef&& data, size_t index, const T& value)
     {
         MappedTypeInfo::setFinalValue(data[index / FinalSize], index % FinalSize, value);
     }
@@ -642,7 +643,7 @@ public:
     }
 
     template<typename DataTypeRef>
-    static void setFinalValueString(DataTypeRef& data, size_t index, const std::string& value)
+    static void setFinalValueString(DataTypeRef&& data, size_t index, const std::string& value)
     {
         MappedTypeInfo::setFinalValueString(data[index / FinalSize], index % FinalSize, value);
     }
