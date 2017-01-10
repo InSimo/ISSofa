@@ -102,7 +102,8 @@ PyObject *GetDataValuePython(BaseData* data)
     if(typeinfo->ValidInfo() &&  typeinfo->IsMultiValue())
     {
         const AbstractMultiValueTypeInfo* mvinfo = typeinfo->MultiValueType();
-        if (mvinfo->finalSize(valueVoidPtr)==1 && mvinfo->FixedFinalSize())
+        if (mvinfo->finalSize(valueVoidPtr)==1 && mvinfo->FixedFinalSize() 
+            && !mvinfo->String() /* Temp condition to keep previous output type for string (array of array of string instead of string) */)
         {
             // this type is NOT a vector; return directly the proper native type
             if (mvinfo->String())
