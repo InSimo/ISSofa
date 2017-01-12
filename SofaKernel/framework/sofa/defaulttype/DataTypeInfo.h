@@ -1052,7 +1052,7 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
     /// true if the layout in memory is simply N values of the same base type
     static constexpr bool SimpleLayout       = (TContainerKind==ContainerKindEnum::Array && MappedTypeInfo::SimpleLayout);
     /// true if this type uses copy-on-write
-    static constexpr bool CopyOnWrite        = !(TContainerKind==ContainerKindEnum::Array && TFixedSize==0);
+    static constexpr bool CopyOnWrite        = !(TContainerKind==ContainerKindEnum::Array && TFixedSize>0 && TFixedSize < 10);
     /// true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreKeys          = (TContainerKind==ContainerKindEnum::Set || TContainerKind==ContainerKindEnum::Map);
     /// true if the item values are stored within the data structure
