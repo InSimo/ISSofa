@@ -27,7 +27,7 @@
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <functional>
 #include <limits>
-#include <boost/static_assert.hpp>
+#include <type_traits>
 
 #define EQUALITY_THRESHOLD 1e-6
 
@@ -42,9 +42,6 @@ enum NoInit { NOINIT }; ///< use when calling Vec or Mat constructor to skip ini
 template <int N, typename real=float>
 class Vec : public helper::fixed_array<real,N>
 {
-
-    static_assert( N > 0, "" );
-
 public:
     // Type inconsistency workaround, see Mat.h
     typedef int size_type;
@@ -57,12 +54,14 @@ public:
     /// Default constructor: sets all values to 0.
     Vec()
     {
+        static_assert(N > 0, "");
         this->clear();
     }
 
     /// Fast constructor: no initialization
     explicit Vec(NoInit)
     {
+        static_assert(N > 0, "");
     }
 
     /// Specific constructor for 1-element vectors.
@@ -442,7 +441,7 @@ public:
     template<class real2>
     Vec<N,real> mulscalar(real2 f) const
     {
-        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
+        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1, "");
         Vec<N,real> r(NOINIT);
         for (int i=0; i<N; i++)
             r[i] = this->elems[i]*(real)f;
@@ -462,7 +461,7 @@ public:
     template<class real2>
     void eqmulscalar(real2 f)
     {
-        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
+        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1, "");
         for (int i=0; i<N; i++)
             this->elems[i]*=(real)f;
     }
@@ -480,7 +479,7 @@ public:
     template<class real2>
     Vec<N,real> divscalar(real2 f) const
     {
-        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
+        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1, "");
         Vec<N,real> r(NOINIT);
         for (int i=0; i<N; i++)
             r[i] = this->elems[i]/(real)f;
@@ -500,7 +499,7 @@ public:
     template<class real2>
     void eqdivscalar(real2 f)
     {
-        BOOST_STATIC_ASSERT(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1);
+        static_assert(DataTypeInfo<real2>::ValidInfo && DataTypeInfo<real2>::FinalSize==1, "");
         for (int i=0; i<N; i++)
             this->elems[i]/=(real)f;
     }

@@ -24,8 +24,8 @@
 
 #include <sofa/helper/system/config.h>
 #include <sofa/defaulttype/Vec.h>
+#include <type_traits>
 #include <iostream>
-#include <sofa/helper/logging/Messaging.h>
 
 namespace sofa
 {
@@ -67,7 +67,7 @@ public:
       /// Specific constructor with a single line.
       explicit Mat(Line r1)
       {
-        static_assert(L == 1, "");
+        static_assert(L == 1, "One line required");
         this->elems[0]=r1;
       }
     */
@@ -75,7 +75,7 @@ public:
     /// Specific constructor with 2 lines.
     Mat(Line r1, Line r2)
     {
-        static_assert(L == 2, "");
+        static_assert(L == 2, "Two lines required");
         this->elems[0]=r1;
         this->elems[1]=r2;
     }
@@ -83,7 +83,7 @@ public:
     /// Specific constructor with 3 lines.
     Mat(Line r1, Line r2, Line r3)
     {
-        static_assert(L == 3, "");
+        static_assert(L == 3, "Three lines required");
         this->elems[0]=r1;
         this->elems[1]=r2;
         this->elems[2]=r3;
@@ -92,7 +92,7 @@ public:
     /// Specific constructor with 4 lines.
     Mat(Line r1, Line r2, Line r3, Line r4)
     {
-        static_assert(L == 4, "");
+        static_assert(L == 4, "Four lines required");
         this->elems[0]=r1;
         this->elems[1]=r2;
         this->elems[2]=r3;
@@ -285,39 +285,36 @@ public:
     }
 
     /// Special access to first line.
-    Line& x() { static_assert(L >= 1, ""); return this->elems[0]; }
+    Line& x() { static_assert(L >= 1, "Requires at least one line"); return this->elems[0]; }
     /// Special access to second line.
-    Line& y() { static_assert(L >= 2, ""); return this->elems[1]; }
+    Line& y() { static_assert(L >= 2, "Requires at least two lines"); return this->elems[1]; }
     /// Special access to third line.
-    Line& z() { static_assert(L >= 3, ""); return this->elems[2]; }
+    Line& z() { static_assert(L >= 3, "Requires at least three lines"); return this->elems[2]; }
     /// Special access to fourth line.
-    Line& w() { static_assert(L >= 4, ""); return this->elems[3]; }
+    Line& w() { static_assert(L >= 4, "Requires at least four lines"); return this->elems[3]; }
 
     /// Special access to first line (read-only).
-    const Line& x() const { static_assert(L >= 1, ""); return this->elems[0]; }
+    const Line& x() const { static_assert(L >= 1, "Requires at least one line"); return this->elems[0]; }
     /// Special access to second line (read-only).
-    const Line& y() const { static_assert(L >= 2, ""); return this->elems[1]; }
+    const Line& y() const { static_assert(L >= 2, "Requires at least two lines"); return this->elems[1]; }
     /// Special access to thrid line (read-only).
-    const Line& z() const { static_assert(L >= 3, ""); return this->elems[2]; }
+    const Line& z() const { static_assert(L >= 3, "Requires at least three lines"); return this->elems[2]; }
     /// Special access to fourth line (read-only).
-    const Line& w() const { static_assert(L >= 4, ""); return this->elems[3]; }
+    const Line& w() const { static_assert(L >= 4, "Requires at least four lines"); return this->elems[3]; }
 
     /// Set matrix to identity.
     void identity()
     {
-        static_assert(L == C, "");
+        static_assert(L == C, "Requires square matrix");
         clear();
         for (int i=0; i<L; i++)
             this->elems[i][i]=1;
     }
 
-    /// precomputed identity matrix of size (L,L)
-    static Mat<L,L,real> s_identity;
-
     /// Returns the identity matrix
     static Mat<L,L,real> Identity()
     {
-        static_assert(L == C, "");
+        static_assert(L == C, "Requires square matrix");
         Mat<L,L,real> id;
         for (int i=0; i<L; i++)
             id[i][i]=1;
@@ -345,7 +342,7 @@ public:
     /// Transpose current matrix.
     void transpose()
     {
-        static_assert(L == C, "");
+        static_assert(L == C, "Requires square matrix");
         for (int i=0; i<L; i++)
             for (int j=i+1; j<C; j++)
             {
@@ -672,23 +669,7 @@ public:
         return transformInvertMatrix(*this, m);
     }
 
-    /// for square matrices
-    /// @warning in-place simple symmetrization
-    /// this = ( this + this.transposed() ) / 2.0
-    void symmetrize()
-    {
-        static_assert( C == L, "" );
-        for(int l=0; l<L; l++)
-            for(int c=l+1; c<C; c++)
-                this->elems[l][c] = this->elems[c][l] = ( this->elems[l][c] + this->elems[c][l] ) * 0.5f;
-    }
-
 };
-
-
-
-template <int L, int C, typename real> Mat<L,L,real> Mat<L,C,real>::s_identity = Mat<L,L,real>::Identity();
-
 
 /// Same as Mat except the values are not initialized by default
 template <int L, int C, typename real=float>
@@ -832,7 +813,7 @@ bool invertMatrix(Mat<S,S,real>& dest, const Mat<S,S,real>& from)
 
         if (pivot <= (real) MIN_DETERMINANT)
         {
-            msg_error("Mat") << "invertMatrix finds too small determinant, matrix = "<<from;
+            std::cerr<<"Warning (Mat.h) : invertMatrix finds too small determinant, matrix = "<<from<<std::endl;
             return false;
         }
 
@@ -874,7 +855,7 @@ bool invertMatrix(Mat<3,3,real>& dest, const Mat<3,3,real>& from)
 
     if ( -(real) MIN_DETERMINANT<=det && det<=(real) MIN_DETERMINANT)
     {
-        msg_error("Mat") << "invertMatrix finds too small determinant, matrix = "<<from;
+        std::cerr<<"Warning (Mat.h) : invertMatrix finds too small determinant, matrix = "<<from<<std::endl;
         return false;
     }
 
@@ -899,7 +880,7 @@ bool invertMatrix(Mat<2,2,real>& dest, const Mat<2,2,real>& from)
 
     if ( -(real) MIN_DETERMINANT<=det && det<=(real) MIN_DETERMINANT)
     {
-        msg_error("Mat") << "invertMatrix finds too small determinant, matrix = "<<from;
+        std::cerr<<"Warning (Mat.h) : invertMatrix finds too small determinant, matrix = "<<from<<std::endl;
         return false;
     }
 
@@ -977,7 +958,6 @@ std::istream& operator>>(std::istream& in, sofa::defaulttype::Mat<L,C,real>& m)
     while (c==' ' || c=='\n' || c=='[')
     {
         in.get();
-        if( c=='[' ) break;
         c = in.peek();
     }
     in >> m[0];
@@ -995,7 +975,6 @@ std::istream& operator>>(std::istream& in, sofa::defaulttype::Mat<L,C,real>& m)
     while (c==' ' || c=='\n' || c==']')
     {
         in.get();
-        if( c==']' ) break;
         c = in.peek();
     }
     return in;
@@ -1063,48 +1042,17 @@ inline real scalarProduct(const Mat<L,C,real>& left,const Mat<L,C,real>& right)
     return product;
 }
 
+} // namespace defaulttype
 
-/// skew-symmetric mapping
-/// crossProductMatrix(v) * x = v.cross(x)
-template<class Real>
-inline defaulttype::Mat<3, 3, Real> crossProductMatrix(const defaulttype::Vec<3, Real>& v)
-{
-    defaulttype::Mat<3, 3, Real> res;
-    res[0][0]=0;
-    res[0][1]=-v[2];
-    res[0][2]=v[1];
-    res[1][0]=v[2];
-    res[1][1]=0;
-    res[1][2]=-v[0];
-    res[2][0]=-v[1];
-    res[2][1]=v[0];
-    res[2][2]=0;
-    return res;
-}
+} // namespace sofa
 
-
-/// return a * b^T
-template<int L,class Real>
-static Mat<L,L,Real> tensorProduct(const Vec<L,Real> a, const Vec<L,Real> b )
-{
-    typedef Mat<L,L,Real> Mat;
-    Mat m;
-
-    for( typename Mat::size_type i=0 ; i<L ; ++i )
-    {
-        m[i][i] = a[i]*b[i];
-        for( typename Mat::size_type j=i+1 ; j<L ; ++j )
-            m[i][j] = m[j][i] = a[i]*b[j];
-    }
-
-    return m;
-}
-
-
-
-////////////////////////////////////////////
 // Specialization of the defaulttype::DataTypeInfo type traits template
-////////////////////////////////////////////
+
+namespace sofa
+{
+
+namespace defaulttype
+{
 
 template<int L, int C, typename real>
 struct DataTypeInfo< sofa::defaulttype::Mat<L,C,real> > : public ContainerTypeInfo<sofa::defaulttype::Mat<L,C,real>, ContainerKindEnum::Array, L> {};
