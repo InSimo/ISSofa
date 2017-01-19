@@ -28,11 +28,9 @@
 #include <sofa/helper/system/config.h>
 #include <sofa/defaulttype/Vec.h>
 #include <cassert>
-#include <boost/static_assert.hpp>
+#include <type_traits>
 #include <iostream>
 #include <sofa/defaulttype/Mat.h>
-#include <boost/static_assert.hpp>
-
 
 namespace sofa
 {
@@ -62,7 +60,7 @@ public:
     /// Constructor 1x1 from 1 element
     explicit MatSym(const real& v1)
     {
-        BOOST_STATIC_ASSERT(D == 1);
+        static_assert(D == 1, "Requires matrix of size one");
         this->elems[0] = v1;
     }
 
@@ -70,7 +68,7 @@ public:
     /// Constructor 2x2 from 3 elements
     explicit MatSym(const real& v1,const real& v2,const real& v3)
     {
-        BOOST_STATIC_ASSERT(D == 2);
+        static_assert(D == 2, "Requires matrix of size two");
         this->elems[0] = v1;
         this->elems[1] = v2;
         this->elems[2] = v3;
@@ -79,7 +77,7 @@ public:
     /// Constructor 3x3 from 6 elements
     explicit MatSym(const real& v1,const real& v2,const real& v3,const real& v4,const real& v5,const real& v6)
     {
-        BOOST_STATIC_ASSERT(D == 3);
+        static_assert(D == 3, "Requires matrix of size three");
         this->elems[0] = v1;
         this->elems[1] = v2;
         this->elems[2] = v3;
