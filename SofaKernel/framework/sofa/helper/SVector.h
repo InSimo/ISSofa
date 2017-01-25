@@ -23,6 +23,7 @@
 #define SOFA_HELPER_SVECTOR_H
 
 #include <sofa/helper/vector.h>
+#include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/helper/logging/Messaging.h>
 
 namespace sofa
@@ -158,6 +159,16 @@ std::ostream& SVector<std::string>::write( std::ostream& os ) const;
 
 
 } // namespace helper
+
+namespace defaulttype
+{
+
+template<class T>
+struct DataTypeInfo< sofa::helper::SVector<T> > : public ContainerTypeInfo<sofa::helper::SVector<T>, ContainerKindEnum::Array, 0> {};
+template<class T>
+struct DataTypeName< sofa::helper::SVector<T> > { static std::string name() { std::ostringstream o; o << "SVector<" << DataTypeName<T>::name() << ">"; return o.str(); } };
+
+} // namespace defaulttype
 
 } // namespace sofa
 
