@@ -57,7 +57,7 @@ void TopologyElementHandler<TopologyElementType>::ApplyTopologyChange(const ERem
 template<class TopologyElementType>
 void TopologyElementHandler<TopologyElementType>::ApplyTopologyChange(const ERenumbering* event)
 {
-    this->renumber(event->getIndexArray());
+    this->renumber(event->getIndexArray(), event->getinv_IndexArray());
 }
 
 /// Apply moving elements.

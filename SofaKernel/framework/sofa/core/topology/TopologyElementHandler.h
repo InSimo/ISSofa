@@ -87,7 +87,7 @@ protected:
     virtual void swap( unsigned int /*i1*/, unsigned int /*i2*/ ) {}
 
     /// Reorder the values.
-    virtual void renumber( const sofa::helper::vector<unsigned int> &/*index*/ ) {}
+    virtual void renumber( const sofa::helper::vector<unsigned int> &/*index*/, const sofa::helper::vector<unsigned int> &/*inv_index*/) {}
 
     /// Add some values. Values are added at the end of the vector.
     /// This is the (old) version, to be deprecated in favor of the next method
@@ -116,6 +116,13 @@ protected:
     virtual void move( const sofa::helper::vector<unsigned int> & /*indexList*/,
             const sofa::helper::vector< sofa::helper::vector< unsigned int > >& /*ancestors*/,
             const sofa::helper::vector< sofa::helper::vector< double > >& /*coefs*/) {}
+
+    /// Move a list of points
+    /// This version supplies information for element indices
+    virtual void move(const sofa::helper::vector<unsigned int> & /*indexList*/,
+        const sofa::helper::vector< TopologyElementType >& /*elems*/,
+        const sofa::helper::vector< sofa::helper::vector< unsigned int > >& /*ancestors*/,
+        const sofa::helper::vector< sofa::helper::vector< double > >& /*coefs*/) {}
 
     /// Add Element after a displacement of vertices, ie. add element based on previous position topology revision.
     virtual void addOnMovedPosition(const sofa::helper::vector<unsigned int> &/*indexList*/,

@@ -108,7 +108,7 @@ protected:
     virtual void remove( const sofa::helper::vector<unsigned int> &index );
 
     /// Reorder the values.
-    virtual void renumber( const sofa::helper::vector<unsigned int> &index );
+    virtual void renumber( const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int> &inv_index);
 
     /// Move a list of points
     virtual void move( const sofa::helper::vector<unsigned int> &indexList,

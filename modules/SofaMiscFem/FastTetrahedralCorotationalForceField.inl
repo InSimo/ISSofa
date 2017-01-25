@@ -40,6 +40,8 @@ namespace forcefield
 {
 
 
+typedef topology::BaseMeshTopology::Tetra Tetrahedron;
+typedef topology::BaseMeshTopology::EdgesInTetrahedron EdgesInTetrahedron;
 
 
 template< class DataTypes>

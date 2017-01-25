@@ -126,7 +126,7 @@ protected:
 
     sofa::helper::vector<unsigned int> m_map2Elements; // same size as SparseData but contain id of Triangle link to each data[]
 
-    typename sofa::component::topology::TopologyEngineImpl<VecT>::SPtr m_topologicalEngine;
+    typename sofa::component::topology::TopologyEngineImpl::SPtr m_topologicalEngine;
     sofa::core::topology::BaseMeshTopology* m_topology;
     sofa::component::topology::TopologySparseDataHandler<TopologyElementType,VecT>* m_topologyHandler;
 

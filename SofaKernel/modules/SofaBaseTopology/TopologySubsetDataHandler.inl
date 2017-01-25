@@ -160,7 +160,7 @@ void TopologySubsetDataHandler <TopologyElementType, VecT>::remove( const sofa::
 
 
 template <typename TopologyElementType, typename VecT>
-void TopologySubsetDataHandler <TopologyElementType, VecT>::renumber( const sofa::helper::vector<unsigned int> &index )
+void TopologySubsetDataHandler <TopologyElementType, VecT>::renumber( const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int> &inv_index)
 {
     container_type& data = *(m_topologyData->beginEdit());
     container_type copy = m_topologyData->getValue(); // not very efficient memory-wise, but I can see no better solution...

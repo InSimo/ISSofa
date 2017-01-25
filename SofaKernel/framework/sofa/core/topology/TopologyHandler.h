@@ -48,13 +48,16 @@ typedef Topology::Hexahedron       Hexahedron;
 class SOFA_CORE_API TopologyHandler
 {
 public:
-    TopologyHandler() : lastElementIndex(0) {}
+    TopologyHandler() : lastElementIndex(0), m_lastTopoSize(0){}
 
     virtual ~TopologyHandler() {}
 
     virtual void ApplyTopologyChanges(const std::list< const core::topology::TopologyChange *>& _topologyChangeEvents, const unsigned int _dataSize);
 
     virtual void ApplyTopologyChange(const core::topology::EndingEvent* /*event*/) {}
+
+    // initialization method called after the link between the Data and the Topology is established
+    virtual void init() {}
 
     ///////////////////////// Functions on Points //////////////////////////////////////
     /// Apply swap between point indicPointes elements.
@@ -145,14 +148,23 @@ public:
     virtual void swap( unsigned int /*i1*/, unsigned int /*i2*/ ) {}
 
     /// Reorder the values.
-    virtual void renumber( const sofa::helper::vector<unsigned int> &/*index*/ ) {}
+    virtual void renumber( const sofa::helper::vector<unsigned int> &/*index*/, const sofa::helper::vector<unsigned int> &/*inv_index*/) {}
+
+    /// get index of last element topology
+    inline unsigned int getLastTopoSize() const { return m_lastTopoSize; }
 
 protected:
     /// to handle PointSubsetData
     void setDataSetArraySize(const unsigned int s) { lastElementIndex = s-1; }
 
+    inline void setLastTopoSize(unsigned int lteid) { m_lastTopoSize = lteid; }
+
     /// to handle properly the removal of items, the container must know the index of the last element
     unsigned int lastElementIndex;
+
+    /// index of the index of the latest element type of the current topology
+    ///  the previous attribute is handling only the number of point but not the edges, triangles ....
+    unsigned int m_lastTopoSize;
 };
 
 

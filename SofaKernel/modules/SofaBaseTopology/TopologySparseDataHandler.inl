@@ -151,7 +151,7 @@ void TopologySparseDataHandler <TopologyElementType, VecT>::move( const sofa::he
 
 
 template <typename TopologyElementType, typename VecT>
-void TopologySparseDataHandler <TopologyElementType, VecT>::remove( const sofa::helper::vector<unsigned int> &index )
+void TopologySparseDataHandler <TopologyElementType, VecT>::remove( const sofa::helper::vector<unsigned int> &index)
 {
     sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* >(m_topologyData);
     if (!_topologyData->getSparseDataStatus())
@@ -178,7 +178,7 @@ void TopologySparseDataHandler <TopologyElementType, VecT>::remove( const sofa::
 
 
 template <typename TopologyElementType, typename VecT>
-void TopologySparseDataHandler <TopologyElementType, VecT>::renumber( const sofa::helper::vector<unsigned int>& )
+void TopologySparseDataHandler <TopologyElementType, VecT>::renumber( const sofa::helper::vector<unsigned int>&, const sofa::helper::vector<unsigned int> &index)
 {
     std::cerr << "WARNING: renumber event on topology SparseData is not yet handled" << std::endl;
 }

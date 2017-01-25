@@ -1,20 +1,23 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
+*                (c) 2006-2011 MGH, INRIA, USTL, UJF, CNRS                    *
 *                                                                             *
-* This program is free software; you can redistribute it and/or modify it     *
+* This library is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
 * the Free Software Foundation; either version 2.1 of the License, or (at     *
 * your option) any later version.                                             *
 *                                                                             *
-* This program is distributed in the hope that it will be useful, but WITHOUT *
+* This library is distributed in the hope that it will be useful, but WITHOUT *
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
 * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License *
 * for more details.                                                           *
 *                                                                             *
 * You should have received a copy of the GNU Lesser General Public License    *
-* along with this program. If not, see <http://www.gnu.org/licenses/>.        *
+* along with this library; if not, write to the Free Software Foundation,     *
+* Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.          *
 *******************************************************************************
+*                               SOFA :: Modules                               *
+*                                                                             *
 * Authors: The SOFA Team and external contributors (see Authors.txt)          *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
@@ -24,11 +27,11 @@
 #include "config.h"
 
 #include <sofa/helper/vector.h>
+#include <sofa/SofaBase.h>
 
 #include <sofa/core/topology/BaseTopologyData.h>
-#include <SofaBaseTopology/TopologyEngine.h>
 #include <SofaBaseTopology/TopologyDataHandler.h>
-
+#include <SofaBaseTopology/TopologyEngine.h>
 
 
 namespace sofa
@@ -49,30 +52,17 @@ namespace topology
 * This class is a wrapper of class helper::vector that is made to take care transparently of all topology changes that might
 * happen (non exhaustive list: element added, removed, fused, renumbered).
 */
-template< class TopologyElementType, class VecT>
-class TopologyDataImpl : public sofa::core::topology::BaseTopologyData<VecT>
+template< class TopologyElementType, class ContainerType>
+class TopologyDataImpl : public sofa::core::topology::BaseTopologyData<ContainerType>
 {
 
 public:
-    typedef VecT container_type;
-    typedef typename container_type::value_type value_type;
-
-    /// size_type
-    typedef typename container_type::size_type size_type;
-    /// reference to a value (read-write)
-    typedef typename container_type::reference reference;
-    /// const reference to a value (read only)
-    typedef typename container_type::const_reference const_reference;
-    /// const iterator
-    typedef typename container_type::const_iterator const_iterator;
-
 
     /// Constructor
-    TopologyDataImpl( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : sofa::core::topology::BaseTopologyData< VecT >(data),
-          m_topologicalEngine(NULL),
-          m_topology(NULL),
-          m_topologyHandler(NULL)
+    TopologyDataImpl( const typename sofa::core::topology::BaseTopologyData< ContainerType >::InitData& data)
+        : sofa::core::topology::BaseTopologyData< ContainerType >(data),
+          m_topologyHandler(NULL),
+          m_deleteTopologyHandler(false)
     {}
 
     virtual ~TopologyDataImpl();
@@ -80,7 +70,7 @@ public:
 
     /** Public functions to handle topological engine creation */
     /// To create topological engine link to this Data. Pointer to current topology is needed.
-    virtual void createTopologicalEngine(sofa::core::topology::BaseMeshTopology* _topology, sofa::component::topology::TopologyDataHandler<TopologyElementType,VecT>* _topologyHandler, bool deleteHandler = false);
+    virtual void createTopologicalEngine(sofa::core::topology::BaseMeshTopology* _topology, sofa::component::topology::TopologyDataHandler<TopologyElementType,ContainerType>* _topologyHandler, bool deleteHandler = false);
 
     /** Public functions to handle topological engine creation */
     /// To create topological engine link to this Data. Pointer to current topology is needed.
@@ -94,20 +84,22 @@ public:
     void registerTopologicalData();
 
 
-    const value_type& operator[](int i) const
+    ///////////////  DEPRECATED ///////////////
+    typedef typename defaulttype::DataTypeInfo<ContainerType>::MappedType MappedType;
+    const MappedType& operator[](int i) const
     {
-        const container_type& data = *(this->getValue());
-        const value_type& result = data[i];
-        return result;
+        const ContainerType& data = (this->getValue());
+        return data[i];
     }
 
-    value_type& operator[](int i)
+    MappedType& operator[](int i)
     {
-        container_type& data = *(this->beginEdit());
-        value_type& result = data[i];
+        ContainerType& data = *(this->beginEdit());
+        auto& result = data[i];
         this->endEdit();
         return result;
     }
+    /////////////END OF DEPRECATED//////////////
 
 
     /// Link Data to topology arrays
@@ -118,26 +110,15 @@ public:
     void linkToTetrahedronDataArray();
     void linkToHexahedronDataArray();
 
-    sofa::component::topology::TopologyEngineImpl<VecT>* getTopologicalEngine()
-    {
-        return m_topologicalEngine.get();
-    }
-
-    sofa::core::topology::BaseMeshTopology* getTopology()
-    {
-        return m_topology;
-    }
-
-    sofa::component::topology::TopologyDataHandler<TopologyElementType,VecT>* getTopologyHandler()
+    sofa::component::topology::TopologyDataHandler<TopologyElementType,ContainerType>* getTopologyHandler()
     {
         return m_topologyHandler;
     }
 
 protected:
 
-    typename sofa::component::topology::TopologyEngineImpl<VecT>::SPtr m_topologicalEngine;
-    sofa::core::topology::BaseMeshTopology* m_topology;
-    sofa::component::topology::TopologyDataHandler<TopologyElementType,VecT>* m_topologyHandler;
+    sofa::component::topology::TopologyDataHandler<TopologyElementType,ContainerType>* m_topologyHandler;
+    bool m_deleteTopologyHandler;
 
     void linkToElementDataArray(sofa::core::topology::BaseMeshTopology::Point*      ) { linkToPointDataArray();       }
     void linkToElementDataArray(sofa::core::topology::BaseMeshTopology::Edge*       ) { linkToEdgeDataArray();        }
@@ -148,97 +129,13 @@ protected:
 
 };
 
-// In c++11, the following classes could be replaced by :
-// template< class VecT > using PointData       = TopologyDataImpl<Point      , VecT>;
-// template< class VecT > using EdgeData        = TopologyDataImpl<Edge       , VecT>;
-// template< class VecT > using TriangleData    = TopologyDataImpl<Triangle   , VecT>;
-// template< class VecT > using QuadData        = TopologyDataImpl<Quad       , VecT>;
-// template< class VecT > using TetrahedronData = TopologyDataImpl<Tetrahedron, VecT>;
-// template< class VecT > using HexahedronData  = TopologyDataImpl<Hexahedron , VecT>;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////   Point Topology Data Implementation   /////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template< class VecT >
-class PointData : public TopologyDataImpl<core::topology::BaseMeshTopology::Point, VecT>
-{
-public:
-    PointData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : TopologyDataImpl<core::topology::BaseMeshTopology::Point, VecT>(data)
-    {}
-};
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////   Edge Topology Data Implementation   /////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template< class VecT >
-class EdgeData : public TopologyDataImpl<core::topology::BaseMeshTopology::Edge, VecT>
-{
-public:
-    EdgeData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : TopologyDataImpl<core::topology::BaseMeshTopology::Edge, VecT>(data)
-    {}
-};
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////   Triangle Topology Data Implementation   ///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template< class VecT >
-class TriangleData : public TopologyDataImpl<core::topology::BaseMeshTopology::Triangle, VecT>
-{
-public:
-    TriangleData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : TopologyDataImpl<core::topology::BaseMeshTopology::Triangle, VecT>(data)
-    {}
-};
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////   Quad Topology Data Implementation   /////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template< class VecT >
-class QuadData : public TopologyDataImpl<core::topology::BaseMeshTopology::Quad, VecT>
-{
-public:
-    QuadData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : TopologyDataImpl<core::topology::BaseMeshTopology::Quad, VecT>(data)
-    {}
-};
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////   Tetrahedron Topology Data Implementation   /////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template< class VecT >
-class TetrahedronData : public TopologyDataImpl<core::topology::BaseMeshTopology::Tetrahedron, VecT>
-{
-public:
-    TetrahedronData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : TopologyDataImpl<core::topology::BaseMeshTopology::Tetrahedron, VecT>(data)
-    {}
-};
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////   Hexahedron Topology Data Implementation   /////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template< class VecT >
-class HexahedronData : public TopologyDataImpl<core::topology::BaseMeshTopology::Hexahedron, VecT>
-{
-public:
-    HexahedronData( const typename sofa::core::topology::BaseTopologyData< VecT >::InitData& data)
-        : TopologyDataImpl<core::topology::BaseMeshTopology::Hexahedron, VecT>(data)
-    {}
-};
-
+// c++11 power!
+template< class ContainerType > using PointData       = TopologyDataImpl<Point      , ContainerType>;
+template< class ContainerType > using EdgeData        = TopologyDataImpl<Edge       , ContainerType>;
+template< class ContainerType > using TriangleData    = TopologyDataImpl<Triangle   , ContainerType>;
+template< class ContainerType > using QuadData        = TopologyDataImpl<Quad       , ContainerType>;
+template< class ContainerType > using TetrahedronData = TopologyDataImpl<Tetrahedron, ContainerType>;
+template< class ContainerType > using HexahedronData  = TopologyDataImpl<Hexahedron , ContainerType>;
 
 } // namespace topology
 

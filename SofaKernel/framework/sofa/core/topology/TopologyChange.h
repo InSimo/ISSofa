@@ -232,7 +232,7 @@ struct TopologyChangeElementInfo<Topology::Edge>
 {
     enum { USE_EMOVED          = 0 };
     enum { USE_EMOVED_REMOVING = 1 };
-    enum { USE_EMOVED_ADDIpNG   = 1 };
+    enum { USE_EMOVED_ADDING   = 1 };
 
     typedef EdgesIndicesSwap    EIndicesSwap;
     typedef EdgesRenumbering    ERenumbering;
