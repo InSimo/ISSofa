@@ -67,7 +67,6 @@ set(HEADER_FILES
     TopologySubsetDataHandler.h
     TopologySubsetDataHandler.inl
     TopologyEngine.h
-    TopologyEngine.inl
 
     )
 
@@ -105,6 +104,7 @@ set(SOURCE_FILES_UNITY
     BezierTetrahedronSetGeometryAlgorithms.cpp
     TetrahedronSetTopologyAlgorithms.cpp
     TetrahedronSetTopologyModifier.cpp
+    TopologyEngine.cpp
     TriangleSetGeometryAlgorithms.cpp
     TriangleSetTopologyAlgorithms.cpp
     TriangleSetTopologyContainer.cpp

@@ -39,7 +39,7 @@ namespace topology
 
 
 /** A class that will interact on a topological Data */
-class TopologyEngine : public sofa::core::DataEngine
+class SOFA_CORE_API TopologyEngine : public sofa::core::DataEngine
 {
 public:
     SOFA_ABSTRACT_CLASS(TopologyEngine, DataEngine);
@@ -70,7 +70,9 @@ public:
         this->createEngineName();
     }
 
-    virtual void handleTopologyChange() {}
+    virtual void registerTopology() = 0;
+
+    //virtual void handleTopologyChange() = 0;
 
 
 public:
@@ -99,12 +101,12 @@ public:
         return;
     }
 
-    virtual void linkToPointDataArray() {}
-    virtual void linkToEdgeDataArray() {}
-    virtual void linkToTriangleDataArray() {}
-    virtual void linkToQuadDataArray() {}
-    virtual void linkToTetrahedronDataArray() {}
-    virtual void linkToHexahedronDataArray() {}
+    virtual void linkToPointDataArray() = 0;
+    virtual void linkToEdgeDataArray() = 0;
+    virtual void linkToTriangleDataArray() = 0;
+    virtual void linkToQuadDataArray() = 0;
+    virtual void linkToTetrahedronDataArray() = 0;
+    virtual void linkToHexahedronDataArray() = 0;
 
     void setNamePrefix(const std::string& s) { m_prefix = s; }
 

@@ -27,6 +27,8 @@
 
 #include <sofa/core/topology/TopologyElementHandler.h>
 #include <sofa/core/topology/BaseTopologyData.h>
+#include <sofa/helper/map.h>
+#include <sofa/defaulttype/DataTypeInfo.h>
 
 
 namespace sofa
@@ -43,123 +45,91 @@ namespace topology
 /////////////////////////////   Generic Topology Data Implementation   /////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Helper method to initialize a value_type stored in a topology-indexed Data.
-/// Can be specialized for types without default constructors
-template< class value_type >
-inline void TopologyDataHandler_clear(value_type& v) { v = value_type(); }
-
-/// Helper method to resize a container_type stored in a topology-indexed Data.
-/// Can be specialized for types without default constructors
-template< class container_type >
-inline void TopologyDataHandler_resize(container_type& data, unsigned int n) { data.resize(n); }
-
 /** \brief A class for storing topology related data. Automatically manages topology changes.
 *
 * This class is a wrapper of class helper::vector that is made to take care transparently of all topology changes that might
 * happen (non exhaustive list: elements added, removed, fused, renumbered).
 */
 
-template< class TopologyElementType, class VecT>
+template< class TopologyElementType, class ContainerT>
 class TopologyDataHandler : public sofa::core::topology::TopologyElementHandler< TopologyElementType >
 {
 public:
-    typedef VecT container_type;
-    typedef typename container_type::value_type value_type;
+    enum { InvalidID = (unsigned)-1 };
+    typedef ContainerT                                  ContainerType;
+    typedef defaulttype::DataTypeInfo<ContainerType>    DataTypeInfo;
+    typedef typename DataTypeInfo::KeyType              KeyType; 
+    typedef typename DataTypeInfo::MappedType           MappedType;
 
-    /// size_type
-    typedef typename container_type::size_type size_type;
-    /// reference to a value (read-write)
-    typedef typename container_type::reference reference;
-    /// const reference to a value (read only)
-    typedef typename container_type::const_reference const_reference;
-    /// const iterator
-    typedef typename container_type::const_iterator const_iterator;
+    typedef typename core::topology::TopologyElementInfo<TopologyElementType>    TopologyElementInfoT;
+    typedef typename core::topology::TopologyObjectType                          TopologyObjectType;
 
-    typedef sofa::core::topology::TopologyElementHandler< TopologyElementType > Inherit;
+    typedef typename sofa::core::topology::TopologyElementHandler< TopologyElementType > Inherit;
     typedef typename Inherit::AncestorElem AncestorElem;
 
 protected:
-    sofa::core::topology::BaseTopologyData <VecT>* m_topologyData;
-	value_type* m_defaultValue; // default value when adding an element (or NULL if not specified, in which case TopologyDataHandler_clear() is used)
+    sofa::core::topology::BaseTopologyData <ContainerType>* m_topologyData;
+    MappedType* m_defaultValue; // default value when adding an element (or NULL if not specified)
 
 public:
-    /// constructor without default value
-    TopologyDataHandler(sofa::core::topology::BaseTopologyData <VecT>* _topologyData)
-        :sofa::core::topology::TopologyElementHandler < TopologyElementType >()
-        , m_topologyData(_topologyData), m_defaultValue(NULL) {}
 
-    /// constructor with default value
-    TopologyDataHandler(sofa::core::topology::BaseTopologyData <VecT>* _topologyData,
-                        value_type defaultValue)
-        :sofa::core::topology::TopologyElementHandler < TopologyElementType >()
-        , m_topologyData(_topologyData), m_defaultValue(new value_type(defaultValue)) {}
+    // Constructors
+    TopologyDataHandler(sofa::core::topology::BaseTopologyData <ContainerType>* _topologyData);
+    TopologyDataHandler(sofa::core::topology::BaseTopologyData <ContainerType>* _topologyData, MappedType defaultValue);
 
     /// destructor
-    ~TopologyDataHandler()
-    {
-        if (m_defaultValue)
-        {
-            delete m_defaultValue;
-        }
-    }
+    ~TopologyDataHandler();
 
-    bool isTopologyDataRegistered()
-    {
-        if(m_topologyData) return true;
-        else return false;
-    }
+    // initialization method called after the link between the Data and the Topology is established
+    virtual void init();
 
-    /** Public fonction to apply creation and destruction functions */
+    bool isTopologyDataRegistered() { return (m_topologyData != NULL);}
+
     /// Apply removing current elementType elements
-    virtual void applyDestroyFunction(unsigned int, value_type& ) {}
-
-    /// Apply adding current elementType elements
-    virtual void applyCreateFunction(unsigned int, value_type& t,
-            const sofa::helper::vector< unsigned int > &,
-            const sofa::helper::vector< double > &)
-    {
-        if (m_defaultValue)
-        {
-            t = *m_defaultValue;
-        }
-        else
-        {
-            TopologyDataHandler_clear(t);
-        }
-    }
+    virtual void applyDestroyFunction(unsigned int, MappedType&) {}
 
     /// WARNING NEED TO UNIFY THIS
     /// Apply adding current elementType elements
-    virtual void applyCreateFunction(unsigned int i, value_type&t , const TopologyElementType& ,
-            const sofa::helper::vector< unsigned int > &ancestors,
-            const sofa::helper::vector< double > &coefs)
+    virtual void applyCreateFunction(unsigned int, MappedType& t,
+        const sofa::helper::vector< unsigned int > &,
+        const sofa::helper::vector< double > &);
+
+    virtual void applyCreateFunction(unsigned int i, MappedType&t, const TopologyElementType&,
+        const sofa::helper::vector< unsigned int > &ancestors,
+        const sofa::helper::vector< double > &coefs)
     {
         applyCreateFunction(i, t, ancestors, coefs);
     }
 
-    virtual void applyCreateFunction(unsigned int i, value_type&t , const TopologyElementType& e,
-            const sofa::helper::vector< unsigned int > &ancestors,
-            const sofa::helper::vector< double > &coefs,
-            const AncestorElem* /*ancestorElem*/)
+    virtual void applyCreateFunction(unsigned int i, MappedType&t, const TopologyElementType& e,
+        const sofa::helper::vector< unsigned int > &ancestors,
+        const sofa::helper::vector< double > &coefs,
+        const AncestorElem* /*ancestorElem*/)
     {
         applyCreateFunction(i, t, e, ancestors, coefs);
     }
+
+    virtual void applyCreateFunction(unsigned int index, ContainerType& container,
+        const TopologyElementType& e,
+        const sofa::helper::vector< unsigned int > & ancestors,
+        const sofa::helper::vector< double > & coefs,
+        const AncestorElem* ancestorElem);
+
+    virtual void applyDestroyFunction(unsigned int index, ContainerType& container);
+
 	// update the default value used during creation
-	void setDefaultValue(const value_type &v)
-    {
-        if (m_defaultValue)
-        {
-            *m_defaultValue = v;
-        }
-        else
-        {
-            m_defaultValue = new value_type(v);
-        }
-	}
+    void setDefaultValue(const MappedType &v);
 
 protected:
     /// Swaps values at indices i1 and i2.
     virtual void swap( unsigned int i1, unsigned int i2 );
+
+    template<class T>
+    inline void swapHelper(unsigned int i1, unsigned int i2, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
+    template<class T>
+    inline void swapHelper(unsigned int i1, unsigned int i2, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
+    template<class T>
+    inline void swapHelper(unsigned int i1, unsigned int i2, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
 
     /// Add some values. Values are added at the end of the vector.
     /// This (new) version gives more information for element indices and ancestry
@@ -172,8 +142,22 @@ protected:
     /// Remove the values corresponding to the elements removed.
     virtual void remove( const sofa::helper::vector<unsigned int> &index );
 
+    template<class T>
+    inline void removeHelper(const sofa::helper::vector<unsigned int> &index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
+    template<class T>
+    inline void removeHelper(const sofa::helper::vector<unsigned int> &index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
+    template<class T>
+    inline void removeHelper(const sofa::helper::vector<unsigned int> &index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
+
     /// Reorder the values.
-    virtual void renumber( const sofa::helper::vector<unsigned int> &index );
+    virtual void renumber( const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index);
+
+    template<class T>
+    inline void renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
+    template<class T>
+    inline void renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
+    template<class T>
+    inline void renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
 
     /// Move a list of points
     virtual void move( const sofa::helper::vector<unsigned int> &indexList,

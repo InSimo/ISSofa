@@ -509,7 +509,7 @@ void MeshMatrixMass<DataTypes, MassType>::EdgeMassHandler::applyQuadCreation(con
         for (unsigned int i = 0; i<quadAdded.size(); ++i)
         {
             // Get the EdgesInQuad to be added
-            const topology::EdgesInQuad &qe = MMM->_topology->getEdgesInQuad(quadAdded[i]);
+            const topology::BaseMeshTopology::EdgesInQuad &qe = MMM->_topology->getEdgesInQuad(quadAdded[i]);
 
             // Compute rest mass of conserne quad = density * quad surface.
             if(MMM->quadGeo)
@@ -570,7 +570,7 @@ void MeshMatrixMass<DataTypes, MassType>::EdgeMassHandler::applyQuadDestruction(
         for (unsigned int i = 0; i<quadRemoved.size(); ++i)
         {
             // Get the EdgesInQuad to be removed
-            const topology::EdgesInQuad &qe = MMM->_topology->getEdgesInQuad(quadRemoved[i]);
+            const topology::BaseMeshTopology::EdgesInQuad &qe = MMM->_topology->getEdgesInQuad(quadRemoved[i]);
 
             // Compute rest mass of conserne quad = density * quad surface.
             if(MMM->quadGeo)
@@ -862,7 +862,7 @@ void MeshMatrixMass<DataTypes, MassType>::EdgeMassHandler::applyHexahedronCreati
         for (unsigned int i = 0; i<hexahedronAdded.size(); ++i)
         {
             // Get the EdgesInHexahedron to be added
-            const topology::EdgesInHexahedron &he = MMM->_topology->getEdgesInHexahedron(hexahedronAdded[i]);
+            const topology::BaseMeshTopology::EdgesInHexahedron &he = MMM->_topology->getEdgesInHexahedron(hexahedronAdded[i]);
 
             // Compute rest mass of conserne hexahedron = density * hexahedron volume.
             if(MMM->hexaGeo)
@@ -924,7 +924,7 @@ void MeshMatrixMass<DataTypes, MassType>::EdgeMassHandler::applyHexahedronDestru
         for (unsigned int i = 0; i<hexahedronRemoved.size(); ++i)
         {
             // Get the EdgesInHexahedron to be removed
-            const topology::EdgesInHexahedron &he = MMM->_topology->getEdgesInHexahedron(hexahedronRemoved[i]);
+            const topology::BaseMeshTopology::EdgesInHexahedron &he = MMM->_topology->getEdgesInHexahedron(hexahedronRemoved[i]);
 
             // Compute rest mass of conserne hexahedron = density * hexahedron volume.
             if(MMM->hexaGeo)

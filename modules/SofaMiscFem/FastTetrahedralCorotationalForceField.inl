@@ -46,8 +46,8 @@ namespace forcefield
 typedef core::topology::BaseMeshTopology::Tetra Tetra;
 typedef core::topology::BaseMeshTopology::EdgesInTetrahedron EdgesInTetrahedron;
 
-typedef topology::Tetra Tetrahedron;
-typedef topology::EdgesInTetrahedron EdgesInTetrahedron;
+typedef topology::BaseMeshTopology::Tetra Tetrahedron;
+typedef topology::BaseMeshTopology::EdgesInTetrahedron EdgesInTetrahedron;
 
 
 template< class DataTypes>
@@ -246,7 +246,7 @@ void FastTetrahedralCorotationalForceField<DataTypes>::updateTopologyInformation
     {
         tetinfo=&tetrahedronInf[i];
         /// describe the jth edge index of triangle no i
-        const topology::EdgesInTetrahedron &tea= _topology->getEdgesInTetrahedron(i);
+        const topology::BaseMeshTopology::EdgesInTetrahedron &tea= _topology->getEdgesInTetrahedron(i);
         /// describe the jth vertex index of triangle no i
         const topology::Tetrahedron &ta= _topology->getTetrahedron(i);
 

@@ -28,12 +28,13 @@
 
 #include <sofa/core/topology/BaseTopologyEngine.h>
 #include <sofa/core/topology/TopologyHandler.h>
-#include <sofa/core/topology/BaseTopologyData.h>
+#include <sofa/core/objectmodel/BaseData.h>
 
 #include <sofa/core/topology/BaseTopology.h>
 
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/list.h>
+#include <sofa/SofaBase.h>
 
 namespace sofa
 {
@@ -59,16 +60,13 @@ typedef BaseMeshTopology::Hexahedron Hexahedron;
 /////////////////////////////   Generic Topology Data Implementation   /////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template< class VecT>
-class TopologyEngineImpl : public sofa::core::topology::TopologyEngine
+class SOFA_BASE_TOPOLOGY_API TopologyEngineImpl : public sofa::core::topology::TopologyEngine
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE(TopologyEngineImpl,VecT), sofa::core::topology::TopologyEngine);
-    typedef VecT container_type;
-    typedef typename container_type::value_type value_type;
-    typedef sofa::core::topology::BaseTopologyData<VecT> t_topologicalData;
-
-protected:
+    SOFA_CLASS(TopologyEngineImpl, sofa::core::topology::TopologyEngine);
+    typedef sofa::core::objectmodel::BaseData t_topologicalData;
+    
+//protected:
     //TopologyEngineImpl();
 
     TopologyEngineImpl(t_topologicalData* _topologicalData,

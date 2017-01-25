@@ -905,7 +905,7 @@ inline void TetrahedralCorotationalFEMForceField<DataTypes>::getElementStiffness
 }
 
 template <class DataTypes>
-inline void TetrahedralCorotationalFEMForceField<DataTypes>::getElementStiffnessMatrix(Real* stiffness, topology::Tetra& te)
+inline void TetrahedralCorotationalFEMForceField<DataTypes>::getElementStiffnessMatrix(Real* stiffness, topology::BaseMeshTopology::Tetra& te)
 {
     const VecCoord X0=this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
 

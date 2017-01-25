@@ -79,7 +79,7 @@ void TriangularQuadraticSpringsForceField<DataTypes>::TRQSTriangleHandler::apply
         helper::vector<typename TriangularQuadraticSpringsForceField<DataTypes>::EdgeRestInformation>& edgeInf = *(edgeInfo.beginEdit());
 
         /// describe the jth edge index of triangle no i
-        const EdgesInTriangle &te= ff->_topology->getEdgesInTriangle(triangleIndex);
+        const topology::BaseMeshTopology::EdgesInTriangle &te= ff->_topology->getEdgesInTriangle(triangleIndex);
         // store square rest length
         for(j=0; j<3; ++j)
         {
@@ -131,7 +131,7 @@ void TriangularQuadraticSpringsForceField<DataTypes>::TRQSTriangleHandler::apply
         helper::vector<typename TriangularQuadraticSpringsForceField<DataTypes>::EdgeRestInformation>& edgeInf = *(edgeInfo.beginEdit());
 
         /// describe the jth edge index of triangle no i
-        const EdgesInTriangle &te= ff->_topology->getEdgesInTriangle(triangleIndex);
+        const topology::BaseMeshTopology::EdgesInTriangle &te= ff->_topology->getEdgesInTriangle(triangleIndex);
         // store square rest length
         for(j=0; j<3; ++j)
         {
@@ -283,7 +283,7 @@ void TriangularQuadraticSpringsForceField<DataTypes>::addForce(const core::Mecha
         {
             tinfo=&triangleInf[i];
             /// describe the jth edge index of triangle no i
-            const EdgesInTriangle &tea= _topology->getEdgesInTriangle(i);
+            const topology::BaseMeshTopology::EdgesInTriangle &tea= _topology->getEdgesInTriangle(i);
             /// describe the jth vertex index of triangle no i
             const Triangle &ta= _topology->getTriangle(i);
 
@@ -346,7 +346,7 @@ void TriangularQuadraticSpringsForceField<DataTypes>::addDForce(const core::Mech
         {
             tinfo=&triangleInf[l];
             /// describe the jth edge index of triangle no i
-            const EdgesInTriangle &tea= _topology->getEdgesInTriangle(l);
+            const topology::BaseMeshTopology::EdgesInTriangle &tea= _topology->getEdgesInTriangle(l);
             /// describe the jth vertex index of triangle no i
             const Triangle &ta= _topology->getTriangle(l);
 

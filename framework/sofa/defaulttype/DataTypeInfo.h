@@ -254,7 +254,7 @@ struct InvalidDataTypeInfo
 
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
 
-    static void resetValue(DataType& data, size_t /*reserve*/)
+    static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
         DataTypeInfo_Clear(data);
     }
@@ -337,7 +337,7 @@ struct SingleValueTypeInfo
     //static constexpr size_t containerSize(const DataType& /*data*/) { return ContainerSize; }
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
 
-    static void resetValue(DataType& data, size_t /*reserve*/)
+    static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
         DataTypeInfo_Clear(data);
     }
@@ -558,7 +558,7 @@ struct MultiValueTypeInfo
         }
     }
 
-    static void resetValue(DataType& data, size_t /*reserve*/)
+    static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
         DataTypeInfo_Clear(data);
     }
@@ -1079,10 +1079,13 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
         }
     }
 
-    static void resetValue(DataType& data, size_t reserve)
+    static void resetValue(DataType& data, size_t reserve = 0)
     {
         ContainerTypes::clear(data);
-        ContainerTypes::reserve(data, reserve);
+        if (reserve > 0)
+        {
+            ContainerTypes::reserve(data, reserve);
+        }
     }
 
     static void getDataValueString(const DataType& data, std::string& value)

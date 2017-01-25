@@ -116,7 +116,7 @@ public:
 protected:
     virtual void createTopologyHandler() {}
 
-    typename sofa::component::topology::TopologyEngineImpl<VecT>::SPtr m_topologicalEngine;
+    typename sofa::component::topology::TopologyEngineImpl::SPtr m_topologicalEngine;
     sofa::core::topology::BaseMeshTopology* m_topology;
     sofa::component::topology::TopologySubsetDataHandler<TopologyElementType,VecT>* m_topologyHandler;
 
