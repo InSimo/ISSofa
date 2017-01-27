@@ -173,6 +173,8 @@ private:
 public:
     using core::objectmodel::BaseObject::init;
     virtual void init(const typename Out::VecCoord& out, const typename In::VecCoord& in) = 0;
+    /// Called if the mapper should setup handling of topological changes
+    virtual void initTopologyChange() {}
     virtual void apply( typename Out::VecCoord& out, const typename In::VecCoord& in ) = 0;
     virtual const sofa::defaulttype::BaseMatrix* getJ(int /*outSize*/, int /*inSize*/)
     {
@@ -604,6 +606,8 @@ public:
     int createPointInLine(const typename Out::Coord& p, int edgeIndex, const typename In::VecCoord* points);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    /// Called if the mapper should setup handling of topological changes
+    void initTopologyChange();
 
     void apply( typename Out::VecCoord& out, const typename In::VecCoord& in );
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
@@ -694,6 +698,8 @@ public:
     int createPointInTriangle(const typename Out::Coord& p, int triangleIndex, const typename In::VecCoord* points);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    /// Called if the mapper should setup handling of topological changes
+    void initTopologyChange();
 
     void apply( typename Out::VecCoord& out, const typename In::VecCoord& in );
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
@@ -788,6 +794,8 @@ public:
     int createPointInQuad(const typename Out::Coord& p, int index, const typename In::VecCoord* points);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    /// Called if the mapper should setup handling of topological changes
+    void initTopologyChange();
 
     void apply( typename Out::VecCoord& out, const typename In::VecCoord& in );
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
@@ -879,6 +887,8 @@ public:
     int addPointInTetra(const int index, const SReal* baryCoords);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    /// Called if the mapper should setup handling of topological changes
+    void initTopologyChange();
 
     void apply( typename Out::VecCoord& out, const typename In::VecCoord& in );
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
@@ -951,6 +961,8 @@ public:
     int setPointInCube(const int pointIndex, const int cubeIndex, const SReal* baryCoords);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    /// Called if the mapper should setup handling of topological changes
+    void initTopologyChange();
 
     void apply( typename Out::VecCoord& out, const typename In::VecCoord& in );
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
@@ -1040,6 +1052,8 @@ protected:
 public:
 
     Data< bool > useRestPosition;
+
+    Data < bool > d_handleTopologyChange;
 
 #ifdef SOFA_DEV
     //--- partial mapping test

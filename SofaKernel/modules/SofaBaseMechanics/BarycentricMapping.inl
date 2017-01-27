@@ -68,6 +68,7 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping()
     : Inherit()
     , mapper(initLink("mapper","Internal mapper created depending on the type of topology"))
     , useRestPosition(core::objectmodel::Base::initData(&useRestPosition, false, "useRestPosition", "Use the rest position of the input and output models to initialize the mapping"))
+    , d_handleTopologyChange(core::objectmodel::Base::initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable (partial) support of topological changes (disable if another component takes care of this)"))
 #ifdef SOFA_DEV
     , sleeping(core::objectmodel::Base::initData(&sleeping, false, "sleeping", "is the mapping sleeping (not computed)"))
 #endif
@@ -79,6 +80,7 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping(core::State<In>* from, core::S
     : Inherit ( from, to )
     , mapper(initLink("mapper","Internal mapper created depending on the type of topology"), mapper)
     , useRestPosition(core::objectmodel::Base::initData(&useRestPosition, false, "useRestPosition", "Use the rest position of the input and output models to initialize the mapping"))
+    , d_handleTopologyChange(core::objectmodel::Base::initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable (partial) support of topological changes (disable if another component takes care of this)"))
 #ifdef SOFA_DEV
     , sleeping(core::objectmodel::Base::initData(&sleeping, false, "sleeping", "is the mapping sleeping (not computed)"))
 #endif
@@ -92,6 +94,7 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping (core::State<In>* from, core::
     : Inherit ( from, to )
     , mapper (initLink("mapper","Internal mapper created depending on the type of topology"))
     , useRestPosition(core::objectmodel::Base::initData(&useRestPosition, false, "useRestPosition", "Use the rest position of the input and output models to initialize the mapping"))
+    , d_handleTopologyChange(core::objectmodel::Base::initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable (partial) support of topological changes (disable if another component takes care of this)"))
 #ifdef SOFA_DEV
     , sleeping(core::objectmodel::Base::initData(&sleeping, false, "sleeping", "is the mapping sleeping (not computed)"))
 #endif
@@ -638,9 +641,6 @@ void BarycentricMapperEdgeSetTopology<In,Out>::init ( const typename Out::VecCoo
 //        map.registerTopologicalData();
 //    }
 
-    //  int outside = 0;
-    //  const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
-    //TODO: implementation of BarycentricMapperEdgeSetTopology::init
 }
 
 template <class In, class Out>
@@ -738,6 +738,16 @@ void BarycentricMapperTriangleSetTopology<In,Out>::init ( const typename Out::Ve
 }
 
 template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In,Out>::initTopologyChange()
+{
+    if (this->toTopology)
+    {
+        map.createTopologicalEngine(this->toTopology);
+        map.registerTopologicalData();
+    }
+}
+
+template <class In, class Out>
 void BarycentricMapperQuadSetTopology<In,Out>::clear ( int reserve )
 {
     helper::vector<MappingData>& vectorData = *(map.beginEdit());
@@ -784,11 +794,6 @@ template <class In, class Out>
 void BarycentricMapperQuadSetTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
     _fromContainer->getContext()->get ( _fromGeomAlgo );
-    // Why do we need that ? is reset the map in case of topology change
-//    if (this->toTopology)
-//    {
-//        map.createTopologicalEngine(this->toTopology);
-//        map.registerTopologicalData();
 //    }
 
     int outside = 0;
@@ -834,6 +839,16 @@ void BarycentricMapperQuadSetTopology<In,Out>::init ( const typename Out::VecCoo
 }
 
 template <class In, class Out>
+void BarycentricMapperQuadSetTopology<In,Out>::initTopologyChange()
+{
+    if (this->toTopology)
+    {
+        map.createTopologicalEngine(this->toTopology);
+        map.registerTopologicalData();
+    }
+}
+
+template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::clear ( int reserve )
 {
     helper::vector<MappingData>& vectorData = *(map.beginEdit());
@@ -865,11 +880,6 @@ template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
     _fromContainer->getContext()->get ( _fromGeomAlgo );
-    // Why do we need that ? is reset the map in case of topology change
-//    if (this->toTopology)
-//    {
-//        map.createTopologicalEngine(this->toTopology);
-//        map.registerTopologicalData();
 //    }
 
     int outside = 0;
@@ -913,6 +923,15 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::init ( const typename Out:
     }
 }
 
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::initTopologyChange()
+{
+    if (this->toTopology)
+    {
+        map.createTopologicalEngine(this->toTopology);
+        map.registerTopologicalData();
+    }
+}
 
 
 
@@ -969,11 +988,6 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::init ( const typename Out::
         const typename In::VecCoord& /*in*/ )
 {
     _fromContainer->getContext()->get ( _fromGeomAlgo );
-    // Why do we need that ? is reset the map in case of topology change
-//    if (this->toTopology)
-//    {
-//        map.createTopologicalEngine(this->toTopology);
-//        map.registerTopologicalData();
 //    }
 
     if ( _fromGeomAlgo == NULL )
@@ -1003,6 +1017,16 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::init ( const typename Out::
             addPointInCube ( elements[i], coefs[i].ptr() );
         else
             std::cerr << "Error [BarycentricMapperHexahedronSetTopology::init] cannot find a cell for barycentric mapping." << std::endl;
+    }
+}
+
+template <class In, class Out>
+void BarycentricMapperHexahedronSetTopology<In,Out>::initTopologyChange()
+{
+    if (this->toTopology)
+    {
+        map.createTopologicalEngine(this->toTopology);
+        map.registerTopologicalData();
     }
 }
 
@@ -1143,6 +1167,10 @@ void BarycentricMapping<TIn, TOut>::init()
             mapper->init ( ((const core::State<Out> *)this->toModel)->read(core::ConstVecCoordId::restPosition())->getValue(), ((const core::State<In> *)this->fromModel)->read(core::ConstVecCoordId::restPosition())->getValue() );
         else
             mapper->init (((const core::State<Out> *)this->toModel)->read(core::ConstVecCoordId::position())->getValue(), ((const core::State<In> *)this->fromModel)->read(core::ConstVecCoordId::position())->getValue() );
+        if (d_handleTopologyChange.getValue())
+        {
+            mapper->initTopologyChange();
+        }
     }
     else
     {
@@ -3727,6 +3755,7 @@ void BarycentricMapping<TIn, TOut>::handleTopologyChange ( core::topology::Topol
 //    if (mapper)
 //        mapper->handleTopologyChange(t);
     reinit(); // we now recompute the entire mapping when there is a topologychange
+    }
 }
 
 #ifdef BARYCENTRIC_MAPPER_TOPOCHANGE_REINIT
