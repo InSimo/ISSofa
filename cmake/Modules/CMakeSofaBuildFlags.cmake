@@ -9,6 +9,12 @@ endif()
 set(CXX_WARNING_FLAGS "-Wall -Wextra -pedantic")
 set(CXX_DEBUG_FLAGS "-g")
 
+option(SOFA_ENABLE_PERF_PROFILING "Enable profiling with perf" OFF)
+set(CXX_PROFILING_FLAGS "")
+if(SOFA_ENABLE_PERF_PROFILING)
+    set(CXX_PROFILING_FLAGS "-fno-omit-frame-pointer -DNDEBUG")
+endif()
+
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     set(CMAKE_CXX_FLAGS_DEBUG
         "${CXX_WARNING_FLAGS} ${CXX_DEBUG_FLAGS}"
@@ -18,7 +24,7 @@ elseif(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
     if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
         set(CXX_OPTIMIZATION_FLAGS "-O2")
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-            "${CXX_OPTIMIZATION_FLAGS} ${CXX_WARNING_FLAGS} ${CXX_DEBUG_FLAGS}"
+            "${CXX_OPTIMIZATION_FLAGS} ${CXX_WARNING_FLAGS} ${CXX_DEBUG_FLAGS} ${CXX_PROFILING_FLAGS}"
             CACHE STRING "Flags used by the compiler in RelWithDebInfo builds" FORCE)
     endif()
 
