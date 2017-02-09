@@ -204,9 +204,6 @@ HDCallbackCode HDCALLBACK stateCallback(void * userData)
 
     }
 
-    if(autreOmniDriver[0]->data.forceFeedback != NULL)
-        (autreOmniDriver[0]->data.forceFeedback)->computeForce(positionDevs,forceDevs);
-
     for(unsigned int i=0; i<autreOmniDriver.size(); i++)
     {
 
