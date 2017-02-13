@@ -23,7 +23,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/objectmodel/Tag.h>
-
+#include <sofa/helper/AdvancedTimer.h>
 
 namespace sofa
 {
@@ -107,6 +107,8 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 
     int nbContact = 0;
 
+    sofa::helper::AdvancedTimer::stepBegin("ProcessCurrentContacts");
+
 	// First iterate on the collision detection outputs and look for existing or new contacts
 	for (DetectionOutputMap::const_iterator outputsIt = outputsMap.begin(),
 		outputsItEnd = outputsMap.end(); outputsIt != outputsItEnd ; ++outputsIt)
@@ -178,6 +180,9 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 		}
 	}
 
+    sofa::helper::AdvancedTimer::stepNext("ProcessCurrentContacts","RemoveInactiveContacts");
+
+
 	// Then look at previous contacts
 	// and remove inactive contacts
 	for (ContactMap::iterator contactIt = contactMap.begin(), contactItEnd = contactMap.end();
@@ -217,6 +222,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 	}
 
     // now update contactVec
+    sofa::helper::AdvancedTimer::stepNext("RemoveInactiveContacts", "UpdateContactVector");
     contacts.clear();
     contacts.reserve(nbContact);
     for (ContactMap::const_iterator contactIt = contactMap.begin(), contactItEnd = contactMap.end();
@@ -225,6 +231,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
         contacts.push_back(contactIt->second);
     }
 
+    sofa::helper::AdvancedTimer::stepNext("UpdateContactVector", "ComputeContactMetrics");
     // compute number of contacts attached to each collision model
     std::map< CollisionModel*, int > nbContactsMap;
     for (unsigned int i = 0; i < contacts.size(); ++i)
@@ -235,6 +242,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
             nbContactsMap[cms.second]++;
     }
 
+    sofa::helper::AdvancedTimer::stepNext("ComputeContactMetrics", "SetCollisionModelContactMetrics");
 	// TODO: this is VERY inefficient, should be replaced with a visitor
     helper::vector< CollisionModel* > collisionModels;
     simulation::Node* context = dynamic_cast< simulation::Node* >(getContext());
@@ -244,6 +252,8 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
     {
         collisionModels[i]->setNumberOfContacts(nbContactsMap[collisionModels[i]]);
     }
+
+    sofa::helper::AdvancedTimer::stepEnd("SetCollisionModelContactMetrics");
 }
 
 std::string DefaultContactManager::getContactResponse(core::CollisionModel* model1, core::CollisionModel* model2)
