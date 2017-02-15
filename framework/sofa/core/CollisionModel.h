@@ -143,18 +143,6 @@ public:
         bSelfCollision = _bSelfCollision ;
     }
 
-    /// Get the number of contacts attached to the collision model
-    int getNumberOfContacts() const
-    {
-        return numberOfContacts;
-    }
-
-    /// Set the number of contacts attached to the collision model
-    void setNumberOfContacts(int i)
-    {
-        numberOfContacts = i;
-    }
-
     /// Set the number of elements.
     virtual void resize(int s)
     {
