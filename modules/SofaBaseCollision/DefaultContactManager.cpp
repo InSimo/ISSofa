@@ -172,7 +172,6 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 		}
 		else
 		{
-            // pre-existing and still active contact
             contactIt->second->setDetectionOutputs(outputsIt->second);
             ++nbContact;
 		}
@@ -229,29 +228,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
         contacts.push_back(contactIt->second);
     }
 
-    sofa::helper::AdvancedTimer::stepNext("UpdateContactVector", "ComputeContactMetrics");
-    // compute number of contacts attached to each collision model
-    std::map< CollisionModel*, int > nbContactsMap;
-    for (unsigned int i = 0; i < contacts.size(); ++i)
-    {
-        std::pair< CollisionModel*, CollisionModel* > cms = contacts[i]->getCollisionModels();
-        nbContactsMap[cms.first]++;
-        if (cms.second != cms.first)
-            nbContactsMap[cms.second]++;
-    }
-
-    sofa::helper::AdvancedTimer::stepNext("ComputeContactMetrics", "SetCollisionModelContactMetrics");
-	// TODO: this is VERY inefficient, should be replaced with a visitor
-    helper::vector< CollisionModel* > collisionModels;
-    simulation::Node* context = dynamic_cast< simulation::Node* >(getContext());
-    context->getTreeObjects< CollisionModel >(&collisionModels);
-
-    for (unsigned int i = 0; i < collisionModels.size(); ++i)
-    {
-        collisionModels[i]->setNumberOfContacts(nbContactsMap[collisionModels[i]]);
-    }
-
-    sofa::helper::AdvancedTimer::stepEnd("SetCollisionModelContactMetrics");
+    sofa::helper::AdvancedTimer::stepEnd("UpdateContactVector");
 }
 
 std::string DefaultContactManager::getContactResponse(core::CollisionModel* model1, core::CollisionModel* model2)
