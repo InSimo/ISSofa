@@ -23,8 +23,9 @@
 #define SOFA_HELPER_MAP_PTR_STABLE_COMPARE_H
 
 #include <sofa/helper/helper.h>
-#include <map>
 #include <memory>
+#include <map>
+#include <unordered_map>
 
 namespace sofa
 {
@@ -32,35 +33,69 @@ namespace sofa
 namespace helper
 {
 
+template < class T > struct ptr_stable_id_traits;
+
+template < class T >
+struct ptr_stable_id_traits< T* >
+{
+    typedef typename std::unordered_map<T*, unsigned int> MapID;
+};
+
+template < class T >
+struct ptr_stable_id_traits< std::pair<T*, T*> >
+{
+    typedef typename std::map<std::pair<T*, T*>, unsigned int> MapID;
+};
+
 /// An object transforming pointers to stable ids, i.e. whose value depend on the order the pointers
 /// are processed, and not their (potentially random) value
 template <typename T>
 class ptr_stable_id
 {
 public:
-	ptr_stable_id() 
-		: counter(new unsigned int(0))
-		, idMap(new std::map<T*, unsigned int>) {}
+    typedef typename ptr_stable_id_traits<T>::MapID MapID;
 
-	unsigned int operator()(T* p)
-	{
-		unsigned int id = 0;
-        typename std::map<T*,unsigned int>::iterator it = idMap->find(p);
-		if (it != idMap->end())
-		{
-			id = it->second;
-		}
-		else
-		{
-			id = ++(*counter);
-			idMap->insert(std::make_pair(p, id));
-		}
-		return id;
-	}
+    ptr_stable_id()
+        : counter(new unsigned int(0))
+        , idMap(new MapID) {}
 
-    inline unsigned int id(T* p)
+    unsigned int operator()(T p)
     {
-       return this->operator()(p);
+        unsigned int id = (*counter) + 1u;
+        typename MapID::iterator it = idMap->find(p);
+        if (it != idMap->end())
+        {
+            id = it->second;
+        }
+        else
+        {
+            id = (*counter)++;
+            idMap->emplace(p, id);
+        }
+        return id;
+    }
+
+    inline unsigned int erase(T p)
+    {
+        unsigned int id = (*counter) + 1u;
+        typename MapID::iterator it = idMap->find(p);
+        if (it != idMap->end())
+        {
+            id = it->second;
+            idMap->erase(it);
+        }
+        return id;
+    }
+
+    void clear()
+    {
+        (*counter) = 0u;
+        idMap->clear();
+    }
+
+    inline unsigned int id(T p)
+    {
+        return this->operator()(p);
     }
 
     inline unsigned int size() const
@@ -70,87 +105,53 @@ public:
 
 protected:
     mutable std::shared_ptr<unsigned int> counter;
-    mutable std::shared_ptr< std::map<T*,unsigned int> > idMap;
+    mutable std::shared_ptr< MapID > idMap;
 };
 
 /// A comparison object that order pointers in a stable way, i.e. in the order pointers are presented
 template <typename T>
-class ptr_stable_compare;
-
-template <typename T>
-class ptr_stable_compare<T*>
+class ptr_stable_compare
 {
 public:
     // wrap the ptr_stable_id<T> into an opaque type
     typedef ptr_stable_id<T> stable_id_map_type;
-	// This operator must be declared const in order to be used within const methods
-	// such as std::map::find()
 
-    void insert(const T* a)
+    void insert(T a)
     {
         m_ids->id(a);
     }
 
-	bool operator()(T* a, T* b) const
+    void erase(T a)
+    {
+        m_ids->erase(a);
+    }
+
+    void clear()
+    {
+        m_ids->clear();
+    }
+
+    // This operator must be declared const in order to be used within const methods
+    // such as std::map::find()
+	bool operator()(T a, T b) const
 	{
         unsigned int id_a = m_ids->id(a);
         unsigned int id_b = m_ids->id(b);
         return (id_a < id_b);
 	}
 
-    explicit ptr_stable_compare( ptr_stable_id<T>* ids ):m_ids(ids)
+    explicit ptr_stable_compare(stable_id_map_type* ids ):m_ids(ids)
     {
     } 
 
-    ptr_stable_id<T>* get_stable_id_map() const
+    stable_id_map_type* get_stable_id_map() const
     {
         return m_ids;
     }
 
 protected:
     /// memory is owned by the map_ptr_stable_compare instance
-	mutable ptr_stable_id<T>* m_ids;
-};
-
-template <typename T>
-class ptr_stable_compare< std::pair<T*,T*> >
-{
-public:
-    // wrap the ptr_stable_id<T> into an opaque type
-    typedef ptr_stable_id<T> stable_id_map_type;
-	
-    void insert(const std::pair<T*, T*>& a)
-    {
-        m_ids->id(a.first);
-        m_ids->id(a.second);
-    }
-    
-    // This operator must be declared const in order to be used within const methods
-	// such as std::map::find()
-	bool operator()(const std::pair<T*,T*>& a, const std::pair<T*,T*>& b) const
-	{
-        unsigned int id_a_first  = m_ids->id(a.first);
-        unsigned int id_a_second = m_ids->id(a.second);
-        unsigned int id_b_first  = m_ids->id(b.first);
-        unsigned int id_b_second = m_ids->id(b.second);
-        return (std::make_pair(id_a_first, id_a_second) < std::make_pair(id_b_first, id_b_second) );
-	}
-
-    explicit ptr_stable_compare( ptr_stable_id<T>* ids):m_ids(ids)
-    {
-    }
-    
-    ptr_stable_id<T>* get_stable_id_map() const 
-    {
-        return m_ids;
-    } 
-
-protected:
-    /// memory is owned by the map_ptr_stable_compare instance
-	mutable ptr_stable_id<T>* m_ids;
-
-private:
-    ptr_stable_compare():m_ids(NULL){}
+	mutable stable_id_map_type* m_ids;
 };
 
 /// A map container that order pointers in a stable way, i.e. in the order pointers are presented
@@ -232,6 +233,47 @@ public:
         return Inherit::insert(first, last);
     }
 
+    std::pair<iterator, bool> emplace(const key_type& key, const mapped_type& map)
+    {
+        Inherit::key_comp().insert(key);
+        return Inherit::emplace(key, map);
+    }
+
+    iterator emplace_hint(iterator position, const key_type& key, const mapped_type& map)
+    {
+        Inherit::key_comp().insert(key);
+        return Inherit::emplace_hint(position, key, map);
+    }
+
+    size_type erase(const key_type& key)
+    {
+        const size_t nbKeysErased = Inherit::erase(key);
+        Inherit::key_comp().erase(key);
+        return nbKeysErased;
+    }
+
+    void erase(iterator position)
+    {
+        Inherit::erase(position);
+        const key_type& key = position->first;
+        Inherit::key_comp().erase(key);
+    }
+
+    template<class InputIterator>
+    void erase(InputIterator first, InputIterator last)
+    {
+        Inherit::erase(first, last)
+        for (InputIterator it = first; it != last; ++it)
+        {
+            Inherit::key_comp().erase(it->first);
+        }
+    }
+
+    void clear()
+    {
+        Inherit::key_comp().clear();
+        Inherit::clear();
+    }
 
 private:
     /// smart ptr for memory ownership
