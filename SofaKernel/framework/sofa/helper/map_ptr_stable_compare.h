@@ -166,6 +166,8 @@ public:
 	typedef typename Inherit::mapped_type            mapped_type;
     /// pair<Key,Tp>
 	typedef typename Inherit::value_type             value_type;
+    /// size
+	typedef typename Inherit::size_type              size_type;
     /// reference to a value (read-write)
     typedef typename Inherit::reference              reference;
     /// const reference to a value (read only)
@@ -262,7 +264,7 @@ public:
     template<class InputIterator>
     void erase(InputIterator first, InputIterator last)
     {
-        Inherit::erase(first, last)
+        Inherit::erase(first, last);
         for (InputIterator it = first; it != last; ++it)
         {
             Inherit::key_comp().erase(it->first);
