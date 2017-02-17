@@ -311,11 +311,6 @@ TEST(map_ptr_stable_compare, checkMapPtrStableConsistencyAfterSwap)
     ASSERT_EQ(sizeMap0BeforeSwap, sizeMap1AfterSwap);
     ASSERT_EQ(sizeMap1BeforeSwap, sizeMap0AfterSwap);
 
-    IntegerStableId* idMap0 = map0.key_comp().get_stable_id_map();
-    IntegerStableId* idMap1 = map1.key_comp().get_stable_id_map();
-
-    typename IntegerMap::const_iterator it0 = map0.begin(), it1 = map1.begin();
-
     for (typename IntegerMap::const_iterator it1Copy = map1Copy.begin(), it0 = map0.begin(); it0 != map0.end();
         ++it1Copy, ++it0)
     {
@@ -336,7 +331,7 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableConsistencyAfterSwap)
     typedef sofa::helper::map_ptr_stable_compare < std::pair<int*, int*>, int > IntegerPairMap;
     typedef sofa::helper::ptr_stable_id< std::pair<int*, int*> > IntegerPairStableId;
 
-    int a = 0, b = 1, c = 2, d = 3, e = 4;
+    int a = 0, b = 1, c = 2, d = 3;
 
     IntegerPairMap map0, map1;
     map0[std::make_pair(&a, &a)] = a;
@@ -353,11 +348,6 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableConsistencyAfterSwap)
     std::size_t sizeMap0AfterSwap = map0.size(), sizeMap1AfterSwap = map1.size();
     ASSERT_EQ(sizeMap0BeforeSwap, sizeMap1AfterSwap);
     ASSERT_EQ(sizeMap1BeforeSwap, sizeMap0AfterSwap);
-
-    IntegerPairStableId* idMap0 = map0.key_comp().get_stable_id_map();
-    IntegerPairStableId* idMap1 = map1.key_comp().get_stable_id_map();
-
-    typename IntegerPairMap::const_iterator it0 = map0.begin(), it1 = map1.begin();
 
     for (typename IntegerPairMap::const_iterator it1Copy = map1Copy.begin(), it0 = map0.begin(); it0 != map0.end();
         ++it1Copy, ++it0)
@@ -390,10 +380,10 @@ TEST(map_ptr_stable_compare, checkMapPtrStableModifierFunctions)
     mapEmplace.emplace(&b, b);
     mapEmplace.emplace(&b, c);
 
+    mapEmplaceHint.emplace(&a, a);
     IntegerMap::iterator it = mapEmplaceHint.begin();
-    mapEmplaceHint.emplace_hint(it++, &a, a);
-    mapEmplaceHint.emplace_hint(it++, &b, b);
-    mapEmplaceHint.emplace_hint(it, &b, c);
+    mapEmplaceHint.emplace_hint(++it, &b, b);
+    mapEmplaceHint.emplace_hint(++it, &b, c);
 
     typename IntegerMap::const_iterator itInsert = mapInsert.begin(), itEmplace = mapEmplace.begin(), itEmplaceHint = mapEmplaceHint.begin();
 
@@ -426,10 +416,10 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableModifierFunctions)
     mapEmplace.emplace(std::make_pair(&b, &a), b);
     mapEmplace.emplace(std::make_pair(&a, &a), b);
 
+    mapEmplaceHint.emplace(std::make_pair(&a, &a), a);
     IntegerPairMap::iterator it = mapEmplaceHint.begin();
-    mapEmplaceHint.emplace_hint(it++, std::make_pair(&a, &a), a);
-    mapEmplaceHint.emplace_hint(it++, std::make_pair(&b, &a), b);
-    mapEmplaceHint.emplace_hint(it, std::make_pair(&a, &a), b);
+    mapEmplaceHint.emplace_hint(++it, std::make_pair(&b, &a), b);
+    mapEmplaceHint.emplace_hint(++it, std::make_pair(&a, &a), b);
 
     typename IntegerPairMap::const_iterator itInsert = mapInsert.begin(), itEmplace = mapEmplace.begin(), itEmplaceHint = mapEmplaceHint.begin();
 
