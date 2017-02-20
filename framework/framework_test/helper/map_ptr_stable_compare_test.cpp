@@ -264,18 +264,15 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
     map[std::make_pair(&d, &d)] = d;
 
     // Size consistency after erase by key
-    std::size_t sizeBeforeEraseByKey = map.size();
+    ASSERT_EQ(7, map.size());
     map.erase(std::make_pair(&b, &b));
-    std::size_t sizeAfterEraseByKey = map.size();
-    ASSERT_EQ(sizeBeforeEraseByKey, sizeAfterEraseByKey + 1);
+    ASSERT_EQ(6, map.size());
 
     // Size consistency after erase by it
     typename IntegerPairMap::iterator itC  = map.find(std::make_pair(&c, &c));
-    std::size_t sizeBeforeEraseByIt = map.size();
     map.erase(itC);
     map.erase(std::make_pair(&c, &c));
-    std::size_t sizeAfterEraseByIt = map.size();
-    ASSERT_EQ(sizeBeforeEraseByIt, sizeAfterEraseByIt + 1);
+    ASSERT_EQ(5, map.size());
 
     typename IntegerPairMap::const_iterator it = map.begin();
 
@@ -286,6 +283,14 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
     EXPECT_EQ(it->second, b + c);
     ++it;
     EXPECT_EQ(it->second, c + d);
+
+    auto itEraseBegin = map.begin();
+    ++itEraseBegin;
+
+    map.erase(itEraseBegin, map.end());
+
+    ASSERT_EQ(1, map.size());
+    EXPECT_EQ(map.begin()->second, a);
 }
 
 TEST(map_ptr_stable_compare, checkMapPtrStableConsistencyAfterSwap)
@@ -382,8 +387,8 @@ TEST(map_ptr_stable_compare, checkMapPtrStableModifierFunctions)
 
     mapEmplaceHint.emplace(&a, a);
     IntegerMap::iterator it = mapEmplaceHint.begin();
-    mapEmplaceHint.emplace_hint(++it, &b, b);
-    mapEmplaceHint.emplace_hint(++it, &b, c);
+    it = mapEmplaceHint.emplace_hint(it, &b, b);
+    mapEmplaceHint.emplace_hint(it, &b, c);
 
     typename IntegerMap::const_iterator itInsert = mapInsert.begin(), itEmplace = mapEmplace.begin(), itEmplaceHint = mapEmplaceHint.begin();
 
@@ -418,8 +423,8 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableModifierFunctions)
 
     mapEmplaceHint.emplace(std::make_pair(&a, &a), a);
     IntegerPairMap::iterator it = mapEmplaceHint.begin();
-    mapEmplaceHint.emplace_hint(++it, std::make_pair(&b, &a), b);
-    mapEmplaceHint.emplace_hint(++it, std::make_pair(&a, &a), b);
+    it = mapEmplaceHint.emplace_hint(it, std::make_pair(&b, &a), b);
+    mapEmplaceHint.emplace_hint(it, std::make_pair(&a, &a), b);
 
     typename IntegerPairMap::const_iterator itInsert = mapInsert.begin(), itEmplace = mapEmplace.begin(), itEmplaceHint = mapEmplaceHint.begin();
 
