@@ -259,19 +259,19 @@ public:
 
     void erase(iterator position)
     {
+        const key_type key = position->first;
         Inherit::erase(position);
-        const key_type& key = position->first;
         Inherit::key_comp().erase(key);
     }
 
     template<class InputIterator>
     void erase(InputIterator first, InputIterator last)
     {
-        Inherit::erase(first, last);
         for (InputIterator it = first; it != last; ++it)
         {
             Inherit::key_comp().erase(it->first);
         }
+        Inherit::erase(first, last);
     }
 
     void clear()
