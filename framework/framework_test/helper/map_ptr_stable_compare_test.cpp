@@ -188,7 +188,7 @@ TEST(map_ptr_stable_compare, checkMapPairPtrCopyForLoopInsert)
 }
 
 
-TEST(map_ptr_stable_compare, CheckIdMapPersistsAfterClear)
+TEST(map_ptr_stable_compare, CheckIdMapDoesNotPersistsAfterClear)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
     typedef sofa::helper::ptr_stable_id< int* > IntegerStableId;
@@ -209,8 +209,9 @@ TEST(map_ptr_stable_compare, CheckIdMapPersistsAfterClear)
     map.clear();
 
     EXPECT_EQ(map.size(), 0);
-    EXPECT_EQ(idMap->size(), 0);
+    EXPECT_EQ(idMap->getMap().size(), 0);
 }
+
 
 TEST(map_ptr_stable_compare, CheckIdMapPtrStableConsistencyAfterErase)
 {
@@ -225,18 +226,25 @@ TEST(map_ptr_stable_compare, CheckIdMapPtrStableConsistencyAfterErase)
     map[&c] = c;
     map[&d] = d;
 
+    typedef typename IntegerStableId::MapID StableMapID;
+    const StableMapID& mapId = map.key_comp().get_stable_id_map()->getMap();
+
+
+    ASSERT_EQ(4, map.size());
+    ASSERT_EQ(4, mapId.size());
+
     // Size consistency after erase by key
-    std::size_t sizeBeforeEraseByKey = map.size();
     map.erase(&b);
-    std::size_t sizeAfterEraseByKey = map.size();
-    ASSERT_EQ(sizeBeforeEraseByKey, sizeAfterEraseByKey + 1);
+    ASSERT_EQ(3, map.size());
+    EXPECT_EQ(3, mapId.size());
+    EXPECT_EQ(mapId.end(), mapId.find(&b));
 
     // Size consistency after erase by it
     typename IntegerMap::iterator itC = map.find(&c);
-    std::size_t sizeBeforeEraseByIt = map.size();
     map.erase(itC);
-    std::size_t sizeAfterEraseByIt = map.size();
-    ASSERT_EQ(sizeBeforeEraseByIt, sizeAfterEraseByIt + 1);
+    ASSERT_EQ(2, map.size());
+    EXPECT_EQ(2, mapId.size());
+    EXPECT_EQ(mapId.end(), mapId.find(&c));
 
     typename IntegerMap::const_iterator it = map.begin();
 
@@ -262,17 +270,25 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
     map[std::make_pair(&c, &c)] = c;
     map[std::make_pair(&c, &d)] = c + d;
     map[std::make_pair(&d, &d)] = d;
+    
+    typedef typename IntegerPairStableId::MapID StableMapID;
+    const StableMapID& mapId = map.key_comp().get_stable_id_map()->getMap();
 
     // Size consistency after erase by key
     ASSERT_EQ(7, map.size());
     map.erase(std::make_pair(&b, &b));
+    
     ASSERT_EQ(6, map.size());
 
     // Size consistency after erase by it
     typename IntegerPairMap::iterator itC  = map.find(std::make_pair(&c, &c));
     map.erase(itC);
+    ASSERT_EQ(5, map.size());
+    EXPECT_EQ(5, mapId.size());
+    EXPECT_EQ(mapId.end(), mapId.find(std::make_pair(&c, &c)));
     map.erase(std::make_pair(&c, &c));
     ASSERT_EQ(5, map.size());
+    EXPECT_EQ(5, mapId.size());    
 
     typename IntegerPairMap::const_iterator it = map.begin();
 
@@ -291,6 +307,8 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
 
     ASSERT_EQ(1, map.size());
     EXPECT_EQ(map.begin()->second, a);
+    EXPECT_EQ(1, mapId.size());
+    EXPECT_EQ(mapId.begin(), mapId.find(std::make_pair(&a, &a)));
 }
 
 TEST(map_ptr_stable_compare, checkMapPtrStableConsistencyAfterSwap)
@@ -492,5 +510,44 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableLookupFunctions)
     EXPECT_EQ(itFindKey->first, std::make_pair(&a, &b));
     EXPECT_EQ(itFindKey->second, b);
 }
+
+TEST(map_ptr_stable_compare, checkEraseThenInsertGivesAnotherKey)
+{
+    typedef sofa::helper::map_ptr_stable_compare < std::pair<int*, int*>, int > IntegerPairMap;
+    typedef sofa::helper::ptr_stable_id< std::pair<int*, int*> >                IntegerPairStableId;
+
+    int a = 0, b = 1, c = 2;
+
+    IntegerPairMap map;
+    map[std::make_pair(&a, &a)] = a;
+    map[std::make_pair(&a, &b)] = b;
+    map[std::make_pair(&b, &b)] = c;
+
+    IntegerPairStableId* idMap = map.key_comp().get_stable_id_map();
+
+    std::pair<int*,int*> key = std::make_pair(&a, &b);
+    int value                = b;
+
+    auto it     = idMap->getMap().find(key);
+    ASSERT_NE(idMap->getMap().end(), it);
+    unsigned idBeforeErase = it->second;
+
+    map.erase(key);
+
+    ASSERT_EQ(2, map.size());
+
+    it = idMap->getMap().find(key);
+    EXPECT_EQ(idMap->getMap().end(), it);
+
+    map.insert(std::make_pair(key,value));
+
+    it = idMap->getMap().find(key);
+    ASSERT_NE(idMap->getMap().end(), it);
+    unsigned idAfterEraseThenInsert = it->second;
+
+    EXPECT_GT(idAfterEraseThenInsert, idBeforeErase);
+}
+
+
 
 }
