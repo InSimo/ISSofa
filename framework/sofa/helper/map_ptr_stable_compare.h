@@ -101,9 +101,9 @@ public:
         return this->operator()(p);
     }
 
-    inline unsigned int size() const
+    inline const MapID& getMap() const
     {
-        return *counter;
+        return *idMap.get();
     }
 
 protected:
@@ -259,9 +259,8 @@ public:
 
     void erase(iterator position)
     {
-        const key_type key = position->first;
+        Inherit::key_comp().erase(position->first);
         Inherit::erase(position);
-        Inherit::key_comp().erase(key);
     }
 
     template<class InputIterator>
