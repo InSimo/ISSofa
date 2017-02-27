@@ -191,8 +191,8 @@ void DDGNode::requestUpdateIfDirty(const core::ExecParams* params)
 
     if (dirtyValue == 0)
     {
-        if (getOwner())
-            getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty nothing to do." << getOwner()->sendl;
+        //if (getOwner())
+        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty nothing to do." << getOwner()->sendl;
         return;
     }
 
