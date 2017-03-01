@@ -25,6 +25,7 @@
 #include <SofaBaseMechanics/BarycentricMapping.h>
 #include <sofa/core/visual/VisualParams.h>
 
+#include <sofa/core/Mapping.inl>
 #include <sofa/core/topology/BaseMeshTopology.h>
 #include <sofa/core/behavior/MechanicalState.h>
 
@@ -652,9 +653,13 @@ void BarycentricMapperEdgeSetTopology<In,Out>::initTopologyChange()
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::clear ( int reserve )
 {
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = map;
     vectorData.clear(); if ( reserve>0 ) vectorData.reserve ( reserve );
-    map.endEdit();
+
+    helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = d_vBaryTriangleInfo;
+    vBaryTriangleInfo.clear();
+
+    m_dirtyPoints.clear();
 }
 
 template <class In, class Out>
@@ -689,68 +694,191 @@ int BarycentricMapperTriangleSetTopology<In,Out>::createPointInTriangle ( const 
 }
 
 template <class In, class Out>
-void BarycentricMapperTriangleSetTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
+void BarycentricMapperTriangleSetTopology<In,Out>::init(const typename Out::VecCoord& out, const typename In::VecCoord& in)
 {
-    _fromContainer->getContext()->get ( _fromGeomAlgo );
-
-    // Why do we need that ? it reset the map in case of topology change
-//    if (this->toTopology)
-//    {
-//        map.createTopologicalEngine(this->toTopology);
-//        map.registerTopologicalData();
-//    }
-
-    int outside = 0;
-
-    const sofa::helper::vector<core::topology::BaseMeshTopology::Triangle>& triangles = this->fromTopology->getTriangles();
-    sofa::helper::vector<sofa::defaulttype::Mat3x3d> bases;
-    sofa::helper::vector<sofa::defaulttype::Vector3> centers;
-
-    // no 3D elements -> map on 2D elements
-    clear ( (int)out.size() ); // reserve space for 2D mapping
-    bases.resize ( triangles.size() );
-    centers.resize ( triangles.size() );
-
-    for ( unsigned int t = 0; t < triangles.size(); t++ )
+    if (!m_fromContainer)
     {
-        sofa::defaulttype::Mat3x3d m,mt;
-        m[0] = in[triangles[t][1]]-in[triangles[t][0]];
-        m[1] = in[triangles[t][2]]-in[triangles[t][0]];
-        m[2] = cross ( m[0],m[1] );
-        mt.transpose ( m );
-        bases[t].invert ( mt );
-        centers[t] = ( in[triangles[t][0]]+in[triangles[t][1]]+in[triangles[t][2]] ) /3;
+        serr << "Link to the topology failed" << sendl;
+        return;
     }
 
-    for ( unsigned int i=0; i<out.size(); i++ )
+    m_fromContainer->getContext()->get(m_stateFrom);
+    if (m_toContainer)
     {
-        sofa::defaulttype::Vec3d pos = Out::getCPos(out[i]);
+        m_toContainer->getContext()->get(m_stateTo);  // be aware that in some cases there is no m_toContainer
+    }
+
+    if (!m_stateFrom)
+    {
+        serr << "Link to the mechanical state failed" << sendl;
+        return;
+    }
+
+    if (m_fromContainer)
+    {       
+        // initialize d_vBaryTriangleInfo
+        clear(out.size());
+        helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = d_vBaryTriangleInfo;
+
+        const sofa::helper::vector<core::topology::Triangle>& triangles = this->m_fromContainer->getTriangles();
+        vBaryTriangleInfo.resize(triangles.size());
+
+        sofa::helper::vector< unsigned int > ancestorsIndex;
+        const sofa::helper::vector< double > ancestorsCoeff;
+
+        for (unsigned int t = 0; t < triangles.size(); t++)
+        {
+            m_vBTInfoHandler->applyCreateFunction(t, vBaryTriangleInfo[t], triangles[t], ancestorsIndex, ancestorsCoeff);
+        }
+
+        for (unsigned int i = 0; i < out.size(); ++i) 
+        {
+            m_dirtyPoints.emplace(i);
+        }
+
+        projectDirtyPoints(out, in);
+    }
+}
+
+template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCreateFunction(unsigned int t,
+    BaryTriangleInfo& baryTriangleInfo,
+    const Triangle & triangle,
+    const sofa::helper::vector< unsigned int >& ancestors,
+    const sofa::helper::vector< double >& coeffs)
+{
+    // get restPositions
+    helper::ReadAccessor< typename core::behavior::MechanicalState< In >::VecCoord >  pIn = obj->m_useRestPosition ? obj->m_stateFrom->readRestPositions() : obj->m_stateFrom->readPositions();
+
+    sofa::defaulttype::Mat3x3d m;
+    m[0] = pIn[triangle[1]] - pIn[triangle[0]];
+    m[1] = pIn[triangle[2]] - pIn[triangle[0]];
+    m[2] = cross(m[0], m[1]);
+    sofa::defaulttype::Mat3x3d mTranspose;
+    mTranspose.transpose(m);
+
+    baryTriangleInfo.restBase.invert(mTranspose);
+    baryTriangleInfo.restCenter = (pIn[triangle[0]] + pIn[triangle[1]] + pIn[triangle[2]]) / 3;
+
+    helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = obj->d_vBaryTriangleInfo;
+
+    for (unsigned int ancestor : ancestors)
+    {
+        assert(ancestor < vBaryTriangleInfo.size());
+        BaryTriangleInfo& baryTriangleInfoA = vBaryTriangleInfo[ancestor];
+        for (auto pointIncluded : baryTriangleInfoA.vPointsIncluded)
+        {
+            obj->m_dirtyPoints.emplace(pointIncluded);
+        }
+
+        baryTriangleInfoA.vPointsIncluded.clear();
+    }
+}
+
+
+template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDestroyFunction(unsigned int t, BaryTriangleInfo& baryTriangleInfo)
+{
+    for (auto pointIncluded : baryTriangleInfo.vPointsIncluded)
+    {
+        obj->m_dirtyPoints.emplace(pointIncluded);
+    }
+
+    baryTriangleInfo.vPointsIncluded.clear();
+}
+
+template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::swap(unsigned int i1, unsigned int i2)
+{
+    helper::ReadAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = obj->d_vBaryTriangleInfo;
+
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = obj->map;
+
+    const BaryTriangleInfo& baryTriangleInfo1 = vBaryTriangleInfo[i1];
+    const BaryTriangleInfo& baryTriangleInfo2 = vBaryTriangleInfo[i2];
+    for (auto pointIncluded : baryTriangleInfo1.vPointsIncluded)
+    {
+        vectorData[pointIncluded].in_index = i2;
+    }
+
+    for (auto pointIncluded : baryTriangleInfo2.vPointsIncluded)
+    {
+        vectorData[pointIncluded].in_index = i1;
+    }
+
+    component::topology::TopologyDataHandler<Triangle, VecBaryTriangleInfo >::swap(i1, i2);
+}
+
+//template <class In, class Out>
+//void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::move( const sofa::helper::vector<unsigned int> &indexList,
+//const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestors,
+//const sofa::helper::vector< sofa::helper::vector< double > >& coefs)
+//{
+//    //TO DO
+//}
+
+template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in)
+{
+    if (m_dirtyPoints.empty() || !m_fromContainer) return;
+
+    // get restPositions
+    helper::ReadAccessor< typename core::behavior::MechanicalState< In >::VecCoord >  pIn = m_stateFrom->readRestPositions();
+    helper::ReadAccessor< typename core::behavior::MechanicalState< Out >::VecCoord>  pOut = m_stateTo->readRestPositions();
+
+    // evaluate dirty projections : fill in d_vBaryTriangleInfo and map 
+    helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = d_vBaryTriangleInfo;
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = map;
+    vectorData.resize(out.size());
+
+    const sofa::helper::vector<core::topology::Triangle>& triangles = this->fromTopology->getTriangles();
+    
+    assert(triangles.size() == vBaryTriangleInfo.size());
+
+    for (auto dirtyPoint : m_dirtyPoints)
+    {
+        sofa::defaulttype::Vec3d pos = (m_useRestPosition && m_stateTo) ? Out::getCPos(pOut[dirtyPoint]) : Out::getCPos(out[dirtyPoint]);
         sofa::defaulttype::Vector3 coefs;
         int index = -1;
-        double distance = 1e10;
-        for ( unsigned int t = 0; t < triangles.size(); t++ )
+        double distance = std::numeric_limits<double>::max();
+
+        for (unsigned int t = 0; t < triangles.size(); t++)
         {
-            sofa::defaulttype::Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
-            double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( ( v[2]<0?-v[2]:v[2] )-0.01,v[0]+v[1]-1 ) );
-            if ( d>0 ) d = ( pos-centers[t] ).norm2();
-            if ( d<distance ) { coefs = v; distance = d; index = t; }
+            sofa::defaulttype::Vec3d xTri = (m_useRestPosition) ? pIn[triangles[t][0]] : in[triangles[t][0]];
+
+            const BaryTriangleInfo& baryTriangleInfo = vBaryTriangleInfo[t];
+            const sofa::defaulttype::Mat3x3d& restBase = baryTriangleInfo.restBase;
+            const sofa::defaulttype::Vector3& restCenter = baryTriangleInfo.restCenter;
+
+            sofa::defaulttype::Vec3d v = restBase * (pos - xTri);
+            double d = std::max(std::max(-v[0], -v[1]), std::max((v[2]<0 ? -v[2] : v[2]) - 0.01, v[0] + v[1] - 1));
+            if (d>0) d = (pos - restCenter).norm2();
+            if (d<distance) { coefs = v; distance = d; index = t; }
         }
-        if ( distance>0 )
-        {
-            ++outside;
-        }
-        addPointInTriangle ( index, coefs.ptr() );
+
+        vBaryTriangleInfo[index].vPointsIncluded.emplace_back(dirtyPoint);
+
+        assert(dirtyPoint < vectorData.size());
+        MappingData& mapData = vectorData[dirtyPoint];
+        mapData.in_index = index;
+        mapData.baryCoords[0] = (Real)coefs[0];
+        mapData.baryCoords[1] = (Real)coefs[1];
     }
+
+    m_dirtyPoints.clear();
 }
 
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::initTopologyChange()
 {
-    if (this->toTopology)
+    if (m_toContainer)
     {
-        map.createTopologicalEngine(this->toTopology);
+        map.createTopologicalEngine(m_toContainer);
         map.registerTopologicalData();
     }
+
+    d_vBaryTriangleInfo.createTopologicalEngine(m_fromContainer, m_vBTInfoHandler.get());
+    d_vBaryTriangleInfo.registerTopologicalData();
 }
 
 template <class In, class Out>
@@ -1157,8 +1285,6 @@ void BarycentricMapping<TIn, TOut>::init()
     //serr << "!!!!!!!!!!!! getDT = " <<  this->fromModel->getContext()->getDt() << sendl;
     //IPE
 
-    Inherit::init();
-
     if ( mapper == NULL ) // try to create a mapper according to the topology of the In model
     {
         if ( topology_from!=NULL )
@@ -1183,6 +1309,7 @@ void BarycentricMapping<TIn, TOut>::init()
         serr << "ERROR: Barycentric mapping does not understand topology."<<sendl;
     }
 
+    Inherit::init();
 }
 
 template <class TIn, class TOut>
@@ -1191,7 +1318,14 @@ void BarycentricMapping<TIn, TOut>::reinit()
     if ( mapper != NULL )
     {
         mapper->clear();
-        mapper->init (((const core::State<Out> *)this->toModel)->read(core::ConstVecCoordId::position())->getValue(), ((const core::State<In> *)this->fromModel)->read(core::ConstVecCoordId::position())->getValue() );
+        if (useRestPosition.getValue())
+            mapper->init(((const core::State<Out> *)this->toModel)->read(core::ConstVecCoordId::restPosition())->getValue(), ((const core::State<In> *)this->fromModel)->read(core::ConstVecCoordId::restPosition())->getValue());
+        else
+            mapper->init(((const core::State<Out> *)this->toModel)->read(core::ConstVecCoordId::position())->getValue(), ((const core::State<In> *)this->fromModel)->read(core::ConstVecCoordId::position())->getValue());
+        if (d_handleTopologyChange.getValue())
+        {
+            mapper->initTopologyChange();
+        }
     }
 }
 
@@ -1452,6 +1586,12 @@ void BarycentricMapperTriangleSetTopology<In,Out>::resize( core::State<Out>* toM
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::apply ( typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
+    if (!m_dirtyPoints.empty())
+    {
+        projectDirtyPoints(out, in);
+    }
+
+
     out.resize( map.getValue().size() );
 
     const sofa::helper::vector<core::topology::BaseMeshTopology::Triangle>& triangles = this->fromTopology->getTriangles();
@@ -3756,90 +3896,13 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::handleTopologyChange(core::
 
 // handle topology changes depending on the topology
 template <class TIn, class TOut>
-void BarycentricMapping<TIn, TOut>::handleTopologyChange ( core::topology::Topology* /*t*/ )
+void BarycentricMapping<TIn, TOut>::handleTopologyChange ( core::topology::Topology* t )
 {
-//    if (mapper)
-//        mapper->handleTopologyChange(t);
-    reinit(); // we now recompute the entire mapping when there is a topologychange
-//    }
+    if (d_handleTopologyChange.getValue() && mapper)
+    {
+        mapper->handleTopologyChange(t);
+    }
 }
-
-#ifdef BARYCENTRIC_MAPPER_TOPOCHANGE_REINIT
-template <class In, class Out>
-void BarycentricMapperTriangleSetTopology<In,Out>::handleTopologyChange(core::topology::Topology* t)
-{
-    using core::topology::TopologyChange;
-
-    if (t != this->fromTopology) return;
-
-    if ( this->fromTopology->beginChange() == this->fromTopology->endChange() )
-        return;
-
-    MechanicalState< In >* mStateFrom = NULL;
-    MechanicalState< Out >* mStateTo = NULL;
-
-    this->fromTopology->getContext()->get(mStateFrom);
-    this->toTopology->getContext()->get(mStateTo);
-
-    if ((mStateFrom == NULL) || (mStateTo == NULL))
-        return;
-
-    const typename MechanicalState< In >::VecCoord& in = *(mStateFrom->getX0());
-    const typename MechanicalState< Out >::VecCoord& out = *(mStateTo->getX0());
-
-	for (std::list< const TopologyChange *>::const_iterator it = this->fromTopology->beginChange(), itEnd = this->fromTopology->endChange(); it != itEnd; ++it)
-	{
-		const core::topology::TopologyChangeType& changeType = (*it)->getChangeType();
-
-		switch ( changeType )
-		{
-        case core::topology::ENDING_EVENT :
-        {
-            const helper::vector< topology::Triangle >& triangles = this->fromTopology->getTriangles();
-            helper::vector< Mat3x3d > bases;
-            helper::vector< Vector3 > centers;
-
-            // clear and reserve space for 2D mapping
-            this->clear(out.size());
-            bases.resize(triangles.size());
-            centers.resize(triangles.size());
-
-            for ( unsigned int t = 0; t < triangles.size(); t++ )
-            {
-                Mat3x3d m,mt;
-                m[0] = in[triangles[t][1]]-in[triangles[t][0]];
-                m[1] = in[triangles[t][2]]-in[triangles[t][0]];
-                m[2] = cross ( m[0],m[1] );
-                mt.transpose ( m );
-                bases[t].invert ( mt );
-                centers[t] = ( in[triangles[t][0]]+in[triangles[t][1]]+in[triangles[t][2]] ) /3;
-            }
-
-            for ( unsigned int i=0; i<out.size(); i++ )
-            {
-                Vec3d pos = Out::getCPos(out[i]);
-                Vector3 coefs;
-                int index = -1;
-                double distance = 1e10;
-                for ( unsigned int t = 0; t < triangles.size(); t++ )
-                {
-                    Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
-                    double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( ( v[2]<0?-v[2]:v[2] )-0.01,v[0]+v[1]-1 ) );
-                    if ( d>0 ) d = ( pos-centers[t] ).norm2();
-                    if ( d<distance ) { coefs = v; distance = d; index = t; }
-                }
-
-                this->addPointInTriangle ( index, coefs.ptr() );
-            }
-            break;
-        }
-		default:
-			break;
-		}
-	}
-}
-
-#endif // BARYCENTRIC_MAPPER_TOPOCHANGE_REINIT
 
 
 template<class TIn, class TOut>
