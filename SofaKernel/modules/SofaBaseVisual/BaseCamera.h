@@ -34,6 +34,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/system/config.h>
 #include <sofa/helper/OptionsGroup.h>
+#include <math.h>
 
 namespace sofa
 {
