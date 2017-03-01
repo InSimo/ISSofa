@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_MAPPING_BARYCENTRICMAPPING_H
 
 #include <SofaBaseTopology/TopologyData.h>
+#include <SofaBaseTopology/TopologyDataHandler.h>
 #include <SofaBaseTopology/RegularGridTopology.h>
 #include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
 
@@ -42,6 +43,7 @@
 #include <sofa/defaulttype/Mat.h>
 
 #include <sofa/helper/vector.h>
+#include <memory>
 
 // forward declarations
 namespace sofa
@@ -636,27 +638,104 @@ public:
     typedef typename Inherit::InDeriv  InDeriv;
     typedef typename Inherit::MappingData2D MappingData;
 
+    typedef topology::Topology::TriangleID TriangleID;
+    typedef topology::Topology::Triangle Triangle;
+    typedef topology::Topology::PointID PointID;
+
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
     typedef typename Inherit::MatrixType MatrixType;
 
+    // topologyData mechanism to handle topology changes (public) 
+    struct BaryTriangleInfo
+    {
+        sofa::helper::vector<PointID> vPointsIncluded;  // ID of the points that are projected on the triangle
+        sofa::defaulttype::Mat3x3d restBase;                // base matrix used in the projection computation (in restPositions)
+        sofa::defaulttype::Vector3 restCenter;              // center of the triangle (in restPositions)
+
+        BaryTriangleInfo() {}
+        ~BaryTriangleInfo() {}
+
+        inline friend std::ostream& operator<< (std::ostream& os, const BaryTriangleInfo& baryTriangleInfo)
+        {
+            os << " vPointsIncluded = " << baryTriangleInfo.vPointsIncluded
+                << " restBase = " << baryTriangleInfo.restBase
+                << " restCenter = " << baryTriangleInfo.restCenter
+                << "\n";
+            return os;
+        }
+        inline friend std::istream& operator >> (std::istream& in, BaryTriangleInfo& baryTriangleInfo)
+        {
+            return in;
+        }
+    };
+
+    typedef typename sofa::helper::vector<BaryTriangleInfo> VecBaryTriangleInfo;
+    sofa::component::topology::TriangleData<VecBaryTriangleInfo> d_vBaryTriangleInfo;
+    // END topologyData mechanism (public)
+
 protected:
     topology::PointData< sofa::helper::vector<MappingData> > map;
-    topology::TriangleSetTopologyContainer*			_fromContainer;
+    topology::TriangleSetTopologyContainer*	        m_fromContainer;
+    topology::PointSetTopologyContainer*            m_toContainer;
     topology::TriangleSetGeometryAlgorithms<In>*	_fromGeomAlgo;
+    core::behavior::MechanicalState< In >* m_stateFrom = nullptr;
+    core::behavior::MechanicalState< Out >* m_stateTo = nullptr;
+
     MatrixType* matrixJ;
     bool updateJ;
 
+    bool m_useRestPosition;
+
+    // topologyData mechanism to handle topology changes (protected) 
+    class TriangleInfoHandler : public sofa::component::topology::TopologyDataHandler<Triangle, VecBaryTriangleInfo>
+    {
+    public:
+        typedef topology::Topology::Triangle Triangle;
+
+        typedef typename sofa::component::topology::TopologyDataHandler<Triangle, VecBaryTriangleInfo> TopologyDataHandler;
+        TriangleInfoHandler(BarycentricMapperTriangleSetTopology* o, sofa::component::topology::TriangleData<VecBaryTriangleInfo>* d)
+            : TopologyDataHandler(d), obj(o)
+        {}
+
+        virtual void applyCreateFunction(unsigned int t,
+            BaryTriangleInfo& baryTriangleInfo,
+            const Triangle & triangle,
+            const sofa::helper::vector< unsigned int >& ancestors,
+            const sofa::helper::vector< double >& coeffs) override;
+
+        virtual void applyDestroyFunction(unsigned int t, BaryTriangleInfo& baryTriangleInfo) override;
+        virtual void swap(unsigned int i1, unsigned int i2) override;
+
+        //TODO
+        //virtual void move(const sofa::helper::vector<unsigned int> &indexList,
+        //    const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestors,
+        //    const sofa::helper::vector< sofa::helper::vector< double > >& coefs);
+
+    protected:
+        BarycentricMapperTriangleSetTopology* obj;
+    };
+
+    std::unique_ptr<TriangleInfoHandler> m_vBTInfoHandler;
+    std::set< PointID > m_dirtyPoints;
+
+    // END topologyData mechanism (protected)
+
+
     BarycentricMapperTriangleSetTopology(topology::TriangleSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology)
-        : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
+            topology::PointSetTopologyContainer* toTopology, bool useRestPosition = false)
+        : TopologyBarycentricMapper<In,Out>(fromTopology, toTopology),
           map(initData(&map,"map", "mapper data")),
-          _fromContainer(fromTopology),
+          m_fromContainer(fromTopology),
+          m_toContainer(toTopology),
+          m_useRestPosition(useRestPosition),
           _fromGeomAlgo(NULL),
           matrixJ(NULL),
-          updateJ(true)
+          updateJ(true),
+          d_vBaryTriangleInfo(initData(&d_vBaryTriangleInfo, "vBaryTriangleInfo", "Vector of triangle information dedicated to topological changes"))
     {
+        m_vBTInfoHandler = std::unique_ptr<TriangleInfoHandler>(new TriangleInfoHandler(this, &d_vBaryTriangleInfo));
     }
 
     virtual ~BarycentricMapperTriangleSetTopology(){}
@@ -668,6 +747,8 @@ public:
     int createPointInTriangle(const typename Out::Coord& p, int triangleIndex, const typename In::VecCoord* points);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    void projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+
     /// Called if the mapper should setup handling of topological changes
     void initTopologyChange();
 
@@ -679,9 +760,6 @@ public:
     virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
-
-    // handle topology changes in the From topology
-    virtual void handleTopologyChange(core::topology::Topology* t);
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperTriangleSetTopology<In, Out> &b )
     {
