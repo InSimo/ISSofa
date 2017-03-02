@@ -105,6 +105,9 @@ PyObject *GetDataValuePython(BaseData* data)
         }
 
     }
+
+    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
+    const void* valueVoidPtr = data->getValueVoidPtr();
     
     if(typeinfo->ValidInfo() &&  typeinfo->IsMultiValue())
     {
@@ -426,31 +429,19 @@ bool SetDataValuePython(BaseData* data, PyObject* args)
         {
             // two-dimension array!
 
-            void* editVoidPtr = data->beginEditVoidPtr();
 
             // same number of rows?
+            if (PyList_Size(args)!=nbRows)
             {
-            int newNbRows = PyList_Size(args);
-            if (newNbRows!=nbRows)
-            {
-                // try to resize (of course, it is not possible with every container, the resize policy is defined in DataTypeInfo)
-                typeinfo->setSize( editVoidPtr, newNbRows*rowWidth );
+                // only a warning; do not raise an exception...
+                SP_MESSAGE_WARNING( "list size mismatch for data \""<<data->getName()<<"\" (incorrect rows count)" )
+                if (PyList_Size(args)<nbRows)
+                    nbRows = PyList_Size(args);
+            }
 
-                if( typeinfo->size(editVoidPtr) != (size_t)(newNbRows*rowWidth) )
-                {
-                    // resizing was not possible
-                    // only a warning; do not raise an exception...
-                    SP_MESSAGE_WARNING( "list size mismatch for data \""<<data->getName()<<"\" (incorrect rows count)" )
-                    if (newNbRows<nbRows)
-                        nbRows = newNbRows;
-                }
-                else
-                {
-                    // resized
-                    nbRows = newNbRows;
-                }
-            }
-            }
+            void* editVoidPtr = data->beginEditVoidPtr();
+
+
 
 
             // let's fill our rows!
@@ -536,33 +527,17 @@ bool SetDataValuePython(BaseData* data, PyObject* args)
         else
         {
             // it is a one-dimension only array
+            // right number if list members ?
+            int size = rowWidth*nbRows;
+            if (PyList_Size(args)!=size)
+            {
+                // only a warning; do not raise an exception...
+                SP_MESSAGE_WARNING( "list size mismatch for data \""<<data->getName()<<"\" (src="<<(int)PyList_Size(args)<<" dst="<<size<<")" )
+                if (PyList_Size(args)<size)
+                      size = PyList_Size(args);
+            }
 
             void* editVoidPtr = data->beginEditVoidPtr();
-
-            // same number of list members?
-            int size = rowWidth*nbRows; // start with oldsize
-            {
-            int newSize = PyList_Size(args);
-            if (newSize!=size)
-            {
-                // try to resize (of course, it is not possible with every container, the resize policy is defined in DataTypeInfo)
-                typeinfo->setSize( editVoidPtr, newSize );
-
-                if( typeinfo->size(editVoidPtr) != (size_t)newSize )
-                {
-                    // resizing was not possible
-                    // only a warning; do not raise an exception...
-                    SP_MESSAGE_WARNING( "list size mismatch for data \""<<data->getName()<<"\" (incorrect rows count)" )
-                    if (newSize<size)
-                        size = newSize;
-                }
-                else
-                {
-                    // resized
-                    size = newSize;
-                }
-            }
-            }
 
             // okay, let's set our list...
             for (int i=0; i<size; i++)
@@ -911,47 +886,47 @@ extern "C" PyObject * Data_getLinkPath(PyObject * self, PyObject * /*args*/)
 // returns a pointer to the Data
 extern "C" PyObject * Data_getValueVoidPtr(PyObject * self, PyObject * /*args*/)
 {
-    BaseData* data=((PyPtr<BaseData>*)self)->object;
+//    BaseData* data=((PyPtr<BaseData>*)self)->object;
 
-    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
-    void* dataValueVoidPtr = const_cast<void*>(data->getValueVoidPtr()); // data->beginEditVoidPtr();  // warning a endedit should be necessary somewhere (when releasing the python variable?)
-    void* valueVoidPtr = typeinfo->getValuePtr(dataValueVoidPtr);
-
-
-    // N-dimensional arrays
-    sofa::helper::vector<size_t> dimensions;
-    dimensions.push_back( typeinfo->size(dataValueVoidPtr) ); // total size to begin with
-    const AbstractTypeInfo* valuetypeinfo = typeinfo; // to go trough encapsulated types (at the end, it will correspond to the finest type)
+//    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
+//    void* dataValueVoidPtr = const_cast<void*>(data->getValueVoidPtr()); // data->beginEditVoidPtr();  // warning a endedit should be necessary somewhere (when releasing the python variable?)
+//    void* valueVoidPtr = typeinfo->getValuePtr(dataValueVoidPtr);
 
 
-    while( valuetypeinfo->Container() )
-    {
-        size_t s = typeinfo->size(); // the current type size
-        dimensions.back() /= s; // to get the number of current type, the previous total size must be devided by the current type size
-        dimensions.push_back( s );
-        valuetypeinfo=valuetypeinfo->ValueType();
-    }
-
-    PyObject* shape = PyTuple_New(dimensions.size());
-    for( size_t i=0; i<dimensions.size() ; ++i )
-        PyTuple_SetItem( shape, i, PyLong_FromSsize_t( dimensions[i] ) );
+//    // N-dimensional arrays
+//    sofa::helper::vector<size_t> dimensions;
+//    dimensions.push_back( typeinfo->size(dataValueVoidPtr) ); // total size to begin with
+//    const AbstractTypeInfo* valuetypeinfo = typeinfo; // to go trough encapsulated types (at the end, it will correspond to the finest type)
 
 
+//    while( valuetypeinfo->Container() )
+//    {
+//        size_t s = typeinfo->size(); // the current type size
+//        dimensions.back() /= s; // to get the number of current type, the previous total size must be devided by the current type size
+//        dimensions.push_back( s );
+//        valuetypeinfo=valuetypeinfo->ValueType();
+//    }
 
-    // output = tuple( pointer, shape tuple, type name)
-    PyObject* res = PyTuple_New(3);
-
-    // the data pointer
-    PyTuple_SetItem( res, 0, PyLong_FromVoidPtr( valueVoidPtr ) );
-
-    // the shape
-    PyTuple_SetItem( res, 1, shape );
-
-    // the most basic type name
-    PyTuple_SetItem( res, 2, PyString_FromString( valuetypeinfo->name().c_str() ) );
+//    PyObject* shape = PyTuple_New(dimensions.size());
+//    for( size_t i=0; i<dimensions.size() ; ++i )
+//        PyTuple_SetItem( shape, i, PyLong_FromSsize_t( dimensions[i] ) );
 
 
-    return res;
+
+//    // output = tuple( pointer, shape tuple, type name)
+//    PyObject* res = PyTuple_New(3);
+
+//    // the data pointer
+//    PyTuple_SetItem( res, 0, PyLong_FromVoidPtr( valueVoidPtr ) );
+
+//    // the shape
+//    PyTuple_SetItem( res, 1, shape );
+
+//    // the most basic type name
+//    PyTuple_SetItem( res, 2, PyString_FromString( valuetypeinfo->name().c_str() ) );
+
+
+//    return res;
 }
 
 

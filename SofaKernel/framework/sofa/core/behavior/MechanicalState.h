@@ -81,8 +81,8 @@ public:
 protected:
     virtual ~MechanicalState() {}
 public:
-    virtual unsigned int getCoordDimension() const { return (unsigned int)defaulttype::DataTypeInfo<Coord>::FinalSize; }
-    virtual unsigned int getDerivDimension() const { return (unsigned int)defaulttype::DataTypeInfo<Deriv>::FinalSize; }
+    virtual size_t getCoordDimension() const { return (size_t)defaulttype::DataTypeInfo<Coord>::FinalSize; }
+    virtual size_t getDerivDimension() const { return (size_t)defaulttype::DataTypeInfo<Deriv>::FinalSize; }
 
     /// Get the indices of the particles located in the given bounding box
     virtual void getIndicesInSpace(sofa::helper::vector<unsigned>& /*indices*/, Real /*xmin*/, Real /*xmax*/,Real /*ymin*/, Real /*ymax*/, Real /*zmin*/, Real /*zmax*/) const=0;

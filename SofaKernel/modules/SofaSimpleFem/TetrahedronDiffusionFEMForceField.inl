@@ -401,7 +401,7 @@ template <class DataTypes>
 void TetrahedronDiffusionFEMForceField<DataTypes>::addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
     sofa::helper::AdvancedTimer::stepBegin("addKToMatrix");
-    const int N = defaulttype::DataTypeInfo<Deriv>::size();
+    const int N = defaulttype::DataTypeInfo<Deriv>::FinalSize;
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
     sofa::defaulttype::BaseMatrix* mat = r.matrix;
 

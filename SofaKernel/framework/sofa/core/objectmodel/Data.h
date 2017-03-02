@@ -118,9 +118,10 @@ public:
     {
         if (s.empty())
         {
-            bool resized = getValueTypeInfo()->setSize( virtualBeginEdit(), 0 );
-            virtualEndEdit();
-            return resized;
+//            bool resized = getValueTypeInfo()->setFinalSize( virtualBeginEdit(), 0 );
+//            virtualEndEdit();
+//            return resized;
+            return false;
         }
         //serr<<"Field::read "<<s.c_str()<<sendl;
         std::istringstream istr( s.c_str() );

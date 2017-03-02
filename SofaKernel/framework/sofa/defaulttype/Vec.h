@@ -27,6 +27,7 @@
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <functional>
 #include <limits>
+#include <boost/static_assert.hpp>
 
 #define EQUALITY_THRESHOLD 1e-6
 
@@ -887,24 +888,24 @@ struct DataTypeName< sofa::defaulttype::VecNoInit<N,real> > { static std::string
 // The next line hides all those methods from the doxygen documentation
 /// \cond TEMPLATE_OVERRIDES
 
-#define DataTypeInfoName(type,suffix)\
-template<int N>\
-struct DataTypeInfo< sofa::defaulttype::Vec<N,type> > : public FixedArrayTypeInfo<sofa::defaulttype::Vec<N,type> >\
-{\
-    static std::string name() { std::ostringstream o; o << "Vec" << N << suffix; return o.str(); }\
-};\
-template<int N>\
-struct DataTypeInfo< sofa::defaulttype::VecNoInit<N,type> > : public FixedArrayTypeInfo<sofa::defaulttype::VecNoInit<N,type> >\
-{\
-    static std::string name() { std::ostringstream o; o << "VecNoInit" << N << suffix; return o.str(); }\
-};
+//#define DataTypeInfoName(type,suffix)
+//template<int N>
+//struct DataTypeInfo< sofa::defaulttype::Vec<N,type> > : public FixedArrayTypeInfo<sofa::defaulttype::Vec<N,type> >
+//{
+//    static std::string name() { std::ostringstream o; o << "Vec" << N << suffix; return o.str(); }
+//};
+//template<int N>
+//struct DataTypeInfo< sofa::defaulttype::VecNoInit<N,type> > : public FixedArrayTypeInfo<sofa::defaulttype::VecNoInit<N,type> >
+//{
+//    static std::string name() { std::ostringstream o; o << "VecNoInit" << N << suffix; return o.str(); }
+//};
 
-DataTypeInfoName( float, "f" )
-DataTypeInfoName( double, "d" )
-DataTypeInfoName( int, "i" )
-DataTypeInfoName( unsigned, "u" )
+//DataTypeInfoName( float, "f" )
+//DataTypeInfoName( double, "d" )
+//DataTypeInfoName( int, "i" )
+//DataTypeInfoName( unsigned, "u" )
 
-#undef DataTypeInfoName
+//#undef DataTypeInfoName
 
 
 
