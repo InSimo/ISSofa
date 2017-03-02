@@ -160,8 +160,58 @@ void TriangleSetTopologyModifier::addTriangles(const sofa::helper::vector<Triang
 
 void TriangleSetTopologyModifier::addTrianglesProcess(const sofa::helper::vector< Triangle > &triangles)
 {
-    for(unsigned int i=0; i<triangles.size(); ++i)
-        addTriangleProcess(triangles[i]); //add triangle one by one.
+    const unsigned int initTriangleIndex = m_container->getNumberOfTriangles();
+    helper::WriteAccessor<Data<sofa::helper::vector<Triangle> > > m_triangle = m_container->d_triangle;
+
+    unsigned int triangleIndex = initTriangleIndex;
+    sofa::helper::vector<Edge> newEdges;
+    for (const auto& triangle : triangles)
+    {
+        for (unsigned int j = 0; j < 3; ++j)
+        {
+            sofa::helper::vector< unsigned int >& shell = m_container->getTrianglesAroundVertexForModification(triangle[j]);
+            shell.push_back(triangleIndex);
+        }
+
+        for (unsigned int j = 0; j < 3; ++j)
+        {
+            Edge newEdge(triangle[(j + 1) % 3], triangle[(j + 2) % 3]);
+            int edgeIndex = m_container->getEdgeIndex(newEdge[0], newEdge[1]);
+
+            if (edgeIndex == -1)
+            {
+                if (std::none_of(newEdges.cbegin(), newEdges.cend(), [newEdge](const Edge& edge){ return (edge[0] == newEdge[0] && edge[1] == newEdge[1]) || (edge[0] == newEdge[1] && edge[1] == newEdge[0]); }))
+                    newEdges.push_back(newEdge);
+            }
+        }
+        triangleIndex++;
+    }
+    
+    if (!newEdges.empty())
+    {
+        addEdgesProcess(newEdges);
+
+        sofa::helper::vector< unsigned int > edgeIndexList;
+        edgeIndexList.reserve(newEdges.size());
+        for (const auto& edge : newEdges)
+        {
+            edgeIndexList.push_back(m_container->getEdgeIndex(edge[0], edge[1]));
+        }
+        addEdgesWarning(newEdges.size(), newEdges, edgeIndexList);   
+    }
+
+    m_container->m_edgesInTriangle.resize(triangleIndex);
+    m_triangle.reserve(triangleIndex);
+    for (unsigned int newTriangleIndex = initTriangleIndex; newTriangleIndex < triangleIndex; ++newTriangleIndex)
+    {
+        m_triangle.push_back(triangles[newTriangleIndex - initTriangleIndex]);
+        for (unsigned int j = 0; j < 3; ++j)
+        {
+            m_container->m_edgesInTriangle[newTriangleIndex][j] = m_container->getEdgeIndex(m_triangle[newTriangleIndex][(j + 1) % 3], m_triangle[newTriangleIndex][(j + 2) % 3]);
+            sofa::helper::vector<unsigned int>& shell = m_container->m_trianglesAroundEdge[m_container->m_edgesInTriangle[newTriangleIndex][j]];
+            shell.push_back(newTriangleIndex);
+        }
+    }
 }
 
 
