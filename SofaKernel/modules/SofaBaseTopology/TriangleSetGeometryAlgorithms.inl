@@ -52,6 +52,52 @@ void TriangleSetGeometryAlgorithms< DataTypes >::reinit()
         this->reorderTrianglesOrientationFromNormals();
 }
 
+template<class DataTypes>
+void TriangleSetGeometryAlgorithms< DataTypes >::handleEvent(sofa::core::objectmodel::Event* e)
+{
+#ifndef NDEBUG
+    // check that the topology doesn't contain any degenerated triangle
+    std::list<const sofa::core::topology::TopologyChange *>::const_iterator itBegin = this->m_topology->beginChange();
+    std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd = this->m_topology->endChange();
+
+    if (itBegin != itEnd)
+    {
+        const sofa::helper::vector<Triangle> &triangleArray = this->m_topology->getTriangles();
+        const VecCoord& pos = (this->object->read(core::ConstVecCoordId::position())->getValue());
+        unsigned int nbPoints = pos.size();
+
+        for (unsigned int ti = 0; ti < triangleArray.size(); ++ti)
+        {
+            Triangle t(triangleArray[ti]);
+            if (t[0] < nbPoints && t[1] < nbPoints && t[2] < nbPoints)
+            {
+                // check length ratio of the edges forming the triangle
+                double epsilon2 = 1e-6;
+                double length01 = (pos[t[1]] - pos[t[0]]).norm2();
+                double length12 = (pos[t[2]] - pos[t[1]]).norm2();
+                double length20 = (pos[t[0]] - pos[t[2]]).norm2();
+                assert((length01 / length12 > epsilon2) && (length12 / length20 > epsilon2) && (length20 / length01 > epsilon2));
+                assert((length12 / length01 > epsilon2) && (length20 / length12 > epsilon2) && (length01 / length20 > epsilon2));
+
+                // check that the edges forming the triangle are not too small in absolute
+                epsilon2 = 1e-12;
+                assert(length01 > epsilon2 && length12 > epsilon2 && length20 > epsilon2);
+
+                // check lenght ratio of heights over the edges forming the triangle
+                epsilon2 = 1e-6;
+                double h0 = cross((pos[t[0]] - pos[t[1]]), (pos[t[2]] - pos[t[1]])).norm2() / length12;
+                double h1 = cross((pos[t[1]] - pos[t[2]]), (pos[t[0]] - pos[t[2]])).norm2() / length20;
+                double h2 = cross((pos[t[2]] - pos[t[0]]), (pos[t[1]] - pos[t[0]])).norm2() / length01;
+
+                assert(h0 / length12 > epsilon2 && h1 / length20 > epsilon2 && h2 / length01 > epsilon2);
+            }
+        }
+    }
+
+#endif
+}
+
+
 
 template< class DataTypes>
 void TriangleSetGeometryAlgorithms< DataTypes >::computeTriangleAABB(const TriangleID i, Coord& minCoord, Coord& maxCoord) const
