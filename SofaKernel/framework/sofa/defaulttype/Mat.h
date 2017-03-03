@@ -669,6 +669,17 @@ public:
         return transformInvertMatrix(*this, m);
     }
 
+    /// for square matrices
+    /// @warning in-place simple symmetrization
+    /// this = ( this + this.transposed() ) / 2.0
+    void symmetrize()
+    {
+        static_assert( C == L, "" );
+        for(int l=0; l<L; l++)
+            for(int c=l+1; c<C; c++)
+                this->elems[l][c] = this->elems[c][l] = ( this->elems[l][c] + this->elems[c][l] ) * 0.5f;
+    }
+
 };
 
 /// Same as Mat except the values are not initialized by default
@@ -1041,6 +1052,44 @@ inline real scalarProduct(const Mat<L,C,real>& left,const Mat<L,C,real>& right)
             product += left(i,j) * right(i,j);
     return product;
 }
+
+
+/// skew-symmetric mapping
+/// crossProductMatrix(v) * x = v.cross(x)
+template<class Real>
+inline defaulttype::Mat<3, 3, Real> crossProductMatrix(const defaulttype::Vec<3, Real>& v)
+{
+    defaulttype::Mat<3, 3, Real> res;
+    res[0][0]=0;
+    res[0][1]=-v[2];
+    res[0][2]=v[1];
+    res[1][0]=v[2];
+    res[1][1]=0;
+    res[1][2]=-v[0];
+    res[2][0]=-v[1];
+    res[2][1]=v[0];
+    res[2][2]=0;
+    return res;
+}
+
+
+/// return a * b^T
+template<int L,class Real>
+static Mat<L,L,Real> tensorProduct(const Vec<L,Real> a, const Vec<L,Real> b )
+{
+    typedef Mat<L,L,Real> Mat;
+    Mat m;
+
+    for( typename Mat::size_type i=0 ; i<L ; ++i )
+    {
+        m[i][i] = a[i]*b[i];
+        for( typename Mat::size_type j=i+1 ; j<L ; ++j )
+            m[i][j] = m[j][i] = a[i]*b[j];
+    }
+
+    return m;
+}
+
 
 } // namespace defaulttype
 
