@@ -430,6 +430,8 @@ public:
 	/// Get user data
 	void* GetUserData() { return userData; }
 
+    unsigned int getNumberOfContacts() { return numberOfContacts; }
+
 protected:
 
     /// flag indicating if this collision model is active and should be included in default

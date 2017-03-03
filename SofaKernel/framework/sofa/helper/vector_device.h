@@ -672,7 +672,10 @@ public:
     const_iterator end() const { return hostRead()+size(); }
 
     iterator begin() { return hostWrite(); }
-    iterator end() { return hostWrite()+size(); }
+    iterator end() { return hostWrite() + size(); }
+
+    const_iterator cbegin() const { return hostRead(); }
+    const_iterator cend() const { return hostRead() + size(); }
 
     iterator erase(iterator position)
     {
