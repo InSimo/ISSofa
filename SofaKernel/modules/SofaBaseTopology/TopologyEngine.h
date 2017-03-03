@@ -31,7 +31,7 @@
 
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/list.h>
-#include <sofa/SofaBase.h>
+//#include <sofa/SofaBase.h>
 
 
 namespace sofa

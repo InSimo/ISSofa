@@ -27,7 +27,7 @@
 #include "config.h"
 
 #include <sofa/helper/vector.h>
-#include <sofa/SofaBase.h>
+
 
 #include <sofa/core/topology/BaseTopologyData.h>
 #include <SofaBaseTopology/TopologyDataHandler.h>
@@ -130,12 +130,12 @@ protected:
 };
 
 // c++11 power!
-template< class ContainerType > using PointData       = TopologyDataImpl<Point      , ContainerType>;
-template< class ContainerType > using EdgeData        = TopologyDataImpl<Edge       , ContainerType>;
-template< class ContainerType > using TriangleData    = TopologyDataImpl<Triangle   , ContainerType>;
-template< class ContainerType > using QuadData        = TopologyDataImpl<Quad       , ContainerType>;
-template< class ContainerType > using TetrahedronData = TopologyDataImpl<Tetrahedron, ContainerType>;
-template< class ContainerType > using HexahedronData  = TopologyDataImpl<Hexahedron , ContainerType>;
+template< class ContainerType > using PointData       = TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Point      , ContainerType>;
+template< class ContainerType > using EdgeData        = TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Edge       , ContainerType>;
+template< class ContainerType > using TriangleData    = TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Triangle   , ContainerType>;
+template< class ContainerType > using QuadData        = TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Quad       , ContainerType>;
+template< class ContainerType > using TetrahedronData = TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Tetrahedron, ContainerType>;
+template< class ContainerType > using HexahedronData  = TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Hexahedron , ContainerType>;
 
 } // namespace topology
 

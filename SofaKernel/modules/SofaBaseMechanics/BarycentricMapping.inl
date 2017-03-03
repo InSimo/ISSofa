@@ -634,13 +634,19 @@ template <class In, class Out>
 void BarycentricMapperEdgeSetTopology<In,Out>::init ( const typename Out::VecCoord& /*out*/, const typename In::VecCoord& /*in*/ )
 {
     _fromContainer->getContext()->get ( _fromGeomAlgo );
-    // Why do we need that ? is reset the map in case of topology change
-//    if (this->toTopology)
-//    {
-//        map.createTopologicalEngine(this->toTopology);
-//        map.registerTopologicalData();
-//    }
 
+
+}
+
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In,Out>::initTopologyChange()
+{
+    if (this->toTopology)
+    {
+        map.createTopologicalEngine(this->toTopology);
+        map.registerTopologicalData();
+    }
 }
 
 template <class In, class Out>
@@ -3755,7 +3761,7 @@ void BarycentricMapping<TIn, TOut>::handleTopologyChange ( core::topology::Topol
 //    if (mapper)
 //        mapper->handleTopologyChange(t);
     reinit(); // we now recompute the entire mapping when there is a topologychange
-    }
+//    }
 }
 
 #ifdef BARYCENTRIC_MAPPER_TOPOCHANGE_REINIT

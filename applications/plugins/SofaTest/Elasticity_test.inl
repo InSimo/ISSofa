@@ -54,6 +54,7 @@
 #include <SofaMiscForceField/MeshMatrixMass.h>
 #include <SofaMiscMapping/SubsetMultiMapping.h>
 #include <SofaRigid/RigidMapping.h>
+#include <SofaBaseTopology/TetrahedronSetTopologyContainer.h>
 
 namespace sofa
 {

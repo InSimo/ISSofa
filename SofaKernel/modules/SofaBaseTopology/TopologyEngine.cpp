@@ -22,8 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_TOPOLOGY_POINTSETTOPOLOGYENGINE_INL
-#define SOFA_COMPONENT_TOPOLOGY_POINTSETTOPOLOGYENGINE_INL
+#define SOFA_COMPONENT_TOPOLOGY_TOPOLOGYENGINE_CPP
 
 #include <SofaBaseTopology/TopologyEngine.h>
 
@@ -38,8 +37,8 @@ namespace component
 namespace topology
 {
 
-template <typename VecT>
-TopologyEngineImpl< VecT>::TopologyEngineImpl(t_topologicalData *_topologicalData,
+
+TopologyEngineImpl::TopologyEngineImpl(t_topologicalData *_topologicalData,
         sofa::core::topology::BaseMeshTopology *_topology,
         sofa::core::topology::TopologyHandler *_topoHandler) :
     m_topologicalData(_topologicalData),
@@ -57,8 +56,8 @@ TopologyEngineImpl< VecT>::TopologyEngineImpl(t_topologicalData *_topologicalDat
         serr <<"Error: Topology Handler not available" << sendl;
 }
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::init()
+
+void TopologyEngineImpl::init()
 {
     // A pointData is by default child of positionSet Data
     //this->linkToPointDataArray();  // already done while creating engine
@@ -77,15 +76,15 @@ void TopologyEngineImpl< VecT>::init()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::reinit()
+
+void TopologyEngineImpl::reinit()
 {
     this->requestUpdate();
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::update()
+
+void TopologyEngineImpl::update()
 {
 #ifndef NDEBUG // too much warnings
     sout << "TopologyEngine::update" << sendl;
@@ -96,8 +95,8 @@ void TopologyEngineImpl< VecT>::update()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::registerTopology(sofa::core::topology::BaseMeshTopology *_topology)
+
+void TopologyEngineImpl::registerTopology(sofa::core::topology::BaseMeshTopology *_topology)
 {
     m_topology =  dynamic_cast<sofa::core::topology::TopologyContainer*>(_topology);
 
@@ -113,8 +112,8 @@ void TopologyEngineImpl< VecT>::registerTopology(sofa::core::topology::BaseMeshT
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::registerTopology()
+
+void TopologyEngineImpl::registerTopology()
 {
     if (m_topology == NULL)
     {
@@ -128,8 +127,8 @@ void TopologyEngineImpl< VecT>::registerTopology()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::ApplyTopologyChanges()
+
+void TopologyEngineImpl::ApplyTopologyChanges()
 {
     // Rentre ici la premiere fois aussi....
     if(m_topoHandler)
@@ -142,8 +141,8 @@ void TopologyEngineImpl< VecT>::ApplyTopologyChanges()
 
 
 /// Function to link DataEngine with Data array from topology
-template <typename VecT>
-void TopologyEngineImpl< VecT>::linkToPointDataArray()
+
+void TopologyEngineImpl::linkToPointDataArray()
 {
     if (m_pointsLinked) // avoid second registration
         return;
@@ -163,8 +162,8 @@ void TopologyEngineImpl< VecT>::linkToPointDataArray()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::linkToEdgeDataArray()
+
+void TopologyEngineImpl::linkToEdgeDataArray()
 {
     if (m_edgesLinked) // avoid second registration
         return;
@@ -184,8 +183,8 @@ void TopologyEngineImpl< VecT>::linkToEdgeDataArray()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::linkToTriangleDataArray()
+
+void TopologyEngineImpl::linkToTriangleDataArray()
 {
     if (m_trianglesLinked) // avoid second registration
         return;
@@ -205,8 +204,8 @@ void TopologyEngineImpl< VecT>::linkToTriangleDataArray()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::linkToQuadDataArray()
+
+void TopologyEngineImpl::linkToQuadDataArray()
 {
     if (m_quadsLinked) // avoid second registration
         return;
@@ -226,8 +225,8 @@ void TopologyEngineImpl< VecT>::linkToQuadDataArray()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::linkToTetrahedronDataArray()
+
+void TopologyEngineImpl::linkToTetrahedronDataArray()
 {
     if (m_tetrahedraLinked) // avoid second registration
         return;
@@ -247,8 +246,8 @@ void TopologyEngineImpl< VecT>::linkToTetrahedronDataArray()
 }
 
 
-template <typename VecT>
-void TopologyEngineImpl< VecT>::linkToHexahedronDataArray()
+
+void TopologyEngineImpl::linkToHexahedronDataArray()
 {
     if (m_hexahedraLinked) // avoid second registration
         return;
@@ -277,4 +276,4 @@ void TopologyEngineImpl< VecT>::linkToHexahedronDataArray()
 
 } // namespace sofa
 
-#endif // SOFA_COMPONENT_TOPOLOGY_POINTSETTOPOLOGYENGINE_INL
+

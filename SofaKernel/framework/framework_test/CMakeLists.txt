@@ -20,6 +20,7 @@ set(SOURCE_FILES
     helper/SVector_test.cpp
     helper/io/MeshOBJ_test.cpp
     helper/io/MeshSTL_test.cpp
+    helper/map_ptr_stable_compare_test.cpp
     helper/system/FileMonitor_test.cpp
     helper/system/FileRepository_test.cpp
     helper/system/FileSystem_test.cpp

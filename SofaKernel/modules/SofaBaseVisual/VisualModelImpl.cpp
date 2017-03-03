@@ -1957,8 +1957,8 @@ template class SOFA_BASE_VISUAL_API VisualModelPointHandler< ResizableExtVector<
 
 namespace topology
 {
-template class TopologyDataImpl<Point, sofa::defaulttype::ResizableExtVector<sofa::defaulttype::ExtVec3fTypes::Coord> >;
-template class TopologyDataImpl<Point, sofa::defaulttype::ResizableExtVector<sofa::defaulttype::ExtVec2fTypes::Coord> >;
+template class TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Point, sofa::defaulttype::ResizableExtVector<sofa::defaulttype::ExtVec3fTypes::Coord> >;
+template class TopologyDataImpl<sofa::core::topology::BaseMeshTopology::Point, sofa::defaulttype::ResizableExtVector<sofa::defaulttype::ExtVec2fTypes::Coord> >;
 }
 
 } // namespace component

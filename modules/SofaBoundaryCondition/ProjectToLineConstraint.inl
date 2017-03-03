@@ -196,7 +196,7 @@ void  ProjectToLineConstraint<DataTypes>::reinit()
         }
         else           // unconstrained particle: set diagonal to identity block
         {
-            jacobian.insertBackBlock(i,i,Block::s_identity);
+            jacobian.insertBackBlock(i,i,Block::Identity());
         }
         i++;
     }

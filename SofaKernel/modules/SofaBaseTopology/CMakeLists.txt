@@ -45,7 +45,6 @@ set(HEADER_FILES
     TopologyDataHandler.h
     TopologyDataHandler.inl
     TopologyEngine.h
-    TopologyEngine.inl
     TopologySparseData.h
     TopologySparseData.inl
     TopologySparseDataHandler.h
@@ -90,6 +89,7 @@ set(SOURCE_FILES
     TetrahedronSetTopologyAlgorithms.cpp
     TetrahedronSetTopologyContainer.cpp
     TetrahedronSetTopologyModifier.cpp
+    TopologyEngine.cpp
     TriangleSetGeometryAlgorithms.cpp
     TriangleSetTopologyAlgorithms.cpp
     TriangleSetTopologyContainer.cpp

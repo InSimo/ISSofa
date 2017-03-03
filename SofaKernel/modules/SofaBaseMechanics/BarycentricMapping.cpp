@@ -133,7 +133,8 @@ template class SOFA_BASE_MECHANICS_API BarycentricMapperHexahedronSetTopology< V
 #endif
 
 // Quick and dirty way to make sure all mapper metaclasses are instantiated before multiple threads can be used
-const sofa::core::objectmodel::BaseClass* BarycentricMapperClasses[] = {
+//const sofa::core::objectmodel::BaseClass* BarycentricMapperClasses[] = {
+static const sofa::core::objectmodel::BaseClass* classes[] = {
 #ifndef SOFA_FLOAT
     BarycentricMapper< Vec3dTypes, Vec3dTypes >::GetClass(),
     BarycentricMapper< Vec3dTypes, ExtVec3fTypes >::GetClass(),
