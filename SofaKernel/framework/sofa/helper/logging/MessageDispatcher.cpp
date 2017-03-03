@@ -43,7 +43,7 @@ using std::remove ;
 #include "MessageHandler.h"
 #include "ConsoleMessageHandler.h"
 
-#include <sofa/core/objectmodel/Base.h>
+//#include <sofa/core/objectmodel/Base.h>
 
 #include <sofa/helper/logging/DefaultStyleMessageFormatter.h>
 using sofa::helper::logging::DefaultStyleMessageFormatter;
@@ -157,15 +157,7 @@ MessageDispatcher::LoggerStream MessageDispatcher::log(Message::Class mclass, Me
     return MessageDispatcher::LoggerStream( mclass, type, sender, fileInfo);
 }
 
-MessageDispatcher::LoggerStream MessageDispatcher::log(Message::Class mclass, Message::Type type, const sofa::core::objectmodel::Base* sender, const  FileInfo::SPtr& fileInfo) {
-    return MessageDispatcher::LoggerStream(mclass, type, sender, fileInfo);
-}
-
 MessageDispatcher::LoggerStream MessageDispatcher::info(Message::Class mclass, const std::string& sender, const FileInfo::SPtr& fileInfo) {
-    return log(mclass, Message::Info, sender, fileInfo);
-}
-
-MessageDispatcher::LoggerStream MessageDispatcher::info(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo) {
     return log(mclass, Message::Info, sender, fileInfo);
 }
 
@@ -173,66 +165,29 @@ MessageDispatcher::LoggerStream MessageDispatcher::deprecated(Message::Class mcl
     return log(mclass, Message::Deprecated, sender, fileInfo);
 }
 
-MessageDispatcher::LoggerStream MessageDispatcher::deprecated(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo) {
-    return log(mclass, Message::Deprecated, sender, fileInfo);
-}
-
 MessageDispatcher::LoggerStream MessageDispatcher::warning(Message::Class mclass, const std::string& sender, const FileInfo::SPtr& fileInfo) {
     return log(mclass, Message::Warning, sender, fileInfo);
 }
 
-MessageDispatcher::LoggerStream MessageDispatcher::warning(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo) {
-    return log(mclass, Message::Warning, sender, fileInfo);
-}
 
 MessageDispatcher::LoggerStream MessageDispatcher::error(Message::Class mclass, const std::string& sender, const FileInfo::SPtr& fileInfo) {
     return log(mclass, Message::Error, sender, fileInfo);
 }
 
-MessageDispatcher::LoggerStream MessageDispatcher::error(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo) {
-    return log(mclass, Message::Error, sender, fileInfo);
-}
+
 
 MessageDispatcher::LoggerStream MessageDispatcher::fatal(Message::Class mclass, const std::string& sender, const FileInfo::SPtr& fileInfo) {
     return log(mclass, Message::Fatal, sender, fileInfo);
 }
 
-MessageDispatcher::LoggerStream MessageDispatcher::fatal(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo) {
-    return log(mclass, Message::Fatal, sender, fileInfo);
-}
 
 MessageDispatcher::LoggerStream MessageDispatcher::advice(Message::Class mclass, const std::string& sender, const FileInfo::SPtr& fileInfo) {
     return log(mclass, Message::Advice, sender, fileInfo);
 }
 
-MessageDispatcher::LoggerStream MessageDispatcher::advice(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo) {
-    return log(mclass, Message::Advice, sender, fileInfo);
-}
 
 
-MessageDispatcher::LoggerStream::LoggerStream(Message::Class mclass, Message::Type type,
-             const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo)
-    : m_message( mclass
-                 , type
-                 , sender->getClassName()
-                 // temporary, until Base object reference kept in the message itself ->
-                 // (mattn) not sure it is a good idea, the Message could be kept after the Base is deleted
-                 // TODO(dmarchal): by converting this to a string we are not able anymore to
-                 // display rich information like the component name or location in the scene tree while these
-                 // information are really usefull. I have to make small experiment to see what could be a nice
-                 // approach without too much overhead.
-                 , fileInfo
 
-//TODO(dmarchal): this is a dirty fix to make the source code compile on windows which fail at link
-//time. More fundamentally this function should'nt be in the message dispatcher class that is supposed
-//to have no link to sofa::core::objectmodel::Base
-#ifdef WIN32
-                 , ComponentInfo::SPtr( new ComponentInfo("", "")) )
-#else
-                 , ComponentInfo::SPtr( new ComponentInfo("" /*sender->getName()*/, "")) )
-#endif //WIN32
-{
-}
 
 MessageDispatcher::LoggerStream::~LoggerStream()
 {

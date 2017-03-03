@@ -32,16 +32,7 @@
 
 namespace sofa
 {
-
-namespace core
-{
-namespace objectmodel
-{
-class Base; // forward declaration
-} // namespace objectmodel
-} // namespace core
-
-
+    
 namespace helper
 {
 
@@ -78,8 +69,18 @@ public:
             {
             }
 
+            template <class MyClass>
             LoggerStream(Message::Class mclass, Message::Type type,
-                         const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo);
+                         const MyClass* sender, const FileInfo::SPtr& fileInfo)
+                : m_message(mclass, type, std::string(sender->getClassName()), fileInfo)
+            {
+            }
+
+            LoggerStream(Message::Class mclass, Message::Type type,
+                const char* sender, const FileInfo::SPtr& fileInfo)
+                : m_message(mclass, type, sender, fileInfo)
+            {
+            }
 
             ~LoggerStream() ;
 
@@ -119,21 +120,53 @@ public:
         static std::vector<MessageHandler*>& getHandlers(); ///< the list of MessageHandlers
 
         static LoggerStream info(Message::Class mclass, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
-        static LoggerStream info(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
+        template <class MyClass>
+        static LoggerStream info(Message::Class mclass, const  MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) 
+        {
+            return log(mclass, Message::Info, sender, fileInfo);
+        }
+
         static LoggerStream deprecated(Message::Class mclass, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
-        static LoggerStream deprecated(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
+        template <class MyClass>
+        static LoggerStream deprecated(Message::Class mclass, const MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) 
+        {
+            return log(mclass, Message::Deprecated, sender, fileInfo);
+        }
+
         static LoggerStream warning(Message::Class mclass, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
-        static LoggerStream warning(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
+        template <class MyClass>
+        static LoggerStream warning(Message::Class mclass, const MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) 
+        {
+            return log(mclass, Message::Warning, sender, fileInfo);
+        }
+
         static LoggerStream error(Message::Class mclass, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
-        static LoggerStream error(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
+        template <class MyClass>
+        static LoggerStream error(Message::Class mclass, const MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) 
+        {
+            return log(mclass, Message::Error, sender, fileInfo);
+        }
+
         static LoggerStream fatal(Message::Class mclass, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
-        static LoggerStream fatal(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
+        template <class MyClass>
+        static LoggerStream fatal(Message::Class mclass, const MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) 
+        {
+            return log(mclass, Message::Fatal, sender, fileInfo);
+        }
         static LoggerStream advice(Message::Class mclass, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
-        static LoggerStream advice(Message::Class mclass, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) ;
+        template <class MyClass>
+        static LoggerStream advice(Message::Class mclass, const MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo) 
+        {
+            return log(mclass, Message::Advice, sender, fileInfo);
+        }
 
         static const NullLoggerStream& null() { return NullLoggerStream::getInstance(); }
         static MessageDispatcher::LoggerStream log(Message::Class mclass, Message::Type type, const std::string& sender = "", const FileInfo::SPtr& fileInfo = EmptyFileInfo);
-        static MessageDispatcher::LoggerStream log(Message::Class mclass, Message::Type type, const sofa::core::objectmodel::Base* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo);
+        template <class MyClass>
+        static MessageDispatcher::LoggerStream log(Message::Class mclass, Message::Type type, const MyClass* sender, const FileInfo::SPtr& fileInfo = EmptyFileInfo)
+        {
+            return MessageDispatcher::LoggerStream(mclass, type, sender, fileInfo);
+        }
 
         /// Process the Message by all the Message handlers.
         /// Called in the destructor of LoggerStream

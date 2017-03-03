@@ -914,7 +914,7 @@ extern "C" PyObject * Data_getValueVoidPtr(PyObject * self, PyObject * /*args*/)
 
 
 //    // output = tuple( pointer, shape tuple, type name)
-//    PyObject* res = PyTuple_New(3);
+    PyObject* res = PyTuple_New(3);
 
 //    // the data pointer
 //    PyTuple_SetItem( res, 0, PyLong_FromVoidPtr( valueVoidPtr ) );
@@ -926,7 +926,7 @@ extern "C" PyObject * Data_getValueVoidPtr(PyObject * self, PyObject * /*args*/)
 //    PyTuple_SetItem( res, 2, PyString_FromString( valuetypeinfo->name().c_str() ) );
 
 
-//    return res;
+    return res;
 }
 
 

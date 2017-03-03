@@ -1,7 +1,7 @@
 #ifndef __SOFA_HELPER_OWNERSHIPSPTR_H__
 #define __SOFA_HELPER_OWNERSHIPSPTR_H__
 
-#include <sofa/defaulttype/BaseMatrix.h>
+//#include <sofa/defaulttype/BaseMatrix.h>
 
 namespace sofa {
 
