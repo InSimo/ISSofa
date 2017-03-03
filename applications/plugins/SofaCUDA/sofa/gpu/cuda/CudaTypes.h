@@ -807,16 +807,17 @@ namespace defaulttype
 {
 
 template<class T>
-struct DataTypeInfo< sofa::gpu::cuda::CudaVector<T> > : public VectorTypeInfo<sofa::gpu::cuda::CudaVector<T> >
-{
-    static std::string name() { std::ostringstream o; o << "CudaVector<" << DataTypeName<T>::name() << ">"; return o.str(); }
-};
+struct DataTypeInfo< sofa::gpu::cuda::CudaVector<T> > : public ContainerTypeInfo<sofa::gpu::cuda::CudaVector<T>, ContainerKindEnum::Array, 0> {};
+template<class T>
+struct DataTypeName< sofa::gpu::cuda::CudaVector<T>> { static std::string name() { std::ostringstream o; o << "CudaVector<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
-template<typename real>
-struct DataTypeInfo< sofa::gpu::cuda::Vec3r1<real> > : public FixedArrayTypeInfo<sofa::gpu::cuda::Vec3r1<real> >
-{
-    static std::string name() { std::ostringstream o; o << "Vec3r1<" << DataTypeName<real>::name() << ">"; return o.str(); }
-};
+
+template<class real>
+struct DataTypeInfo<  sofa::gpu::cuda::Vec3r1<real> > : public ContainerTypeInfo< sofa::gpu::cuda::Vec3r1<real>, ContainerKindEnum::Array, 3> {};
+template<class real>
+struct DataTypeName<  sofa::gpu::cuda::Vec3r1<real>> { static std::string name() { std::ostringstream o; o << "Vec3r1<" << DataTypeName<real>::name() << ">"; return o.str(); } };
+
+
 
 // The next line hides all those methods from the doxygen documentation
 /// \cond TEMPLATE_OVERRIDES
