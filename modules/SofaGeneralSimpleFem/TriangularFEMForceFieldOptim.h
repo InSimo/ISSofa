@@ -37,7 +37,7 @@
 //#define SIMPLEFEM_COLORMAP
 
 #ifdef SIMPLEFEM_COLORMAP
-#include <SofaOpenglVisual/ColorMap.h>
+#include <SofaOpenglVisual/OglColorMap.h>
 #endif
 
 #include <map>
@@ -407,7 +407,7 @@ public:
 
 #ifdef SIMPLEFEM_COLORMAP
 #ifndef SOFA_NO_OPENGL
-	visualmodel::ColorMap::SPtr showStressColorMapReal;
+    visualmodel::OglColorMap::SPtr showStressColorMapReal;
 #endif
 #endif
 

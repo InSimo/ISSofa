@@ -71,7 +71,7 @@ public:
     sofa::helper::ColorMap m_colorMap;
     GLuint texture;
 
-    void initOld(const std::string &data);
+    //void initOld(const std::string &data);
 
     void init();
     void reinit();

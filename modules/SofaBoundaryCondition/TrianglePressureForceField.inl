@@ -170,7 +170,7 @@ void TrianglePressureForceField<DataTypes>::addDForce(const core::MechanicalPara
 		size_t i,j,k;
 		VecDeriv& df=*(d_df.beginEdit());
 		const VecDeriv dx=d_dx.getValue();
-		typedef sofa::component::topology::BaseMeshTopology::Triangle Triangle;
+		typedef sofa::core::topology::Triangle Triangle;
 		const sofa::helper::vector<Triangle> &ta = _topology->getTriangles();
 		 
 		const  VecCoord p = this->mstate->read(core::ConstVecCoordId::position())->getValue();
@@ -204,7 +204,7 @@ void TrianglePressureForceField<DataTypes>::addDForce(const core::MechanicalPara
 		size_t i,j,k;
 		VecDeriv& df=*(d_df.beginEdit());
 		const VecDeriv dx=d_dx.getValue();
-		typedef sofa::component::topology::BaseMeshTopology::Triangle Triangle;
+		typedef sofa::core::topology::BaseMeshTopology::Triangle Triangle;
 		const sofa::helper::vector<Triangle> &ta = _topology->getTriangles();
 		 
 		const  VecCoord p = this->mstate->read(core::ConstVecCoordId::position())->getValue();

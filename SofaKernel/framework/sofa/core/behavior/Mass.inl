@@ -162,8 +162,8 @@ SReal Mass<DataTypes>::getKineticEnergy(const MechanicalParams* mparams) const
     if (this->mstate)
     {
         return getKineticEnergy(mparams /* PARAMS FIRST */, *mparams->readV(this->mstate));
-    return 0.0;
     }
+    return 0.0;
 }
 
 template<class DataTypes>

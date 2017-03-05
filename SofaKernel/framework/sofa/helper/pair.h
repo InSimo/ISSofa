@@ -25,7 +25,7 @@
 #ifndef SOFA_HELPER_PAIR_H
 #define SOFA_HELPER_PAIR_H
 
-#include <sofa/SofaFramework.h>
+#include <sofa/config.h>
 
 #include <utility>
 #include <iostream>

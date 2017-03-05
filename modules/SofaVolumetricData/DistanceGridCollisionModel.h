@@ -33,7 +33,7 @@
 #include <sofa/core/objectmodel/DataFileName.h>
 #include <SofaBaseTopology/SparseGridTopology.h>
 #include <SofaMeshCollision/BarycentricContactMapper.h>
-
+#include <math.h>
 
 namespace sofa
 {

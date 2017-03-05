@@ -82,7 +82,7 @@ TriangularFEMForceFieldOptim<DataTypes>::TriangularFEMForceFieldOptim()
     , _topology(NULL)
 #ifdef SIMPLEFEM_COLORMAP
 #ifndef SOFA_NO_OPENGL
-	, showStressColorMapReal(sofa::core::objectmodel::New< visualmodel::ColorMap >())
+	, showStressColorMapReal(sofa::core::objectmodel::New< visualmodel::OglColorMap >())
 #endif
 #endif
     , f_poisson(initData(&f_poisson,(Real)(0.45),"poissonRatio","Poisson ratio in Hooke's law"))
@@ -259,12 +259,10 @@ void TriangularFEMForceFieldOptim<DataTypes>::reinit()
 #ifdef SIMPLEFEM_COLORMAP
 #ifndef SOFA_NO_OPENGL
     // TODO: This is deprecated. Use ColorMap as a component.
-     visualmodel::ColorMap* colorMap = NULL;
+     visualmodel::OglColorMap* colorMap = NULL;
     this->getContext()->get(colorMap,sofa::core::objectmodel::BaseContext::Local);
     if (colorMap)
         showStressColorMapReal = colorMap;
-    else
-        showStressColorMapReal->initOld(showStressColorMap.getValue());
 #endif
 #endif
 
