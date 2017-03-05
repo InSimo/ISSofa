@@ -90,7 +90,7 @@ public:
     Data< Real > d_springSphereRadius;
 
     sofa::core::behavior::MechanicalState< DataTypes > *restMState;
-    linearsolver::EigenBaseSparseMatrix<typename DataTypes::Real> matS;
+    //linearsolver::EigenBaseSparseMatrix<typename DataTypes::Real> matS;
 
 protected:
     RestShapeSpringsForceField();
@@ -138,7 +138,7 @@ protected :
     VecIndex m_ext_indices;
     helper::vector<CPos> m_pivots;
 
-    SReal lastUpdatedStep;
+    //SReal lastUpdatedStep;
 
 };
 

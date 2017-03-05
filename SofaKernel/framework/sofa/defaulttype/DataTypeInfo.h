@@ -667,7 +667,7 @@ template<class TDataType, size_t TFixedSize> struct DataTypeInfo_ContainerTypes<
     static const KeyType& key(const TDataType& data, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
     {
         KeyType& key = *keyBuffer.getOrCreate<KeyType>();
-        key = (it - data.begin());
+        key = static_cast<KeyType>(it - data.begin());
         return key;
     }
     static auto valueAtIndex(const TDataType& data, size_t index) -> decltype(data[index]) { return data[index]; }

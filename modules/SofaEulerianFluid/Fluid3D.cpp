@@ -339,7 +339,7 @@ void Fluid3D::updateVisual()
         { CubeData* p=P0; P0=P1; P1=p; }
         memset(P1,-1,nx*ny*sizeof(CubeData));
 
-        int edgepts[12];
+        std::size_t edgepts[12];
         int* base = &(P[0].p[0]);
         edgepts[0] = &(P0[-dy].p[0])-base;
         edgepts[1] = &(P0[0  ].p[1])-base;

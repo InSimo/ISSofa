@@ -3425,7 +3425,7 @@ bool MechanicalObject<DataTypes>::pickParticles(const core::ExecParams* /* param
 //                                    cerr<<"MechanicalObject<DataTypes>::pickParticles, point " << i << ", maxR = " << maxr << endl;
             if (distToRay <= maxr*maxr)
             {
-                particles.insert(std::make_pair(distToRay,std::make_pair(this,i)));
+                particles.insert(std::make_pair(distToRay,std::make_pair(this,(int)i)));
 //                                            cerr<<"MechanicalObject<DataTypes>::pickParticles, point " << i << ", distance = " << r2 << " inserted " << endl;
             }
 //                                    cerr<<"MechanicalObject<DataTypes>::pickParticles, point " << i << ", distance = " << r2 << " not inserted " << endl;

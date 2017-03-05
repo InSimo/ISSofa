@@ -623,7 +623,7 @@ SP_CLASS_ATTR_GET(Data, fullPath)(PyObject *self, void*)
 }
 
 
-SP_CLASS_ATTR_SET(Data, fullPath)(PyObject */*self*/, PyObject * /*args*/, void*)
+SP_CLASS_ATTR_SET(Data, fullPath)(PyObject * /*self*/, PyObject * /*args*/, void*)
 {
     SP_MESSAGE_ERROR("fullPath attribute is read only")
         PyErr_BadArgument();

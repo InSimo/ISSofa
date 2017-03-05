@@ -27,7 +27,8 @@
 #include <sofa/helper/system/config.h>
 #include <cassert>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstdint>
 
 namespace sofa
 {
@@ -51,7 +52,7 @@ bool vector_access_call_assert()
 
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type)
 {
-    msg_error("vector") << "in vector<"<<gettypename(type)<<"> " << std::hex << (long)vec << std::dec << " size " << size << " : invalid index " << (int)i;
+    msg_error("vector") << "in vector<"<<gettypename(type)<<"> " << std::hex << (uintptr_t)vec << std::dec << " size " << size << " : invalid index " << (int)i;
     BackTrace::dump();
     static bool do_assert = vector_access_call_assert();
     if (do_assert)
@@ -62,7 +63,7 @@ void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsig
 
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type, const char* tindex)
 {
-    msg_error("vector") << "in vector<"<<gettypename(type)<<", integer_id<"<<tindex<<"> > " << std::hex << (long)vec << std::dec << " size " << size << " : invalid index " << (int)i;
+    msg_error("vector") << "in vector<"<<gettypename(type)<<", integer_id<"<<tindex<<"> > " << std::hex << (uintptr_t)vec << std::dec << " size " << size << " : invalid index " << (int)i;
     BackTrace::dump();
     static bool do_assert = vector_access_call_assert();
     if (do_assert)

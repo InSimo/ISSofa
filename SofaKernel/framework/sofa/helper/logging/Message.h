@@ -65,15 +65,17 @@ protected:
 struct FileInfoOwningFilename : public FileInfo
 {
     FileInfoOwningFilename(const char *f, int l) {
-        char *tmp  = new char[strlen(f)+1] ;
-        strcpy(tmp, f) ;
+        std::size_t len = strlen(f);
+        char *tmp  = new char[len + 1] ;
+        memcpy(tmp, f, len + 1) ;
         filename = tmp ;
         line = l ;
     }
 
     FileInfoOwningFilename(const std::string& f, int l) {
-        char *tmp  = new char[f.size()+1] ;
-        strcpy(tmp, f.c_str()) ;
+        std::size_t len = f.size();
+        char *tmp  = new char[len + 1] ;
+        memcpy(tmp, f.c_str(), len + 1);
         filename = tmp ;
         line = l ;
     }
