@@ -269,11 +269,13 @@ if (${CUDA_HOST_COMPILER} MATCHES "ccache$")
 endif()
 
 # quick and dirty fix for nvcc compatibility with -fno-partial-inlining flag
-set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+if (NOT WIN32)
+    set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+endif()
 
 if(WIN32)
     add_definitions("-DWIN32")
-    set(WINDOWSOPTIONS "/MD")
+#    set(WINDOWSOPTIONS "/MD")
 endif()
 
 # Make the compiler definitions available to nvcc
