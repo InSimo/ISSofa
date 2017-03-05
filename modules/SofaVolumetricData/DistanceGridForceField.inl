@@ -1,3 +1,4 @@
+
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
 *                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
@@ -542,10 +543,10 @@ void DistanceGridForceField<DataTypes>::drawDistanceGrid(const core::visual::Vis
                         distancePointsOut.push_back(cellCoord);
                 }
 
-        if (distancePointsIn.size()) vparams->drawTool()->drawPoints(distancePointsIn, (float)drawSize.getValue(), defaulttype::Vec<4,float>(0.8f,0.2f,0.2f,1.0f));
-        if (distancePointsOut.size()) vparams->drawTool()->drawPoints(distancePointsOut, (float)(drawSize.getValue()*1.2), defaulttype::Vec<4,float>(0.2f,0.8f,0.2f,1.0f));
+        if (distancePointsIn.size())
+            vparams->drawTool()->drawPoints(distancePointsIn, (float)drawSize.getValue(), defaulttype::Vec<4,float>(0.8f,0.2f,0.2f,1.0f));
         if (distancePointsOut.size())
-            vparams->drawTool()->drawPoints(distancePointsOut, (float)drawSize.getValue()*1.2f, defaulttype::Vec<4,double>(0.2,0.8,0.2,1.0));
+            vparams->drawTool()->drawPoints(distancePointsOut, (float)(drawSize.getValue()*1.2), defaulttype::Vec<4,float>(0.2f,0.8f,0.2f,1.0f));
     }
 
 }
