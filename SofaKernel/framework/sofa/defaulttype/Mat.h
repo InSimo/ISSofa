@@ -678,18 +678,7 @@ public:
     /// this = ( this + this.transposed() ) / 2.0
     void symmetrize()
     {
-        static_assert( C == L, "" );
-        for(int l=0; l<L; l++)
-            for(int c=l+1; c<C; c++)
-                this->elems[l][c] = this->elems[c][l] = ( this->elems[l][c] + this->elems[c][l] ) * 0.5f;
-    }
-
-    /// for square matrices
-    /// @warning in-place simple symmetrization
-    /// this = ( this + this.transposed() ) / 2.0
-    void symmetrize()
-    {
-        static_assert( C == L, "" );
+        static_assert( C == L, "Requires square matrix" );
         for(int l=0; l<L; l++)
             for(int c=l+1; c<C; c++)
                 this->elems[l][c] = this->elems[c][l] = ( this->elems[l][c] + this->elems[c][l] ) * 0.5f;
