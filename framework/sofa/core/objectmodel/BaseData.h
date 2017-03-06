@@ -50,6 +50,20 @@ namespace objectmodel
 class Base;
 class BaseData;
 
+template<>
+class LinkTraitsGetClass<BaseData, true>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return NULL;
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return NULL;
+    }
+};
+
 /**
  *  \brief Abstract base class for Data.
  *
@@ -76,14 +90,6 @@ public:
 
     /// Default value used for flags.
     enum { FLAG_DEFAULT = FLAG_DISPLAYED | FLAG_PERSISTENT | FLAG_AUTOLINK };
-
-    /// @name Class reflection system
-    /// @{
-    typedef TClass<BaseData,DDGNode> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
-    /// @}
 
     /// This internal class is used by the initData() methods to store initialization parameters of a Data
     class BaseInitData
@@ -362,7 +368,7 @@ protected:
 //    /// Link to another Data, if used as an input from another Data (@ typo).
 //    std::string m_linkPath;
     /// Parent Data
-    SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentBaseData;
+    SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_OWNERDATA|BaseLink::FLAG_DUPLICATE> parentBaseData;
 
     /// Helper method to get the type name of type T
     template<class T>

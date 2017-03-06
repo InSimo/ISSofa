@@ -272,6 +272,36 @@ public:
     }
 };
 
+template<class Type, bool data>
+class LinkTraitsGetClass;
+template<class Type>
+class LinkTraitsGetClass<Type, false>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return Type::GetClass();
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return NULL;
+    }
+};
+
+template<class Type>
+class LinkTraitsGetClass<Type, true>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return NULL;
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return Type::GetValueTypeInfo();
+    }
+};
+
 template<class OwnerType, class DestType, bool data>
 class LinkTraitsFindDest;
 
@@ -333,6 +363,8 @@ public:
     typedef LinkTraitsFindDest<OwnerType, DestType, ACTIVEFLAG(FLAG_DATALINK)> TraitsFindDest;
     typedef LinkTraitsPtrCasts<TOwnerType> TraitsOwnerCasts;
     typedef LinkTraitsPtrCasts<TDestType> TraitsDestCasts;
+    typedef LinkTraitsGetClass<DestType, ACTIVEFLAG(FLAG_DATALINK)> LinkTraitsDestGetClass;
+    typedef LinkTraitsGetClass<OwnerType, ACTIVEFLAG(FLAG_OWNERDATA)> LinkTraitsOwnerGetClass;
 #undef ACTIVEFLAG
 
     TLink(const InitLink<OwnerType>& init)
@@ -442,14 +474,24 @@ public:
         return false;
     }
 
-    const BaseClass* getDestClass() const
+    const BaseClass* getDestObjectClass() const
     {
-        return DestType::GetClass();
+        return LinkTraitsDestGetClass::GetObjectClass();
     }
 
-    const BaseClass* getOwnerClass() const
+    const BaseClass* getOwnerObjectClass() const
     {
-        return OwnerType::GetClass();
+        return LinkTraitsOwnerGetClass::GetObjectClass();
+    }
+
+    const defaulttype::AbstractTypeInfo* getDestDataType() const
+    {
+        return LinkTraitsDestGetClass::GetDataType();
+    }
+
+    const defaulttype::AbstractTypeInfo* getOwnerDataType() const
+    {
+        return LinkTraitsOwnerGetClass::GetDataType();
     }
 
     unsigned int getSize() const

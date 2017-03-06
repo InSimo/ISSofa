@@ -37,6 +37,11 @@
 namespace sofa
 {
 
+namespace defaulttype
+{
+class AbstractTypeInfo;
+}
+
 namespace core
 {
 
@@ -62,8 +67,9 @@ public:
         FLAG_STRONGLINK = 1 << 1, ///< True if link has ownership of linked object(s)
         FLAG_DOUBLELINK = 1 << 2, ///< True if link has a reciprocal link in linked object(s)
         FLAG_DATALINK   = 1 << 3, ///< True if link points to a Data
-        FLAG_DUPLICATE  = 1 << 4, ///< True if link duplicates another one (possibly with a different/specialized DestType)
-        FLAG_STOREPATH  = 1 << 5, ///< True if link requires a path string in order to be created
+        FLAG_OWNERDATA  = 1 << 4, ///< True if owner is a Data
+        FLAG_DUPLICATE  = 1 << 5, ///< True if link duplicates another one (possibly with a different/specialized DestType)
+        FLAG_STOREPATH  = 1 << 6, ///< True if link requires a path string in order to be created
     };
     typedef unsigned LinkFlags;
 
@@ -105,6 +111,7 @@ public:
 
     bool isMultiLink() const { return getFlag(FLAG_MULTILINK); }
     bool isDataLink() const { return getFlag(FLAG_DATALINK); }
+    bool isOwnerData() const { return getFlag(FLAG_OWNERDATA); }
     bool isStrongLink() const { return getFlag(FLAG_STRONGLINK); }
     bool isDoubleLink() const { return getFlag(FLAG_DOUBLELINK); }
     bool isDuplicate() const { return getFlag(FLAG_DUPLICATE); }
@@ -116,8 +123,20 @@ public:
     /// Alias to match BaseData API
     bool isReadOnly() const   { return !storePath(); }
 
-    virtual const BaseClass* getDestClass() const = 0;
-    virtual const BaseClass* getOwnerClass() const = 0;
+    /// Provide the class of expected destination, or NULL if isDataLink()==true
+    virtual const BaseClass* getDestObjectClass() const = 0;
+    /// Provide the class of owner, or NULL if isOwnerData()==true
+    virtual const BaseClass* getOwnerObjectClass() const = 0;
+
+    /// Provide the type of expected Data destination, or NULL if isDataLink()==false or if the link is to BaseData
+    virtual const defaulttype::AbstractTypeInfo* getDestDataType() const = 0;
+    /// Provide the type of owner Data, or NULL if isOwnerData()==false or if the owner is BaseData or DDGNode
+    virtual const defaulttype::AbstractTypeInfo* getOwnerDataType() const = 0;
+
+    /// Provide a string representing the type of the expected destination (Data<T> or Class or Class<T>)
+    virtual std::string getDestClassName() const;
+    /// Provide a string representing the type of the owner (Data<T> or Class or Class<T>)
+    virtual std::string getOwnerClassName() const;
 
     /// Return the number of changes since creation
     /// This can be used to efficiently detect changes

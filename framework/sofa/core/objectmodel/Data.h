@@ -61,11 +61,6 @@ public:
 
     /// @name Class reflection system
     /// @{
-    typedef TClass<TData<T>,BaseData> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
-
     static std::string templateName(const TData<T>* = NULL)
     {
         T* ptr = NULL;
@@ -90,10 +85,15 @@ public:
     inline std::string getValueString() const;
     inline std::string getValueTypeString() const; // { return std::string(typeid(m_value).name()); }
 
+    static const sofa::defaulttype::AbstractTypeInfo* GetValueTypeInfo()
+    {
+        return sofa::defaulttype::VirtualTypeInfo<T>::get();
+    }
+    
     /// Get info about the value type of the associated variable
     virtual const sofa::defaulttype::AbstractTypeInfo* getValueTypeInfo() const
     {
-        return sofa::defaulttype::VirtualTypeInfo<T>::get();
+        return GetValueTypeInfo();
     }
 
     virtual const T& virtualGetValue() const = 0;
@@ -194,7 +194,7 @@ protected:
             return BaseData::updateFromParentValue(parent);
     }
 
-    SingleLink<TData<T>,TData<T>, BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentData;
+    SingleLink<TData<T>,TData<T>, BaseLink::FLAG_DATALINK|BaseLink::FLAG_OWNERDATA|BaseLink::FLAG_DUPLICATE> parentData;
 };
 
 template <class T, bool COW>
@@ -361,11 +361,6 @@ public:
 
     /// @name Class reflection system
     /// @{
-    typedef TClass<Data<T>, TData<T> > MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
-
     static std::string templateName(const Data<T>* = NULL)
     {
         T* ptr = NULL;
