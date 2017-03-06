@@ -58,9 +58,7 @@ QDisplayLinkInfoWidget::QDisplayLinkInfoWidget(QWidget* parent, const std::strin
     std::string final_str;
     formatHelperString(helper,final_str);
     
-	const core::objectmodel::BaseClass* ownerClass=link->getOwnerClass();
-    std::string ownerClassName;
-	if (ownerClass) ownerClassName = ownerClass->className;
+    std::string ownerClassName = link->getOwnerClassName();
 	
 	/*
 #ifndef SOFA_GUI_QT_NO_DATA_HELP

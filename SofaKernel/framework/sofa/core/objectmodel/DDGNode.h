@@ -55,6 +55,20 @@ public:
     static sofa::core::objectmodel::BaseData* getData(sofa::core::objectmodel::DDGNode* n);
 };
 
+template<>
+class LinkTraitsGetClass<DDGNode, true>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return NULL;
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return NULL;
+    }
+};
+
 /**
  *  \brief Abstract base to manage data dependencies. BaseData and DataEngine inherites from this class
  *
@@ -63,7 +77,7 @@ class SOFA_CORE_API DDGNode
 {
 public:
 
-    typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK> DDGLink;
+    typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK|BaseLink::FLAG_OWNERDATA> DDGLink;
     typedef DDGLink::Container DDGLinkContainer;
     typedef DDGLink::const_iterator DDGLinkIterator;
 
@@ -82,10 +96,6 @@ public :
 
     /// @name Class reflection system
     /// @{
-    typedef TClass<DDGNode> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
 
     template<class T>
     static void dynamicCast(T*& ptr, Base* /*b*/)
