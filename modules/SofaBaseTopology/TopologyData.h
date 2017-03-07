@@ -82,25 +82,6 @@ public:
     /// This function should be used at the end of the all declaration link to this Data while using it in a component.
     void registerTopologicalData();
 
-
-    ///////////////  DEPRECATED ///////////////
-    typedef typename defaulttype::DataTypeInfo<ContainerType>::MappedType MappedType;
-    const MappedType& operator[](int i) const
-    {
-        const ContainerType& data = (this->getValue());
-        return data[i];
-    }
-
-    MappedType& operator[](int i)
-    {
-        ContainerType& data = *(this->beginEdit());
-        auto& result = data[i];
-        this->endEdit();
-        return result;
-    }
-    /////////////END OF DEPRECATED//////////////
-
-
     /// Link Data to topology arrays
     void linkToPointDataArray();
     void linkToEdgeDataArray();

@@ -541,7 +541,8 @@ void TriangularFEMForceFieldOptim<DataTypes>::addKToMatrixT(const core::Mechanic
 template<class DataTypes>
 void TriangularFEMForceFieldOptim<DataTypes>::getTriangleVonMisesStress(unsigned int i, Real& stressValue)
 {
-    Deriv s = triangleState[i].stress;
+    const auto& triangleStateVec = triangleState.getValue();
+    Deriv s = triangleStateVec[i].stress;
     Real vonMisesStress = sofa::helper::rsqrt(s[0]*s[0] - s[0]*s[1] + s[1]*s[1] + 3*s[2]);
     stressValue = vonMisesStress;
 }
@@ -557,7 +558,8 @@ void TriangularFEMForceFieldOptim<DataTypes>::getTrianglePrincipalStress(unsigne
 template<class DataTypes>
 void TriangularFEMForceFieldOptim<DataTypes>::getTrianglePrincipalStress(unsigned int i, Real& stressValue, Deriv& stressDirection, Real& stressValue2, Deriv& stressDirection2)
 {
-    const TriangleState& ts = triangleState[i];
+    const auto& triangleStateVec = triangleState.getValue();
+    const TriangleState& ts = triangleStateVec[i];
     Deriv s = ts.stress;
 
     // If A = [ a b ] is a real symmetric 2x2 matrix
