@@ -88,8 +88,8 @@ void run(TaskScheduler* scheduler, unsigned index)
 } // namespace detail
 
 TaskScheduler::TaskScheduler()
-:mWorker{NULL}
-,mRootTaskStatus(NULL)
+:mWorker{nullptr}
+,mRootTaskStatus(nullptr)
 ,mThreadCount(0)
 ,mMainThreadIndex(0)
 , mWorkerThreadCreateCount(0)
@@ -162,7 +162,7 @@ bool TaskScheduler::start(const unsigned int NbThread )
     }
     
     mIsClosing      = false;
-    mRootTaskStatus = NULL;
+    mRootTaskStatus = nullptr;
     mHasWorkToDo    = false;
 
     // only physical cores. no advantage from hyperthreading.
@@ -200,7 +200,7 @@ bool TaskScheduler::stop()
         for(unsigned iThread=1; iThread<mThreadCount; ++iThread)
         {
             mThread[iThread].join();
-            mWorker[iThread] = NULL;
+            mWorker[iThread] = nullptr;
         }
 
         mIsInitialized = false;
@@ -214,17 +214,13 @@ bool TaskScheduler::stop()
 void TaskScheduler::notifyWorkersForWork(Task::Status* status)
 {
     std::lock_guard<std::mutex> lock(mWakeUpMutex);
+    //  no need to notify the workers if there is already a root task status
+    if (mRootTaskStatus != nullptr)
+    {
+        return;
+    }
+    mRootTaskStatus = status;
     mHasWorkToDo = true;
-    if (mRootTaskStatus == NULL)
-    {
-        mRootTaskStatus = status;
-    }
-    else
-    {
-        std::stringstream msg;
-        msg << __FUNCTION__ << ": WorkerThread(" << GetCurrentWorkerThread()->getThreadIndex() << "): scheduler has already a root TaskStatus!\n";
-        std::cerr << msg.str();
-    }
     // notify all the threads that have gone Idle, that there is some work to do for them now.
     mWakeUpEvent.notify_all();
 }
@@ -242,7 +238,7 @@ bool TaskScheduler::goIdle()
 {
     std::lock_guard<std::mutex> lock(mWakeUpMutex);
     mHasWorkToDo   = false;
-    mRootTaskStatus = NULL;
+    mRootTaskStatus = nullptr;
     return true;
 }
 
@@ -267,7 +263,7 @@ WorkerThread::WorkerThread(TaskScheduler* const& pScheduler, int index)
 :mTaskScheduler(pScheduler)
 ,mStealableTaskCount(0)
 ,mSpecificTaskCount(0)
-,mCurrentStatus(NULL)
+,mCurrentStatus(nullptr)
 ,mThreadIndex(index)
 ,mTaskLogEnabled(false)
 {
@@ -319,10 +315,10 @@ void WorkerThread::idle()
 void WorkerThread::doWork(Task::Status* status)
 {
     //NOTE:
-    //If status is NULL, then we'll work until there is nothing left to do. This
+    //If status is nullptr, then we'll work until there is nothing left to do. This
     //is normally happening only in the case of a worker's thread loop (above).
 
-    //if it isn't NULL, then it means the caller is waiting for this particular thing
+    //if it isn't nullptr, then it means the caller is waiting for this particular thing
     //to complete (and will want to carry on something once it is). We will do our work
     //and steal some until the condition happens. This is normally happening when as
     //part of WorkUntilDone (below)
@@ -335,7 +331,7 @@ void WorkerThread::doWork(Task::Status* status)
     //
     do
     {
-        Task*		    pTask       = NULL;
+        Task*		    pTask       = nullptr;
         while (popTask(&pTask))
         {
             // run
@@ -388,8 +384,8 @@ bool WorkerThread::popTask(Task** outTask)
 {
     std::lock_guard<std::mutex> lock(mTaskMutex);
     
-    Task* task=NULL;
-    unsigned* taskCount=NULL;
+    Task* task=nullptr;
+    unsigned* taskCount=nullptr;
     ///< deal with specific task list first.
     if(mSpecificTaskCount > 0)
     {
@@ -402,7 +398,7 @@ bool WorkerThread::popTask(Task** outTask)
         task     =mStealableTask[*taskCount-1];
     }
 
-    if(task == NULL || taskCount==NULL)
+    if(task == nullptr || taskCount==nullptr)
     {
         // there is no work
         return false;
@@ -426,7 +422,7 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
 
         if (*taskCount >= Max_TasksPerThread )
             return false;
-        if( task->getStatus()==NULL ) {
+        if( task->getStatus()==nullptr ) {
           return false;
         }
         task->getStatus()->MarkBusy(true);
@@ -434,10 +430,7 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
         ++*taskCount;
     }
 
-    if (!mTaskScheduler->getRootTaskStatus() )
-    {
-        mTaskScheduler->notifyWorkersForWork(task->getStatus());
-    }
+    mTaskScheduler->notifyWorkersForWork(task->getStatus());
 
     return true;
 }
@@ -508,7 +501,7 @@ bool WorkerThread::giveUpSomeWork(WorkerThread* idleThread)
     for( iTask=0; iTask< count; ++iTask)
     {
         *p++ = mStealableTask[iTask];
-        mStealableTask[iTask] = NULL;
+        mStealableTask[iTask] = nullptr;
     }
     idleThread->mStealableTaskCount = count;
 
