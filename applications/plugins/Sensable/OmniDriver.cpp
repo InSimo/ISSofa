@@ -337,17 +337,16 @@ int OmniDriver::initDevice(OmniData& data)
 }
 
 OmniDriver::OmniDriver()
-    : scale(initData(&scale, 1.0, "scale", "Default scale applied to the Phantom Coordinates. "))
-    , forceScale(initData(&forceScale, 1.0, "forceScale", "Default forceScale applied to the force feedback. "))
-    , positionBase(initData(&positionBase, Vec3d(0, 0, 0), "positionBase", "Position of the interface base in the scene world coordinates"))
-    , orientationBase(initData(&orientationBase, Quat(0, 0, 0, 1), "orientationBase", "Orientation of the interface base in the scene world coordinates"))
-    , positionTool(initData(&positionTool, Vec3d(0, 0, 0), "positionTool", "Position of the tool in the omni end effector frame"))
-    , orientationTool(initData(&orientationTool, Quat(0, 0, 0, 1), "orientationTool", "Orientation of the tool in the omni end effector frame"))
-    , permanent(initData(&permanent, false, "permanent", "Apply the force feedback permanently"))
+    : scale(initData(&scale, 1.0, "scale","Default scale applied to the Phantom Coordinates. "))
+    , forceScale(initData(&forceScale, 1.0, "forceScale","Default forceScale applied to the force feedback. "))
+    , positionBase(initData(&positionBase, Vec3d(0,0,0), "positionBase","Position of the interface base in the scene world coordinates"))
+    , orientationBase(initData(&orientationBase, Quat(0,0,0,1), "orientationBase","Orientation of the interface base in the scene world coordinates"))
+    , positionTool(initData(&positionTool, Vec3d(0,0,0), "positionTool","Position of the tool in the omni end effector frame"))
+    , orientationTool(initData(&orientationTool, Quat(0,0,0,1), "orientationTool","Orientation of the tool in the omni end effector frame"))
+    , permanent(initData(&permanent, false, "permanent" , "Apply the force feedback permanently"))
     , omniVisu(initData(&omniVisu, false, "omniVisu", "Visualize the position of the interface in the virtual scene"))
     , toolSelector(initData(&toolSelector, false, "toolSelector", "Switch tools with 2nd button"))
     , toolCount(initData(&toolCount, 1, "toolCount", "Number of tools to switch between"))
-    , d_buttonState(initData(&d_buttonState, 0, "buttonState", " 1 if the button is pressed"))
     , visu_base(NULL)
     , visu_end(NULL)
     , currentToolIndex(0)
@@ -568,17 +567,6 @@ void OmniDriver::handleEvent(core::objectmodel::Event *event)
                 if (isToolControlled)
                     currentToolIndex = (currentToolIndex+1)%toolCount.getValue();
             }
-
-            if (newBtn1 && d_buttonState.getValue() == 0)
-            {
-                d_buttonState.setValue(1);
-            }
-
-            if (d_buttonState.getValue() == 1 && !newBtn1)
-            {
-                d_buttonState.setValue(0);
-            }
-
 
             if (btn1!=newBtn1 || (!toolSelector.getValue() && btn2!=newBtn2))
             {

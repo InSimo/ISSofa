@@ -115,7 +115,6 @@ public:
     Data<bool> omniVisu;
     Data<bool> toolSelector;
     Data<int> toolCount;
-    Data<int>  d_buttonState;
 
     OmniData	data;
 
