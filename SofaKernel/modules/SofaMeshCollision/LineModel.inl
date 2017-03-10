@@ -52,6 +52,7 @@ TLineModel<DataTypes>::TLineModel()
     , mstate(NULL), topology(NULL), meshRevision(-1), m_lmdFilter(NULL)
     , LineActiverPath(initData(&LineActiverPath,"LineActiverPath", "path of a component LineActiver that activates or deactivates collision line during execution") )
     , m_displayFreePosition(initData(&m_displayFreePosition, false, "displayFreePosition", "Display Collision Model Points free position(in green)") )
+    , d_subdivision(initData(&d_subdivision,"subdivision","add number of subdivision for each edge"))
 {
     enum_type = LINE_TYPE;
 }
