@@ -85,7 +85,7 @@ void DefaultPipeline::doCollisionReset()
         const sofa::helper::vector<Contact::SPtr>& contacts = contactManager->getContacts();
         for (sofa::helper::vector<Contact::SPtr>::const_iterator it = contacts.begin(); it!=contacts.end(); ++it)
         {
-            (*it)->removeResponse();
+            (*it)->resetResponse();
         }
     }
     // clear all collision groups

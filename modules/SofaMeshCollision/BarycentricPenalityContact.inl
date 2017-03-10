@@ -253,6 +253,16 @@ void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::removeRespon
 }
 
 template < class TCollisionModel1, class TCollisionModel2>
+void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::resetResponse()
+{
+    if (ff!=NULL)
+    {
+        mapper1.resize(0);
+        mapper2.resize(0);
+    }
+}
+
+template < class TCollisionModel1, class TCollisionModel2>
 void BarycentricPenalityContact<TCollisionModel1,TCollisionModel2>::draw(const core::visual::VisualParams* )
 {
     //	if (ff!=NULL)

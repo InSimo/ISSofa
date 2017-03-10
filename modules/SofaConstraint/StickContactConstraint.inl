@@ -303,6 +303,17 @@ void StickContactConstraint<TCollisionModel1,TCollisionModel2>::removeResponse()
     }
 }
 
+template < class TCollisionModel1, class TCollisionModel2 >
+void StickContactConstraint<TCollisionModel1,TCollisionModel2>::resetResponse()
+{
+	sout << "->resetResponse()" << sendl;
+    if (m_constraint)
+    {
+        mapper1.resize(0);
+        mapper2.resize(0);
+    }
+}
+
 } // namespace collision
 
 } // namespace component
