@@ -83,6 +83,9 @@ public:
 
     /// Remove the response from the graph
     virtual void removeResponse() = 0;
+    
+    /// Reset the response (clear slave mappers between time steps)
+    virtual void resetResponse() = 0;
 
     /// Return true if this contact should be kept alive, even if objects are no longer in collision
     virtual bool keepAlive() { return false; }
