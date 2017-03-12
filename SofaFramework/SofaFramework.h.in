@@ -30,6 +30,10 @@
 #define SOFAFRAMEWORK_MINOR_VERSION ${SOFAFRAMEWORK_MINOR_VERSION}
 #define SOFAFRAMEWORK_BUILD_VERSION ${SOFAFRAMEWORK_BUILD_VERSION}
 
+// InSimo internal branch: ISSOFA_VERSION is only defined for ISSofa
+// This should not be merged back to the version integrated with master
+#define ISSOFA_VERSION SOFAFRAMEWORK_MAJOR_VERSION.SOFAFRAMEWORK_MINOR_VERSION
+
 #cmakedefine SOFA_HAVE_ZLIB
 
 #cmakedefine SOFA_HAVE_PNG

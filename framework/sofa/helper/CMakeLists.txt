@@ -15,6 +15,7 @@ set(SOFAHELPER_HEADERS
     FnDispatcher.inl
     gl/Trackball.h
     gl/Transformation.h
+    helper.h
     integer_id.h
     io/Image.h
     io/ImageBMP.h
