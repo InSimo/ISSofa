@@ -184,8 +184,9 @@ private:
     /// Update this value. For thread-safety, should no longer be called directly. Use requestUpdate() instead.
     virtual void update() = 0;
 
+protected:
     /// Set dirty flag to false ( internal method )
-    void doCleanDirty(const core::ExecParams* params, bool warnBadUse);
+    virtual void doCleanDirty(const core::ExecParams* params, bool warnBadUse);
 
 public:
     /// Returns true if the DDGNode needs to be updated
@@ -257,6 +258,9 @@ protected:
     virtual void doAddOutput(DDGNode* n);
 
     virtual void doDelOutput(DDGNode* n);
+
+    /// the dirtyOutputs flags of all the inputs will be set to false
+    void cleanDirtyOutputsOfInputs(const core::ExecParams* params);
 
 private:
 

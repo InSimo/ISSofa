@@ -45,9 +45,9 @@ void DataTracker::clean()
 
 
 
-void DataTrackerDDGNode::cleanDirty(const core::ExecParams* params)
+void DataTrackerDDGNode::doCleanDirty(const core::ExecParams* params, bool warnBadUse)
 {
-    core::objectmodel::DDGNode::cleanDirty(params);
+    core::objectmodel::DDGNode::doCleanDirty(params, warnBadUse);
 
     // it is also time to clean the tracked Data
     m_dataTracker.clean();
@@ -61,7 +61,7 @@ void DataTrackerDDGNode::updateAllInputsIfDirty()
     const DDGLinkContainer& inputs = DDGNode::getInputs();
     for(size_t i=0, iend=inputs.size() ; i<iend ; ++i )
     {
-        static_cast<core::objectmodel::BaseData*>(inputs[i])->updateIfDirty();
+        inputs[i]->requestUpdateIfDirty();
     }
 }
 

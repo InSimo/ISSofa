@@ -87,10 +87,7 @@ void DDGNode::setDirtyValue(const core::ExecParams* params)
     {
 
 #ifdef SOFA_DDG_TRACE
-        // TRACE LOG
-        Base* owner = getOwner();
-        if (owner)
-            owner->sout << "Data " << getName() << " is now dirty." << owner->sendl;
+        std::cout << "Data " << getName() << " is now dirty." << std::endl;
 #endif
         setDirtyOutputs(params);
     }
@@ -99,6 +96,9 @@ void DDGNode::setDirtyValue(const core::ExecParams* params)
 void DDGNode::setDirtyOutputs(const core::ExecParams* params)
 {
     FlagType& dirtyOutputs = dirtyFlags[currentAspect(params)].dirtyOutputs;
+#ifdef SOFA_DDG_TRACE
+    std::cout << "Data " << getName() << " setDirtyOutputs " << dirtyOutputs << std::endl;
+#endif
     if (!dirtyOutputs.exchange_and_add(1))
     {
         for(DDGLinkIterator it=outputs.begin(params), itend=outputs.end(params); it != itend; ++it)
@@ -113,6 +113,9 @@ void DDGNode::doCleanDirty(const core::ExecParams* params, bool warnBadUse)
     //if (!params) params = core::ExecParams::defaultInstance();
     const int aspect = currentAspect(params);
     FlagType& dirtyValue = dirtyFlags[aspect].dirtyValue;
+#ifdef SOFA_DDG_TRACE
+    std::cout << "Data " << getName() << " doCleanDirty " << dirtyValue << std::endl;
+#endif
     if (!dirtyValue) // this node is not dirty, nothing to do
     {
         return;
@@ -122,6 +125,9 @@ void DDGNode::doCleanDirty(const core::ExecParams* params, bool warnBadUse)
     int updateThreadID = state.updateThreadID;
     if (updateThreadID != -1) // a thread is currently updating this node, dirty flags will be updated once it finishes.
     {
+#ifdef SOFA_DDG_TRACE
+    std::cout << "Data " << getName() << " doCleanDirty aborded as another thread is updating: " << updateThreadID << std::endl;
+#endif
         return;
     }
 
@@ -145,14 +151,19 @@ void DDGNode::doCleanDirty(const core::ExecParams* params, bool warnBadUse)
     dirtyValue = 0;
 
 #ifdef SOFA_DDG_TRACE
-    Base* owner = getOwner();
-    if (owner)
-        owner->sout << "Data " << getName() << " has been updated." << owner->sendl;
+    std::cout << "Data " << getName() << " has been updated." << std::endl;
 #endif
 
-    for(DDGLinkIterator it=inputs.begin(params), itend=inputs.end(params); it != itend; ++it)
-        (*it)->dirtyFlags[aspect].dirtyOutputs = 0;
+    cleanDirtyOutputsOfInputs(params);
 }
+
+
+void DDGNode::cleanDirtyOutputsOfInputs(const core::ExecParams* params)
+{
+    for(DDGLinkIterator it=inputs.begin(params), itend=inputs.end(params); it != itend; ++it)
+        (*it)->dirtyFlags[currentAspect(params)].dirtyOutputs = false;
+}
+
 
 void DDGNode::cleanDirty(const core::ExecParams* params)
 {
