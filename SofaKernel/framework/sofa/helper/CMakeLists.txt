@@ -102,6 +102,7 @@ set(HEADER_FILES
     system/thread/debug.h
     system/thread/thread_specific_ptr.h
     system/FileMonitor.h
+    test.h
     vector.h
     vectorData.h
     vectorLinks.h
@@ -186,6 +187,7 @@ set(SOURCE_FILES
     system/thread/CTime.cpp
     system/thread/CircularQueue.cpp
     system/thread/debug.cpp
+    test.cpp
     vector.cpp
     logging/Message.cpp
     logging/MessageDispatcher.cpp

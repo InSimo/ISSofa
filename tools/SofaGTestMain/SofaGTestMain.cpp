@@ -6,6 +6,7 @@
 #  include <SofaSimulationGraph/init.h>
 #endif
 #include <SofaSimulationTree/init.h>
+#include <sofa/helper/test.h>
 
 #include <gtest/gtest.h>
 
@@ -23,6 +24,8 @@ int main(int argc, char **argv)
     sofa::simulation::graph::init();
 #endif
 
+    sofa::helper::initBeforeTests();
+
 #ifdef WIN32
     const std::string pluginDirectory = Utils::getExecutableDirectory();
 #else
@@ -32,6 +35,8 @@ int main(int argc, char **argv)
     DataRepository.addFirstPath(std::string(SOFA_SRC_DIR) + "/share");
 
     int ret =  RUN_ALL_TESTS();
+
+    sofa::helper::cleanupAfterTests();
 
 #ifdef SOFA_HAVE_DAG
     sofa::simulation::tree::cleanup();
