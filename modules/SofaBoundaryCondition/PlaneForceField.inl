@@ -56,8 +56,6 @@ PlaneForceField<DataTypes>::PlaneForceField() :
     , d_damping(initData(&d_damping, (Real)5, "damping", "force damping. (default=5)"))
     , d_maxForce(initData(&d_maxForce, (Real)0, "maxForce", "if non-null , the max force that can be applied to the object. (default=0)"))
     , d_indices(initData(&d_indices,"indices","If not empty the list of indices where this forcefield is applied"))
-    , d_bilateral( initData(&d_bilateral, false, "bilateral", "if true the plane force field is applied on both sides. (default=false)"))
-    , d_contacts( initData(&d_contacts, "contacts","The information related to the points in violation with the plane"))
     // TODO(dmarchal): draw is a bad name. doDraw, doDebugDraw or drawEnabled to be consistent with the drawSize ?
     , d_drawIsEnabled(initData(&d_drawIsEnabled, false, "draw", "enable/disable drawing of plane. (default=false)"))
     // TODO(dmarchal): color is a bad name.
@@ -65,6 +63,8 @@ PlaneForceField<DataTypes>::PlaneForceField() :
     //This field should support the color="red" api.
     , d_drawColor(initData(&d_drawColor, defaulttype::Vec3f(0.0f,.5f,.2f), "color", "plane color. (default=[0.0,0.5,0.2])"))
     , d_drawSize(initData(&d_drawSize, (Real)10.0f, "drawSize", "plane display size if draw is enabled. (default=10)"))
+    , d_bilateral( initData(&d_bilateral, false, "bilateral", "if true the plane force field is applied on both sides. (default=false)"))
+    , d_contacts( initData(&d_contacts, "contacts","The information related to the points in violation with the plane"))
 {
     Deriv n;
     DataTypes::set(n, 0, 1, 0);

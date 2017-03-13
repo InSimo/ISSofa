@@ -673,7 +673,7 @@ template<class TDataType, size_t TFixedSize> struct DataTypeInfo_ContainerTypes<
     static auto valueAtIndex(const TDataType& data, size_t index) -> decltype(data[index]) { return data[index]; }
     static auto valueAtIndex(      TDataType& data, size_t index) -> decltype(data[index]) { return data[index]; }
     static KeyType keyAtIndex(const TDataType& data, size_t index) { return index; }
-    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    static const KeyType& keyAtIndex(const TDataType& /*data*/, size_t index, TypeInfoKeyBuffer& keyBuffer)
     {
         KeyType& key = *keyBuffer.getOrCreate<KeyType>();
         key = index;
@@ -701,7 +701,7 @@ template<class TDataType, size_t TFixedSize> struct DataTypeInfo_ContainerTypes<
             return NULL;
         }
     }
-    static bool erase(TDataType& data, KeyType k)
+    static bool erase(TDataType& /*data*/, KeyType /*k*/)
     {
         return false;
     }
@@ -773,7 +773,7 @@ template<class TDataType> struct DataTypeInfo_ContainerTypes<TDataType, Containe
     typedef const KeyType& KeyTypeReturn;
     static const MappedType& value(const TDataType&, const const_iterator& it) { return *it; }
     static const KeyType&    key  (const TDataType&, const const_iterator& it) { return *it; }
-    static const KeyType&    key  (const TDataType&, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer) { return *it; }
+    static const KeyType&    key  (const TDataType&, const const_iterator& it, TypeInfoKeyBuffer& /*keyBuffer*/) { return *it; }
     static const MappedType& valueAtIndex(const TDataType& data, size_t index)
     {
         const_iterator it = data.cbegin();
@@ -786,7 +786,7 @@ template<class TDataType> struct DataTypeInfo_ContainerTypes<TDataType, Containe
         std::advance(it, index);
         return *it;
     }
-    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& /*keyBuffer*/)
     {
         return keyAtIndex(data, index);
     }
@@ -829,7 +829,7 @@ template<class TDataType> struct DataTypeInfo_ContainerTypes<TDataType, Containe
     static const MappedType& value(const TDataType&, const const_iterator& it) { return it->second; }
     static       MappedType& value(      TDataType&, const       iterator& it) { return it->second; }
     static const KeyType& key(const TDataType& data, const const_iterator& it) { return it->first; }
-    static const KeyType& key(const TDataType& data, const const_iterator& it, TypeInfoKeyBuffer&) { return it->first; }
+    static const KeyType& key(const TDataType& /*data*/, const const_iterator& it, TypeInfoKeyBuffer&) { return it->first; }
     static const MappedType& valueAtIndex(const TDataType& data, size_t index)
     {
         const_iterator it = data.cbegin();
@@ -982,7 +982,7 @@ protected:
     }
 
     template<typename T>
-    static void setFinalValueIfSet(DataType& data, size_t index, const T& value, std::true_type)
+    static void setFinalValueIfSet(DataType& data, size_t /*index*/, const T& value, std::true_type)
     {
         KeyType t;
         KeyTypeInfo::setDataValue(t, value);
@@ -997,7 +997,7 @@ protected:
     }
 
     template<typename T>
-    static void setFinalValueStringIfSet(DataType& data, size_t index, const T& value, std::true_type)
+    static void setFinalValueStringIfSet(DataType& data, size_t /*index*/, const T& value, std::true_type)
     {
         KeyType t;
         KeyTypeInfo::setDataValueString(t, value);
@@ -1127,7 +1127,7 @@ protected:
         return &ContainerTypes::valueAtIndex(data, index);
     }
     template<class T>
-    static MappedType* editItemValueIf(T& data, size_t index, std::false_type)
+    static MappedType* editItemValueIf(T& /*data*/, size_t /*index*/, std::false_type)
     {
         return NULL;
     }

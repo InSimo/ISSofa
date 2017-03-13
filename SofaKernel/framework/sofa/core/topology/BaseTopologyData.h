@@ -138,8 +138,8 @@ public:
     }
 
 protected:
-    sofa::core::topology::BaseMeshTopology*                         m_topology;
     typename sofa::core::topology::TopologyEngine::SPtr    m_topologicalEngine;
+    sofa::core::topology::BaseMeshTopology*                         m_topology;
 
 };
 

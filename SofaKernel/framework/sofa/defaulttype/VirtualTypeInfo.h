@@ -90,7 +90,7 @@ public:
         Info::setDataValueString(*(DataType*)data, value);
     }
 
-    virtual bool getAvailableItems(std::vector<std::string>& result, const void* data) const override
+    virtual bool getAvailableItems(std::vector<std::string>& /*result*/, const void* /*data*/) const override
     {
         // @TODO support for enums
         return false;
@@ -229,7 +229,7 @@ public:
 
 
 template<class T, class K>
-AbstractTypeInfo* VirtualTypeInfo_GetValueType(const T& data, const K& key)
+AbstractTypeInfo* VirtualTypeInfo_GetValueType(const T& /*data*/, const K& /*key*/)
 {
     // TODO: support for struct with different types per key
     return VirtualTypeInfo< typename DataTypeInfo<T>::MappedType >::get();
@@ -313,7 +313,7 @@ public:
     }
 
     // temporary key creation to parse a key and then use it to access/insert an item
-    virtual void* newKey   (const void* data, helper::SSOBuffer<>& keyBuffer) const override
+    virtual void* newKey   (const void* /*data*/, helper::SSOBuffer<>& keyBuffer) const override
     {
         return keyBuffer.getOrCreate<KeyType>();
     }

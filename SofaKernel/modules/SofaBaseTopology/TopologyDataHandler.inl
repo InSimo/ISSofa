@@ -397,7 +397,7 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::remove(const sofa
 
 
 template <typename TopologyElementType, typename ContainerType> template<class T>
-void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>)
+void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& /*inv_index*/, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>)
 {
     ContainerType& containerData = *(m_topologyData->beginEdit());
     if (!containerData.empty())
