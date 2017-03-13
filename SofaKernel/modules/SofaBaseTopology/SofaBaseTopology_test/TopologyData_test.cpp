@@ -325,7 +325,6 @@ TEST_F(TopologyData_fixture, makeSureTheDataAreWellSet)
 TEST_F(TopologyData_fixture, makeSureAfterTopologyChangeTheInfosAreTheSame)
 {
     TriangleSetTopologyContainer* topology = container.get();
-    TriangleSetTopologyModifier* topoModif = modifier.get();
     TopologyData_test* topoData = topoDataTest.get();
 
     unsigned int nbTriangles = topology->getNbTriangles();
@@ -383,7 +382,6 @@ TEST_F(TopologyData_fixture, makeSureAfterTopologyChangeTheInfosAreTheSame)
 TEST_F(TopologyData_fixture, makeSureAfterAddingAndDeletingPointTheTopologyStaysTheSame)
 {
     TriangleSetTopologyContainer* topology = container.get();
-    TriangleSetTopologyModifier* topoModif = modifier.get();
     TopologyData_test* topoData = topoDataTest.get();
 
     unsigned int nbTriangles = topology->getNbTriangles();
