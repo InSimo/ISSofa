@@ -71,6 +71,7 @@ set(SOFAHELPER_HEADERS
     system/PluginManager.h
     TagFactory.h
     accessor.h
+    test.h
     vector.h
     vector_device.h
     vector_algebra.h
@@ -139,6 +140,7 @@ set(SOFAHELPER_SOURCES_UNITY
     TagFactory.cpp
     polygon_cube_intersection/polygon_cube_intersection.cpp
     polygon_cube_intersection/fast_polygon_cube_intersection.cpp
+    test.cpp
     vector.cpp
     proximity.cpp
     OptionsGroup.cpp
