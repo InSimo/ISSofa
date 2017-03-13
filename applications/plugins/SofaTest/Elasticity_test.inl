@@ -182,7 +182,7 @@ CylinderTractionStruct<DataTypes>  Elasticity_test<DataTypes>::createCylinderTra
     typename sofa::component::topology::TetrahedronSetTopologyContainer::SPtr container1= sofa::modeling::addNew<sofa::component::topology::TetrahedronSetTopologyContainer>(root,"Container1");
     sofa::modeling::setDataLink(&eng->f_tetrahedra,&container1->d_tetrahedron);
     sofa::modeling::setDataLink(&eng->f_outputTetrahedraPositions,&container1->d_initPoints);
-    container1->d_createTriangleArray=true;
+    //container1->d_createTriangleArray=true;
     // TetrahedronSetGeometryAlgorithms object
     typename sofa::component::topology::TetrahedronSetGeometryAlgorithms<DataTypes>::SPtr geo1= sofa::modeling::addNew<sofa::component::topology::TetrahedronSetGeometryAlgorithms<DataTypes> >(root);
 
