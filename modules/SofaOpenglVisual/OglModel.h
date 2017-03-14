@@ -114,6 +114,8 @@ public:
     bool hasTransparent();
     bool hasTexture();
 
+    virtual void applyTranslation(const SReal /*dx*/, const SReal /*dy*/, const SReal /*dz*/);
+
 public:
     bool isUseEdges()	{ return useEdges; }
     bool isUseTriangles()	{ return useTriangles; }

@@ -1192,6 +1192,19 @@ void OglModel::updateBuffers()
 }
 
 
+void OglModel::applyTranslation(const SReal dx, const SReal dy, const SReal dz)
+{
+    VisualModelImpl::applyTranslation(dx, dy, dz);
+   /* VecCoord pos = this->getVertices();
+    for (int i = 0; i < pos.size(); i++)
+    {
+        pos[i][0] += dx;
+        pos[i][1] += dy;
+        pos[i][2] += dz;
+    }*/
+    //m_positions.setValue(pos);
+}
+
 GLenum OglModel::getGLenum(const char* c ) const
 {
 
