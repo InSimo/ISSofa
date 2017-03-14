@@ -180,7 +180,7 @@ void TriangleSetTopology::addTrianglesFan(unsigned int numberOfTriangle)
 {
     TriangleSetTopologyContainer::SeqTriangles trianglesToAdd;
 
-    PointID commonPointId = triangleContainer->getNbPoints();
+    TriangleSetTopologyContainer::PointID commonPointId = triangleContainer->getNbPoints();
     for (unsigned int i = 0u; i < numberOfTriangle; ++i)
     {
         trianglesToAdd.emplace_back(commonPointId,
@@ -418,6 +418,9 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyAddTriangle)
 
 TEST(TriangleSetTopology_test, checkTriangleSetTopologyAddTrianglesFan)
 {
+    using PointID = sofa::core::topology::Topology::PointID;
+    using EdgeID = sofa::core::topology::Topology::EdgeID;
+
     TriangleSetTopology topology;
     topology.init();
     topology.addTrianglesFan(3);
