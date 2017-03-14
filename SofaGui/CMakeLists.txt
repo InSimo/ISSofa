@@ -20,10 +20,25 @@ if(NOT SOFA_NO_OPENGL)
         find_package(Qt5 COMPONENTS Gui OpenGL Xml REQUIRED)
 
         if(WIN32)
-            file(GLOB_RECURSE QT5_DLLS "${_qt5Core_install_prefix}/bin/*.dll")
+            #file(GLOB_RECURSE QT5_DLLS "${_qt5Core_install_prefix}/bin/*.dll")
+            set(QT5_DLLS "${_qt5Core_install_prefix}/bin/Qt5Core.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5Gui.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5Widgets.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5OpenGL.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5Xml.dll")
+            set(QT5_DLLS_DEBUG "${_qt5Core_install_prefix}/bin/Qt5Cored.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5Guid.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5Widgetsd.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5OpenGLd.dll"
+                         "${_qt5Core_install_prefix}/bin/Qt5Xmld.dll")
             if(CMAKE_CONFIGURATION_TYPES) # Multi-config generator (MSVC)
+                #split between debug and release
                 foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
-                    file(COPY ${QT5_DLLS} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}")
+                    if ("${CONFIG}" STREQUAL "Debug")
+                        file(COPY ${QT5_DLLS_DEBUG} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}")
+                    else()
+                        file(COPY ${QT5_DLLS} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}")
+                    endif()
                 endforeach()
             else()                      # Single-config generator (nmake)
                 file(COPY ${QT5_DLLS} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
