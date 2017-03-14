@@ -1285,6 +1285,22 @@ void BarycentricMapping<TIn, TOut>::init()
     //serr << "!!!!!!!!!!!! getDT = " <<  this->fromModel->getContext()->getDt() << sendl;
     //IPE
 
+    // HACK: copy mask init HERE, otherwise it crashes.......
+    if (toModel && !testMechanicalState(toModel.get()))
+    {
+        setNonMechanical();
+        maskFrom = NULL;
+        maskTo = NULL;
+    }
+    else
+    {
+        core::behavior::BaseMechanicalState *state;
+        if ((state = this->fromModel.get()->toBaseMechanicalState()))
+            maskFrom = &state->forceMask;
+        if ((state = this->toModel.get()->toBaseMechanicalState()))
+            maskTo = &state->forceMask;
+    }
+
     if ( mapper == NULL ) // try to create a mapper according to the topology of the In model
     {
         if ( topology_from!=NULL )
