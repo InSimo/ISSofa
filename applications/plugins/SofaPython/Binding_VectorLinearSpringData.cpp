@@ -40,15 +40,14 @@ SP_CLASS_ATTR_GET(VectorLinearSpringData,value)(PyObject *self, void*)
 {
     DataBinding_VectorLinearSpring* data=((PyPtr<DataBinding_VectorLinearSpring>*)self)->object; // TODO: check dynamic cast
 
-    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
-    const void* valueVoidPtr = data->getValueVoidPtr();
-    int rowWidth = typeinfo->size();
-    int nbRows = typeinfo->size(data->getValueVoidPtr()) / typeinfo->size();
+    const VectorLinearSpring& dataValue = data->getValue();
+    int rowWidth = 1;
+    int nbRows = dataValue.size();
 
-    if (typeinfo->size(valueVoidPtr)==1)
+    if (nbRows==1)
     {
         // this type is NOT a vector; return directly the proper native type
-        const LinearSpring<SReal>& value = data->getValue()[0];
+        const LinearSpring<SReal>& value = dataValue[0];
         LinearSpring<SReal> *obj = new LinearSpring<SReal>(value.m1,value.m2,value.ks,value.kd,value.initpos);
         return SP_BUILD_PYPTR(LinearSpring,LinearSpring<SReal>,obj,true); // "true", because I manage the deletion myself
     }
@@ -61,7 +60,7 @@ SP_CLASS_ATTR_GET(VectorLinearSpringData,value)(PyObject *self, void*)
             for (int j=0; j<rowWidth; j++)
             {
                 // build each value of the list
-                const LinearSpring<SReal>& value = data->getValue()[i*rowWidth+j];
+                const LinearSpring<SReal>& value = dataValue[i*rowWidth+j];
                 LinearSpring<SReal> *obj = new LinearSpring<SReal>(value.m1,value.m2,value.ks,value.kd,value.initpos);
                 PyList_SetItem(row,j,SP_BUILD_PYPTR(LinearSpring,LinearSpring<SReal>,obj,true));
             }
@@ -94,11 +93,9 @@ SP_CLASS_ATTR_SET(VectorLinearSpringData,value)(PyObject *self, PyObject * args,
         return true;
     }
 
-    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo(); // info about the data value
-    const bool valid = (typeinfo && typeinfo->ValidInfo());
-
-    const int rowWidth = valid ? typeinfo->size() : 1;
-    int nbRows = typeinfo->size(data->getValueVoidPtr()) / typeinfo->size();
+    const VectorLinearSpring& dataValue = data->getValue();
+    int rowWidth = 1;
+    int nbRows = dataValue.size();
 
 
     if( !PyList_Check(args) )
@@ -260,19 +257,18 @@ extern "C" PyObject * VectorLinearSpringData_getitem(PyObject *self, PyObject *i
 {
     DataBinding_VectorLinearSpring* data=((PyPtr<DataBinding_VectorLinearSpring>*)self)->object; // TODO: check dynamic cast
 
-    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
-    const void* valueVoidPtr = data->getValueVoidPtr();
-    //    int rowWidth = typeinfo->size();
-    int nbRows = typeinfo->size(data->getValueVoidPtr()) / typeinfo->size();
+    const VectorLinearSpring& dataValue = data->getValue();
+    //int rowWidth = 1;
+    int nbRows = dataValue.size();
 
     long index = PyInt_AsLong(i);
 
-    if (typeinfo->size(valueVoidPtr)==1)
+    if (nbRows==1)
     {
         SP_MESSAGE_WARNING( "the VectorLinearSpringData contains only one element" )
 
-                // this type is NOT a vector; return directly the proper native type
-                const LinearSpring<SReal>& value = data->getValue()[0];
+        // this type is NOT a vector; return directly the proper native type
+        const LinearSpring<SReal>& value = dataValue[0];
         LinearSpring<SReal> *obj = new LinearSpring<SReal>(value.m1,value.m2,value.ks,value.kd,value.initpos);
         return SP_BUILD_PYPTR(LinearSpring,LinearSpring<SReal>,obj,true); // "true", because I manage the deletion myself
     }
@@ -285,7 +281,7 @@ extern "C" PyObject * VectorLinearSpringData_getitem(PyObject *self, PyObject *i
             return NULL;
         }
 
-        const LinearSpring<SReal>& value = data->getValue()[index];
+        const LinearSpring<SReal>& value = dataValue[index];
         LinearSpring<SReal> *obj = new LinearSpring<SReal>(value.m1,value.m2,value.ks,value.kd,value.initpos);
         return SP_BUILD_PYPTR(LinearSpring,LinearSpring<SReal>,obj,true); // "true", because I manage the deletion myself
     }
@@ -295,8 +291,9 @@ extern "C" int VectorLinearSpringData_setitem(PyObject *self, PyObject* i, PyObj
 {
     DataBinding_VectorLinearSpring* data=((PyPtr<DataBinding_VectorLinearSpring>*)self)->object; // TODO: check dynamic cast
 
-    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
-    int nbRows = typeinfo->size(data->getValueVoidPtr()) / typeinfo->size();
+    const VectorLinearSpring& dataValue = data->getValue();
+    //int rowWidth = 1;
+    int nbRows = dataValue.size();
 
     long index = PyInt_AsLong(i);
 
