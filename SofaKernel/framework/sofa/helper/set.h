@@ -31,6 +31,22 @@
 #include <sofa/helper/logging/Messaging.h>
 
 
+
+namespace sofa
+{
+
+namespace helper
+{
+
+// For compatibility with codes expecting a sofa::helper::set type
+template<class T>
+using set = std::set<T>;
+
+}
+}
+
+
+
 /// adding string serialization to std::set to make it compatible with Data
 /// \todo: refactoring of the containers required
 /// More info PR #113: https://github.com/sofa-framework/sofa/pull/113

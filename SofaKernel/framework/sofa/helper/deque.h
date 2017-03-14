@@ -31,6 +31,19 @@
 #include <sofa/helper/logging/Messaging.h>
 
 
+namespace sofa
+{
+
+namespace helper
+{
+
+// For compatibility with codes expecting a sofa::helper::deque type
+template<class T>
+using deque = std::deque<T>;
+
+}
+}
+
 /// adding string serialization to std::deque to make it compatible with Data
 /// \todo: refactoring of the containers required
 /// More info PR #113: https://github.com/sofa-framework/sofa/pull/113

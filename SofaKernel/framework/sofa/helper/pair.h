@@ -8,6 +8,20 @@
 #include <string>
 
 
+namespace sofa
+{
+
+namespace helper
+{
+
+// For compatibility with codes expecting a sofa::helper::pair type
+template<class T1, class T2>
+using pair = std::pair<T1,T2>;
+
+}
+}
+
+
 /// adding string serialization to std::pair to make it compatible with Data
 /// \todo: refactoring of the containers required
 /// More info PR #113: https://github.com/sofa-framework/sofa/pull/113
