@@ -64,7 +64,7 @@ extern "C" PyObject * Sofa_createNode(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "s",&name))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     sofa::simulation::Node::SPtr node = sofa::simulation::Node::create( name );
@@ -80,7 +80,7 @@ extern "C" PyObject * Sofa_createObject(PyObject * /*self*/, PyObject * args, Py
     if (!PyArg_ParseTuple(args, "s",&type))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     SP_MESSAGE_DEPRECATED( "Sofa.createObject is deprecated; use Sofa.Node.createObject instead." )
@@ -106,7 +106,7 @@ extern "C" PyObject * Sofa_createObject(PyObject * /*self*/, PyObject * args, Py
     {
         SP_MESSAGE_ERROR( "createObject "<<desc.getName().c_str()<<" of type "<<desc.getAttribute("type","") )
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     // by default, it will always be at least a BaseObject...
@@ -119,7 +119,7 @@ extern "C" PyObject * Sofa_getObject(PyObject * /*self*/, PyObject * /*args*/)
     // deprecated on date 2012/07/18
     SP_MESSAGE_DEPRECATED( "Sofa.getObject(BaseContext,path) is deprecated. Please use BaseContext.getObject(path) instead." )
     PyErr_BadArgument();
-    Py_RETURN_NONE;
+    return NULL;
 
 }
 
@@ -128,7 +128,7 @@ extern "C" PyObject * Sofa_getChildNode(PyObject * /*self*/, PyObject * /*args*/
     // deprecated on date 2012/07/18
     SP_MESSAGE_DEPRECATED( "Sofa.getChildNode(Node,path) is deprecated. Please use Node.getChild(path) instead." )
     PyErr_BadArgument();
-    Py_RETURN_NONE;
+    return NULL;
 }
 
 using namespace sofa::gui;
@@ -180,7 +180,7 @@ extern "C" PyObject * Sofa_saveScreenshot(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "s",&filename))
     {
         PyErr_BadArgument();
-        return 0;
+        return NULL;
     }
     BaseGUI *gui = GUIManager::getGUI();
     if (!gui)
@@ -202,7 +202,7 @@ extern "C" PyObject * Sofa_setViewerResolution(PyObject * /*self*/, PyObject * a
     if (!PyArg_ParseTuple(args, "ii",&width,&height))
     {
         PyErr_BadArgument();
-        return 0;
+        return NULL;
     }
     BaseGUI *gui = GUIManager::getGUI();
     if (!gui)
@@ -225,13 +225,13 @@ extern "C" PyObject * Sofa_setViewerBackgroundColor(PyObject * /*self*/, PyObjec
     if (!PyArg_ParseTuple(args, "fff", &r, &g, &b))
     {
         PyErr_BadArgument();
-        return 0;
+        return NULL;
     }
 	color[0] = r; color[1] = g; color[2] = b;
 	for (int i = 0; i < 3; ++i){
 		if (color[i] < 00.f || color[i] > 1.0) {
 			PyErr_BadArgument();
-			return 0;
+			return NULL;
 		}
 	}
 
@@ -256,7 +256,7 @@ extern "C" PyObject * Sofa_setViewerCamera(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "fffffff", &px, &py, &pz, &qx, &qy, &qz, &qw))
     {
         PyErr_BadArgument();
-        return 0;
+        return NULL;
     }
 
 
@@ -314,7 +314,7 @@ extern "C" PyObject * Sofa_generateRigid(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "sddddddd",&meshFilename,&density,&sx,&sy,&sz,&rx,&ry,&rz))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     sofa::helper::GenerateRigidInfo rigid;
@@ -337,14 +337,14 @@ extern "C" PyObject * Sofa_exportGraph(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "Os", &pyNode, &filename))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     BaseNode* node=((PySPtr<Base>*)pyNode)->object->toBaseNode();
     if (!node)
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
 
@@ -361,14 +361,14 @@ extern "C" PyObject * Sofa_updateVisual(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "O", &pyNode))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     BaseNode* basenode=((PySPtr<Base>*)pyNode)->object->toBaseNode();
     if (!basenode)
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     Node* node = down_cast<Node>(basenode);
@@ -398,7 +398,7 @@ extern "C" PyObject * Sofa_msg_info(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "ss", &emitter, &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_info( emitter ) << message;
@@ -408,7 +408,7 @@ extern "C" PyObject * Sofa_msg_info(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "s", &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_info( s_emitter ) << message;
@@ -429,7 +429,7 @@ extern "C" PyObject * Sofa_msg_deprecated(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "ss", &emitter, &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_deprecated( emitter ) << message;
@@ -439,7 +439,7 @@ extern "C" PyObject * Sofa_msg_deprecated(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "s", &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_deprecated( s_emitter ) << message;
@@ -460,7 +460,7 @@ extern "C" PyObject * Sofa_msg_warning(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "ss", &emitter, &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_warning( emitter ) << message;
@@ -470,7 +470,7 @@ extern "C" PyObject * Sofa_msg_warning(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "s", &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_warning( s_emitter ) << message;
@@ -491,7 +491,7 @@ extern "C" PyObject * Sofa_msg_error(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "ss", &emitter, &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_error( emitter ) << message;
@@ -501,7 +501,7 @@ extern "C" PyObject * Sofa_msg_error(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "s", &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_error( s_emitter ) << message;
@@ -522,7 +522,7 @@ extern "C" PyObject * Sofa_msg_fatal(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "ss", &emitter, &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_fatal( emitter ) << message;
@@ -532,7 +532,7 @@ extern "C" PyObject * Sofa_msg_fatal(PyObject * /*self*/, PyObject * args)
         if( !PyArg_ParseTuple(args, "s", &message) )
         {
             PyErr_BadArgument();
-            Py_RETURN_NONE;
+            return NULL;
         }
 
         msg_fatal( s_emitter ) << message;
@@ -548,7 +548,7 @@ extern "C" PyObject * Sofa_loadScene(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "s",&filename))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     if( sofa::helper::system::SetDirectory::GetFileName(filename).empty() || // no filename
@@ -604,7 +604,7 @@ extern "C" PyObject * Sofa_loadPlugin(PyObject * /*self*/, PyObject * args)
     if (!PyArg_ParseTuple(args, "s",&pluginName))
     {
         PyErr_BadArgument();
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     using sofa::helper::system::PluginManager;
@@ -630,6 +630,7 @@ extern "C" PyObject * Sofa_loadPlugin(PyObject * /*self*/, PyObject * args)
     {
         SP_MESSAGE_WARNING( "Sofa_loadPlugin: cannot find plugin: " << pluginName );
         PyErr_BadArgument();
+        return NULL;
     }
 
     Py_RETURN_NONE;

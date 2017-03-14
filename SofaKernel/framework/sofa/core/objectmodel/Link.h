@@ -248,7 +248,6 @@ public:
     /// while iterators are used (required to add/remove objects
     /// while visitors are in progress).
     typedef sofa::helper::stable_vector<TValueType> T;
-    //typedef ::boost::container::stable_vector<TValueType> T;
     static void clear(T& c)
     {
         c.clear();
@@ -269,6 +268,36 @@ public:
     static void remove(T& c, unsigned index)
     {
         c.erase( c.begin()+index );
+    }
+};
+
+template<class Type, bool data>
+class LinkTraitsGetClass;
+template<class Type>
+class LinkTraitsGetClass<Type, false>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return Type::GetClass();
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return NULL;
+    }
+};
+
+template<class Type>
+class LinkTraitsGetClass<Type, true>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return NULL;
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return Type::GetValueTypeInfo();
     }
 };
 
@@ -333,6 +362,8 @@ public:
     typedef LinkTraitsFindDest<OwnerType, DestType, ACTIVEFLAG(FLAG_DATALINK)> TraitsFindDest;
     typedef LinkTraitsPtrCasts<TOwnerType> TraitsOwnerCasts;
     typedef LinkTraitsPtrCasts<TDestType> TraitsDestCasts;
+    typedef LinkTraitsGetClass<DestType, ACTIVEFLAG(FLAG_DATALINK)> LinkTraitsDestGetClass;
+    typedef LinkTraitsGetClass<OwnerType, ACTIVEFLAG(FLAG_OWNERDATA)> LinkTraitsOwnerGetClass;
 #undef ACTIVEFLAG
 
     TLink()
@@ -447,14 +478,24 @@ public:
         return false;
     }
 
-    const BaseClass* getDestClass() const
+    const BaseClass* getDestObjectClass() const
     {
-        return DestType::GetClass();
+        return LinkTraitsDestGetClass::GetObjectClass();
     }
 
-    const BaseClass* getOwnerClass() const
+    const BaseClass* getOwnerObjectClass() const
     {
-        return OwnerType::GetClass();
+        return LinkTraitsOwnerGetClass::GetObjectClass();
+    }
+
+    const defaulttype::AbstractTypeInfo* getDestDataType() const
+    {
+        return LinkTraitsDestGetClass::GetDataType();
+    }
+
+    const defaulttype::AbstractTypeInfo* getOwnerDataType() const
+    {
+        return LinkTraitsOwnerGetClass::GetDataType();
     }
 
     size_t getSize() const

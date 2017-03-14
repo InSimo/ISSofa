@@ -421,7 +421,7 @@ protected:
                 ++outRows;
             }
         }
-        if (rowIndex.size() != outRows || colsIndex.size() != outValues)
+        if ((Index)rowIndex.size() != outRows || (Index)colsIndex.size() != outValues)
         {
             rowBegin[outRows] = outValues;
             rowIndex.resize(outRows);

@@ -130,6 +130,8 @@ struct TriangleSetTopology
 
     void addOneTriangle();
 
+    void addTrianglesFan(unsigned int numberOfTriangle);
+
     bool removeLastPoint();
 
     bool removeLastEdge(bool removePoints);
@@ -171,6 +173,24 @@ void TriangleSetTopology::addOneTriangle()
                                       triangleContainer->getNbPoints() + 2));
 
     triangleModifier->addPoints(3, false);
+    triangleModifier->addTriangles(trianglesToAdd);
+}
+
+void TriangleSetTopology::addTrianglesFan(unsigned int numberOfTriangle)
+{
+    TriangleSetTopologyContainer::SeqTriangles trianglesToAdd;
+
+    TriangleSetTopologyContainer::PointID commonPointId = triangleContainer->getNbPoints();
+    for (unsigned int i = 0u; i < numberOfTriangle; ++i)
+    {
+        trianglesToAdd.emplace_back(commonPointId,
+                                    commonPointId + i + 1,
+                                    commonPointId + i + 2);
+    }
+
+    std::cout << trianglesToAdd << std::endl;
+    unsigned int numberOfNewPoints = numberOfTriangle + 2;
+    triangleModifier->addPoints(numberOfNewPoints, false);
     triangleModifier->addTriangles(trianglesToAdd);
 }
 
@@ -393,6 +413,91 @@ TEST(TriangleSetTopology_test, checkTriangleSetTopologyAddTriangle)
         EXPECT_EQ(tavArrayExpected.size(), tavArray.size());
         EXPECT_TRUE(std::equal(tavArray.begin(), tavArray.end(), tavArrayExpected.begin()));
 
+    }
+}
+
+TEST(TriangleSetTopology_test, checkTriangleSetTopologyAddTrianglesFan)
+{
+    using PointID = sofa::core::topology::Topology::PointID;
+    using EdgeID = sofa::core::topology::Topology::EdgeID;
+
+    TriangleSetTopology topology;
+    topology.init();
+    topology.addTrianglesFan(3);
+
+    EXPECT_EQ(5, topology.triangleContainer->getNbPoints());
+    EXPECT_EQ(7, topology.triangleContainer->getNbEdges());
+    EXPECT_EQ(3, topology.triangleContainer->getNbTriangles());
+    
+    //check adjacency information is computed
+    {
+        const TriangleSetTopologyContainer* constTriangleContainer = topology.triangleContainer.get();
+
+        const auto eitArray = constTriangleContainer->getEdgesInTriangleArray();
+        ASSERT_EQ(3, eitArray.size());
+        EXPECT_EQ(EdgeID(0), eitArray[0][0]);
+        EXPECT_EQ(EdgeID(1), eitArray[0][1]);
+        EXPECT_EQ(EdgeID(2), eitArray[0][2]);
+        EXPECT_EQ(EdgeID(3), eitArray[1][0]);
+        EXPECT_EQ(EdgeID(4), eitArray[1][1]);
+        EXPECT_EQ(EdgeID(1), eitArray[1][2]);
+        EXPECT_EQ(EdgeID(5), eitArray[2][0]);
+        EXPECT_EQ(EdgeID(6), eitArray[2][1]);
+        EXPECT_EQ(EdgeID(4), eitArray[2][2]);
+
+        const auto eavArray = constTriangleContainer->getEdgesAroundVertexArray();
+        ASSERT_EQ(5, eavArray.size());
+
+        {  // Check edges around vertex 0
+            const auto& eavi = constTriangleContainer->getEdgesAroundVertex(PointID(0));
+            ASSERT_EQ(4, eavi.size());
+            sofa::helper::vector< EdgeID > eav_expected{ EdgeID(1), EdgeID(2),  EdgeID(4),  EdgeID(6)};
+            EXPECT_TRUE(std::equal(eavi.begin(), eavi.end(), eav_expected.begin()));
+        }
+        {  // Check edges around vertex 1
+            const auto& eavi = constTriangleContainer->getEdgesAroundVertex(PointID(1));
+            ASSERT_EQ(2, eavi.size());
+            sofa::helper::vector< EdgeID > eav_expected{ EdgeID(0), EdgeID(2) };
+            EXPECT_TRUE(std::equal(eavi.begin(), eavi.end(), eav_expected.begin()));
+        }
+        {  // Check edges around vertex 2
+            const auto& eavi = constTriangleContainer->getEdgesAroundVertex(PointID(2));
+            ASSERT_EQ(3, eavi.size());
+            sofa::helper::vector< EdgeID > eav_expected{ EdgeID(0), EdgeID(1),  EdgeID(3) };
+            EXPECT_TRUE(std::equal(eavi.begin(), eavi.end(), eav_expected.begin()));
+        }
+        {  // Check edges around vertex 3
+            const auto& eavi = constTriangleContainer->getEdgesAroundVertex(PointID(3));
+            ASSERT_EQ(3, eavi.size());
+            sofa::helper::vector< EdgeID > eav_expected{ EdgeID(3), EdgeID(4),  EdgeID(5) };
+            EXPECT_TRUE(std::equal(eavi.begin(), eavi.end(), eav_expected.begin()));
+        }
+        {  // Check edges around vertex 4
+            const auto& eavi = constTriangleContainer->getEdgesAroundVertex(PointID(4));
+            ASSERT_EQ(2, eavi.size());
+            sofa::helper::vector< EdgeID > eav_expected{ EdgeID(5), EdgeID(6) };
+            EXPECT_TRUE(std::equal(eavi.begin(), eavi.end(), eav_expected.begin()));
+        }
+
+        // Check triangles around vertex
+        const auto tavArray = constTriangleContainer->getTrianglesAroundVertexArray();
+        ASSERT_EQ(5, tavArray.size());
+        ASSERT_EQ(3, constTriangleContainer->getTrianglesAroundVertex(PointID(0)).size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundVertex(PointID(1)).size());
+        ASSERT_EQ(2, constTriangleContainer->getTrianglesAroundVertex(PointID(2)).size());
+        ASSERT_EQ(2, constTriangleContainer->getTrianglesAroundVertex(PointID(3)).size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundVertex(PointID(4)).size());
+
+        // Check triangles around edge
+        const auto taeArray = constTriangleContainer->getTrianglesAroundEdgeArray();
+        ASSERT_EQ(7, taeArray.size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundEdge(EdgeID(0)).size());
+        ASSERT_EQ(2, constTriangleContainer->getTrianglesAroundEdge(EdgeID(1)).size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundEdge(EdgeID(2)).size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundEdge(EdgeID(3)).size());
+        ASSERT_EQ(2, constTriangleContainer->getTrianglesAroundEdge(EdgeID(4)).size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundEdge(EdgeID(5)).size());
+        ASSERT_EQ(1, constTriangleContainer->getTrianglesAroundEdge(EdgeID(6)).size());
     }
 }
 

@@ -1,4 +1,4 @@
-/*                               nulstein @ Evoke 2009
+/*                               nulstein Evoke 2009
 *
 *
 * ____________________________________
@@ -18,7 +18,7 @@
 * ____________________________________
 *
 *
-* “A multicore tasking engine in some 500 lines of C”
+* A multicore tasking engine in some 500 lines of C
 * This is the code corresponding to the seminar on writing a task-scheduler suitable 
 * for use in multicore optimisation of small prods by Jerome Muffat-Meridol.
 *

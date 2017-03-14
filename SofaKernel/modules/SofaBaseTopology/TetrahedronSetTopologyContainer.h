@@ -274,7 +274,7 @@ public:
 
 
     bool hasTetrahedra() const;
-
+/*
     bool hasEdgesInTetrahedron() const;
 
     bool hasTrianglesInTetrahedron() const;
@@ -284,7 +284,7 @@ public:
     bool hasTetrahedraAroundEdge() const;
 
     bool hasTetrahedraAroundTriangle() const;
-
+*/
     /// @}
 
    	/** \brief Returns the type of the topology */
@@ -462,8 +462,6 @@ protected:
     const bool& isTetrahedronTopologyDirty() {return m_tetrahedronTopologyDirty;}
 
 public:
-	/// force the creation of triangles
-	Data<bool>  d_createTriangleArray;
 
     /// provides the set of tetrahedra.
     Data< sofa::helper::vector<Tetrahedron> > d_tetrahedron;
@@ -491,7 +489,7 @@ protected:
     bool m_tetrahedronTopologyDirty;
 
     /// List of engines related to this specific container
-    sofa::helper::list <sofa::core::topology::TopologyEngine *> m_enginesList;
+    std::list<sofa::core::topology::TopologyEngine *> m_enginesList;
 
     /// \brief variables used to display the graph of Data/DataEngines linked to this Data array.
     sofa::helper::vector < sofa::helper::vector <std::string> > m_dataGraph;

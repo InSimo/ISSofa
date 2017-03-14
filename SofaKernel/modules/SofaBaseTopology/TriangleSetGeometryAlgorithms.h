@@ -85,6 +85,8 @@ public:
 
     virtual void reinit();
 
+    void handleEvent(sofa::core::objectmodel::Event* e);
+
     void computeTriangleAABB(const TriangleID i, Coord& minCoord, Coord& maxCoord) const;
 
     Coord computeTriangleCenter(const TriangleID i) const;

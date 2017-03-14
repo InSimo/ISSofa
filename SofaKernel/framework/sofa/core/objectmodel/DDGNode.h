@@ -55,6 +55,20 @@ public:
     static sofa::core::objectmodel::BaseData* getData(sofa::core::objectmodel::DDGNode* n);
 };
 
+template<>
+class LinkTraitsGetClass<DDGNode, true>
+{
+public:
+    static const BaseClass* GetObjectClass()
+    {
+        return NULL;
+    }
+    static const defaulttype::AbstractTypeInfo* GetDataType()
+    {
+        return NULL;
+    }
+};
+
 /**
  *  \brief Abstract base to manage data dependencies. BaseData and DataEngine inherites from this class
  *
@@ -63,7 +77,7 @@ class SOFA_CORE_API DDGNode
 {
 public:
 
-    typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK> DDGLink;
+    typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK|BaseLink::FLAG_OWNERDATA> DDGLink;
     typedef DDGLink::Container DDGLinkContainer;
     typedef DDGLink::const_iterator DDGLinkIterator;
 
@@ -82,10 +96,6 @@ public :
 
     /// @name Class reflection system
     /// @{
-    typedef TClass<DDGNode> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
 
     template<class T>
     static void dynamicCast(T*& ptr, Base* /*b*/)
@@ -184,8 +194,9 @@ private:
     /// Update this value. For thread-safety, should no longer be called directly. Use requestUpdate() instead.
     virtual void update() = 0;
 
+protected:
     /// Set dirty flag to false ( internal method )
-    void doCleanDirty(const core::ExecParams* params, bool warnBadUse);
+    virtual void doCleanDirty(const core::ExecParams* params, bool warnBadUse);
 
 public:
     /// Returns true if the DDGNode needs to be updated
@@ -257,6 +268,9 @@ protected:
     virtual void doAddOutput(DDGNode* n);
 
     virtual void doDelOutput(DDGNode* n);
+
+    /// the dirtyOutputs flags of all the inputs will be set to false
+    void cleanDirtyOutputsOfInputs(const core::ExecParams* params);
 
 private:
 

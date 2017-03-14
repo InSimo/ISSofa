@@ -93,19 +93,19 @@ protected:
 
 public:
 
+    void cleanup() override;
 
+    std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }
 
-    void cleanup();
+    void setDetectionOutputs(OutputVector* outputs) override;
 
-    std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() { return std::make_pair(model1,model2); }
+    void createResponse(core::objectmodel::BaseContext* group) override;
 
-    void setDetectionOutputs(OutputVector* outputs);
+    void removeResponse() override;
+    
+    void resetResponse() override;
 
-    void createResponse(core::objectmodel::BaseContext* group);
-
-    void removeResponse();
-
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams* vparams) override;
 };
 
 } // namespace collision

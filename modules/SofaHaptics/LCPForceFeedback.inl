@@ -31,145 +31,6 @@
 #include <algorithm>
 #include <mutex>
 
-namespace
-{
-
-template <typename DataTypes>
-bool derivVectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool /*derivRotation*/)
-{
-    unsigned int sz0 = x0.size();
-    unsigned int szmin = std::min(sz0,(unsigned int)x1.size());
-
-    d.resize(sz0);
-    for(unsigned int i=0; i<szmin; ++i)
-    {
-        d[i]=x1[i]-x0[i];
-    }
-    for(unsigned int i=szmin; i<sz0; ++i) // not sure in what case this is applicable...
-    {
-        d[i]=-x0[i];
-    }
-    return true;
-}
-
-//template<class Real>
-//sofa::defaulttype::Vec<3,Real> getLog(Quat &q)
-//{
-//    q.normalize();
-//
-//    sofa::defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
-//
-//    double norm = sqrt( (double) (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()) );
-//    const double normThreshold = 1e-8;
-//
-//
-//    if (norm < 0.000001)
-//        return v;
-//
-//    if (q[3] > 0.999)
-//    {
-//         v *= 2.0;
-//    }
-//    else if (q[3] < -0.999)
-//    {
-//        v *= -2.0;
-//    }
-//    else
-//    {
-//        double angle = q[3] > 0 ? acos(q[3]) * 2 : acos(-q[3]) * -2;
-//        v *= angle / norm;
-//    }
-//
-//    return v;
-//}
-
-//template<class Real>
-//sofa::defaulttype::Vec<3,Real> angularDisplacement(Quat a, const Quat& b)
-//{
-//    Quat q;
-//    return getLog<Real>(q.quatDiff(a, b));
-//}
-
-template <typename DataTypes>
-bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool derivRotation=false)
-{
-    unsigned int sz0 = x0.size();
-    unsigned int szmin = std::min(sz0,(unsigned int)x1.size());
-
-    d.resize(sz0);
-    for(unsigned int i=0; i<szmin; ++i)
-    {
-        getVCenter(d[i]) = x1[i].getCenter() - x0[i].getCenter();
-        if (derivRotation)
-        {
-            // rotations are taken into account to compute the violations
-            sofa::defaulttype::Quat q;
-            getVOrientation(d[i]) = x0[i].rotate(q.angularDisplacement(x1[i].getOrientation(), x0[i].getOrientation() ) ); // angularDisplacement compute the rotation vector btw the two quaternions
-            // getVOrientation(d[i]) = x0[i].rotate(angularDisplacement<DataTypes::Real>(x1[i].getOrientation(), x0[i].getOrientation() ) );
-        }
-        else
-            getVOrientation(d[i]) *= 0; 
-    }
-
-    for(unsigned int i=szmin; i<sz0; ++i) // not sure in what case this is applicable.. 
-    {
-        getVCenter(d[i]) = - x0[i].getCenter();
-
-        if (derivRotation)
-        {
-            // rotations are taken into account to compute the violations
-            sofa::defaulttype::Quat q= x0[i].getOrientation();
-            getVOrientation(d[i]) = -x0[i].rotate( q.getLog() );                // Use of getLog instead of toEulerVector:
-                                                                                // this is done to keep the old behavior (before the
-                                                                                // correction of the toEulerVector  function). If the
-                                                                                // purpose was to obtain the Eulerian vector and not the
-                                                                                // rotation vector please use the following line instead
-//            getVOrientation(d[i]) = -x0[i].rotate( q.getLog() );
-        }
-        else
-            getVOrientation(d[i]) *= 0;
-    }
-
-    return true;
-}
-
-
-template <typename DataTypes>
-double computeDot(const typename DataTypes::Deriv& v0, const typename DataTypes::Deriv& v1)
-{
-    return dot(v0,v1);
-}
-
-
-#ifndef SOFA_FLOAT
-template<>
-bool derivVectors<sofa::defaulttype::Rigid3dTypes>(const sofa::defaulttype::Rigid3dTypes::VecCoord& x0, const sofa::defaulttype::Rigid3dTypes::VecCoord& x1, sofa::defaulttype::Rigid3dTypes::VecDeriv& d, bool derivRotation )
-{
-    return derivRigid3Vectors<sofa::defaulttype::Rigid3dTypes>(x0,x1,d, derivRotation);
-}
-template <>
-double computeDot<sofa::defaulttype::Rigid3dTypes>(const sofa::defaulttype::Rigid3dTypes::Deriv& v0, const sofa::defaulttype::Rigid3dTypes::Deriv& v1)
-{
-    return dot(getVCenter(v0),getVCenter(v1)) + dot(getVOrientation(v0), getVOrientation(v1));
-}
-
-#endif
-#ifndef SOFA_DOUBLE
-template<>
-bool derivVectors<sofa::defaulttype::Rigid3fTypes>(const sofa::defaulttype::Rigid3fTypes::VecCoord& x0, const sofa::defaulttype::Rigid3fTypes::VecCoord& x1, sofa::defaulttype::Rigid3fTypes::VecDeriv& d, bool derivRotation )
-{
-    return derivRigid3Vectors<sofa::defaulttype::Rigid3fTypes>(x0,x1,d, derivRotation);
-}
-template <>
-double computeDot<sofa::defaulttype::Rigid3fTypes>(const sofa::defaulttype::Rigid3fTypes::Deriv& v0, const sofa::defaulttype::Rigid3fTypes::Deriv& v1)
-{
-    return dot(getVCenter(v0),getVCenter(v1)) + dot(getVOrientation(v0), getVOrientation(v1));
-}
-
-#endif
-
-} // anonymous namespace
-
 namespace sofa
 {
 
@@ -449,6 +310,23 @@ void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *ev
         constraintSolver->lockConstraintProblem(this, mCP[mNextBufferId]);
 }
 
+template <typename DataTypes>
+typename LCPForceFeedback<DataTypes>::VecCoord* LCPForceFeedback<DataTypes>::getmVal()
+{
+    return &mVal[0];
+}
+
+template <typename DataTypes>
+typename LCPForceFeedback<DataTypes>::MatrixDeriv* LCPForceFeedback<DataTypes>::getmConstraints()
+{
+    return &mConstraints[0];
+}
+
+template <typename DataTypes>
+component::constraintset::ConstraintProblem** LCPForceFeedback<DataTypes>::getmCP()
+{
+    return &mCP[0];
+}
 
 //
 // Those functions are here for compatibility with the sofa::component::controller::Forcefeedback scheme

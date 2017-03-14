@@ -57,7 +57,11 @@ public:
     {
     }
 
-    void removeResponse()
+    void removeResponse() override
+    {
+    }
+    
+    void resetResponse() override
     {
     }
 
@@ -80,7 +84,7 @@ public:
     {
     }
 
-    void setDetectionOutputs(core::collision::DetectionOutputVector* outputs)
+    void setDetectionOutputs(core::collision::DetectionOutputVector* outputs) override
     {
         OutputVector* o = static_cast<OutputVector*>(outputs);
         //collisions = outputs;
@@ -89,7 +93,7 @@ public:
             collisions[i] = &(*o)[i];
     }
 
-    std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() { return std::make_pair(model1,model2); }
+    std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }
 };
 
 } // namespace collision

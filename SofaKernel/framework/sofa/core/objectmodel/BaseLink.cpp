@@ -80,19 +80,82 @@ std::string BaseLink::getValueString() const
     return o.str();
 }
 
+/// Provide a string representing the type of the expected destination (Data<T> or Class or Class<T>)
+std::string BaseLink::getDestClassName() const
+{
+    std::string t;
+    if (isDataLink())
+    {
+        const defaulttype::AbstractTypeInfo* c = getDestDataType();
+        t = "Data";
+        if (c)
+        {
+            t += '<';
+            t += c->name();
+            t += '>';
+        }
+    }
+    else
+    {
+        const BaseClass* c = getDestObjectClass();
+        if (!c)
+        {
+            t = "void";
+        }
+        else
+        {
+            t = c->className;
+            if (!c->templateName.empty())
+            {
+                t += '<';
+                t += c->templateName;
+                t += '>';
+            }
+        }
+    }
+    return t;
+}
+
+/// Provide a string representing the type of the owner (Data<T> or Class or Class<T>)
+std::string BaseLink::getOwnerClassName() const
+{
+    std::string t;
+    if (isOwnerData())
+    {
+        const defaulttype::AbstractTypeInfo* c = getOwnerDataType();
+        t = "Data";
+        if (c)
+        {
+            t += '<';
+            t += c->name();
+            t += '>';
+        }
+    }
+    else
+    {
+        const BaseClass* c = getOwnerObjectClass();
+        if (!c)
+        {
+            t = "void";
+        }
+        else
+        {
+            t = c->className;
+            if (!c->templateName.empty())
+            {
+                t += '<';
+                t += c->templateName;
+                t += '>';
+            }
+        }
+    }
+    return t;
+}
+
 /// Print the value type of the associated variable
 std::string BaseLink::getValueTypeString() const
 {
-    const BaseClass* c = getDestClass();
-    if (!c) return "void";
-    std::string t = c->className;
-    if (!c->templateName.empty())
-    {
-        t += '<';
-        t += c->templateName;
-        t += '>';
-    }
-    return t;
+    return getDestClassName();
 }
 
 /// Copy the value of an aspect into another one.

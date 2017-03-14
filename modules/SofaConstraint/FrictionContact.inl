@@ -288,6 +288,16 @@ void FrictionContact<TCollisionModel1,TCollisionModel2>::removeResponse()
 }
 
 template < class TCollisionModel1, class TCollisionModel2>
+void FrictionContact<TCollisionModel1,TCollisionModel2>::resetResponse()
+{
+    if (m_constraint)
+    {
+        mapper1.resize(0);
+        mapper2.resize(0);
+    }
+}
+
+template < class TCollisionModel1, class TCollisionModel2>
 void FrictionContact<TCollisionModel1,TCollisionModel2>::setInteractionTags(MechanicalState1* mstate1, MechanicalState2* mstate2)
 {
     sofa::core::objectmodel::TagSet tagsm1 = mstate1->getTags();
