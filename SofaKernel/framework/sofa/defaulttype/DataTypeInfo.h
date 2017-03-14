@@ -1264,10 +1264,10 @@ struct DataTypeInfo< std::set<T,Compare,Alloc> > : public ContainerTypeInfo<std:
 template<class T, class Compare, class Alloc>
 struct DataTypeName< std::set<T,Compare,Alloc> > { static std::string name() { std::ostringstream o; o << "std::set<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
-template<class T, class Compare, class Alloc>
-struct DataTypeInfo< sofa::helper::set<T,Compare,Alloc> > : public ContainerTypeInfo<sofa::helper::set<T,Compare,Alloc>, ContainerKindEnum::Set, 0> {};
-template<class T, class Compare, class Alloc>
-struct DataTypeName< sofa::helper::set<T,Compare,Alloc> > { static std::string name() { std::ostringstream o; o << "set<" << DataTypeName<T>::name() << ">"; return o.str(); } };
+//template<class T, class Compare, class Alloc>
+//struct DataTypeInfo< sofa::helper::set<T,Compare,Alloc> > : public ContainerTypeInfo<sofa::helper::set<T,Compare,Alloc>, ContainerKindEnum::Set, 0> {};
+//template<class T, class Compare, class Alloc>
+//struct DataTypeName< sofa::helper::set<T,Compare,Alloc> > { static std::string name() { std::ostringstream o; o << "set<" << DataTypeName<T>::name() << ">"; return o.str(); } };
 
 template<class K, class T, class Compare, class Alloc>
 struct DataTypeInfo< std::map<K,T,Compare,Alloc> > : public ContainerTypeInfo<std::map<K,T,Compare,Alloc>, ContainerKindEnum::Map, 0> {};

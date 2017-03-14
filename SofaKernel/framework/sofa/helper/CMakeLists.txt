@@ -6,11 +6,10 @@ set(HEADER_FILES
     ArgumentParser.h
     BackTrace.h
     cast.h
-    DecodeTypeName.h
     ColorMap.h
+    DecodeTypeName.h
     DualQuat.h
     DualQuat.inl
-    DecodeTypeName.h
     Factory.h
     Factory.inl
     FnDispatcher.h
@@ -102,6 +101,7 @@ set(HEADER_FILES
     system/thread/debug.h
     system/thread/thread_specific_ptr.h
     system/FileMonitor.h
+    system/FileRepository.h
     test.h
     vector.h
     vectorData.h
@@ -133,7 +133,6 @@ set(SOURCE_FILES
     ArgumentParser.cpp
     BackTrace.cpp
     ColorMap.cpp
-    DecodeTypeName.cpp
     DecodeTypeName.cpp
     DualQuat.cpp
     Factory.cpp
@@ -187,6 +186,7 @@ set(SOURCE_FILES
     system/thread/CTime.cpp
     system/thread/CircularQueue.cpp
     system/thread/debug.cpp
+    system/FileRepository.cpp
     test.cpp
     vector.cpp
     logging/Message.cpp
@@ -232,6 +232,8 @@ if(Boost_FILESYSTEM_FOUND AND Boost_LOCALE_FOUND)
     list(APPEND SOURCE_FILES system/FileRepository.cpp)
 endif()
 
+set(SHADER_FILES "")
+
 if(NOT SOFA_NO_OPENGL)
     list(APPEND HEADER_FILES
         gl/Capture.h
@@ -243,6 +245,8 @@ if(NOT SOFA_NO_OPENGL)
         system/glu.h
         gl/Axis.h
         gl/BasicShapes.h
+        gl/BasicShapesGL.h
+        gl/BasicShapesGL.inl
         gl/Cylinder.h
         gl/Texture.h
         gl/Trackball.h
@@ -252,6 +256,7 @@ if(NOT SOFA_NO_OPENGL)
     )
     list(APPEND SOURCE_FILES
         gl/Axis.cpp
+        gl/BasicShapesGL.cpp
         gl/Cylinder.cpp
         gl/glText.cpp
         gl/Capture.cpp
@@ -277,11 +282,11 @@ if(NOT SOFA_NO_OPENGL)
             gl/FrameBufferObject.cpp
             gl/GLSLShader.cpp
         )
+        list(APPEND SHADER_FILES
+            gl/shaders/generateSphere.cppglsl
+        )
     endif()
 
-	list(APPEND SOFACORE_HEADERS "ps3/cxa_demangle.h")
-	list(APPEND SOFACORE_HEADERS "ps3/cxxabi.h")
-	list(APPEND SOFACORE_SOURCES "ps3/cxa_demangle.cpp")
 endif()
 
 
@@ -299,7 +304,7 @@ if(PS3)
 endif()
 
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SHADER_FILES} ${SOURCE_FILES})
 if(WIN32)
     # Windows library, used in system::FileSystem
     target_link_libraries(${PROJECT_NAME} PRIVATE Shlwapi)

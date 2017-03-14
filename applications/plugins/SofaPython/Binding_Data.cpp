@@ -29,16 +29,9 @@
 #include <sofa/core/objectmodel/DataFileName.h>
 
 #include "PythonFactory.h"
-#include <SofaDeformable/SpringForceField.h> // should not be here
 
 using namespace sofa::core::objectmodel;
 using namespace sofa::defaulttype;
-using namespace sofa::component::interactionforcefield;
-
-
-// TODO:
-// se servir du DataTypeInfo pour utiliser directement les bons type :-)
-// Il y a un seul type "Data" exposé en python, le transtypage est géré automatiquement
 
 
 SP_CLASS_ATTR_GET(Data,name)(PyObject *self, void*)
@@ -63,47 +56,6 @@ PyObject *GetDataValuePython(BaseData* data)
     {
         PyObject* res = sofa::PythonFactory::toPython(data);
         if( res ) return res;
-    }
-
-
-    // horrible special case that needs to be refactored
-    if ( Data<sofa::helper::vector<LinearSpring<SReal> > >* vectorLinearSpring = dynamic_cast<Data<sofa::helper::vector<LinearSpring<SReal> > >*>(data) )
-    {
-        // special type, a vector of LinearSpring objects
-
-        const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
-        const void* valueVoidPtr = data->getValueVoidPtr();
-    //int rowWidth = typeinfo->size();
-    //int nbRows = typeinfo->size(data->getValueVoidPtr()) / typeinfo->size();
-
-        const int rowWidth = 1;
-        const int nbRows = (int)vectorLinearSpring->getValue().size();
-        if (nbRows==1)
-        {
-            // this type is NOT a vector; return directly the proper native type
-            const LinearSpring<SReal>& value = vectorLinearSpring->getValue()[0];
-            LinearSpring<SReal> *obj = new LinearSpring<SReal>(value.m1,value.m2,value.ks,value.kd,value.initpos);
-            return SP_BUILD_PYPTR(LinearSpring,LinearSpring<SReal>,obj,true); // "true", because I manage the deletion myself
-        }
-        else
-        {
-            PyObject *rows = PyList_New(nbRows);
-            for (int i=0; i<nbRows; i++)
-            {
-                PyObject *row = PyList_New(rowWidth);
-                for (int j=0; j<rowWidth; j++)
-                {
-                    // build each value of the list
-                    const LinearSpring<SReal>& value = vectorLinearSpring->getValue()[i*rowWidth+j];
-                    LinearSpring<SReal> *obj = new LinearSpring<SReal>(value.m1,value.m2,value.ks,value.kd,value.initpos);
-                    PyList_SetItem(row,j,SP_BUILD_PYPTR(LinearSpring,LinearSpring<SReal>,obj,true));
-                }
-                PyList_SetItem(rows,i,row);
-            }
-
-            return rows;
-        }
-
     }
 
     const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
@@ -187,170 +139,6 @@ bool SetDataValuePython(BaseData* data, PyObject* args)
     const AbstractTypeInfo *typeinfo = data->getValueTypeInfo(); // info about the data value
     //int rowWidth = (typeinfo && typeinfo->ValidInfo()) ? typeinfo->size() : 1;
     //int nbRows = (typeinfo && typeinfo->ValidInfo()) ? typeinfo->size(data->getValueVoidPtr()) / typeinfo->size() : 1;
-
-    // special cases...
-    Data<sofa::helper::vector<LinearSpring<SReal> > >* dataVectorLinearSpring = dynamic_cast<Data<sofa::helper::vector<LinearSpring<SReal> > >*>(data);
-    if (dataVectorLinearSpring)
-    {
-        // special type, a vector of LinearSpring objects
-        const int rowWidth = 1;
-        int nbRows = (int)dataVectorLinearSpring->getValue().size();
-        if (!isList)
-        {
-            // one value
-            // check the python object type
-            if (rowWidth*nbRows<1 || !PyObject_IsInstance(args,reinterpret_cast<PyObject*>(&SP_SOFAPYTYPEOBJECT(LinearSpring))))
-            {
-                // type mismatch or too long list
-                PyErr_BadArgument();
-                return false;
-            }
-
-            LinearSpring<SReal>* obj=dynamic_cast<LinearSpring<SReal>*>(((PyPtr<LinearSpring<SReal> >*)args)->object);
-            sofa::helper::vector<LinearSpring<SReal> >* vectorLinearSpring = dataVectorLinearSpring->beginEdit();
-
-            (*vectorLinearSpring)[0].m1 = obj->m1;
-            (*vectorLinearSpring)[0].m2 = obj->m2;
-            (*vectorLinearSpring)[0].ks = obj->ks;
-            (*vectorLinearSpring)[0].kd = obj->kd;
-            (*vectorLinearSpring)[0].initpos = obj->initpos;
-
-            dataVectorLinearSpring->endEdit();
-
-            return true;
-        }
-        else
-        {
-            // values list
-            // is-it a double-dimension list ?
-            //PyObject *firstRow = PyList_GetItem(args,0);
-
-            if (PyList_Check(PyList_GetItem(args,0)))
-            {
-                // two-dimension array!
-
-                // right number if rows ?
-                if (PyList_Size(args)!=nbRows)
-                {
-                    // only a warning; do not raise an exception...
-                    SP_MESSAGE_WARNING( "list size mismatch for data \""<<data->getName()<<"\" (incorrect rows count)" )
-                    if (PyList_Size(args)<nbRows)
-                        nbRows = PyList_Size(args);
-                }
-
-                sofa::helper::vector<LinearSpring<SReal> >* vectorLinearSpring = dataVectorLinearSpring->beginEdit();
-
-                // let's fill our rows!
-                for (int i=0; i<nbRows; i++)
-                {
-                    PyObject *row = PyList_GetItem(args,i);
-
-                    // right number if list members ?
-                    int size = rowWidth;
-                    if (PyList_Size(row)!=size)
-                    {
-                        // only a warning; do not raise an exception...
-                        SP_MESSAGE_WARNING( "row "<<i<<" size mismatch for data \""<<data->getName()<<"\" (src="<<(int)PyList_Size(row)<<"x"<<nbRows<<" dst="<<size<<"x"<<nbRows<<")" )
-                        if (PyList_Size(row)<size)
-                            size = PyList_Size(row);
-                    }
-
-                    // okay, let's set our list...
-                    for (int j=0; j<size; j++)
-                    {
-
-                        PyObject *listElt = PyList_GetItem(row,j);
-                        if(!PyObject_IsInstance(listElt,reinterpret_cast<PyObject*>(&SP_SOFAPYTYPEOBJECT(LinearSpring))))
-                        {
-                            // type mismatch
-                            dataVectorLinearSpring->endEdit();
-                            PyErr_BadArgument();
-                            return false;
-                        }
-                        LinearSpring<SReal>* spring=dynamic_cast<LinearSpring<SReal>*>(((PyPtr<LinearSpring<SReal> >*)listElt)->object);
-
-
-                        (*vectorLinearSpring)[j+i*rowWidth].m1 = spring->m1;
-                        (*vectorLinearSpring)[j+i*rowWidth].m2 = spring->m2;
-                        (*vectorLinearSpring)[j+i*rowWidth].ks = spring->ks;
-                        (*vectorLinearSpring)[j+i*rowWidth].kd = spring->kd;
-                        (*vectorLinearSpring)[j+i*rowWidth].initpos = spring->initpos;
-
-                    }
-
-
-
-                }
-
-                dataVectorLinearSpring->endEdit();
-
-                return true;
-
-            }
-            else
-            {
-                // it is a one-dimension only array
-                // right number if list members ?
-                int size = rowWidth*nbRows;
-                if (PyList_Size(args)!=size)
-                {
-                    // only a warning; do not raise an exception...
-                    SP_MESSAGE_WARNING( "list size mismatch for data \""<<data->getName()<<"\" (src="<<(int)PyList_Size(args)<<" dst="<<size<<")" )
-                    if (PyList_Size(args)<size)
-                        size = PyList_Size(args);
-                }
-
-                sofa::helper::vector<LinearSpring<SReal> >* vectorLinearSpring = dataVectorLinearSpring->beginEdit();
-
-                // okay, let's set our list...
-                for (int i=0; i<size; i++)
-                {
-
-                    PyObject *listElt = PyList_GetItem(args,i);
-
-                    if(!PyObject_IsInstance(listElt,reinterpret_cast<PyObject*>(&SP_SOFAPYTYPEOBJECT(LinearSpring))))
-                    {
-                        // type mismatch
-                        dataVectorLinearSpring->endEdit();
-                        PyErr_BadArgument();
-                        return false;
-                    }
-
-                    LinearSpring<SReal>* spring=dynamic_cast<LinearSpring<SReal>*>(((PyPtr<LinearSpring<SReal> >*)listElt)->object);
-
-                    (*vectorLinearSpring)[i].m1 = spring->m1;
-                    (*vectorLinearSpring)[i].m2 = spring->m2;
-                    (*vectorLinearSpring)[i].ks = spring->ks;
-                    (*vectorLinearSpring)[i].kd = spring->kd;
-                    (*vectorLinearSpring)[i].initpos = spring->initpos;
-
-
-    /*
-                    if (PyFloat_Check(listElt))
-                    {
-                        // it's a scalar
-                        if (!typeinfo->Scalar())
-                        {
-                            // type mismatch
-                            PyErr_BadArgument();
-                            return false;
-                        }
-                        SReal value = PyFloat_AsDouble(listElt);
-                        void* editVoidPtr = data->beginEditVoidPtr();
-                        typeinfo->setScalarValue(editVoidPtr,i,value);
-                        data->endEditVoidPtr();
-                    }
-     */
-                }
-                dataVectorLinearSpring->endEdit();
-
-                return true;
-            }
-        }
-
-
-        return false;
-    }
 
     const AbstractMultiValueTypeInfo* mvinfo = NULL;
     int rowWidth = 1;

@@ -32,6 +32,7 @@ set(HEADER_FILES
     VirtualTypeInfo.h
     defaulttype.h
     init.h
+    Color.h
 )
 
 set(SOURCE_FILES
@@ -42,6 +43,7 @@ set(SOURCE_FILES
     # RigidInertia.cpp
     SolidTypes.cpp
     TemplatesAliases.cpp
+    Color.cpp
     init.cpp
 )
 
