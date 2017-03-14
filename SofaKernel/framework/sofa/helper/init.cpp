@@ -72,8 +72,8 @@ SOFA_HELPER_API void printUninitializedLibraryWarning(const std::string& library
 SOFA_HELPER_API void printLibraryNotCleanedUpWarning(const std::string& library,
                                                      const std::string& cleanupFunction)
 {
-    msg_warning(library) << "the library has not been cleaned up ("
-              << cleanupFunction << " has never been called, see sofa/helper/init.h)";
+    //msg_warning(library) << "the library has not been cleaned up ("
+    //          << cleanupFunction << " has never been called, see sofa/helper/init.h)";
 }
 
 // Detect missing cleanup() call.
