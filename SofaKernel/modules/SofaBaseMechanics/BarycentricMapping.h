@@ -709,8 +709,8 @@ protected:
     topology::TriangleSetTopologyContainer*	        m_fromContainer;
     topology::PointSetTopologyContainer*            m_toContainer;
     topology::TriangleSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-    core::behavior::MechanicalState< In >* m_stateFrom = nullptr;
-    core::behavior::MechanicalState< Out >* m_stateTo = nullptr;
+    core::State< In >* m_stateFrom;
+    core::State< Out >* m_stateTo;
 
     MatrixType* matrixJ;
     bool updateJ;
@@ -753,13 +753,17 @@ protected:
 
 
     BarycentricMapperTriangleSetTopology(topology::TriangleSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* toTopology, bool useRestPosition = false)
+            topology::PointSetTopologyContainer* toTopology,
+            core::State< In >* stateFrom, core::State< Out >* stateTo,
+            bool useRestPosition = false)
         : TopologyBarycentricMapper<In,Out>(fromTopology, toTopology),
           map(initData(&map,"map", "mapper data")),
           m_fromContainer(fromTopology),
           m_toContainer(toTopology),
           m_useRestPosition(useRestPosition),
           _fromGeomAlgo(NULL),
+          m_stateFrom(stateFrom),
+          m_stateTo(stateTo),
           matrixJ(NULL),
           updateJ(true),
           d_vBaryTriangleInfo(initData(&d_vBaryTriangleInfo, "vBaryTriangleInfo", "Vector of triangle information dedicated to topological changes"))

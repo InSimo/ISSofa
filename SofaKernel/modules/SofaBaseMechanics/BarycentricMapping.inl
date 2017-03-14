@@ -702,18 +702,6 @@ void BarycentricMapperTriangleSetTopology<In,Out>::init(const typename Out::VecC
         return;
     }
 
-    m_fromContainer->getContext()->get(m_stateFrom);
-    if (m_toContainer)
-    {
-        m_toContainer->getContext()->get(m_stateTo);  // be aware that in some cases there is no m_toContainer
-    }
-
-    if (!m_stateFrom)
-    {
-        serr << "Link to the mechanical state failed" << sendl;
-        return;
-    }
-
     if (m_fromContainer)
     {       
         // initialize d_vBaryTriangleInfo
@@ -1217,7 +1205,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
                     if (t4 != NULL)
                     {
                         typedef BarycentricMapperTriangleSetTopology<InDataTypes, OutDataTypes> TriangleSetMapper;
-                        mapper = sofa::core::objectmodel::New<TriangleSetMapper>(t4, toTopoCont);
+                        mapper = sofa::core::objectmodel::New<TriangleSetMapper>(t4, toTopoCont, this->fromModel, this->toModel);
                     }
                     else
                     {
