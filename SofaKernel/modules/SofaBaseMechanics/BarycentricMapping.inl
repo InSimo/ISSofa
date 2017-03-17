@@ -702,6 +702,19 @@ void BarycentricMapperTriangleSetTopology<In,Out>::init(const typename Out::VecC
         return;
     }
 
+    if (!m_stateFrom)
+    {
+        serr << "Link to the mechanical state in failed" << sendl;
+        return;
+    }
+
+    if (!m_stateTo)
+    {
+        serr << "Link to the mechanical state out failed" << sendl;
+        return;
+    }
+
+
     if (m_fromContainer)
     {       
         // initialize d_vBaryTriangleInfo
@@ -736,7 +749,8 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCr
     const sofa::helper::vector< double >& coeffs)
 {
     // get restPositions
-    helper::ReadAccessor< typename core::behavior::MechanicalState< In >::VecCoord >  pIn = obj->m_useRestPosition ? obj->m_stateFrom->readRestPositions() : obj->m_stateFrom->readPositions();
+    helper::ReadAccessor< Data<typename core::State< In >::VecCoord > >  pIn = obj->m_useRestPosition ?
+            obj->m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition()) : obj->m_stateFrom->read(sofa::core::ConstVecCoordId::position());
 
     sofa::defaulttype::Mat3x3d m;
     m[0] = pIn[triangle[1]] - pIn[triangle[0]];
@@ -811,8 +825,8 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
     if (m_dirtyPoints.empty() || !m_fromContainer) return;
 
     // get restPositions
-    helper::ReadAccessor< typename core::behavior::MechanicalState< In >::VecCoord >  pIn = m_stateFrom->readRestPositions();
-    helper::ReadAccessor< typename core::behavior::MechanicalState< Out >::VecCoord>  pOut = m_stateTo->readRestPositions();
+    helper::ReadAccessor< Data<typename core::State< In >::VecCoord > >  pIn = m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition());
+    helper::ReadAccessor< Data<typename core::State< Out >::VecCoord> > pOut = m_stateTo->read(sofa::core::ConstVecCoordId::restPosition());
 
     // evaluate dirty projections : fill in d_vBaryTriangleInfo and map 
     helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = d_vBaryTriangleInfo;
@@ -825,14 +839,14 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
 
     for (auto dirtyPoint : m_dirtyPoints)
     {
-        sofa::defaulttype::Vec3d pos = (m_useRestPosition && m_stateTo) ? Out::getCPos(pOut[dirtyPoint]) : Out::getCPos(out[dirtyPoint]);
+        sofa::defaulttype::Vec3d pos = (m_useRestPosition && pOut.size() > 0) ? Out::getCPos(pOut[dirtyPoint]) : Out::getCPos(out[dirtyPoint]);
         sofa::defaulttype::Vector3 coefs;
         int index = -1;
         double distance = std::numeric_limits<double>::max();
 
         for (unsigned int t = 0; t < triangles.size(); t++)
         {
-            sofa::defaulttype::Vec3d xTri = (m_useRestPosition) ? pIn[triangles[t][0]] : in[triangles[t][0]];
+            sofa::defaulttype::Vec3d xTri = (m_useRestPosition && pIn.size() > 0) ? pIn[triangles[t][0]] : in[triangles[t][0]];
 
             const BaryTriangleInfo& baryTriangleInfo = vBaryTriangleInfo[t];
             const sofa::defaulttype::Mat3x3d& restBase = baryTriangleInfo.restBase;
