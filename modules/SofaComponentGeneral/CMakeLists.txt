@@ -16,7 +16,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     SofaGeneralMeshCollision SofaGeneralObjectInteraction SofaGeneralRigid SofaGeneralSimpleFem SofaGeneralTopology  SofaGeneralVisual SofaBoundaryCondition 
     SofaConstraint SofaGeneralEngine SofaExporter SofaGraphComponent SofaHaptics SofaPreconditioner SofaSparseSolver SofaTopologyMapping SofaUserInteraction SofaValidation)
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_COMPONENT_GENERAL")
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+endif()
 
 if(SOFA_HAVE_NEWMAT)
     target_link_libraries(${PROJECT_NAME} PUBLIC SofaDenseSolver)

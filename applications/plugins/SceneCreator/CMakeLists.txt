@@ -34,7 +34,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${SCENECREATOR_VERSION}
 
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SCENECREATOR")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+endif()
 
 ## Install rules for the library; CMake package configurations files
 sofa_create_package(SceneCreator ${SCENECREATOR_VERSION} SceneCreator SceneCreator)

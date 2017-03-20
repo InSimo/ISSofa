@@ -34,7 +34,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CUR
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:include/>")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_VOLUMETRICRENDERING")
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${VOLUMETRICRENDERING_VERSION})
 
 target_link_libraries(${PROJECT_NAME} SofaHelper SofaOpenglVisual )

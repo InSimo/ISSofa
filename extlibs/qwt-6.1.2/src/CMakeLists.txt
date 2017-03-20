@@ -282,7 +282,9 @@ target_compile_options(${PROJECT_NAME} PRIVATE "-DQT_DLL" "-DQWT_DLL" "-DQWT_MAK
 target_compile_options(${PROJECT_NAME} INTERFACE "-DQT_DLL" "-DQWT_DLL"  "-DQWT_NO_SVG" ${QT_DEFINITIONS})
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "SofaExtlibs")
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${QWT_VERSION})
 
 include(${SOFA_KERNEL_SOURCE_DIR}/SofaFramework/SofaMacros.cmake)
