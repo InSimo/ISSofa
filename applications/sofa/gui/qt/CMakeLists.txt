@@ -204,5 +204,7 @@ endif()
 
 sofa_install_targets(SofaGui SofaGuiQt "")
 
-install(FILES ${HEADER_FILES} DESTINATION "include/sofa/gui/qt")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    install(FILES ${HEADER_FILES} DESTINATION "include/sofa/gui/qt")
+endif()
 install(FILES ${MOC_HEADER_FILES} DESTINATION "include/sofa/gui/qt")

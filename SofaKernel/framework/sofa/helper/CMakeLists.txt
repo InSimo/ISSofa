@@ -384,6 +384,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${SOFAFRAMEWORK_VERSION}")
 
 sofa_install_targets(SofaFramework SofaHelper "")
-
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/" DESTINATION "include/sofa/helper"
-        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/" DESTINATION "include/sofa/helper"
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.inl")
+endif()

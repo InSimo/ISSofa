@@ -33,4 +33,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SOF
 
 sofa_install_targets(SofaGui SofaGuiCommon "")
 
-install(FILES ${HEADER_FILES} DESTINATION include/sofa/gui)
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    install(FILES ${HEADER_FILES} DESTINATION include/sofa/gui)
+endif()

@@ -37,5 +37,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SIM
 
 sofa_install_targets(SofaSimulation ${PROJECT_NAME} ${PROJECT_NAME})
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/" DESTINATION "include/SofaSimulationCommon"
-        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl")
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/" DESTINATION "include/SofaSimulationCommon"
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.inl")
+endif()

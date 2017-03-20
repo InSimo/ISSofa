@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 set(EIGEN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Directory for find_package(Eigen3)")
 set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Include directory for find_package(Eigen3)")
 
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Eigen
         COMPONENT Eigen_headers
         DESTINATION include
@@ -16,3 +17,4 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/unsupported/Eigen
         PATTERN "*.in" EXCLUDE
         PATTERN "*.txt" EXCLUDE
         PATTERN "*.cpp" EXCLUDE)
+endif()
