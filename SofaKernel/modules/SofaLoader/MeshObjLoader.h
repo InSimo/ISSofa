@@ -40,14 +40,10 @@ public:
     enum FaceType { EDGE, TRIANGLE, QUAD, NBFACETYPE };
 
     SOFA_CLASS(MeshObjLoader,sofa::core::loader::MeshLoader);
-
 protected:
-
     MeshObjLoader();
     virtual ~MeshObjLoader();
-
 public:
-
     virtual bool load();
 
     template <class T>
@@ -57,12 +53,25 @@ public:
     }
 
 protected:
+    bool readOBJ (std::ifstream &file, const char* filename);
+    bool readMTL (const char* filename, helper::vector <sofa::core::loader::Material>& materials);
+    void addGroup (const sofa::core::loader::PrimitiveGroup& g);
 
-    bool readOBJ (std::istream &stream, const char* filename);
+    sofa::core::loader::Material material;
+    Data<bool> loadMaterial;
+    std::string textureName;
+    FaceType faceType;
 
 public:
-
-    Data< bool > d_storeGroups; ///< should sub-groups be stored?
+    Data <helper::vector <sofa::core::loader::Material> > materials;
+    Data <helper::SVector <helper::SVector <int> > > faceList;
+    Data <helper::SVector <helper::SVector <int> > > texIndexList;
+    Data< helper::vector<sofa::defaulttype::Vector2> > texCoordsList;
+    Data <helper::SVector<helper::SVector<int> > > normalsIndexList;
+    Data <helper::vector<sofa::defaulttype::Vector3> > normalsList;
+    Data< helper::vector<sofa::defaulttype::Vector2> > texCoords;
+    Data< bool > computeMaterialFaces;
+    helper::vector< Data <helper::vector <unsigned int> >* > subsets_indices;
 
     virtual std::string type() { return "The format of this mesh is OBJ."; }
 };
