@@ -241,15 +241,15 @@ set(SOURCE_FILES
 find_package(Qt5 COMPONENTS Core QUIET)
 
 if(Qt5Core_FOUND)
-	find_package(Qt5 COMPONENTS Concurrent Gui Xml OpenGL PrintSupport Quick Qml REQUIRED)
+	find_package(Qt5 COMPONENTS Concurrent Gui Xml OpenGL PrintSupport REQUIRED)
 
     include_directories(${Qt5Core_INCLUDE_DIRS})
     include_directories(${Qt5Widgets_INCLUDE_DIRS})
     include_directories(${Qt5OpenGL_INCLUDE_DIRS})
     include_directories(${Qt5Concurrent_INCLUDE_DIRS})
     include_directories(${Qt5PrintSupport_INCLUDE_DIRS})
-    include_directories(${Qt5Qml_INCLUDE_DIRS})
-    include_directories(${Qt5Quick_INCLUDE_DIRS})
+    #include_directories(${Qt5Qml_INCLUDE_DIRS})
+    #include_directories(${Qt5Quick_INCLUDE_DIRS})
     include_directories(${Qt5Xml_INCLUDE_DIRS})
 
     set(QT_LIBRARIES ${Qt5Core_LIBRARIES})
