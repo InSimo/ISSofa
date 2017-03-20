@@ -58,6 +58,7 @@ protected:
     void addGroup (const sofa::core::loader::PrimitiveGroup& g);
 
     sofa::core::loader::Material material;
+    Data<bool> d_handleSeams;
     Data<bool> loadMaterial;
     std::string textureName;
     FaceType faceType;
@@ -66,12 +67,22 @@ public:
     Data <helper::vector <sofa::core::loader::Material> > materials;
     Data <helper::SVector <helper::SVector <int> > > faceList;
     Data <helper::SVector <helper::SVector <int> > > texIndexList;
+    Data <helper::vector<sofa::defaulttype::Vector3> > positionsList;
     Data< helper::vector<sofa::defaulttype::Vector2> > texCoordsList;
     Data <helper::SVector<helper::SVector<int> > > normalsIndexList;
     Data <helper::vector<sofa::defaulttype::Vector3> > normalsList;
     Data< helper::vector<sofa::defaulttype::Vector2> > texCoords;
     Data< bool > computeMaterialFaces;
     helper::vector< Data <helper::vector <unsigned int> >* > subsets_indices;
+
+    /// If vertices have multiple normals/texcoords, then we need to separate them
+    /// This vector store which input position is used for each vertex
+    /// If it is empty then each vertex correspond to one position
+    Data< helper::vector<int> > d_vertPosIdx;
+
+    /// Similarly this vector store which input normal is used for each vertex
+    /// If it is empty then each vertex correspond to one normal
+    Data< helper::vector<int> > d_vertNormIdx;
 
     virtual std::string type() { return "The format of this mesh is OBJ."; }
 };
