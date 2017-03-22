@@ -76,10 +76,12 @@ public:
 
 	void clear(int nbConstraints);
 	void freeConstraintResolutions();
-	void solveTimed(double tol, int maxIt, double timeout);
+	void solveTimed(double tol, int maxIt, double timeout) override;
+    std::pair<int,double> solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const override;
 
-	void gaussSeidel(double timeout=0, GenericConstraintSolver* solver = NULL);
-	void unbuiltGaussSeidel(double timeout=0, GenericConstraintSolver* solver = NULL);
+	void gaussSeidel(GenericConstraintSolver* solver);
+	std::pair<int,double> gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const;
+	void unbuiltGaussSeidel(GenericConstraintSolver* solver = NULL, double timeout=0);
 
     int getNumConstraints();
     int getNumConstraintGroups();

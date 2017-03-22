@@ -52,12 +52,20 @@ public:
     int maxIterations;
 
     virtual void clear(int nbConstraints);
-    int getDimension()	{ return dimension; }
-    double** getW()		{ return W.lptr(); }
-    double* getDfree()	{ return dFree.ptr(); }
-    double* getF()		{ return f.ptr(); }
+    int getDimension() const { return dimension; }
+          double**              getW()       { return W.lptr(); }
+    const double* const * const getW() const { return W.lptr(); }
+          double* getDfree()       { return dFree.ptr(); }
+    const double* getDfree() const { return dFree.ptr(); }
+    double* getF()                 { return f.ptr();     }
+    const double* getF()     const { return f.ptr();     }
 
+    /// Solve the contained constraint problem, using included temporary arrays
     virtual void solveTimed(double tolerance, int maxIt, double timeout) = 0;
+    /// Solve the contained constraint problem, using given temporary arrays
+    /// This version is safe to call from several threads concurrently
+    /// Returns a pair containing the number of iterations and residual error
+    virtual std::pair<int,double> solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const = 0;
 
     unsigned int getProblemId();
 
