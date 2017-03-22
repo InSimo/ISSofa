@@ -57,6 +57,13 @@ void LCPConstraintProblem::solveTimed(double tolerance, int maxIt, double timeou
     helper::nlcp_gaussseidelTimed(dimension, getDfree(), getW(), getF(), mu, tolerance, maxIt, true, timeout);
 }
 
+std::pair<int,double> LCPConstraintProblem::solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const
+{
+    std::pair<int,double> res(0,0); // TODO: nlcp_gaussseidelTimed does not return iterations and error
+    helper::nlcp_gaussseidelTimed(dimension, const_cast<double*>(localDFree), const_cast<double**>(getW()), localF, mu, tolerance, maxIt, true, timeout);
+    return res;
+}
+
 bool LCPConstraintSolver::prepareStates(const core::ConstraintParams * /*cParams*/, MultiVecId /*res1*/, MultiVecId /*res2*/)
 {
     sofa::helper::AdvancedTimer::StepVar vtimer("PrepareStates");

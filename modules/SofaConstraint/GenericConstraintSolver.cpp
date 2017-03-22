@@ -315,7 +315,7 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
 	if (unbuilt.getValue())
 	{
 		sofa::helper::AdvancedTimer::stepBegin("ConstraintsUnbuiltGaussSeidel");
-		current_cp->unbuiltGaussSeidel(0, this);
+		current_cp->unbuiltGaussSeidel(this);
 		sofa::helper::AdvancedTimer::stepEnd("ConstraintsUnbuiltGaussSeidel");
 	}
 	else
@@ -327,7 +327,7 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
         }
 
 		sofa::helper::AdvancedTimer::stepBegin("ConstraintsGaussSeidel");
-		current_cp->gaussSeidel(0, this);
+		current_cp->gaussSeidel(this);
 		sofa::helper::AdvancedTimer::stepEnd("ConstraintsGaussSeidel");
 	}
 
@@ -498,42 +498,49 @@ int GenericConstraintProblem::getNumConstraintGroups()
 
 void GenericConstraintProblem::solveTimed(double tol, int maxIt, double timeout)
 {
-	double tempTol = tolerance;
-	int tempMaxIt = maxIterations;
+// TODO : for the unbuild version to work in the haptic thread, we have to duplicate the ConstraintCorrections first...
+/*	if(unbuilt)
+		unbuiltGaussSeidel(timeout);
+	else
+*/
+    std::pair<int,double> res = gaussSeidel(NULL, tol, maxIt, timeout, getDfree(), _d.ptr(), getF());
+    currentIterations = res.first;
+    currentError = res.second;
+}
 
-	tolerance = tol;
-	maxIterations = maxIt;
+std::pair<int,double> GenericConstraintProblem::solveTimed(double tol, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const
+{
+    std::pair<int,double> res(0,0); // TODO: nlcp_gaussseidelTimed does not return iterations and error
 
 // TODO : for the unbuild version to work in the haptic thread, we have to duplicate the ConstraintCorrections first...
 /*	if(unbuilt)
 		unbuiltGaussSeidel(timeout);
 	else
-*/		gaussSeidel(timeout);
+*/
+    res = gaussSeidel(NULL, tol, maxIt, timeout, localDFree, localD, localF);
+    return res;
+}
 
-	tolerance = tempTol;
-	maxIterations = tempMaxIt;
+void GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver)
+{
+    std::pair<int,double> res = gaussSeidel(solver, tolerance, maxIterations, 0, getDfree(), _d.ptr(), getF());
+    currentIterations = res.first;
+    currentError = res.second;
 }
 
 // Debug is only available when called directly by the solver (not in haptic thread)
-void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolver* solver)
+std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* dfree, double* d, double* force) const
 {
 	if(!dimension)
     {
-        currentError = 0.0;
-        currentIterations = 0;
-        return;
+        return std::make_pair(0,0.0);
     }
 
     double t0 = (double)sofa::helper::system::thread::CTime::getTime() ;
     double timeScale = 1.0 / (double)sofa::helper::system::thread::CTime::getTicksPerSec();
 
-	double *dfree = getDfree();
-	double *force = getF();
-	double **w = getW();
-	double tol = tolerance;
-
-	double *d = _d.ptr();
-
+	const double * const * const w = getW();
+    int dim = dimension;
 	int i, j, k, l, nb;
 
 	double errF[6];
@@ -541,22 +548,22 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
 	bool convergence = false;
     sofa::helper::vector<double> tempForces;
-	if(sor != 1.0) tempForces.resize(dimension);
+	if(sor != 1.0) tempForces.resize(dim);
 
 	if(scaleTolerance && !allVerified)
-		tol *= dimension;
+		tol *= dim;
 
 	if(solver)
 	{
-		for(i=0; i<dimension; )
+		for(i=0; i<dim; )
 		{
 			if(!constraintsResolutions[i])
 			{
 				std::cerr << "Bad size of constraintsResolutions in GenericConstraintProblem" << std::endl;
-				dimension = i;
+				dim = i;
 				break;
 			}
-			constraintsResolutions[i]->init(i, w, force);
+			constraintsResolutions[i]->init(i, const_cast<double**>(w), force);
 			i += constraintsResolutions[i]->nbLines;
 		}
 	}
@@ -582,7 +589,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 			graph_residuals->clear();
 		}
 	
-		tabErrors.resize(dimension);
+		tabErrors.resize(dim);
 	}
 
  /*   if(schemeCorrection)
@@ -602,17 +609,17 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
     }
 */
 
-	for(i=0; i<maxIterations; i++)
+	for(i=0; i<maxIt; i++)
 	{
 		bool constraintsAreVerified = true;
         if(sor != 1.0)
 		{
-			for(j=0; j<dimension; j++)
+			for(j=0; j<dim; j++)
 				tempForces[j] = force[j];
 		}
 
 		error=0.0;
-		for(j=0; j<dimension; ) // increment of j realized at the end of the loop
+		for(j=0; j<dim; ) // increment of j realized at the end of the loop
 		{
 			//1. nbLines provide the dimension of the constraint  (max=6)
 			nb = constraintsResolutions[j]->nbLines;
@@ -625,12 +632,12 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 				d[j+l] = dfree[j+l];
 			}
             //   (b) contribution of forces are added to d     => TODO => optimization (no computation when force= 0 !!)
-			for(k=0; k<dimension; k++)
+			for(k=0; k<dim; k++)
 				for(l=0; l<nb; l++)
 					d[j+l] += w[j+l][k] * force[k];
 
 			//3. the specific resolution of the constraint(s) is called
-			constraintsResolutions[j]->resolution(j, w, d, force, dfree);
+			constraintsResolutions[j]->resolution(j, const_cast<double**>(w), d, force, const_cast<double*>(dfree));
 
 			//4. the error is measured (displacement due to the new resolution (i.e. due to the new force))
 			double contraintError = 0.0;
@@ -674,7 +681,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
 		if(showGraphs)
 		{
-			for(j=0; j<dimension; j++)
+			for(j=0; j<dim; j++)
 			{
 				std::ostringstream oss;
 				oss << "f" << j;
@@ -691,7 +698,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
 		if(sor != 1.0)
 		{
-			for(j=0; j<dimension; j++)
+			for(j=0; j<dim; j++)
 				force[j] = sor * force[j] + (1-sor) * tempForces[j];
 		}
 
@@ -703,9 +710,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 			if(solver && solver->f_printLog.getValue())
 				std::cout << "TimeOut" << std::endl;
             
-            currentError = error;
-            currentIterations = i+1;
-			return;
+			return std::make_pair(i+1, error);
 		}
 		else if(allVerified)
 		{
@@ -722,8 +727,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 		}
 	}
 
-    currentError = error;
-    currentIterations = i+1;
+    std::pair<int,double> result(i+1, error);
 
 	sofa::helper::AdvancedTimer::valSet("GS iterations", currentIterations);
 
@@ -739,7 +743,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 		else if(solver->displayTime.getValue())
 			solver->sout<<" Convergence after " << i+1 << " iterations " << solver->sendl;
 
-		for(i=0; i<dimension; i += constraintsResolutions[i]->nbLines)
+		for(i=0; i<dim; i += constraintsResolutions[i]->nbLines)
 			constraintsResolutions[i]->store(i, force, convergence);
 	}
 
@@ -760,7 +764,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 		sofa::helper::vector<double>& graph_constraints = (*solver->graphConstraints.beginEdit())["Constraints"];
 		graph_constraints.clear();
 
-		for(j=0; j<dimension; )
+		for(j=0; j<dim; )
 		{
 			nb = constraintsResolutions[j]->nbLines;
 
@@ -777,10 +781,12 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
 		solver->graphForces.endEdit();
 	}
+
+    return result;
 }
 
 
-void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstraintSolver* solver)
+void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solver, double timeout)
 {
 	if(!dimension)
     {

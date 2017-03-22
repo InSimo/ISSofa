@@ -457,7 +457,7 @@ public:
     }
 
     T** lptr() { return ldata; }
-    const T** lptr() const { return ldata; }
+    const T* const * lptr() const { return const_cast<const T* const *>(ldata); }
     //operator T**() { return ldata; }
     //operator const T**() const { return ldata; }
 };

@@ -55,7 +55,8 @@ class LCPConstraintProblem : public ConstraintProblem
 public:
     double mu;
 
-    void solveTimed(double tolerance, int maxIt, double timeout);
+    void solveTimed(double tolerance, int maxIt, double timeout) override;
+    std::pair<int,double> solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const override;
 };
 
 class MechanicalGetConstraintInfoVisitor : public simulation::BaseMechanicalVisitor
