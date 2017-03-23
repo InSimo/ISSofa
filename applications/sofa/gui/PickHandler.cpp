@@ -386,12 +386,12 @@ component::collision::BodyPicked PickHandler::findCollision()
     }
     return result;
 }
-
 component::collision::BodyPicked PickHandler::findCollisionUsingPipeline()
 {
     const defaulttype::Vector3& origin          = mouseCollision->getRay(0).origin();
     const defaulttype::Vector3& direction       = mouseCollision->getRay(0).direction();
     const double& maxLength                     = mouseCollision->getRay(0).l();
+    static const sofa::core::objectmodel::Tag tagNoPicking("NoPicking");
 
     BodyPicked result;
     const std::set< sofa::component::collision::BaseRayContact*> &contacts = mouseCollision->getContacts();
@@ -407,6 +407,7 @@ component::collision::BodyPicked PickHandler::findCollisionUsingPipeline()
             {
                 modelInCollision = output[i]->elem.second.getCollisionModel();
                 if (!modelInCollision->isSimulated()) continue;
+                if (modelInCollision->hasTag(tagNoPicking)) continue;
 
 
                 const double d = (output[i]->point[1]-origin)*direction;
@@ -427,6 +428,7 @@ component::collision::BodyPicked PickHandler::findCollisionUsingPipeline()
             {
                 modelInCollision = output[i]->elem.first.getCollisionModel();
                 if (!modelInCollision->isSimulated()) continue;
+                if (modelInCollision->hasTag(tagNoPicking)) continue;
 
                 const double d = (output[i]->point[0]-origin)*direction;
                 if (d<0.0 || d>maxLength) continue;
