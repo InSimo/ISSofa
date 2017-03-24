@@ -244,7 +244,7 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
 template <typename DataTypes>
 void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *event)
 {
-    if (sofa::simulation::AnimateEndEvent::checkEventType(event))
+    if (!sofa::simulation::AnimateEndEvent::checkEventType(event))
         return;
 
     if (!constraintSolver)
