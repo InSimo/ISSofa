@@ -8,7 +8,7 @@ namespace sofa
 AccumulateDataEngine::AccumulateDataEngine()
 :d_numInputs(initData(&d_numInputs, "numInputs", "Number of inputs to create for this engine, accumulated in ouputValue during update method call"))
 ,d_sleepMilliseconds(initData(&d_sleepMilliseconds, "sleepMilliseconds","Number of milliseconds this engine will sleep before exiting update"))
-,d_outputValue(initData(&d_outputValue, "ouptutValue","Output value which is the accmulaton of all value contained in each input"))
+,d_outputValue(initData(&d_outputValue, double(0),"ouptutValue","Output value which is the accmulaton of all value contained in each input"))
 {
     this->addOutput(&d_outputValue);
 }
