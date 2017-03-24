@@ -181,29 +181,44 @@ void DDGNode::requestUpdateIfDirty(const core::ExecParams* params)
     UpdateState& state = updateStates[aspect];
     const int currentThreadID = params->threadID();
     int updateThreadID = state.updateThreadID;
+    
+    //if (getOwner())
+    //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty called. Thread " << currentThreadID << getOwner()->sendl;
+        
     if (updateThreadID == currentThreadID) // recursive call to update, ignoring
     {
-
         //if (getOwner())
-        //    getOwner()->serr << "Data " << getName() << " recursive update() ignored." << getOwner()->sendl;
+        //    getOwner()->serr << "Data " << getName() << " recursive update() ignored. Thread " << currentThreadID << getOwner()->sendl;
         return;
     }
 
     if (dirtyValue == 0)
     {
         //if (getOwner())
-        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty nothing to do." << getOwner()->sendl;
+        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty nothing to do. Thread " << currentThreadID << getOwner()->sendl;
         return;
     }
 
     // Make sure all inputs are updated (before taking the lock)
     for(DDGLinkIterator it=inputs.begin(params), itend=inputs.end(params); it != itend; ++it)
+    {
         (*it)->updateIfDirty(params);
+        if ((*it)->isDirty(params))
+        {
+            //if (getOwner())
+            //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty cannot update input " << (*it)->getName() << " because of a recursive call. Thread " << currentThreadID << getOwner()->sendl;
+            
+            // Circular dependency
+            // Here we must not update this DDGNode since one of its inputs triggered this update inside its own update() method
+            // The actual update will be done after the input has returned from its update() method
+            return;
+        }
+    }
 
     if (dirtyValue == 0)
     {
         //if (getOwner())
-        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty nothing to do after updating inputs." << getOwner()->sendl;
+        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty nothing to do after updating inputs. Thread " << currentThreadID << getOwner()->sendl;
         return;
     }
 
@@ -215,6 +230,9 @@ void DDGNode::requestUpdateIfDirty(const core::ExecParams* params)
     {
         // we need to call update
 
+        //if (getOwner())
+        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty updating! Thread " << currentThreadID << getOwner()->sendl;
+        
         state.updateThreadID = currentThreadID; // store the thread ID to detect recursive calls
         state.lastUpdateThreadID = currentThreadID;
 
@@ -233,6 +251,9 @@ void DDGNode::requestUpdateIfDirty(const core::ExecParams* params)
             (*it)->dirtyFlags[aspect].dirtyOutputs = 0;
         
         state.updateThreadID = -1;
+     
+        //if (getOwner())
+        //    getOwner()->serr << "Data " << getName() << " requestUpdateIfDirty update done! Thread " << currentThreadID << getOwner()->sendl;
     }
     else // else nothing to do, as another thread already updated this while we were waiting to acquire the lock
     {
