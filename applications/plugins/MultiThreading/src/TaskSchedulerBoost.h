@@ -128,7 +128,7 @@ private:
 
     enum 
     {
-        Max_TasksPerThread = 256
+        Max_TasksPerThread = 1024
     };
 
     std::mutex                        mTaskMutex;

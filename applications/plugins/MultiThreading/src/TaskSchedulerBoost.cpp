@@ -76,7 +76,7 @@ void run(TaskScheduler* scheduler, unsigned index)
 
         while (worker->getTaskScheduler()->getRootTaskStatus())
         {
-            worker->doWork(0);
+            worker->doWork(nullptr);
             if (worker->mTaskScheduler->isClosing())
             {
                 break;
@@ -273,7 +273,7 @@ WorkerThread::WorkerThread(TaskScheduler* const& pScheduler, int index)
 WorkerThread::~WorkerThread()
 {
     std::stringstream msg;
-    msg << "WorkerThread(" << mThreadIndex << ") detroyed\n";
+    msg << "WorkerThread(" << mThreadIndex << ") destroyed" << std::endl;
     std::cout << msg.str();
 }
 
@@ -421,7 +421,12 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
         std::lock_guard<std::mutex> lock(mTaskMutex);
 
         if (*taskCount >= Max_TasksPerThread )
+        {
+            std::stringstream msg;
+            msg << "WorkerThread(" << mThreadIndex << ") : maximum number of tasks exceeded (" << Max_TasksPerThread << ")" << std::endl;
+            std::cout << msg.str();
             return false;
+        }
         if( task->getStatus()==nullptr ) {
           return false;
         }
