@@ -325,12 +325,15 @@ protected:
 
     /// Default destructor.
     ~VisualModelImpl();
+    
+    bool m_needUpdateBuffers;
 public:
     void parse(core::objectmodel::BaseObjectDescription* arg);
 
     virtual bool hasTransparent();
     bool hasOpaque();
 
+    virtual void fwdDraw(core::visual::VisualParams* vparams) override;
     void drawVisual(const core::visual::VisualParams* vparams);
     void drawTransparent(const core::visual::VisualParams* vparams);
     void drawShadow(const core::visual::VisualParams* vparams);

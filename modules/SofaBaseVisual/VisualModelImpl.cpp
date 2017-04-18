@@ -147,6 +147,7 @@ VisualModelImpl::VisualModelImpl() //const std::string &name, std::string filena
     , materials			(initData	(&materials, "materials", "List of materials"))
     , groups			(initData	(&groups, "groups", "Groups of triangles and quads using a given material"))
     , xformsModified(false)
+    , m_needUpdateBuffers(false)
 {
 #ifdef SOFA_SMP
     originalMaterial = material.getValue();
@@ -216,6 +217,15 @@ bool VisualModelImpl::hasOpaque()
         }
     }
     return false;
+}
+
+void VisualModelImpl::fwdDraw(core::visual::VisualParams* vparams)
+{
+    if (m_needUpdateBuffers)
+    {
+        m_needUpdateBuffers = false;
+        updateBuffers();
+    }
 }
 
 void VisualModelImpl::drawVisual(const core::visual::VisualParams* vparams)
@@ -1205,7 +1215,8 @@ void VisualModelImpl::updateVisual()
         computeNormals();
         if (m_updateTangents.getValue())
             computeTangents();
-        updateBuffers();
+
+        m_needUpdateBuffers = true;
         modified = false;
     }
 
