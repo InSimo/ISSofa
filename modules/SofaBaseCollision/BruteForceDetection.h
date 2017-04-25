@@ -25,13 +25,12 @@
 #ifndef SOFA_COMPONENT_COLLISION_BRUTEFORCEDETECTION_H
 #define SOFA_COMPONENT_COLLISION_BRUTEFORCEDETECTION_H
 
+#include <sofa/SofaBase.h>
 #include <sofa/core/collision/BroadPhaseDetection.h>
 #include <sofa/core/collision/NarrowPhaseDetection.h>
-#include <sofa/core/CollisionElement.h>
-#include <sofa/SofaBase.h>
 #include <SofaBaseCollision/CubeModel.h>
-#include <sofa/defaulttype/Vec.h>
-#include <set>
+
+#include <queue>
 
 
 namespace sofa
@@ -124,7 +123,18 @@ public:
     /* for debugging */
     void draw(const core::visual::VisualParams* vparams);
 
-    inline virtual bool needsDeepBoundingTree()const{return true;}
+    inline virtual bool needsDeepBoundingTree()const {return true;}
+    
+    typedef std::pair< std::pair<core::CollisionElementIterator,core::CollisionElementIterator>, std::pair<core::CollisionElementIterator,core::CollisionElementIterator> > TestPair;
+    
+    static void computeNarrowPhase(
+            core::CollisionModel* cm1, core::CollisionModel* cm2, core::collision::ElementIntersector* intersector,
+            core::CollisionModel* finalcm1, core::CollisionModel* finalcm2, core::collision::ElementIntersector* finalintersector,
+            core::collision::Intersection* intersectionMethod,
+            bool self,
+            std::queue< TestPair >& externalCells,
+            sofa::core::collision::DetectionOutputVector* outputs
+            );
 };
 
 } // namespace collision
