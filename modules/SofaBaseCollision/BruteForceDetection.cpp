@@ -383,7 +383,7 @@ void BruteForceDetection::addCollisionPair(const std::pair<core::CollisionModel*
                                             newExternalTests.second.first = it2;
                                             newExternalTests.second.second = it2;
                                             ++newExternalTests.second.second;
-                                            externalCells.push(std::make_pair(newExternalTests.first, newInternalTests.second));
+                                            externalCells.push(std::make_pair(newExternalTests.first, newExternalTests.second));
                                         }
                                     }
                                     else if (newExternalTests.second.first != newExternalTests.second.second)
