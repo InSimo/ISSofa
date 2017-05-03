@@ -96,9 +96,46 @@ extern "C" int Base_SetAttr(PyObject *o, PyObject *attr_name, PyObject *v)
     return 0;
 }
 
+extern "C" PyObject * Base_getWarningLog(PyObject * o, PyObject * /*args*/)
+{
+    Base* base = dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
+
+    return PyString_FromString(base->getWarnings().c_str() );
+}
+
+extern "C" PyObject * Base_getOutputLog(PyObject * o, PyObject * /*args*/)
+{
+    Base* base = dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
+
+    return PyString_FromString(base->getOutputs().c_str());
+}
+
+
+extern "C" PyObject * Base_clearWarningLog(PyObject * o, PyObject * /*args*/)
+{
+    Base* base = dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
+    base->clearWarnings();
+
+    Py_RETURN_NONE;
+}
+
+extern "C" PyObject * Base_clearOutputLog(PyObject * o, PyObject * /*args*/)
+{
+    Base* base = dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
+    base->clearOutputs();
+
+    Py_RETURN_NONE;
+}
+
+
+
 SP_CLASS_METHODS_BEGIN(Base)
 SP_CLASS_METHOD(Base,findData)
 SP_CLASS_METHOD(Base,getDataFields)
+SP_CLASS_METHOD(Base,getWarningLog)
+SP_CLASS_METHOD(Base,getOutputLog)
+SP_CLASS_METHOD(Base,clearWarningLog)
+SP_CLASS_METHOD(Base,clearOutputLog)
 SP_CLASS_METHODS_END
 
 
