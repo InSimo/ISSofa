@@ -44,6 +44,18 @@ using std::string;
 
 static const std::string unnamed_label=std::string("unnamed");
 
+namespace
+{
+
+#ifdef WIN32
+HANDLE winConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+CONSOLE_SCREEN_BUFFER_INFO winConsoleInfo;
+BOOL winHasConsoleScreenBufferInfo = GetConsoleScreenBufferInfo(winConsole, &winConsoleInfo);
+#endif
+
+}
+
+
 Base::Base()
     : ref_counter(0)
     , name(initData(&name,unnamed_label,"name","object name"))
@@ -63,6 +75,7 @@ Base::Base()
     f_bbox.setDisplayed(false);
     f_bbox.setAutoLink(false);
     sendl.setParent(this);
+
 }
 
 Base::~Base()
@@ -288,48 +301,43 @@ void Base::setName(const std::string& n, int counter)
 
 void Base::processStream(std::ostream& out)
 {
+
 #ifdef WIN32
 
-#define BLUE 9
-#define GREEN 10
-#define CYAN 11
-#define RED 12
-#define PURPLE 13
-#define YELLOW 14
-#define WHITE 15
+#define SOFA_CONSOLE_BLUE 9
+#define SOFA_CONSOLE_GREEN 10
+#define SOFA_CONSOLE_CYAN 11
+#define SOFA_CONSOLE_RED 12
+#define SOFA_CONSOLE_PURPLE 13
+#define SOFA_CONSOLE_YELLOW 14
+#define SOFA_CONSOLE_WHITE 15
 
-    HANDLE console;
-    console = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO _currentInfo;
-    GetConsoleScreenBufferInfo(console, &_currentInfo);
 #else
 
-#define BLUE "\033[1;34m "
-#define GREEN "\033[1;32m "
-#define CYAN "\033[1;36m "
-#define RED "\033[1;31m "
-#define PURPLE "\033[1;35m "
-#define YELLOW "\033[1;33m "
-#define WHITE "\033[1;37m "
-#define ENDL " \033[0m"
+#define SOFA_CONSOLE_BLUE "\033[1;34m "
+#define SOFA_CONSOLE_GREEN "\033[1;32m "
+#define SOFA_CONSOLE_CYAN "\033[1;36m "
+#define SOFA_CONSOLE_RED "\033[1;31m "
+#define SOFA_CONSOLE_PURPLE "\033[1;35m "
+#define SOFA_CONSOLE_YELLOW "\033[1;33m "
+#define SOFA_CONSOLE_WHITE "\033[1;37m "
+#define SOFA_CONSOLE_ENDL " \033[0m"
 
 #endif
 
+    const std::string prefix = "[" + getName() + "(" + getClassName() + ")]: ";
     if (&out == &serr)
     {
         serr << "\n";
-        std::string str = serr.str();
-        //if (f_printLog.getValue())
+        const std::string str = prefix + serr.str();
 #ifdef WIN32
-        SetConsoleTextAttribute(console, RED);
+        SetConsoleTextAttribute(winConsole, SOFA_CONSOLE_RED);
         std::cerr<< " [WARN] ";
-        SetConsoleTextAttribute(console, _currentInfo.wAttributes);
+        SetConsoleTextAttribute(winConsole, winConsoleInfo.wAttributes);
 #else
-        std::cerr<< RED <<"[WARN]" << ENDL;
+        std::cerr<< SOFA_CONSOLE_RED <<"[WARN]" << SOFA_CONSOLE_ENDL;
 #endif
-        std::cerr<< "[" << getName() << "(" << getClassName() << ")]: ";
-//        SetConsoleTextAttribute(console, _currentInfo.wAttributes);
-        std::cerr << str;
+        std::cerr << str << std::flush;
         if (warnings.size()+str.size() >= MAXLOGSIZE)
         {
             std::cerr<< "LOG OVERFLOW[" << getName() << "(" << getClassName() << ")]: resetting serr buffer." << std::endl;
@@ -343,17 +351,17 @@ void Base::processStream(std::ostream& out)
     {
 
         sout << "\n";
-        std::string str = sout.str();
+        const std::string str = prefix + sout.str();
         if (f_printLog.getValue())
         {
 #ifdef WIN32
-            SetConsoleTextAttribute(console, GREEN);
+            SetConsoleTextAttribute(winConsole, SOFA_CONSOLE_GREEN);
             std::cout<<" [INFO] ";
-            SetConsoleTextAttribute(console, _currentInfo.wAttributes);
+            SetConsoleTextAttribute(winConsole, winConsoleInfo.wAttributes);
 #else
-            std::cerr<<GREEN<<"[INFO]"<< ENDL;
+            std::cerr<< SOFA_CONSOLE_GREEN <<"[INFO]"<< SOFA_CONSOLE_ENDL;
 #endif
-            std::cout<< "[" << getName() << "(" << getClassName() << ")]: "<< str << std::flush;
+            std::cout<< str << std::flush;
         }
         if (outputs.size()+str.size() >= MAXLOGSIZE)
         {
@@ -364,6 +372,19 @@ void Base::processStream(std::ostream& out)
         outputs += str;
         sout.str("");
     }
+
+#undef SOFA_CONSOLE_BLUE
+#undef SOFA_CONSOLE_GREEN
+#undef SOFA_CONSOLE_CYAN
+#undef SOFA_CONSOLE_RED
+#undef SOFA_CONSOLE_PURPLE
+#undef SOFA_CONSOLE_YELLOW
+#undef SOFA_CONSOLE_WHITE
+
+#ifndef WIN32
+#undef SOFA_CONSOLE_ENDL
+#endif
+
 }
 
 const std::string& Base::getWarnings() const
