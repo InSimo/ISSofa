@@ -234,6 +234,14 @@ if(PS3)
 	list(APPEND SOFAHELPER_SOURCES_OUTSIDE_UNITY "ps3/cxa_demangle.cpp")
 endif()
 
+option(SOFA_ENABLE_EASTL "Enable EASTL" OFF)
+if(SOFA_ENABLE_EASTL)
+    if(TARGET EASTL)
+        list(APPEND SOFAHELPER_SOURCES_UNITY eastl_new.cpp)
+    else()
+        message(FATAL_ERROR "\nTrying to enable EASTL but it is not available.\nPlease use add_subdirectory() to add it to your project.")
+    endif()
+endif()
 
 include( CMakeDependentOption )
 cmake_dependent_option(UNITY_BUILD_${PROJECT_NAME} "Decides if a the generated project files should build through a unity build instead of a normal build. A unity builds packs all .cpp files into a UnityBuild.cpp file and then only include this in the project. This greatly reduces build times." ON  SOFA_ALLOW_UNITY_BUILDS OFF)
@@ -276,6 +284,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} )
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SOFA_HELPER_LINK_PRIVATE_DEPENDENCIES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAMEWORK_SOURCE_INCLUDE_DIR}>" 
 												  "$<BUILD_INTERFACE:${SOFAFRAMEWORK_DEPENDENCY_INCLUDE_DIRECTORIES}>")
+
+if(SOFA_ENABLE_EASTL)
+    target_include_directories(${PROJECT_NAME} BEFORE PUBLIC "$<BUILD_INTERFACE:${SOFA_EXTLIBS_DIR}/EASTL/include>"
+                                                             "$<BUILD_INTERFACE:${SOFA_EXTLIBS_DIR}/EASTL/test/packages/EABase/include/Common>")
+endif()
 
 # make the name of debug libraries end in _d.
 set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
