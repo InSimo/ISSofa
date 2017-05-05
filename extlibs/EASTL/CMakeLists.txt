@@ -68,6 +68,9 @@ target_include_directories(EASTL PUBLIC include)
 #-------------------------------------------------------------------------------------------
 target_link_libraries(EASTL EABase)
 
+find_package(Threads REQUIRED)
+target_link_libraries("${PROJECT_NAME}" "${CMAKE_THREAD_LIBS_INIT}")
+
 #-------------------------------------------------------------------------------------------
 # Installation
 #-------------------------------------------------------------------------------------------
