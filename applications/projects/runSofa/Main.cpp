@@ -348,7 +348,7 @@ int main(int argc, char** argv)
     // Run the main loop
     if (int err = sofa::gui::GUIManager::MainLoop(groot,fileName.c_str()))
         return err;
-    groot = dynamic_cast<sofa::simulation::Node*>( sofa::gui::GUIManager::CurrentSimulation() );
+    groot = sofa::simulation::Node::DynamicCast( sofa::gui::GUIManager::CurrentSimulation() );
 
     if (groot!=NULL)
         sofa::simulation::getSimulation()->unload(groot);

@@ -63,8 +63,8 @@ void ScriptController::parse(sofa::core::objectmodel::BaseObjectDescription *arg
     // load & bind script
     loadScript();
     // call script notifications...
-    script_onLoaded( dynamic_cast<simulation::Node*>(getContext()) );
-    script_createGraph( dynamic_cast<simulation::Node*>(getContext()) );
+    script_onLoaded( simulation::Node::DynamicCast(getContext()) );
+    script_createGraph( simulation::Node::DynamicCast(getContext()) );
 
  //   ScriptEnvironment::initScriptNodes();
 }
@@ -73,7 +73,7 @@ void ScriptController::init()
 {
     Controller::init();
     // init the script
-    script_initGraph( dynamic_cast<simulation::Node*>(getContext()) );
+    script_initGraph( simulation::Node::DynamicCast(getContext()) );
 //    ScriptEnvironment::initScriptNodes();
 }
 
@@ -81,7 +81,7 @@ void ScriptController::bwdInit()
 {
     Controller::bwdInit();
     // init the script
-    script_bwdInitGraph( dynamic_cast<simulation::Node*>(getContext()) );
+    script_bwdInitGraph( simulation::Node::DynamicCast(getContext()) );
 //    ScriptEnvironment::initScriptNodes();
 }
 
@@ -180,7 +180,7 @@ void ScriptController::onGUIEvent(core::objectmodel::GUIEvent *event)
 
 void ScriptController::handleEvent(core::objectmodel::Event *event)
 {
-    if (dynamic_cast<core::objectmodel::ScriptEvent *>(event))
+    if (core::objectmodel::ScriptEvent::DynamicCast(event))
     {
         script_onScriptEvent(static_cast<core::objectmodel::ScriptEvent *> (event));
         ScriptEnvironment::initScriptNodes();

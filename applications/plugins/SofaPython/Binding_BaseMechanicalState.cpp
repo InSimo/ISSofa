@@ -35,7 +35,7 @@ using namespace sofa::core;
 
 extern "C" PyObject * BaseMechanicalState_applyTranslation(PyObject *self, PyObject * args)
 {
-    BaseMechanicalState* obj=dynamic_cast<BaseMechanicalState*>(((PySPtr<Base>*)self)->object.get());
+    BaseMechanicalState* obj=BaseMechanicalState::DynamicCast(((PySPtr<Base>*)self)->object.get());
     double dx,dy,dz;
     if (!PyArg_ParseTuple(args, "ddd",&dx,&dy,&dz))
     {
@@ -55,7 +55,7 @@ extern "C" PyObject * BaseMechanicalState_applyTranslation(PyObject *self, PyObj
 
 extern "C" PyObject * BaseMechanicalState_applyScale(PyObject *self, PyObject * args)
 {
-    BaseMechanicalState* obj=dynamic_cast<BaseMechanicalState*>(((PySPtr<Base>*)self)->object.get());
+    BaseMechanicalState* obj=BaseMechanicalState::DynamicCast(((PySPtr<Base>*)self)->object.get());
     double dx,dy,dz;
     if (!PyArg_ParseTuple(args, "ddd",&dx,&dy,&dz))
     {
@@ -75,7 +75,7 @@ extern "C" PyObject * BaseMechanicalState_applyScale(PyObject *self, PyObject * 
 
 extern "C" PyObject * BaseMechanicalState_applyRotation(PyObject *self, PyObject * args)
 {
-    BaseMechanicalState* obj=dynamic_cast<BaseMechanicalState*>(((PySPtr<Base>*)self)->object.get());
+    BaseMechanicalState* obj=BaseMechanicalState::DynamicCast(((PySPtr<Base>*)self)->object.get());
     double dx,dy,dz;
     if (!PyArg_ParseTuple(args, "ddd",&dx,&dy,&dz))
     {

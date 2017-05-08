@@ -46,7 +46,7 @@ namespace objectmodel
 class SOFA_SOFAPYTHON_API PythonScriptEvent : public sofa::core::objectmodel::ScriptEvent
 {
 public:
-
+    SOFA_EVENT_CLASS_EXTERNAL((PythonScriptEvent),((sofa::core::objectmodel::ScriptEvent)));
 
     /**
      * @brief Constructor.
@@ -63,7 +63,6 @@ public:
      */
     PyObject* getUserData(void) const {return m_userData;};
 
-    virtual const char* getClassName() const { return "PythonScriptEvent"; }
 private:
 
     PyObject* m_userData;

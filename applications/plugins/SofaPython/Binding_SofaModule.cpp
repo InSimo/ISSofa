@@ -101,7 +101,7 @@ extern "C" PyObject * Sofa_getObject(PyObject * /*self*/, PyObject * /*args*/)
         char *path;
         if (!PyArg_ParseTuple(args, "Os",&pyContext,&path))
             return 0;
-        BaseContext *context=dynamic_cast<BaseContext*>(((PySPtr<Base>*)pyContext)->object.get());
+        BaseContext *context=BaseContext::DynamicCast(((PySPtr<Base>*)pyContext)->object.get());
         if (!context || !path)
         {
             PyErr_BadArgument();
@@ -126,7 +126,7 @@ extern "C" PyObject * Sofa_getChildNode(PyObject * /*self*/, PyObject * /*args*/
     char *path;
     if (!PyArg_ParseTuple(args, "Os",&pyBaseNode,&path))
         return 0;
-    BaseNode *node=dynamic_cast<BaseNode*>(((PySPtr<Base>*)pyBaseNode)->object.get());
+    BaseNode *node=BaseNode::DynamicCast(((PySPtr<Base>*)pyBaseNode)->object.get());
     if (!node || !path)
     {
         PyErr_BadArgument();
@@ -140,7 +140,7 @@ extern "C" PyObject * Sofa_getChildNode(PyObject * /*self*/, PyObject * /*args*/
     for (unsigned int i=0; i<children.size(); ++i)
         if (children[i]->getName() == path)
         {
-            childNode = dynamic_cast<Node*>(children[i]);
+            childNode = Node::DynamicCast(children[i]);
             break;
         }
     if (!childNode)

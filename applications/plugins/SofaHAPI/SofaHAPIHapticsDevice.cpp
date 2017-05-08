@@ -183,7 +183,7 @@ void SofaHAPIHapticsDevice::setForceFeedbacks(vector<ForceFeedback*> ffs)
 
 void SofaHAPIHapticsDevice::init()
 {
-    mState = dynamic_cast<MechanicalState<Rigid3dTypes> *> (this->getContext()->getMechanicalState());
+    mState = MechanicalState<Rigid3dTypes> ::DynamicCast(this->getContext()->getMechanicalState());
     if (!mState) serr << "SofaHAPIHapticsDevice has no binding MechanicalState" << sendl;
     else sout << "[Device] init" << sendl;
 
@@ -427,7 +427,7 @@ void SofaHAPIHapticsDevice::onBeginAnimationStep(const double /*dt*/)
             x[currentToolIndex].getOrientation() = world_H_virtualTool.getOrientation();
 
             sofa::helper::AdvancedTimer::stepEnd("SetState", "UpdateMapping");
-            sofa::simulation::Node *node = dynamic_cast<sofa::simulation::Node*> (this->getContext());
+            sofa::simulation::Node *node = sofa::simulation::Node::DynamicCast(this->getContext());
             if (node)
             {
                 sofa::helper::AdvancedTimer::stepBegin("UpdateMapping");

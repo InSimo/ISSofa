@@ -33,7 +33,7 @@ typedef sofa::component::mapping::SubsetMultiMapping< sofa::defaulttype::Vec3Typ
 
 extern "C" PyObject * SubsetMultiMapping3_to_3_addPoint(PyObject *self, PyObject * args)
 {
-    SubsetMultiMapping3_to_3* obj=dynamic_cast<SubsetMultiMapping3_to_3*>(((PySPtr<Base>*)self)->object.get());
+    SubsetMultiMapping3_to_3* obj=SubsetMultiMapping3_to_3::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyState;
     int index;
     if (!PyArg_ParseTuple(args, "Oi",&pyState,&index))
@@ -41,7 +41,7 @@ extern "C" PyObject * SubsetMultiMapping3_to_3_addPoint(PyObject *self, PyObject
         PyErr_BadArgument();
         Py_RETURN_NONE;
     }
-    sofa::core::BaseState* state=dynamic_cast<sofa::core::BaseState*>(((PySPtr<Base>*)pyState)->object.get());
+    sofa::core::BaseState* state=sofa::core::BaseState::DynamicCast(((PySPtr<Base>*)pyState)->object.get());
 
     obj->addPoint(state,index);
     Py_RETURN_NONE;

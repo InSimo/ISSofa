@@ -277,7 +277,7 @@ void PythonScriptController::script_onGUIEvent(const char* controlID, const char
 
 void PythonScriptController::script_onScriptEvent(core::objectmodel::ScriptEvent* event)
 {
-    core::objectmodel::PythonScriptEvent *pyEvent = dynamic_cast<core::objectmodel::PythonScriptEvent*>(event);
+    core::objectmodel::PythonScriptEvent *pyEvent = core::objectmodel::PythonScriptEvent::DynamicCast(event);
     if (!pyEvent)
     {
         // ignore

@@ -86,7 +86,7 @@ namespace simulation
 	void AnimationLoopParallelScheduler::init()
 	{
 		if (!gnode)
-			gnode = dynamic_cast<simulation::Node*>(this->getContext());
+			gnode = simulation::Node::DynamicCast(this->getContext());
 
 		//TaskScheduler* mScheduler = &TaskScheduler::getInstance(); // boost::shared_ptr<TaskScheduler>(new TaskScheduler());
 
@@ -104,7 +104,7 @@ namespace simulation
 		sofa::core::objectmodel::classidT<sofa::core::behavior::LinearSolver>();
 		sofa::core::objectmodel::classidT<sofa::core::CollisionModel>();
 
-		//simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+		//simulation::Node* root = simulation::Node::DynamicCast(getContext());
 		//if(root == NULL) return;
 		//std::vector<core::behavior::ConstraintSolver*> constraintSolver;
 		//root->getTreeObjects<core::behavior::ConstraintSolver>(&constraintSolver);

@@ -46,7 +46,7 @@ namespace objectmodel
 class SOFA_SOFAPYTHON_API ScriptEvent : public sofa::core::objectmodel::Event
 {
 public:
-
+    SOFA_EVENT_CLASS_EXTERNAL((ScriptEvent),((Event)));
 
     /**
      * @brief Constructor.
@@ -68,7 +68,6 @@ public:
      */
     const std::string getEventName(void) const {return m_eventName;};
 
-    virtual const char* getClassName() const { return "ScriptEvent"; }
 private:
 
     sofa::simulation::Node::SPtr m_sender;

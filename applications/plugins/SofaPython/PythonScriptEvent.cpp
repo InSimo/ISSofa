@@ -34,6 +34,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_EVENT_CLASS_IMPL((PythonScriptEvent));
+
 PythonScriptEvent::PythonScriptEvent(sofa::simulation::Node::SPtr sender, const char* eventName, PyObject* userData)
     : sofa::core::objectmodel::ScriptEvent(sender,eventName)
     , m_userData(userData)

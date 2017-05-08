@@ -31,7 +31,7 @@ using namespace sofa::component::topology;
 
 extern "C" PyObject * GridTopology_setSize(PyObject *self, PyObject * args)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int nx,ny,nz;
     if (!PyArg_ParseTuple(args, "iii",&nx,&ny,&nz))
     {
@@ -44,7 +44,7 @@ extern "C" PyObject * GridTopology_setSize(PyObject *self, PyObject * args)
 
 extern "C" PyObject * GridTopology_setNumVertices(PyObject *self, PyObject * args)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int nx,ny,nz;
     if (!PyArg_ParseTuple(args, "iii",&nx,&ny,&nz))
     {
@@ -57,13 +57,13 @@ extern "C" PyObject * GridTopology_setNumVertices(PyObject *self, PyObject * arg
 
 extern "C" PyObject * GridTopology_getNx(PyObject *self, PyObject * /*args*/)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyInt_FromLong(obj->getNx());
 }
 
 extern "C" PyObject * GridTopology_setNx(PyObject *self, PyObject * args)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int nb;
     if (!PyArg_ParseTuple(args, "i",&nb))
     {
@@ -76,13 +76,13 @@ extern "C" PyObject * GridTopology_setNx(PyObject *self, PyObject * args)
 
 extern "C" PyObject * GridTopology_getNy(PyObject *self, PyObject * /*args*/)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyInt_FromLong(obj->getNy());
 }
 
 extern "C" PyObject * GridTopology_setNy(PyObject *self, PyObject * args)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int nb;
     if (!PyArg_ParseTuple(args, "i",&nb))
     {
@@ -95,13 +95,13 @@ extern "C" PyObject * GridTopology_setNy(PyObject *self, PyObject * args)
 
 extern "C" PyObject * GridTopology_getNz(PyObject *self, PyObject * /*args*/)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyInt_FromLong(obj->getNz());
 }
 
 extern "C" PyObject * GridTopology_setNz(PyObject *self, PyObject * args)
 {
-    GridTopology* obj=dynamic_cast<GridTopology*>(((PySPtr<Base>*)self)->object.get());
+    GridTopology* obj=GridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int nb;
     if (!PyArg_ParseTuple(args, "i",&nb))
     {

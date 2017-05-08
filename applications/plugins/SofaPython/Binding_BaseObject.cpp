@@ -31,62 +31,62 @@ using namespace sofa::core::objectmodel;
 
 extern "C" PyObject * BaseObject_init(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->init();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_bwdInit(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->bwdInit();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_reinit(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->reinit();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_storeResetState(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->storeResetState();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_reset(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->reset();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_cleanup(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->cleanup();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_getContext(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return SP_BUILD_PYSPTR(obj->getContext());
 }
 
 extern "C" PyObject * BaseObject_getMaster(PyObject *self, PyObject * /*args*/)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return SP_BUILD_PYSPTR(obj->getMaster());
 }
 
 
 extern "C" PyObject * BaseObject_setSrc(PyObject *self, PyObject * args)
 {
-    BaseObject* obj=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* obj=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char *valueString;
     PyObject *pyLoader;
     if (!PyArg_ParseTuple(args, "sO",&valueString,&pyLoader))
@@ -94,14 +94,14 @@ extern "C" PyObject * BaseObject_setSrc(PyObject *self, PyObject * args)
         PyErr_BadArgument();
         Py_RETURN_NONE;
     }
-    BaseObject* loader=dynamic_cast<BaseObject*>(((PySPtr<Base>*)pyLoader)->object.get());
+    BaseObject* loader=BaseObject::DynamicCast(((PySPtr<Base>*)pyLoader)->object.get());
     obj->setSrc(valueString,loader);
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * BaseObject_getSlaves(PyObject * self, PyObject * /*args*/)
 {
-    BaseObject* node=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* node=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     const BaseObject::VecSlaves& slaves = node->getSlaves();
 
@@ -116,7 +116,7 @@ extern "C" PyObject * BaseObject_getSlaves(PyObject * self, PyObject * /*args*/)
 extern "C" PyObject * BaseObject_getName(PyObject * self, PyObject * /*args*/)
 {
     // BaseNode is not binded in SofaPython, so getChildNode is binded in Node instead of BaseNode
-    BaseObject* node=dynamic_cast<BaseObject*>(((PySPtr<Base>*)self)->object.get());
+    BaseObject* node=BaseObject::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     return PyString_FromString((node->getName()).c_str());
 }

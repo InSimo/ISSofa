@@ -41,7 +41,7 @@ using namespace sofa::simulation;
 
 extern "C" PyObject * BaseContext_setGravity(PyObject *self, PyObject * args)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyPtr<Vector3>* pyVec;
     if (!PyArg_ParseTuple(args, "O",&pyVec))
         Py_RETURN_NONE;
@@ -51,32 +51,32 @@ extern "C" PyObject * BaseContext_setGravity(PyObject *self, PyObject * args)
 
 extern "C" PyObject * BaseContext_getGravity(PyObject *self, PyObject * /*args*/)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return SP_BUILD_PYPTR(Vector3,Vector3,new Vector3(obj->getGravity()),true); // "true", because I manage the deletion myself
 }
 
 extern "C" PyObject * BaseContext_getTime(PyObject *self, PyObject * /*args*/)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyFloat_FromDouble(obj->getTime());
 }
 
 extern "C" PyObject * BaseContext_getDt(PyObject *self, PyObject * /*args*/)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyFloat_FromDouble(obj->getDt());
 }
 
 extern "C" PyObject * BaseContext_getRootContext(PyObject *self, PyObject * /*args*/)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return SP_BUILD_PYSPTR(obj->getRootContext());
 }
 
 // object factory
 extern "C" PyObject * BaseContext_createObject(PyObject * self, PyObject * args, PyObject * kw)
 {
-    BaseContext* context=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* context=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
 //    std::cout << "<PYTHON> BaseContext_createObject PyTuple_Size=" << PyTuple_Size(args) << " PyDict_Size=" << PyDict_Size(kw) << std::endl;
 
@@ -117,7 +117,7 @@ extern "C" PyObject * BaseContext_createObject(PyObject * self, PyObject * args,
         Py_RETURN_NONE;
     }
 
-    Node *node = dynamic_cast<Node*>(context);
+    Node *node = Node::DynamicCast(context);
     if (node)
     {
         //SP_MESSAGE_INFO( "Sofa.Node.createObject("<<type<<") node="<<node->getName()<<" isInitialized()="<<node->isInitialized() )
@@ -133,7 +133,7 @@ extern "C" PyObject * BaseContext_createObject(PyObject * self, PyObject * args,
 
 extern "C" PyObject * BaseContext_getObject(PyObject * self, PyObject * args)
 {
-    BaseContext* context=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* context=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char *path;
     if (!PyArg_ParseTuple(args, "s",&path))
     {
@@ -158,7 +158,7 @@ extern "C" PyObject * BaseContext_getObject(PyObject * self, PyObject * args)
 
 extern "C" PyObject * BaseContext_getObjects(PyObject * self, PyObject * args)
 {
-    BaseContext* context=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* context=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char* search_direction= NULL;
     char* type_name= NULL;
     char* name= NULL;
@@ -240,12 +240,12 @@ SP_CLASS_METHODS_END
 
 extern "C" PyObject * BaseContext_getAttr_animate(PyObject *self, void*)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyBool_FromLong(obj->getAnimate());
 }
 extern "C" int BaseContext_setAttr_animate(PyObject *self, PyObject * args, void*)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     if (!PyBool_Check(args))
     {
         PyErr_BadArgument();
@@ -257,12 +257,12 @@ extern "C" int BaseContext_setAttr_animate(PyObject *self, PyObject * args, void
 
 extern "C" PyObject * BaseContext_getAttr_active(PyObject *self, void*)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     return PyBool_FromLong(obj->isActive());
 }
 extern "C" int BaseContext_setAttr_active(PyObject *self, PyObject * args, void*)
 {
-    BaseContext* obj=dynamic_cast<BaseContext*>(((PySPtr<Base>*)self)->object.get());
+    BaseContext* obj=BaseContext::DynamicCast(((PySPtr<Base>*)self)->object.get());
     if (!PyBool_Check(args))
     {
         PyErr_BadArgument();

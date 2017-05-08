@@ -13,7 +13,7 @@ using namespace sofa::core::topology;
 
 extern "C" PyObject * PointSetTopologyModifier_addPoints(PyObject *self, PyObject * args)
 {
-    PointSetTopologyModifier* obj = dynamic_cast<PointSetTopologyModifier*>(((PySPtr<Base>*)self)->object.get());
+    PointSetTopologyModifier* obj = PointSetTopologyModifier::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     PyObject* ancestorElemsArg = NULL;
 

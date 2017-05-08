@@ -114,7 +114,7 @@ sofa::helper::vector< sofa::helper::vector< T > > parseVectorOfVector( PyObject*
 extern "C" PyObject * TriangleSetTopologyModifier_addTriangles(PyObject *self, PyObject * args)
 {
 
-    TriangleSetTopologyModifier* obj=dynamic_cast<TriangleSetTopologyModifier*>(((PySPtr<Base>*)self)->object.get());
+    TriangleSetTopologyModifier* obj=TriangleSetTopologyModifier::DynamicCast(((PySPtr<Base>*)self)->object.get());
     
     PyObject* triangleArgs  = NULL;
     PyObject* ancestorsArgs = NULL;
@@ -144,7 +144,7 @@ extern "C" PyObject * TriangleSetTopologyModifier_addTriangles(PyObject *self, P
 
 extern "C" PyObject * TriangleSetTopologyModifier_removeTriangles(PyObject *self, PyObject * args)
 {
-    TriangleSetTopologyModifier* obj=dynamic_cast<TriangleSetTopologyModifier*>(((PySPtr<Base>*)self)->object.get());
+    TriangleSetTopologyModifier* obj=TriangleSetTopologyModifier::DynamicCast(((PySPtr<Base>*)self)->object.get());
     
     PyObject* triangleIndicesArg      = NULL;
     PyObject* removeIsolatedEdgesArg  = NULL;
@@ -188,7 +188,7 @@ extern "C" PyObject * TriangleSetTopologyModifier_removeTriangles(PyObject *self
 extern "C" PyObject * TriangleSetTopologyModifier_addRemoveTriangles(PyObject *self, PyObject * args)
 {
 
-    TriangleSetTopologyModifier* obj=dynamic_cast<TriangleSetTopologyModifier*>(((PySPtr<Base>*)self)->object.get());
+    TriangleSetTopologyModifier* obj=TriangleSetTopologyModifier::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     PyObject* trianglesArg            = NULL;
     PyObject* triangleIndicesArg      = NULL;

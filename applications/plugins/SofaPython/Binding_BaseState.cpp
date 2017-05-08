@@ -34,7 +34,7 @@ using namespace sofa::core;
 
 extern "C" PyObject * BaseState_resize(PyObject *self, PyObject * args)
 {
-    BaseState* obj=dynamic_cast<BaseState*>(((PySPtr<Base>*)self)->object.get());
+    BaseState* obj=BaseState::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int newSize;
     if (!PyArg_ParseTuple(args, "i",&newSize))
         Py_RETURN_NONE;

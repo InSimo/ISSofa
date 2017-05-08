@@ -32,7 +32,7 @@ using namespace sofa::core;
 
 extern "C" PyObject * MeshLoader_reinit(PyObject *self, PyObject * /*args*/)
 {
-    MeshLoader* obj=dynamic_cast<MeshLoader*>(((PySPtr<Base>*)self)->object.get());
+    MeshLoader* obj=MeshLoader::DynamicCast(((PySPtr<Base>*)self)->object.get());
     obj->reinit();
     Py_RETURN_NONE;
 }

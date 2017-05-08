@@ -79,7 +79,7 @@ namespace sofa
 		template <class DataTypes>
 		void DataExchange<DataTypes>::handleEvent( core::objectmodel::Event* event )
 		{
-			if ( dynamic_cast<DataExchangeEvent*>(event) != NULL )
+			if ( DataExchangeEvent::DynamicCast(event) != NULL )
 			{
 				copyData();
 			}

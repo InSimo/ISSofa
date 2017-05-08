@@ -39,7 +39,7 @@ using namespace sofa::core;
 
 extern "C" PyObject * Node_executeVisitor(PyObject *self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     PyObject* pyVisitor;
     if (!PyArg_ParseTuple(args, "O",&pyVisitor))
@@ -52,7 +52,7 @@ extern "C" PyObject * Node_executeVisitor(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_getRoot(PyObject *self, PyObject * /*args*/)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     // BaseNode is not binded in SofaPython, so getRoot is binded in Node instead of BaseNode
     return SP_BUILD_PYSPTR(node->getRoot());
@@ -61,7 +61,7 @@ extern "C" PyObject * Node_getRoot(PyObject *self, PyObject * /*args*/)
 // step the simulation
 extern "C" PyObject * Node_simulationStep(PyObject * self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     double dt;
     if (!PyArg_ParseTuple(args, "d",&dt))
         Py_RETURN_NONE;
@@ -78,7 +78,7 @@ extern "C" PyObject * Node_simulationStep(PyObject * self, PyObject * args)
 // reset a node
 extern "C" PyObject * Node_reset(PyObject * self, PyObject * /*args*/)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     getSimulation()->reset(node);
 
@@ -88,7 +88,7 @@ extern "C" PyObject * Node_reset(PyObject * self, PyObject * /*args*/)
 // init a node
 extern "C" PyObject * Node_init(PyObject * self, PyObject * /*args*/)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     getSimulation()->init(node);
 
@@ -98,7 +98,7 @@ extern "C" PyObject * Node_init(PyObject * self, PyObject * /*args*/)
 extern "C" PyObject * Node_getChild(PyObject * self, PyObject * args)
 {
     // BaseNode is not binded in SofaPython, so getChildNode is binded in Node instead of BaseNode
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char *path;
     if (!PyArg_ParseTuple(args, "s",&path))
         Py_RETURN_NONE;
@@ -115,7 +115,7 @@ extern "C" PyObject * Node_getChild(PyObject * self, PyObject * args)
     for (unsigned int i=0; i<children.size(); ++i)
         if (children[i]->getName() == path)
         {
-            childNode = dynamic_cast<Node*>(children[i]);
+            childNode = Node::DynamicCast(children[i]);
             break;
         }
     if (!childNode)
@@ -129,7 +129,7 @@ extern "C" PyObject * Node_getChild(PyObject * self, PyObject * args)
 extern "C" PyObject * Node_getChildren(PyObject * self, PyObject * /*args*/)
 {
     // BaseNode is not binded in SofaPython, so getChildNode is binded in Node instead of BaseNode
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     const objectmodel::BaseNode::Children& children = node->getChildren();
 
@@ -146,7 +146,7 @@ extern "C" PyObject * Node_getChildren(PyObject * self, PyObject * /*args*/)
 extern "C" PyObject * Node_getParents(PyObject * self, PyObject * /*args*/)
 {
     // BaseNode is not binded in SofaPython, so getChildNode is binded in Node instead of BaseNode
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     const objectmodel::BaseNode::Children& parents = node->getParents();
 
@@ -163,14 +163,14 @@ extern "C" PyObject * Node_getParents(PyObject * self, PyObject * /*args*/)
 extern "C" PyObject * Node_getPathName(PyObject * self, PyObject * /*args*/)
 {
     // BaseNode is not binded in SofaPython, so getPathName is binded in Node instead
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
 
     return PyString_FromString(node->getPathName().c_str());
 }
 
 extern "C" PyObject * Node_createChild(PyObject *self, PyObject * args)
 {
-    Node* obj=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* obj=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char *nodeName;
     if (!PyArg_ParseTuple(args, "s",&nodeName))
         Py_RETURN_NONE;
@@ -181,11 +181,11 @@ extern "C" PyObject * Node_createChild(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_addObject(PyObject *self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyChild;
     if (!PyArg_ParseTuple(args, "O",&pyChild))
         Py_RETURN_NONE;
-    BaseObject* object=dynamic_cast<BaseObject*>(((PySPtr<Base>*)pyChild)->object.get());
+    BaseObject* object=BaseObject::DynamicCast(((PySPtr<Base>*)pyChild)->object.get());
     if (!object)
     {
         PyErr_BadArgument();
@@ -206,11 +206,11 @@ extern "C" PyObject * Node_addObject(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_removeObject(PyObject *self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyChild;
     if (!PyArg_ParseTuple(args, "O",&pyChild))
         Py_RETURN_NONE;
-    BaseObject* object=dynamic_cast<BaseObject*>(((PySPtr<Base>*)pyChild)->object.get());
+    BaseObject* object=BaseObject::DynamicCast(((PySPtr<Base>*)pyChild)->object.get());
     if (!object)
     {
         PyErr_BadArgument();
@@ -226,11 +226,11 @@ extern "C" PyObject * Node_removeObject(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_addChild(PyObject *self, PyObject * args)
 {
-    Node* obj=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* obj=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyChild;
     if (!PyArg_ParseTuple(args, "O",&pyChild))
         Py_RETURN_NONE;
-    BaseNode* child=dynamic_cast<BaseNode*>(((PySPtr<Base>*)pyChild)->object.get());
+    BaseNode* child=BaseNode::DynamicCast(((PySPtr<Base>*)pyChild)->object.get());
     if (!child)
     {
         PyErr_BadArgument();
@@ -242,11 +242,11 @@ extern "C" PyObject * Node_addChild(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_removeChild(PyObject *self, PyObject * args)
 {
-    Node* obj=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* obj=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyChild;
     if (!PyArg_ParseTuple(args, "O",&pyChild))
         Py_RETURN_NONE;
-    BaseNode* child=dynamic_cast<BaseNode*>(((PySPtr<Base>*)pyChild)->object.get());
+    BaseNode* child=BaseNode::DynamicCast(((PySPtr<Base>*)pyChild)->object.get());
     if (!child)
     {
         PyErr_BadArgument();
@@ -258,11 +258,11 @@ extern "C" PyObject * Node_removeChild(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_moveChild(PyObject *self, PyObject * args)
 {
-    Node* obj=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* obj=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyChild;
     if (!PyArg_ParseTuple(args, "O",&pyChild))
         Py_RETURN_NONE;
-    BaseNode* child=dynamic_cast<BaseNode*>(((PySPtr<Base>*)pyChild)->object.get());
+    BaseNode* child=BaseNode::DynamicCast(((PySPtr<Base>*)pyChild)->object.get());
     if (!child)
     {
         PyErr_BadArgument();
@@ -274,14 +274,14 @@ extern "C" PyObject * Node_moveChild(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_detachFromGraph(PyObject *self, PyObject * /*args*/)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     node->detachFromGraph();
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * Node_sendScriptEvent(PyObject *self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     PyObject* pyUserData;
     char* eventName;
     if (!PyArg_ParseTuple(args, "sO",&eventName,&pyUserData))
@@ -296,7 +296,7 @@ extern "C" PyObject * Node_sendScriptEvent(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Node_sendKeypressedEvent(PyObject *self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char* eventName;
     if (!PyArg_ParseTuple(args, "s",&eventName))
     {
@@ -304,13 +304,13 @@ extern "C" PyObject * Node_sendKeypressedEvent(PyObject *self, PyObject * args)
         Py_RETURN_NONE;
     }
     sofa::core::objectmodel::KeypressedEvent event(eventName ? eventName[0] : '\0');
-    dynamic_cast<Node*>(node->getRoot())->propagateEvent(sofa::core::ExecParams::defaultInstance(), &event);
+    Node::DynamicCast(node->getRoot())->propagateEvent(sofa::core::ExecParams::defaultInstance(), &event);
     Py_RETURN_NONE;
 }
 
 extern "C" PyObject * Node_sendKeyreleasedEvent(PyObject *self, PyObject * args)
 {
-    Node* node=dynamic_cast<Node*>(((PySPtr<Base>*)self)->object.get());
+    Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
     char* eventName;
     if (!PyArg_ParseTuple(args, "s",&eventName))
     {
@@ -318,7 +318,7 @@ extern "C" PyObject * Node_sendKeyreleasedEvent(PyObject *self, PyObject * args)
         Py_RETURN_NONE;
     }
     sofa::core::objectmodel::KeyreleasedEvent event(eventName ? eventName[0] : '\0');
-    dynamic_cast<Node*>(node->getRoot())->propagateEvent(sofa::core::ExecParams::defaultInstance(), &event);
+    Node::DynamicCast(node->getRoot())->propagateEvent(sofa::core::ExecParams::defaultInstance(), &event);
     Py_RETURN_NONE;
 }
 

@@ -34,7 +34,7 @@ using namespace sofa::core::visual;
 
 extern "C" PyObject * Base_findData(PyObject *self, PyObject * args)
 {
-    Base* obj=dynamic_cast<Base*>(((PySPtr<Base>*)self)->object.get());
+    Base* obj=(((PySPtr<Base>*)self)->object.get());
     char *dataName;
     if (!PyArg_ParseTuple(args, "s",&dataName))
         Py_RETURN_NONE;
@@ -52,7 +52,7 @@ extern "C" PyObject * Base_findData(PyObject *self, PyObject * args)
 
 extern "C" PyObject * Base_getDataFields(PyObject *self, PyObject * /*args*/)
 {
-    Base* obj=dynamic_cast<Base*>(((PySPtr<Base>*)self)->object.get());
+    Base* obj=(((PySPtr<Base>*)self)->object.get());
     const BaseObject::VecData& datas = obj->getDataFields();
 
     PyObject *list = PyList_New(datas.size());
@@ -65,7 +65,7 @@ extern "C" PyObject * Base_getDataFields(PyObject *self, PyObject * /*args*/)
 // Generic accessor to Data fields (in python native type)
 extern "C" PyObject* Base_GetAttr(PyObject *o, PyObject *attr_name)
 {
-    Base* obj=dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
+    Base* obj=(((PySPtr<Base>*)o)->object.get());
     char *dataName = PyString_AsString(attr_name);
 //    printf("Base_GetAttr type=%s name=%s attrName=%s\n",obj->getClassName().c_str(),obj->getName().c_str(),dataName);
 
@@ -84,7 +84,7 @@ extern "C" PyObject* Base_GetAttr(PyObject *o, PyObject *attr_name)
 extern "C" int Base_SetAttr(PyObject *o, PyObject *attr_name, PyObject *v)
 {
     // attribue does not exist: see if a Data field has this name...
-    Base* obj=dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
+    Base* obj=(((PySPtr<Base>*)o)->object.get());
     char *dataName = PyString_AsString(attr_name);
 //    printf("Base_SetAttr name=%s\n",dataName);
     BaseData * data = obj->findData(dataName);

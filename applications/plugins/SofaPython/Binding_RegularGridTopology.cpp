@@ -31,7 +31,7 @@ using namespace sofa::component::topology;
 
 extern "C" PyObject * RegularGridTopology_setPos(PyObject *self, PyObject * args)
 {
-    RegularGridTopology* obj=dynamic_cast<RegularGridTopology*>(((PySPtr<Base>*)self)->object.get());
+    RegularGridTopology* obj=RegularGridTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     double xmin,xmax,ymin,ymax,zmin,zmax;
     if (!PyArg_ParseTuple(args, "dddddd",&xmin,&xmax,&ymin,&ymax,&zmin,&zmax))
     {
