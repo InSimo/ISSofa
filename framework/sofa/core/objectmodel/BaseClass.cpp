@@ -23,6 +23,14 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/core/objectmodel/BaseClass.h>
+#include <sofa/core/objectmodel/Base.h>
+#include <sofa/core/objectmodel/Event.h>
+#include <sofa/defaulttype/BaseVector.h>
+#include <sofa/defaulttype/BaseMatrix.h>
+#ifdef SOFA_HAVE_BOOST_THREAD
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/lock_guard.hpp> 
+#endif
 
 namespace sofa
 {
@@ -33,28 +41,161 @@ namespace core
 namespace objectmodel
 {
 
-BaseClass::BaseClass()
+template<class RootType>
+struct BaseRootClass<RootType>::DerivedLock
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::mutex updateMutex;
+#endif
+    DerivedLock()
+    {}
+};
+
+template<class RootType>
+BaseRootClass<RootType>::BaseRootClass(BaseClassInfo&& info)
+: BaseClassInfo(std::move(info))
+, derivedLock(new DerivedLock)
+, isExternalClass(false)
+, classId(0)
 {
 }
 
-BaseClass::~BaseClass()
+template<class RootType>
+BaseRootClass<RootType>::~BaseRootClass()
 {
+#ifdef SOFA_CLASS_DCAST_COUNT
+    if (dynamicCastCount>0)
+    {
+        std::cout << dynamicCastCount << " DynamicCast to " << RootType::className((RootType*)nullptr) << " " << className;
+        if (!templateName.empty()) std::cout << "<" << templateName << ">";
+        if (isExternalClass) std::cout << " ID " << classId;
+        std::cout << std::endl;
+    }
+#endif
+    delete derivedLock;
 }
 
-void BaseClass::logNewClass()
+template<class RootType>
+std::size_t BaseRootClass<RootType>::NewClassId()
 {
-    /*std::cout << "NEW class " << className;
-    if (!templateName.empty()) std::cout << '<' << templateName << '>';
-    if (!namespaceName.empty()) std::cout << " in " << namespaceName;
-    if (!shortName.empty()) std::cout << " short " << shortName;
+    static std::size_t lastId = 0;
+    ++lastId;
+    return lastId;
+}
+
+template<class RootType>
+void BaseRootClass<RootType>::dumpHierarchy(std::ostream& out, int indent) const
+{
+    dumpInfo(out, indent);
+    ++indent;
     for (std::size_t i = 0; i < parents.size(); ++i)
     {
-        std::cout << ((i == 0) ? ": " : ", ");
-        std::cout << parents[i]->className;
-        if (!parents[i]->templateName.empty()) std::cout << '<' << parents[i]->templateName << '>';
+        parents[i]->dumpHierarchy(out, indent);
     }
-    std::cout << std::endl;*/
 }
+
+template<class RootType>
+void BaseRootClass<RootType>::dumpInfo(std::ostream& out, int indent) const
+{
+    for(;indent > 0;--indent) out << "    ";
+    if (isExternalClass)
+        out << "ID " << classId << " ";
+    out << "class " << className;
+    if (!templateName.empty()) out << '<' << templateName << '>';
+    if (!namespaceName.empty()) out << " in " << namespaceName;
+    if (!shortName.empty()) out << " short " << shortName;
+    out << std::endl;
+}
+
+template<class RootType>
+void BaseRootClass<RootType>::linkNewClass()
+{
+    for (std::size_t i = 0; i < parents.size(); ++i)
+    {
+        const_cast<RootClass*>(parents[i])->addDerived(this);
+    }
+    /*
+    if (isExternalClass)
+    {
+        std::cout << "NEW ";
+        dumpInfo(std::cout);
+    }
+    */
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::addDerived(const RootClass * c)
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    derived.push_back(c);
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::removeDerived(const RootClass * c)
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    auto it = std::find(derived.begin(), derived.end(), c);
+    if (it != derived.end())
+    {
+        derived.erase(it);
+    }
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::removeParent(const RootClass * c)
+{
+    auto it = std::find(parents.begin(), parents.end(), c);
+    if (it != parents.end())
+    {
+        *it = nullptr;
+    }
+}
+
+template<class TRootType>
+auto BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info) const -> const RootClass *
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    auto it = std::find_if(derived.begin(), derived.end(), [&info](const RootClass* c) -> bool
+    {
+        return info == *c;
+    });
+    const RootClass* res = nullptr;
+    if (it != derived.end())
+    {
+        res = *it;
+    }
+    return res;
+}
+
+template<class TRootType>
+bool BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info, std::vector<const RootClass*>& result) const
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    bool res = false;
+    for (const RootClass* c : derived)
+    {
+        if (info == *c)
+        {
+            result.push_back(c);
+            res = true;
+        }
+    }
+    return res;
+}
+
+template class SOFA_CORE_API BaseRootClass< Base >;
+template class SOFA_CORE_API BaseRootClass< Event >;
+template class SOFA_CORE_API BaseRootClass< defaulttype::BaseVector >;
+template class SOFA_CORE_API BaseRootClass< defaulttype::BaseMatrix >;
+
 
 } // namespace objectmodel
 

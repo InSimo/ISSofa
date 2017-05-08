@@ -40,6 +40,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_ROOT_CLASS_IMPL((Base));
+
 using std::string;
 
 static const std::string unnamed_label=std::string("unnamed");

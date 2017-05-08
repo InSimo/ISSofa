@@ -23,6 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/helper/system/config.h>
+#include <sofa/defaulttype/BaseVector.h>
 #include <sofa/defaulttype/BaseMatrix.h>
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Vec.h>
@@ -32,6 +33,9 @@ namespace sofa
 
 namespace defaulttype
 {
+
+SOFA_ROOT_CLASS_IMPL((BaseVector));
+SOFA_ROOT_CLASS_IMPL((BaseMatrix));
 
 BaseMatrix::BaseMatrix() {}
 

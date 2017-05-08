@@ -41,13 +41,19 @@ namespace sofa
 namespace defaulttype
 {
 
+#define SOFA_MATRIX_CLASS_UNIQUE(T,Parents) SOFA_SIMPLE_CLASS_UNIQUE((::sofa::defaulttype::BaseMatrix),T,Parents)
+#define SOFA_MATRIX_CLASS_EXTERNAL(T,Parents) SOFA_SIMPLE_CLASS_EXTERNAL((::sofa::defaulttype::BaseMatrix),T,Parents)
+#define SOFA_MATRIX_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
+
 /// Generic matrix API, allowing to fill and use a matrix independently of the linear algebra library in use.
 ///
 /// Note that accessing values using this class is rather slow and should only be used in codes where the
 /// provided genericity is necessary.
-class SOFA_DEFAULTTYPE_API BaseMatrix
+class SOFA_CORE_API BaseMatrix
 {
 public:
+    SOFA_ROOT_CLASS_EXTERNAL((BaseMatrix));
+
     typedef BaseVector::Index Index;
 
     BaseMatrix();

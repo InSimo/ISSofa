@@ -4,8 +4,6 @@ project(SofaDefaultType)
 
 set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
-	BaseMatrix.h	
-	BaseVector.h	
 	BoundingBox.h	
 	DataTypeInfo.h	
 	DataTypeKind.h	
@@ -35,7 +33,6 @@ set(SOFADEFAULTTYPE_HEADERS
 
 set(SOFADEFAULTTYPE_SOURCES
 	AbstractTypeInfo.cpp
-	BaseMatrix.cpp
 	BoundingBox.cpp
 	Frame.cpp
 	#RigidInertia.cpp

@@ -26,6 +26,7 @@
 #define SOFA_DEFAULTTYPE_BASEVECTOR_H
 
 #include <sofa/helper/system/config.h>
+#include <sofa/core/objectmodel/BaseClass.h>
 #include <iostream>
 
 namespace sofa
@@ -34,13 +35,19 @@ namespace sofa
 namespace defaulttype
 {
 
+#define SOFA_VECTOR_CLASS_UNIQUE(T,Parents) SOFA_SIMPLE_CLASS_UNIQUE((::sofa::defaulttype::BaseVector),T,Parents)
+#define SOFA_VECTOR_CLASS_EXTERNAL(T,Parents) SOFA_SIMPLE_CLASS_EXTERNAL((::sofa::defaulttype::BaseVector),T,Parents)
+#define SOFA_VECTOR_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
+
 /// Generic vector API, allowing to fill and use a vector independently of the linear algebra library in use.
 ///
 /// Note that accessing values using this class is rather slow and should only be used in codes where the
 /// provided genericity is necessary.
-class BaseVector
+class SOFA_CORE_API BaseVector
 {
 public:
+    SOFA_ROOT_CLASS_EXTERNAL((BaseVector));
+    
     typedef int Index;
 
     virtual ~BaseVector() {}
@@ -70,10 +77,10 @@ public:
         ELEMENT_INT,
     };
 
-    /// @return type of elements stored in this matrix
+    /// @return type of elements stored in this vector
     virtual ElementType getElementType() const { return ELEMENT_FLOAT; }
 
-    /// @return size of elements stored in this matrix
+    /// @return size of elements stored in this vector
     virtual std::size_t getElementSize() const { return sizeof(SReal); }
 
     /// Return true if this vector is full, i.a. all elements are stored in memory
