@@ -126,7 +126,11 @@ public:
     class RowConstIterator;
 
     /// Sparse Matrix columns constant Iterator
-    class ColConstIterator
+    class ColConstIterator : public std::iterator<std::bidirectional_iterator_tag,
+                                typename RowType::value_type,
+                                typename RowType::difference_type,
+                                typename RowType::const_pointer,
+                                typename RowType::const_reference>
     {
     public:
 
@@ -241,7 +245,11 @@ public:
     };
 
 
-    class RowConstIterator
+    class RowConstIterator : public std::iterator<std::bidirectional_iterator_tag,
+                                            typename SparseMatrix::value_type,
+                                            typename SparseMatrix::difference_type,
+                                            typename SparseMatrix::const_pointer,
+                                            typename SparseMatrix::const_reference>
     {
     public:
 
@@ -252,11 +260,6 @@ public:
 
     protected:
 
-        /*RowConstIterator()
-        	{
-
-        }*/
-
         RowConstIterator(Iterator _internal)
             : m_internal(_internal)
         {
@@ -264,6 +267,9 @@ public:
         }
 
     public:
+
+        RowConstIterator()
+        {}
 
         RowConstIterator(const RowConstIterator& it2)
             : m_internal(it2.m_internal)
@@ -372,7 +378,11 @@ public:
 
     class RowIterator;
 
-    class ColIterator
+    class ColIterator : public std::iterator<std::bidirectional_iterator_tag,
+                                            typename RowType::value_type,
+                                            typename RowType::difference_type,
+                                            typename RowType::pointer,
+                                            typename RowType::reference>
     {
     public:
 
@@ -487,7 +497,11 @@ public:
     };
 
 
-    class RowIterator
+    class RowIterator : public std::iterator<std::bidirectional_iterator_tag,
+                                            typename SparseMatrix::value_type,
+                                            typename SparseMatrix::difference_type,
+                                            typename SparseMatrix::pointer,
+                                            typename SparseMatrix::reference>
     {
     public:
         typedef typename SparseMatrix::key_type KeyT;
