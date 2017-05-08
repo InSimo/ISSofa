@@ -48,7 +48,7 @@ template<class TDataTypes>
 class ConstraintCorrection : public BaseConstraintCorrection
 {
 public:
-    SOFA_ABSTRACT_CLASS(SOFA_TEMPLATE(ConstraintCorrection, TDataTypes), BaseConstraintCorrection);
+    SOFA_ABSTRACT_CLASS_UNIQUE((ConstraintCorrection<TDataTypes>), ((BaseConstraintCorrection)));
 
     typedef TDataTypes DataTypes;
     typedef typename DataTypes::Real Real;
@@ -155,7 +155,7 @@ public:
     template< class T >
     static bool canCreate(T*& obj, objectmodel::BaseContext* context, objectmodel::BaseObjectDescription* arg)
     {
-        if (dynamic_cast< MechanicalState<DataTypes>* >(context->getMechanicalState()) == NULL)
+        if (MechanicalState<DataTypes>::DynamicCast(context->getMechanicalState()) == NULL)
             return false;
 
         return BaseObject::canCreate(obj, context, arg);

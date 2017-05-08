@@ -52,10 +52,10 @@ namespace behavior
 /**
  *  \brief Component computing contact forces within a simulated body using the compliance method.
  */
-class BaseConstraintCorrection : public virtual objectmodel::BaseObject
+class SOFA_CORE_API BaseConstraintCorrection : public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseConstraintCorrection, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseConstraintCorrection), ((objectmodel::BaseObject)));
 protected:
 	BaseConstraintCorrection() {};
     virtual ~BaseConstraintCorrection() {}

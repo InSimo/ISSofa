@@ -32,6 +32,7 @@
 #include <sofa/helper/fixed_array.h>
 #include <sofa/SofaFramework.h>
 #include <sofa/core/ExecParams.h>
+#include <sofa/core/objectmodel/BaseClass.h>
 #include <string>
 
 namespace sofa
@@ -50,7 +51,6 @@ namespace objectmodel
 
 class Base;
 class BaseData;
-class BaseClass;
 class BaseObjectDescription;
 
 /**

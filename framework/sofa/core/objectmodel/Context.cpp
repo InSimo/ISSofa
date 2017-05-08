@@ -36,6 +36,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_CLASS_IMPL((Context));
+
 Context::Context()
     : is_activated(initData(&is_activated, true, "activated", "To Activate a node"))
     , worldGravity_(initData(&worldGravity_, Vec3((SReal)0,(SReal)-9.81,(SReal)0),"gravity","Gravity in the world coordinate system"))

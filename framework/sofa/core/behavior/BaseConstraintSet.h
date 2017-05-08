@@ -45,7 +45,7 @@ namespace behavior
 class SOFA_CORE_API BaseConstraintSet : public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseConstraintSet, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseConstraintSet), ((objectmodel::BaseObject)));
 
 protected:
     BaseConstraintSet()

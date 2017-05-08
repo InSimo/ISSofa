@@ -59,7 +59,7 @@ void ForceField<DataTypes>::init()
     BaseForceField::init();
 
     if (!mstate.get())
-        mstate.set(dynamic_cast< MechanicalState<DataTypes>* >(getContext()->getMechanicalState()));
+        mstate.set(MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState()));
 }
 
 #ifdef SOFA_SMP

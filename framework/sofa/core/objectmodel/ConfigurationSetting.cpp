@@ -34,6 +34,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((ConfigurationSetting));
+
 ConfigurationSetting::ConfigurationSetting()
 {
     this->name.setDisplayed(false);        this->name.setPersistent(false);

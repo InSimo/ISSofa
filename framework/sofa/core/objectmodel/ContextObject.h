@@ -43,7 +43,7 @@ namespace objectmodel
 class ContextObject : public virtual BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(ContextObject, BaseObject);
+    SOFA_ABSTRACT_CLASS_UNIQUE((ContextObject), ((BaseObject)));
 protected:
     ContextObject()
         : BaseObject()

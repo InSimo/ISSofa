@@ -33,6 +33,8 @@ namespace core
 namespace behavior
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseConstraintCorrection));
+
 using namespace sofa::defaulttype;
 #ifndef SOFA_FLOAT
 template class SOFA_CORE_API ConstraintCorrection< Vec3dTypes >;

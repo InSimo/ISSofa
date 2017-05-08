@@ -53,7 +53,7 @@ template<class DataTypes>
 class Constraint : public BaseConstraint
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE(Constraint,DataTypes), BaseConstraint);
+    SOFA_ABSTRACT_CLASS_UNIQUE((Constraint<DataTypes>), ((BaseConstraint)));
 
     typedef typename DataTypes::Real Real;
     typedef typename DataTypes::VecCoord VecCoord;
@@ -117,7 +117,7 @@ public:
     template<class T>
     static bool canCreate(T*& obj, objectmodel::BaseContext* context, objectmodel::BaseObjectDescription* arg)
     {
-        if (dynamic_cast<MechanicalState<DataTypes>*>(context->getMechanicalState()) == NULL)
+        if (MechanicalState<DataTypes>::DynamicCast(context->getMechanicalState()) == NULL)
             return false;
         return BaseObject::canCreate(obj, context, arg);
     }

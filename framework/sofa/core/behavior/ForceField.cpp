@@ -23,6 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/core/behavior/ForceField.inl>
+#include <sofa/core/behavior/BaseRotationFinder.h>
 
 namespace sofa
 {
@@ -32,6 +33,8 @@ namespace core
 
 namespace behavior
 {
+
+SOFA_ABSTRACT_CLASS_IMPL((BaseRotationFinder));
 
 using namespace sofa::defaulttype;
 #ifndef SOFA_FLOAT

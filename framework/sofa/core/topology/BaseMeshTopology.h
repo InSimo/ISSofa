@@ -53,7 +53,7 @@ namespace topology
 class SOFA_CORE_API BaseMeshTopology : public core::topology::Topology
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseMeshTopology, core::topology::Topology);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseMeshTopology), ((core::topology::Topology)));
 
     typedef sofa::helper::vector<Edge> 		        SeqEdges;
     typedef sofa::helper::vector<Triangle>		        SeqTriangles;

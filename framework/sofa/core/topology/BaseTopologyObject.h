@@ -38,7 +38,7 @@ namespace topology
 class SOFA_CORE_API BaseTopologyObject : public virtual core::objectmodel::BaseObject
 {
 public:
-    SOFA_CLASS(BaseTopologyObject, core::objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseTopologyObject), ((core::objectmodel::BaseObject)));
 
 protected:
 	BaseTopologyObject() {};

@@ -33,6 +33,7 @@ namespace core
 
 namespace behavior
 {
+SOFA_ABSTRACT_CLASS_IMPL((BaseMechanicalState));
 
 BaseMechanicalState::BaseMechanicalState()
 {

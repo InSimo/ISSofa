@@ -54,7 +54,7 @@ namespace behavior
 class SOFA_CORE_API BaseMass : public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseMass, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseMass), ((objectmodel::BaseObject)));
 protected:
     BaseMass()
         : m_separateGravity (initData(&m_separateGravity , false, "separateGravity", "add separately gravity to velocity computation"))

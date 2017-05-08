@@ -42,6 +42,8 @@ namespace core
 namespace loader
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((VoxelLoader));
+
 using namespace sofa::defaulttype;
 using namespace sofa::core::loader;
 

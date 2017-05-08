@@ -30,6 +30,8 @@ namespace sofa
 namespace core
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseMapping));
+
 BaseMapping::BaseMapping()
     : f_mapForces(initData(&f_mapForces, true, "mapForces", "Are forces mapped ?"))
     , f_mapConstraints(initData(&f_mapConstraints, true, "mapConstraints", "Are constraints mapped ?"))
@@ -144,7 +146,7 @@ bool BaseMapping::testMechanicalState(BaseState* state)
     bool isMecha = false;
     if(state)
     {
-        behavior::BaseMechanicalState* toMechaModel = dynamic_cast<behavior::BaseMechanicalState* > (state);
+        behavior::BaseMechanicalState* toMechaModel = behavior::BaseMechanicalState::DynamicCast(state);
         isMecha = (toMechaModel) ? true : false;
     }
     return isMecha;

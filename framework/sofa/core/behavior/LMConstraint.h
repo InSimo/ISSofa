@@ -53,7 +53,7 @@ template<class DataTypes1,class DataTypes2>
 class LMConstraint : public BaseLMConstraint
 {
 public:
-    SOFA_ABSTRACT_CLASS(SOFA_TEMPLATE2(LMConstraint,DataTypes1,DataTypes2), BaseLMConstraint);
+    SOFA_ABSTRACT_CLASS_UNIQUE((LMConstraint<DataTypes1,DataTypes2>), ((BaseLMConstraint)));
 
     typedef typename DataTypes1::Real Real1;
     typedef typename DataTypes1::VecCoord VecCoord1;
@@ -118,14 +118,14 @@ public:
     {
         if (arg->getAttribute("object1") || arg->getAttribute("object2"))
         {
-            if (dynamic_cast<MechanicalState<DataTypes1>*>(arg->findObject(arg->getAttribute("object1",".."))) == NULL)
+            if (MechanicalState<DataTypes1>::DynamicCast(arg->findObject(arg->getAttribute("object1",".."))) == NULL)
                 return false;
-            if (dynamic_cast<MechanicalState<DataTypes2>*>(arg->findObject(arg->getAttribute("object2",".."))) == NULL)
+            if (MechanicalState<DataTypes2>::DynamicCast(arg->findObject(arg->getAttribute("object2",".."))) == NULL)
                 return false;
         }
         else
         {
-            if (dynamic_cast<MechanicalState<DataTypes1>*>(context->getMechanicalState()) == NULL)
+            if (MechanicalState<DataTypes1>::DynamicCast(context->getMechanicalState()) == NULL)
                 return false;
         }
         return sofa::core::objectmodel::BaseObject::canCreate(obj, context, arg);
@@ -139,14 +139,14 @@ public:
 
         if (arg && (arg->getAttribute("object1") || arg->getAttribute("object2")))
         {
-            obj->constrainedObject1 = dynamic_cast<MechanicalState<DataTypes1>*>(arg->findObject(arg->getAttribute("object1","..")));
-            obj->constrainedObject2 = dynamic_cast<MechanicalState<DataTypes2>*>(arg->findObject(arg->getAttribute("object2","..")));
+            obj->constrainedObject1 = MechanicalState<DataTypes1>::DynamicCast(arg->findObject(arg->getAttribute("object1","..")));
+            obj->constrainedObject2 = MechanicalState<DataTypes2>::DynamicCast(arg->findObject(arg->getAttribute("object2","..")));
         }
         else if (context)
         {
             obj->constrainedObject1 =
                 obj->constrainedObject2 =
-                        dynamic_cast<MechanicalState<DataTypes1>*>(context->getMechanicalState());
+                        MechanicalState<DataTypes1>::DynamicCast(context->getMechanicalState());
         }
 
         return obj;

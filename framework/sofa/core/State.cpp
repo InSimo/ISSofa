@@ -29,6 +29,7 @@ namespace sofa
 
 namespace core
 {
+SOFA_ABSTRACT_CLASS_IMPL((BaseState));
 
 using namespace sofa::defaulttype;
 

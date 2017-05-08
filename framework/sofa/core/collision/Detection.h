@@ -44,7 +44,7 @@ namespace collision
 class Detection : public virtual CollisionAlgorithm
 {
 public:
-    SOFA_CLASS(Detection, CollisionAlgorithm);
+    SOFA_ABSTRACT_CLASS_UNIQUE((Detection), ((CollisionAlgorithm)));
 
 protected:
     /// Current intersection method

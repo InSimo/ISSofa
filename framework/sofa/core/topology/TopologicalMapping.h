@@ -56,7 +56,7 @@ namespace topology
 class SOFA_CORE_API TopologicalMapping : public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(TopologicalMapping, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_UNIQUE((TopologicalMapping), ((objectmodel::BaseObject)));
 
     /// Input Topology
     typedef BaseMeshTopology In;

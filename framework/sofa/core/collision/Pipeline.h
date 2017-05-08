@@ -56,7 +56,7 @@ class NarrowPhaseDetection;
 class SOFA_CORE_API Pipeline : public virtual sofa::core::objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(Pipeline, sofa::core::objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((Pipeline), ((sofa::core::objectmodel::BaseObject)));
 
 protected:
 

@@ -43,6 +43,8 @@ namespace objectmodel
 class SOFA_CORE_API KeypressedEvent : public Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((KeypressedEvent),((Event)));
+    
     /// Constructor
     KeypressedEvent( char );
     /// Destructor
@@ -50,7 +52,6 @@ public:
     /// Return the key pressed
     char getKey() const;
 
-    virtual const char* getClassName() const { return "KeypressedEvent"; }
 protected:
     /// Store the key
     char m_char;

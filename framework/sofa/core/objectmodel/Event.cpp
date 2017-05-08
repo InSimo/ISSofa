@@ -34,6 +34,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_ROOT_CLASS_IMPL((Event));
+
 Event::Event()
 {
     m_handled = false;

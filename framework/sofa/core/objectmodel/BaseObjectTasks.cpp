@@ -40,7 +40,7 @@ BaseObjectTasks::~BaseObjectTasks()
 Iterative::IterativePartition* BaseObject::prepareTask()
 {
     Iterative::IterativePartition *p=NULL;
-    sofa::core::objectmodel::Context *context=dynamic_cast<sofa::core::objectmodel::Context *>(this->getContext());
+    sofa::core::objectmodel::Context *context=sofa::core::objectmodel::Context ::DynamicCast(this->getContext());
     if(this->getPartition())
     {
         p=this->getPartition();

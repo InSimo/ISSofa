@@ -36,10 +36,10 @@ namespace core
 namespace loader
 {
 
-class ImageLoader : public BaseLoader
+class SOFA_CORE_API ImageLoader : public BaseLoader
 {
 public:
-    SOFA_CLASS(ImageLoader, BaseLoader);
+    SOFA_ABSTRACT_CLASS_UNIQUE((ImageLoader), ((BaseLoader)));
 
 };
 

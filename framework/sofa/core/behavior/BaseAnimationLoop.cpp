@@ -36,6 +36,8 @@ namespace core
 namespace behavior
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseAnimationLoop));
+
 BaseAnimationLoop::BaseAnimationLoop()
     : m_resetTime(0.)
 {}

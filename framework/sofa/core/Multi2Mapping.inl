@@ -76,11 +76,11 @@ void Multi2Mapping<In1,In2,Out>::addOutputModel(State<Out>* to, const std::strin
 //template< class In1, class In2, class Out > template <class In>
 //helper::vector<State<In>*>&  Multi2Mapping<In1,In2,Out>::getFromModels()
 //{
-//  if (!fromModels1.empty() && dynamic_cast< State<In>* >(fromModels1[0]))
+//  if (!fromModels1.empty() && State<In>::DynamicCast(fromModels1[0]))
 //  {
 //
 //  }
-//  else if (!fromModels2.empty() && dynamic_cast< State<In>* >(fromModels2[0]))
+//  else if (!fromModels2.empty() && State<In>::DynamicCast(fromModels2[0]))
 //  {
 //    return fromModels2;
 //  }
@@ -133,13 +133,13 @@ helper::vector<behavior::BaseMechanicalState*> Multi2Mapping<In1,In2,Out>::getMe
     helper::vector<behavior::BaseMechanicalState*> mechFromVec;
     for (size_t i=0 ; i<this->fromModels1.size() ; i++)
     {
-        behavior::BaseMechanicalState* meshFrom = dynamic_cast<behavior::BaseMechanicalState*> (this->fromModels1.get(i));
+        behavior::BaseMechanicalState* meshFrom = behavior::BaseMechanicalState::DynamicCast(this->fromModels1.get(i));
         if(meshFrom)
             mechFromVec.push_back(meshFrom);
     }
     for (size_t i=0 ; i<this->fromModels2.size() ; i++)
     {
-        behavior::BaseMechanicalState* meshFrom = dynamic_cast<behavior::BaseMechanicalState*> (this->fromModels2.get(i));
+        behavior::BaseMechanicalState* meshFrom = behavior::BaseMechanicalState::DynamicCast(this->fromModels2.get(i));
         if(meshFrom)
             mechFromVec.push_back(meshFrom);
     }
@@ -152,7 +152,7 @@ helper::vector<behavior::BaseMechanicalState*> Multi2Mapping<In1,In2,Out>::getMe
     helper::vector<behavior::BaseMechanicalState*> mechToVec;
     for (size_t i=0 ; i<this->toModels.size() ; i++)
     {
-        behavior::BaseMechanicalState* meshTo = dynamic_cast<behavior::BaseMechanicalState*> (this->toModels.get(i));
+        behavior::BaseMechanicalState* meshTo = behavior::BaseMechanicalState::DynamicCast(this->toModels.get(i));
         if(meshTo)
             mechToVec.push_back(meshTo);
     }

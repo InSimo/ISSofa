@@ -41,7 +41,7 @@ class VisualParams;
 class VisualManager : public virtual VisualModel
 {
 public:
-    SOFA_CLASS(VisualManager, VisualModel);
+    SOFA_ABSTRACT_CLASS_UNIQUE((VisualManager), ((VisualModel)));
 protected:
     /// Destructor
     virtual ~VisualManager() { }

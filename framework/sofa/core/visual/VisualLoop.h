@@ -47,7 +47,7 @@ class VisualParams;
 class SOFA_CORE_API VisualLoop : public virtual VisualModel
 {
 public:
-    SOFA_CLASS(VisualLoop, VisualModel);
+    SOFA_ABSTRACT_CLASS_UNIQUE((VisualLoop), ((VisualModel)));
 protected:
     /// Destructor
     virtual ~VisualLoop() { }

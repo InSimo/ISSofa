@@ -35,6 +35,8 @@ namespace core
 namespace behavior
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((OdeSolver));
+
 OdeSolver::OdeSolver()
 {}
 

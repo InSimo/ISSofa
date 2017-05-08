@@ -29,6 +29,7 @@ namespace sofa
 
 namespace core
 {
+SOFA_ABSTRACT_CLASS_IMPL((CollisionModel));
 
 std::vector<int> BaseCollisionElementIterator::emptyVector; ///< empty vector to be able to initialize the iterator to an empty pair
 

@@ -61,7 +61,7 @@ template<class TDataTypes>
 class State : public virtual BaseState
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE(State,TDataTypes), BaseState);
+    SOFA_ABSTRACT_CLASS_UNIQUE((State<TDataTypes>), ((BaseState)));
 
     typedef TDataTypes DataTypes;
     /// Scalar values (float or double).

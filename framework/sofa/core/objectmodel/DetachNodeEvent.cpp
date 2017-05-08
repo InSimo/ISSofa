@@ -33,6 +33,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_EVENT_CLASS_IMPL((DetachNodeEvent));
+
 DetachNodeEvent::DetachNodeEvent(BaseNode* n)
     : node(n)
 {
@@ -58,7 +60,7 @@ bool DetachNodeEvent::contains(BaseNode* n) const
 
 bool DetachNodeEvent::contains(BaseObject* o) const
 {
-    return contains(dynamic_cast<BaseNode*>(o->getContext()));
+    return contains(BaseNode::DynamicCast(o->getContext()));
 }
 
 } // namespace objectmodel

@@ -53,7 +53,7 @@ class SOFA_CORE_API BaseAnimationLoop : public virtual objectmodel::BaseObject
 {
 
 public:
-    SOFA_ABSTRACT_CLASS(BaseAnimationLoop, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseAnimationLoop), ((objectmodel::BaseObject)));
 
 protected:
     BaseAnimationLoop();

@@ -33,6 +33,8 @@ namespace core
 namespace behavior
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseMass));
+
 using namespace sofa::defaulttype;
 
 #ifndef SOFA_FLOAT

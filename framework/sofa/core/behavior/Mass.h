@@ -58,7 +58,7 @@ template<class DataTypes>
 class Mass : virtual public ForceField<DataTypes>, public BaseMass
 {
 public:
-    SOFA_CLASS2(SOFA_TEMPLATE(Mass,DataTypes), SOFA_TEMPLATE(ForceField,DataTypes), BaseMass);
+    SOFA_ABSTRACT_CLASS_UNIQUE((Mass<DataTypes>), ((ForceField<DataTypes>), (BaseMass)));
 
     typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::VecDeriv VecDeriv;

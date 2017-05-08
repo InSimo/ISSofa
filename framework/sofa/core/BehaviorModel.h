@@ -48,7 +48,7 @@ namespace core
 class BehaviorModel : public virtual sofa::core::objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(BehaviorModel, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_UNIQUE((BehaviorModel), ((objectmodel::BaseObject)));
 protected:
 	BehaviorModel() {};
     /// Destructor

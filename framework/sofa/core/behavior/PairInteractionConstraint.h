@@ -51,7 +51,7 @@ template<class TDataTypes>
 class PairInteractionConstraint : public BaseInteractionConstraint
 {
 public:
-    SOFA_ABSTRACT_CLASS(SOFA_TEMPLATE(PairInteractionConstraint,TDataTypes), BaseInteractionConstraint);
+    SOFA_ABSTRACT_CLASS_UNIQUE((PairInteractionConstraint<TDataTypes>), ((BaseInteractionConstraint)));
 
     typedef TDataTypes DataTypes;
     typedef typename DataTypes::VecCoord VecCoord;

@@ -47,7 +47,7 @@ namespace collision
 class NarrowPhaseDetection : virtual public Detection
 {
 public:
-    SOFA_ABSTRACT_CLASS(NarrowPhaseDetection, Detection);
+    SOFA_ABSTRACT_CLASS_UNIQUE((NarrowPhaseDetection), ((Detection)));
 
     typedef sofa::helper::map_ptr_stable_compare< std::pair< core::CollisionModel*, core::CollisionModel* >, DetectionOutputVector* > DetectionOutputMap;
 

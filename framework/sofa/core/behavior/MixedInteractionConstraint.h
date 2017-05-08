@@ -51,7 +51,7 @@ template<class TDataTypes1, class TDataTypes2>
 class  MixedInteractionConstraint : public BaseInteractionConstraint
 {
 public:
-    SOFA_ABSTRACT_CLASS(SOFA_TEMPLATE2(MixedInteractionConstraint,TDataTypes1,TDataTypes2), BaseInteractionConstraint);
+    SOFA_ABSTRACT_CLASS_UNIQUE((MixedInteractionConstraint<TDataTypes1,TDataTypes2>), ((BaseInteractionConstraint)));
 
     typedef TDataTypes1 DataTypes1;
     typedef typename DataTypes1::VecCoord VecCoord1;

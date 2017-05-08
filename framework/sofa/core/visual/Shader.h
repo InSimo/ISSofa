@@ -45,7 +45,7 @@ namespace visual
 class SOFA_CORE_API Shader : public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(Shader, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_UNIQUE((Shader), ((objectmodel::BaseObject)));
 protected:
 	Shader() {};
     /// Destructor
@@ -71,7 +71,7 @@ public:
 class SOFA_CORE_API ShaderElement: public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(ShaderElement, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_UNIQUE((ShaderElement), ((objectmodel::BaseObject)));
     enum ShaderElementType { SE_NONE = 0, SE_TEXTURE, SE_MACRO, SE_VARIABLE, SE_ATTRIBUTE };
     enum ShaderValueType { SV_NONE = 0, SV_FLOAT, SV_DOUBLE, SV_INT, SV_UNSIGNED_INT };
 protected:

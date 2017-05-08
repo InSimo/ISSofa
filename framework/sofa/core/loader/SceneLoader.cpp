@@ -33,6 +33,8 @@ namespace core
 namespace loader
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((SceneLoader));
+
 using namespace sofa::defaulttype;
 
 SceneLoader::SceneLoader() : BaseLoader()

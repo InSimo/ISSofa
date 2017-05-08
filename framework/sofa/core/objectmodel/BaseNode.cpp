@@ -41,6 +41,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseNode));
+
 BaseNode::BaseNode()
 {}
 

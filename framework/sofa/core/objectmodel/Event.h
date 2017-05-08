@@ -26,6 +26,7 @@
 #define SOFA_CORE_OBJECTMODEL_EVENT_H
 
 #include <sofa/SofaFramework.h>
+#include <sofa/core/objectmodel/BaseClass.h>
 
 namespace sofa
 {
@@ -46,6 +47,8 @@ namespace objectmodel
 class SOFA_CORE_API Event
 {
 public:
+    SOFA_ROOT_CLASS_EXTERNAL((Event));
+
     Event();
 
     virtual ~Event();
@@ -56,7 +59,8 @@ public:
     /// Returns true of the event has been handled
     bool isHandled() const;
 
-    virtual const char* getClassName() const { return "Event"; }
+    virtual const char* getClassName() const { return getClass()->className.c_str(); }
+    
 protected:
     bool m_handled;
 };

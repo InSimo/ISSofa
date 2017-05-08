@@ -64,11 +64,12 @@ template<class TDataTypes>
 class MechanicalState : public BaseMechanicalState, public State<TDataTypes>
 {
 public:
-    SOFA_CLASS2(SOFA_TEMPLATE(MechanicalState,TDataTypes), BaseMechanicalState, SOFA_TEMPLATE(State,TDataTypes));
+    SOFA_ABSTRACT_CLASS_UNIQUE((MechanicalState<TDataTypes>), ((BaseMechanicalState), (State<TDataTypes>)));
+    SOFA_CLASS_VIRTUAL_PARENTS((BaseState));
 
     typedef TDataTypes DataTypes;
     /// Scalar values (float or double).
-    typedef typename DataTypes::Real Real;
+    typedef typename Inherit2::Real Real;
     /// Position values.
     typedef typename DataTypes::Coord Coord;
     /// Derivative values (velocity, forces, displacements).

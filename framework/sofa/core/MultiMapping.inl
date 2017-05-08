@@ -45,7 +45,7 @@ MultiMapping<In,Out>::MultiMapping()
 template < class In, class Out >
 void MultiMapping<In,Out>::addInputModel(BaseState* fromModel, const std::string& path)
 {
-    State<In>* from = dynamic_cast<State<In>*>(fromModel);
+    State<In>* from = State<In>::DynamicCast(fromModel);
     assert(from && "MultiMapping needs a State of the appropriate type to add as input model");
     this->fromModels.add(from, path);
 }
@@ -53,7 +53,7 @@ void MultiMapping<In,Out>::addInputModel(BaseState* fromModel, const std::string
 template< class In, class Out >
 void MultiMapping<In,Out>::addOutputModel(BaseState* toModel, const std::string& path)
 {
-    State<Out>* to = dynamic_cast<State<Out>*>(toModel);
+    State<Out>* to = State<Out>::DynamicCast(toModel);
     assert(to);
     this->toModels.add(to, path);
     if (isMechanical())
@@ -101,7 +101,7 @@ helper::vector<behavior::BaseMechanicalState*> MultiMapping<In,Out>::getMechFrom
     helper::vector<behavior::BaseMechanicalState*> mechFromVec;
     for (size_t i=0 ; i<this->fromModels.size() ; i++)
     {
-        behavior::BaseMechanicalState* meshFrom = dynamic_cast<behavior::BaseMechanicalState*> (this->fromModels.get(i));
+        behavior::BaseMechanicalState* meshFrom = behavior::BaseMechanicalState::DynamicCast(this->fromModels.get(i));
         if(meshFrom)
             mechFromVec.push_back(meshFrom);
     }
@@ -114,7 +114,7 @@ helper::vector<behavior::BaseMechanicalState*> MultiMapping<In,Out>::getMechTo()
     helper::vector<behavior::BaseMechanicalState*> mechToVec;
     for (size_t i=0 ; i<this->toModels.size() ; i++)
     {
-        behavior::BaseMechanicalState* meshTo = dynamic_cast<behavior::BaseMechanicalState*> (this->toModels.get(i));
+        behavior::BaseMechanicalState* meshTo = behavior::BaseMechanicalState::DynamicCast(this->toModels.get(i));
         if(meshTo)
             mechToVec.push_back(meshTo);
     }

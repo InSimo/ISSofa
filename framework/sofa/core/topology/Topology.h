@@ -62,6 +62,8 @@ SOFA_CORE_API std::string parseTopologyObjectTypeToString(TopologyObjectType t);
 class SOFA_CORE_API Topology : public virtual core::objectmodel::BaseObject
 {
 public:
+    SOFA_ABSTRACT_CLASS_EXTERNAL((Topology), ((core::objectmodel::BaseObject)));
+
     /// Topology global typedefs
     //typedef int index_type;
     typedef unsigned int index_type;
@@ -114,7 +116,6 @@ public:
     };
     typedef Hexahedron                          Hexa;
 
-    SOFA_CLASS(Topology, core::objectmodel::BaseObject);
 protected:
     Topology():BaseObject() {}
     virtual ~Topology()

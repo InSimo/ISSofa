@@ -34,6 +34,8 @@ namespace core
 namespace collision
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((Contact));
+
 using namespace sofa::defaulttype;
 
 //template class Factory<std::string, Contact, std::pair<core::CollisionModel*,core::CollisionModel*> >;

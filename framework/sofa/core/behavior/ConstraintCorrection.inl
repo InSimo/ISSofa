@@ -41,7 +41,7 @@ namespace behavior
 template< class DataTypes >
 void ConstraintCorrection< DataTypes >::init()
 {
-    mstate = dynamic_cast< behavior::MechanicalState< DataTypes >* >(getContext()->getMechanicalState());
+    mstate = behavior::MechanicalState< DataTypes >::DynamicCast(getContext()->getMechanicalState());
 }
 
 

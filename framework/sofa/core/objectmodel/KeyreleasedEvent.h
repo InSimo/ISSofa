@@ -43,6 +43,8 @@ namespace objectmodel
 class SOFA_CORE_API KeyreleasedEvent : public core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((KeyreleasedEvent),((Event)));
+
     /// Constructor
     KeyreleasedEvent( char );
     /// Destructor
@@ -50,7 +52,6 @@ public:
     /// Return the key released
     char getKey() const;
 
-    virtual const char* getClassName() const { return "KeyreleasedEvent"; }
 protected:
     /// Store the key
     char m_char;

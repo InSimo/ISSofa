@@ -42,6 +42,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_CLASS_IMPL((BaseObject));
+
 BaseObject::BaseObject()
     : Base()
     , f_listening(initData( &f_listening, false, "listening", "if true, handle the events, otherwise ignore the events"))
@@ -351,7 +353,7 @@ void BaseObject::handleEvent( Event* /*e*/ )
 {
     /*
     serr<<"BaseObject "<<getName()<<" ("<<getTypeName()<<") gets an event"<<sendl;
-    if( KeypressedEvent* ke = dynamic_cast<KeypressedEvent*>( e ) )
+    if( KeypressedEvent* ke = KeypressedEvent::DynamicCast( e ) )
     {
     serr<<"BaseObject "<<getName()<<" gets a key event: "<<ke->getKey()<<sendl;
     }

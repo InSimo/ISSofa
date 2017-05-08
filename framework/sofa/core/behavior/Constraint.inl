@@ -61,7 +61,7 @@ template<class DataTypes>
 void Constraint<DataTypes>::init()
 {
     BaseConstraint::init();
-    mstate = dynamic_cast< MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
+    mstate = MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
 }
 
 

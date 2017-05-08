@@ -22,7 +22,9 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#include "BaseConstraintSet.h"
 #include "BaseConstraint.h"
+#include "BaseInteractionConstraint.h"
 
 namespace sofa
 {
@@ -32,6 +34,10 @@ namespace core
 
 namespace behavior
 {
+
+SOFA_ABSTRACT_CLASS_IMPL((BaseConstraintSet));
+SOFA_ABSTRACT_CLASS_IMPL((BaseConstraint));
+SOFA_ABSTRACT_CLASS_IMPL((BaseInteractionConstraint));
 
 
 } // namespace behavior

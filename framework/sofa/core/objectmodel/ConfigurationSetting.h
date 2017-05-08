@@ -41,10 +41,10 @@ namespace objectmodel
  *  \brief Base class for all the configuration settings of SOFA
  *
  */
-class SOFA_CORE_API ConfigurationSetting: public BaseObject
+class SOFA_CORE_API ConfigurationSetting: public virtual BaseObject
 {
 public:
-    SOFA_CLASS(ConfigurationSetting, BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((ConfigurationSetting), ((BaseObject)));
 protected:
     ConfigurationSetting(); ///< Default constructor.
 

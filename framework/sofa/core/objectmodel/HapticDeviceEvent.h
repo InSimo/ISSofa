@@ -44,6 +44,7 @@ namespace objectmodel
 class SOFA_CORE_API HapticDeviceEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((HapticDeviceEvent),((Event)));
 
     /**
      * @brief Define the device state (which button is pressed).
@@ -107,7 +108,6 @@ public:
      */
     unsigned int getDeviceId() const {return m_deviceId;}
 
-    virtual const char* getClassName() const { return "HapticDeviceEvent"; }
 private:
 
     unsigned int	m_deviceId;

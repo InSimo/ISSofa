@@ -60,7 +60,7 @@ void PairInteractionProjectiveConstraintSet<DataTypes>::init()
     BaseInteractionProjectiveConstraintSet::init();
     if (mstate1 == NULL || mstate2 == NULL)
     {
-        mstate1 = mstate2 = dynamic_cast< MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
+        mstate1 = mstate2 = MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     }
 }
 

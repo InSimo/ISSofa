@@ -41,6 +41,7 @@ template <class DataTypes>
 class RotationFinder : public BaseRotationFinder
 {
 public:
+    SOFA_ABSTRACT_CLASS_UNIQUE((RotationFinder<DataTypes>), ((BaseRotationFinder)));
     typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::VecDeriv VecDeriv;
     typedef typename DataTypes::Coord Coord;

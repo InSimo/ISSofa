@@ -67,7 +67,7 @@ class TopologyEngine;
 class SOFA_CORE_API TopologyAlgorithms : public sofa::core::topology::BaseTopologyObject
 {
 public:
-    SOFA_CLASS(TopologyAlgorithms, BaseTopologyObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((TopologyAlgorithms), ((BaseTopologyObject)));
 
 protected:
     /** \brief Constructor.
@@ -97,7 +97,7 @@ protected:
 class SOFA_CORE_API GeometryAlgorithms : public sofa::core::topology::BaseTopologyObject
 {
 public:
-    SOFA_CLASS(GeometryAlgorithms, BaseTopologyObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((GeometryAlgorithms), ((BaseTopologyObject)));
 
 protected:
     /** \brief Constructor.
@@ -126,7 +126,7 @@ public:
 class SOFA_CORE_API TopologyModifier : public sofa::core::topology::BaseTopologyObject
 {
 public:
-    SOFA_CLASS(TopologyModifier, BaseTopologyObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((TopologyModifier), ((BaseTopologyObject)));
 
 protected:
     /** \brief Constructor.
@@ -194,7 +194,7 @@ class SOFA_CORE_API TopologyContainer : public sofa::core::topology::BaseTopolog
     public core::topology::BaseMeshTopology
 {
 public:
-    SOFA_CLASS2(TopologyContainer, BaseTopologyObject, BaseMeshTopology);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((TopologyContainer), ((BaseTopologyObject),(BaseMeshTopology)));
 
 protected:
 

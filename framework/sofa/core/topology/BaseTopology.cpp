@@ -32,6 +32,13 @@ namespace core
 
 namespace topology
 {
+
+SOFA_ABSTRACT_CLASS_IMPL((BaseTopologyObject));
+SOFA_ABSTRACT_CLASS_IMPL((TopologyAlgorithms));
+SOFA_ABSTRACT_CLASS_IMPL((GeometryAlgorithms));
+SOFA_ABSTRACT_CLASS_IMPL((TopologyModifier));
+SOFA_ABSTRACT_CLASS_IMPL((TopologyContainer));
+
 // GeometryAlgorithms implementation
 
 void GeometryAlgorithms::init()

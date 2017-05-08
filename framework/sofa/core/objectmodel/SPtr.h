@@ -78,7 +78,7 @@ class SPtr_dynamic_cast : public T::SPtr
 {
 public:
     template<class UPtr>
-    SPtr_dynamic_cast(UPtr p) : T::SPtr(dynamic_cast<T*>(p.get())) {}
+    SPtr_dynamic_cast(UPtr p) : T::SPtr(T::DynamicCast(p.get())) {}
 };
 
 /// static_cast operator for SPtr

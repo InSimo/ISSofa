@@ -35,6 +35,9 @@ namespace core
 namespace topology
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((Topology));
+SOFA_ABSTRACT_CLASS_IMPL((BaseMeshTopology));
+
 using namespace sofa::defaulttype;
 using helper::vector;
 using helper::fixed_array;

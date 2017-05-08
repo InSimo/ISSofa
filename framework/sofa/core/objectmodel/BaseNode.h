@@ -65,7 +65,7 @@ namespace objectmodel
 class SOFA_CORE_API BaseNode : public virtual Base
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseNode, Base);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseNode), ((Base)));
 
 protected:
     BaseNode() ;

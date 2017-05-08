@@ -33,6 +33,9 @@ namespace core
 namespace behavior
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseLinearSolver));
+SOFA_ABSTRACT_CLASS_IMPL((LinearSolver));
+
 LinearSolver::LinearSolver()
     : frozen(false)
 {}

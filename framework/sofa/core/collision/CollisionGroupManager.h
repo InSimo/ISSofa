@@ -60,7 +60,7 @@ namespace collision
 class CollisionGroupManager : public virtual CollisionAlgorithm
 {
 public:
-    SOFA_ABSTRACT_CLASS(CollisionGroupManager, CollisionAlgorithm);
+    SOFA_ABSTRACT_CLASS_UNIQUE((CollisionGroupManager), ((CollisionAlgorithm)));
 
 protected:
     /// integration groups

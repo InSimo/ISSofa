@@ -49,8 +49,8 @@ namespace behavior
 class SOFA_CORE_API ConstraintSolver : public virtual objectmodel::BaseObject
 {
 public:
+    SOFA_ABSTRACT_CLASS_EXTERNAL((ConstraintSolver), ((objectmodel::BaseObject)));
 
-    SOFA_ABSTRACT_CLASS(ConstraintSolver, objectmodel::BaseObject);
 protected:
     ConstraintSolver();
 

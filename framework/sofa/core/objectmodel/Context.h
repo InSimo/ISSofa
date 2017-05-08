@@ -54,7 +54,7 @@ namespace objectmodel
 class SOFA_CORE_API Context : public BaseContext
 {
 public:
-    SOFA_CLASS(Context, BaseContext);
+    SOFA_CLASS_EXTERNAL((Context), ((BaseContext)));
 
 
 

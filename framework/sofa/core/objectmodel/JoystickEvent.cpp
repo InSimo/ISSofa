@@ -38,6 +38,8 @@ namespace core
 namespace objectmodel
 {
 
+SOFA_EVENT_CLASS_IMPL((JoystickEvent));
+
 /*************
  * AxisEvent
  *************/

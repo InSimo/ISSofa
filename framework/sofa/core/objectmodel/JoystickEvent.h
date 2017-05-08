@@ -56,6 +56,7 @@ namespace objectmodel
 class SOFA_CORE_API JoystickEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((JoystickEvent),((Event)));
 
     /**
      * @brief	Implements an event that notifies about axis positions (like analog controls of a joystick).
@@ -264,7 +265,6 @@ public:
      */
     virtual ~JoystickEvent();
 
-    virtual const char* getClassName() const { return "JoystickEvent"; }
 protected:
 
     std::vector< AxisEvent* > axisEvents; ///< State of the Analogic Pad

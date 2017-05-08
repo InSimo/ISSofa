@@ -34,6 +34,9 @@ namespace core
 
 namespace collision
 {
+
+SOFA_ABSTRACT_CLASS_IMPL((Pipeline));
+
 //using namespace core::objectmodel;
 //using namespace core::behavior;
 
@@ -66,7 +69,7 @@ const NarrowPhaseDetection *Pipeline::getNarrowPhaseDetection() const
 
 void Pipeline::init()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     intersectionMethods.clear();
     root->getTreeObjects<Intersection>(&intersectionMethods);
@@ -95,7 +98,7 @@ void Pipeline::reset()
 
 void Pipeline::computeCollisionReset()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     if (broadPhaseDetection!=NULL && broadPhaseDetection->getIntersectionMethod()!=intersectionMethod)
         broadPhaseDetection->setIntersectionMethod(intersectionMethod);
@@ -108,7 +111,7 @@ void Pipeline::computeCollisionReset()
 
 void Pipeline::computeCollisionDetection()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     sofa::helper::vector<CollisionModel*> collisionModels;
     root->getTreeObjects<CollisionModel>(&collisionModels);
@@ -117,7 +120,7 @@ void Pipeline::computeCollisionDetection()
 
 void Pipeline::computeCollisionResponse()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     doCollisionResponse();
 }

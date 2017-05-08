@@ -33,6 +33,7 @@ namespace core
 
 namespace loader
 {
+SOFA_ABSTRACT_CLASS_IMPL((MeshLoader));
 
 using namespace sofa::defaulttype;
 

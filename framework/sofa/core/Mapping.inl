@@ -86,7 +86,7 @@ template <class In, class Out>
 helper::vector<behavior::BaseMechanicalState*> Mapping<In,Out>::getMechFrom()
 {
     helper::vector<behavior::BaseMechanicalState*> vec;
-    behavior::BaseMechanicalState* meshFrom = dynamic_cast<behavior::BaseMechanicalState*> (this->fromModel.get());
+    behavior::BaseMechanicalState* meshFrom = behavior::BaseMechanicalState::DynamicCast(this->fromModel.get());
     if(meshFrom)
         vec.push_back(meshFrom);
 
@@ -97,7 +97,7 @@ template <class In, class Out>
 helper::vector<behavior::BaseMechanicalState*> Mapping<In,Out>::getMechTo()
 {
     helper::vector<behavior::BaseMechanicalState*> vec;
-    behavior::BaseMechanicalState* meshTo = dynamic_cast<behavior::BaseMechanicalState*> (this->toModel.get());
+    behavior::BaseMechanicalState* meshTo = behavior::BaseMechanicalState::DynamicCast(this->toModel.get());
     if(meshTo)
         vec.push_back(meshTo);
 
@@ -292,9 +292,9 @@ void Mapping<In,Out>::setModels(State<In>* from, State<Out>* to)
 template <class In, class Out>
 bool Mapping<In,Out>::setTo(BaseState* to)
 {
-    if( to!=NULL && dynamic_cast< State<Out>* >(to)==NULL )
+    if( to!=NULL && State<Out>::DynamicCast(to)==NULL )
         return false;
-    State<Out>* out = dynamic_cast< State<Out>* >(to);
+    State<Out>* out = State<Out>::DynamicCast(to);
     this->toModel.set( out );
     if( !testMechanicalState(out))
         setNonMechanical();

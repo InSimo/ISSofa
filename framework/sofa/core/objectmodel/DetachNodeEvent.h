@@ -45,6 +45,8 @@ namespace objectmodel
 class SOFA_CORE_API DetachNodeEvent : public Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((DetachNodeEvent),((Event)));
+
     DetachNodeEvent( BaseNode* n );
 
     ~DetachNodeEvent();
@@ -55,7 +57,6 @@ public:
 
     bool contains(BaseObject* o) const;
 
-    virtual const char* getClassName() const { return "DetachNodeEvent"; }
 protected:
     BaseNode* node;
 };

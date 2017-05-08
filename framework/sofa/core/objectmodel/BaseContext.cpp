@@ -42,6 +42,7 @@ namespace core
 
 namespace objectmodel
 {
+SOFA_CLASS_IMPL((BaseContext));
 
 BaseContext::BaseContext()
 {}

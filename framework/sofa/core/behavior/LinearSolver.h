@@ -49,7 +49,7 @@ namespace behavior
 class SOFA_CORE_API BaseLinearSolver : public virtual objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseLinearSolver, objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseLinearSolver), ((objectmodel::BaseObject)));
 
     /// Check if this solver handle multiple independent integration groups, placed as child nodes in the scene graph.
     /// If this is the case, then when collisions occur, the CollisionGroupManager can simply group the interacting groups into new child nodes without creating a new solver to handle them.
@@ -70,7 +70,7 @@ public:
 class SOFA_CORE_API LinearSolver : public BaseLinearSolver
 {
 public:
-    SOFA_ABSTRACT_CLASS(LinearSolver, BaseLinearSolver);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((LinearSolver), ((BaseLinearSolver)));
 protected:
     LinearSolver();
 

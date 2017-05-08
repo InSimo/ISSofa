@@ -136,7 +136,7 @@ Base* BaseObjectDescription::findObject(const char* nodeName)
     {
         //sout << "Found node "<<nodeName<<": "<<node->getName()<<sendl;
         Base* obj = node->getObject();
-        BaseContext* ctx = dynamic_cast<BaseContext*>(obj);
+        BaseContext* ctx = BaseContext::DynamicCast(obj);
         if (ctx != NULL)
         {
             //sout << "Node "<<nodeName<<" is a context, returning MechanicalState."<<sendl;

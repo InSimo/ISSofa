@@ -44,7 +44,7 @@ namespace objectmodel
 class SOFA_CORE_API GUIEvent : public sofa::core::objectmodel::Event
 {
 public:
-
+    SOFA_EVENT_CLASS_EXTERNAL((GUIEvent),((Event)));
 
     /**
      * @brief Constructor.
@@ -71,8 +71,6 @@ public:
      */
     const std::string getValue(void) const {return m_value;};
 
-
-    virtual const char* getClassName() const { return "GUIEvent"; }
 private:
 
     std::string     m_controlID;

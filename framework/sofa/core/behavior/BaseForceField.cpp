@@ -23,6 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/core/behavior/BaseForceField.h>
+#include <sofa/core/behavior/BaseInteractionForceField.h>
 
 namespace sofa
 {
@@ -32,6 +33,9 @@ namespace core
 
 namespace behavior
 {
+
+SOFA_ABSTRACT_CLASS_IMPL((BaseForceField));
+SOFA_ABSTRACT_CLASS_IMPL((BaseInteractionForceField));
 
 BaseForceField::BaseForceField()
     : objectmodel::BaseObject()

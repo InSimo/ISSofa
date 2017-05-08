@@ -41,7 +41,7 @@ namespace loader
 class SOFA_CORE_API SceneLoader : public virtual BaseLoader
 {
 public:
-    SOFA_ABSTRACT_CLASS(SceneLoader, BaseLoader);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((SceneLoader), ((BaseLoader)));
 
 protected:
     ///Constructor

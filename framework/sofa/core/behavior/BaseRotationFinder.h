@@ -42,9 +42,10 @@ namespace core
 namespace behavior
 {
 
-class BaseRotationFinder : public virtual sofa::core::objectmodel::BaseObject
+class SOFA_CORE_API BaseRotationFinder : public virtual sofa::core::objectmodel::BaseObject
 {
 public:
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseRotationFinder), ((sofa::core::objectmodel::BaseObject)));
     virtual void getRotations(defaulttype::BaseMatrix * m, int offset = 0) = 0;
 };
 

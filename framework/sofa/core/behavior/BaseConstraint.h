@@ -89,7 +89,7 @@ public:
 class SOFA_CORE_API BaseConstraint : public BaseConstraintSet
 {
 public:
-    SOFA_ABSTRACT_CLASS(BaseConstraint, BaseConstraintSet);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseConstraint), ((BaseConstraintSet)));
 
 protected:
 	BaseConstraint() { };

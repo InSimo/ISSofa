@@ -41,6 +41,7 @@ template<class TReal>
 class RotationMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((RotationMatrix<TReal>),((defaulttype::BaseMatrix)));
     typedef TReal Real;
 
     virtual Index rowSize(void) const
@@ -140,9 +141,9 @@ public:
     /// multiply the transpose current matrix by m matrix and strore the result in m
     virtual void opMulTM(defaulttype::BaseMatrix * bresult,defaulttype::BaseMatrix * bm)
     {
-        if (RotationMatrix<Real> * m = dynamic_cast<RotationMatrix<Real> * >(bm))
+        if (RotationMatrix<Real> * m = RotationMatrix<Real>::DynamicCast(bm))
         {
-            if (RotationMatrix<Real> * result = dynamic_cast<RotationMatrix<Real> * >(bresult))
+            if (RotationMatrix<Real> * result = RotationMatrix<Real>::DynamicCast(bresult))
             {
                 Real tmp[9];
                 std::size_t datSz = data.size() < m->data.size() ? data.size() : m->data.size();
@@ -214,7 +215,7 @@ public:
             mat->resize(Jmat->rowSize(),Jmat->colSize());
         }
 
-        if (const SparseMatrix<float> * J = dynamic_cast<const SparseMatrix<float> * >(Jmat)) {
+        if (const SparseMatrix<float> * J = SparseMatrix<float>::DynamicCast(Jmat)) {
             for (typename sofa::component::linearsolver::SparseMatrix<float>::LineConstIterator jit1 = J->begin(), jend = J->end() ; jit1 != jend; jit1++)
             {
                 Index l = jit1->first;
@@ -229,7 +230,7 @@ public:
                     mat->set(l,c+2,v0 * data[(c+0)*3+2] + v1 * data[(c+1)*3+2] + v2 * data[(c+2)*3+2] );
                 }
             }
-        } else if (const SparseMatrix<double> * J = dynamic_cast<const SparseMatrix<double> * >(Jmat)) {
+        } else if (const SparseMatrix<double> * J = SparseMatrix<double>::DynamicCast(Jmat)) {
             for (typename sofa::component::linearsolver::SparseMatrix<double>::LineConstIterator jit1 = J->begin(), jend = J->end() ; jit1 != jend; jit1++)
             {
                 Index l = jit1->first;

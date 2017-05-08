@@ -47,6 +47,7 @@ namespace objectmodel
 class SOFA_CORE_API MouseEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((MouseEvent),((Event)));
 
     /**
      * @brief Defines possible Mouse states.
@@ -105,7 +106,6 @@ public:
     State getState(void) const {return m_state;};
     //}@
 
-    virtual const char* getClassName() const { return "MouseEvent"; }
 private:
 
     State m_state; ///< Mouse State on the event propagation.

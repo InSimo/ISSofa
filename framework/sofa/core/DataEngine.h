@@ -47,7 +47,7 @@ namespace core
 class SOFA_CORE_API DataEngine : public core::objectmodel::DDGNode, public virtual core::objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(DataEngine, core::objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((DataEngine), ((core::objectmodel::BaseObject)));
 protected:
     /// Constructor
     DataEngine();

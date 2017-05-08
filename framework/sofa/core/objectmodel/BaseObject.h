@@ -81,7 +81,8 @@ class SOFA_CORE_API BaseObject : public virtual Base
 #endif
 {
 public:
-    SOFA_CLASS(BaseObject, Base);
+    SOFA_CLASS_EXTERNAL((BaseObject), ((Base)));
+
 protected:
     BaseObject();
 

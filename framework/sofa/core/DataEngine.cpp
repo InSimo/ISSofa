@@ -31,6 +31,8 @@ namespace sofa
 namespace core
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((DataEngine));
+
 DataEngine::DataEngine()
 {
     addLink(&(this->core::objectmodel::DDGNode::inputs));

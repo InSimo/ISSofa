@@ -44,7 +44,7 @@ namespace loader
 class SOFA_CORE_API VoxelLoader : public sofa::core::loader::BaseLoader
 {
 public:
-    SOFA_ABSTRACT_CLASS(VoxelLoader,BaseLoader);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((VoxelLoader),((BaseLoader)));
 
     typedef defaulttype::Vec<3, int> Vec3i;
     typedef defaulttype::Vec<6, int> Vec6i;
