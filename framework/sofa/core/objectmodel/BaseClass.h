@@ -1066,7 +1066,7 @@ public:
         // de-deduplication to support multiple identical classes in different dlls on windows
         // the test below is now done within the macro, so that the error is given at the best place in code
         //static_assert(MyType::Inherit1::MyClass::IsExternalClass, "Inherit1 must be unique/external class");
-        typename MyType* ptr = nullptr;
+        MyType* ptr = nullptr;
         BaseClassInfo info(ptr);
         const MyClass* existingClass = nullptr;
         std::vector<const RootClass*> existingClasses;
