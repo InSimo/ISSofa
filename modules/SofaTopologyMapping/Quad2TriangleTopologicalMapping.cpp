@@ -124,7 +124,7 @@ void Quad2TriangleTopologicalMapping::init()
             //int nz = 1;
 
             {
-                topology::GridTopology* grid = dynamic_cast<topology::GridTopology*>(fromModel.get());
+                topology::GridTopology* grid = topology::GridTopology::DynamicCast(fromModel.get());
                 if (grid != NULL)
                 {
                     nx = grid->getNx()-1;

@@ -52,9 +52,9 @@ bool BaseMultiMappingElement::initNode()
     if( result )
     {
 
-        BaseMapping* multimapping =  dynamic_cast<BaseMapping*>(this->getTypedObject());
+        BaseMapping* multimapping =  BaseMapping::DynamicCast(this->getTypedObject());
         NodeElement* currentNodeElement = dynamic_cast<NodeElement *>(getParent());
-        simulation::Node* currentNode =  dynamic_cast<simulation::Node* >( currentNodeElement->getTypedObject() );
+        simulation::Node* currentNode =  simulation::Node::DynamicCast( currentNodeElement->getTypedObject() );
         helper::vector<core::BaseState*> inputStates  = multimapping->getFrom();
         helper::vector<core::BaseState*> outputStates = multimapping->getTo();
 
@@ -65,14 +65,14 @@ bool BaseMultiMappingElement::initNode()
         /* get the Nodes corresponding to each input BaseState context */
         for( iterState = inputStates.begin();  iterState != inputStates.end(); ++iterState)
         {
-            simulation::Node* node = dynamic_cast< simulation::Node* >((*iterState)->getContext());
+            simulation::Node* node = simulation::Node::DynamicCast((*iterState)->getContext());
             inputNodes.push_back(node);
         }
         /* */
         /* get the Nodes corresponding to each output BaseState context */
         for( iterState = outputStates.begin(); iterState != outputStates.end(); ++iterState)
         {
-            simulation::Node* node = dynamic_cast< simulation::Node* >((*iterState)->getContext());
+            simulation::Node* node = simulation::Node::DynamicCast((*iterState)->getContext());
             outputNodes.push_back(node);
         }
 

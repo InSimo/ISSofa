@@ -42,6 +42,8 @@ namespace linearsolver
 class NewMatVector : public NEWMAT::ColumnVector, public defaulttype::BaseVector
 {
 public:
+    SOFA_VECTOR_CLASS_UNIQUE((NewMatVector),((defaulttype::BaseVector)));
+
 
     typedef NEWMAT::ColumnVector SubVector;
     typedef NewMatVector SubVectorType;

@@ -51,7 +51,7 @@ namespace visualmodel
 class SOFA_OPENGL_VISUAL_API PostProcessManager : public core::visual::VisualManager
 {
 public:
-    SOFA_CLASS(PostProcessManager,core::visual::VisualModel);
+    SOFA_CLASS(PostProcessManager, core::visual::VisualManager);
 
 private:
     static const std::string DEPTH_OF_FIELD_VERTEX_SHADER;

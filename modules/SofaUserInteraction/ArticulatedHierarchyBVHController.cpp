@@ -49,7 +49,7 @@ namespace controller
 
 void ArticulatedHierarchyBVHController::init()
 {
-    sofa::simulation::Node* curNode = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+    sofa::simulation::Node* curNode = sofa::simulation::Node::DynamicCast(this->getContext());
     if (curNode)
     {
         curNode->getTreeObjects<ArticulationCenter, ArtCenterVec >(&m_artCenterVec);
@@ -120,7 +120,7 @@ void ArticulatedHierarchyBVHController::applyController(void)
             {
                 std::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* > articulatedObjects;
 
-                sofa::simulation::Node* curNode = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+                sofa::simulation::Node* curNode = sofa::simulation::Node::DynamicCast(this->getContext());
                 if (curNode)
                     curNode->getTreeObjects<core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>, std::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* > >(&articulatedObjects);
 

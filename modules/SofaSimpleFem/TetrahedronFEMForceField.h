@@ -203,7 +203,7 @@ public:
     {
         unsigned int nbdof = this->mstate->read(core::ConstVecCoordId::position())->getValue().size();
 
-        if (component::linearsolver::RotationMatrix<float> * diag = dynamic_cast<component::linearsolver::RotationMatrix<float> *>(rotations))
+        if (component::linearsolver::RotationMatrix<float> * diag = component::linearsolver::RotationMatrix<float>::DynamicCast(rotations))
         {
             Transformation R;
             for (unsigned int e=0; e<nbdof; ++e)
@@ -218,7 +218,7 @@ public:
                 }
             }
         }
-        else if (component::linearsolver::RotationMatrix<double> * diag = dynamic_cast<component::linearsolver::RotationMatrix<double> *>(rotations))
+        else if (component::linearsolver::RotationMatrix<double> * diag = component::linearsolver::RotationMatrix<double>::DynamicCast(rotations))
         {
             Transformation R;
             for (unsigned int e=0; e<nbdof; ++e)

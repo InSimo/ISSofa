@@ -55,7 +55,7 @@ AverageCoord<DataTypes>::AverageCoord()
 template <class DataTypes>
 void AverageCoord<DataTypes>::init()
 {
-    mstate = dynamic_cast< sofa::core::behavior::MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
+    mstate = sofa::core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     addInput(&f_indices);
     addInput(&f_vecId);
     addOutput(&f_average);
@@ -94,7 +94,7 @@ void AverageCoord<DataTypes>::update()
 template<class DataTypes>
 void AverageCoord<DataTypes>::handleEvent(core::objectmodel::Event *event)
 {
-    if (dynamic_cast<sofa::simulation::AnimateBeginEvent *>(event))
+    if (sofa::simulation::AnimateBeginEvent::DynamicCast(event))
         this->onBeginAnimationStep(this->getContext()->getDt());
 }
 

@@ -70,7 +70,7 @@ bool AttachBodyPerformer<defaulttype::Rigid3fTypes>::start_partial(const BodyPic
 
     if( !mstateCollision ) return false;
 
-    m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< defaulttype::Rigid3fTypes > >(dynamic_cast<MouseContainer*>(this->interactor->getMouseContainer()), mstateCollision);
+    m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< defaulttype::Rigid3fTypes > >(MouseContainer::DynamicCast(this->interactor->getMouseContainer()), mstateCollision);
     sofa::component::interactionforcefield::JointSpring<defaulttype::Rigid3fTypes> spring(0,picked.indexCollisionElement);
     JointSpringForceField<defaulttype::Rigid3fTypes>* jointspringforcefield = static_cast<JointSpringForceField<defaulttype::Rigid3fTypes>*>(m_forcefield.get());
 
@@ -104,7 +104,7 @@ bool AttachBodyPerformer<defaulttype::Rigid3dTypes>::start_partial(const BodyPic
 
     if( !mstateCollision ) return false;
 
-    m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< defaulttype::Rigid3dTypes > >(dynamic_cast<MouseContainer*>(this->interactor->getMouseContainer()), mstateCollision);
+    m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< defaulttype::Rigid3dTypes > >(MouseContainer::DynamicCast(this->interactor->getMouseContainer()), mstateCollision);
     JointSpringForceField<defaulttype::Rigid3dTypes>* jointspringforcefield = static_cast<JointSpringForceField<defaulttype::Rigid3dTypes>*>(m_forcefield.get());
     sofa::component::interactionforcefield::JointSpring<defaulttype::Rigid3dTypes> spring(0,picked.indexCollisionElement);
     jointspringforcefield->setName("Spring-Mouse-Contact");

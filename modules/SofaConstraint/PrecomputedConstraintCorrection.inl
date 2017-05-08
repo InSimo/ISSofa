@@ -895,7 +895,7 @@ void PrecomputedConstraintCorrection< DataTypes >::draw(const core::visual::Visu
 
     // we draw the rotations associated to each node //
 
-    simulation::Node *node = dynamic_cast< simulation::Node* >(this->getContext());
+    simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
 
     TetrahedronFEMForceField< DataTypes >* forceField = NULL;
     RotationFinder< DataTypes > * rotationFinder = NULL;
@@ -954,7 +954,7 @@ void PrecomputedConstraintCorrection< DataTypes >::rotateConstraints(bool back)
     helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::holonomicC());
     MatrixDeriv& c = cData.wref();
 
-    simulation::Node *node = dynamic_cast< simulation::Node * >(this->getContext());
+    simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
 
     TetrahedronFEMForceField< DataTypes >* forceField = NULL;
     RotationFinder< DataTypes >* rotationFinder = NULL;
@@ -1016,7 +1016,7 @@ void PrecomputedConstraintCorrection< DataTypes >::rotateConstraints(bool back)
 template<class DataTypes>
 void PrecomputedConstraintCorrection<DataTypes>::rotateResponse()
 {
-    simulation::Node *node = dynamic_cast<simulation::Node *>(this->getContext());
+    simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
 
     using sofa::core::behavior::RotationFinder;
 

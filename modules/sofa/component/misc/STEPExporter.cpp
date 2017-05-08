@@ -745,7 +745,7 @@ void STEPExporter::writeSTEPShort()
 
 void STEPExporter::handleEvent(sofa::core::objectmodel::Event *event)
 {
-    if (sofa::core::objectmodel::KeypressedEvent* ev = dynamic_cast<sofa::core::objectmodel::KeypressedEvent*>(event))
+    if (sofa::core::objectmodel::KeypressedEvent* ev = sofa::core::objectmodel::KeypressedEvent::DynamicCast(event))
     {
         std::cout << "key pressed " << std::endl;
         switch(ev->getKey())
@@ -766,7 +766,7 @@ void STEPExporter::handleEvent(sofa::core::objectmodel::Event *event)
     }
 
 
-    if ( /*simulation::AnimateEndEvent* ev =*/  dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if ( /*simulation::AnimateEndEvent* ev =*/  simulation::AnimateEndEvent::DynamicCast(event))
     {
         maxStep = exportEveryNbSteps.getValue();
         if (maxStep == 0) return;

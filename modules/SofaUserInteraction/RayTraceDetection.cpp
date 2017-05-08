@@ -82,9 +82,9 @@ void RayTraceDetection::findPairsVolume (CubeModel * cm1, CubeModel * cm2)
     /*Obtain the CollisionModel at the lowest level, in this case it must be a TriangleOctreeModel */
 
     TriangleOctreeModel *tm1 =
-        dynamic_cast < TriangleOctreeModel * >(cm1->getLast ());
+        TriangleOctreeModel::DynamicCast(cm1->getLast ());
     TriangleOctreeModel *tm2 =
-        dynamic_cast < TriangleOctreeModel * >(cm2->getLast ());
+        TriangleOctreeModel::DynamicCast(cm2->getLast ());
     if (!tm1 || !tm2)
         return;
 
@@ -286,8 +286,8 @@ void RayTraceDetection::addCollisionPair (const std::pair <
         core::CollisionModel *,
         core::CollisionModel * >&cmPair)
 {
-    CubeModel *cm1 = dynamic_cast < CubeModel * >(cmPair.first);
-    CubeModel *cm2 = dynamic_cast < CubeModel * >(cmPair.second);
+    CubeModel *cm1 = CubeModel::DynamicCast(cmPair.first);
+    CubeModel *cm2 = CubeModel::DynamicCast(cmPair.second);
     if (cm1 && cm2)
     {
         //ctime_t t0, t1, t2;

@@ -79,7 +79,7 @@ void TTriangleModel<DataTypes>::init()
     _topology = this->getContext()->getMeshTopology();
 
     this->CollisionModel::init();
-    mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (this->getContext()->getMechanicalState());
+    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
 
     this->getContext()->get(mpoints);
 
@@ -95,7 +95,7 @@ void TTriangleModel<DataTypes>::init()
         return;
     }
 
-    simulation::Node* node = dynamic_cast< simulation::Node* >(this->getContext());
+    simulation::Node* node = simulation::Node::DynamicCast(this->getContext());
     if (node != 0)
     {
         m_lmdFilter = node->getNodeObject< TriangleLocalMinDistanceFilter >();

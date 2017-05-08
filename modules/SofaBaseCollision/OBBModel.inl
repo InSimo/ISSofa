@@ -53,7 +53,7 @@ template<class DataTypes>
 void TOBBModel<DataTypes>::init()
 {
     this->CollisionModel::init();
-    _mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (getContext()->getMechanicalState());
+    _mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     if (_mstate==NULL)
     {
         serr<<"TOBBModel requires a Rigid Mechanical Model" << sendl;

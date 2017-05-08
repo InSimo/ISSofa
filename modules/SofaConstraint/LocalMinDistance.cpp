@@ -1599,7 +1599,7 @@ bool LocalMinDistance::testValidity(Point &p, const Vector3 &PQ)
 
     Vector3 pt = p.p();
 
-    sofa::simulation::Node* node = dynamic_cast<sofa::simulation::Node*>(p.getCollisionModel()->getContext());
+    sofa::simulation::Node* node = sofa::simulation::Node::DynamicCast(p.getCollisionModel()->getContext());
     if ( !(node->get< LineModel >()) )
         return true;
 

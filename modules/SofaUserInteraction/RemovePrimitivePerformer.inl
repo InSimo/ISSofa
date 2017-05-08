@@ -75,7 +75,7 @@ void RemovePrimitivePerformer<DataTypes>::execute()
     picked=this->interactor->getBodyPicked();
     if (!picked.body) return;
 
-    mstateCollision = dynamic_cast< core::behavior::MechanicalState<DataTypes>*    >(picked.body->getContext()->getMechanicalState());
+    mstateCollision = core::behavior::MechanicalState<DataTypes>::DynamicCast(picked.body->getContext()->getMechanicalState());
     if (!mstateCollision)
     {
         std::cerr << "incompatible MState during Mouse Interaction " << std::endl;
@@ -200,13 +200,13 @@ bool RemovePrimitivePerformer<DataTypes>::createElementList()
         if (topoType == sofa::core::topology::TETRAHEDRON || topoType == sofa::core::topology::HEXAHEDRON) // special case: removing a surface volume on the mesh (tetra only for the moment)
         {
             // looking for mapping VolumeToSurface
-            simulation::Node *node_curr = dynamic_cast<simulation::Node*>(topo_curr->getContext());
+            simulation::Node *node_curr = simulation::Node::DynamicCast(topo_curr->getContext());
             std::vector< core::objectmodel::BaseObject * > listObject;
             node_curr->get<core::objectmodel::BaseObject>(&listObject, core::objectmodel::BaseContext::SearchRoot);
 
             for(unsigned int i=0; i<listObject.size(); ++i) // loop on all components to find mapping
             {
-                sofa::core::topology::TopologicalMapping *topoMap = dynamic_cast<sofa::core::topology::TopologicalMapping *>(listObject[i]);
+                sofa::core::topology::TopologicalMapping *topoMap = sofa::core::topology::TopologicalMapping::DynamicCast(listObject[i]);
                 if (topoMap)
                 {
                     // Mapping found: 1- looking for volume, 2- looking for surface element on border, 3- looking for correspondant ID element in surfacique mesh
@@ -378,13 +378,13 @@ bool RemovePrimitivePerformer<DataTypes>::createElementList()
         if (topoType == sofa::core::topology::TRIANGLE || topoType == sofa::core::topology::QUAD) // Special case: removing a volumique zone on the mesh while starting at the surface
         {
             // looking for mapping VolumeToSurface
-            simulation::Node *node_curr = dynamic_cast<simulation::Node*>(topo_curr->getContext());
+            simulation::Node *node_curr = simulation::Node::DynamicCast(topo_curr->getContext());
             std::vector< core::objectmodel::BaseObject * > listObject;
             node_curr->get<core::objectmodel::BaseObject>(&listObject, core::objectmodel::BaseContext::Local);
 
             for(unsigned int i=0; i<listObject.size(); ++i) // loop on all components to find mapping (only tetra for the moment)
             {
-                sofa::core::topology::TopologicalMapping *topoMap = dynamic_cast<sofa::core::topology::TopologicalMapping *>(listObject[i]);
+                sofa::core::topology::TopologicalMapping *topoMap = sofa::core::topology::TopologicalMapping::DynamicCast(listObject[i]);
                 if (topoMap)
                 {
                     // Mapping found: 1- get surface element ID in volumique topology, 2- get volume element ID behind surface element, 3- switching all variables to volumique case
@@ -568,7 +568,7 @@ sofa::helper::vector <unsigned int> RemovePrimitivePerformer<DataTypes>::getElem
 {
     // - STEP 0: Compute appropriate scale from BB:  selectorScale = 100 => zone = all mesh
     defaulttype::Vec<3, SReal> sceneMinBBox, sceneMaxBBox;
-    core::objectmodel::BaseNode* root = dynamic_cast<core::objectmodel::BaseNode*>(mstateCollision->getContext());
+    core::objectmodel::BaseNode* root = core::objectmodel::BaseNode::DynamicCast(mstateCollision->getContext());
     if (root) root = root->getRoot();
     if (root) { sceneMinBBox = root->f_bbox.getValue().minBBox(); sceneMaxBBox = root->f_bbox.getValue().maxBBox(); }
     else      { sceneMinBBox = mstateCollision->getContext()->f_bbox.getValue().minBBox(); sceneMaxBBox = mstateCollision->getContext()->f_bbox.getValue().maxBBox(); }

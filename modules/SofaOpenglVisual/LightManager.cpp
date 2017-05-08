@@ -443,7 +443,7 @@ void LightManager::restoreDefaultLight()
 
 void LightManager::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (sofa::core::objectmodel::KeypressedEvent* ev = dynamic_cast<sofa::core::objectmodel::KeypressedEvent*>(event))
+    if (sofa::core::objectmodel::KeypressedEvent* ev = sofa::core::objectmodel::KeypressedEvent::DynamicCast(event))
     {
         switch(ev->getKey())
         {

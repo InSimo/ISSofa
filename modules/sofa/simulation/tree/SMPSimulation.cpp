@@ -188,7 +188,7 @@ SMPSimulation::~SMPSimulation()
 void SMPSimulation::init( Node* root )
 {
     Simulation::init(root);
-    changeListener->addChild ( NULL,  dynamic_cast< GNode *>(root) );
+    changeListener->addChild ( NULL,  GNode::DynamicCast(root) );
 }
 
 Node::SPtr SMPSimulation::createNewGraph(const std::string& name)

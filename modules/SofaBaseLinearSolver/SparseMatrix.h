@@ -50,6 +50,8 @@ template<typename T>
 class SparseMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((SparseMatrix<T>),((defaulttype::BaseMatrix)));
+
     typedef T Real;
     typedef std::map<Index,Real> Line;
     typedef std::map<Index,Line> Data;

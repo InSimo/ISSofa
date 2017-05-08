@@ -75,28 +75,28 @@ ConstraintSolver::SPtr createConstraintSolver(OdeSolver* solver1, OdeSolver* sol
     if (!csolver1 && !csolver2) return NULL;
     if (!csolver1)
     {
-        if (constraintset::LCPConstraintSolver* cs=dynamic_cast<constraintset::LCPConstraintSolver*>(csolver2))
+        if (constraintset::LCPConstraintSolver* cs=constraintset::LCPConstraintSolver::DynamicCast(csolver2))
             return copySolver<constraintset::LCPConstraintSolver>(*cs);
 #ifdef SOFA_HAVE_EIGEN2
-        else if (constraintset::LMConstraintSolver* cs=dynamic_cast<constraintset::LMConstraintSolver*>(csolver2))
+        else if (constraintset::LMConstraintSolver* cs=constraintset::LMConstraintSolver::DynamicCast(csolver2))
             return copySolver<constraintset::LMConstraintSolver>(*cs);
 #endif
     }
     else if (!csolver2)
     {
-        if (constraintset::LCPConstraintSolver* cs=dynamic_cast<constraintset::LCPConstraintSolver*>(csolver1))
+        if (constraintset::LCPConstraintSolver* cs=constraintset::LCPConstraintSolver::DynamicCast(csolver1))
             return copySolver<constraintset::LCPConstraintSolver>(*cs);
 #ifdef SOFA_HAVE_EIGEN2
-        else if (constraintset::LMConstraintSolver* cs=dynamic_cast<constraintset::LMConstraintSolver*>(csolver1))
+        else if (constraintset::LMConstraintSolver* cs=constraintset::LMConstraintSolver::DynamicCast(csolver1))
             return copySolver<constraintset::LMConstraintSolver>(*cs);
 #endif
     }
     else
     {
-        if (dynamic_cast<constraintset::LCPConstraintSolver*>(csolver2) && dynamic_cast<constraintset::LCPConstraintSolver*>(csolver1))
+        if (constraintset::LCPConstraintSolver::DynamicCast(csolver2) && constraintset::LCPConstraintSolver::DynamicCast(csolver1))
         {
-            constraintset::LCPConstraintSolver* lcp1=dynamic_cast<constraintset::LCPConstraintSolver*>(csolver1);
-            constraintset::LCPConstraintSolver* lcp2=dynamic_cast<constraintset::LCPConstraintSolver*>(csolver2);
+            constraintset::LCPConstraintSolver* lcp1=constraintset::LCPConstraintSolver::DynamicCast(csolver1);
+            constraintset::LCPConstraintSolver* lcp2=constraintset::LCPConstraintSolver::DynamicCast(csolver2);
             constraintset::LCPConstraintSolver::SPtr newSolver = sofa::core::objectmodel::New<constraintset::LCPConstraintSolver>();
             newSolver->displayTime.setValue(lcp1->displayTime.getValue() | lcp2->displayTime.getValue());
             newSolver->initial_guess.setValue(lcp1->initial_guess.getValue() | lcp2->initial_guess.getValue());
@@ -107,10 +107,10 @@ ConstraintSolver::SPtr createConstraintSolver(OdeSolver* solver1, OdeSolver* sol
             return newSolver;
         }
 #ifdef SOFA_HAVE_EIGEN2
-        else if (dynamic_cast<constraintset::LMConstraintSolver*>(csolver2) && dynamic_cast<constraintset::LMConstraintSolver*>(csolver1))
+        else if (constraintset::LMConstraintSolver::DynamicCast(csolver2) && constraintset::LMConstraintSolver::DynamicCast(csolver1))
         {
-            constraintset::LMConstraintSolver* lm1=dynamic_cast<constraintset::LMConstraintSolver*>(csolver1);
-            constraintset::LMConstraintSolver* lm2=dynamic_cast<constraintset::LMConstraintSolver*>(csolver2);
+            constraintset::LMConstraintSolver* lm1=constraintset::LMConstraintSolver::DynamicCast(csolver1);
+            constraintset::LMConstraintSolver* lm2=constraintset::LMConstraintSolver::DynamicCast(csolver2);
             constraintset::LMConstraintSolver::SPtr newSolver = sofa::core::objectmodel::New<constraintset::LMConstraintSolver>();
             newSolver->numIterations.setValue(lm1->numIterations.getValue() > lm2->numIterations.getValue() ? lm1->numIterations.getValue() : lm2->numIterations.getValue() );
             newSolver->maxError.setValue(lm1->maxError.getValue() < lm2->maxError.getValue() ? lm1->maxError.getValue() : lm2->maxError.getValue() );

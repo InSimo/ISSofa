@@ -144,7 +144,7 @@ void TaitSurfacePressureForceField<DataTypes>::reset()
 template <class DataTypes>
 void TaitSurfacePressureForceField<DataTypes>::handleEvent(core::objectmodel::Event *event)
 {
-    if (dynamic_cast<sofa::simulation::AnimateBeginEvent *>(event))
+    if (sofa::simulation::AnimateBeginEvent::DynamicCast(event))
     {
         double dt = (static_cast<sofa::simulation::AnimateBeginEvent *> (event))->getDt();
         Real inj = m_injectedVolume.getValue();

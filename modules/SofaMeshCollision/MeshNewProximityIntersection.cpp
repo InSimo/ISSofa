@@ -151,7 +151,7 @@ int MeshNewProximityIntersection::computeIntersection(Triangle& e1, Line& e2, Ou
     const Vector3& p1 = e1.p1();
     const Vector3& p2 = e1.p2();
     const Vector3& p3 = e1.p3();
-    const Vector3& pn = e1.n();
+    //const Vector3& pn = e1.n();
     const Vector3& q1 = e2.p1();
     const Vector3& q2 = e2.p2();
 

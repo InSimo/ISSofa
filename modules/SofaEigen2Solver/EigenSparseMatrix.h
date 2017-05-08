@@ -58,6 +58,7 @@ class EigenSparseMatrix : public EigenBaseSparseMatrix<typename OutDataTypes::Re
 {
 public:
     typedef EigenBaseSparseMatrix<typename OutDataTypes::Real> Inherit;
+    SOFA_MATRIX_CLASS_UNIQUE((EigenSparseMatrix<InDataTypes,OutDataTypes>),((Inherit)));
     typedef typename OutDataTypes::Real OutReal;
 
     typedef typename OutDataTypes::Real Real; // what's inside the eigen matrix

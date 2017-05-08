@@ -46,7 +46,8 @@ template<class DataTypes>
 class HexahedralFEMForceFieldAndMass : virtual public sofa::core::behavior::Mass<DataTypes>, virtual public HexahedralFEMForceField<DataTypes>
 {
 public:
-    SOFA_CLASS2(SOFA_TEMPLATE(HexahedralFEMForceFieldAndMass,DataTypes), SOFA_TEMPLATE(sofa::core::behavior::Mass,DataTypes), SOFA_TEMPLATE(HexahedralFEMForceField,DataTypes));
+    SOFA_CLASS_DEFAULT((HexahedralFEMForceFieldAndMass<DataTypes>), ((sofa::core::behavior::Mass<DataTypes>), (HexahedralFEMForceField<DataTypes>)));
+    SOFA_CLASS_VIRTUAL_PARENTS((sofa::core::behavior::ForceField<DataTypes>));
 
     typedef HexahedralFEMForceField<DataTypes> HexahedralFEMForceFieldT;
     typedef sofa::core::behavior::Mass<DataTypes> MassT;

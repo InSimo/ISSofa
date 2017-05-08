@@ -40,6 +40,7 @@ namespace collision
 
 using namespace sofa::defaulttype;
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseRayContact));
 SOFA_DECL_CLASS(RayContact)
 
 sofa::core::collision::ContactCreator< RayContact<SphereModel> > RaySphereContactClass("ray",true);

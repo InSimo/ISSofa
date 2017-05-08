@@ -82,7 +82,7 @@ template<class DataTypes>
 void TLineModel<DataTypes>::init()
 {
     this->CollisionModel::init();
-    mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (getContext()->getMechanicalState());
+    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
 //    mpoints = getContext()->get<sofa::component::collision::PointModel>();
     this->getContext()->get(mpoints);
 
@@ -92,7 +92,7 @@ void TLineModel<DataTypes>::init()
         return;
     }
 
-    simulation::Node* node = dynamic_cast< simulation::Node* >(this->getContext());
+    simulation::Node* node = simulation::Node::DynamicCast(this->getContext());
     if (node != 0)
     {
         m_lmdFilter = node->getNodeObject< LineLocalMinDistanceFilter >();
@@ -135,7 +135,7 @@ void TLineModel<DataTypes>::init()
             serr<<"wrong path for Line Activer"<<sendl;
 
 
-        myActiver = dynamic_cast<LineActiver *> (activer);
+        myActiver = dynamic_cast<LineActiver*>(activer);
 
 
 

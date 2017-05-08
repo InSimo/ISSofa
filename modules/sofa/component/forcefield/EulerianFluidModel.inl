@@ -109,18 +109,18 @@ void EulerianFluidModel<DataTypes>::init()
 {
     if (this->m_mstate == NULL)
     {
-        this->m_mstate = dynamic_cast<core::behavior::MechanicalState<DataTypes>* >(this->getContext()->getMechanicalState());
+        this->m_mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
     }
     assert(this->m_mstate != NULL);
 
-    m_topology = dynamic_cast<topology::MeshTopology*>(this->m_mstate->getContext()->getMeshTopology());
+    m_topology = topology::MeshTopology::DynamicCast(this->m_mstate->getContext()->getMeshTopology());
 
     //only for 2D mesh
     if(m_topology->isVolume() || !m_topology->isSurface())
         std::cerr << "WARNING: 2D mesh required!" << endl;
 
     //judge the mesh type
-    sofa::component::topology::RegularGridTopology* _t = dynamic_cast<sofa::component::topology::RegularGridTopology*>(m_topology);
+    sofa::component::topology::RegularGridTopology* _t = sofa::component::topology::RegularGridTopology::DynamicCast(m_topology);
     if(_t == m_topology)
         m_meshType = RegularQuadMesh;
     else

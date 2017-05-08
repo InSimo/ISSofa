@@ -701,7 +701,7 @@ SpatialGridContainer<DataTypes>::~SpatialGridContainer()
 template<class DataTypes>
 void SpatialGridContainer<DataTypes>::init()
 {
-    mstate = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(this->getContext()->getMechanicalState());
+    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
     grid = new Grid(d_cellWidth.getValue());
 }
 
@@ -763,7 +763,7 @@ bool SpatialGridContainer<DataTypes>::sortPoints()
     }
     else
     {
-        MechanicalObject<DataTypes>* object = dynamic_cast<MechanicalObject<DataTypes>*>(this->mstate);
+        MechanicalObject<DataTypes>* object = MechanicalObject<DataTypes>::DynamicCast(this->mstate);
         if (object != NULL)
         {
             if(this->f_printLog.getValue())
@@ -780,8 +780,8 @@ bool SpatialGridContainer<DataTypes>::sortPoints()
 template<class DataTypes>
 void SpatialGridContainer<DataTypes>::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
-        //if (simulation::AnimateEndEvent* ev = dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
+        //if (simulation::AnimateEndEvent* ev = simulation::AnimateEndEvent::DynamicCast(event))
     {
         if (d_sortPoints.getValue())
         {

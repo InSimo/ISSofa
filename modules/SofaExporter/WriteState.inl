@@ -84,7 +84,7 @@ WriteState::~WriteState()
 
 void WriteState::init()
 {
-    mmodel = dynamic_cast<core::behavior::BaseMechanicalState*>(this->getContext()->getMechanicalState());
+    mmodel = core::behavior::BaseMechanicalState::DynamicCast(this->getContext()->getMechanicalState());
 
     // test the size and range of the DOFs to write in the file output
     if (mmodel)
@@ -138,7 +138,7 @@ void WriteState::reset()
 
 void WriteState::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
     {
         if (!mmodel) return;
         if (!outfile
@@ -157,7 +157,7 @@ void WriteState::handleEvent(sofa::core::objectmodel::Event* event)
         {
             if (time > timeToTestEnergyIncrease)
             {
-                simulation::Node *gnode = dynamic_cast<simulation::Node *>(this->getContext());
+                simulation::Node *gnode = simulation::Node::DynamicCast(this->getContext());
                 if (!gnode->mass)
                 {
                     // Error: the mechanical model has no mass

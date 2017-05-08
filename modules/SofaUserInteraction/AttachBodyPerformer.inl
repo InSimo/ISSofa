@@ -160,7 +160,7 @@ bool AttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& picked)
 
             simulation::Node *mappedNode=(simulation::Node *) mstateCollision->getContext();
             simulation::Node *mainNode=(simulation::Node *) picked.body->getContext();
-            core::behavior::BaseMechanicalState *mainDof=dynamic_cast<core::behavior::BaseMechanicalState *>(mainNode->getMechanicalState());
+            core::behavior::BaseMechanicalState *mainDof=core::behavior::BaseMechanicalState::DynamicCast(mainNode->getMechanicalState());
             const core::objectmodel::TagSet &tags=mainDof->getTags();
             for (core::objectmodel::TagSet::const_iterator it=tags.begin(); it!=tags.end(); ++it)
             {
@@ -173,7 +173,7 @@ bool AttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& picked)
     }
     else
     {
-        mstateCollision = dynamic_cast< core::behavior::MechanicalState<DataTypes>*  >(picked.mstate);
+        mstateCollision = core::behavior::MechanicalState<DataTypes>::DynamicCast(picked.mstate);
         index = picked.indexCollisionElement;
         if (!mstateCollision)
         {
@@ -184,7 +184,7 @@ bool AttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& picked)
 
     using sofa::component::interactionforcefield::StiffSpringForceField;
 
-    m_forcefield = sofa::core::objectmodel::New< StiffSpringForceField<DataTypes> >(dynamic_cast<MouseContainer*>(this->interactor->getMouseContainer()), mstateCollision);
+    m_forcefield = sofa::core::objectmodel::New< StiffSpringForceField<DataTypes> >(MouseContainer::DynamicCast(this->interactor->getMouseContainer()), mstateCollision);
     StiffSpringForceField< DataTypes >* stiffspringforcefield = static_cast< StiffSpringForceField< DataTypes >* >(m_forcefield.get());
     stiffspringforcefield->setName("Spring-Mouse-Contact");
     stiffspringforcefield->setArrowSize((float)this->size);

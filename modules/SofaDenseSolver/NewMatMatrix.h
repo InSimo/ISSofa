@@ -46,6 +46,7 @@ template<class Mat>
 class TNewMatMatrix : public Mat, public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((TNewMatMatrix<Mat>),((defaulttype::BaseMatrix)));
     typedef Mat M;
     //typedef NEWMAT::Matrix SubMatrixType;
     typedef TNewMatMatrix<NEWMAT::Matrix> SubMatrixType;
@@ -227,8 +228,8 @@ public:
 
     virtual void solve(defaulttype::BaseVector *op, defaulttype::BaseVector *res)
     {
-        NewMatVector *rv = dynamic_cast<NewMatVector *>(res);
-        NewMatVector *ov = dynamic_cast<NewMatVector *>(op);
+        NewMatVector *rv = NewMatVector::DynamicCast(res);
+        NewMatVector *ov = NewMatVector::DynamicCast(op);
 
         assert((ov!=NULL) && (rv!=NULL));
         solve(rv,ov);

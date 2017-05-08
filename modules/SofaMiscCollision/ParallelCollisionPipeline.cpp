@@ -70,7 +70,7 @@ typedef simulation::tree::GVisitor::ctime_t ctime_t;
 void ParallelCollisionPipeline::parallelComputeCollisions()
 {
     std::cout << "parallelComputeCollisions" << std::endl;
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     parallelCollisionModels.clear();
     root->getTreeObjects<ParallelCollisionModel>(&parallelCollisionModels);
@@ -98,7 +98,7 @@ void ParallelCollisionPipeline::parallelComputeCollisions()
             }
         }
     }
-    core::collision::ParallelNarrowPhaseDetection* parallelNarrowPhaseDetection = dynamic_cast<core::collision::ParallelNarrowPhaseDetection*>(narrowPhaseDetection);
+    core::collision::ParallelNarrowPhaseDetection* parallelNarrowPhaseDetection = core::collision::ParallelNarrowPhaseDetection::DynamicCast(narrowPhaseDetection);
     if (parallelNarrowPhaseDetection)
     {
         parallelNarrowPhaseDetection->parallelClearOutputs();
@@ -131,7 +131,7 @@ void ParallelCollisionPipeline::doCollisionReset()
 void ParallelCollisionPipeline::doRealCollisionReset()
 {
     core::objectmodel::BaseContext* scene = getContext();
-    simulation::Node* node = dynamic_cast<simulation::Node*>(scene);
+    simulation::Node* node = simulation::Node::DynamicCast(scene);
     if (node && !node->getLogTime()) node=NULL; // Only use node for time logging
     ctime_t t0 = 0;
     const std::string category = "collision";
@@ -160,7 +160,7 @@ void ParallelCollisionPipeline::doCollisionDetection(const sofa::helper::vector<
     //serr<<"ParallelCollisionPipeline::doCollisionDetection"<<sendl;
 
     core::objectmodel::BaseContext* scene = getContext();
-    simulation::Node* node = dynamic_cast<simulation::Node*>(scene);
+    simulation::Node* node = simulation::Node::DynamicCast(scene);
     if (node && !node->getLogTime()) node=NULL; // Only use node for time logging
     ctime_t t0 = 0;
     const std::string category = "collision";
@@ -182,7 +182,7 @@ void ParallelCollisionPipeline::doCollisionDetection(const sofa::helper::vector<
         {
             VERBOSE(sout << "ParallelCollisionPipeline::doCollisionDetection, consider model "<<(*it)->getName()<<sendl);
             if (!(*it)->isActive()) continue;
-            if (!dynamic_cast<core::ParallelCollisionModel*>(*it))
+            if (!core::ParallelCollisionModel::DynamicCast(*it))
             {
                 // we only compute non thread-safe models
                 if (continuous)
@@ -224,7 +224,7 @@ void ParallelCollisionPipeline::doCollisionDetection(const sofa::helper::vector<
 void ParallelCollisionPipeline::doCollisionResponse()
 {
     core::objectmodel::BaseContext* scene = getContext();
-    simulation::Node* node = dynamic_cast<simulation::Node*>(scene);
+    simulation::Node* node = simulation::Node::DynamicCast(scene);
     if (node && !node->getLogTime()) node=NULL; // Only use node for time logging
     ctime_t t0 = 0;
     const std::string category = "collision";

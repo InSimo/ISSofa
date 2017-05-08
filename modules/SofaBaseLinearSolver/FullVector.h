@@ -46,6 +46,8 @@ template<typename T>
 class FullVector : public defaulttype::BaseVector
 {
 public:
+    SOFA_VECTOR_CLASS_UNIQUE((FullVector<T>),((defaulttype::BaseVector)));
+    
     typedef T Real;
     typedef defaulttype::BaseVector::Index Index;
     typedef T* Iterator;

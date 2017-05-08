@@ -41,6 +41,8 @@ namespace sofa
 namespace simulation
 {
 
+SOFA_EVENT_CLASS_IMPL((AnimateBeginEvent));
+
 AnimateBeginEvent::AnimateBeginEvent(double dt)
     : sofa::core::objectmodel::Event()
     , dt(dt)

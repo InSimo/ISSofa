@@ -60,6 +60,8 @@ namespace component
 namespace visualmodel
 {
 
+SOFA_CLASS_IMPL((VisualModelImpl));
+
 using namespace sofa::defaulttype;
 using namespace sofa::core::topology;
 using namespace sofa::core::loader;
@@ -1234,7 +1236,7 @@ void VisualModelImpl::updateVisual()
 
     if(vparams->displayFlags().getShowProcessorColor())
     {
-        sofa::core::objectmodel::Context *context=dynamic_cast<sofa::core::objectmodel::Context *>(this->getContext());
+        sofa::core::objectmodel::Context *context=sofa::core::objectmodel::Context::DynamicCast(this->getContext());
         if(context&&context->getPartition())
         {
 
@@ -1290,7 +1292,7 @@ void VisualModelImpl::computeMesh()
 
         if (m_topology->hasPos())
         {
-            if (SparseGridTopology *spTopo = dynamic_cast< SparseGridTopology *>(m_topology))
+            if (SparseGridTopology *spTopo = SparseGridTopology::DynamicCast(m_topology))
             {
                 sout << "VisualModel: getting marching cube mesh from topology : ";
                 sofa::helper::io::Mesh m;
@@ -1315,7 +1317,7 @@ void VisualModelImpl::computeMesh()
         }
         else
         {
-            BaseMechanicalState* mstate = dynamic_cast< BaseMechanicalState* >(m_topology->getContext()->getMechanicalState());
+            BaseMechanicalState* mstate = BaseMechanicalState::DynamicCast(m_topology->getContext()->getMechanicalState());
 
             if (mstate)
             {

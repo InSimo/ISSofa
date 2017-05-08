@@ -72,13 +72,13 @@ ReadState::~ReadState()
 
 void ReadState::init()
 {
-//     mmodel = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(this->getContext()->getMechanicalState());
+//     mmodel = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
     reset();
 }
 
 void ReadState::reset()
 {
-    mmodel = dynamic_cast< sofa::core::behavior::BaseMechanicalState* >(this->getContext()->getMechanicalState());
+    mmodel = sofa::core::behavior::BaseMechanicalState::DynamicCast(this->getContext()->getMechanicalState());
     if (infile)
     {
         delete infile;
@@ -124,11 +124,11 @@ void ReadState::reset()
 
 void ReadState::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
     {
         processReadState();
     }
-    if (/* simulation::AnimateEndEvent* ev = */ dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if (/* simulation::AnimateEndEvent* ev = */ simulation::AnimateEndEvent::DynamicCast(event))
     {
 
     }

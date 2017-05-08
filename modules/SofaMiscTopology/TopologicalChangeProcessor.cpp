@@ -105,7 +105,7 @@ TopologicalChangeProcessor::~TopologicalChangeProcessor()
 
 void TopologicalChangeProcessor::init()
 {
-    m_topology = dynamic_cast<core::topology::BaseMeshTopology*>(this->getContext()->getMeshTopology());
+    m_topology = core::topology::BaseMeshTopology::DynamicCast(this->getContext()->getMeshTopology());
 
     if (!m_useDataInputs.getValue())
         this->readDataFile();
@@ -182,14 +182,14 @@ void TopologicalChangeProcessor::setTime(double time)
 
 void TopologicalChangeProcessor::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
     {
         if (m_useDataInputs.getValue())
             processTopologicalChanges(this->getTime());
         else
             processTopologicalChanges();
     }
-    if (/* simulation::AnimateEndEvent* ev = */ dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if (/* simulation::AnimateEndEvent* ev = */ simulation::AnimateEndEvent::DynamicCast(event))
     {
 
     }

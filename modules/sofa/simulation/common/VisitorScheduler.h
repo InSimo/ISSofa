@@ -42,7 +42,7 @@ class Visitor;
 class SOFA_SIMULATION_COMMON_API VisitorScheduler : public virtual core::objectmodel::BaseObject
 {
 public:
-    SOFA_ABSTRACT_CLASS(VisitorScheduler, core::objectmodel::BaseObject);
+    SOFA_ABSTRACT_CLASS_EXTERNAL((VisitorScheduler), ((core::objectmodel::BaseObject)));
 
     virtual void executeVisitor(simulation::Node* node, Visitor* act) = 0;
 

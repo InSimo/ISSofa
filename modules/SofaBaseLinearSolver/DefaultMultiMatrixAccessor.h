@@ -250,9 +250,9 @@ inline bool opAddMulJTM_TBloc(defaulttype::BaseMatrix* out, defaulttype::BaseMat
     typedef defaulttype::Mat<JblocCsize, MblocCsize, MelementType> OutBloc;
     typedef CompressedRowSparseMatrix<OutBloc>                     OutMatrix;
 
-    JMatrix* Jmatrix = dynamic_cast<JMatrix*>(J);
-    MMatrix* Mmatrix = dynamic_cast<MMatrix*>(stiffMatrix2);
-    OutMatrix* Outmatrix = dynamic_cast<OutMatrix*>(out);
+    JMatrix* Jmatrix = JMatrix::DynamicCast(J);
+    MMatrix* Mmatrix = MMatrix::DynamicCast(stiffMatrix2);
+    OutMatrix* Outmatrix = OutMatrix::DynamicCast(out);
 
     if (!Jmatrix || !Mmatrix) return false;
     if(_debug)
@@ -463,9 +463,9 @@ inline bool opAddMulMJ_TBloc(defaulttype::BaseMatrix* out, defaulttype::BaseMatr
     typedef defaulttype::Mat<MblocRsize, JblocCsize, MelementType> OutBloc;
     typedef CompressedRowSparseMatrix<OutBloc>                     OutMatrix;
 
-    JMatrix* Jmatrix = dynamic_cast<JMatrix*>(J);
-    MMatrix* Mmatrix = dynamic_cast<MMatrix*>(stiffMatrix2);
-    OutMatrix* Outmatrix = dynamic_cast<OutMatrix*>(out);
+    JMatrix* Jmatrix = JMatrix::DynamicCast(J);
+    MMatrix* Mmatrix = MMatrix::DynamicCast(stiffMatrix2);
+    OutMatrix* Outmatrix = OutMatrix::DynamicCast(out);
 
     if (!Jmatrix || !Mmatrix) return false;
 

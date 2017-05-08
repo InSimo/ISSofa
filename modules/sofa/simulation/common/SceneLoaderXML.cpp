@@ -123,7 +123,7 @@ Node::SPtr SceneLoaderXML::processXML(xml::BaseElement* xml, const char *filenam
         loadSucceed = false;
     }
 
-    Node::SPtr root = dynamic_cast<Node*> ( xml->getObject() );
+    Node::SPtr root = Node::DynamicCast( xml->getObject() );
     if ( root == NULL )
     {
         std::cerr << "LOAD ERROR: Objects initialization failed."<<std::endl;

@@ -47,7 +47,7 @@ TopologyEngineImpl::TopologyEngineImpl(t_topologicalData *_topologicalData,
     m_pointsLinked(false), m_edgesLinked(false), m_trianglesLinked(false),
     m_quadsLinked(false), m_tetrahedraLinked(false), m_hexahedraLinked(false)
 {
-    m_topology =  dynamic_cast<sofa::core::topology::TopologyContainer*>(_topology);
+    m_topology =  sofa::core::topology::TopologyContainer::DynamicCast(_topology);
 
     if (m_topology == NULL)
         serr <<"Error: Topology is not dynamic" << sendl;
@@ -94,7 +94,7 @@ void TopologyEngineImpl::update()
 
 void TopologyEngineImpl::registerTopology(sofa::core::topology::BaseMeshTopology *_topology)
 {
-    m_topology =  dynamic_cast<sofa::core::topology::TopologyContainer*>(_topology);
+    m_topology =  sofa::core::topology::TopologyContainer::DynamicCast(_topology);
 
     if (m_topology == NULL)
     {
@@ -139,7 +139,7 @@ void TopologyEngineImpl::linkToPointDataArray()
     if (m_pointsLinked) // avoid second registration
         return;
 
-    sofa::component::topology::PointSetTopologyContainer* _container = dynamic_cast<sofa::component::topology::PointSetTopologyContainer*>(m_topology);
+    sofa::component::topology::PointSetTopologyContainer* _container = sofa::component::topology::PointSetTopologyContainer::DynamicCast(m_topology);
 
     if (_container == NULL)
     {
@@ -159,7 +159,7 @@ void TopologyEngineImpl::linkToEdgeDataArray()
     if (m_edgesLinked) // avoid second registration
         return;
 
-    sofa::component::topology::EdgeSetTopologyContainer* _container = dynamic_cast<sofa::component::topology::EdgeSetTopologyContainer*>(m_topology);
+    sofa::component::topology::EdgeSetTopologyContainer* _container = sofa::component::topology::EdgeSetTopologyContainer::DynamicCast(m_topology);
 
     if (_container == NULL)
     {
@@ -179,7 +179,7 @@ void TopologyEngineImpl::linkToTriangleDataArray()
     if (m_trianglesLinked) // avoid second registration
         return;
 
-    sofa::component::topology::TriangleSetTopologyContainer* _container = dynamic_cast<sofa::component::topology::TriangleSetTopologyContainer*>(m_topology);
+    sofa::component::topology::TriangleSetTopologyContainer* _container = sofa::component::topology::TriangleSetTopologyContainer::DynamicCast(m_topology);
 
     if (_container == NULL)
     {
@@ -199,7 +199,7 @@ void TopologyEngineImpl::linkToQuadDataArray()
     if (m_quadsLinked) // avoid second registration
         return;
 
-    sofa::component::topology::QuadSetTopologyContainer* _container = dynamic_cast<sofa::component::topology::QuadSetTopologyContainer*>(m_topology);
+    sofa::component::topology::QuadSetTopologyContainer* _container = sofa::component::topology::QuadSetTopologyContainer::DynamicCast(m_topology);
 
     if (_container == NULL)
     {
@@ -219,7 +219,7 @@ void TopologyEngineImpl::linkToTetrahedronDataArray()
     if (m_tetrahedraLinked) // avoid second registration
         return;
 
-    sofa::component::topology::TetrahedronSetTopologyContainer* _container = dynamic_cast<sofa::component::topology::TetrahedronSetTopologyContainer*>(m_topology);
+    sofa::component::topology::TetrahedronSetTopologyContainer* _container = sofa::component::topology::TetrahedronSetTopologyContainer::DynamicCast(m_topology);
 
     if (_container == NULL)
     {
@@ -239,7 +239,7 @@ void TopologyEngineImpl::linkToHexahedronDataArray()
     if (m_hexahedraLinked) // avoid second registration
         return;
 
-    sofa::component::topology::HexahedronSetTopologyContainer* _container = dynamic_cast<sofa::component::topology::HexahedronSetTopologyContainer*>(m_topology);
+    sofa::component::topology::HexahedronSetTopologyContainer* _container = sofa::component::topology::HexahedronSetTopologyContainer::DynamicCast(m_topology);
 
     if (_container == NULL)
     {

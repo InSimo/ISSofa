@@ -62,7 +62,7 @@ DefaultVisualManagerLoop::~DefaultVisualManagerLoop()
 void DefaultVisualManagerLoop::init()
 {
     if (!gRoot)
-        gRoot = dynamic_cast<simulation::Node*>(this->getContext());
+        gRoot = simulation::Node::DynamicCast(this->getContext());
 }
 
 

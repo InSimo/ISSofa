@@ -74,7 +74,7 @@ void CompositingVisualLoop::initVisual()
 void CompositingVisualLoop::init()
 {
     if (!gRoot)
-        gRoot = dynamic_cast<simulation::Node*>(this->getContext());
+        gRoot = simulation::Node::DynamicCast(this->getContext());
 }
 
 //should not be called if scene file is well formed
@@ -133,7 +133,7 @@ void CompositingVisualLoop::drawStep(sofa::core::visual::VisualParams* vparams)
         for (it = begin; it != end; ++it)
         {
             (*it)->preDrawScene(vparams);
-            VisualManagerPass* currentVMP=dynamic_cast<VisualManagerPass*>(*it);
+            VisualManagerPass* currentVMP=VisualManagerPass::DynamicCast(*it);
             if( currentVMP!=NULL && !currentVMP->isPrerendered())
             {
 #ifdef DEBUG_DRAW

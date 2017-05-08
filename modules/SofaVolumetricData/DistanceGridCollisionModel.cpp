@@ -105,7 +105,7 @@ RigidDistanceGridCollisionModel::~RigidDistanceGridCollisionModel()
 void RigidDistanceGridCollisionModel::init()
 {
     this->core::CollisionModel::init();
-    rigid = dynamic_cast< core::behavior::MechanicalState<RigidTypes>* > (getContext()->getMechanicalState());
+    rigid = core::behavior::MechanicalState<RigidTypes>::DynamicCast(getContext()->getMechanicalState());
 
     DistanceGrid* grid = NULL;
     if (fileRigidDistanceGrid.getValue().empty())
@@ -477,10 +477,10 @@ void FFDDistanceGridCollisionModel::init()
 {
     //std::cout << "> FFDDistanceGridCollisionModel::init()"<<std::endl;
     this->core::CollisionModel::init();
-    ffd = dynamic_cast< core::behavior::MechanicalState<Vec3Types>* > (getContext()->getMechanicalState());
+    ffd = core::behavior::MechanicalState<Vec3Types>::DynamicCast(getContext()->getMechanicalState());
     ffdMesh = /*dynamic_cast< topology::RegularGridTopology* >*/ (getContext()->getMeshTopology());
-    ffdRGrid = dynamic_cast< topology::RegularGridTopology* > (ffdMesh);
-    ffdSGrid = dynamic_cast< topology::SparseGridTopology* > (ffdMesh);
+    ffdRGrid = topology::RegularGridTopology::DynamicCast(ffdMesh);
+    ffdSGrid = topology::SparseGridTopology::DynamicCast(ffdMesh);
     if (!ffd || (!ffdRGrid && !ffdSGrid))
     {
         serr <<"FFDDistanceGridCollisionModel requires a Vec3-based deformable model with associated RegularGridTopology or SparseGridTopology" << sendl;

@@ -237,18 +237,22 @@ void PointSetTopologyContainer::updateDataEngineGraph(sofa::core::objectmodel::B
         // doing one level of data outputs, looking for engines
         for ( it = _outs.begin(); it!=_outs.end(); ++it)
         {
-            sofa::core::topology::TopologyEngine* topoEngine = dynamic_cast <sofa::core::topology::TopologyEngine*> ( (*it));
+            sofa::core::objectmodel::DDGNode* n = *it;
 
-            if (topoEngine)
-            {
-                next_enginesLevel.push_back(topoEngine);
-                enginesNames.push_back(topoEngine->getName());
-            }
-
-            sofa::core::objectmodel::BaseData* data = dynamic_cast<sofa::core::objectmodel::BaseData*>( (*it) );
+            sofa::core::objectmodel::BaseData* data = n->getData();
             if (data)
             {
                 sout << "Warning: Data alone linked: " << data->getName() << sendl;
+            }
+            else
+            {
+                sofa::core::topology::TopologyEngine* topoEngine = sofa::core::topology::TopologyEngine::DynamicCast(n->getOwner());
+
+                if (topoEngine)
+                {
+                    next_enginesLevel.push_back(topoEngine);
+                    enginesNames.push_back(topoEngine->getName());
+                }
             }
         }
 
@@ -266,7 +270,7 @@ void PointSetTopologyContainer::updateDataEngineGraph(sofa::core::objectmodel::B
 
             for ( itTmp = _outsTmp.begin(); itTmp!=_outsTmp.end(); ++itTmp)
             {
-                sofa::core::objectmodel::BaseData* data = dynamic_cast<sofa::core::objectmodel::BaseData*>( (*itTmp) );
+                sofa::core::objectmodel::BaseData* data = (*itTmp)->getData();
                 if (data)
                 {
                     next_GraphLevel.push_back((*itTmp));

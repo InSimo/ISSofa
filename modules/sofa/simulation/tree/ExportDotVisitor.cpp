@@ -110,22 +110,22 @@ bool ExportDotVisitor::display(core::objectmodel::BaseObject* obj, const char **
     *color = COLOR[OBJECT];
     bool show = false;
     bool hide = false;
-    if (dynamic_cast<core::behavior::BaseMechanicalState*>(obj))
+    if (core::behavior::BaseMechanicalState::DynamicCast(obj))
     {
         if (showMechanicalState) { show = true; *color = COLOR[MMODEL]; }
         else hide = true;
     }
-    if (dynamic_cast<core::topology::Topology *>(obj))
+    if (core::topology::Topology::DynamicCast(obj))
     {
         if (showTopology) { show = true; *color = COLOR[TOPOLOGY]; }
         else hide = true;
     }
-    if (dynamic_cast<core::CollisionModel*>(obj))
+    if (core::CollisionModel::DynamicCast(obj))
     {
         if (showCollisionModel) { show = true; *color = COLOR[CMODEL]; }
         else hide = true;
     }
-    core::BaseMapping* bm = dynamic_cast<core::BaseMapping*>(obj);
+    core::BaseMapping* bm = core::BaseMapping::DynamicCast(obj);
     if (bm && !bm->isMechanical())
     {
         if (showMapping) { show = true; *color = COLOR[MAPPING]; }
@@ -136,79 +136,79 @@ bool ExportDotVisitor::display(core::objectmodel::BaseObject* obj, const char **
         if (showMechanicalMapping) { show = true; *color = COLOR[MMAPPING]; }
         else hide = true;
     }
-    if (dynamic_cast<core::topology::BaseTopologyObject *>(obj))
+    if (core::topology::BaseTopologyObject::DynamicCast(obj))
     {
         if (showTopologyObject) { show = true; *color = COLOR[TOPOOBJECT]; }
         else hide = true;
     }
-    if (dynamic_cast<core::topology::TopologicalMapping *>(obj))
+    if (core::topology::TopologicalMapping::DynamicCast(obj))
     {
         if (showTopologicalMapping) { show = true; *color = COLOR[TOPOMAPPING]; }
         else hide = true;
     }
-    if (dynamic_cast<core::objectmodel::ContextObject*>(obj))
+    if (core::objectmodel::ContextObject::DynamicCast(obj))
     {
         if (showContext) { show = true; *color = COLOR[CONTEXT]; }
         else hide = true;
     }
-    if (dynamic_cast<core::DataEngine*>(obj))
+    if (core::DataEngine::DynamicCast(obj))
     {
         if (showEngine) { show = true; *color = COLOR[ENGINE]; }
         else hide = true;
     }
-    if (dynamic_cast<core::loader::BaseLoader*>(obj))
+    if (core::loader::BaseLoader::DynamicCast(obj))
     {
         if (showLoader) { show = true; *color = COLOR[LOADER]; }
         else hide = true;
     }
-    if (dynamic_cast<core::collision::Pipeline*>(obj)
-        || dynamic_cast<core::collision::Intersection*>(obj)
-        || dynamic_cast<core::collision::Detection*>(obj)
-        || dynamic_cast<core::collision::ContactManager*>(obj)
-        || dynamic_cast<core::collision::CollisionGroupManager*>(obj))
+    if (core::collision::Pipeline::DynamicCast(obj)
+        || core::collision::Intersection::DynamicCast(obj)
+        || core::collision::Detection::DynamicCast(obj)
+        || core::collision::ContactManager::DynamicCast(obj)
+        || core::collision::CollisionGroupManager::DynamicCast(obj))
     {
         if (showCollisionPipeline) { show = true; *color = COLOR[COLLISION]; }
         else hide = true;
     }
-    if (dynamic_cast<core::behavior::OdeSolver*>(obj)
-        || dynamic_cast<core::behavior::LinearSolver*>(obj))
+    if (core::behavior::OdeSolver::DynamicCast(obj)
+        || core::behavior::LinearSolver::DynamicCast(obj))
     {
         if (showSolver) { show = true; *color = COLOR[SOLVER]; }
         else hide = true;
     }
-    if (dynamic_cast<core::behavior::BaseInteractionForceField*>(obj) &&
-        dynamic_cast<core::behavior::BaseInteractionForceField*>(obj)->getMechModel1()!=dynamic_cast<core::behavior::BaseInteractionForceField*>(obj)->getMechModel2())
+    if (core::behavior::BaseInteractionForceField::DynamicCast(obj) &&
+        core::behavior::BaseInteractionForceField::DynamicCast(obj)->getMechModel1()!=core::behavior::BaseInteractionForceField::DynamicCast(obj)->getMechModel2())
     {
         if (showInteractionForceField) { show = true; *color = COLOR[IFFIELD]; }
         else hide = true;
     }
-    else if (dynamic_cast<core::behavior::BaseForceField*>(obj))
+    else if (core::behavior::BaseForceField::DynamicCast(obj))
     {
         if (showForceField) { show = true; *color = COLOR[FFIELD]; }
         else hide = true;
     }
-    if (dynamic_cast<core::behavior::BaseMass*>(obj))
+    if (core::behavior::BaseMass::DynamicCast(obj))
     {
         if (showMass) { show = true; *color = COLOR[MASS]; }
         else hide = true;
     }
-    if (dynamic_cast<core::behavior::BaseProjectiveConstraintSet*>(obj))
+    if (core::behavior::BaseProjectiveConstraintSet::DynamicCast(obj))
     {
         if (showConstraint) { show = true; *color = COLOR[PROJECTIVECONSTRAINTSET]; }
         else hide = true;
     }
-    if (dynamic_cast<core::behavior::BaseConstraintSet*>(obj))
+    if (core::behavior::BaseConstraintSet::DynamicCast(obj))
     {
         if (showConstraint) { show = true; *color = COLOR[CONSTRAINTSET]; }
         else hide = true;
     }
-    if (dynamic_cast<core::BehaviorModel*>(obj))
+    if (core::BehaviorModel::DynamicCast(obj))
     {
         if (showBehaviorModel) { show = true; *color = COLOR[BMODEL]; }
         else hide = true;
     }
 
-    if (dynamic_cast<core::visual::VisualModel*>(obj) && !hide && !show)
+    if (core::visual::VisualModel::DynamicCast(obj) && !hide && !show)
     {
         if (showVisualModel) { show = true; *color = COLOR[VMODEL]; }
         else hide = true;
@@ -232,22 +232,22 @@ std::string ExportDotVisitor::getParentName(core::objectmodel::BaseObject* obj)
     core::objectmodel::BaseObject* master = obj->getMaster();
     if (showSlaves && master && display(master))
         return getName(master);
-    GNode* node = dynamic_cast<GNode*>(obj->getContext());
+    GNode* node = GNode::DynamicCast(obj->getContext());
     if (!node) return "";
     if (display(node))
         return getName(node);
-    if (dynamic_cast<core::BaseMapping*>(obj))
+    if (core::BaseMapping::DynamicCast(obj))
         return "";
-    if (dynamic_cast<core::topology::TopologicalMapping*>(obj))
+    if (core::topology::TopologicalMapping::DynamicCast(obj))
         return "";
     if (!node->collisionPipeline.empty() && display(node->collisionPipeline) &&
-        (dynamic_cast<core::collision::Intersection*>(obj) ||
-                dynamic_cast<core::collision::Detection*>(obj) ||
-                dynamic_cast<core::collision::ContactManager*>(obj) ||
-                dynamic_cast<core::collision::CollisionGroupManager*>(obj)))
+        (core::collision::Intersection::DynamicCast(obj) ||
+                core::collision::Detection::DynamicCast(obj) ||
+                core::collision::ContactManager::DynamicCast(obj) ||
+                core::collision::CollisionGroupManager::DynamicCast(obj)))
         return getName(node->collisionPipeline);
     if (!node->topology.empty() && node->topology!=obj && display(node->topology) &&
-        dynamic_cast<core::topology::BaseTopologyObject*>(obj))
+        core::topology::BaseTopologyObject::DynamicCast(obj))
         return getName(node->topology);
     /// \todo consider all solvers instead of the first one (FF)
     if (!node->mechanicalState.empty() && node->mechanicalState!=obj && node->linearSolver[0]!=obj && node->solver[0]!=obj  && node->animationManager!=obj && display(node->mechanicalState))
@@ -341,20 +341,20 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
         if (!pname.empty())
         {
             *out << pname << " -> " << name;
-            if (dynamic_cast<core::BaseMapping*>(obj) || dynamic_cast<core::topology::TopologicalMapping*>(obj))
+            if (core::BaseMapping::DynamicCast(obj) || core::topology::TopologicalMapping::DynamicCast(obj))
                 *out << "[constraint=false,weight=10]";
             else
                 *out << "[weight=10]";
             *out << ";" << std::endl;
         }
         /*
-        core::behavior::BaseMechanicalState* bms = dynamic_cast<core::behavior::BaseMechanicalState*>(obj);
+        core::behavior::BaseMechanicalState* bms = core::behavior::BaseMechanicalState::DynamicCast(obj);
         if (bms!=NULL)
         {
             core::objectmodel::BaseLink* l_topology = bms->findLink("topology");
             if (l_topology)
             {
-                core::topology::BaseMeshTopology* topo = dynamic_cast<core::topology::BaseMeshTopology*>(l_topology->getLinkedBase());
+                core::topology::BaseMeshTopology* topo = core::topology::BaseMeshTopology::DynamicCast(l_topology->getLinkedBase());
                 if (topo)
                 {
                     if (display(topo))
@@ -363,7 +363,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
             }
         }
         */
-        core::behavior::BaseInteractionForceField* iff = dynamic_cast<core::behavior::BaseInteractionForceField*>(obj);
+        core::behavior::BaseInteractionForceField* iff = core::behavior::BaseInteractionForceField::DynamicCast(obj);
         if (iff!=NULL)
         {
             core::behavior::BaseMechanicalState* model1 = iff->getMechModel1();
@@ -376,7 +376,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                     *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
             }
         }
-        core::behavior::BaseInteractionConstraint* ic = dynamic_cast<core::behavior::BaseInteractionConstraint*>(obj);
+        core::behavior::BaseInteractionConstraint* ic = core::behavior::BaseInteractionConstraint::DynamicCast(obj);
         if (ic!=NULL)
         {
             core::behavior::BaseMechanicalState* model1 = ic->getMechModel1();
@@ -389,7 +389,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                     *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
             }
         }
-        core::BaseMapping* map = dynamic_cast<core::BaseMapping*>(obj);
+        core::BaseMapping* map = core::BaseMapping::DynamicCast(obj);
         if (map!=NULL)
         {
             double width = 1.0;
@@ -405,7 +405,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 if (display(model1))
                 {
                     *out << getName(model1) << " -> " << name << " [style=\"dashed\",penwidth=" << width << ",color=\"" << color << "\",arrowhead=\"none\"";
-                    core::BaseMapping* bmm = dynamic_cast<core::BaseMapping*>(obj);
+                    core::BaseMapping* bmm = core::BaseMapping::DynamicCast(obj);
                     if (bmm)
                     {
                         if(bmm->isMechanical())
@@ -422,7 +422,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                     *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=" << width << ",color=\"" << color << "\"];" << std::endl;
             }
         }
-        core::topology::TopologicalMapping* tmap = dynamic_cast<core::topology::TopologicalMapping*>(obj);
+        core::topology::TopologicalMapping* tmap = core::topology::TopologicalMapping::DynamicCast(obj);
         if (tmap!=NULL)
         {
             core::objectmodel::BaseObject* model1 = tmap->getFrom();
@@ -441,7 +441,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
             if (display(model2))
                 *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\"];" << std::endl;
         }
-        if (dynamic_cast<core::DataEngine*>(obj) || dynamic_cast<core::loader::BaseLoader*>(obj))
+        if (core::DataEngine::DynamicCast(obj) || core::loader::BaseLoader::DynamicCast(obj))
         {
             std::set<core::objectmodel::Base*> inputs;
             std::set<core::objectmodel::Base*> outputs;
@@ -455,7 +455,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 {
                     core::objectmodel::BaseData* data2 = (*it2)->getData();
                     if (data2 && data2->getOwner() && data2->getOwner() != obj &&
-                        !(dynamic_cast<core::DataEngine*>(data2->getOwner()) || dynamic_cast<core::loader::BaseLoader*>(data2->getOwner())))
+                        !(core::DataEngine::DynamicCast(data2->getOwner()) || core::loader::BaseLoader::DynamicCast(data2->getOwner())))
                         inputs.insert(data2->getOwner());
                 }
                 for (core::objectmodel::DDGNode::DDGLinkContainer::const_iterator it2 = doutputs.begin(); it2 != doutputs.end(); ++it2)
@@ -467,8 +467,8 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
             }
             for(std::set<core::objectmodel::Base*>::const_iterator it = inputs.begin(); it != inputs.end(); ++it)
             {
-                GNode* node1 = dynamic_cast<GNode*>(*it);
-                core::objectmodel::BaseObject* model1 = dynamic_cast<core::objectmodel::BaseObject*>(*it);
+                GNode* node1 = GNode::DynamicCast(*it);
+                core::objectmodel::BaseObject* model1 = core::objectmodel::BaseObject::DynamicCast(*it);
                 if ((node1 && display(node1)) || (model1 && display(model1)))
                 {
                     *out << (node1 ? getName(node1) : getName(model1)) << " -> " << name << " [style=\"dotted\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"none\"";
@@ -477,8 +477,8 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
             }
             for(std::set<core::objectmodel::Base*>::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
             {
-                GNode* node2 = dynamic_cast<GNode*>(*it);
-                core::objectmodel::BaseObject* model2 = dynamic_cast<core::objectmodel::BaseObject*>(*it);
+                GNode* node2 = GNode::DynamicCast(*it);
+                core::objectmodel::BaseObject* model2 = core::objectmodel::BaseObject::DynamicCast(*it);
                 if ((node2 && display(node2)) || (model2 && display(model2)))
                 {
                     *out << name << " -> " << (node2 ? getName(node2) : getName(model2)) << " [style=\"dotted\",penwidth=2.0,color=\"" << color << "\"];" << std::endl;

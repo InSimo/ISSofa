@@ -57,6 +57,7 @@ namespace simulation
 class SOFA_SIMULATION_COMMON_API CollisionAnimationLoop : public sofa::core::behavior::BaseAnimationLoop
 {
 public:
+    SOFA_CLASS(CollisionAnimationLoop, sofa::core::behavior::BaseAnimationLoop);
     typedef sofa::core::behavior::BaseAnimationLoop Inherit;
     typedef sofa::core::objectmodel::BaseContext BaseContext;
     typedef sofa::core::objectmodel::BaseObjectDescription BaseObjectDescription;
@@ -71,7 +72,7 @@ public:
     template<class T>
     static typename T::SPtr create(T*, BaseContext* context, BaseObjectDescription* arg)
     {
-        simulation::Node* gnode = dynamic_cast<simulation::Node*>(context);
+        simulation::Node* gnode = simulation::Node::DynamicCast(context);
         typename T::SPtr obj = sofa::core::objectmodel::New<T>(gnode);
         if (context) context->addObject(obj);
         if (arg) obj->parse(arg);
@@ -97,7 +98,7 @@ protected:
     const Solvers& getSolverSequence();
 
     // the parent Node of CollisionAnimationLoop its self (usually, this parent node is the root node of the simulation graph)
-    // This pointer is initialized one time at the construction, avoiding dynamic_cast<Node*>(context) every time step
+    // This pointer is initialized one time at the construction, avoiding Node::DynamicCast(context) every time step
     simulation::Node* gnode;
     /// @}
 };

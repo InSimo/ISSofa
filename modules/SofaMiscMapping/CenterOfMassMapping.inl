@@ -53,7 +53,7 @@ template <class TIn, class TOut>
 void CenterOfMassMapping<TIn, TOut>::init()
 {
     //get the pointer on the input dofs mass
-    masses = dynamic_cast<sofa::core::behavior::BaseMass*> (this->fromModel->getContext()->getMass());
+    masses = sofa::core::behavior::BaseMass::DynamicCast(this->fromModel->getContext()->getMass());
     if(!masses)
         return;
 

@@ -48,6 +48,8 @@ class CompressedRowSparseMatrix : public defaulttype::BaseMatrix
 {
 public:
     typedef CompressedRowSparseMatrix<TBloc,TVecBloc,TVecIndex> Matrix;
+    SOFA_MATRIX_CLASS_UNIQUE((Matrix),((defaulttype::BaseMatrix)));
+    
     typedef TBloc Bloc;
     typedef matrix_bloc_traits<Bloc> traits;
     typedef typename traits::Real Real;

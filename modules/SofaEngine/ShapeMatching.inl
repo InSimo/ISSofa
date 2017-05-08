@@ -92,7 +92,7 @@ ShapeMatching<DataTypes>::ShapeMatching()
 template <class DataTypes>
 void ShapeMatching<DataTypes>::init()
 {
-    mstate = dynamic_cast< sofa::core::behavior::MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
+    mstate = sofa::core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     addInput(&fixedPosition0);
     addInput(&fixedPosition);
     addInput(&position);

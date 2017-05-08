@@ -335,7 +335,7 @@ void MDDExporter::writeOBJ()
 
 void MDDExporter::handleEvent(sofa::core::objectmodel::Event *event)
 {
-    if( /*simulation::AnimateEndEvent* ev =*/  dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if( /*simulation::AnimateEndEvent* ev =*/  simulation::AnimateEndEvent::DynamicCast(event))
     {
         maxStep = exportEveryNbSteps.getValue();
         if (maxStep == 0) return;
@@ -346,7 +346,7 @@ void MDDExporter::handleEvent(sofa::core::objectmodel::Event *event)
             getState();
         }
     }
-    if(core::objectmodel::KeypressedEvent* ev = dynamic_cast<core::objectmodel::KeypressedEvent*>(event))
+    if(core::objectmodel::KeypressedEvent* ev = core::objectmodel::KeypressedEvent::DynamicCast(event))
     {
         switch(ev->getKey())
         {

@@ -47,10 +47,10 @@ void PauseAnimation::init()
 {
     BaseObject::init();
     //simu = sofa::simulation::getSimulation();
-    simulation::Node *context = dynamic_cast<simulation::Node *>(this->getContext());
-    root = dynamic_cast<simulation::Node *>(context->getRootContext());
+    simulation::Node *context = simulation::Node::DynamicCast(this->getContext());
+    root = simulation::Node::DynamicCast(context->getRootContext());
 
-    //root = dynamic_cast<sofa::core::objectmodel::BaseNode*>(this->getContext());
+    //root = sofa::core::objectmodel::BaseNode::DynamicCast(this->getContext());
     // TODO: add methods in BaseNode to get parent nodes and/or root node
 }
 

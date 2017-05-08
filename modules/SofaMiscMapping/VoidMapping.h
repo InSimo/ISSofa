@@ -49,8 +49,8 @@ public:
 
     void init()
     {
-        fromModel = dynamic_cast<In*>(this->getContext()->getMechanicalState());
-        toModel = dynamic_cast<Out*>(this->getContext()->getMechanicalState());
+        fromModel = In::DynamicCast(this->getContext()->getMechanicalState());
+        toModel = Out::DynamicCast(this->getContext()->getMechanicalState());
     }
 
     /// Accessor to the input model of this mapping

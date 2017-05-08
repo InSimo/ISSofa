@@ -83,7 +83,7 @@ public:
     template <class RealObject>
     static RealObject* create( RealObject*, BaseMouseInteractor* interactor)
     {
-        if (!dynamic_cast< MouseInteractor<DataTypes>* >(interactor)) return NULL;
+        if (!MouseInteractor<DataTypes>::DynamicCast(interactor)) return NULL;
         else return new RealObject(interactor);
     }
 

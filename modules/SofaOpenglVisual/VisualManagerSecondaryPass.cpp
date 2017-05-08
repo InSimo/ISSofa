@@ -102,14 +102,14 @@ void VisualManagerSecondaryPass::initShaderInputTexId()
 {
     nbFbo=0;
 
-    sofa::simulation::Node* gRoot = dynamic_cast<simulation::Node*>(this->getContext());
+    sofa::simulation::Node* gRoot = simulation::Node::DynamicCast(this->getContext());
     sofa::simulation::Node::Sequence<core::visual::VisualManager>::iterator begin = gRoot->visualManager.begin();
     sofa::simulation::Node::Sequence<core::visual::VisualManager>::iterator end = gRoot->visualManager.end();
     sofa::simulation::Node::Sequence<core::visual::VisualManager>::iterator it;
     for (it = begin; it != end; ++it)
     {
-        VisualManagerPass *currentPass=dynamic_cast<VisualManagerPass*>((*it));
-        VisualManagerSecondaryPass *currentSecondaryPass=dynamic_cast<VisualManagerSecondaryPass*>((*it));
+        VisualManagerPass *currentPass=VisualManagerPass::DynamicCast((*it));
+        VisualManagerSecondaryPass *currentSecondaryPass=VisualManagerSecondaryPass::DynamicCast((*it));
         if(currentSecondaryPass && (this->getName()!=currentSecondaryPass->getName()))
         {
             if((!currentSecondaryPass->getOutputTags().empty()) && (input_tags.getValue().includes(currentSecondaryPass->getOutputTags())) )
@@ -212,14 +212,14 @@ void VisualManagerSecondaryPass::bindInput(core::visual::VisualParams* /*vp*/)
 {
     nbFbo=0;
 
-    sofa::simulation::Node* gRoot = dynamic_cast<simulation::Node*>(this->getContext());
+    sofa::simulation::Node* gRoot = simulation::Node::DynamicCast(this->getContext());
     sofa::simulation::Node::Sequence<core::visual::VisualManager>::iterator begin = gRoot->visualManager.begin();
     sofa::simulation::Node::Sequence<core::visual::VisualManager>::iterator end = gRoot->visualManager.end();
     sofa::simulation::Node::Sequence<core::visual::VisualManager>::iterator it;
     for (it = begin; it != end; ++it)
     {
-        VisualManagerPass *currentPass=dynamic_cast<VisualManagerPass*>((*it));
-        VisualManagerSecondaryPass *currentSecondaryPass=dynamic_cast<VisualManagerSecondaryPass*>((*it));
+        VisualManagerPass *currentPass=VisualManagerPass::DynamicCast((*it));
+        VisualManagerSecondaryPass *currentSecondaryPass=VisualManagerSecondaryPass::DynamicCast((*it));
         if(currentSecondaryPass && (this->getName()!=currentSecondaryPass->getName()))
         {
             if((!currentSecondaryPass->getOutputTags().empty()) && (input_tags.getValue().includes(currentSecondaryPass->getOutputTags())) )

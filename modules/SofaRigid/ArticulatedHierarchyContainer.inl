@@ -208,7 +208,7 @@ void ArticulatedHierarchyContainer::buildCenterArticulationsTree(sofa::helper::i
 
 void ArticulatedHierarchyContainer::init ()
 {
-    simulation::Node* context = dynamic_cast<simulation::Node *>(this->getContext()); // access to current node
+    simulation::Node* context = simulation::Node::DynamicCast(this->getContext()); // access to current node
 
     std::string file = filename.getFullPath();
     if ( sofa::helper::system::DataRepository.findFile (file) )
@@ -227,11 +227,11 @@ void ArticulatedHierarchyContainer::init ()
 
         buildCenterArticulationsTree(joint, 0, "Root", articulationCenters.get());
 
-        component::container::MechanicalObject<defaulttype::Vec1Types>* mm1 = dynamic_cast<component::container::MechanicalObject<defaulttype::Vec1Types>*>(context->getMechanicalState());
+        component::container::MechanicalObject<defaulttype::Vec1Types>* mm1 = component::container::MechanicalObject<defaulttype::Vec1Types>::DynamicCast(context->getMechanicalState());
         mm1->resize(id);
 
         context = (context->child.begin())->get();
-        component::container::MechanicalObject<defaulttype::RigidTypes>* mm2 = dynamic_cast<component::container::MechanicalObject<defaulttype::RigidTypes>*>(context->getMechanicalState());
+        component::container::MechanicalObject<defaulttype::RigidTypes>* mm2 = component::container::MechanicalObject<defaulttype::RigidTypes>::DynamicCast(context->getMechanicalState());
         mm2->resize(joint->getNumJoints()+1);
     }
     else
@@ -241,7 +241,7 @@ void ArticulatedHierarchyContainer::init ()
         vector<ArticulationCenter*>::const_iterator acEnd = articulationCenters.end();
         for (; ac != acEnd; ac++)
         {
-            context = dynamic_cast<simulation::Node *>((*ac)->getContext());
+            context = simulation::Node::DynamicCast((*ac)->getContext());
             for (simulation::Node::ChildIterator it = context->child.begin(); it != context->child.end(); ++it)
             {
                 simulation::Node* n =  it->get();

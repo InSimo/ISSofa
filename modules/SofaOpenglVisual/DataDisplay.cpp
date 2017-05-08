@@ -89,7 +89,7 @@ void DataDisplay::drawVisual(const core::visual::VisualParams* vparams)
     bool bDrawCellData = false;
 
     // For now support only triangular topology
-    topology::TriangleSetTopologyContainer* tt = dynamic_cast<topology::TriangleSetTopologyContainer*>(topology);
+    topology::TriangleSetTopologyContainer* tt = topology::TriangleSetTopologyContainer::DynamicCast(topology);
 
     // Safety checks
     // TODO: can this go to updateVisual()?

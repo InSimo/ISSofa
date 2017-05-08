@@ -57,7 +57,7 @@ void SparseGridSpringForceField<DataTypes>::addForce(VecDeriv& f1, VecDeriv& f2,
 
     if (this->object1==this->object2)
     {
-        topology::MultiResSparseGridTopology* topology = dynamic_cast<topology::MultiResSparseGridTopology*>(this->object1->getContext()->getTopology());
+        topology::MultiResSparseGridTopology* topology = topology::MultiResSparseGridTopology::DynamicCast(this->object1->getContext()->getTopology());
         if (topology != NULL)
         {
             int index = this->springs.size();
@@ -236,7 +236,7 @@ void SparseGridSpringForceField<DataTypes>::addDForce(VecDeriv& df1, VecDeriv& d
     df2.resize(dx2.size());
     if (this->object1==this->object2)
     {
-        topology::MultiResSparseGridTopology* topology = dynamic_cast<topology::MultiResSparseGridTopology*>(this->object1->getContext()->getTopology());
+        topology::MultiResSparseGridTopology* topology = topology::MultiResSparseGridTopology::DynamicCast(this->object1->getContext()->getTopology());
         if (topology != NULL)
         {
             int index = this->springs.size();
@@ -423,7 +423,7 @@ void SparseGridSpringForceField<DataTypes>::draw(const core::visual::VisualParam
     glBegin(GL_LINES);
     if (this->object1==this->object2)
     {
-        topology::MultiResSparseGridTopology* topology = dynamic_cast<topology::MultiResSparseGridTopology*>(this->object1->getContext()->getTopology());
+        topology::MultiResSparseGridTopology* topology = topology::MultiResSparseGridTopology::DynamicCast(this->object1->getContext()->getTopology());
         if (topology != NULL)
         {
 

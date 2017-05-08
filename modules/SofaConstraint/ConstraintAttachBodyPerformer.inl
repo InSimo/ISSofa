@@ -158,7 +158,7 @@ bool ConstraintAttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& p
 
             simulation::Node *mappedNode=(simulation::Node *) mstateCollision->getContext();
             simulation::Node *mainNode=(simulation::Node *) picked.body->getContext();
-            core::behavior::BaseMechanicalState *mainDof=dynamic_cast<core::behavior::BaseMechanicalState *>(mainNode->getMechanicalState());
+            core::behavior::BaseMechanicalState *mainDof=core::behavior::BaseMechanicalState::DynamicCast(mainNode->getMechanicalState());
             const core::objectmodel::TagSet &tags=mainDof->getTags();
             for (core::objectmodel::TagSet::const_iterator it=tags.begin(); it!=tags.end(); ++it)
             {
@@ -171,7 +171,7 @@ bool ConstraintAttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& p
     }
     else
     {
-        mstateCollision = dynamic_cast< core::behavior::MechanicalState<DataTypes>*  >(picked.mstate);
+        mstateCollision = core::behavior::MechanicalState<DataTypes>::DynamicCast(picked.mstate);
         index = picked.indexCollisionElement;
         if (!mstateCollision)
         {
@@ -180,7 +180,7 @@ bool ConstraintAttachBodyPerformer<DataTypes>::start_partial(const BodyPicked& p
         }
     }
 
-    mstate1 = dynamic_cast<MouseContainer*>(this->interactor->getMouseContainer());
+    mstate1 = MouseContainer::DynamicCast(this->interactor->getMouseContainer());
     mstate2 = mstateCollision;
 
 //    helper::ReadAccessor<Data <VecCoord> > x1 = *mstate1->read(core::VecCoordId::position());

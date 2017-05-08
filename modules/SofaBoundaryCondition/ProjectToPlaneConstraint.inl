@@ -228,7 +228,7 @@ template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::projectMatrix( sofa::defaulttype::BaseMatrix* M, unsigned offset )
 {
     J.copy(jacobian, M->colSize(), offset); // projection matrix for an assembled state
-    BaseSparseMatrix* E = dynamic_cast<BaseSparseMatrix*>(M);
+    BaseSparseMatrix* E = BaseSparseMatrix::DynamicCast(M);
     assert(E);
     E->compressedMatrix = J.compressedMatrix * E->compressedMatrix * J.compressedMatrix;
 }

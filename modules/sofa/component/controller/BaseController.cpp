@@ -70,37 +70,32 @@ BaseController::BaseController()
 
 void BaseController::handleEvent(core::objectmodel::Event *event)
 {
-    if (dynamic_cast<sofa::simulation::AnimateBeginEvent *>(event))
+    if (sofa::simulation::AnimateBeginEvent::DynamicCast(event))
     {
         onBeginAnimationStep();
     }
-    else if (dynamic_cast<sofa::simulation::AnimateEndEvent *>(event))
+    else if (sofa::simulation::AnimateEndEvent::DynamicCast(event))
     {
         onEndAnimationStep();
     }
-    else if (dynamic_cast<sofa::core::objectmodel::KeypressedEvent *>(event))
+    else if (sofa::core::objectmodel::KeypressedEvent *kpev = sofa::core::objectmodel::KeypressedEvent::DynamicCast(event))
     {
-        sofa::core::objectmodel::KeypressedEvent *kpev = dynamic_cast<sofa::core::objectmodel::KeypressedEvent *>(event);
         onKeyPressedEvent(kpev);
     }
-    else if (dynamic_cast<sofa::core::objectmodel::KeyreleasedEvent *>(event))
+    else if (sofa::core::objectmodel::KeyreleasedEvent *krev = sofa::core::objectmodel::KeyreleasedEvent::DynamicCast(event))
     {
-        sofa::core::objectmodel::KeyreleasedEvent *krev = dynamic_cast<sofa::core::objectmodel::KeyreleasedEvent *>(event);
         onKeyReleasedEvent(krev);
     }
-    else if (dynamic_cast<sofa::core::objectmodel::MouseEvent *>(event))
+    else if (sofa::core::objectmodel::MouseEvent *mev = sofa::core::objectmodel::MouseEvent::DynamicCast(event))
     {
-        sofa::core::objectmodel::MouseEvent *mev = dynamic_cast<sofa::core::objectmodel::MouseEvent *>(event);
         onMouseEvent(mev);
     }
-    else if (dynamic_cast<sofa::core::objectmodel::JoystickEvent *>(event))
+    else if (sofa::core::objectmodel::JoystickEvent *jev = sofa::core::objectmodel::JoystickEvent::DynamicCast(event))
     {
-        sofa::core::objectmodel::JoystickEvent *jev = dynamic_cast<sofa::core::objectmodel::JoystickEvent *>(event);
         onJoystickEvent(jev);
     }
-    else if (dynamic_cast<sofa::core::objectmodel::HapticDeviceEvent *>(event))
+    else if (sofa::core::objectmodel::HapticDeviceEvent *oev = sofa::core::objectmodel::HapticDeviceEvent::DynamicCast(event))
     {
-        sofa::core::objectmodel::HapticDeviceEvent *oev = dynamic_cast<sofa::core::objectmodel::HapticDeviceEvent *>(event);
         onHapticDeviceEvent(oev);
     }
 }

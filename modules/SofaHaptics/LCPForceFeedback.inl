@@ -90,7 +90,7 @@ void LCPForceFeedback<DataTypes>::init()
         return;
     }
 
-    mState = dynamic_cast<core::behavior::MechanicalState<DataTypes> *> (c->getMechanicalState());
+    mState = core::behavior::MechanicalState<DataTypes>::DynamicCast(c->getMechanicalState());
     if (!mState)
     {
         serr << "LCPForceFeedback has no binding MechanicalState. Initialisation failed." << sendl;
@@ -245,7 +245,7 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
 template <typename DataTypes>
 void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *event)
 {
-    if (!dynamic_cast<sofa::simulation::AnimateEndEvent*>(event))
+    if (!sofa::simulation::AnimateEndEvent::DynamicCast(event))
         return;
 
     if (!constraintSolver)

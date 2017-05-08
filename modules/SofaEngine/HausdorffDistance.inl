@@ -136,7 +136,7 @@ void HausdorffDistance<DataTypes>::computeDistances()
 template<class DataTypes>
 void HausdorffDistance<DataTypes>::handleEvent(core::objectmodel::Event *event)
 {
-    if (dynamic_cast<sofa::simulation::AnimateBeginEvent *>(event))
+    if (sofa::simulation::AnimateBeginEvent::DynamicCast(event))
         this->onBeginAnimationStep(this->getContext()->getDt());
 }
 

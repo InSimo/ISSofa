@@ -82,7 +82,7 @@ void ReadTopology::init()
 
 void ReadTopology::reset()
 {
-    m_topology = dynamic_cast<core::topology::BaseMeshTopology*>(this->getContext()->getMeshTopology());
+    m_topology = core::topology::BaseMeshTopology::DynamicCast(this->getContext()->getMeshTopology());
     if (infile)
     {
         delete infile;
@@ -126,11 +126,11 @@ void ReadTopology::reset()
 
 void ReadTopology::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
     {
         processReadTopology();
     }
-    if (/* simulation::AnimateEndEvent* ev = */ dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if (/* simulation::AnimateEndEvent* ev = */ simulation::AnimateEndEvent::DynamicCast(event))
     {
 
     }

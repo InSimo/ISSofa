@@ -92,7 +92,7 @@ namespace sofa
             void BlenderExporter<T>::handleEvent(sofa::core::objectmodel::Event* event)
             {
 
-                if (dynamic_cast<simulation::AnimateBeginEvent*>(event))
+                if (simulation::AnimateBeginEvent::DynamicCast(event))
                 {
                     if(!(frameCounter%simulationStep.getValue())) // save a new frame!
                     {

@@ -99,7 +99,7 @@ Monitor<DataTypes>::~Monitor()
 template<class DataTypes>
 void Monitor<DataTypes>::init()
 {
-    core::behavior::MechanicalState<DataTypes>* mmodel = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>( this->getContext()->getMechanicalState() );
+    core::behavior::MechanicalState<DataTypes>* mmodel = core::behavior::MechanicalState<DataTypes>::DynamicCast( this->getContext()->getMechanicalState() );
 
     if(!mmodel)
     {
@@ -145,7 +145,7 @@ void Monitor<DataTypes>::reinit()
 template<class DataTypes>
 void Monitor<DataTypes>::handleEvent( core::objectmodel::Event* ev )
 {
-    if (dynamic_cast<sofa::simulation::AnimateEndEvent*>(ev))
+    if (sofa::simulation::AnimateEndEvent::DynamicCast(ev))
     {
         if ( saveXToGnuplot.getValue() || saveVToGnuplot.getValue() || saveFToGnuplot.getValue() )
             exportGnuplot ( (Real) this ->getTime() );

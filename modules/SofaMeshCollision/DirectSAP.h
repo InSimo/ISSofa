@@ -95,7 +95,8 @@ class TDirectSAP :
     public core::collision::NarrowPhaseDetection
 {
 public:
-    SOFA_CLASS2(SOFA_TEMPLATE2(TDirectSAP,List,Allocator), core::collision::BroadPhaseDetection, core::collision::NarrowPhaseDetection);
+    SOFA_CLASS_DEFAULT((TDirectSAP<List,Allocator>), ((core::collision::BroadPhaseDetection), (core::collision::NarrowPhaseDetection)));
+    SOFA_CLASS_VIRTUAL_PARENTS((core::collision::Detection));
 
     typedef List<EndPoint*,Allocator<EndPoint*> > EndPointList;
 

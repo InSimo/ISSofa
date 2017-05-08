@@ -46,12 +46,12 @@ void RegularGridSpringForceField<DataTypes>::init()
 {
     if (this->mstate1 == NULL)
     {
-        this->mstate1 = dynamic_cast<core::behavior::MechanicalState<DataTypes>* >(this->getContext()->getMechanicalState());
+        this->mstate1 = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
         this->mstate2 = this->mstate1;
     }
     if (this->mstate1==this->mstate2)
     {
-        topology = dynamic_cast<topology::RegularGridTopology*>(this->mstate1->getContext()->getMeshTopology());
+        topology = topology::RegularGridTopology::DynamicCast(this->mstate1->getContext()->getMeshTopology());
     }
     this->StiffSpringForceField<DataTypes>::init();
 }

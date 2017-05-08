@@ -66,7 +66,7 @@ public:
     /// Callback method called when decending to a new node. Recursion will stop if this method returns RESULT_PRUNE
     virtual Result processNodeTopDown(simulation::Node* node)
     {
-        GNode* g = dynamic_cast<GNode*>(node);
+        GNode* g = GNode::DynamicCast(node);
         if (!g)
         {
             std::cerr << "GNodeVisitor: node is not a GNode !\n";
@@ -81,7 +81,7 @@ public:
     /// Callback method called after child node have been processed and before going back to the parent node.
     virtual void processNodeBottomUp(simulation::Node* node)
     {
-        GNode* g = dynamic_cast<GNode*>(node);
+        GNode* g = GNode::DynamicCast(node);
         if (!g)
         {
             std::cerr << "GNodeVisitor: node is not a GNode !\n";

@@ -37,8 +37,8 @@ namespace collision
 double ISAPBox::tolerance = (double)(1e-7);
 
 double ISAPBox::squaredDistance(const ISAPBox & other) const{
-//    assert(dynamic_cast<OBBModel*>(cube.getCollisionModel()->getNext()) != 0x0);
-//    assert(dynamic_cast<OBBModel*>(other.cube.getCollisionModel()->getNext()) != 0x0);
+//    assert(OBBModel::DynamicCast(cube.getCollisionModel()->getNext()) != 0x0);
+//    assert(OBBModel::DynamicCast(other.cube.getCollisionModel()->getNext()) != 0x0);
     const defaulttype::Vector3 & min_vect0 = cube.minVect();
     const defaulttype::Vector3 & max_vect0 = cube.maxVect();
     const defaulttype::Vector3 & min_vect1 = other.cube.minVect();
@@ -66,8 +66,8 @@ double ISAPBox::squaredDistance(const ISAPBox & other) const{
 }
 
 bool ISAPBox::overlaps(const ISAPBox & other,double alarmDist) const{
-//    assert(dynamic_cast<OBBModel*>(cube.getCollisionModel()->getNext()) != 0x0);
-//    assert(dynamic_cast<OBBModel*>(other.cube.getCollisionModel()->getNext()) != 0x0);
+//    assert(OBBModel::DynamicCast(cube.getCollisionModel()->getNext()) != 0x0);
+//    assert(OBBModel::DynamicCast(other.cube.getCollisionModel()->getNext()) != 0x0);
     const defaulttype::Vector3 & min_vect0 = cube.minVect();
     const defaulttype::Vector3 & max_vect0 = cube.maxVect();
     const defaulttype::Vector3 & min_vect1 = other.cube.minVect();

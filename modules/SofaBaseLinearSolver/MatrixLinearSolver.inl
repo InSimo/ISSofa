@@ -70,7 +70,7 @@ MatrixInvertData * MatrixLinearSolver<Matrix,Vector>::createInvertData()
 template<class Matrix, class Vector>
 void MatrixLinearSolver<Matrix,Vector>::createGroups(const core::MechanicalParams* mparams)
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(this->getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(this->getContext());
     //defaultGroup.node = root;
     for (GroupDataMapIter it = gData.begin(), itend = gData.end(); it != itend; ++it)
         it->second.systemSize = 0;
@@ -327,7 +327,7 @@ bool MatrixLinearSolver<Matrix,Vector>::addJMInvJtLocal(Matrix * /*M*/,ResMatrix
         solveSystem();
 
         // STEP 3 : project the result using matrix J
-        if (const SparseMatrix<Real> * j = dynamic_cast<const SparseMatrix<Real> * >(J))   // optimization for sparse matrix
+        if (const SparseMatrix<Real> * j = SparseMatrix<Real>::DynamicCast(J))   // optimization for sparse matrix
         {
             const typename SparseMatrix<Real>::LineConstIterator jitend = j->end();
             for (typename SparseMatrix<Real>::LineConstIterator jit = j->begin(); jit != jitend; ++jit)

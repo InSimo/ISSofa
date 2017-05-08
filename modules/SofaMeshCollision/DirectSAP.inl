@@ -165,7 +165,7 @@ void TDirectSAP<List,Allocator>::endBroadPhase()
     int n = 0;
     for(unsigned int i = 0 ; i < _new_cm.size() ; ++i){
         n += _new_cm[i]->getSize();
-        cube_models.push_back(dynamic_cast<CubeModel*>(_new_cm[i]->getPrevious()));
+        cube_models.push_back(CubeModel::DynamicCast(_new_cm[i]->getPrevious()));
     }
 
     _boxes.reserve(_boxes.size() + n);
@@ -209,7 +209,7 @@ void TDirectSAP<List,Allocator>::addCollisionModel(core::CollisionModel *cm){
 //{
 //    if(!added(cm)){
 //        add(cm);
-//        CubeModel * cube_model = dynamic_cast<CubeModel*>(cm->getLast()->getPrevious());
+//        CubeModel * cube_model = CubeModel::DynamicCast(cm->getLast()->getPrevious());
 
 //        int old_size = _boxes.size();
 //        int cm_size = cube_model->getSize();
@@ -237,7 +237,7 @@ void TDirectSAP<List,Allocator>::addCollisionModel(core::CollisionModel *cm){
 //{
 //    if(!added(cm)){
 //        add(cm);
-//        CubeModel * cube_model = dynamic_cast<CubeModel*>(cm->getLast()->getPrevious());
+//        CubeModel * cube_model = CubeModel::DynamicCast(cm->getLast()->getPrevious());
 
 //        int old_size = _boxes.size();
 //        int cm_size = cube_model->getSize();

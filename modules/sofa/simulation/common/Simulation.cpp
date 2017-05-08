@@ -458,7 +458,7 @@ void Simulation::unload(Node::SPtr root)
 {
     if ( !root ) return;
     sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
-    //if (dynamic_cast<Node*>(this->getContext()) == root)
+    //if (Node::DynamicCast(this->getContext()) == root)
     //{
     //    this->setContext(NULL);
     //}

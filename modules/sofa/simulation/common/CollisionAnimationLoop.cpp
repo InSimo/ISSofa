@@ -105,14 +105,14 @@ void CollisionAnimationLoop::integrate(const core::ExecParams* params /* PARAMS 
 
 const CollisionAnimationLoop::Solvers& CollisionAnimationLoop::getSolverSequence()
 {
-    simulation::Node* gnode = dynamic_cast<simulation::Node*>( getContext() );
+    simulation::Node* gnode = simulation::Node::DynamicCast( getContext() );
     assert( gnode );
     return gnode->solver;
 }
 
 // CollisionAnimationLoop::Pipeline* CollisionAnimationLoop::getPipeline()
 // {
-// 	simulation::Node* gnode = dynamic_cast<simulation::Node*>( getContext() );
+// 	simulation::Node* gnode = simulation::Node::DynamicCast( getContext() );
 // 	assert( gnode );
 // 	return gnode->collisionPipeline;
 // }

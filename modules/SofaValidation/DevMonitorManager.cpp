@@ -71,7 +71,7 @@ void DevMonitorManager::init()
     getContext()->get<core::DevBaseMonitor, sofa::helper::vector<core::DevBaseMonitor*> >(&monitors, core::objectmodel::BaseContext::SearchDown);
 
     //remove itself
-    it = std::find(monitors.begin(), monitors.end(), dynamic_cast<core::DevBaseMonitor*>(this));
+    it = std::find(monitors.begin(), monitors.end(), core::DevBaseMonitor::DynamicCast(this));
     if(it != monitors.end())
         monitors.erase(it);
 
@@ -92,9 +92,9 @@ void DevMonitorManager::eval()
         sout << "Data from Monitor " << (*it)->getName() << " : " ;
 
         //add cast for every monitor you want to fetch the data
-        if (dynamic_cast<DevTensionMonitor<RigidTypes>*>(*it))
+        if (DevTensionMonitor<RigidTypes>::DynamicCast(*it))
         {
-            DevTensionMonitor<RigidTypes>* tm = dynamic_cast<DevTensionMonitor<RigidTypes>*>(*it);
+            DevTensionMonitor<RigidTypes>* tm = DevTensionMonitor<RigidTypes>::DynamicCast(*it);
 
             sofa::helper::vector<std::pair<Vector1, SReal> > d = tm->getData();
             for (unsigned int i=0 ; i<d.size() ; i++)

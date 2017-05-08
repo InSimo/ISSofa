@@ -162,7 +162,7 @@ public:
                 pointMod->propagateTopologicalChanges();
                 pointMod->removePointsProcess(remove);
             }
-            else if(container::MechanicalObject<DataTypes>* object = dynamic_cast<container::MechanicalObject<DataTypes>*>(this->mstate.get()))
+            else if(container::MechanicalObject<DataTypes>* object = container::MechanicalObject<DataTypes>::DynamicCast(this->mstate.get()))
             {
                 sout << "ParticleSink: remove "<<remove.size()<<" particles using MechanicalObject."<<sendl;
                 // deleting the vertices
@@ -240,9 +240,9 @@ public:
 
     virtual void handleEvent(sofa::core::objectmodel::Event* event)
     {
-        if (simulation::AnimateBeginEvent* ev = dynamic_cast<simulation::AnimateBeginEvent*>(event))
+        if (simulation::AnimateBeginEvent* ev = simulation::AnimateBeginEvent::DynamicCast(event))
             animateBegin(ev->getDt(), this->getContext()->getTime());
-        if (simulation::AnimateEndEvent* ev = dynamic_cast<simulation::AnimateEndEvent*>(event))
+        if (simulation::AnimateEndEvent* ev = simulation::AnimateEndEvent::DynamicCast(event))
             animateEnd(ev->getDt(), this->getContext()->getTime());
     }
 

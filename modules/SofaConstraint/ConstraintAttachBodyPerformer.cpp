@@ -67,7 +67,7 @@ template class SOFA_CONSTRAINT_API  ConstraintAttachBodyPerformer<defaulttype::V
         std::string name = "contactMouse";
 
 
-		m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< Rigid3fTypes > >(dynamic_cast<MouseContainer*>(this->interactor->getMouseContainer()), mstateCollision);
+		m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< Rigid3fTypes > >(MouseContainer::DynamicCast(this->interactor->getMouseContainer()), mstateCollision);
         sofa::component::interactionforcefield::JointSpring<Rigid3fTypes> spring(0,picked.indexCollisionElement);
         JointSpringForceField<Rigid3fTypes>* jointspringforcefield = static_cast<JointSpringForceField<Rigid3fTypes>*>(m_forcefield.get());
 
@@ -99,7 +99,7 @@ helper::Creator<InteractionPerformer::InteractionPerformerFactory, ConstraintAtt
         mstateCollision = static_cast< core::behavior::MechanicalState<Rigid3dTypes>*  >(picked.mstate);
         std::string name = "contactMouse";
 
-		m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< Rigid3dTypes > >(dynamic_cast<MouseContainer*>(this->interactor->getMouseContainer()), mstateCollision);
+		m_forcefield = sofa::core::objectmodel::New< JointSpringForceField< Rigid3dTypes > >(MouseContainer::DynamicCast(this->interactor->getMouseContainer()), mstateCollision);
         JointSpringForceField<Rigid3dTypes>* jointspringforcefield = static_cast<JointSpringForceField<Rigid3dTypes>*>(m_forcefield.get());
         sofa::component::interactionforcefield::JointSpring<Rigid3dTypes> spring(0,picked.indexCollisionElement);
         jointspringforcefield->setName("Spring-Mouse-Contact");

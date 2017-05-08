@@ -2730,7 +2730,7 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
     if (showVectors.getValue())
     {
         defaulttype::Vec<3, SReal> sceneMinBBox, sceneMaxBBox;
-        sofa::simulation::Node* context = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+        sofa::simulation::Node* context = sofa::simulation::Node::DynamicCast(this->getContext());
         glColor3f(1.0,1.0,1.0);
         sofa::simulation::getSimulation()->computeBBox((sofa::simulation::Node*)context, sceneMinBBox.ptr(), sceneMaxBBox.ptr());
         //float scale = (sceneMaxBBox - sceneMinBBox).norm() * showVectorsScale.getValue();

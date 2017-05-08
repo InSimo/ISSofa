@@ -41,12 +41,13 @@ namespace sofa
 namespace simulation
 {
 
+SOFA_EVENT_CLASS_IMPL((UpdateMappingEndEvent));
+
 UpdateMappingEndEvent::UpdateMappingEndEvent(double dt)
     : sofa::core::objectmodel::Event()
     , dt(dt)
 {
 }
-
 
 UpdateMappingEndEvent::~UpdateMappingEndEvent()
 {

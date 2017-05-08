@@ -257,13 +257,13 @@ void LineLocalMinDistanceFilter::PointInfoHandler::applyCreateFunction(unsigned 
     sofa::core::topology::BaseMeshTopology * bmt = lLMDFilter->bmt; //getContext()->getTopology();
     pInfo.setBaseMeshTopology(bmt);
     /////// TODO : template de la classe
-    component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*  mstateVec3d= dynamic_cast<component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*>(lLMDFilter->getContext()->getMechanicalState());
+    component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*  mstateVec3d= component::container::MechanicalObject<sofa::defaulttype::Vec3Types>::DynamicCast(lLMDFilter->getContext()->getMechanicalState());
     if(mstateVec3d != NULL)
     {
         pInfo.setPositionFiltering(&mstateVec3d->read(core::ConstVecCoordId::position())->getValue());
     }
 
-    //component::container::MechanicalObject<Vec3fTypes>*  mstateVec3f= dynamic_cast<component::container::MechanicalObject<Vec3fTypes>*>(context->getMechanicalState())
+    //component::container::MechanicalObject<Vec3fTypes>*  mstateVec3f= component::container::MechanicalObject<Vec3fTypes>::DynamicCast(context->getMechanicalState())
     //if(mstateVec3f != NULL)
     //{
     //	lInfo.setPositionFiltering(mstateVec3f->getX());
@@ -282,13 +282,13 @@ void LineLocalMinDistanceFilter::LineInfoHandler::applyCreateFunction(unsigned i
 
 
     /////// TODO : template de la classe
-    component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*  mstateVec3d= dynamic_cast<component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*>(lLMDFilter->getContext()->getMechanicalState());
+    component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*  mstateVec3d= component::container::MechanicalObject<sofa::defaulttype::Vec3Types>::DynamicCast(lLMDFilter->getContext()->getMechanicalState());
     if(mstateVec3d != NULL)
     {
         lInfo.setPositionFiltering(&mstateVec3d->read(core::ConstVecCoordId::position())->getValue());
     }
 
-    //component::container::MechanicalObject<Vec3fTypes>*  mstateVec3f= dynamic_cast<component::container::MechanicalObject<Vec3fTypes>*>(context->getMechanicalState())
+    //component::container::MechanicalObject<Vec3fTypes>*  mstateVec3f= component::container::MechanicalObject<Vec3fTypes>::DynamicCast(context->getMechanicalState())
     //if(mstateVec3f != NULL)
     //{
     //	lInfo.setPositionFiltering(mstateVec3f->getX());

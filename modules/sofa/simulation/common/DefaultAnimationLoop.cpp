@@ -93,7 +93,7 @@ DefaultAnimationLoop::~DefaultAnimationLoop()
 void DefaultAnimationLoop::init()
 {
     if (!gnode)
-        gnode = dynamic_cast<simulation::Node*>(this->getContext());
+        gnode = simulation::Node::DynamicCast(this->getContext());
 }
 
 void DefaultAnimationLoop::setNode( simulation::Node* n )

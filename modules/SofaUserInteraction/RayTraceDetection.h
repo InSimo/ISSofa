@@ -53,6 +53,7 @@ class SOFA_USER_INTERACTION_API RayTraceDetection :public core::collision::Broad
 {
 public:
     SOFA_CLASS2(RayTraceDetection, core::collision::BroadPhaseDetection, core::collision::NarrowPhaseDetection);
+    SOFA_CLASS_VIRTUAL_PARENTS((core::collision::Detection));
 
 private:
     sofa::helper::vector < core::CollisionModel * >collisionModels;

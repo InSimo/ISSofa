@@ -43,6 +43,7 @@ template<typename T>
 class DiagonalMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((DiagonalMatrix<T>),((defaulttype::BaseMatrix)));
     typedef T Real;
 
     typedef DiagonalMatrix<T> Expr;
@@ -333,6 +334,7 @@ template<int LC, typename T = double>
 class BlockDiagonalMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((BlockDiagonalMatrix<LC,T>),((defaulttype::BaseMatrix)));
     typedef T Real;
     typedef defaulttype::Mat<LC,LC,Real> Bloc;
     typedef matrix_bloc_traits<Bloc> traits;

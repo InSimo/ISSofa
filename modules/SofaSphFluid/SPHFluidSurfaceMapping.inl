@@ -60,7 +60,7 @@ template <class In, class Out>
 void SPHFluidSurfaceMapping<In,Out>::init()
 {
     this->Inherit::init();
-    simulation::Node* node = dynamic_cast<simulation::Node*>(this->getFrom()[0]->getContext());
+    simulation::Node* node = simulation::Node::DynamicCast(this->getFrom()[0]->getContext());
     if (node)
     {
         //the following line produces a compilation error with GCC 3.3 :(
@@ -375,7 +375,7 @@ void SPHFluidSurfaceMapping<In,Out>::apply(const core::MechanicalParams * /*mpar
     	if (firstApply)
     	{
     #ifdef SOFA_HAVE_GLEW
-    		visualmodel::OglShaderVisualModel* oglsvm = dynamic_cast<visualmodel::OglShaderVisualModel*>(this->toModel);
+    		visualmodel::OglShaderVisualModel* oglsvm = visualmodel::OglShaderVisualModel::DynamicCast(this->toModel);
 
     		if(oglsvm)
     		{

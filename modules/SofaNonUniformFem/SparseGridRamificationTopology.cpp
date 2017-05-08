@@ -402,7 +402,7 @@ void SparseGridRamificationTopology::buildFromFiner()
 // 				SparseGridTopology::buildFromFiner();	return;
 
 
-    SparseGridRamificationTopology* finerSparseGridRamification = dynamic_cast<SparseGridRamificationTopology*>(_finerSparseGrid);
+    SparseGridRamificationTopology* finerSparseGridRamification = SparseGridRamificationTopology::DynamicCast(_finerSparseGrid);
 
 
 
@@ -1011,7 +1011,7 @@ int SparseGridRamificationTopology::findCube(const Vector3 &pos, SReal &fx, SRea
         return SparseGridTopology::findCube(pos, fx, fy, fz);
 
 
-    SparseGridRamificationTopology* finestSparseGridTopology = dynamic_cast<SparseGridRamificationTopology*>(_virtualFinerLevels[0].get());
+    SparseGridRamificationTopology* finestSparseGridTopology = SparseGridRamificationTopology::DynamicCast(_virtualFinerLevels[0].get());
 
     int finestSparseCube = finestSparseGridTopology->SparseGridTopology::findCube(pos,fx,fy,fz);
 
@@ -1036,7 +1036,7 @@ int SparseGridRamificationTopology::findNearestCube(const Vector3 &pos, SReal &f
         return SparseGridTopology::findNearestCube(pos, fx, fy, fz);
 
 
-    SparseGridRamificationTopology* finestSparseGridTopology = dynamic_cast<SparseGridRamificationTopology*>(_virtualFinerLevels[0].get());
+    SparseGridRamificationTopology* finestSparseGridTopology = SparseGridRamificationTopology::DynamicCast(_virtualFinerLevels[0].get());
 
     int finestSparseCube = finestSparseGridTopology->SparseGridTopology::findNearestCube(pos,fx,fy,fz);
 
@@ -1058,7 +1058,7 @@ void SparseGridRamificationTopology::findCoarsestParents()
 {
     for( unsigned i=0; i<_virtualFinerLevels.size(); ++i)
     {
-        SparseGridRamificationTopology* finestSGRT = dynamic_cast<SparseGridRamificationTopology*>(_virtualFinerLevels[i].get());
+        SparseGridRamificationTopology* finestSGRT = SparseGridRamificationTopology::DynamicCast(_virtualFinerLevels[i].get());
 
 
         for(int z=0; z<finestSGRT->getNz()-1; ++z)
@@ -1267,7 +1267,7 @@ void SparseGridRamificationTopology::printParents()
     {
         serr<<"level "<<i<<" :"<<sendl;
 
-        SparseGridRamificationTopology* finestSGRT = dynamic_cast<SparseGridRamificationTopology*>(_virtualFinerLevels[i].get());
+        SparseGridRamificationTopology* finestSGRT = SparseGridRamificationTopology::DynamicCast(_virtualFinerLevels[i].get());
 
         for(int z=0; z<finestSGRT->getNz()-1; ++z)
         {

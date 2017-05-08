@@ -53,6 +53,8 @@ namespace simulation
 class SOFA_SIMULATION_COMMON_API AnimateEndEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((AnimateEndEvent),((Event)));
+
     AnimateEndEvent( double dt );
 
     ~AnimateEndEvent();
@@ -61,7 +63,6 @@ public:
     void setTaskStatus(void* status) { taskStatus = status; }
     void* getTaskStatus() const { return taskStatus; }
 
-    virtual const char* getClassName() const { return "AnimateEndEvent"; }
 protected:
     double dt;
     void* taskStatus;

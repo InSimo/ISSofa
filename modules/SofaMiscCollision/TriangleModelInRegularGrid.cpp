@@ -76,7 +76,7 @@ void TriangleModelInRegularGrid::init()
     TriangleModel::init();
 
     _topology = this->getContext()->getMeshTopology();
-    mstate = dynamic_cast< core::behavior::MechanicalState<Vec3Types>* > (getContext()->getMechanicalState());
+    mstate = core::behavior::MechanicalState<Vec3Types>::DynamicCast(getContext()->getMechanicalState());
 
     if( !mstate) { serr << "TriangleModelInRegularGrid requires a Vec3 Mechanical Model" << sendl; return;}
     if (!_topology) { serr << "TriangleModelInRegularGrid requires a BaseMeshTopology" << sendl; return;}
@@ -100,7 +100,7 @@ void TriangleModelInRegularGrid::init()
                 _higher_topo = _topoMapping->getFrom();
                 if ( !_higher_topo ) break;
                 sofa::simulation::Node* node = static_cast< sofa::simulation::Node* > ( _higher_topo->getContext() );
-                _higher_mstate = dynamic_cast< core::behavior::MechanicalState<Vec3Types>* > ( node->getMechanicalState() );
+                _higher_mstate = core::behavior::MechanicalState<Vec3Types>::DynamicCast( node->getMechanicalState() );
             }
         }
     }

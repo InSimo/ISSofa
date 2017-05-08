@@ -90,8 +90,8 @@ void Edge2QuadTopologicalMapping::init()
 
     // INITIALISATION of QUADULAR mesh from EDGE mesh :
 
-    core::behavior::MechanicalState<Rigid3Types>* from_mstate = dynamic_cast<core::behavior::MechanicalState<Rigid3Types>*>(fromModel->getContext()->getMechanicalState());
-    core::behavior::MechanicalState<Vec3Types>* to_mstate = dynamic_cast<core::behavior::MechanicalState<Vec3Types>*>(toModel->getContext()->getMechanicalState());
+    core::behavior::MechanicalState<Rigid3Types>* from_mstate = core::behavior::MechanicalState<Rigid3Types>::DynamicCast(fromModel->getContext()->getMechanicalState());
+    core::behavior::MechanicalState<Vec3Types>* to_mstate = core::behavior::MechanicalState<Vec3Types>::DynamicCast(toModel->getContext()->getMechanicalState());
 
     if (fromModel)
     {

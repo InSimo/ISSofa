@@ -85,7 +85,7 @@ void HexahedronFEMForceField<DataTypes>::init()
         return;
     }
 
-    _mesh = dynamic_cast<sofa::core::topology::BaseMeshTopology*>(this->getContext()->getMeshTopology());
+    _mesh = sofa::core::topology::BaseMeshTopology::DynamicCast(this->getContext()->getMeshTopology());
     if ( _mesh==NULL)
     {
         serr << "ERROR(HexahedronFEMForceField): object must have a MeshTopology."<<sendl;
@@ -103,7 +103,7 @@ void HexahedronFEMForceField<DataTypes>::init()
         serr<<_mesh->getNbPoints()<<sendl;
         return;
     }
-    _sparseGrid = dynamic_cast<topology::SparseGridTopology*>(_mesh);
+    _sparseGrid = topology::SparseGridTopology::DynamicCast(_mesh);
 
 
 

@@ -437,7 +437,7 @@ public:
 
     bool isEmpty() {return this->map.size() == 0;}
     void setTopology(topology::RegularGridTopology* _topology) {this->fromTopology = _topology;}
-    topology::RegularGridTopology *getTopology() {return dynamic_cast<topology::RegularGridTopology *>(this->fromTopology);}
+    topology::RegularGridTopology *getTopology() {return topology::RegularGridTopology::DynamicCast(this->fromTopology);}
 
     int addPointInCube(const int cubeIndex, const SReal* baryCoords);
 

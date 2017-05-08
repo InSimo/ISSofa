@@ -74,7 +74,7 @@ void NodeToggleController::init()
 void NodeToggleController::toggle()
 {
     // de-activate the current node, and activate the following one
-    Node* context = dynamic_cast<Node*>(getContext());
+    Node* context = Node::DynamicCast(getContext());
     //std::cout<<"context name = "<<context->name<<std::endl;
     Node::Children children = context->getChildren();
     if (children.size()==0) return; // no subnode, return directly
@@ -82,26 +82,26 @@ void NodeToggleController::toggle()
     //int newNodeIndex = -1;
     for (int i=0; i<(int)children.size() && prevNodeIndex==-1; i++)
     {
-        Node* n = dynamic_cast<Node*>(children[i]);
+        Node* n = Node::DynamicCast(children[i]);
         if (n->isActive()) prevNodeIndex = i;
     }
     if (prevNodeIndex==-1)
     {
         int newNodeIndex=0;
 
-        dynamic_cast<Node*>(children[newNodeIndex])->is_activated.setValue(true,true);
-        dynamic_cast<Node*>(children[newNodeIndex])->setActive(true);
+        Node::DynamicCast(children[newNodeIndex])->is_activated.setValue(true,true);
+        Node::DynamicCast(children[newNodeIndex])->setActive(true);
         sofa::simulation::DeactivationVisitor visitorON(sofa::core::ExecParams::defaultInstance(), true);
-        dynamic_cast<Node*>(children[newNodeIndex])->executeVisitor(&visitorON);
+        Node::DynamicCast(children[newNodeIndex])->executeVisitor(&visitorON);
         std::cout<<"Activate"<<std::endl;
     }
     else
     {
         //newNodeIndex = (prevNodeIndex+1)%children.size();
-        dynamic_cast<Node*>(children[prevNodeIndex])->is_activated.setValue(true,true);
+        Node::DynamicCast(children[prevNodeIndex])->is_activated.setValue(true,true);
         sofa::simulation::DeactivationVisitor visitorOFF(sofa::core::ExecParams::defaultInstance(), false);
-        dynamic_cast<Node*>(children[prevNodeIndex])->executeVisitor(&visitorOFF);
-        dynamic_cast<Node*>(children[prevNodeIndex])->setActive(false);
+        Node::DynamicCast(children[prevNodeIndex])->executeVisitor(&visitorOFF);
+        Node::DynamicCast(children[prevNodeIndex])->setActive(false);
         std::cout<<"Desactivate"<<std::endl;
     }
 }
@@ -114,12 +114,12 @@ void NodeToggleController::onBeginAnimationStep(const double /*dt*/)
     {
         m_FirstFrame = false;
 
-        Node* context = dynamic_cast<Node*>(getContext());
+        Node* context = Node::DynamicCast(getContext());
         std::cout<<"context name = "<<context->name<<std::endl;
         Node::Children children = context->getChildren();
 //        for (unsigned int i=0; i<children.size(); i++)
 //        {
-//            Node* n = dynamic_cast<Node*>(children[i]);
+//            Node* n = Node::DynamicCast(children[i]);
 //            std::cout<<"child = "<<n->name<<std::endl;
 //            n->setActive(false);
 //            sofa::simulation::DeactivationVisitor v(sofa::core::ExecParams::defaultInstance(), false);

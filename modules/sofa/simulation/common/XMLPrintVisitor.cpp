@@ -112,11 +112,11 @@ Visitor::Result XMLPrintVisitor::processNodeTopDown(simulation::Node* node)
     for (simulation::Node::ObjectIterator it = node->object.begin(); it != node->object.end(); ++it)
     {
         sofa::core::objectmodel::BaseObject* obj = it->get();
-        if (   dynamic_cast<sofa::core::behavior::BaseInteractionForceField*> (obj) == NULL
-                && dynamic_cast<sofa::core::behavior::BaseInteractionConstraint*> (obj) == NULL
-                && dynamic_cast<sofa::core::behavior::BaseInteractionProjectiveConstraintSet*> (obj) == NULL
+        if (   sofa::core::behavior::BaseInteractionForceField::DynamicCast(obj) == NULL
+                && sofa::core::behavior::BaseInteractionConstraint::DynamicCast(obj) == NULL
+                && sofa::core::behavior::BaseInteractionProjectiveConstraintSet::DynamicCast(obj) == NULL
 #ifdef SOFA_HAVE_EIGEN2
-                && dynamic_cast<sofa::core::behavior::BaseLMConstraint*> (obj) == NULL
+                && sofa::core::behavior::BaseLMConstraint::DynamicCast(obj) == NULL
 #endif
            )
             this->processObject(obj);
@@ -130,11 +130,11 @@ void XMLPrintVisitor::processNodeBottomUp(simulation::Node* node)
     for (simulation::Node::ObjectIterator it = node->object.begin(); it != node->object.end(); ++it)
     {
         sofa::core::objectmodel::BaseObject* obj = it->get();
-        if (   dynamic_cast<sofa::core::behavior::BaseInteractionForceField*> (obj) != NULL
-                || dynamic_cast<sofa::core::behavior::BaseInteractionConstraint*> (obj) != NULL
-                || dynamic_cast<sofa::core::behavior::BaseInteractionProjectiveConstraintSet*> (obj) != NULL
+        if (   sofa::core::behavior::BaseInteractionForceField::DynamicCast(obj) != NULL
+                || sofa::core::behavior::BaseInteractionConstraint::DynamicCast(obj) != NULL
+                || sofa::core::behavior::BaseInteractionProjectiveConstraintSet::DynamicCast(obj) != NULL
 #ifdef SOFA_HAVE_EIGEN2
-                || dynamic_cast<sofa::core::behavior::BaseLMConstraint*> (obj) != NULL
+                || sofa::core::behavior::BaseLMConstraint::DynamicCast(obj) != NULL
 #endif
            )
             this->processObject(obj);

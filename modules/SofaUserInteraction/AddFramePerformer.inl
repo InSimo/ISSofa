@@ -55,7 +55,7 @@ void AddFramePerformer<DataTypes>::start()
     }
     else
     {
-        core::behavior::MechanicalState<DataTypes>* mstateCollision=dynamic_cast< core::behavior::MechanicalState<DataTypes>*  >(picked.mstate);
+        core::behavior::MechanicalState<DataTypes>* mstateCollision=core::behavior::MechanicalState<DataTypes>::DynamicCast(picked.mstate);
         if (!mstateCollision)
         {
             this->interactor->serr << "incompatible MState during Mouse Interaction " << this->interactor->sendl;

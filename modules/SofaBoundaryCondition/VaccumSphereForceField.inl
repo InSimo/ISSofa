@@ -174,14 +174,14 @@ void VaccumSphereForceField<DataTypes>::updateStiffness( const VecCoord& x )
 template <class DataTypes>
 void VaccumSphereForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (sofa::core::objectmodel::KeypressedEvent* ev = dynamic_cast<sofa::core::objectmodel::KeypressedEvent*>(event))
+    if (sofa::core::objectmodel::KeypressedEvent* ev = sofa::core::objectmodel::KeypressedEvent::DynamicCast(event))
     {
         if (ev->getKey() == keyEvent.getValue())
         {
             active.setValue(true);
         }
     }
-    else if (sofa::core::objectmodel::KeyreleasedEvent* ev = dynamic_cast<sofa::core::objectmodel::KeyreleasedEvent*>(event))
+    else if (sofa::core::objectmodel::KeyreleasedEvent* ev = sofa::core::objectmodel::KeyreleasedEvent::DynamicCast(event))
     {
         if (ev->getKey() == keyEvent.getValue())
         {

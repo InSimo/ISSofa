@@ -39,7 +39,7 @@ namespace sofa
 
 namespace simulation
 {
-
+SOFA_CLASS_IMPL((PipelineImpl));
 
 using namespace sofa::core;
 using namespace sofa::core::objectmodel;
@@ -56,7 +56,7 @@ PipelineImpl::~PipelineImpl()
 
 void PipelineImpl::init()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     intersectionMethods.clear();
     root->getTreeObjects<Intersection>(&intersectionMethods);
@@ -79,7 +79,7 @@ void PipelineImpl::init()
         serr <<"no intersectionMethod defined. Using DiscreteIntersection" << sendl;
         sofa::core::objectmodel::BaseObjectDescription discreteIntersectionDesc("Default Intersection","DiscreteIntersection");
         sofa::core::objectmodel::BaseObject::SPtr obj = sofa::core::ObjectFactory::CreateObject(getContext(), &discreteIntersectionDesc);
-        intersectionMethod = dynamic_cast<Intersection*>(obj.get());
+        intersectionMethod = Intersection::DynamicCast(obj.get());
     }
 }
 
@@ -90,7 +90,7 @@ void PipelineImpl::reset()
 
 void PipelineImpl::computeCollisionReset()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     if (broadPhaseDetection!=NULL && broadPhaseDetection->getIntersectionMethod()!=intersectionMethod)
         broadPhaseDetection->setIntersectionMethod(intersectionMethod);
@@ -105,7 +105,7 @@ void PipelineImpl::computeCollisionReset()
 
 void PipelineImpl::computeCollisionDetection()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     std::vector<CollisionModel*> collisionModels;
     root->getTreeObjects<CollisionModel>(&collisionModels);
@@ -114,7 +114,7 @@ void PipelineImpl::computeCollisionDetection()
 
 void PipelineImpl::computeCollisionResponse()
 {
-    simulation::Node* root = dynamic_cast<simulation::Node*>(getContext());
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
     if(root == NULL) return;
     sofa::helper::AdvancedTimer::stepBegin("CollisionResponse");
     doCollisionResponse();

@@ -47,6 +47,7 @@ template<int N, typename T>
 class BlocFullMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((BlocFullMatrix<N,T>),((defaulttype::BaseMatrix)));
 
     enum { BSIZE = N };
     typedef T Real;
@@ -418,6 +419,8 @@ template<int N, typename T>
 class BTDMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((BTDMatrix<N,T>),((defaulttype::BaseMatrix)));
+
     enum { BSIZE = N };
     typedef T Real;
     typedef typename defaulttype::BaseMatrix::Index Index;

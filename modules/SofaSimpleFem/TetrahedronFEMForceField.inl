@@ -1332,7 +1332,7 @@ void TetrahedronFEMForceField<DataTypes>::init()
         int ny = 1;
 //		int nz = 1;
         {
-            topology::GridTopology* grid = dynamic_cast<topology::GridTopology*>(_mesh);
+            topology::GridTopology* grid = topology::GridTopology::DynamicCast(_mesh);
             if (grid != NULL)
             {
                 nx = grid->getNx()-1;
@@ -2027,7 +2027,7 @@ void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMa
     Rot[1][0]=Rot[1][2]=0;
     Rot[2][0]=Rot[2][1]=0;
 
-    if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * crsmat = dynamic_cast<sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * >(mat))
+    if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * crsmat = sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >::DynamicCast(mat))
     {
         for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
         {
@@ -2070,7 +2070,7 @@ void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMa
             *crsmat->wbloc(offd3 + (*it)[3], offd3 + (*it)[3],true) += tmpBlock[3][3];
         }
     }
-    else if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * crsmat = dynamic_cast<sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * >(mat))
+    else if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * crsmat = sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >::DynamicCast(mat))
     {
         for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
         {
@@ -2188,7 +2188,7 @@ void TetrahedronFEMForceField<DataTypes>::addSubKToMatrix(sofa::defaulttype::Bas
         }
     }
 
-    if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * crsmat = dynamic_cast<sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * >(mat)) {
+    if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * crsmat = sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >::DynamicCast(mat)) {
         for(unsigned e = 0;e< itTetraBuild.size();e++) {
             IT = itTetraBuild[e];
             it = _indexedElements->begin() + IT;
@@ -2229,7 +2229,7 @@ void TetrahedronFEMForceField<DataTypes>::addSubKToMatrix(sofa::defaulttype::Bas
             *crsmat->wbloc(offd3 + (*it)[3], offd3 + (*it)[2],true) += tmpBlock[3][2];
             *crsmat->wbloc(offd3 + (*it)[3], offd3 + (*it)[3],true) += tmpBlock[3][3];
         }
-    } else if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * crsmat = dynamic_cast<sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * >(mat)) {
+    } else if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * crsmat = sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >::DynamicCast(mat)) {
         for(unsigned e = 0;e< itTetraBuild.size();e++) {
             IT = itTetraBuild[e];
             it = _indexedElements->begin() + IT;
@@ -2307,7 +2307,7 @@ void TetrahedronFEMForceField<DataTypes>::addSubKToMatrix(sofa::defaulttype::Bas
 template<class DataTypes>
 void TetrahedronFEMForceField<DataTypes>::handleEvent(core::objectmodel::Event *event)
 {
-    if (dynamic_cast< sofa::simulation::AnimateBeginEvent *>(event)) {
+    if (sofa::simulation::AnimateBeginEvent::DynamicCast(event)) {
         if (_updateStiffness.getValue()) {
             //std::cout << this->getName() << " HANDLE EVENT " << std::endl;
             const VecReal& youngModulus = _youngModulus.getValue();

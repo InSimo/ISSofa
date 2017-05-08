@@ -85,6 +85,8 @@ set(SOURCE_FILES
 	CactusStackStorage.cpp
 	CleanupVisitor.cpp
 	CollisionAnimationLoop.cpp
+	CollisionBeginEvent.cpp
+	CollisionEndEvent.cpp
 	CollisionVisitor.cpp
 	CopyAspectVisitor.cpp
 	DeactivatedNodeVisitor.cpp
@@ -94,6 +96,8 @@ set(SOURCE_FILES
 	ExportGnuplotVisitor.cpp
 	ExportOBJVisitor.cpp
 	InitVisitor.cpp   
+	IntegrateBeginEvent.cpp
+	IntegrateEndEvent.cpp
 	MechanicalComputeEnergyVisitor.cpp
 	MechanicalOperations.cpp
 	MechanicalMatrixVisitor.cpp

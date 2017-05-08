@@ -84,7 +84,7 @@ template<class MyReal>
 void TCapsuleModel<sofa::defaulttype::StdRigidTypes<3,MyReal> >::init()
 {
     this->CollisionModel::init();
-    _mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (getContext()->getMechanicalState());
+    _mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     if (_mstate==NULL)
     {
         serr<<"TCapsuleModel requires a Rigid Mechanical Model" << sendl;

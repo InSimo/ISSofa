@@ -1176,9 +1176,9 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
     core::topology::TopologyContainer* fromTopoCont = 0;
 //	this->fromModel->getContext()->get(fromTopoCont);
 
-    if (dynamic_cast< core::topology::TopologyContainer* >(topology) != 0)
+    if (core::topology::TopologyContainer::DynamicCast(topology) != 0)
     {
-        fromTopoCont = dynamic_cast< core::topology::TopologyContainer* >(topology);
+        fromTopoCont = core::topology::TopologyContainer::DynamicCast(topology);
     }
     else if (topology == 0)
     {
@@ -1187,7 +1187,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
     
     if (fromTopoCont != NULL)
     {
-        topology::HexahedronSetTopologyContainer* t1 = dynamic_cast< topology::HexahedronSetTopologyContainer* >(fromTopoCont);
+        topology::HexahedronSetTopologyContainer* t1 = topology::HexahedronSetTopologyContainer::DynamicCast(fromTopoCont);
         if (t1 != NULL)
         {
             typedef BarycentricMapperHexahedronSetTopology<InDataTypes, OutDataTypes> HexahedronSetMapper;
@@ -1195,7 +1195,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
         }
         else
         {
-            topology::TetrahedronSetTopologyContainer* t2 = dynamic_cast<topology::TetrahedronSetTopologyContainer*>(fromTopoCont);
+            topology::TetrahedronSetTopologyContainer* t2 = topology::TetrahedronSetTopologyContainer::DynamicCast(fromTopoCont);
             if (t2 != NULL)
             {
                 typedef BarycentricMapperTetrahedronSetTopology<InDataTypes, OutDataTypes> TetrahedronSetMapper;
@@ -1203,7 +1203,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
             }
             else
             {
-                topology::QuadSetTopologyContainer* t3 = dynamic_cast<topology::QuadSetTopologyContainer*>(fromTopoCont);
+                topology::QuadSetTopologyContainer* t3 = topology::QuadSetTopologyContainer::DynamicCast(fromTopoCont);
                 if (t3 != NULL)
                 {
                     typedef BarycentricMapperQuadSetTopology<InDataTypes, OutDataTypes> QuadSetMapper;
@@ -1211,7 +1211,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
                 }
                 else
                 {
-                    topology::TriangleSetTopologyContainer* t4 = dynamic_cast<topology::TriangleSetTopologyContainer*>(fromTopoCont);
+                    topology::TriangleSetTopologyContainer* t4 = topology::TriangleSetTopologyContainer::DynamicCast(fromTopoCont);
                     if (t4 != NULL)
                     {
                         typedef BarycentricMapperTriangleSetTopology<InDataTypes, OutDataTypes> TriangleSetMapper;
@@ -1219,7 +1219,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
                     }
                     else
                     {
-                        topology::EdgeSetTopologyContainer* t5 = dynamic_cast<topology::EdgeSetTopologyContainer*>(fromTopoCont);
+                        topology::EdgeSetTopologyContainer* t5 = topology::EdgeSetTopologyContainer::DynamicCast(fromTopoCont);
                         if ( t5 != NULL )
                         {
                             typedef BarycentricMapperEdgeSetTopology<InDataTypes, OutDataTypes> EdgeSetMapper;
@@ -1234,7 +1234,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
     {
         using sofa::component::topology::RegularGridTopology;
 
-        RegularGridTopology* rgt = dynamic_cast< RegularGridTopology* >(topology);
+        RegularGridTopology* rgt = RegularGridTopology::DynamicCast(topology);
 
         if (rgt != NULL && rgt->isVolume())
         {
@@ -1246,7 +1246,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
         {
             using sofa::component::topology::SparseGridTopology;
 
-            SparseGridTopology* sgt = dynamic_cast< SparseGridTopology* >(topology);
+            SparseGridTopology* sgt = SparseGridTopology::DynamicCast(topology);
             if (sgt != NULL && sgt->isVolume())
             {
                 typedef BarycentricMapperSparseGridTopology< InDataTypes, OutDataTypes > SparseGridMapper;
@@ -1257,7 +1257,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
                 using sofa::core::topology::BaseMeshTopology;
 
                 typedef BarycentricMapperMeshTopology< InDataTypes, OutDataTypes > MeshMapper;
-                BaseMeshTopology* bmt = dynamic_cast< BaseMeshTopology* >(topology);
+                BaseMeshTopology* bmt = BaseMeshTopology::DynamicCast(topology);
                 mapper = sofa::core::objectmodel::New<MeshMapper>(bmt, toTopoCont);
             }
         }
@@ -3747,7 +3747,7 @@ const vector< defaulttype::BaseMatrix*>* BarycentricMapping<TIn, TOut>::getJs()
     typedef typename Mapper::MatrixType mat_type;
     const sofa::defaulttype::BaseMatrix* matJ = getJ();
 
-    const mat_type* mat = dynamic_cast<const mat_type*>(matJ);
+    const mat_type* mat = mat_type::DynamicCast(matJ);
     assert( mat );
 
     eigen.copyFrom( *mat );   // woot

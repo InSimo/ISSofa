@@ -31,6 +31,8 @@ namespace sofa
 namespace simulation
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((VisitorScheduler));
+
 /// Execute the given action recursively
 void VisitorScheduler::doExecuteVisitor(simulation::Node* node, Visitor* act)
 {

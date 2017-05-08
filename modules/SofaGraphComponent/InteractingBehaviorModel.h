@@ -80,7 +80,7 @@ public:
     virtual void init()
     {
         Inherited::init();
-        m_exposedDofs = dynamic_cast<Dofs*>( this->getMState() );
+        m_exposedDofs = Dofs::DynamicCast( this->getMState() );
     }
 
 

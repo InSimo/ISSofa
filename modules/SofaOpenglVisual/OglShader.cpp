@@ -49,7 +49,8 @@ namespace component
 namespace visualmodel
 {
 
-
+SOFA_CLASS_IMPL((OglShader));
+SOFA_CLASS_IMPL((OglShaderElement));
 SOFA_DECL_CLASS(OglShader)
 
 //Register OglShader in the Object Factory

@@ -52,6 +52,8 @@ namespace simulation
 class SOFA_SIMULATION_COMMON_API AnimateBeginEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((AnimateBeginEvent),((Event)));
+    
     AnimateBeginEvent( double dt );
 
     ~AnimateBeginEvent();
@@ -60,7 +62,6 @@ public:
 	void setTaskStatus(void* status) { taskStatus = status; }
 	void* getTaskStatus() const { return taskStatus; }
 
-    virtual const char* getClassName() const { return "AnimateBeginEvent"; }
 protected:
     double dt;
 	void* taskStatus;

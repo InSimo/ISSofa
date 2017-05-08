@@ -243,9 +243,9 @@ void SpatialGridPointModel::computeBoundingTree(int maxDepth)
         ++depth;
     }
     CubeModel* root = cubeModel->createPrevious<CubeModel>();
-    while (dynamic_cast<CubeModel*>(root->getPrevious()) != NULL)
+    while (CubeModel::DynamicCast(root->getPrevious()) != NULL)
     {
-        root = dynamic_cast<CubeModel*>(root->getPrevious());
+        root = CubeModel::DynamicCast(root->getPrevious());
     }
     root->resize(0);
     root->addCube(Cube(cubeModel,0), Cube(cubeModel,cubeModel->getSize()));

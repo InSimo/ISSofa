@@ -43,6 +43,7 @@ class RayModel;
 class SOFA_USER_INTERACTION_API BaseRayContact : public core::collision::Contact
 {
 public:
+    SOFA_ABSTRACT_CLASS_EXTERNAL((BaseRayContact), ((core::collision::Contact)));
     typedef RayModel CollisionModel1;
 
 protected:
@@ -74,6 +75,8 @@ template<class CM2>
 class RayContact : public BaseRayContact
 {
 public:
+    SOFA_CLASS_DEFAULT((RayContact), ((BaseRayContact)));
+
     typedef RayModel CollisionModel1;
     typedef CM2 CollisionModel2;
     typedef core::collision::Intersection Intersection;

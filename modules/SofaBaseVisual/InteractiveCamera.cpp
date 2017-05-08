@@ -178,11 +178,11 @@ void InteractiveCamera::manageEvent(core::objectmodel::Event* e)
         core::objectmodel::KeyreleasedEvent* kre;
 
         //Dispatch event
-        if ((me = dynamic_cast<core::objectmodel::MouseEvent* > (e)))
+        if ((me = core::objectmodel::MouseEvent::DynamicCast(e)))
             processMouseEvent(me);
-        else if ((kpe = dynamic_cast<core::objectmodel::KeypressedEvent* > (e)))
+        else if ((kpe = core::objectmodel::KeypressedEvent::DynamicCast(e)))
             processKeyPressedEvent(kpe);
-        else if ((kre = dynamic_cast<core::objectmodel::KeyreleasedEvent* > (e)))
+        else if ((kre = core::objectmodel::KeyreleasedEvent::DynamicCast(e)))
             processKeyReleasedEvent(kre);
 
         internalUpdate();

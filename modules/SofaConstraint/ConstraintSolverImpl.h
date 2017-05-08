@@ -101,7 +101,7 @@ public:
 
     virtual Result fwdConstraintSet(simulation::Node* node, core::behavior::BaseConstraintSet* cSet)
     {
-        if (core::behavior::BaseConstraintSet *c=dynamic_cast<core::behavior::BaseConstraintSet*>(cSet))
+        if (core::behavior::BaseConstraintSet *c=core::behavior::BaseConstraintSet::DynamicCast(cSet))
         {
             ctime_t t0 = begin(node, c);
             c->getConstraintViolation(cparams /* PARAMS FIRST */, m_v);

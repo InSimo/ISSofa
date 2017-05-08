@@ -88,13 +88,13 @@ void EvalPointsDistance<DataTypes>::init()
     if(isToPrint.getValue()==true) dist.setPersistent(false);
     if (!mstate1 )
     {
-        mstate1 = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(this->getContext()->getMechanicalState());
+        mstate1 = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
         box1 = mstate1->f_bbox.getValue();
         serr << " Mechanical State object1 not found, this will be taken in the same context " << sendl;
     }
     if (!mstate2)
     {
-        mstate2 = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(this->getContext()->getMechanicalState());
+        mstate2 = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
         this->box2 = mstate1->f_bbox.getValue();
         serr << " Mechanical State object2 not found, this will be taken in the same context " << sendl;
     }
@@ -264,7 +264,7 @@ void EvalPointsDistance<DataTypes>::handleEvent(sofa::core::objectmodel::Event* 
     if (!mstate1 || !mstate2)
             return;
     // std::ostream *out = (outfile==NULL)? (std::ostream *)(&sout) : outfile;
-    if (dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if (simulation::AnimateEndEvent::DynamicCast(event))
     {
         double time = getContext()->getTime();
         // write the state using a period

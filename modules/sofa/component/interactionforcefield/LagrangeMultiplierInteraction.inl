@@ -73,7 +73,7 @@ void LagrangeMultiplierInteraction<DataTypes1, DataTypes2>::init()
 
         baseConstraint* bc =list_base_constraint[i];
 
-        SimpleConstraint * sc = dynamic_cast<SimpleConstraint *>(bc);
+        SimpleConstraint * sc = SimpleConstraint::DynamicCast(bc);
         if (sc != NULL)
         {
             //debug
@@ -81,7 +81,7 @@ void LagrangeMultiplierInteraction<DataTypes1, DataTypes2>::init()
             list_constraint.push_back(sc);
         }
 
-        BaseInteractionConstraint* ic= dynamic_cast<BaseInteractionConstraint*> (bc);
+        BaseInteractionConstraint* ic= BaseInteractionConstraint::DynamicCast(bc);
         if (ic != NULL)
         {
             // debug
@@ -175,7 +175,7 @@ void LagrangeMultiplierInteraction<DataTypes1, DataTypes2>::addDForce(
     using sofa::simulation::Node;
     //sout<<"addDForce : dLambda "<< dLambda << " -  dx2:" << dx2 <<sendl;
 
-    Node *context = dynamic_cast< Node* >(this->getContext()); // access to current node (which is supposed to be the root)
+    Node *context = Node::DynamicCast(this->getContext()); // access to current node (which is supposed to be the root)
     sofa::simulation::MechanicalResetConstraintVisitor(mparams).execute(context);
 
     const MatrixDeriv2& c2 = *this->mstate2->getC();

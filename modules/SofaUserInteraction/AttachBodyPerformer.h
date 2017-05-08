@@ -65,7 +65,7 @@ public:
 
     virtual void configure(configurationsetting::MouseButtonSetting* setting)
     {
-        configurationsetting::AttachBodyButtonSetting* s = dynamic_cast<configurationsetting::AttachBodyButtonSetting*>(setting);
+        configurationsetting::AttachBodyButtonSetting* s = configurationsetting::AttachBodyButtonSetting::DynamicCast(setting);
         if (s)
         {
             setStiffness(s->stiffness.getValue());

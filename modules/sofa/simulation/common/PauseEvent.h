@@ -40,11 +40,11 @@ namespace simulation
 class SOFA_SIMULATION_COMMON_API PauseEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((PauseEvent),((Event)));
+
     PauseEvent();
 
     ~PauseEvent();
-
-    virtual const char* getClassName() const { return "PauseEvent"; }
 
 };
 

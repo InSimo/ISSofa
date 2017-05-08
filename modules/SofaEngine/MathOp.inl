@@ -527,7 +527,7 @@ void MathOp<VecT>::reinit()
 template <class VecT>
 void MathOp<VecT>::handleEvent(core::objectmodel::Event* e)
 {
-    if( dynamic_cast<simulation::AnimateBeginEvent*>(e) )
+    if( simulation::AnimateBeginEvent::DynamicCast(e) )
     {
         this->requestUpdate();
     }

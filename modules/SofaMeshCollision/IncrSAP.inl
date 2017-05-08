@@ -279,7 +279,7 @@ inline void TIncrSAP<List,Allocator>::addCollisionModel(core::CollisionModel *cm
         _colliding_elems.add(cm->getLast(),intersectionMethod);
         _nothing_added = false;
 
-        CubeModel * cube_model = dynamic_cast<CubeModel *>(cm->getLast()->getPrevious());
+        CubeModel * cube_model = CubeModel::DynamicCast(cm->getLast()->getPrevious());
         assert(cube_model->getPrevious() == cm->getFirst());
 
         int old_size = _boxes.size();

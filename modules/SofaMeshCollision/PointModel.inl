@@ -82,7 +82,7 @@ template<class DataTypes>
 void TPointModel<DataTypes>::init()
 {
     this->CollisionModel::init();
-    mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (getContext()->getMechanicalState());
+    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
 
     if (mstate==NULL)
     {
@@ -90,7 +90,7 @@ void TPointModel<DataTypes>::init()
         return;
     }
 
-    simulation::Node* node = dynamic_cast< simulation::Node* >(this->getContext());
+    simulation::Node* node = simulation::Node::DynamicCast(this->getContext());
     if (node != 0)
     {
         m_lmdFilter = node->getNodeObject< PointLocalMinDistanceFilter >();
@@ -121,7 +121,7 @@ void TPointModel<DataTypes>::init()
             serr<<"wrong path for PointActiver"<<sendl;
 
 
-        myActiver = dynamic_cast<PointActiver *> (activer);
+        myActiver = dynamic_cast<PointActiver*>(activer);
 
 
 

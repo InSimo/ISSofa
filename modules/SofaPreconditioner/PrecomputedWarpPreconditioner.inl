@@ -315,8 +315,8 @@ void PrecomputedWarpPreconditioner<TDataTypes>::loadMatrixWithSolver()
     {
         core::objectmodel::BaseObject* ptr = NULL;
         this->getContext()->get(ptr, solverName.getValue());
-        CGlinearSolver = dynamic_cast<CGLinearSolver<GraphScatteredMatrix,GraphScatteredVector>*>(ptr);
-        linearSolver = dynamic_cast<core::behavior::LinearSolver*>(ptr);
+        CGlinearSolver = CGLinearSolver<GraphScatteredMatrix,GraphScatteredVector>::DynamicCast(ptr);
+        linearSolver = core::behavior::LinearSolver::DynamicCast(ptr);
     }
 
     if(EulerSolver && CGlinearSolver)
@@ -496,7 +496,7 @@ void PrecomputedWarpPreconditioner<TDataTypes>::rotateConstraints()
     _rotate = true;
     if (! use_rotations.getValue()) return;
 
-    simulation::Node *node = dynamic_cast<simulation::Node *>(this->getContext());
+    simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
     sofa::component::forcefield::TetrahedronFEMForceField<TDataTypes>* forceField = NULL;
     sofa::core::behavior::RotationFinder<TDataTypes>* rotationFinder = NULL;
 
@@ -597,13 +597,13 @@ bool PrecomputedWarpPreconditioner<TDataTypes>::addJMInvJt(defaulttype::BaseMatr
     _rotate = false;
     if (J->colSize() == 0) return true;
 
-    if (SparseMatrix<double>* j = dynamic_cast<SparseMatrix<double>*>(J))
+    if (SparseMatrix<double>* j = SparseMatrix<double>::DynamicCast(J))
     {
         computeActiveDofs(*j);
         ComputeResult(result, *j, (float) fact);
         return true;
     }
-    else if (SparseMatrix<float>* j = dynamic_cast<SparseMatrix<float>*>(J))
+    else if (SparseMatrix<float>* j = SparseMatrix<float>::DynamicCast(J))
     {
         computeActiveDofs(*j);
         ComputeResult(result, *j, (float) fact);
@@ -697,7 +697,7 @@ void PrecomputedWarpPreconditioner<TDataTypes>::ComputeResult(defaulttype::BaseM
 template<class TDataTypes>
 void PrecomputedWarpPreconditioner<TDataTypes>::init()
 {
-    simulation::Node *node = dynamic_cast<simulation::Node *>(this->getContext());
+    simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
     if (node != NULL) mstate = node->get<MState> ();
 }
 

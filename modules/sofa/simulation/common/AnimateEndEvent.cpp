@@ -41,6 +41,7 @@ namespace sofa
 namespace simulation
 {
 
+SOFA_EVENT_CLASS_IMPL((AnimateEndEvent));
 
 AnimateEndEvent::AnimateEndEvent(double dt)
     : sofa::core::objectmodel::Event()

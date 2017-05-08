@@ -96,7 +96,7 @@ void OglLabel::updateVisual()
 
 void OglLabel::handleEvent(sofa::core::objectmodel::Event *event)
 {
-    if ( /*simulation::AnimateEndEvent* ev =*/  dynamic_cast<sofa::simulation::AnimateBeginEvent*>(event))
+    if ( /*simulation::AnimateEndEvent* ev =*/  sofa::simulation::AnimateBeginEvent::DynamicCast(event))
     {
         if (updateLabelEveryNbSteps.getValue())
         {

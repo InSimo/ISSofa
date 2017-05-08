@@ -67,7 +67,7 @@ namespace visualmodel
 class SOFA_OPENGL_VISUAL_API OglShader : public core::visual::Shader, public core::visual::VisualModel
 {
 public:
-    SOFA_CLASS2(OglShader, core::visual::Shader, core::visual::VisualModel);
+    SOFA_CLASS_EXTERNAL((OglShader), ((core::visual::Shader), (core::visual::VisualModel)));
 
     ///Activates or not the shader
     Data<bool> turnOn;
@@ -192,6 +192,8 @@ public:
 
 class SOFA_OPENGL_VISUAL_API OglShaderElement : public core::visual::ShaderElement
 {
+public:
+    SOFA_CLASS_EXTERNAL((OglShaderElement), ((core::visual::ShaderElement)));
 protected:
     ///Name of element (corresponding with the shader)
     Data<std::string> id;

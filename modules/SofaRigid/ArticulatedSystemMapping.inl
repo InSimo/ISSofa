@@ -74,7 +74,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::init()
     m_fromModel = this->getFromModels1()[0];
     m_toModel = this->getToModels()[0];
 
-    sofa::simulation::Node* context = dynamic_cast<sofa::simulation::Node*>(m_fromModel->getContext());
+    sofa::simulation::Node* context = sofa::simulation::Node::DynamicCast(m_fromModel->getContext());
     context->getNodeObject(ahc);
     articulationCenters = ahc->getArticulationCenters();
 

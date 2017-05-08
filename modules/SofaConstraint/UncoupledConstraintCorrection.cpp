@@ -97,7 +97,7 @@ SOFA_CONSTRAINT_API void UncoupledConstraintCorrection< defaulttype::Rigid3Types
         using sofa::defaulttype::Rigid3Mass;
         using sofa::simulation::Node;
 
-        Node *node = dynamic_cast< Node * >(getContext());
+        Node *node = Node::DynamicCast(getContext());
         Rigid3Mass massValue;
 
         //Should use the BaseMatrix API to get the Mass
@@ -105,7 +105,7 @@ SOFA_CONSTRAINT_API void UncoupledConstraintCorrection< defaulttype::Rigid3Types
         if (node != NULL)
         {
             core::behavior::BaseMass *m = node->mass;
-            UniformMass< Rigid3Types, Rigid3Mass > *um = dynamic_cast< UniformMass< Rigid3Types, Rigid3Mass >* > (m);
+            UniformMass< Rigid3Types, Rigid3Mass > *um = UniformMass< Rigid3Types, Rigid3Mass >::DynamicCast(m);
 
             if (um)
                 massValue = um->getMass();

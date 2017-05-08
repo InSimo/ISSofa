@@ -287,7 +287,7 @@ void SpringForceField<DataTypes>::handleTopologyChange(core::topology::Topology 
 {
     if(this->mstate1->getContext()->getTopology() == topo)
     {
-        core::topology::BaseMeshTopology*	_topology = dynamic_cast<core::topology::BaseMeshTopology*> (topo);
+        core::topology::BaseMeshTopology*	_topology = core::topology::BaseMeshTopology::DynamicCast(topo);
 
         if(_topology != NULL)
         {
@@ -317,7 +317,7 @@ void SpringForceField<DataTypes>::handleTopologyChange(core::topology::Topology 
 
     if(this->mstate2->getContext()->getTopology() == topo)
     {
-        core::topology::BaseMeshTopology*	_topology = dynamic_cast<core::topology::BaseMeshTopology*> (topo);
+        core::topology::BaseMeshTopology*	_topology = core::topology::BaseMeshTopology::DynamicCast(topo);
 
         if(_topology != NULL)
         {

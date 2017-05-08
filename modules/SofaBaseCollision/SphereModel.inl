@@ -98,7 +98,7 @@ template<class DataTypes>
 void TSphereModel<DataTypes>::init()
 {
     this->CollisionModel::init();
-    mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (getContext()->getMechanicalState());
+    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     if (mstate==NULL)
     {
         serr<<"TSphereModel requires a Vec3 Mechanical Model" << sendl;

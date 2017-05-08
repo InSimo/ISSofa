@@ -82,7 +82,7 @@ WriteTopology::~WriteTopology()
 
 void WriteTopology::init()
 {
-    m_topology = dynamic_cast<core::topology::BaseMeshTopology*>(this->getContext()->getMeshTopology());
+    m_topology = core::topology::BaseMeshTopology::DynamicCast(this->getContext()->getMeshTopology());
 
     // test the size and range of the DOFs to write in the file output
     //    if (m_topology)
@@ -138,7 +138,7 @@ void WriteTopology::reset()
 
 void WriteTopology::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
     {
         if (!m_topology) return;
         if (!outfile

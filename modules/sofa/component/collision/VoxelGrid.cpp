@@ -209,7 +209,7 @@ void VoxelGrid::add(CollisionModel *cm, int phase)
 
 void VoxelGrid::addCollisionPair(const std::pair<CollisionModel*, CollisionModel*>& cmPair)
 {
-    timeLogger = dynamic_cast<simulation::Node*>(getContext());
+    timeLogger = simulation::Node::DynamicCast(getContext());
     if (timeLogger && !timeLogger->getLogTime()) timeLogger=NULL;
     timeInter = 0;
 

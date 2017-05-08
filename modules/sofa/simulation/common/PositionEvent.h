@@ -40,11 +40,11 @@ namespace simulation
 class SOFA_SIMULATION_COMMON_API PositionEvent : public sofa::core::objectmodel::Event
 {
 public:
+    SOFA_EVENT_CLASS_EXTERNAL((PositionEvent),((Event)));
+
     PositionEvent();
 
     ~PositionEvent();
-
-    virtual const char* getClassName() const { return "PositionEvent"; }
 
 };
 

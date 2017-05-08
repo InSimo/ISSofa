@@ -42,7 +42,7 @@ namespace simulation
 class SOFA_SIMULATION_COMMON_API CollisionEndEvent : public sofa::core::objectmodel::Event
 {
 public:
-    virtual const char* getClassName() const { return "CollisionEndEvent"; }
+    SOFA_EVENT_CLASS_EXTERNAL((CollisionEndEvent),((Event)));
 };
 
 } // namespace simulation

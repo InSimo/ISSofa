@@ -306,7 +306,7 @@ void ValuesFromPositions<DataTypes>::update()
 
     // Compute min and max of BB
     sofa::defaulttype::Vec<3, SReal> sceneMinBBox, sceneMaxBBox;
-    sofa::simulation::Node* context = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+    sofa::simulation::Node* context = sofa::simulation::Node::DynamicCast(this->getContext());
     sofa::simulation::getSimulation()->computeBBox((sofa::simulation::Node*)context, sceneMinBBox.ptr(), sceneMaxBBox.ptr());
     data.bmin = (Real)*sceneMinBBox.ptr(); /// @todo: shouldn't this be dot(sceneMinBBox,data.dir) ?
     data.bmax = (Real)*sceneMaxBBox.ptr(); /// @todo: shouldn't this be dot(sceneMaxBBox,data.dir) ?

@@ -30,6 +30,8 @@ namespace sofa
 namespace simulation
 {
 
+SOFA_EVENT_CLASS_IMPL((PauseEvent));
+
 PauseEvent::PauseEvent()
     : sofa::core::objectmodel::Event()
 {

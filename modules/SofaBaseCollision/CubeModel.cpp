@@ -39,6 +39,8 @@ namespace component
 namespace collision
 {
 
+SOFA_CLASS_IMPL((CubeModel));
+
 SOFA_DECL_CLASS(Cube)
 
 using namespace sofa::defaulttype;

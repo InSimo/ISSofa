@@ -42,6 +42,7 @@ template<class CM1, class CM2>
 class DisabledContact : public core::collision::Contact
 {
 public:
+    SOFA_CLASS_DEFAULT((DisabledContact<CM1, CM2>), ((core::collision::Contact)));
     typedef CM1 CollisionModel1;
     typedef CM2 CollisionModel2;
     typedef core::collision::Intersection Intersection;

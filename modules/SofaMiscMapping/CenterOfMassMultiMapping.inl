@@ -58,7 +58,7 @@ public :
 
     static inline const sofa::core::behavior::BaseMass* fetchMass  ( const Model* m)
     {
-        sofa::core::behavior::BaseMass* mass = dynamic_cast<sofa::core::behavior::BaseMass*> (m->getContext()->getMass());
+        sofa::core::behavior::BaseMass* mass = sofa::core::behavior::BaseMass::DynamicCast(m->getContext()->getMass());
         return mass;
     }
     static inline double computeTotalMass( const Model* model, const sofa::core::behavior::BaseMass* mass )

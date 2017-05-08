@@ -54,7 +54,7 @@ public:
     template<class T>
     static typename T::SPtr create(T*, BaseContext* context, BaseObjectDescription* arg)
     {
-        simulation::Node* gnode = dynamic_cast<simulation::Node*>(context);
+        simulation::Node* gnode = simulation::Node::DynamicCast(context);
         typename T::SPtr obj = sofa::core::objectmodel::New<T>(gnode);
         if (context) context->addObject(obj);
         if (arg) obj->parse(arg);

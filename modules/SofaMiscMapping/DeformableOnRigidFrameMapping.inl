@@ -230,7 +230,7 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJT( typename In::Ma
 template <class TIn, class TInRoot, class TOut>
 void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::handleTopologyChange(core::topology::Topology* t)
 {
-	core::topology::BaseMeshTopology* from = dynamic_cast<core::topology::BaseMeshTopology*>(t);
+	core::topology::BaseMeshTopology* from = core::topology::BaseMeshTopology::DynamicCast(t);
     if(from == NULL ) {
 		this->serr << __FUNCTION__ << ": could not cast topology to BaseMeshTopology" << this->sendl; 
 		return;
@@ -466,7 +466,7 @@ return;
 std::cout<<"recmpute Rigid Mass" <<std::endl;
 
 
-masses = dynamic_cast<BaseMass*> (m_fromModel->getContext()->getMass());
+masses = BaseMass::DynamicCast(m_fromModel->getContext()->getMass());
 if(!masses)
 return;
 

@@ -118,7 +118,7 @@ namespace sofa
                 template<class T2>
                 static bool canCreate(T2*& obj, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg)
                 {
-                    if (dynamic_cast<DataType*>(context->getState()) == NULL)
+                    if (DataType::DynamicCast(context->getState()) == NULL)
                         return false;
                     return BaseObject::canCreate(obj, context, arg);
                 }

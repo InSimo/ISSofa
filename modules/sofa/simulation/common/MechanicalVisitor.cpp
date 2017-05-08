@@ -349,22 +349,22 @@ void BaseMechanicalVisitor::printReadVectors(simulation::Node* node, core::objec
     {
         core::behavior::BaseMechanicalState *dof1, *dof2;
 
-        if (BaseInteractionForceField* interact = dynamic_cast< BaseInteractionForceField* > (obj))
+        if (BaseInteractionForceField* interact = BaseInteractionForceField::DynamicCast(obj))
         {
             dof1 = interact->getMechModel1();
             dof2 = interact->getMechModel2();
         }
-        else if (BaseInteractionProjectiveConstraintSet* interact = dynamic_cast< BaseInteractionProjectiveConstraintSet* > (obj))
+        else if (BaseInteractionProjectiveConstraintSet* interact = BaseInteractionProjectiveConstraintSet::DynamicCast(obj))
         {
             dof1 = interact->getMechModel1();
             dof2 = interact->getMechModel2();
         }
-        else if (BaseInteractionConstraint* interact = dynamic_cast< BaseInteractionConstraint* > (obj))
+        else if (BaseInteractionConstraint* interact = BaseInteractionConstraint::DynamicCast(obj))
         {
             dof1 = interact->getMechModel1();
             dof2 = interact->getMechModel2();
         }/*
-        else if (BaseLMConstraint* interact = dynamic_cast< BaseLMConstraint* > (obj))
+        else if (BaseLMConstraint* interact = BaseLMConstraint::DynamicCast(obj))
         {
                 dof1 = interact->getConstrainedMechModel1();
                 dof2 = interact->getConstrainedMechModel2();
@@ -403,22 +403,22 @@ void BaseMechanicalVisitor::printWriteVectors(simulation::Node* node, core::obje
     {
         BaseMechanicalState *dof1, *dof2;
 
-        if (BaseInteractionForceField* interact = dynamic_cast< BaseInteractionForceField* > (obj))
+        if (BaseInteractionForceField* interact = BaseInteractionForceField::DynamicCast(obj))
         {
             dof1 = interact->getMechModel1();
             dof2 = interact->getMechModel2();
         }
-        else if (BaseInteractionProjectiveConstraintSet* interact = dynamic_cast< BaseInteractionProjectiveConstraintSet* > (obj))
+        else if (BaseInteractionProjectiveConstraintSet* interact = BaseInteractionProjectiveConstraintSet::DynamicCast(obj))
         {
             dof1 = interact->getMechModel1();
             dof2 = interact->getMechModel2();
         }
-        else if (BaseInteractionConstraint* interact = dynamic_cast< BaseInteractionConstraint* > (obj))
+        else if (BaseInteractionConstraint* interact = BaseInteractionConstraint::DynamicCast(obj))
         {
             dof1 = interact->getMechModel1();
             dof2 = interact->getMechModel2();
         }/*
-        else if (BaseLMConstraint* interact = dynamic_cast< BaseLMConstraint* > (obj))
+        else if (BaseLMConstraint* interact = BaseLMConstraint::DynamicCast(obj))
         {
                 dof1 = interact->getConstrainedMechModel1();
                 dof2 = interact->getConstrainedMechModel2();
@@ -1317,7 +1317,7 @@ Visitor::Result MechanicalResetConstraintVisitor::fwdConstraintSet(simulation::N
 
 Visitor::Result MechanicalWriteLMConstraint::fwdConstraintSet(simulation::Node* /*node*/, core::behavior::BaseConstraintSet* c)
 {
-    if (core::behavior::BaseLMConstraint* LMc=dynamic_cast<core::behavior::BaseLMConstraint* >(c))
+    if (core::behavior::BaseLMConstraint* LMc=core::behavior::BaseLMConstraint::DynamicCast(c))
     {
         LMc->writeConstraintEquations(offset, id, order);
         datasC.push_back(LMc);
@@ -1438,9 +1438,9 @@ Visitor::Result MechanicalAddSeparateGravityVisitor::fwdMass(simulation::Node* /
     if( mass->m_separateGravity.getValue() )
     {
         //<TO REMOVE>
-        //if (! (res == VecId::velocity())) dynamic_cast<core::behavior::BaseMechanicalState*>(node->getMechanicalState())->setV(res);
+        //if (! (res == VecId::velocity())) core::behavior::BaseMechanicalState::DynamicCast(node->getMechanicalState())->setV(res);
         mass->addGravityToV(this->mparams /* PARAMS FIRST */, res);
-        //if (! (res == VecId::velocity())) dynamic_cast<core::behavior::BaseMechanicalState*>(node->getMechanicalState())->setV(VecId::velocity());
+        //if (! (res == VecId::velocity())) core::behavior::BaseMechanicalState::DynamicCast(node->getMechanicalState())->setV(VecId::velocity());
     }
     return RESULT_CONTINUE;
 }

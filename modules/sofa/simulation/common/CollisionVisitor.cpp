@@ -129,7 +129,7 @@ void ParallelCollisionVisitor::processCollisionPipeline(simulation::Node*, core:
 }
 void ParallelCollisionVisitor::processCollisionPipeline(simulation::Node* node, core::collision::Pipeline* obj)
 {
-    core::collision::ParallelPipeline* p = dynamic_cast<core::collision::ParallelPipeline*>(obj);
+    core::collision::ParallelPipeline* p = core::collision::ParallelPipeline::DynamicCast(obj);
     if (p)
         processCollisionPipeline(node, p);
 }

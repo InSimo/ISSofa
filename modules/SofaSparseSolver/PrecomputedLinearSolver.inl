@@ -216,12 +216,12 @@ bool PrecomputedLinearSolver<TMatrix,TVector>::addJMInvJt(defaulttype::BaseMatri
         setSystemMBKMatrix(&mparams);
     }
 
-    if (SparseMatrix<double>* j = dynamic_cast<SparseMatrix<double>*>(J))
+    if (SparseMatrix<double>* j = SparseMatrix<double>::DynamicCast(J))
     {
         computeActiveDofs(*j);
         ComputeResult(result, *j, (float) fact);
     }
-    else if (SparseMatrix<float>* j = dynamic_cast<SparseMatrix<float>*>(J))
+    else if (SparseMatrix<float>* j = SparseMatrix<float>::DynamicCast(J))
     {
         computeActiveDofs(*j);
         ComputeResult(result, *j, (float) fact);

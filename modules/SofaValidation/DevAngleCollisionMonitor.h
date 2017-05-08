@@ -80,14 +80,14 @@ public:
     {
         if (arg->getAttribute("object1") || arg->getAttribute("object2"))
         {
-            if (dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(arg->findObject(arg->getAttribute("object1",".."))) == NULL)
+            if (core::behavior::MechanicalState<DataTypes>::DynamicCast(arg->findObject(arg->getAttribute("object1",".."))) == NULL)
                 return false;
-            if (dynamic_cast<core::behavior::MechanicalState<defaulttype::Vec3Types>*>(arg->findObject(arg->getAttribute("object2",".."))) == NULL)
+            if (core::behavior::MechanicalState<defaulttype::Vec3Types>::DynamicCast(arg->findObject(arg->getAttribute("object2",".."))) == NULL)
                 return false;
         }
         else
         {
-            if (dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(context->getMechanicalState()) == NULL)
+            if (core::behavior::MechanicalState<DataTypes>::DynamicCast(context->getMechanicalState()) == NULL)
                 return false;
         }
         return core::objectmodel::BaseObject::canCreate(obj, context, arg);
@@ -101,8 +101,8 @@ public:
 
         if (arg && (arg->getAttribute("object1") || arg->getAttribute("object2")))
         {
-            obj->mstate1 = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(arg->findObject(arg->getAttribute("object1","..")));
-            obj->mstate2 = dynamic_cast<core::behavior::MechanicalState<defaulttype::Vec3Types>*>(arg->findObject(arg->getAttribute("object2","..")));
+            obj->mstate1 = core::behavior::MechanicalState<DataTypes>::DynamicCast(arg->findObject(arg->getAttribute("object1","..")));
+            obj->mstate2 = core::behavior::MechanicalState<defaulttype::Vec3Types>::DynamicCast(arg->findObject(arg->getAttribute("object2","..")));
         }
 
         return obj;

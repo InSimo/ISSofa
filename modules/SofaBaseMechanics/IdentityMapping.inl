@@ -171,8 +171,8 @@ static inline void peq(defaulttype::RigidCoord<N,T1>& dest, const defaulttype::V
 template<class TIn, class TOut>
 void IdentityMapping<TIn, TOut>::init()
 {
-    stateFrom = dynamic_cast< core::behavior::BaseMechanicalState *>(this->fromModel.get());
-    stateTo = dynamic_cast< core::behavior::BaseMechanicalState *>(this->toModel.get());
+    stateFrom = core::behavior::BaseMechanicalState::DynamicCast(this->fromModel.get());
+    stateTo = core::behavior::BaseMechanicalState::DynamicCast(this->toModel.get());
     Inherit::init();
 }
 

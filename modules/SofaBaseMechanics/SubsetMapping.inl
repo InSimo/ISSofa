@@ -200,7 +200,7 @@ void SubsetMapping<TIn, TOut>::postInit()
 template <class TIn, class TOut>
 void SubsetMapping<TIn, TOut>::handleEvent(core::objectmodel::Event *e)
 {
-    if (dynamic_cast<sofa::simulation::AnimateBeginEvent*>(e))
+    if (sofa::simulation::AnimateBeginEvent::DynamicCast(e))
     {
         f_indices.getValue();
         unsigned indicesCurrentEditCounter = f_indices.getCounter();

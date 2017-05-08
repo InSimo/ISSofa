@@ -92,7 +92,7 @@ void LineBendingSprings<DataTypes>::registerLine( unsigned a, unsigned b, std::m
 template<class DataTypes>
 void LineBendingSprings<DataTypes>::init()
 {
-    this->mstate1 = this->mstate2 = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>( this->getContext()->getMechanicalState() );
+    this->mstate1 = this->mstate2 = core::behavior::MechanicalState<DataTypes>::DynamicCast( this->getContext()->getMechanicalState() );
     StiffSpringForceField<DataTypes>::clear();
 
     // Set the bending springs

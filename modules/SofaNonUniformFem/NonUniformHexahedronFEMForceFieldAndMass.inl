@@ -77,7 +77,7 @@ void NonUniformHexahedronFEMForceFieldAndMass<DataTypes>::init()
         return;
     }
 
-    this->_sparseGrid = dynamic_cast<topology::SparseGridTopology*>(this->_mesh);
+    this->_sparseGrid = topology::SparseGridTopology::DynamicCast(this->_mesh);
 
 
 
@@ -350,7 +350,7 @@ void NonUniformHexahedronFEMForceFieldAndMass<T>::computeClassicalMechanicalMatr
     //Nodes are found using Sparse Grid
     Real stiffnessCoef = this->_sparseGrid->_virtualFinerLevels[level]->getStiffnessCoef(elementIndice);
     Real massCoef = this->_sparseGrid->_virtualFinerLevels[level]->getStiffnessCoef(elementIndice);
-    // 		  if (SparseGridMultipleTopology* sgmt =  dynamic_cast<SparseGridMultipleTopology*>( this->_sparseGrid->_virtualFinerLevels[level] ) )
+    // 		  if (SparseGridMultipleTopology* sgmt =  SparseGridMultipleTopology::DynamicCast( this->_sparseGrid->_virtualFinerLevels[level] ) )
     // 			  stiffnessCoef = sgmt->getStiffnessCoef( elementIndice );
     // 		  else if( this->_sparseGrid->_virtualFinerLevels[level]->getType(elementIndice)==topology::SparseGridTopology::BOUNDARY )
     // 			  stiffnessCoef = .5;

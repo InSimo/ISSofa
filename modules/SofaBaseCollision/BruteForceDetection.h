@@ -86,7 +86,8 @@ class SOFA_BASE_COLLISION_API BruteForceDetection :
     public core::collision::NarrowPhaseDetection
 {
 public:
-    SOFA_CLASS2(BruteForceDetection, core::collision::BroadPhaseDetection, core::collision::NarrowPhaseDetection);
+    SOFA_CLASS_EXTERNAL((BruteForceDetection), ((core::collision::BroadPhaseDetection), (core::collision::NarrowPhaseDetection)));
+    SOFA_CLASS_VIRTUAL_PARENTS((core::collision::Detection));
 
 private:
     bool _is_initialized;

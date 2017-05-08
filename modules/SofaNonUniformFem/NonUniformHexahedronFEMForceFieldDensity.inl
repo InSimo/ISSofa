@@ -65,7 +65,7 @@ void NonUniformHexahedronFEMForceFieldDensity<DataTypes>::init()
         return;
     }
 
-    this->_mesh = dynamic_cast<sofa::core::topology::BaseMeshTopology*>(this->getContext()->getMeshTopology());
+    this->_mesh = sofa::core::topology::BaseMeshTopology::DynamicCast(this->getContext()->getMeshTopology());
     if ( this->_mesh==NULL)
     {
         serr << "ERROR(NonUniformHexahedronFEMForceFieldDensity): object must have a MeshTopology."<<sendl;
@@ -84,7 +84,7 @@ void NonUniformHexahedronFEMForceFieldDensity<DataTypes>::init()
         return;
     }
 
-    this->_sparseGrid = dynamic_cast<topology::SparseGridTopology*>(this->_mesh);
+    this->_sparseGrid = topology::SparseGridTopology::DynamicCast(this->_mesh);
 
 
 

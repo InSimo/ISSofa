@@ -38,7 +38,8 @@ namespace simulation
 
 class SOFA_SIMULATION_COMMON_API PipelineImpl : public virtual sofa::core::collision::Pipeline
 {
-
+public:
+    SOFA_CLASS_EXTERNAL((PipelineImpl), ((sofa::core::collision::Pipeline)));
 protected:
     PipelineImpl();
 

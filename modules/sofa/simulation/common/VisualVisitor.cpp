@@ -100,7 +100,7 @@ void VisualDrawVisitor::processVisualModel(simulation::Node* node, core::visual:
     //cerr<<"VisualDrawVisitor::processVisualModel "<<vm->getName()<<endl;
     sofa::core::visual::Shader* shader = NULL;
     if (hasShader)
-        shader = dynamic_cast<sofa::core::visual::Shader*>(node->getShader(subsetsToManage));
+        shader = sofa::core::visual::Shader::DynamicCast(node->getShader(subsetsToManage));
 
     switch(vparams->pass())
     {

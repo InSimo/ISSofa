@@ -119,15 +119,15 @@ public:
 
     JMatrixType * getLocalJ(defaulttype::BaseMatrix * J)
     {
-        if (JMatrixType * j = dynamic_cast<JMatrixType *>(J))
+        if (JMatrixType * j = JMatrixType::DynamicCast(J))
         {
             return j;
         }
-        else if (SparseMatrix<double> * j = dynamic_cast<SparseMatrix<double> *>(J))
+        else if (SparseMatrix<double> * j = SparseMatrix<double>::DynamicCast(J))
         {
             return copyJmatrix(j);
         }
-        else if (SparseMatrix<float> * j = dynamic_cast<SparseMatrix<float> *>(J))
+        else if (SparseMatrix<float> * j = SparseMatrix<float>::DynamicCast(J))
         {
             return copyJmatrix(j);
         }
@@ -320,7 +320,7 @@ public :
         }
         else
         {
-            currentNode = dynamic_cast<simulation::Node*>(this->getContext());
+            currentNode = simulation::Node::DynamicCast(this->getContext());
             currentGroup = &defaultGroup;
         }
     }

@@ -130,15 +130,15 @@ sofa::component::container::MechanicalObject< DataTypes >* FixParticlePerformer<
 
     if (b.body)
     {
-        collisionState = dynamic_cast<MouseContainer*>(b.body->getContext()->getMechanicalState());
+        collisionState = MouseContainer::DynamicCast(b.body->getContext()->getMechanicalState());
 
-        if (SphereModel *sphere = dynamic_cast<SphereModel*>(b.body))
+        if (SphereModel *sphere = SphereModel::DynamicCast(b.body))
         {
             Sphere s(sphere, idx);
             fixPoint = s.p();
             points.push_back(s.getIndex());
         }
-        else if(TriangleModel *triangle = dynamic_cast<TriangleModel*>(b.body))
+        else if(TriangleModel *triangle = TriangleModel::DynamicCast(b.body))
         {
             Triangle t(triangle, idx);
             fixPoint = (t.p1()+t.p2()+t.p3())/3.0;
@@ -146,20 +146,20 @@ sofa::component::container::MechanicalObject< DataTypes >* FixParticlePerformer<
             points.push_back(t.p2Index());
             points.push_back(t.p3Index());
         }
-        else if(CapsuleModel *capsule = dynamic_cast<CapsuleModel*>(b.body)){
+        else if(CapsuleModel *capsule = CapsuleModel::DynamicCast(b.body)){
             fixPoint = (capsule->point1(idx) + capsule->point2(idx))/2.0;
             points.push_back(capsule->point1Index(idx));
             points.push_back(capsule->point2Index(idx));
         }
-        else if(dynamic_cast<RigidSphereModel*>(b.body)||dynamic_cast<OBBModel*>(b.body)){
-            collisionState = dynamic_cast<MouseContainer*>(b.mstate);
+        else if(RigidSphereModel::DynamicCast(b.body)||OBBModel::DynamicCast(b.body)){
+            collisionState = MouseContainer::DynamicCast(b.mstate);
             fixPoint = (collisionState->read(core::ConstVecCoordId::position())->getValue())[idx];
             points.push_back(idx);
         }
     }
     else if (b.mstate)
     {
-        collisionState = dynamic_cast<MouseContainer*>(b.mstate);
+        collisionState = MouseContainer::DynamicCast(b.mstate);
         fixPoint = (collisionState->read(core::ConstVecCoordId::position())->getValue())[idx];
         points.push_back(idx);
     }

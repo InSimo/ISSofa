@@ -259,7 +259,7 @@ void PointSetGeometryAlgorithms<DataTypes>::draw(const core::visual::VisualParam
         sofa::defaulttype::Vec<3, SReal> sceneMinBBox, sceneMaxBBox;
         const VecCoord& coords =(this->object->read(core::ConstVecCoordId::position())->getValue());
 
-        sofa::simulation::Node* context = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+        sofa::simulation::Node* context = sofa::simulation::Node::DynamicCast(this->getContext());
         glColor3f(1.0,1.0,1.0);
         glDisable(GL_LIGHTING);
         sofa::simulation::getSimulation()->computeBBox((sofa::simulation::Node*)context, sceneMinBBox.ptr(), sceneMaxBBox.ptr());

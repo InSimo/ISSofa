@@ -37,6 +37,8 @@ namespace component
 namespace collision
 {
 
+SOFA_ABSTRACT_CLASS_IMPL((BaseMouseInteractor));
+
 SOFA_DECL_CLASS(MouseInteractor)
 
 int MouseInteractorClass = core::RegisterObject("Perform tasks related to the interaction with the mouse")

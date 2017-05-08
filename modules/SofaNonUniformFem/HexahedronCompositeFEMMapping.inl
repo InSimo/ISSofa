@@ -56,7 +56,7 @@ void HexahedronCompositeFEMMapping<BasicMapping>::init()
     _alreadyInit=true;
 
 
-    _sparseGrid = dynamic_cast<SparseGridTopologyT*> (this->fromModel->getContext()->getTopology());
+    _sparseGrid = SparseGridTopologyT::DynamicCast(this->fromModel->getContext()->getTopology());
     if(!_sparseGrid)
     {
         serr<<"HexahedronCompositeFEMMapping can only be used with a SparseGridTopology"<<sendl;

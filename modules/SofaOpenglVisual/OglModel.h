@@ -58,7 +58,7 @@ namespace visualmodel
 class SOFA_OPENGL_VISUAL_API OglModel : public VisualModelImpl
 {
 public:
-    SOFA_CLASS(OglModel, VisualModelImpl);
+    SOFA_CLASS_EXTERNAL((OglModel), ((VisualModelImpl)));
 
 protected:
     Data<bool> premultipliedAlpha, useVBO, writeZTransparent, alphaBlend, depthTest;

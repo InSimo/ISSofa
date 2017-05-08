@@ -77,7 +77,7 @@ template <class DataTypes>
 void MechanicalStateControllerOmni<DataTypes>::init()
 {
     using core::behavior::MechanicalState;
-    mState = dynamic_cast<MechanicalState<DataTypes> *> (this->getContext()->getMechanicalState());
+    mState = MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
     if (!mState)
         serr << "MechanicalStateControllerOmni has no binding MechanicalState" << sendl;
     device = false;

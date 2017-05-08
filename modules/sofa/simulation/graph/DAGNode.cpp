@@ -208,7 +208,7 @@ void* DAGNode::getObject(const sofa::core::objectmodel::BaseClass* class_info, c
             Parents parents = getParents();
             if (!parents.empty())
                 for (Parents::iterator it = parents.begin(); it!=parents.end() && !result; ++it)
-                    result = dynamic_cast<Node*>(*it)->getObject(class_info, tags, SearchUp);
+                    result = Node::DynamicCast(*it)->getObject(class_info, tags, SearchUp);
         }
         break;
         case SearchDown:
@@ -263,7 +263,7 @@ void* DAGNode::getObject(const sofa::core::objectmodel::BaseClass* class_info, c
         {
             for (Parents::iterator it = parents.begin(); it!=parents.end(); ++it)
             {
-                void* obj = dynamic_cast<Node*>(*it)->getObject(class_info,newpath);
+                void* obj = Node::DynamicCast(*it)->getObject(class_info,newpath);
                 if (obj) return obj;
             }
             return 0;   // not found in any parent node at all
@@ -700,7 +700,7 @@ void DAGNode::updateContext()
         }
         // TODO
         // ahem.... not sure here... which parent should I copy my context from exactly ?
-        copyContext(*dynamic_cast<Context*>(getParents()[0]));
+        copyContext(*Context::DynamicCast(getParents()[0]));
     }
     simulation::Node::updateContext();
 }
@@ -715,7 +715,7 @@ void DAGNode::updateSimulationContext()
         }
         // TODO
         // ahem.... not sure here... which parent should I copy my simulation context from exactly ?
-        copySimulationContext(*dynamic_cast<Context*>(getParents()[0]));
+        copySimulationContext(*Context::DynamicCast(getParents()[0]));
     }
     simulation::Node::updateSimulationContext();
 }

@@ -62,11 +62,11 @@ CompareTopology::CompareTopology(): ReadTopology()
 //-------------------------------- handleEvent-------------------------------------------
 void CompareTopology::handleEvent(sofa::core::objectmodel::Event* event)
 {
-    if (/* simulation::AnimateBeginEvent* ev = */ dynamic_cast<simulation::AnimateBeginEvent*>(event))
+    if (/* simulation::AnimateBeginEvent* ev = */ simulation::AnimateBeginEvent::DynamicCast(event))
     {
         processCompareTopology();
     }
-    if (/* simulation::AnimateEndEvent* ev = */ dynamic_cast<simulation::AnimateEndEvent*>(event))
+    if (/* simulation::AnimateEndEvent* ev = */ simulation::AnimateEndEvent::DynamicCast(event))
     {
     }
 }
@@ -76,7 +76,7 @@ void CompareTopology::handleEvent(sofa::core::objectmodel::Event* event)
 void CompareTopology::processCompareTopology()
 {
 
-    sofa::core::topology::BaseMeshTopology* topo = m_topology = dynamic_cast<core::topology::BaseMeshTopology*>(this->getContext()->getMeshTopology());
+    sofa::core::topology::BaseMeshTopology* topo = m_topology = core::topology::BaseMeshTopology::DynamicCast(this->getContext()->getMeshTopology());
     if (!topo)
     {
         serr << "Error, compareTopology can't acces to the Topology." << sendl;
@@ -337,7 +337,7 @@ CompareTopologyCreator::CompareTopologyCreator(const std::string &n, const core:
 simulation::Visitor::Result CompareTopologyCreator::processNodeTopDown( simulation::Node* gnode)
 {
     using namespace sofa::defaulttype;
-    sofa::core::topology::BaseMeshTopology* topo = dynamic_cast<sofa::core::topology::BaseMeshTopology *>( gnode->getMeshTopology());
+    sofa::core::topology::BaseMeshTopology* topo = sofa::core::topology::BaseMeshTopology::DynamicCast( gnode->getMeshTopology());
     if (!topo)   return simulation::Visitor::RESULT_CONTINUE;
     //We have a meshTopology
     addCompareTopology(topo, gnode);

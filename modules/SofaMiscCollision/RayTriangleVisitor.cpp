@@ -242,13 +242,13 @@ Visitor::Result RayTriangleVisitor::processNodeTopDown(simulation::Node* node)
 //    cerr<<"RayTriangleVisitor::processNodeTopDown " << endl;
     for( CollisionModels::const_iterator it=node->collisionModel.begin(), iend=node->collisionModel.end(); it!=iend; it++ )
     {
-        if( TriangleModel* tmodel = dynamic_cast<TriangleModel*>(*it) ) {
+        if( TriangleModel* tmodel = TriangleModel::DynamicCast(*it) ) {
             processTriangleModel(node,tmodel);
         }
     }
     for( VisualModels::const_iterator it=node->visualModel.begin(), iend=node->visualModel.end(); it!=iend; it++ )
     {
-        if( OglModel* tmodel = dynamic_cast<OglModel*>(*it) ) {
+        if( OglModel* tmodel = OglModel::DynamicCast(*it) ) {
             processOglModel(node,tmodel);
         }
     }

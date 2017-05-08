@@ -48,6 +48,8 @@ template<typename T>
 class FullMatrix : public defaulttype::BaseMatrix
 {
 public:
+    SOFA_MATRIX_CLASS_UNIQUE((FullMatrix<T>),((defaulttype::BaseMatrix)));
+
     typedef T Real;
     typedef typename defaulttype::BaseMatrix::Index Index;
     typedef FullVector<Real> Line;

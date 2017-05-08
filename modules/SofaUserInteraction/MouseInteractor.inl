@@ -43,7 +43,7 @@ template <class DataTypes>
 void MouseInteractor<DataTypes>::init()
 {
     BaseMouseInteractor::init();
-    mouseInSofa = dynamic_cast< MouseContainer*>(this->getContext()->getMechanicalState());
+    mouseInSofa = MouseContainer::DynamicCast(this->getContext()->getMechanicalState());
     assert(mouseInSofa);
 }
 

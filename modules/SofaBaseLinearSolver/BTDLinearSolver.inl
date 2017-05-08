@@ -419,35 +419,35 @@ void BTDLinearSolver<Matrix,Vector>::solve (Matrix& /*M*/, Vector& x, Vector& b)
 template<class Matrix, class Vector>
 bool BTDLinearSolver<Matrix,Vector>::addJMInvJt(defaulttype::BaseMatrix* result, defaulttype::BaseMatrix* J, double fact)
 {
-    if (FullMatrix<double>* r = dynamic_cast<FullMatrix<double>*>(result))
+    if (FullMatrix<double>* r = FullMatrix<double>::DynamicCast(result))
     {
-        if (SparseMatrix<double>* j = dynamic_cast<SparseMatrix<double>*>(J))
+        if (SparseMatrix<double>* j = SparseMatrix<double>::DynamicCast(J))
         {
             return addJMInvJt(*r,*j,fact);
         }
-        else if (SparseMatrix<float>* j = dynamic_cast<SparseMatrix<float>*>(J))
+        else if (SparseMatrix<float>* j = SparseMatrix<float>::DynamicCast(J))
         {
             return addJMInvJt(*r,*j,fact);
         }
     }
-    else if (FullMatrix<float>* r = dynamic_cast<FullMatrix<float>*>(result))
+    else if (FullMatrix<float>* r = FullMatrix<float>::DynamicCast(result))
     {
-        if (SparseMatrix<double>* j = dynamic_cast<SparseMatrix<double>*>(J))
+        if (SparseMatrix<double>* j = SparseMatrix<double>::DynamicCast(J))
         {
             return addJMInvJt(*r,*j,fact);
         }
-        else if (SparseMatrix<float>* j = dynamic_cast<SparseMatrix<float>*>(J))
+        else if (SparseMatrix<float>* j = SparseMatrix<float>::DynamicCast(J))
         {
             return addJMInvJt(*r,*j,fact);
         }
     }
     else if (defaulttype::BaseMatrix* r = result)
     {
-        if (SparseMatrix<double>* j = dynamic_cast<SparseMatrix<double>*>(J))
+        if (SparseMatrix<double>* j = SparseMatrix<double>::DynamicCast(J))
         {
             return addJMInvJt(*r,*j,fact);
         }
-        else if (SparseMatrix<float>* j = dynamic_cast<SparseMatrix<float>*>(J))
+        else if (SparseMatrix<float>* j = SparseMatrix<float>::DynamicCast(J))
         {
             return addJMInvJt(*r,*j,fact);
         }

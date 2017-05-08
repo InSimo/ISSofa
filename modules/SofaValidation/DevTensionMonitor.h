@@ -64,12 +64,12 @@ public:
     {
         if (arg->getAttribute("object"))
         {
-            if (dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(arg->findObject(arg->getAttribute("object",".."))) == NULL)
+            if (core::behavior::MechanicalState<DataTypes>::DynamicCast(arg->findObject(arg->getAttribute("object",".."))) == NULL)
                 return false;
         }
         else
         {
-            if (dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(context->getMechanicalState()) == NULL)
+            if (core::behavior::MechanicalState<DataTypes>::DynamicCast(context->getMechanicalState()) == NULL)
                 return false;
         }
         return core::objectmodel::BaseObject::canCreate(obj, context, arg);
@@ -83,7 +83,7 @@ public:
 
         if (arg && (arg->getAttribute("object")))
         {
-            obj->mstate = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(arg->findObject(arg->getAttribute("object","..")));
+            obj->mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(arg->findObject(arg->getAttribute("object","..")));
         }
 
         return obj;

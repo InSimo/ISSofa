@@ -57,7 +57,7 @@ ClusteringEngine<DataTypes>::ClusteringEngine()
 template <class DataTypes>
 void ClusteringEngine<DataTypes>::init()
 {
-    this->mstate = dynamic_cast< sofa::core::behavior::MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
+    this->mstate = sofa::core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     addInput(&radius);
     addInput(&fixedRadius);
     addInput(&number);

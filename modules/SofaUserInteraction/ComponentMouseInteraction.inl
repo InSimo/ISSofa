@@ -65,7 +65,7 @@ void TComponentMouseInteraction<DataTypes>::createInteractionComponents( sofa::s
         mouseInteractor->setName("MouseInteractor");
         current->addObject(mouseInteractor);
 
-        MousePosition *mecha = dynamic_cast< MousePosition* >(parent->getMechanicalState());
+        MousePosition *mecha = MousePosition::DynamicCast(parent->getMechanicalState());
 
         this->mouseMapping = sofa::core::objectmodel::New< IdentityMechanicalMapping >();
         this->mouseMapping->setModels(mecha, static_cast< MouseContainer* >(mouseInSofa.get()));
@@ -82,7 +82,7 @@ void TComponentMouseInteraction<DataTypes>::createInteractionComponents( sofa::s
 template <class DataTypes>
 bool TComponentMouseInteraction<DataTypes>::isCompatible( core::objectmodel::BaseContext *context) const
 {
-    return (dynamic_cast<MouseContainer*>(context->getMechanicalState()) != NULL);
+    return (MouseContainer::DynamicCast(context->getMechanicalState()) != NULL);
 }
 }
 }

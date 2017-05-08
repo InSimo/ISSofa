@@ -163,9 +163,9 @@ public:
             context->serr << "Cannot create "<<className ( obj ) <<" as the hexas container is missing."<<context->sendl;
         if ( arg->findObject ( arg->getAttribute ( "targetPath",".." ) ) == NULL )
             context->serr << "Cannot create "<<className ( obj ) <<" as the target point set is missing."<<context->sendl;
-        if ( dynamic_cast<sofa::component::topology::DynamicSparseGridTopologyContainer*> ( arg->findObject ( arg->getAttribute ( "hexaContainerPath","../.." ) ) ) == NULL )
+        if ( sofa::component::topology::DynamicSparseGridTopologyContainer::DynamicCast( arg->findObject ( arg->getAttribute ( "hexaContainerPath","../.." ) ) ) == NULL )
             return false;
-        if ( dynamic_cast<MechanicalState<DataTypes>*> ( arg->findObject ( arg->getAttribute ( "targetPath",".." ) ) ) == NULL )
+        if ( MechanicalState<DataTypes>::DynamicCast( arg->findObject ( arg->getAttribute ( "targetPath",".." ) ) ) == NULL )
             return false;
         return true;
     }
@@ -177,8 +177,8 @@ public:
     static typename T::SPtr create(T*, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg )
     {
         typename T::SPtr obj = sofa::core::objectmodel::New<T>(
-                ( arg?dynamic_cast<sofa::component::topology::DynamicSparseGridTopologyContainer*> ( arg->findObject ( arg->getAttribute ( "hexaContainerPath","../.." ) ) ) :NULL ),
-                ( arg?dynamic_cast<MechanicalState<DataTypes>*> ( arg->findObject ( arg->getAttribute ( "targetPath",".." ) ) ) :NULL ) );
+                ( arg?sofa::component::topology::DynamicSparseGridTopologyContainer::DynamicCast( arg->findObject ( arg->getAttribute ( "hexaContainerPath","../.." ) ) ) :NULL ),
+                ( arg?MechanicalState<DataTypes>::DynamicCast( arg->findObject ( arg->getAttribute ( "targetPath",".." ) ) ) :NULL ) );
 
         if ( context ) context->addObject ( obj );
 

@@ -53,6 +53,7 @@ namespace visualmodel
 class SOFA_BASE_VISUAL_API RigidState : public core::State< sofa::defaulttype::Rigid3fTypes >
 {
 public:
+    SOFA_CLASS_DEFAULT((RigidState), ((core::State< sofa::defaulttype::Rigid3fTypes >)));
     VecCoord xforms;
     bool xformsModified;
 
@@ -86,6 +87,8 @@ public:
 class SOFA_BASE_VISUAL_API ExtVec3fState : public core::State< sofa::defaulttype::ExtVec3fTypes >
 {
 public:
+    SOFA_CLASS_DEFAULT((ExtVec3fState), ((core::State< sofa::defaulttype::ExtVec3fTypes >)));
+
     topology::PointData< sofa::defaulttype::ResizableExtVector<Coord> > m_positions;
     topology::PointData< sofa::defaulttype::ResizableExtVector<Coord> > m_restPositions;
     topology::PointData< sofa::defaulttype::ResizableExtVector<Deriv> > m_vnormals;
@@ -171,7 +174,7 @@ public:
 class SOFA_BASE_VISUAL_API VisualModelImpl : public core::visual::VisualModel, public ExtVec3fState //, public RigidState
 {
 public:
-    SOFA_CLASS2(VisualModelImpl, core::visual::VisualModel, ExtVec3fState);
+    SOFA_CLASS_EXTERNAL((VisualModelImpl), ((core::visual::VisualModel), (ExtVec3fState)));
 //    SOFA_CLASS3(VisualModelImpl, core::visual::VisualModel, ExtVec3fState , RigidState);
 
     typedef sofa::defaulttype::Vec<2, float> TexCoord;

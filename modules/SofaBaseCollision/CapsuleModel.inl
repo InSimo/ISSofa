@@ -67,7 +67,7 @@ template<class DataTypes>
 void TCapsuleModel<DataTypes>::init()
 {
     this->CollisionModel::init();
-    _mstate = dynamic_cast< core::behavior::MechanicalState<DataTypes>* > (getContext()->getMechanicalState());
+    _mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     if (_mstate==NULL)
     {
         serr<<"TCapsuleModel requires a Vec3 Mechanical Model" << sendl;

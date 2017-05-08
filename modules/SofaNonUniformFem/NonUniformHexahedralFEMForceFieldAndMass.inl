@@ -64,7 +64,7 @@ void NonUniformHexahedralFEMForceFieldAndMass<DataTypes>::init()
         return;
     }
 
-    _multilevelTopology = dynamic_cast<topology::MultilevelHexahedronSetTopologyContainer*>(this->_topology);
+    _multilevelTopology = topology::MultilevelHexahedronSetTopologyContainer::DynamicCast(this->_topology);
 
     if(_multilevelTopology == NULL)
     {

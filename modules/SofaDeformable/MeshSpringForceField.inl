@@ -106,7 +106,7 @@ void MeshSpringForceField<DataTypes>::reinit()
 
     this->StiffSpringForceField<DataTypes>::clear();
     if(!(this->mstate1) || !(this->mstate2))
-        this->mstate2 = this->mstate1 = dynamic_cast<sofa::core::behavior::MechanicalState<DataTypes> *>(this->getContext()->getMechanicalState());
+        this->mstate2 = this->mstate1 = sofa::core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
 
     if (this->mstate1==this->mstate2)
     {
@@ -218,7 +218,7 @@ void MeshSpringForceField<DataTypes>::reset()
 template<class DataTypes>
 void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event* e)
 {
-    if (dynamic_cast< simulation::AnimateBeginEvent* >(e) != 0)
+    if (simulation::AnimateBeginEvent::DynamicCast(e) != 0)
     {
       if (prevDefaultTension != this->defaultTension.getValue())
       {

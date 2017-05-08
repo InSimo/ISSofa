@@ -89,7 +89,7 @@ void SlicedVolumetricModel::init()
 {
     getContext()->get(_topology);
     if(_topology)
-        _mstate = dynamic_cast<core::behavior::BaseMechanicalState*>(_topology->getContext()->getMechanicalState());
+        _mstate = core::behavior::BaseMechanicalState::DynamicCast(_topology->getContext()->getMechanicalState());
     else
         getContext()->get(_mstate);
 
@@ -106,7 +106,7 @@ void SlicedVolumetricModel::init()
     }
 
 
-    if( topology::SparseGridTopology* sparseGrid = dynamic_cast<topology::SparseGridTopology*>(_topology ) )
+    if( topology::SparseGridTopology* sparseGrid = topology::SparseGridTopology::DynamicCast(_topology ) )
     {
         _minBBox[0] = sparseGrid->getXmin();
         _minBBox[1] = sparseGrid->getYmin();

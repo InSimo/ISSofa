@@ -94,7 +94,7 @@ void TorsionForceField<DataTypes>::addKToMatrix(defaulttype::BaseMatrix* matrix,
 	D(2,0) = -m_u(0)*m_u(2) ;		D(2,1) = -m_u(1)*m_u(2) ;		D(2,2) = 1 - m_u(3)*m_u(3);
 	D *= (tau * kFact);
 
-	if( CompressedRowSparseMatrix<MatrixBlock>* m = dynamic_cast<CompressedRowSparseMatrix<MatrixBlock>*>(matrix) )
+	if( CompressedRowSparseMatrix<MatrixBlock>* m = CompressedRowSparseMatrix<MatrixBlock>::DynamicCast(matrix) )
 	{
 
 		for(size_t n = 0 ; n < nNodes ; ++n)

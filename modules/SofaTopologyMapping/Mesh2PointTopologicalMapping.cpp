@@ -43,6 +43,9 @@ namespace component
 {
 namespace topology
 {
+
+SOFA_CLASS_IMPL((Mesh2PointTopologicalMapping));
+
 using namespace sofa::defaulttype;
 using namespace sofa::component::topology;
 using namespace sofa::core::topology;

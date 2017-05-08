@@ -41,7 +41,7 @@ namespace topology
 template <typename TopologyElementType, typename VecT>
 void TopologySparseDataHandler <TopologyElementType, VecT>::swap( unsigned int i1, unsigned int i2 )
 {
-    sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* >(m_topologyData);
+    sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>*>(m_topologyData);
 
     if (!_topologyData->getSparseDataStatus())
         return;
@@ -102,7 +102,7 @@ void TopologySparseDataHandler <TopologyElementType, VecT>::add(unsigned int nbE
         const sofa::helper::vector<sofa::helper::vector<unsigned int> > &ancestors,
         const sofa::helper::vector<sofa::helper::vector<double> > &coefs)
 {
-    sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* >(m_topologyData);
+    sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>*>(m_topologyData);
     if (!_topologyData->getSparseDataStatus())
         return;
 
@@ -156,7 +156,7 @@ void TopologySparseDataHandler <TopologyElementType, VecT>::move( const sofa::he
 template <typename TopologyElementType, typename VecT>
 void TopologySparseDataHandler <TopologyElementType, VecT>::remove( const sofa::helper::vector<unsigned int> &index)
 {
-    sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* >(m_topologyData);
+    sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>* _topologyData = dynamic_cast<sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>*>(m_topologyData);
     if (!_topologyData->getSparseDataStatus())
         return;
 

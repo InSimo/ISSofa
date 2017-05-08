@@ -46,10 +46,10 @@ void BarycentricContactMapper<TCollisionModel,DataTypes>::cleanup()
 {
     if (mapping!=NULL)
     {
-        simulation::Node* parent = dynamic_cast<simulation::Node*>(model->getContext());
+        simulation::Node* parent = simulation::Node::DynamicCast(model->getContext());
         if (parent!=NULL)
         {
-            simulation::Node::SPtr child = dynamic_cast<simulation::Node*>(mapping->getContext());
+            simulation::Node::SPtr child = simulation::Node::DynamicCast(mapping->getContext());
             child->detachFromGraph();
             child->execute<simulation::DeleteVisitor>(sofa::core::ExecParams::defaultInstance());
             child.reset();
@@ -62,7 +62,7 @@ template < class TCollisionModel, class DataTypes >
 typename BarycentricContactMapper<TCollisionModel,DataTypes>::MMechanicalState* BarycentricContactMapper<TCollisionModel,DataTypes>::createMapping(const char* name)
 {
     if (model==NULL) return NULL;
-    simulation::Node* parent = dynamic_cast<simulation::Node*>(model->getContext());
+    simulation::Node* parent = simulation::Node::DynamicCast(model->getContext());
     if (parent==NULL)
     {
         std::cerr << "ERROR: BarycentricContactMapper only works for scenegraph scenes.\n";

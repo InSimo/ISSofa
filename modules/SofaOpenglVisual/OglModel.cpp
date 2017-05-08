@@ -47,6 +47,8 @@ namespace component
 namespace visualmodel
 {
 
+SOFA_CLASS_IMPL((OglModel));
+
 using namespace sofa::defaulttype;
 using namespace sofa::core::loader;
 

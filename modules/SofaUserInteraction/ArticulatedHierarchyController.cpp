@@ -82,7 +82,7 @@ void ArticulatedHierarchyController::init()
     activeArticulations.resize(bindingKeys.getValue().size());
     propagationChain = false;
 
-    sofa::simulation::Node* curNode = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+    sofa::simulation::Node* curNode = sofa::simulation::Node::DynamicCast(this->getContext());
     if (curNode)
         curNode->getTreeObjects<ArticulationCenter, ArtCenterVec >(&m_artCenterVec);
 
@@ -376,7 +376,7 @@ void ArticulatedHierarchyController::applyController(void)
                         {
                             std::vector< MechanicalState<sofa::defaulttype::Vec1Types>* > articulatedObjects;
 
-                            sofa::simulation::Node* curNode = dynamic_cast<sofa::simulation::Node*>(this->getContext());
+                            sofa::simulation::Node* curNode = sofa::simulation::Node::DynamicCast(this->getContext());
                             if (curNode)
                                 curNode->getTreeObjects<MechanicalState<sofa::defaulttype::Vec1Types>, std::vector< MechanicalState<sofa::defaulttype::Vec1Types>* > >(&articulatedObjects);
 

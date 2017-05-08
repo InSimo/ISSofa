@@ -93,6 +93,8 @@ class EigenBaseSparseMatrix : public defaulttype::BaseMatrix
 
 public:
 
+    SOFA_MATRIX_CLASS_UNIQUE((EigenBaseSparseMatrix<TReal>),((defaulttype::BaseMatrix)));
+    
     typedef TReal Real;
     typedef Eigen::SparseMatrix<Real,Eigen::RowMajor> CompressedMatrix;
     typedef Eigen::Matrix<Real,Eigen::Dynamic,1>  VectorEigen;

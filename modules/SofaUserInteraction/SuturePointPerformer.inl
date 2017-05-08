@@ -54,7 +54,7 @@ void SuturePointPerformer<DataTypes>::start()
     if (first) //first click
     {
         BodyPicked picked = this->interactor->getBodyPicked();
-        TriangleModel* CollisionModel = dynamic_cast< TriangleModel* >(picked.body);
+        TriangleModel* CollisionModel = TriangleModel::DynamicCast(picked.body);
 
         if (picked.body == NULL || CollisionModel == NULL)
         {
@@ -68,7 +68,7 @@ void SuturePointPerformer<DataTypes>::start()
     else // second click
     {
         BodyPicked picked = this->interactor->getBodyPicked();
-        TriangleModel* CollisionModel = dynamic_cast< TriangleModel* >(picked.body);
+        TriangleModel* CollisionModel = TriangleModel::DynamicCast(picked.body);
 
         if (picked.body == NULL || CollisionModel == NULL)
         {
