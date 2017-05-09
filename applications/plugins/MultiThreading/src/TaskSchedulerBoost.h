@@ -195,7 +195,7 @@ private:
     WorkerThread*               mWorker[MAX_THREADS];
     std::thread                 mThread[MAX_THREADS];
 
-    Task::Status*	            mRootTaskStatus;
+    Task::Status*	            mRootTaskStatus; // should only be set from main worker thread
     unsigned                    mThreadCount;
     unsigned                    mMainThreadIndex;
     unsigned                    mWorkerThreadCreateCount; // guarded by startMutex

@@ -213,22 +213,27 @@ bool TaskScheduler::stop()
 
 void TaskScheduler::notifyWorkersForWork(Task::Status* status)
 {
-    std::lock_guard<std::mutex> lock(mWakeUpMutex);
-    //  no need to notify the workers if there is already a root task status
-    if (mRootTaskStatus != nullptr)
-    {
-        return;
-    }
+    // Need to be called from the main thread
+    assert(isMainWorkerThread(GetCurrentWorkerThread()));
+
+    // mRootTaskStatus can only be modified from the main worker thread
+    // there is no need to add a mutex around this member variable
+    // because other worker should be idle at this time
     mRootTaskStatus = status;
-    mHasWorkToDo = true;
+    {   // The notifying thread does not need to hold the lock during notify_all call
+        std::lock_guard<std::mutex> lock(mWakeUpMutex);
+        mHasWorkToDo = true;
+    }
     // notify all the threads that have gone Idle, that there is some work to do for them now.
     mWakeUpEvent.notify_all();
 }
 
 void TaskScheduler::notifyWorkersForClosing()
 {
-    std::lock_guard<std::mutex> lock(mWakeUpMutex);
-    mIsClosing = true;
+    {   // The notifying thread does not need to hold the lock during notify_all call
+        std::lock_guard<std::mutex> lock(mWakeUpMutex);
+        mIsClosing = true;
+    }
     // make all Idle threads wake up so that they can see we are closing.
     // see WorkerThread::run() break conditions in the while loop. 
     mWakeUpEvent.notify_all();
@@ -236,9 +241,9 @@ void TaskScheduler::notifyWorkersForClosing()
 
 bool TaskScheduler::goIdle()
 {
+    mRootTaskStatus = nullptr;
     std::lock_guard<std::mutex> lock(mWakeUpMutex);
     mHasWorkToDo   = false;
-    mRootTaskStatus = nullptr;
     return true;
 }
 
@@ -435,7 +440,11 @@ bool WorkerThread::pushTask(Task* task, Task* taskArray[], unsigned* taskCount )
         ++*taskCount;
     }
 
-    mTaskScheduler->notifyWorkersForWork(task->getStatus());
+    //  no need to notify the workers if there is already a root task status
+    if (mTaskScheduler->getRootTaskStatus() == nullptr)
+    {
+        mTaskScheduler->notifyWorkersForWork(task->getStatus());
+    }
 
     return true;
 }
