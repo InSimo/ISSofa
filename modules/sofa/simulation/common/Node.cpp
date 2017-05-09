@@ -913,10 +913,12 @@ void Node::executeVisitor(Visitor* action, bool precomputedOrder)
 {
     if (!this->isActive()) return;
 
+#ifndef NDEBUG
     if (!action->execParams()->checkValidStorage())
     {
         std::cerr << "IN " << sofa::core::objectmodel::BaseClass::decodeClassName(typeid(*action)) << " at " << this->getPathName() << std::endl;
     }
+#endif
 
 #ifdef DEBUG_VISITOR
     static int level = 0;
