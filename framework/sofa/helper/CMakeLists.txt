@@ -288,6 +288,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAME
 if(SOFA_ENABLE_EASTL)
     target_include_directories(${PROJECT_NAME} BEFORE PUBLIC "$<BUILD_INTERFACE:${SOFA_EXTLIBS_DIR}/EASTL/include>"
                                                              "$<BUILD_INTERFACE:${SOFA_EXTLIBS_DIR}/EASTL/test/packages/EABase/include/Common>")
+    target_link_libraries(${PROJECT_NAME} PUBLIC EASTL)
 endif()
 
 # make the name of debug libraries end in _d.
