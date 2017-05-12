@@ -58,6 +58,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_SIZEOF_VOID_P EQUAL 4 AND
     message(FATAL_ERROR "FIXME: 32bits mingw-w64 clang crashes when compiling with any optimizations.")
 endif()
 
+set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DEASTL_BUILD"  )
+
 #-------------------------------------------------------------------------------------------
 # Include dirs
 #-------------------------------------------------------------------------------------------

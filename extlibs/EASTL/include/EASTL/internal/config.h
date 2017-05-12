@@ -247,6 +247,7 @@ namespace eastl
 // Normally you wouldn't do such a thing, but there are use cases for such
 // a thing, particularly in the case of embedding C++ into C# applications.
 //
+#define EA_DLL
 #ifndef EASTL_DLL
 	#if defined(EA_DLL)
 		#define EASTL_DLL 1
@@ -283,7 +284,11 @@ namespace eastl
 #ifndef EASTL_API // If the build file hasn't already defined this to be dllexport...
 	#if EASTL_DLL 
 		#if defined(_MSC_VER)
-			#define EASTL_API      __declspec(dllimport)
+            #if defined(EASTL_BUILD)
+                #define EASTL_API      __declspec(dllexport)
+            #else
+			    #define EASTL_API      __declspec(dllimport)
+            #endif
 			#define EASTL_LOCAL
 		#elif defined(__CYGWIN__)
 			#define EASTL_API      __attribute__((dllimport))
