@@ -73,6 +73,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:${EASTL_I
 # Libraries
 #-------------------------------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} PUBLIC EABase)
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 
 find_package(Threads REQUIRED)
 target_link_libraries("${PROJECT_NAME}" PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
