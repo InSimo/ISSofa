@@ -66,8 +66,8 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DEASTL_BUILD" 
 #-------------------------------------------------------------------------------------------
 # Include dirs
 #-------------------------------------------------------------------------------------------
-target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
-target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:${EASTL_INSTALL_INCLUDE_DIR}>")
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "$<INSTALL_INTERFACE:${EASTL_INSTALL_INCLUDE_DIR}>")
 
 #-------------------------------------------------------------------------------------------
 # Libraries
