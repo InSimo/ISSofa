@@ -32,14 +32,6 @@ if(EASTL_BUILD_TESTS)
 endif()
 
 #-------------------------------------------------------------------------------------------
-# Defines
-#-------------------------------------------------------------------------------------------
-add_definitions(-D_CHAR16T)
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-add_definitions(-DEASTL_OPENSOURCE=1)
-
-#-------------------------------------------------------------------------------------------
 # Library definition
 #-------------------------------------------------------------------------------------------
 file(GLOB EASTL_SOURCES "source/*.cpp" "include/EASTL/*.h")
