@@ -23,3 +23,10 @@ target_include_directories(EABase INTERFACE include/Common)
 #       libaries show up in IDEs
 # http://stackoverflow.com/questions/27039019/how-to-have-cmake-show-headers-that-are-not-part-of-any-binary-target-in-the-ide/29218394#29218394
 add_custom_target(EABase_ide SOURCES ${EABASE_SOURCES})
+
+install(TARGETS "${PROJECT_NAME}"
+        EXPORT  SofaFrameworkTargets
+        RUNTIME DESTINATION "${EASTL_INSTALL_BIN_DIR}"
+        LIBRARY DESTINATION "${EASTL_INSTALL_LIB_DIR}"
+        ARCHIVE DESTINATION "${EASTL_INSTALL_LIB_DIR}"
+    )

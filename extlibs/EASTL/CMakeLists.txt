@@ -4,6 +4,17 @@
 cmake_minimum_required(VERSION 3.1)
 project(EASTL)
 
+set(EASTL_BUILD_LIB_DIR     ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(EASTL_BUILD_BIN_DIR     ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set(EASTL_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(EASTL_BUILD_CMAKE_DIR   ${CMAKE_BINARY_DIR}/EASTL)
+
+# Offer the user the choice of overriding the installation directories
+set(EASTL_INSTALL_LIB_DIR     lib                       CACHE PATH "Installation directory for libraries relative to CMAKE_INSTALL_PREFIX variable")
+set(EASTL_INSTALL_BIN_DIR     bin                       CACHE PATH "Installation directory for executables relative to CMAKE_INSTALL_PREFIX variable")
+set(EASTL_INSTALL_INCLUDE_DIR include                   CACHE PATH "Installation directory for header files relative to CMAKE_INSTALL_PREFIX variable")
+set(EASTL_INSTALL_CMAKE_DIR   ${EASTL_INSTALL_LIB_DIR}/cmake/EASTL )
+
 #-------------------------------------------------------------------------------------------
 # Options
 #-------------------------------------------------------------------------------------------
@@ -34,9 +45,9 @@ endif()
 #-------------------------------------------------------------------------------------------
 # Library definition
 #-------------------------------------------------------------------------------------------
-file(GLOB EASTL_SOURCES "source/*.cpp" "include/EASTL/*.h")
-add_library(EASTL SHARED ${EASTL_SOURCES})
-include_directories("include")
+file(GLOB HEADER_FILES "include/EASTL/*.h")
+file(GLOB SOURCE_FILES "source/*.cpp")
+add_library(EASTL SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 #-------------------------------------------------------------------------------------------
 # Compiler Flags
@@ -55,19 +66,39 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DEASTL_BUILD" 
 #-------------------------------------------------------------------------------------------
 # Include dirs
 #-------------------------------------------------------------------------------------------
-target_include_directories(EASTL PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
+target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:${EASTL_INSTALL_INCLUDE_DIR}>")
 
 #-------------------------------------------------------------------------------------------
 # Libraries
 #-------------------------------------------------------------------------------------------
-target_link_libraries(EASTL EABase)
+target_link_libraries(${PROJECT_NAME} PUBLIC EABase)
 
 find_package(Threads REQUIRED)
-target_link_libraries("${PROJECT_NAME}" "${CMAKE_THREAD_LIBS_INIT}")
+target_link_libraries("${PROJECT_NAME}" PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
 
 #-------------------------------------------------------------------------------------------
 # Installation
 #-------------------------------------------------------------------------------------------
-install(TARGETS EASTL DESTINATION lib)
-install(DIRECTORY include/EASTL DESTINATION include)
-install(DIRECTORY test/packages/EABase/include/Common/EABase DESTINATION include)
+install(TARGETS "${PROJECT_NAME}"
+        EXPORT  SofaFrameworkTargets
+        RUNTIME DESTINATION "${EASTL_INSTALL_BIN_DIR}"
+        LIBRARY DESTINATION "${EASTL_INSTALL_LIB_DIR}"
+        ARCHIVE DESTINATION "${EASTL_INSTALL_LIB_DIR}"
+    )
+
+if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/EASTL
+        COMPONENT EASTL_headers
+        DESTINATION "${EASTL_INSTALL_INCLUDE_DIR}"
+        FILES_MATCHING
+            PATTERN "*.h"
+            PATTERN "*.inl"
+            PATTERN "*.hxx"
+            PATTERN "*.hpp"
+    )
+
+    install(DIRECTORY test/packages/EABase/include/Common/EABase
+            COMPONENT EASTL_headers
+            DESTINATION "${EASTL_INSTALL_INCLUDE_DIR}")
+endif()
