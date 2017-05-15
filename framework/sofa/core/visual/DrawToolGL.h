@@ -54,35 +54,35 @@ public:
     DrawToolGL();
     ~DrawToolGL();
 
-    virtual void drawPoints(const std::vector<Vector3> &points, float size,  const Vec4f colour);
-    virtual void drawPoints(const std::vector<Vector3> &points, float size, const std::vector<Vec4f> colour);
+    virtual void drawPoints(const sofa::helper::vector<Vector3> &points, float size,  const Vec4f colour);
+    virtual void drawPoints(const sofa::helper::vector<Vector3> &points, float size, const sofa::helper::vector<Vec4f> colour);
 
-    virtual void drawLines(const std::vector<Vector3> &points, float size, const Vec4f colour);
-    virtual void drawLines(const std::vector<Vector3> &points, const std::vector< Vec2i > &index, float size, const Vec4f colour);
+    virtual void drawLines(const sofa::helper::vector<Vector3> &points, float size, const Vec4f colour);
+    virtual void drawLines(const sofa::helper::vector<Vector3> &points, const sofa::helper::vector< Vec2i > &index, float size, const Vec4f colour);
 
-    virtual void drawTriangles(const std::vector<Vector3> &points, const Vec4f colour);
-    virtual void drawTriangles(const std::vector<Vector3> &points, const Vector3 normal, const Vec4f colour);
-    virtual void drawTriangles(const std::vector<Vector3> &points,
-            const std::vector< Vec3i > &index,
-            const std::vector<Vector3>  &normal,
+    virtual void drawTriangles(const sofa::helper::vector<Vector3> &points, const Vec4f colour);
+    virtual void drawTriangles(const sofa::helper::vector<Vector3> &points, const Vector3 normal, const Vec4f colour);
+    virtual void drawTriangles(const sofa::helper::vector<Vector3> &points,
+            const sofa::helper::vector< Vec3i > &index,
+            const sofa::helper::vector<Vector3>  &normal,
             const Vec4f colour);
-    virtual void drawTriangles(const std::vector<Vector3> &points,
-            const std::vector<Vector3>  &normal,
-            const std::vector< Vec4f > &colour);
+    virtual void drawTriangles(const sofa::helper::vector<Vector3> &points,
+            const sofa::helper::vector<Vector3>  &normal,
+            const sofa::helper::vector< Vec4f > &colour);
 
-    virtual void drawTriangleStrip(const std::vector<Vector3> &points,
-            const std::vector<Vector3>  &normal,
+    virtual void drawTriangleStrip(const sofa::helper::vector<Vector3> &points,
+            const sofa::helper::vector<Vector3>  &normal,
             const Vec4f colour);
 
-    virtual void drawTriangleFan(const std::vector<Vector3> &points,
-            const std::vector<Vector3>  &normal,
+    virtual void drawTriangleFan(const sofa::helper::vector<Vector3> &points,
+            const sofa::helper::vector<Vector3>  &normal,
             const Vec4f colour);
 
     virtual void drawFrame(const Vector3& position, const Quaternion &orientation, const Vec3f &size);
     virtual void drawFrame(const Vector3& position, const Quaternion &orientation, const Vec3f &size, const Vec4f &colour);
 
-    virtual void drawSpheres (const std::vector<Vector3> &points, const std::vector<float>& radius, const Vec4f colour);
-    virtual void drawSpheres (const std::vector<Vector3> &points, float radius, const Vec4f colour);
+    virtual void drawSpheres (const sofa::helper::vector<Vector3> &points, const sofa::helper::vector<float>& radius, const Vec4f colour);
+    virtual void drawSpheres (const sofa::helper::vector<Vector3> &points, float radius, const Vec4f colour);
 
     virtual void drawCone    (const Vector3& p1, const Vector3 &p2, float radius1, float radius2, const Vec4f colour, int subd=16);
 

@@ -153,7 +153,7 @@ void LCP::setLCP(unsigned int input_dim, double *input_dfree, double **input_W, 
 
 }
 
-void LCP::solveNLCP(bool convergenceTest, std::vector<double>* residuals, std::vector<double>* violations)
+void LCP::solveNLCP(bool convergenceTest, sofa::helper::vector<double>* residuals, sofa::helper::vector<double>* violations)
 {
     //double error;
     double f_1[3],dn, ds, dt;
@@ -1416,11 +1416,11 @@ struct listSortAscending
 
 
 
-   void projection(const NLCP &fineLevel, NLCP &coarseLevel, const std::vector<int> &projectionTable )
+   void projection(const NLCP &fineLevel, NLCP &coarseLevel, const sofa::helper::vector<int> &projectionTable )
    *computation of W
    *computation of dfree
 
-   void prolongation(const NLCP &coarseLevel, NLCP &fineLevel, const std::vector<int> &projectionTable )
+   void prolongation(const NLCP &coarseLevel, NLCP &fineLevel, const sofa::helper::vector<int> &projectionTable )
 
 
 
@@ -1435,7 +1435,7 @@ struct listSortAscending
 ///                contact_is_projected => (size= fine level) => for each contact at the fine level, tell if the contact is projected or not
 
 
-void projection(LCP &fineLevel, LCP &coarseLevel, int nbContactsCoarse, const std::vector<int> &projectionTable, const std::vector<int> &projectionConstraints, std::vector<double> & projectionValues, std::vector<bool> &contact_is_projected, bool verbose)
+void projection(LCP &fineLevel, LCP &coarseLevel, int nbContactsCoarse, const sofa::helper::vector<int> &projectionTable, const sofa::helper::vector<int> &projectionConstraints, sofa::helper::vector<double> & projectionValues, sofa::helper::vector<bool> &contact_is_projected, bool verbose)
 
 {
     // preliminary step: set values to 0
@@ -1461,10 +1461,10 @@ void projection(LCP &fineLevel, LCP &coarseLevel, int nbContactsCoarse, const st
     // Only active or interpenetrated ones !!
     int numContactFine = (int)fineLevel.getDim()/3;
 
-    std::vector<int> size_of_group;
-    //std::vector<bool> contact_is_projected;
+    sofa::helper::vector<int> size_of_group;
+    //sofa::helper::vector<bool> contact_is_projected;
     contact_is_projected.clear();
-    std::vector<bool> group_has_projection;
+    sofa::helper::vector<bool> group_has_projection;
     contact_is_projected.resize(numContactFine);
     group_has_projection.resize(nbContactsCoarse);
     size_of_group.resize(nbContactsCoarse);
@@ -1587,7 +1587,7 @@ void projection(LCP &fineLevel, LCP &coarseLevel, int nbContactsCoarse, const st
 /// all parameters as input
 /// output=> change value of F in fineLevel
 
-void prolongation(LCP &fineLevel, LCP &coarseLevel, const std::vector<int> &projectionTable, const std::vector<int> &projectionConstraints, std::vector<double> & projectionValues, std::vector<bool> &contact_is_projected, bool verbose)
+void prolongation(LCP &fineLevel, LCP &coarseLevel, const sofa::helper::vector<int> &projectionTable, const sofa::helper::vector<int> &projectionConstraints, sofa::helper::vector<double> & projectionValues, sofa::helper::vector<bool> &contact_is_projected, bool verbose)
 
 {
 
@@ -1630,9 +1630,9 @@ void prolongation(LCP &fineLevel, LCP &coarseLevel, const std::vector<int> &proj
 
 int nlcp_multiGrid_2levels(int dim, double *dfree, double**W, double *f, double mu,
         double tol, int numItMax, bool useInitialF,
-        std::vector< int> &contact_group, unsigned int num_group,
-        std::vector< int> &constraint_group, std::vector<double> &constraint_group_fact,
-        bool verbose, std::vector<double>* residuals1, std::vector<double>* residuals2)
+        sofa::helper::vector< int> &contact_group, unsigned int num_group,
+        sofa::helper::vector< int> &constraint_group, sofa::helper::vector<double> &constraint_group_fact,
+        bool verbose, sofa::helper::vector<double>* residuals1, sofa::helper::vector<double>* residuals2)
 {
 
     LCP *fineLevel = new LCP();
@@ -1659,7 +1659,7 @@ int nlcp_multiGrid_2levels(int dim, double *dfree, double**W, double *f, double 
     coarseLevel->setDim(3*num_group);
 
 
-    std::vector<bool> contact_is_projected;
+    sofa::helper::vector<bool> contact_is_projected;
     projection((*fineLevel), (*coarseLevel), num_group, contact_group, constraint_group, constraint_group_fact, contact_is_projected, verbose);
 
     // iterations  at the coarse level (till convergence)
@@ -1695,7 +1695,7 @@ int nlcp_multiGrid_2levels(int dim, double *dfree, double**W, double *f, double 
 }
 
 
-int nlcp_multiGrid_Nlevels(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, std::vector< std::vector< int> > &contact_group_hierarchy, std::vector<unsigned int> Tab_num_group, std::vector< std::vector< int> > &constraint_group_hierarchy, std::vector< std::vector< double> > &constraint_group_fact_hierarchy, bool verbose, std::vector<double> *residualsN, std::vector<double> *residualLevels, std::vector<double> *violations)
+int nlcp_multiGrid_Nlevels(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, sofa::helper::vector< sofa::helper::vector< int> > &contact_group_hierarchy, sofa::helper::vector<unsigned int> Tab_num_group, sofa::helper::vector< sofa::helper::vector< int> > &constraint_group_hierarchy, sofa::helper::vector< sofa::helper::vector< double> > &constraint_group_fact_hierarchy, bool verbose, sofa::helper::vector<double> *residualsN, sofa::helper::vector<double> *residualLevels, sofa::helper::vector<double> *violations)
 {
     if (dim == 0) return 1; // nothing to do
     std::size_t num_hierarchies = Tab_num_group.size();
@@ -1715,7 +1715,7 @@ int nlcp_multiGrid_Nlevels(int dim, double *dfree, double**W, double *f, double 
         return 0;
     }
 
-    std::vector<LCP *> hierarchicalLevels;
+    sofa::helper::vector<LCP *> hierarchicalLevels;
     hierarchicalLevels.resize(num_hierarchies+1);
 
     hierarchicalLevels[0] = new LCP(); // finest level !
@@ -1728,7 +1728,7 @@ int nlcp_multiGrid_Nlevels(int dim, double *dfree, double**W, double *f, double 
 
     /////////// projection (with few iterations before projection)
 
-    std::vector< std::vector<bool> > contact_is_projected;
+    sofa::helper::vector< sofa::helper::vector<bool> > contact_is_projected;
     contact_is_projected.resize(num_hierarchies+1);
 
     bool convergenceTest= false;
@@ -1804,7 +1804,7 @@ int nlcp_multiGrid_Nlevels(int dim, double *dfree, double**W, double *f, double 
 
 
 int nlcp_multiGrid(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF,
-        double** W_coarse, std::vector< int> &contact_group, unsigned int num_group, bool verbose)
+        double** W_coarse, sofa::helper::vector< int> &contact_group, unsigned int num_group, bool verbose)
 {
 
 
@@ -1934,9 +1934,9 @@ int nlcp_multiGrid(int dim, double *dfree, double**W, double *f, double mu, doub
     // STEP 2: DESCENTE AU NIVEAU GROSSIER => PROJECTION
 
 
-    std::vector<int> size_of_group;
-    std::vector<bool> contact_is_projected;
-    std::vector<bool> group_has_projection;
+    sofa::helper::vector<int> size_of_group;
+    sofa::helper::vector<bool> contact_is_projected;
+    sofa::helper::vector<bool> group_has_projection;
     contact_is_projected.resize(numContacts);
     group_has_projection.resize(num_group);
     size_of_group.resize(num_group);
@@ -2198,7 +2198,7 @@ int nlcp_multiGrid(int dim, double *dfree, double**W, double *f, double mu, doub
 
 }
 
-int nlcp_gaussseidel(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, bool verbose, double minW, double maxF, std::vector<double>* residuals, std::vector<double>* violations)
+int nlcp_gaussseidel(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, bool verbose, double minW, double maxF, sofa::helper::vector<double>* residuals, sofa::helper::vector<double>* violations)
 
 {
     const int numContacts =  dim/3;
@@ -2229,7 +2229,7 @@ int nlcp_gaussseidel(int dim, double *dfree, double**W, double *f, double mu, do
     for (c1=0; c1<numContacts; c1++)
         W33[c1] = new LocalBlock33();
     /*
-    std::vector<listElem> sortedList;
+    sofa::helper::vector<listElem> sortedList;
     listElem buf;
     sortedList.clear();
     for (c1=0; c1<numContacts; c1++)
@@ -2411,7 +2411,7 @@ int nlcp_gaussseidelTimed(int dim, double *dfree, double**W, double *f, double m
     for (c1=0; c1<numContacts; c1++)
         W33[c1] = new LocalBlock33();
     /*
-    std::vector<listElem> sortedList;
+    sofa::helper::vector<listElem> sortedList;
     listElem buf;
     sortedList.clear();
     for (c1=0; c1<numContacts; c1++)
@@ -2513,7 +2513,7 @@ int nlcp_gaussseidelTimed(int dim, double *dfree, double**W, double *f, double m
  * res[0..dim-1] = U
  * res[dim..2*dim-1] = F
  */
-void gaussSeidelLCP1(int dim, FemClipsReal * q, FemClipsReal ** M, FemClipsReal * res, double tol, int numItMax, double minW, double maxF, std::vector<double>* residuals)
+void gaussSeidelLCP1(int dim, FemClipsReal * q, FemClipsReal ** M, FemClipsReal * res, double tol, int numItMax, double minW, double maxF, sofa::helper::vector<double>* residuals)
 {
     int compteur;	// compteur de boucle
     int compteur2, compteur3;	// compteur de boucle

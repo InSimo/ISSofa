@@ -65,7 +65,7 @@ public:
     };
     const Material& getMaterial() {return material; }
 
-    const std::vector<Material>& getMaterials() {return materials; }
+    const sofa::helper::vector<Material>& getMaterials() {return materials; }
     const std::vector<PrimitiveGroup>& getGroups() {return groups; }
 
     std::string& getTextureName()
@@ -93,7 +93,7 @@ protected:
     //sofa::core::objectmodel::Data< Material > material;
     Material material;
 
-    std::vector<Material> materials;
+    sofa::helper::vector<Material> materials;
     std::vector<PrimitiveGroup> groups;
 
     std::string textureName;

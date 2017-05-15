@@ -119,7 +119,7 @@ void MeshOBJ::readOBJ (std::ifstream &file, const std::string &filename)
             {
                 curGroup.materialId = -1;
                 values >> curGroup.materialName;
-                vector<Material>::iterator it = materials.begin();
+                sofa::helper::vector<Material>::iterator it = materials.begin();
                 vector<Material>::iterator itEnd = materials.end();
                 for (; it != itEnd; ++it)
                 {

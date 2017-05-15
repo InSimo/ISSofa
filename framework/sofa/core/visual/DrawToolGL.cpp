@@ -62,7 +62,7 @@ DrawToolGL::~DrawToolGL()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawPoints(const std::vector<Vector3> &points, float size, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
+void DrawToolGL::drawPoints(const sofa::helper::vector<Vector3> &points, float size, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
 {
     setMaterial(colour);
     glPointSize(size);
@@ -79,7 +79,7 @@ void DrawToolGL::drawPoints(const std::vector<Vector3> &points, float size, cons
     glPointSize(1);
 }
 
-void DrawToolGL::drawPoints(const std::vector<Vector3> &points, float size, const std::vector<Vec4f> colour)
+void DrawToolGL::drawPoints(const sofa::helper::vector<Vector3> &points, float size, const sofa::helper::vector<Vec4f> colour)
 {
     glPointSize(size);
     glDisable(GL_LIGHTING);
@@ -97,7 +97,7 @@ void DrawToolGL::drawPoints(const std::vector<Vector3> &points, float size, cons
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawLines(const std::vector<Vector3> &points, float size, const Vec<4,float> colour)
+void DrawToolGL::drawLines(const sofa::helper::vector<Vector3> &points, float size, const Vec<4,float> colour)
 {
     setMaterial(colour);
     glLineWidth(size);
@@ -117,7 +117,7 @@ void DrawToolGL::drawLines(const std::vector<Vector3> &points, float size, const
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawLines(const std::vector<Vector3> &points, const std::vector< defaulttype::Vec<2,int> > &index, float size, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
+void DrawToolGL::drawLines(const sofa::helper::vector<Vector3> &points, const sofa::helper::vector< defaulttype::Vec<2,int> > &index, float size, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
 {
     setMaterial(colour);
     glLineWidth(size);
@@ -137,7 +137,7 @@ void DrawToolGL::drawLines(const std::vector<Vector3> &points, const std::vector
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawTriangles(const std::vector<Vector3> &points, const Vec<4,float> colour)
+void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points, const Vec<4,float> colour)
 {
     setMaterial(colour);
     glBegin(GL_TRIANGLES);
@@ -157,7 +157,7 @@ void DrawToolGL::drawTriangles(const std::vector<Vector3> &points, const Vec<4,f
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawTriangles(const std::vector<Vector3> &points, const Vector3 normal, const Vec<4,float> colour)
+void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points, const Vector3 normal, const Vec<4,float> colour)
 {
     setMaterial(colour);
     glBegin(GL_TRIANGLES);
@@ -170,8 +170,8 @@ void DrawToolGL::drawTriangles(const std::vector<Vector3> &points, const Vector3
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawTriangles(const std::vector<Vector3> &points, const std::vector< defaulttype::Vec<3,int> > &index,
-        const std::vector<Vector3> &normal, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
+void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points, const sofa::helper::vector< defaulttype::Vec<3,int> > &index,
+        const sofa::helper::vector<Vector3> &normal, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
 {
     setMaterial(colour);
     glBegin(GL_TRIANGLES);
@@ -186,8 +186,8 @@ void DrawToolGL::drawTriangles(const std::vector<Vector3> &points, const std::ve
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawTriangles(const std::vector<Vector3> &points,
-        const std::vector<Vector3> &normal, const std::vector< Vec<4,float> > &colour)
+void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points,
+        const sofa::helper::vector<Vector3> &normal, const sofa::helper::vector< Vec<4,float> > &colour)
 {
     const std::size_t nbTriangles=points.size()/3;
     bool computeNormals= (normal.size() != nbTriangles);
@@ -225,8 +225,8 @@ void DrawToolGL::drawTriangles(const std::vector<Vector3> &points,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawTriangleStrip(const std::vector<Vector3> &points,
-        const std::vector<Vector3>  &normal,
+void DrawToolGL::drawTriangleStrip(const sofa::helper::vector<Vector3> &points,
+        const sofa::helper::vector<Vector3>  &normal,
         const Vec<4,float> colour)
 {
     setMaterial(colour);
@@ -244,8 +244,8 @@ void DrawToolGL::drawTriangleStrip(const std::vector<Vector3> &points,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawTriangleFan(const std::vector<Vector3> &points,
-        const std::vector<Vector3>  &normal,
+void DrawToolGL::drawTriangleFan(const sofa::helper::vector<Vector3> &points,
+        const sofa::helper::vector<Vector3>  &normal,
         const Vec<4,float> colour)
 {
     if (points.size() < 3) return;
@@ -281,7 +281,7 @@ void DrawToolGL::drawFrame(const Vector3& position, const Quaternion &orientatio
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawSpheres(const std::vector<Vector3> &points, float radius, const Vec<4,float> colour)
+void DrawToolGL::drawSpheres(const sofa::helper::vector<Vector3> &points, float radius, const Vec<4,float> colour)
 {
     setMaterial(colour);
     for (unsigned int i=0; i<points.size(); ++i)
@@ -292,7 +292,7 @@ void DrawToolGL::drawSpheres(const std::vector<Vector3> &points, float radius, c
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DrawToolGL::drawSpheres(const std::vector<Vector3> &points, const std::vector<float>& radius, const Vec<4,float> colour)
+void DrawToolGL::drawSpheres(const sofa::helper::vector<Vector3> &points, const sofa::helper::vector<float>& radius, const Vec<4,float> colour)
 {
     setMaterial(colour);
     for (unsigned int i=0; i<points.size(); ++i)
@@ -321,8 +321,8 @@ void DrawToolGL::drawCapsule(const Vector3& p1, const Vector3 &p2, float radius,
 
     int i2;
     /* build the cylinder part of the capsule from rectangular subd */
-    std::vector<Vector3> points;
-    std::vector<Vector3> normals;
+    sofa::helper::vector<Vector3> points;
+    sofa::helper::vector<Vector3> normals;
 
     for (i2=0 ; i2<=subd ; i2++)
     {
@@ -345,7 +345,7 @@ void DrawToolGL::drawCapsule(const Vector3& p1, const Vector3 &p2, float radius,
     }
 
     //we draw here the cylinder part
-    drawTriangleStrip(points, normals,colour);
+    drawTriangleStrip(points, normals, colour);
 
     //now we must draw the two hemispheres
     //but it's easier to draw spheres...
@@ -377,13 +377,13 @@ void DrawToolGL::drawCone(const Vector3& p1, const Vector3 &p2, float radius1, f
     int i2;
     
     /* build the cylinder from rectangular subd */
-    std::vector<Vector3> points;
-    std::vector<Vector3> normals;
+    sofa::helper::vector<Vector3> points;
+    sofa::helper::vector<Vector3> normals;
 
-    std::vector<Vector3> pointsCloseCylinder1;
-    std::vector<Vector3> normalsCloseCylinder1;
-    std::vector<Vector3> pointsCloseCylinder2;
-    std::vector<Vector3> normalsCloseCylinder2;
+    sofa::helper::vector<Vector3> pointsCloseCylinder1;
+    sofa::helper::vector<Vector3> normalsCloseCylinder1;
+    sofa::helper::vector<Vector3> pointsCloseCylinder2;
+    sofa::helper::vector<Vector3> normalsCloseCylinder2;
 
     Vector3 dir=p1-p2; dir.normalize();
     pointsCloseCylinder1.push_back(p1);

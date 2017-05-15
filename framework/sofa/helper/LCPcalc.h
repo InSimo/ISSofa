@@ -25,11 +25,12 @@
 #ifndef SOFA_HELPER_LCPCALC_H
 #define SOFA_HELPER_LCPCALC_H
 
+#include <sofa/helper/vector.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <sofa/helper/system/thread/CTime.h>
-#include <vector>
 
 
 namespace sofa
@@ -84,7 +85,7 @@ public:
     void setLCP(unsigned int input_dim, double *input_dfree, double **input_W, double *input_f, double &input_mu, double &input_tol, int input_numItMax);
 
 
-    void solveNLCP(bool convergenceTest, std::vector<double>* residuals = NULL, std::vector<double>* violations = NULL);
+    void solveNLCP(bool convergenceTest, sofa::helper::vector<double>* residuals = NULL, sofa::helper::vector<double>* violations = NULL);
     int it; // to get the number of iteration that is necessary for convergence
     double error; // to get the error at the end of the convergence
 
@@ -120,7 +121,7 @@ SOFA_HELPER_API void afficheLCP(double *q, double **M, double *f, int dim);
 SOFA_HELPER_API void afficheResult(double *f, int dim);
 
 typedef SOFA_HELPER_API double FemClipsReal;
-SOFA_HELPER_API void gaussSeidelLCP1(int dim, FemClipsReal * q, FemClipsReal ** M, FemClipsReal * res, double tol, int numItMax, double minW=0.0, double maxF=0.0, std::vector<double>* residuals = NULL);
+SOFA_HELPER_API void gaussSeidelLCP1(int dim, FemClipsReal * q, FemClipsReal ** M, FemClipsReal * res, double tol, int numItMax, double minW=0.0, double maxF=0.0, sofa::helper::vector<double>* residuals = NULL);
 
 
 
@@ -156,14 +157,14 @@ public:
 };
 
 // Multigrid algorithm for contacts
-SOFA_HELPER_API int nlcp_multiGrid(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, double** W_coarse, std::vector<int> &contact_group, unsigned int num_group,  bool verbose=false);
+SOFA_HELPER_API int nlcp_multiGrid(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, double** W_coarse, sofa::helper::vector<int> &contact_group, unsigned int num_group,  bool verbose=false);
 SOFA_HELPER_API int nlcp_multiGrid_2levels(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF,
-        std::vector< int> &contact_group, unsigned int num_group, std::vector< int> &constraint_group, std::vector<double> &constraint_group_fact, bool verbose, std::vector<double>* residuals1 = NULL, std::vector<double>* residuals2 = NULL);
+        sofa::helper::vector< int> &contact_group, unsigned int num_group, sofa::helper::vector< int> &constraint_group, sofa::helper::vector<double> &constraint_group_fact, bool verbose, sofa::helper::vector<double>* residuals1 = NULL, sofa::helper::vector<double>* residuals2 = NULL);
 SOFA_HELPER_API int nlcp_multiGrid_Nlevels(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF,
-        std::vector< std::vector< int> > &contact_group_hierarchy, std::vector<unsigned int> Tab_num_group, std::vector< std::vector< int> > &constraint_group_hierarchy, std::vector< std::vector< double> > &constraint_group_fact_hierarchy, bool verbose, std::vector<double> *residualsN = NULL, std::vector<double> *residualLevels = NULL, std::vector<double> *violations = NULL);
+        sofa::helper::vector< sofa::helper::vector< int> > &contact_group_hierarchy, sofa::helper::vector<unsigned int> Tab_num_group, sofa::helper::vector< sofa::helper::vector< int> > &constraint_group_hierarchy, sofa::helper::vector< sofa::helper::vector< double> > &constraint_group_fact_hierarchy, bool verbose, sofa::helper::vector<double> *residualsN = NULL, sofa::helper::vector<double> *residualLevels = NULL, sofa::helper::vector<double> *violations = NULL);
 
 // Gauss-Seidel like algorithm for contacts
-SOFA_HELPER_API int nlcp_gaussseidel(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, bool verbose = false, double minW=0.0, double maxF=0.0, std::vector<double>* residuals = NULL, std::vector<double>* violations = NULL);
+SOFA_HELPER_API int nlcp_gaussseidel(int dim, double *dfree, double**W, double *f, double mu, double tol, int numItMax, bool useInitialF, bool verbose = false, double minW=0.0, double maxF=0.0, sofa::helper::vector<double>* residuals = NULL, sofa::helper::vector<double>* violations = NULL);
 // Timed Gauss-Seidel like algorithm for contacts
 SOFA_HELPER_API int nlcp_gaussseidelTimed(int, double *, double**, double *, double, double, int, bool, double timeout, bool verbose=false);
 } // namespace helper
