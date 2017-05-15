@@ -204,7 +204,7 @@ void CubeModel::draw(const core::visual::VisualParams* vparams)
     else
         c=Vec<4,float>(1.0f, 1.0f, 1.0f, color);
 
-    std::vector< Vector3 > points;
+    sofa::helper::vector< Vector3 > points;
     for (int i=0; i<size; i++)
     {
         const Vector3& vmin = elems[i].minBBox;

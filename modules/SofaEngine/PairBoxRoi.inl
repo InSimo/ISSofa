@@ -207,7 +207,7 @@ void PairBoxROI<DataTypes>::draw(const core::visual::VisualParams* vparams)
     {
         vparams->drawTool()->setLightingEnabled(false);
         float linesWidth = _drawSize.getValue() ? (float)_drawSize.getValue() : 1;
-        std::vector<sofa::defaulttype::Vector3> vertices;
+        sofa::helper::vector<sofa::defaulttype::Vector3> vertices;
         const Vec6& vb=inclusiveBox.getValue();
 
         const Vec6& b=vb;
@@ -249,7 +249,7 @@ void PairBoxROI<DataTypes>::draw(const core::visual::VisualParams* vparams)
     {
         vparams->drawTool()->setLightingEnabled(false);
         float linesWidth = _drawSize.getValue() ? (float)_drawSize.getValue() : 1;
-        std::vector<sofa::defaulttype::Vector3> vertices;
+        sofa::helper::vector<sofa::defaulttype::Vector3> vertices;
         const Vec6& vb=includedBox.getValue();
 
         const Vec6& b=vb;
@@ -293,7 +293,7 @@ void PairBoxROI<DataTypes>::draw(const core::visual::VisualParams* vparams)
     {
         float pointsWidth = _drawSize.getValue() ? (float)_drawSize.getValue() : 1;
         vparams->drawTool()->setLightingEnabled(false);
-        std::vector<sofa::defaulttype::Vector3> vertices;
+        sofa::helper::vector<sofa::defaulttype::Vector3> vertices;
         helper::ReadAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
         for (unsigned int i=0; i<pointsInROI.size() ; ++i)
         {

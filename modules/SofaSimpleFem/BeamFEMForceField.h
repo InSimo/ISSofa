@@ -220,7 +220,7 @@ public:
 
 protected:
 
-    void drawElement(int i, std::vector< defaulttype::Vector3 >* points, const VecCoord& x);
+    void drawElement(int i, sofa::helper::vector< defaulttype::Vector3 >* points, const VecCoord& x);
 
     Real peudo_determinant_for_coef ( const defaulttype::Mat<2, 3, Real>&  M );
 

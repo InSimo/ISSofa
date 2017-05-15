@@ -2699,7 +2699,7 @@ void BarycentricMapping<TIn, TOut>::draw(const core::visual::VisualParams* vpara
     if ( !vparams->displayFlags().getShowMappings() ) return;
 
     const OutVecCoord& out = this->toModel->read(core::ConstVecCoordId::position())->getValue();
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     for ( unsigned int i=0; i<out.size(); i++ )
     {
         points.push_back ( OutDataTypes::getCPos(out[i]) );
@@ -2723,7 +2723,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
 #else
     const sofa::core::topology::BaseMeshTopology::SeqCubes& cubes = this->fromTopology->getCubes();
 #endif
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     // 1D elements
     {
         const int i0 = 0;
@@ -2866,7 +2866,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
 template <class In, class Out>
 void BarycentricMapperRegularGridTopology<In,Out>::draw  (const core::visual::VisualParams* vparams,const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
 
     for ( unsigned int i=0; i<map.size(); i++ )
     {
@@ -2914,7 +2914,7 @@ void BarycentricMapperRegularGridTopology<In,Out>::draw  (const core::visual::Vi
 template <class In, class Out>
 void BarycentricMapperSparseGridTopology<In,Out>::draw  (const core::visual::VisualParams* vparams,const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     for ( unsigned int i=0; i<map.size(); i++ )
     {
 #ifdef SOFA_NEW_HEXA
@@ -2963,7 +2963,7 @@ void BarycentricMapperEdgeSetTopology<In,Out>::draw  (const core::visual::Visual
 {
     const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
 
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -2998,7 +2998,7 @@ void BarycentricMapperTriangleSetTopology<In,Out>::draw  (const core::visual::Vi
 {
     const sofa::helper::vector<topology::Triangle>& triangles = this->fromTopology->getTriangles();
 
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -3028,7 +3028,7 @@ template <class In, class Out>
 void BarycentricMapperQuadSetTopology<In,Out>::draw  (const core::visual::VisualParams* vparams,const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
     const sofa::helper::vector<topology::Quad>& quads = this->fromTopology->getQuads();
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -3060,7 +3060,7 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::draw  (const core::visual:
 {
     const sofa::helper::vector<topology::Tetrahedron>& tetrahedra = this->fromTopology->getTetrahedra();
 
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -3093,7 +3093,7 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::draw  (const core::visual::
 {
     const sofa::helper::vector<topology::Hexahedron>& cubes = this->fromTopology->getHexahedra();
 
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {

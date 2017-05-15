@@ -540,9 +540,9 @@ void SkinningMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
 
         if ( ! triangles.empty()) // Show on mesh
         {
-            std::vector< defaulttype::Vector3 > points;
-            std::vector< defaulttype::Vector3 > normals;
-            std::vector< defaulttype::Vec<4,float> > colors;
+            sofa::helper::vector< defaulttype::Vector3 > points;
+            sofa::helper::vector< defaulttype::Vector3 > normals;
+            sofa::helper::vector< defaulttype::Vec<4,float> > colors;
             for ( unsigned int i = 0; i < triangles.size(); i++)
             {
                 for ( unsigned int j = 0; j < 3; j++)

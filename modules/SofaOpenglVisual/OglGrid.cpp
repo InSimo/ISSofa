@@ -127,7 +127,7 @@ void OglGrid::drawVisual(const core::visual::VisualParams* vparams)
 #ifndef SOFA_NO_OPENGL
     if (!draw.getValue()) return;
 
-    std::vector<Vector3> points;
+    sofa::helper::vector<Vector3> points;
 
     unsigned int nb = nbSubdiv.getValue();
     float s = size.getValue();

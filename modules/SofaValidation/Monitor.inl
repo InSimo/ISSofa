@@ -173,7 +173,7 @@ void Monitor<DataTypes>::draw(const core::visual::VisualParams* vparams)
     vparams->drawTool()->setLightingEnabled(false);
     if (showPositions.getValue())
     {
-        helper::vector<defaulttype::Vector3> points;
+        sofa::helper::vector<defaulttype::Vector3> points;
         for (unsigned int i=0; i < indices.getValue().size(); ++i)
         {
             Coord posvertex = (*X)[indices.getValue()[i]];
@@ -216,7 +216,7 @@ void Monitor<DataTypes>::draw(const core::visual::VisualParams* vparams)
         internalDt += this -> getContext()->getDt();
         for (unsigned int i=0; i < indices.getValue().size(); ++i)
         {
-            helper::vector<defaulttype::Vector3> points;
+            sofa::helper::vector<defaulttype::Vector3> points;
             Coord point;
             for (unsigned int j=0 ; j<savedPos[i].size() ; ++j)
             {

@@ -430,8 +430,8 @@ void DistanceGridForceField<DataTypes>::drawDistanceGrid(const core::visual::Vis
 
     const VecCoord& p1 = this->mstate->read(core::ConstVecCoordId::position())->getValue();
 
-    std::vector< defaulttype::Vector3 > pointsLineIn;
-    std::vector< defaulttype::Vector3 > pointsLineOut;
+    sofa::helper::vector< defaulttype::Vector3 > pointsLineIn;
+    sofa::helper::vector< defaulttype::Vector3 > pointsLineOut;
     // lines for points penetrating the distancegrid
 
     unsigned int ibegin = 0;
@@ -485,7 +485,7 @@ void DistanceGridForceField<DataTypes>::drawDistanceGrid(const core::visual::Vis
     const sofa::helper::vector<TContact>& tcontacts = this->tcontacts.getValue();
     if (!tcontacts.empty())
     {
-        std::vector< defaulttype::Vector3 > pointsTri;
+        sofa::helper::vector< defaulttype::Vector3 > pointsTri;
         for (unsigned int i=0; i<tcontacts.size(); i++)
         {
             const TContact& c = (this->tcontacts.getValue())[i];
@@ -501,7 +501,7 @@ void DistanceGridForceField<DataTypes>::drawDistanceGrid(const core::visual::Vis
     const sofa::helper::vector<VContact>& vcontacts = this->vcontacts.getValue();
     if (!vcontacts.empty())
     {
-        std::vector< defaulttype::Vector3 > pointsTet;
+        sofa::helper::vector< defaulttype::Vector3 > pointsTet;
         for (unsigned int i=0; i<vcontacts.size(); i++)
         {
             const VContact& c = (this->vcontacts.getValue())[i];
@@ -532,8 +532,8 @@ void DistanceGridForceField<DataTypes>::drawDistanceGrid(const core::visual::Vis
 
     if (drawPoints.getValue())
     {
-        std::vector< defaulttype::Vector3 > distancePointsIn;
-        std::vector< defaulttype::Vector3 > distancePointsOut;
+        sofa::helper::vector< defaulttype::Vector3 > distancePointsIn;
+        sofa::helper::vector< defaulttype::Vector3 > distancePointsOut;
 
         for (int i=0; i < grid->getNx(); i++)
             for (int j=0; j < grid->getNy(); j++)

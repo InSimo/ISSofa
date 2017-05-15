@@ -118,19 +118,19 @@ void ArticulatedHierarchyBVHController::applyController(void)
             ArtVecIt itEnd = (*artCenterIt)->articulations.end();
             while (it != itEnd)
             {
-                std::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* > articulatedObjects;
+                sofa::helper::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* > articulatedObjects;
 
                 sofa::simulation::Node* curNode = sofa::simulation::Node::DynamicCast(this->getContext());
                 if (curNode)
-                    curNode->getTreeObjects<core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>, std::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* > >(&articulatedObjects);
+                    curNode->getTreeObjects<core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>, sofa::helper::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* > >(&articulatedObjects);
 
                 if (!articulatedObjects.empty())
                 {
                     // Reference potential initial articulations value for interaction springs
                     // and Current articulation value at the coresponding artculation
 
-                    std::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* >::iterator articulatedObjIt = articulatedObjects.begin();
-                    //std::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1dTypes>* >::iterator articulatedObjItEnd = articulatedObjects.end();
+                    sofa::helper::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1Types>* >::iterator articulatedObjIt = articulatedObjects.begin();
+                    //sofa::helper::vector< core::behavior::MechanicalState<sofa::defaulttype::Vec1dTypes>* >::iterator articulatedObjItEnd = articulatedObjects.end();
 
                     //	while (articulatedObjIt != articulatedObjItEnd)
                     if ((*it)->translation.getValue())

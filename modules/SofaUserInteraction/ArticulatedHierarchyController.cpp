@@ -126,7 +126,7 @@ void ArticulatedHierarchyController::buildPropagationArticulationsChain(void)
             ++artCenterIt;
         }
 
-        std::vector< int > propagationArticulationsArray;
+        sofa::helper::vector< int > propagationArticulationsArray;
 
         if ((activeArticulation != NULL) && (activeArticulationCenter != NULL))
         {
@@ -142,7 +142,7 @@ void ArticulatedHierarchyController::buildPropagationArticulationsChain(void)
 
 
 
-void ArticulatedHierarchyController::buildArray(std::vector< int > &artIndices, Articulation *artRef, ArticulationCenter *artCenterParent)
+void ArticulatedHierarchyController::buildArray(sofa::helper::vector< int > &artIndices, Articulation *artRef, ArticulationCenter *artCenterParent)
 {
     ArtCenterVecIt artCenterIt = m_artCenterVec.begin();
     ArtCenterVecIt artCenterItEnd = m_artCenterVec.end();
@@ -352,7 +352,7 @@ void ArticulatedHierarchyController::applyController(void)
 
         if (i < activeArticulations.size())
         {
-            std::vector< int > articulationPropagationChain;
+            sofa::helper::vector< int > articulationPropagationChain;
             std::map< int, sofa::helper::vector< int > >::iterator iter = articulationsPropagationChains.find(articulationIndex);
             if( iter != articulationsPropagationChains.end())
                 articulationPropagationChain = iter->second;
@@ -374,19 +374,19 @@ void ArticulatedHierarchyController::applyController(void)
                     {
                         if ((*it)->articulationIndex.getValue() == articulationIndex)
                         {
-                            std::vector< MechanicalState<sofa::defaulttype::Vec1Types>* > articulatedObjects;
+                            sofa::helper::vector< MechanicalState<sofa::defaulttype::Vec1Types>* > articulatedObjects;
 
                             sofa::simulation::Node* curNode = sofa::simulation::Node::DynamicCast(this->getContext());
                             if (curNode)
-                                curNode->getTreeObjects<MechanicalState<sofa::defaulttype::Vec1Types>, std::vector< MechanicalState<sofa::defaulttype::Vec1Types>* > >(&articulatedObjects);
+                                curNode->getTreeObjects<MechanicalState<sofa::defaulttype::Vec1Types>, sofa::helper::vector< MechanicalState<sofa::defaulttype::Vec1Types>* > >(&articulatedObjects);
 
                             if (!articulatedObjects.empty())
                             {
                                 // Reference potential initial articulations value for interaction springs
                                 // and Current articulation value at the coresponding artculation
 
-                                std::vector< MechanicalState<sofa::defaulttype::Vec1Types>* >::iterator articulatedObjIt = articulatedObjects.begin();
-//								std::vector< MechanicalState<sofa::defaulttype::Vec1dTypes>* >::iterator articulatedObjItEnd = articulatedObjects.end();
+                                sofa::helper::vector< MechanicalState<sofa::defaulttype::Vec1Types>* >::iterator articulatedObjIt = articulatedObjects.begin();
+//								sofa::helper::vector< MechanicalState<sofa::defaulttype::Vec1dTypes>* >::iterator articulatedObjItEnd = articulatedObjects.end();
 
                                 //	while (articulatedObjIt != articulatedObjItEnd)
                                 {

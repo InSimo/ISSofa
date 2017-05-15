@@ -2737,7 +2737,7 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
         float scale = showVectorsScale.getValue();
         sofa::helper::ReadAccessor< Data<VecDeriv> > v_rA = *this->read(core::ConstVecDerivId::velocity());
         //std::cout << "number of velocity values: " << v_rA.size() << std::endl;
-        vector<Vector3> points;
+        sofa::helper::vector<Vector3> points;
         points.resize(2);
         for( unsigned i=0; i<v_rA.size(); ++i )
         {
@@ -2773,7 +2773,7 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
     {
         const float scale = showObjectScale.getValue();
         const int vsize = d_size.getValue();
-        vector<Vector3> positions(vsize);
+        sofa::helper::vector<Vector3> positions(vsize);
         for (int i = 0; i < vsize; ++i)
             positions[i] = Vector3(getPX(i), getPY(i), getPZ(i));
 

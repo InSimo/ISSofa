@@ -147,8 +147,8 @@ void TetrahedralCorotationalFEMForceField<DataTypes>::reinit()
     for (int i=0; i<_topology->getNbTetrahedra(); ++i)
     {
         tetrahedronHandler->applyCreateFunction(i, tetrahedronInf[i],
-                _topology->getTetrahedron(i),  (const std::vector< unsigned int > )0,
-                (const std::vector< double >)0);
+                _topology->getTetrahedron(i),  (const sofa::helper::vector< unsigned int > )0,
+                (const sofa::helper::vector< double >)0);
     }
 
     tetrahedronInfo.createTopologicalEngine(_topology,tetrahedronHandler);
@@ -1315,7 +1315,7 @@ void TetrahedralCorotationalFEMForceField<DataTypes>::draw(const core::visual::V
         vparams->drawTool()->setPolygonMode(0,true);
 
 
-    std::vector< defaulttype::Vector3 > points[4];
+    sofa::helper::vector< defaulttype::Vector3 > points[4];
     for(int i = 0 ; i<_topology->getNbTetrahedra(); ++i)
     {
         const topology::Tetrahedron t=_topology->getTetrahedron(i);

@@ -402,7 +402,7 @@ void VectorSpringForceField<DataTypes>::draw(const core::visual::VisualParams* v
     const VecCoord& x2 =this->mstate2->read(core::ConstVecCoordId::position())->getValue();
 
 
-    std::vector< Vector3 > points;
+    sofa::helper::vector< Vector3 > points;
     if(useTopology)
     {
         for (unsigned int i=0; i<springArray.getValue().size(); i++)

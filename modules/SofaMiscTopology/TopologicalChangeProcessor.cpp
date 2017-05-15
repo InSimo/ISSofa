@@ -1465,8 +1465,8 @@ void TopologicalChangeProcessor::draw(const core::visual::VisualParams* vparams)
 
     unsigned int nbTriangles = m_topology->getNbTriangles();
 
-    std::vector< Vector3 > trianglesToDraw;
-    std::vector< Vector3 > pointsToDraw;
+    sofa::helper::vector< Vector3 > trianglesToDraw;
+    sofa::helper::vector< Vector3 > pointsToDraw;
 
     for (unsigned int i = 0 ; i < triangleIncisionInformation.size() ; i++)
     {

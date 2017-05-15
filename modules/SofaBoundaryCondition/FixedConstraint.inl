@@ -351,7 +351,7 @@ void FixedConstraint<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
     if( f_drawSize.getValue() == 0) // old classical drawing by points
     {
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         sofa::defaulttype::Vector3 point;
         //serr<<"FixedConstraint<DataTypes>::draw(), indices = "<<indices<<sendl;
         if( f_fixAll.getValue() )
@@ -374,7 +374,7 @@ void FixedConstraint<DataTypes>::draw(const core::visual::VisualParams* vparams)
     {
         glEnable( GL_LIGHTING );
 
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         sofa::defaulttype::Vector3 point;
         if( f_fixAll.getValue()==true )
             for (unsigned i=0; i<x.size(); i++ )

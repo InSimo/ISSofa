@@ -591,7 +591,7 @@ void SurfacePressureForceField<DataTypes>::draw(const core::visual::VisualParams
     helper::ReadAccessor<DataVecCoord> x = this->mstate->read(core::ConstVecCoordId::position());
     if (m_drawForceScale.getValue() && m_f.size()==x.size())
     {
-        std::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vector3 > points;
         const sofa::defaulttype::Vec<4,float> color(0,1,0.5,1);
 
         for (unsigned int i=0; i<x.size(); i++)
@@ -841,7 +841,7 @@ void SurfacePressureForceField<defaulttype::Rigid3dTypes>::draw(const core::visu
 	helper::ReadAccessor<DataVecCoord> x = this->mstate->read(core::ConstVecCoordId::position());
 	if (m_drawForceScale.getValue() && m_f.size()==x.size())
 	{
-		std::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vector3 > points;
 		const defaulttype::Vec<4,float> color(0,1,0.5,1);
 
 		for (unsigned int i=0; i<x.size(); i++)
@@ -1093,7 +1093,7 @@ void SurfacePressureForceField<defaulttype::Rigid3fTypes>::draw(const core::visu
 	helper::ReadAccessor<DataVecCoord> x = this->mstate->read(core::ConstVecCoordId::position());
 	if (m_drawForceScale.getValue() && m_f.size()==x.size())
 	{
-		std::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vector3 > points;
 		const defaulttype::Vec<4,float> color(0,1,0.5,1);
 
 		for (unsigned int i=0; i<x.size(); i++)

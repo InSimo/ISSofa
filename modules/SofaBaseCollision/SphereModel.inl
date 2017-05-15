@@ -139,8 +139,8 @@ void TSphereModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         // Check topological modifications
         const int npoints = mstate->read(core::ConstVecCoordId::position())->getValue().size();
 
-        std::vector<Vector3> points;
-        std::vector<float> radius;
+        sofa::helper::vector<Vector3> points;
+        sofa::helper::vector<float> radius;
         for (int i=0; i<npoints; i++)
         {
             TSphere<DataTypes> t(this,i);

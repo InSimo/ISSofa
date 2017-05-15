@@ -485,7 +485,7 @@ public:
         if (time < f_start.getValue() || time > f_stop.getValue()) return;
         Deriv dpos = f_velocity.getValue()*(time - lasttime);
 
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         for (unsigned int s = 0; s < lastpos.size(); s++)
         {
             sofa::defaulttype::Vector3 point;

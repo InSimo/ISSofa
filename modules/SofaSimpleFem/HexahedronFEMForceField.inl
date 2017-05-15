@@ -1173,7 +1173,7 @@ void HexahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams* 
     {
 
 
-        std::vector< defaulttype::Vector3 > points[6];
+        sofa::helper::vector< defaulttype::Vector3 > points[6];
 
         Index a = (*it)[0];
         Index b = (*it)[1];

@@ -437,7 +437,7 @@ void TaitSurfacePressureForceField<DataTypes>::draw(const core::visual::VisualPa
 
     helper::ReadAccessor< Data< SeqTriangles > > pressureTriangles = m_pressureTriangles;
 
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     std::vector< sofa::defaulttype::Vec3i > indices;
     std::vector< defaulttype::Vector3 > normals;
     if (m_drawForceScale.getValue() != (Real)0.0)

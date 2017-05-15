@@ -1679,7 +1679,7 @@ void MeshMatrixMass<DataTypes, MassType>::draw(const core::visual::VisualParams*
     Coord gravityCenter;
     Real totalMass=0.0;
 
-	std::vector<  defaulttype::Vector3 > points;
+    sofa::helper::vector<  defaulttype::Vector3 > points;
 	for (unsigned int i=0; i<x.size(); i++)
 	{
 		defaulttype::Vector3 p;

@@ -2486,7 +2486,7 @@ void HexahedronCompositeFEMForceFieldAndMass<T>::draw(const core::visual::Visual
     }
     else
     {
-        std::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vector3 > points;
 
         vparams->drawTool()->setLightingEnabled(false);
 
@@ -2513,7 +2513,7 @@ void HexahedronCompositeFEMForceFieldAndMass<T>::draw(const core::visual::Visual
         colour=sofa::defaulttype::Vec<4,float>(0.95f, 0.95f, 0.7f,1.0f);
 
 
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         for(unsigned i=0; i<x.size(); ++i) points.push_back( x[i] );
         vparams->drawTool()->drawSpheres(points, _drawSize.getValue()*1.5f,colour);
     }
@@ -2527,7 +2527,7 @@ void HexahedronCompositeFEMForceFieldAndMass<T>::draw(const core::visual::Visual
 
     {
 
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         for(unsigned i=0; i<sgr->getConnexions()->size(); ++i)
         {
             helper::vector< topology::SparseGridRamificationTopology::Connexion *>& con = (*sgr->getConnexions())[i];

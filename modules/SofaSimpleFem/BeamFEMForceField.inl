@@ -720,7 +720,7 @@ void BeamFEMForceField<DataTypes>::draw(const core::visual::VisualParams* vparam
 
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
 
-    std::vector< defaulttype::Vector3 > points[3];
+    sofa::helper::vector< defaulttype::Vector3 > points[3];
 
     if (_partial_list_segment)
     {
@@ -738,7 +738,7 @@ void BeamFEMForceField<DataTypes>::draw(const core::visual::VisualParams* vparam
 }
 
 template<class DataTypes>
-void BeamFEMForceField<DataTypes>::drawElement(int i, std::vector< defaulttype::Vector3 >* points, const VecCoord& x)
+void BeamFEMForceField<DataTypes>::drawElement(int i, sofa::helper::vector< defaulttype::Vector3 >* points, const VecCoord& x)
 {
     Index a = (*_indexedElements)[i][0];
     Index b = (*_indexedElements)[i][1];

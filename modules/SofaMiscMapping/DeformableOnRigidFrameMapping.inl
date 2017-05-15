@@ -494,7 +494,7 @@ template <class TIn, class TInRoot, class TOut>
 void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::draw(const core::visual::VisualParams* vparams)
 {
     if (!vparams->displayFlags().getShowMappings()) return;
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     sofa::defaulttype::Vector3 point;
 
     const typename Out::VecCoord& x = m_toModel->read(core::ConstVecCoordId::position())->getValue();

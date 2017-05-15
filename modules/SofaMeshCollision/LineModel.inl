@@ -420,7 +420,7 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         if (vparams->displayFlags().getShowWireFrame())
             vparams->drawTool()->setPolygonMode(0,true);
 
-        std::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vector3 > points;
         for (int i=0; i<size; i++)
         {
             TLine<DataTypes> l(this,i);
@@ -435,7 +435,7 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
         if (m_displayFreePosition.getValue())
         {
-            std::vector< defaulttype::Vector3 > pointsFree;
+            sofa::helper::vector< defaulttype::Vector3 > pointsFree;
             for (int i=0; i<size; i++)
             {
                 TLine<DataTypes> l(this,i);

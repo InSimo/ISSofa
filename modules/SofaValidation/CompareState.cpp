@@ -239,7 +239,7 @@ void CompareState::draw(const core::visual::VisualParams* vparams)
                     int nc = std::min(3,std::min(ncX,ncRefX));
                     int nbp = std::min(sizeX/ncX, sizeRefX/ncRefX);
 
-                    std::vector< Vector3 > points;
+                    sofa::helper::vector< Vector3 > points;
                     points.resize(nbp*2);
                     for(int p=0; p<nbp; ++p)
                     {

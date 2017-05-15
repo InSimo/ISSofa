@@ -812,7 +812,7 @@ void DiagonalMass<DataTypes, MassType>::draw(const core::visual::VisualParams* v
     Coord gravityCenter;
     Real totalMass=0.0;
 
-    std::vector<  sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector<  sofa::defaulttype::Vector3 > points;
     std::vector<  sofa::defaulttype::Vec<2,int> > indices;
 
     for (unsigned int i=0; i<x.size(); i++)

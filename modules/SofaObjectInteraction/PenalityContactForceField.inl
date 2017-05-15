@@ -165,7 +165,7 @@ void PenalityContactForceField<DataTypes>::draw(const core::visual::VisualParams
     const VecCoord& p2 = this->mstate2->read(core::ConstVecCoordId::position())->getValue();
     //glDisable(GL_LIGHTING); // do not use gl under draw component, it cause crash when using other render !
 
-    std::vector< defaulttype::Vector3 > points[4];
+    sofa::helper::vector< defaulttype::Vector3 > points[4];
 
     for (unsigned int i=0; i<contacts.getValue().size(); i++)
     {
@@ -199,7 +199,7 @@ void PenalityContactForceField<DataTypes>::draw(const core::visual::VisualParams
     vparams->drawTool()->drawLines(points[3], 1, defaulttype::Vec<4,float>(0,1,0,1));
 
 
-    std::vector< defaulttype::Vector3 > pointsN;
+    sofa::helper::vector< defaulttype::Vector3 > pointsN;
     if (vparams->displayFlags().getShowNormals())
     {
         for (unsigned int i=0; i<contacts.getValue().size(); i++)

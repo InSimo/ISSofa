@@ -59,7 +59,7 @@ void FastTetrahedralCorotationalForceField<DataTypes>::FTCFTetrahedronHandler::a
 {
     if (ff)
     {
-        const std::vector< Tetrahedron > &tetrahedronArray=ff->_topology->getTetrahedra() ;
+        const sofa::helper::vector< Tetrahedron > &tetrahedronArray=ff->_topology->getTetrahedra() ;
         //		const std::vector< Edge> &edgeArray=ff->_topology->getEdges() ;
         unsigned int j,k,l,m,n;
         typename DataTypes::Real lambda=ff->getLambda();

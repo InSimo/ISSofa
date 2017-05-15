@@ -284,7 +284,7 @@ void ConstantForceField<DataTypes>::draw(const core::visual::VisualParams* vpara
     {
         if( fabs(aSC)<1.0e-10 )
         {
-            std::vector<defaulttype::Vector3> points;
+            sofa::helper::vector<defaulttype::Vector3> points;
             for (unsigned int i=0; i<indices.size(); i++)
             {
                 Real xx = Real(0.f);

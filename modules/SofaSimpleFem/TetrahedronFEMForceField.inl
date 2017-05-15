@@ -1778,7 +1778,7 @@ void TetrahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams*
 
     if (edges)
     {
-        std::vector< defaulttype::Vector3 > points[3];
+        sofa::helper::vector< defaulttype::Vector3 > points[3];
         typename VecElement::const_iterator it;
         int i;
         for(it = _indexedElements->begin(), i = 0 ; it != _indexedElements->end() ; ++it, ++i)
@@ -1862,7 +1862,7 @@ void TetrahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams*
     else
     {
 
-        std::vector< defaulttype::Vector3 > points[4];
+        sofa::helper::vector< defaulttype::Vector3 > points[4];
         typename VecElement::const_iterator it;
         int i;
         for(it = _indexedElements->begin(), i = 0 ; it != _indexedElements->end() ; ++it, ++i)
@@ -1959,7 +1959,7 @@ void TetrahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams*
     if (vparams->displayFlags().getShowNormals())
     {
 
-        std::vector< defaulttype::Vector3 > points[3];
+        sofa::helper::vector< defaulttype::Vector3 > points[3];
 
         for(unsigned ii = 0; ii<  x.size() ; ii++)
         {

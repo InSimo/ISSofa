@@ -118,7 +118,7 @@ void ParticlesRepulsionForceField<DataTypes>::addForce(const core::MechanicalPar
     {
         Particle& Pi = particles[i];
 
-        for (typename std::vector< int >::const_iterator it = Pi.neighbors.begin(); it != Pi.neighbors.end(); ++it)
+        for (typename sofa::helper::vector< int >::const_iterator it = Pi.neighbors.begin(); it != Pi.neighbors.end(); ++it)
         {
             const int j = *it;
 
@@ -164,7 +164,7 @@ void ParticlesRepulsionForceField<DataTypes>::addDForce(const core::MechanicalPa
     {
         Particle& Pi = particles[i];
 
-        for (typename std::vector< int >::const_iterator it = Pi.neighbors.begin(); it != Pi.neighbors.end(); ++it)
+        for (typename sofa::helper::vector< int >::const_iterator it = Pi.neighbors.begin(); it != Pi.neighbors.end(); ++it)
         {
             const int j = *it;
 
@@ -212,7 +212,7 @@ void ParticlesRepulsionForceField<DataTypes>::draw(const core::visual::VisualPar
     for (unsigned int i=0; i<particles.size(); i++)
     {
         Particle& Pi = particles[i];
-        for (typename std::vector< int >::const_iterator it = Pi.neighbors.begin(); it != Pi.neighbors.end(); ++it)
+        for (typename sofa::helper::vector< int >::const_iterator it = Pi.neighbors.begin(); it != Pi.neighbors.end(); ++it)
         {
             const int j = *it;
             const float r_h = (float)((x[j]-x[i]).norm() / h);

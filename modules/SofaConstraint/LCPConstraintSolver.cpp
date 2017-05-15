@@ -454,9 +454,9 @@ void LCPConstraintSolver::MultigridConstraintsMerge_Compliance()
     hierarchy_constraint_group_fact.resize(1);
     hierarchy_num_group.resize(1);
     std::vector<int> group_lead;
-    std::vector<int>& contact_group = hierarchy_contact_group[0];
-    std::vector<int>& constraint_group = hierarchy_constraint_group[0];
-    std::vector<double>& constraint_group_fact = hierarchy_constraint_group_fact[0];
+    sofa::helper::vector<int>& contact_group = hierarchy_contact_group[0];
+    sofa::helper::vector<int>& constraint_group = hierarchy_constraint_group[0];
+    sofa::helper::vector<double>& constraint_group_fact = hierarchy_constraint_group_fact[0];
     unsigned int& num_group = hierarchy_num_group[0];
     contact_group.clear();
     contact_group.resize(numContacts);
@@ -523,9 +523,9 @@ void LCPConstraintSolver::MultigridConstraintsMerge_Spatial()
 
     for (int level = 1; level < nLevels; ++level)
     {
-        std::vector<int>& contact_group = hierarchy_contact_group[level-1];
-        std::vector<int>& constraint_group = hierarchy_constraint_group[level-1];
-        std::vector<double>& constraint_group_fact = hierarchy_constraint_group_fact[level-1];
+        sofa::helper::vector<int>& contact_group = hierarchy_contact_group[level-1];
+        sofa::helper::vector<int>& constraint_group = hierarchy_constraint_group[level-1];
+        sofa::helper::vector<double>& constraint_group_fact = hierarchy_constraint_group_fact[level-1];
         unsigned int& num_group = hierarchy_num_group[level-1];
 
         contact_group.clear();
@@ -878,7 +878,7 @@ void LCPConstraintSolver::keepContactForcesValue()
 }
 
 
-int LCPConstraintSolver::nlcp_gaussseidel_unbuilt(double *dfree, double *f, std::vector<double>* residuals)
+int LCPConstraintSolver::nlcp_gaussseidel_unbuilt(double *dfree, double *f, sofa::helper::vector<double>* residuals)
 {
     if(!_numConstraints)
         return 0;
@@ -1213,7 +1213,7 @@ int LCPConstraintSolver::nlcp_gaussseidel_unbuilt(double *dfree, double *f, std:
 
 
 
-int LCPConstraintSolver::lcp_gaussseidel_unbuilt(double *dfree, double *f, std::vector<double>* /*residuals*/)
+int LCPConstraintSolver::lcp_gaussseidel_unbuilt(double *dfree, double *f, sofa::helper::vector<double>* /*residuals*/)
 {
     //helper::system::thread::CTime timer;
     double time = 0.0;

@@ -463,7 +463,7 @@ void BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::draw  (const core::vi
     // TODO: use mapOrient
     //const sofa::helper::vector<MappingOrientData >& mapOrient = this->mapOrient.getValue();
 
-    std::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
     {
         for ( unsigned int i=0; i<map.size(); i++ )
         {

@@ -91,7 +91,7 @@ void FixedLMConstraint<Rigid3fTypes>::draw(const core::visual::VisualParams* vpa
     if (!vparams->displayFlags().getShowBehaviorModels()) return;
     const VecCoord& x =constrainedObject1->read(core::ConstVecCoordId::position())->getValue();
 
-    std::vector< Vector3 > points;
+    sofa::helper::vector< Vector3 > points;
     for (SetIndexArray::const_iterator it = indices.begin();
             it != indices.end();
             ++it)

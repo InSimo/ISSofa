@@ -377,7 +377,7 @@ void ProjectToPointConstraint<DataTypes>::draw(const core::visual::VisualParams*
 
     if( f_drawSize.getValue() == 0) // old classical drawing by points
     {
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         sofa::defaulttype::Vector3 point;
         //serr<<"ProjectToPointConstraint<DataTypes>::draw(), indices = "<<indices<<sendl;
         if( f_fixAll.getValue() )
@@ -398,7 +398,7 @@ void ProjectToPointConstraint<DataTypes>::draw(const core::visual::VisualParams*
     }
     else // new drawing by spheres
     {
-        std::vector< sofa::defaulttype::Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         sofa::defaulttype::Vector3 point;
         glColor4f (1.0f,0.35f,0.35f,1.0f);
         if( f_fixAll.getValue()==true )

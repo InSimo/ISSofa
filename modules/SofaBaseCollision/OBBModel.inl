@@ -146,7 +146,7 @@ void TOBBModel<DataTypes>::draw(const core::visual::VisualParams* vparams,int in
 
     Vec4f col4f(getColor4f());
 
-    std::vector<Vector3> n;
+    sofa::helper::vector<Vector3> n;
     n.push_back(axis(index,1));
     //n.push_back(n.back());
     n.push_back(axis(index,0));
@@ -157,7 +157,7 @@ void TOBBModel<DataTypes>::draw(const core::visual::VisualParams* vparams,int in
 //    n.push_back(n.back());
     n.push_back(n.front());
 
-    std::vector<Vector3> points;
+    sofa::helper::vector<Vector3> points;
     points.push_back(p[3]);
     points.push_back(p[0]);
     points.push_back(p[2]);

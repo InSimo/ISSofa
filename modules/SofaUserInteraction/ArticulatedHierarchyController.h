@@ -70,9 +70,9 @@ class SOFA_USER_INTERACTION_API ArticulatedHierarchyController : public Controll
 {
 public:
     SOFA_CLASS(ArticulatedHierarchyController,Controller);
-    typedef std::vector< ArticulationCenter * > ArtCenterVec;
+    typedef sofa::helper::vector< ArticulationCenter * > ArtCenterVec;
     typedef ArtCenterVec::iterator ArtCenterVecIt;
-    typedef std::vector< Articulation * > ArtVec;
+    typedef sofa::helper::vector< Articulation * > ArtVec;
     typedef ArtVec::iterator ArtVecIt;
 protected:
     /**
@@ -133,7 +133,7 @@ protected:
     /**
      * @brief Build the articulations indices list according to an Articulation and its ArticulationCenter.
      */
-    void buildArray(std::vector< int > &, Articulation* , ArticulationCenter* );
+    void buildArray(sofa::helper::vector< int > &, Articulation* , ArticulationCenter* );
 
     /**
      * @brief Set the active articulation from a Key Input.

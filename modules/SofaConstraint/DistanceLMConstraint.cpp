@@ -85,7 +85,7 @@ void DistanceLMConstraint<Rigid3dTypes>::draw(const core::visual::VisualParams* 
         const VecCoord &x1= this->constrainedObject1->read(core::ConstVecCoordId::position())->getValue();
         const VecCoord &x2= this->constrainedObject2->read(core::ConstVecCoordId::position())->getValue();
 
-        std::vector< Vector3 > points;
+        sofa::helper::vector< Vector3 > points;
         const SeqEdges &edges =  vecConstraint.getValue();
         for (unsigned int i=0; i<edges.size(); ++i)
         {
@@ -117,7 +117,7 @@ void DistanceLMConstraint<Rigid3fTypes>::draw(const core::visual::VisualParams* 
         const VecCoord &x1= this->constrainedObject1->read(core::ConstVecCoordId::position())->getValue();
         const VecCoord &x2= this->constrainedObject2->read(core::ConstVecCoordId::position())->getValue();
 
-        std::vector< Vector3 > points;
+        sofa::helper::vector< Vector3 > points;
         const SeqEdges &edges =  vecConstraint.getValue();
         for (unsigned int i=0; i<edges.size(); ++i)
         {

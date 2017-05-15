@@ -148,8 +148,8 @@ void HexahedralFEMForceField<DataTypes>::reinit()
     for (int i=0; i<_topology->getNbHexahedra(); ++i)
     {
         hexahedronHandler->applyCreateFunction(i,hexahedronInf[i],
-                _topology->getHexahedron(i),  (const std::vector< unsigned int > )0,
-                (const std::vector< double >)0);
+                _topology->getHexahedron(i),  (const sofa::helper::vector< unsigned int > )0,
+                (const sofa::helper::vector< double >)0);
     }
     hexahedronInfo.createTopologicalEngine(_topology,hexahedronHandler);
     hexahedronInfo.registerTopologicalData();

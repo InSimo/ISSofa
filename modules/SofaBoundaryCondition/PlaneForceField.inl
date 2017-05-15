@@ -281,7 +281,7 @@ void PlaneForceField<DataTypes>::drawPlane(const core::visual::VisualParams* vpa
     corners[2] = center+v1*size+v2*size;
     corners[3] = center-v1*size+v2*size;
 
-    std::vector< defaulttype::Vector3 > points;
+    sofa::helper::vector< defaulttype::Vector3 > points;
 
     points.push_back(corners[0]);
     points.push_back(corners[1]);
@@ -296,7 +296,7 @@ void PlaneForceField<DataTypes>::drawPlane(const core::visual::VisualParams* vpa
     vparams->drawTool()->drawTriangles(points, defaulttype::Vec<4,float>(color.getValue()[0],color.getValue()[1],color.getValue()[2],0.5));
     vparams->drawTool()->setPolygonMode(0,false); //No Culling
 
-    std::vector< defaulttype::Vector3 > pointsLine;
+    sofa::helper::vector< defaulttype::Vector3 > pointsLine;
     // lines for points penetrating the plane
 
     for (unsigned int ci=0; ci<contacts.size(); ++ci)

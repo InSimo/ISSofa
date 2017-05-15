@@ -359,7 +359,7 @@ void PartialFixedConstraint<DataTypes>::draw(const core::visual::VisualParams* v
 
     if (_drawSize.getValue() == 0) // old classical drawing by points
     {
-        std::vector<sofa::defaulttype::Vector3> points;
+        sofa::helper::vector<sofa::defaulttype::Vector3> points;
         sofa::defaulttype::Vector3 point;
         //serr<<"PartialFixedConstraint<DataTypes>::draw(), indices = "<<indices<<sendl;
         if (f_fixAll.getValue() == true)
@@ -383,7 +383,7 @@ void PartialFixedConstraint<DataTypes>::draw(const core::visual::VisualParams* v
     }
     else // new drawing by spheres
     {
-        std::vector<sofa::defaulttype::Vector3> points;
+        sofa::helper::vector<sofa::defaulttype::Vector3> points;
         sofa::defaulttype::Vector3 point;
         if (f_fixAll.getValue() == true)
         {

@@ -625,8 +625,8 @@ template <class TIn, class TInRoot, class TOut>
 void ArticulatedSystemMapping<TIn, TInRoot, TOut>::draw(const core::visual::VisualParams* vparams)
 {
     if (!vparams->displayFlags().getShowMappings()) return;
-    std::vector< sofa::defaulttype::Vector3 > points;
-    std::vector< sofa::defaulttype::Vector3 > pointsLine;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > points;
+    sofa::helper::vector< sofa::defaulttype::Vector3 > pointsLine;
 
     vector< sofa::component::container::ArticulationCenter* >::const_iterator ac = articulationCenters.begin();
     vector< sofa::component::container::ArticulationCenter* >::const_iterator acEnd = articulationCenters.end();

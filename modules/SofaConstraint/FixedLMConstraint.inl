@@ -218,7 +218,7 @@ void FixedLMConstraint<DataTypes>::draw(const core::visual::VisualParams* vparam
 
     const SetIndexArray & indices = f_indices.getValue();
 
-    std::vector< defaulttype::Vector3 > points;
+    sofa::helper::vector< defaulttype::Vector3 > points;
     defaulttype::Vector3 point;
     //serr<<"FixedLMConstraint<DataTypes>::draw(), indices = "<<indices<<sendl;
     for (SetIndexArray::const_iterator it = indices.begin();

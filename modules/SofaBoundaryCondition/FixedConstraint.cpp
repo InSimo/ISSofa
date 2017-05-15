@@ -86,7 +86,7 @@ void FixedConstraint<Rigid3dTypes>::draw(const core::visual::VisualParams* vpara
 {
     const SetIndexArray & indices = f_indices.getValue();
     if (!vparams->displayFlags().getShowBehaviorModels()) return;
-    std::vector< Vector3 > points;
+    sofa::helper::vector< Vector3 > points;
 
     const VecCoord& x =mstate->read(core::ConstVecCoordId::position())->getValue();
     if( f_fixAll.getValue()==true )
@@ -142,7 +142,7 @@ void FixedConstraint<Rigid3fTypes>::draw(const core::visual::VisualParams* vpara
 {
     const SetIndexArray & indices = f_indices.getValue();
     if (!vparams->displayFlags().getShowBehaviorModels()) return;
-    std::vector< Vector3 > points;
+    sofa::helper::vector< Vector3 > points;
 
     const VecCoord& x =mstate->read(core::ConstVecCoordId::position())->getValue();
     if( f_fixAll.getValue()==true )

@@ -725,9 +725,9 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
             for (unsigned int i=0; i<x.size(); i++)
                 pnormals[i].normalize();
 
-            std::vector< Vector3 > points;
-            std::vector< Vector3 > normals;
-            std::vector< Vec4f > colors;
+            sofa::helper::vector< Vector3 > points;
+            sofa::helper::vector< Vector3 > normals;
+            sofa::helper::vector< Vec4f > colors;
             const float stressValueAlpha = this->showStressValueAlpha.getValue();
             if (stressValueAlpha < 1.0f)
                 vparams->drawTool()->setMaterial(Vec4f(1.0f,1.0f,1.0f,stressValueAlpha));
@@ -834,7 +834,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
 //#endif
         if (showStressVector && maxStress > 0)
         {
-            std::vector< Vector3 > points[2];
+            sofa::helper::vector< Vector3 > points[2];
             for (unsigned int i=0; i<nbTriangles; i++)
             {
                 Triangle t = triangles[i];
@@ -863,7 +863,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
     }
     else
     {
-        std::vector< Vector3 > points[4];
+        sofa::helper::vector< Vector3 > points[4];
 
         const Vec4f c0(1,0,0,1);
         const Vec4f c1(0,1,0,1);
@@ -915,9 +915,9 @@ void TriangularFEMForceFieldOptim<DataTypes>::draw(const core::visual::VisualPar
 
     if (d_showStiffness.getValue())
     {
-        std::vector< Vector3 > points;
-        std::vector< Vector3 > normals;
-        std::vector< Vec4f > colors;
+        sofa::helper::vector< Vector3 > points;
+        sofa::helper::vector< Vector3 > normals;
+        sofa::helper::vector< Vec4f > colors;
 
         Real stiffnessMaxValue = 0;
 

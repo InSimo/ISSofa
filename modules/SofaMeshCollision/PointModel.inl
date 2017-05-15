@@ -174,8 +174,8 @@ void TPointModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             resize(npoints);
         }
 
-        std::vector< defaulttype::Vector3 > pointsP;
-        std::vector< defaulttype::Vector3 > pointsL;
+        sofa::helper::vector< defaulttype::Vector3 > pointsP;
+        sofa::helper::vector< defaulttype::Vector3 > pointsL;
         for (int i = 0; i < size; i++)
         {
             TPoint<DataTypes> p(this,i);
@@ -195,7 +195,7 @@ void TPointModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
         if (m_displayFreePosition.getValue())
         {
-            std::vector< defaulttype::Vector3 > pointsPFree;
+            sofa::helper::vector< defaulttype::Vector3 > pointsPFree;
 
             for (int i = 0; i < size; i++)
             {

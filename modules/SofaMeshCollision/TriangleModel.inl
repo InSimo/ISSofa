@@ -583,9 +583,9 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             vparams->drawTool()->setPolygonMode(1,false);
         }
 
-        std::vector< defaulttype::Vector3 > points;
-        std::vector< defaulttype::Vec<3,int> > indices;
-        std::vector< defaulttype::Vector3 > normals;
+        sofa::helper::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vec<3,int> > indices;
+        sofa::helper::vector< defaulttype::Vector3 > normals;
         int index=0;
         for (int i=0; i<size; i++)
         {
@@ -606,7 +606,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
         if (vparams->displayFlags().getShowNormals())
         {
-            std::vector< defaulttype::Vector3 > points;
+            sofa::helper::vector< defaulttype::Vector3 > points;
             for (int i=0; i<size; i++)
             {
                 Element t(this,i);

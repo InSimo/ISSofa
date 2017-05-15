@@ -149,7 +149,7 @@ void LennardJonesForceField<DataTypes>::draw(const core::visual::VisualParams* v
     if (!vparams->displayFlags().getShowForceFields()) return;
     const VecCoord& p1 = this->mstate->read(core::ConstVecCoordId::position())->getValue();
 
-    std::vector< defaulttype::Vector3 > points[2];
+    sofa::helper::vector< defaulttype::Vector3 > points[2];
 
     const Real d02 = this->d0.getValue()*this->d0.getValue();
     for (unsigned int i=0; i<this->dforces.size(); i++)

@@ -179,7 +179,7 @@ void ImplicitSurfaceMapping<In,Out>::apply(const core::MechanicalParams * /*mpar
         i=0;
         int edgecube[12];
         const int edgepts[12] = {0,1,0,1,0,1,0,1,2,2,2,2};
-        typename std::vector<CubeData>::iterator base = (*planes.beginEdit()).begin();
+        typename sofa::helper::vector<CubeData>::iterator base = (*planes.beginEdit()).begin();
         int ip0 = P0-base;
         int ip1 = P1-base;
         edgecube[0]  = (ip0   -dy);
@@ -236,7 +236,7 @@ void ImplicitSurfaceMapping<In,Out>::apply(const core::MechanicalParams * /*mpar
                 tri=sofa::helper::MarchingCubeTriTable[mk];
                 while (*tri>=0)
                 {
-                    typename std::vector<CubeData>::iterator b = base+i;
+                    typename sofa::helper::vector<CubeData>::iterator b = base+i;
                     if (addFace((b+edgecube[tri[0]])->p[edgepts[tri[0]]],
                             (b+edgecube[tri[1]])->p[edgepts[tri[1]]],
                             (b+edgecube[tri[2]])->p[edgepts[tri[2]]], out.size())<0)
@@ -263,7 +263,7 @@ void ImplicitSurfaceMapping<In,Out>::newPlane()
     c.p[1] = -1;
     c.p[2] = -1;
     c.data = 0;
-    typename std::vector<CubeData>::iterator P = P0;
+    typename sofa::helper::vector<CubeData>::iterator P = P0;
     P0 = P1;
     P1 = P;
     int n = planes.getValue().size()/2;

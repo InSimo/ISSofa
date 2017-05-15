@@ -69,8 +69,8 @@ void StandardTetrahedralFEMForceField<DataTypes>::GHTetrahedronHandler::applyCre
                                                                                             const sofa::helper::vector<double> &)
 {
     if (ff) {
-		const vector< topology::Tetrahedron > &tetrahedronArray=ff->_topology->getTetrahedra() ;
-		const std::vector< topology::Edge> &edgeArray=ff->_topology->getEdges() ;
+		const sofa::helper::vector< topology::Tetrahedron > &tetrahedronArray=ff->_topology->getTetrahedra();
+		const sofa::helper::vector< topology::Edge> &edgeArray=ff->_topology->getEdges();
 		unsigned int j;
         /*int l*/;
 		typename DataTypes::Real volume;
@@ -436,7 +436,7 @@ void StandardTetrahedralFEMForceField<DataTypes>::addDForce(const core::Mechanic
 
 		TetrahedronRestInformation *tetInfo;
 		unsigned int nbTetrahedra=_topology->getNbTetrahedra();
-		const std::vector< topology::Tetrahedron> &tetrahedronArray=_topology->getTetrahedra() ;
+		const sofa::helper::vector< topology::Tetrahedron> &tetrahedronArray=_topology->getTetrahedra() ;
 		unsigned int i=0, j=0, k=0;
 		for(l=0; l<nbEdges; l++ )edgeInf[l].DfDx.clear();
 		for(i=0; i<nbTetrahedra; i++ )

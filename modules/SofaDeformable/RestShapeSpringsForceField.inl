@@ -457,8 +457,8 @@ void RestShapeSpringsForceField<DataTypes>::draw(const core::visual::VisualParam
     const VecIndex& indices = m_indices;
     const VecIndex& ext_indices = m_ext_indices;
 
-    helper::vector< defaulttype::Vector3 > lines;
-    helper::vector< defaulttype::Vector3 > points;
+    sofa::helper::vector< defaulttype::Vector3 > lines;
+    sofa::helper::vector< defaulttype::Vector3 > points;
     sofa::defaulttype::Vector3 point1, point2;
 
     for (unsigned int i = 0; i < indices.size(); i++)
