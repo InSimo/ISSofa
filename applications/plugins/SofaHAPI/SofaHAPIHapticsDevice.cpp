@@ -260,7 +260,7 @@ void SofaHAPIHapticsDevice::draw(const sofa::core::visual::VisualParams* vparams
         vparams->drawTool()->setLightingEnabled(true); //Enable lightning
         if (drawHandleSize.getValue() == 0.0f)
         {
-            std::vector<Vec3d> points;
+            sofa::helper::vector<Vec3d> points;
             points.push_back(wpos);
             vparams->drawTool()->drawSpheres(points, 1.0f, sofa::defaulttype::Vec<4,float>(0,0,1,1));
         }
