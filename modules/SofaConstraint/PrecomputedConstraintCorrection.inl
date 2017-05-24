@@ -466,7 +466,7 @@ void PrecomputedConstraintCorrection< DataTypes >::addComplianceInConstraintSpac
 {
     m_activeDofs.clear();
 
-    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     double factor = 1.0;
 
@@ -773,7 +773,7 @@ void PrecomputedConstraintCorrection<DataTypes>::applyContactForce(const default
 
     const VecDeriv& v_free = this->mstate->read(core::ConstVecDerivId::freeVelocity())->getValue();
     const VecCoord& x_free = this->mstate->read(core::ConstVecCoordId::freePosition())->getValue();
-    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     double dt = this->getContext()->getDt();
 
@@ -946,7 +946,7 @@ void PrecomputedConstraintCorrection< DataTypes >::rotateConstraints(bool back)
     using sofa::component::forcefield::TetrahedronFEMForceField;
     using sofa::core::behavior::RotationFinder;
 
-    helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::holonomicC());
+    helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
     MatrixDeriv& c = cData.wref();
 
     simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
@@ -1063,7 +1063,7 @@ template<class DataTypes>
 void PrecomputedConstraintCorrection<DataTypes>::resetForUnbuiltResolution(double * f, std::list<unsigned int>& /*renumbering*/)
 {
     constraint_force = f;
-    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
 #ifdef NEW_METHOD_UNBUILT
     constraint_D.clear();

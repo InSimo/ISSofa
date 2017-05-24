@@ -415,7 +415,7 @@ void LinearSolverConstraintCorrection<DataTypes>::applyContactForce(const defaul
         for (unsigned int r=0; r<N; ++r)
             force[i][r] = F[i*N+r];
 #else
-    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     MatrixDerivRowConstIterator rowItEnd = c.end();
 
@@ -514,7 +514,7 @@ void LinearSolverConstraintCorrection<DataTypes>::resetContactForce()
 template<class DataTypes>
 bool LinearSolverConstraintCorrection<DataTypes>::hasConstraintNumber(int index)
 {
-    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& c = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     return c.readLine(index) != c.end();
 }
@@ -538,7 +538,7 @@ void LinearSolverConstraintCorrection<DataTypes>::resetForUnbuiltResolution(doub
     verify_constraints();
 
 
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     constraint_force.clear();
     constraint_force.resize(this->mstate->getSize());
@@ -701,7 +701,7 @@ void LinearSolverConstraintCorrection<DataTypes>::addConstraintDisplacement(doub
 {
     //std::cout<<" addConstraintDisplacement... begin ="<<begin<<"  end ="<<end<<std::endl ;
 
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
     const unsigned int derivDim = Deriv::size();
 
     last_disp = begin;
@@ -741,7 +741,7 @@ void LinearSolverConstraintCorrection<DataTypes>::setConstraintDForce(double *df
 {
 
 
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
     const unsigned int derivDim = Deriv::size();
 
 
@@ -808,7 +808,7 @@ void LinearSolverConstraintCorrection<DataTypes>::getBlockDiagonalCompliance(def
     const unsigned int numDOFReals = numDOFs*N;
 
     // Compute J
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
     const unsigned int totalNumConstraints = W->rowSize();
 
     J.resize(totalNumConstraints, numDOFReals);
