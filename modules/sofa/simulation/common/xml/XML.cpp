@@ -381,7 +381,7 @@ BaseElement* includeNode(TiXmlNode* root,const char *basefilename, ElementNameHe
         return NULL;
     }
     std::string fileContent;
-    if (!sofa::helper::system::DataRepository.getFileContent(filename, fileContent, nullptr))
+    if (!sofa::helper::system::DataRepository.getFileContent(filename, fileContent))
     {
         std::cerr << "ERROR: Failed to get the content of the included file " << filename << std::endl;
         return NULL;

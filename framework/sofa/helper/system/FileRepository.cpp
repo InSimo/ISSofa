@@ -112,11 +112,11 @@ FileRepository::FileRepository(const char* envVar, const char* relativePath)
     }
     //print();
 
-    m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary = false, std::ostream* errlog = &std::cerr)
+    m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog)
     {
         return this->getFileContentDefault(filename, filecontent, isBinary, errlog);
     };
-    m_findFileFn = [this](std::string& filename, const std::string basedir = "", std::ostream* errlog = &std::cerr)
+    m_findFileFn = [this](std::string& filename, const std::string basedir, std::ostream* errlog)
     {
         return this->findFileDefault(filename, basedir, errlog);
     };
