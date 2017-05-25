@@ -98,17 +98,18 @@ bool MeshObjLoader::load()
 
     // -- Loading file
     const char* filename = m_filename.getFullPath().c_str();
-    std::ifstream file(filename);
+    std::string fileContent;
 
-    if (!file.good())
+    if (!sofa::helper::system::DataRepository.getFileContent(filename, fileContent))
     {
         serr << "Error: MeshObjLoader: Cannot read file '" << m_filename << "'." << sendl;
         return false;
     }
+    
+    std::istringstream filestream(fileContent);
 
     // -- Reading file
-    fileRead = this->readOBJ (file,filename);
-    file.close();
+    fileRead = this->readOBJ (filestream,filename);
 
     return fileRead;
 }
@@ -140,7 +141,7 @@ void MeshObjLoader::addGroup (const PrimitiveGroup& g)
     quadsGroups.endEdit();
 }
 
-bool MeshObjLoader::readOBJ (std::ifstream &file, const char* filename)
+bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filename)
 {
     sout << "MeshObjLoader::readOBJ" << sendl;
 
@@ -187,7 +188,7 @@ bool MeshObjLoader::readOBJ (std::ifstream &file, const char* filename)
     int nbFaces[NBFACETYPE] = {0}; // number of edges, triangles, quads
     int groupF0[NBFACETYPE] = {0}; // first primitives indices in current group for edges, triangles, quads
     std::string line;
-    while( std::getline(file,line) )
+    while(std::getline(filestream,line) )
     {
         if (line.empty()) continue;
         std::istringstream values(line);

@@ -56,9 +56,11 @@ MeshVTKLoader::MeshVTKLoader() : MeshLoader()
 
 MeshVTKLoader::VTKFileType MeshVTKLoader::detectFileType(const char* filename)
 {
-    std::ifstream inVTKFile(filename, std::ifstream::in | std::ifstream::binary);
+    std::string fileContent;
+    bool loadStatus = sofa::helper::system::DataRepository.getFileContent(filename, fileContent, true /*handleBinaryFile*/);
+    std::istringstream inVTKFile(fileContent);
 
-    if( !inVTKFile.is_open() )
+    if( !loadStatus || inVTKFile.bad() )
         return MeshVTKLoader::NONE;
 
     std::string line;
@@ -357,11 +359,14 @@ bool MeshVTKLoader::setInputsData()
 //Legacy VTK Loader
 bool MeshVTKLoader::LegacyVTKReader::readFile(const char* filename)
 {
-    std::ifstream inVTKFile(filename, std::ifstream::in | std::ifstream::binary);
-    if( !inVTKFile.is_open() )
+    std::string fileContent;
+    if (!sofa::helper::system::DataRepository.getFileContent(filename, fileContent, true /*handleBinaryFile*/))
     {
-        return false;
+        serr << "Error loading the file : " << filename << sendl;
     }
+
+    std::istringstream inVTKFile(filename, std::ifstream::in | std::ifstream::binary);
+
     std::string line;
 
     // Part 1
@@ -369,7 +374,6 @@ bool MeshVTKLoader::LegacyVTKReader::readFile(const char* filename)
     if (std::string(line,0,23) != "# vtk DataFile Version ")
     {
         serr << "Error: Unrecognized header in file '" << filename << "'." << sendl;
-        inVTKFile.close();
         return false;
     }
     std::string version(line,23);
@@ -393,7 +397,6 @@ bool MeshVTKLoader::LegacyVTKReader::readFile(const char* filename)
     else
     {
         serr << "Error: Unrecognized format in file '" << filename << "'." << sendl;
-        inVTKFile.close();
         return false;
     }
 
@@ -409,7 +412,6 @@ bool MeshVTKLoader::LegacyVTKReader::readFile(const char* filename)
         && line != "DATASET POLYDATA\r" && line != "DATASET UNSTRUCTURED_GRID\r" )
     {
         serr << "Error: Unsupported data type in file '" << filename << "'." << sendl;
-        inVTKFile.close();
         return false;
     }
 
@@ -581,9 +583,12 @@ bool MeshVTKLoader::LegacyVTKReader::readFile(const char* filename)
 
 bool MeshVTKLoader::XMLVTKReader::readFile(const char* filename)
 {
-    TiXmlDocument vtkDoc(filename);
+    TiXmlDocument vtkDoc;
+    std::string fileContent;
+    bool loadStatus = sofa::helper::system::DataRepository.getFileContent(filename, fileContent);
+    vtkDoc.Parse(fileContent.c_str());
     //quick check
-    checkErrorMsg(vtkDoc.LoadFile(), "Unknown error while loading VTK Xml doc");
+    checkErrorMsg(loadStatus && !vtkDoc.Error(), "Unknown error while loading VTK Xml doc");
 
     TiXmlHandle hVTKDoc(&vtkDoc);
     TiXmlElement* pElem;

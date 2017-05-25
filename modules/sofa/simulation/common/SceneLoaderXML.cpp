@@ -74,7 +74,10 @@ sofa::simulation::Node::SPtr SceneLoaderXML::load(const char *filename)
 
     //::sofa::simulation::init();
     // 				std::cerr << "Loading simulation XML file "<<filename<<std::endl;
-    xml::BaseElement* xml = xml::loadFromFile ( filename );
+    //xml::BaseElement* xml = xml::loadFromFile ( filename );
+    std::string fileContent;
+    sofa::helper::system::DataRepository.getFileContent(filename, fileContent);
+    xml::BaseElement* xml = xml::loadFromMemory(filename, fileContent.c_str(), fileContent.size());
 
     root = processXML(xml, filename);
 

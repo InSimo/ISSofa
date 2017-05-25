@@ -375,9 +375,21 @@ BaseElement* includeNode(TiXmlNode* root,const char *basefilename, ElementNameHe
         return NULL;
     }
     /*  std::cout << "XML: Including external file " << filename << " from " << basefilename << std::endl;*/
-    sofa::helper::system::DataRepository.findFileFromFile(filename, basefilename);
+    if (!sofa::helper::system::DataRepository.findFileFromFile(filename, basefilename, nullptr))
+    {
+        std::cerr << "ERROR: Failed to find the included file " << filename << std::endl;
+        return NULL;
+    }
+    std::string fileContent;
+    if (!sofa::helper::system::DataRepository.getFileContent(filename, fileContent, nullptr))
+    {
+        std::cerr << "ERROR: Failed to get the content of the included file " << filename << std::endl;
+        return NULL;
+    }
+
     TiXmlDocument doc; // the resulting document tree
-    if (!doc.LoadFile(filename.c_str()))
+    doc.Parse(fileContent.c_str());
+    if (doc.Error())
     {
         std::cerr << "ERROR: Failed to parse " << filename << std::endl;
         return NULL;

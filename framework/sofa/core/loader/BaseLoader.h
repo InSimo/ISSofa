@@ -93,25 +93,6 @@ public:
             return false;
         }
 
-        std::ifstream file(filename);
-
-        // -- Check if file is readable:
-        if (!file.good())
-        {
-            serr << "Error: MeshLoader: Cannot read file '" << m_filename << "'." << sendl;
-            return false;
-        }
-
-        // -- Step 2.2: Check first line.
-        file >> cmd;
-        if (cmd.empty())
-        {
-            serr << "Error: MeshLoader: Cannot read first line in file '" << m_filename << "'." << sendl;
-            file.close();
-            return false;
-        }
-
-        file.close();
         return true;
     };
 

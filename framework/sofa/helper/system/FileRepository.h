@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <functional>
 
 namespace sofa
 {
@@ -86,11 +87,17 @@ public:
 
     const std::vector< std::string > &getPaths() const {return vpath;};
 
+    /// Find file using the stored set of paths, refering to the m_findFileFn method
+    /// @param basedir override current directory (optional)
+    /// @param filename requested file as input, resolved file path as output
+    /// @return true if the file was found in one of the directories, false otherwise
+    bool findFile(std::string& filename, const std::string& basedir = "", std::ostream* errlog = &std::cerr);
+
     /// Find file using the stored set of paths.
     /// @param basedir override current directory (optional)
     /// @param filename requested file as input, resolved file path as output
     /// @return true if the file was found in one of the directories, false otherwise
-    bool findFile(std::string& filename, const std::string& basedir="", std::ostream* errlog=&std::cerr);
+    bool findFileDefault(std::string& filename, const std::string& basedir = "", std::ostream* errlog = &std::cerr);
 
     /// Alias for findFile, but returning the resolved file as the result.
     /// Less informative for errors, but sometimes easier to use
@@ -132,10 +139,33 @@ public:
 
     void displayPaths() {std::cout<<(*this)<<std::endl;}
 
+
+    bool getFileContentDefault(const std::string& filename, std::string& filecontent, bool isBinaryFile = false, std::ostream* errlog = &std::cerr);
+
+    inline bool getFileContent(const std::string& filename, std::string& filecontent, bool isBinaryFile = false, std::ostream* errlog = &std::cerr)
+    {
+        return m_getFileContentFn(filename, filecontent, isBinaryFile, errlog);
+    }
+
+    inline void setFileContentFn(std::function < bool(const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog ) >  f)
+    {
+        m_getFileContentFn = f;
+    }
+
+    inline void setFindFileFn(std::function < bool(std::string&, const std::string&, std::ostream*) >  f)
+    {
+        m_findFileFn = f;
+    }
 protected:
 
     /// Vector of paths.
     std::vector<std::string> vpath;
+
+    /// method used to get files
+    std::function < bool(const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog) > m_getFileContentFn;
+
+    /// method used to get files
+    std::function < bool(std::string&, const std::string& , std::ostream*) > m_findFileFn;
 
     /// Search file in a given path.
     static bool findFileIn(std::string& filename, const std::string& path);

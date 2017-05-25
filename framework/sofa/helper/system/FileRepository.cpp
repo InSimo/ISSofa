@@ -40,6 +40,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <streambuf>
 
 namespace sofa
 {
@@ -109,6 +111,15 @@ FileRepository::FileRepository(const char* envVar, const char* relativePath)
         }
     }
     //print();
+
+    m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary = false, std::ostream* errlog = &std::cerr)
+    {
+        return this->getFileContentDefault(filename, filecontent, isBinary, errlog);
+    };
+    m_findFileFn = [this](std::string& filename, const std::string basedir = "", std::ostream* errlog = &std::cerr)
+    {
+        return this->findFileDefault(filename, basedir, errlog);
+    };
 }
 
 FileRepository::~FileRepository()
@@ -222,6 +233,11 @@ bool FileRepository::findFileIn(std::string& filename, const std::string& path)
 
 bool FileRepository::findFile(std::string& filename, const std::string& basedir, std::ostream* errlog)
 {
+    return m_findFileFn(filename, basedir, errlog);
+}
+
+bool FileRepository::findFileDefault(std::string& filename, const std::string& basedir, std::ostream* errlog)
+{
     if (filename.empty()) return false; // no filename
     std::string currentDir = SetDirectory::GetCurrentDir();
     if (!basedir.empty())
@@ -252,6 +268,16 @@ bool FileRepository::findFile(std::string& filename, const std::string& basedir,
 bool FileRepository::findFileFromFile(std::string& filename, const std::string& basefile, std::ostream* errlog)
 {
     return findFile(filename, SetDirectory::GetParentDir(basefile.c_str()), errlog);
+}
+
+bool FileRepository::getFileContentDefault(const std::string& filename, std::string& filecontent, bool isBinaryFile, std::ostream* errlog)
+{
+    filecontent.clear();
+    std::ifstream file(filename.c_str(), isBinaryFile ? std::ifstream::in | std::ifstream::binary : std::ifstream::in);
+    filecontent = std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+    bool result = file.good();
+    file.close();
+    return result;
 }
 
 void FileRepository::print()
