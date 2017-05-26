@@ -279,6 +279,7 @@ bool SofaPhysicsSimulation::Impl::load(const char* cfilename)
         sceneFileName = filename;
         std::cout << "INIT" << std::endl;
         m_Simulation->init(m_RootNode.get());
+        getAllOutputMeshes();
         updateOutputMeshes();
 
         if ( useGUI ) {
@@ -483,43 +484,73 @@ void SofaPhysicsSimulation::Impl::updateCurrentFPS()
 
 void SofaPhysicsSimulation::Impl::updateOutputMeshes()
 {
+    outputMeshes.clear();
+    outputMeshTetrahedrons.clear();
+    outputMeshes.reserve(allSofaOutputMeshes.size());
+    outputMeshTetrahedrons.reserve(allSofaOutputMeshTetrahedrons.size());
+
+    for (unsigned int i=0; i<allSofaOutputMeshes.size(); ++i)
+    {
+        SofaOutputMesh* sMesh = allSofaOutputMeshes[i];
+        if (sMesh->getContext()->isActive())
+        {
+            SofaPhysicsOutputMesh* oMesh = allOutputMeshes[i];
+            outputMeshes.emplace_back(oMesh);
+        }
+    }
+    for( unsigned int i = 0; i<allSofaOutputMeshTetrahedrons.size();++i )
+    {
+        SofaOutputMeshTetrahedron* sMeshTetra = allSofaOutputMeshTetrahedrons[i];
+        if (sMeshTetra->getContext()->isActive())
+        {
+            SofaPhysicsOutputMeshTetrahedron* oMeshTetra = allOutputMeshTetrahedrons[i];
+            outputMeshTetrahedrons.emplace_back(oMeshTetra);
+        }
+    }
+}
+
+void SofaPhysicsSimulation::Impl::getAllOutputMeshes()
+{
     sofa::simulation::Node* groot = getScene();
     if (!groot)
     {
-        sofaOutputMeshes.clear();
-        outputMeshes.clear();
-        outputMeshTetrahedrons.clear();
+        allSofaOutputMeshes.clear();
+        allSofaOutputMeshTetrahedrons.clear();
+        allOutputMeshes.clear();
+        allOutputMeshTetrahedrons.clear();
         return;
     }
-    sofaOutputMeshes.clear();
-    sofaOutputMeshTetrahedrons.clear();
+    allSofaOutputMeshes.clear();
+    allSofaOutputMeshTetrahedrons.clear();
 
-    groot->get<SofaOutputMesh>(&sofaOutputMeshes, BaseContext::SearchDown);
-    groot->get<SofaOutputMeshTetrahedron>(&sofaOutputMeshTetrahedrons, BaseContext::SearchDown);
-   
-    
-    outputMeshes.resize(sofaOutputMeshes.size());
-    outputMeshTetrahedrons.resize(sofaOutputMeshTetrahedrons.size());
-    
-    for (unsigned int i=0; i<sofaOutputMeshes.size(); ++i)
+    groot->get<SofaOutputMesh>(&allSofaOutputMeshes, BaseContext::SearchDown);
+    groot->get<SofaOutputMeshTetrahedron>(&allSofaOutputMeshTetrahedrons, BaseContext::SearchDown);
+
+
+    allOutputMeshes.resize(allSofaOutputMeshes.size());
+    allOutputMeshTetrahedrons.resize(allSofaOutputMeshTetrahedrons.size());
+
+    for (unsigned int i = 0; i<allSofaOutputMeshes.size(); ++i)
     {
-        SofaOutputMesh* sMesh = sofaOutputMeshes[i];
+        SofaOutputMesh* sMesh = allSofaOutputMeshes[i];
         SofaPhysicsOutputMesh*& oMesh = outputMeshMap[sMesh];
         if (oMesh == NULL)
         {
             oMesh = new SofaPhysicsOutputMesh;
             oMesh->impl->setObject(sMesh);
         }
-        outputMeshes[i] = oMesh;
+        allOutputMeshes[i] = oMesh;
     }
-    for( unsigned int i = 0; i<sofaOutputMeshTetrahedrons.size();++i ) {
-        SofaOutputMeshTetrahedron* sMeshTetra = sofaOutputMeshTetrahedrons.at(i);
+    for (unsigned int i = 0; i<allSofaOutputMeshTetrahedrons.size(); ++i)
+    {
+        SofaOutputMeshTetrahedron* sMeshTetra = allSofaOutputMeshTetrahedrons.at(i);
         SofaPhysicsOutputMeshTetrahedron*& oMeshTetra = outputMeshMapTetrahedron[sMeshTetra];
-        if( oMeshTetra == NULL ) {
+        if (oMeshTetra == NULL)
+        {
             oMeshTetra = new SofaPhysicsOutputMeshTetrahedron;
             oMeshTetra->impl->setObject(sMeshTetra);
         }
-        outputMeshTetrahedrons[i] = oMeshTetra;
+        allOutputMeshTetrahedrons[i] = oMeshTetra;
     }
 }
 

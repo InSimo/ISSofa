@@ -70,10 +70,13 @@ protected:
 
     std::map<SofaOutputMesh*, SofaPhysicsOutputMesh*> outputMeshMap;
     std::map<SofaOutputMeshTetrahedron*, SofaPhysicsOutputMeshTetrahedron*> outputMeshMapTetrahedron;
-    std::vector<SofaOutputMesh*> sofaOutputMeshes;
-    std::vector<SofaOutputMeshTetrahedron*> sofaOutputMeshTetrahedrons;
     std::vector<SofaPhysicsOutputMesh*> outputMeshes;
     std::vector<SofaPhysicsOutputMeshTetrahedron*> outputMeshTetrahedrons;
+
+    std::vector<SofaOutputMesh*> allSofaOutputMeshes;
+    std::vector<SofaOutputMeshTetrahedron*> allSofaOutputMeshTetrahedrons;
+    std::vector<SofaPhysicsOutputMesh*> allOutputMeshes;
+    std::vector<SofaPhysicsOutputMeshTetrahedron*> allOutputMeshTetrahedrons;
 
     std::vector<SofaDataMonitor*> sofaDataMonitors;
     std::vector<SofaPhysicsDataMonitor*> dataMonitors;
@@ -103,6 +106,7 @@ protected:
 
     void update();
     void updateOutputMeshes();
+    void getAllOutputMeshes();
     void updateCurrentFPS();
     void beginStep();
     void endStep();
