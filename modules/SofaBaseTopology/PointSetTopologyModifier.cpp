@@ -379,7 +379,7 @@ void PointSetTopologyModifier::propagateTopologicalChanges()
     if (m_container->beginChange() == m_container->endChange()) return; // nothing to do if no event is stored
 
     //TODO: temporary code to test topology engine pipeline.
-#ifndef NDEBUG
+#if 0
     sout << sendl << "******* START ENGINE PROCESSING *********" << sendl;
 #endif
     // Declare all engines to dirty:
@@ -396,7 +396,7 @@ void PointSetTopologyModifier::propagateTopologicalChanges()
     for ( it = m_container->m_topologyEngineList.begin(); it!=m_container->m_topologyEngineList.end(); ++it)
         (*it)->forceCleanDirty();
 
-#ifndef NDEBUG
+#if 0
     sout << sendl << "******* START ENGINE PROCESSING END *********" << sendl;
 #endif
     
@@ -442,7 +442,7 @@ void PointSetTopologyModifier::propagateTopologicalEngineChanges()
     // get directly the list of engines created at init: case of removing.... for the moment
     sofa::helper::list <sofa::core::topology::TopologyEngine *>::iterator it;
 
-#ifndef NDEBUG
+#if 0
     std::cout << "points is dirty" << std::endl;
     std::cout << "PointSetTopologyModifier - Number of outputs for point array: " << m_container->m_enginesList.size() << std::endl;
 #endif
@@ -452,7 +452,7 @@ void PointSetTopologyModifier::propagateTopologicalEngineChanges()
         sofa::core::topology::TopologyEngine* topoEngine = (*it);
         if (topoEngine->isDirty())
         {
-#ifndef NDEBUG
+#if 0
             std::cout << "PointSetTopologyModifier::performing: " << topoEngine->getName() << std::endl;
 #endif
             topoEngine->requestUpdate();
