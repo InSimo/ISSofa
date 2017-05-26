@@ -1923,17 +1923,17 @@ public:
                 this->colBSize(),
                 (Index *) &(this->getRowBegin()[0]),
                 (Index *) &(this->getColsIndex()[0]),
-                (double *) &(this->getColsValue()[0])
+                (Bloc *) &(this->getColsValue()[0])
                 );
     }
 
     static bool check_matrix(
-        Index nzmax,// nb values
-        Index m,// number of row
-        Index n,// number of columns
-        Index * a_p,// column pointers (size n+1) or col indices (size nzmax)
-        Index * a_i,// row indices, size nzmax
-        double * a_x// numerical values, size nzmax
+        Index nzmax,    // nb values
+        Index m,        // number of row
+        Index n,        // number of columns
+        Index * a_p,    // column pointers (size n+1) or col indices (size nzmax)
+        Index * a_i,    // row indices, size nzmax
+        Bloc * a_x      // numerical values, size nzmax
     )
     {
         // check ap, size m beecause ther is at least the diagonal value wich is different of 0
@@ -1984,9 +1984,9 @@ public:
 
         for (Index i=0; i<nzmax; i++)
         {
-            if (a_x[i]==0)
+            if (traits::empty(a_x[i]))
             {
-                std::cerr << "CompressedRowSparseMatrix: Warning , matrix contains 0 , index " << i << std::endl;
+                std::cerr << "CompressedRowSparseMatrix: Warning, matrix contains empty block at index " << i << std::endl;
                 return false;
             }
         }
