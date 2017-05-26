@@ -41,6 +41,7 @@ namespace constraintset
 
 GenericConstraintCorrection::GenericConstraintCorrection()
 : solverName( initData(&solverName, "solverName", "name of the constraint solver") )
+, d_complianceFactor(initData(&d_complianceFactor, 1.0, "complianceFactor", "Factor applied to the position factor and velocity factor used to calculate compliance matrix"))
 {
     odesolver = NULL;
 }
@@ -124,6 +125,7 @@ void GenericConstraintCorrection::rebuildSystem(double massFactor, double forceF
 void GenericConstraintCorrection::addComplianceInConstraintSpace(const core::ConstraintParams *cparams, defaulttype::BaseMatrix* W)
 {
     if (!odesolver) return;
+    const double complianceFactor = d_complianceFactor.getValue();
 
     // use the OdeSolver to get the position integration factor
     double factor = 1.0;
@@ -144,6 +146,7 @@ void GenericConstraintCorrection::addComplianceInConstraintSpace(const core::Con
             break;
     }
 
+    factor *= complianceFactor;
     // use the Linear solver to compute J*inv(M)*Jt, where M is the mechanical linear system matrix
     for (unsigned i = 0; i < linearsolvers.size(); i++)
     {
@@ -154,9 +157,10 @@ void GenericConstraintCorrection::addComplianceInConstraintSpace(const core::Con
 void GenericConstraintCorrection::computeAndApplyMotionCorrection(const core::ConstraintParams * /*cparams*/, core::MultiVecCoordId /*xId*/, core::MultiVecDerivId /*vId*/, core::MultiVecDerivId /*fId*/, const defaulttype::BaseVector *lambda)
 {
     if (!odesolver) return;
+    const double complianceFactor = d_complianceFactor.getValue();
 
-    const double positionFactor = odesolver->getPositionIntegrationFactor();
-    const double velocityFactor = odesolver->getVelocityIntegrationFactor();
+    const double positionFactor = odesolver->getPositionIntegrationFactor() * complianceFactor;
+    const double velocityFactor = odesolver->getVelocityIntegrationFactor() * complianceFactor;
 
     for (unsigned i = 0; i < linearsolvers.size(); i++)
     {
@@ -177,7 +181,8 @@ void GenericConstraintCorrection::computeAndApplyPositionCorrection(const core::
 {
     if (!odesolver) return;
 
-    const double positionFactor = odesolver->getPositionIntegrationFactor();
+    const double complianceFactor = d_complianceFactor.getValue();
+    const double positionFactor = odesolver->getPositionIntegrationFactor() * complianceFactor;
 
     for (unsigned i = 0; i < linearsolvers.size(); i++)
     {
@@ -189,7 +194,8 @@ void GenericConstraintCorrection::computeAndApplyVelocityCorrection(const core::
 {
     if (!odesolver) return;
 
-    const double velocityFactor = odesolver->getVelocityIntegrationFactor();
+    const double complianceFactor = d_complianceFactor.getValue();
+    const double velocityFactor = odesolver->getVelocityIntegrationFactor() * complianceFactor;
 
     for (unsigned i = 0; i < linearsolvers.size(); i++)
     {
@@ -201,8 +207,9 @@ void GenericConstraintCorrection::applyContactForce(const defaulttype::BaseVecto
 {
     if (!odesolver) return;
 
-    const double positionFactor = odesolver->getPositionIntegrationFactor();
-    const double velocityFactor = odesolver->getVelocityIntegrationFactor();
+    const double complianceFactor = d_complianceFactor.getValue();
+    const double positionFactor = odesolver->getPositionIntegrationFactor() * complianceFactor;
+    const double velocityFactor = odesolver->getVelocityIntegrationFactor() * complianceFactor;
 
     for (unsigned i = 0; i < linearsolvers.size(); i++)
     {
@@ -213,9 +220,10 @@ void GenericConstraintCorrection::applyContactForce(const defaulttype::BaseVecto
 void GenericConstraintCorrection::getComplianceMatrix(defaulttype::BaseMatrix* Minv) const
 {
     if (!odesolver) return;
+    const double complianceFactor = d_complianceFactor.getValue();
 
     // use the OdeSolver to get the position integration factor
-    double factor = odesolver->getPositionIntegrationFactor();
+    double factor = odesolver->getPositionIntegrationFactor() * complianceFactor;
 
     // use the Linear solver to compute J*inv(M)*Jt, where M is the mechanical linear system matrix
     for (unsigned i = 0; i < linearsolvers.size(); i++) 
