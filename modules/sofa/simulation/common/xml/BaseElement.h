@@ -58,6 +58,9 @@ private:
     //std::string name;
     //std::string type;
 
+    std::string sourcefile;
+    std::pair<int,int> sourcepos; // 1-based <row,column>
+
     std::string basefile;
     BaseElement* parent;
     typedef std::list<BaseElement*> ChildList;
@@ -103,6 +106,10 @@ public:
     std::string getBaseFile();
 
     virtual void setBaseFile(const std::string& newBaseFile);
+
+    virtual void setSourceFile(const std::string& newSourceFile, int row, int column);
+    const std::string& getSourceFile() const;
+    const std::pair<int,int>& getSourcePos() const;
 
     /// Return true if this element was the root of the file
     bool isFileRoot();

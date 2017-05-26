@@ -86,6 +86,8 @@ bool ObjectElement::initNode()
         getParent()->logWarning(std::string("Object " + getName() + "(" + getType() + ") creation Failed" ));
         return false;
     }
+    if (!getSourceFile().empty())
+        obj->setSourceFile(getSourceFile(), getSourcePos().first, getSourcePos().second);
     setObject(obj);
     // display any unused attributes
     //std::string unused;

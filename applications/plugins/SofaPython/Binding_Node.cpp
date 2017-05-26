@@ -23,6 +23,12 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include "PythonCommon.h"
+#if defined(__APPLE__) && defined(__MACH__)
+#    include <Python/frameobject.h>
+#else
+#    include <frameobject.h>
+#endif
+
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/common/Simulation.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
@@ -175,6 +181,26 @@ extern "C" PyObject * Node_createChild(PyObject *self, PyObject * args)
     if (!PyArg_ParseTuple(args, "s",&nodeName))
         Py_RETURN_NONE;
     Node* child = obj->createChild(nodeName).get();
+
+    // store the source location of this object
+    //PyFrameObject* frame = PyEval_GetFrame();
+    PyThreadState *tstate = PyThreadState_GET();
+    if (NULL != tstate && NULL != tstate->frame)
+    {
+        PyFrameObject *frame = tstate->frame;
+        // int line = frame->f_lineno;
+        /*
+         frame->f_lineno will not always return the correct line number
+         you need to call PyCode_Addr2Line().
+        */
+        int line = PyCode_Addr2Line(frame->f_code, frame->f_lasti);
+        const char *filename = PyString_AsString(frame->f_code->co_filename);
+        //const char *funcname = PyString_AsString(frame->f_code->co_name);
+        //printf("    %s(%d): %s\n", filename, line, funcname);
+        //frame = frame->f_back;
+        obj->setSourceFile(filename, line, 0);
+    }
+
     ScriptEnvironment::nodeCreatedByScript(child);
     return SP_BUILD_PYSPTR(child);
 }

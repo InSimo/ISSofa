@@ -280,6 +280,19 @@ public:
 
     /// @}
 
+    /// @name SourceFile
+    /// If this component was loaded from a file, indicate from where
+    /// (this information is internal and is only meant to help developers,
+    /// do not rely on its validity as it will not be provided in all cases).
+    /// @{
+
+    void setSourceFile(const std::string& name, int line, int column);
+
+    const std::string& getSourceFileName() const;
+    std::pair<int,int> getSourceFilePos() const;
+
+    /// @}
+
 protected:
     /// Helper method used by initData()
     void initData0( BaseData* field, BaseData::BaseInitData& res, const char* name, const char* help, bool isDisplayed=true, bool isReadOnly=false );
@@ -305,6 +318,12 @@ protected:
     VecLink m_vecLink;
     /// name -> Link multi-map (includes names and aliases)
     MapLink m_aliasLink;
+
+    /// If this component was loaded from a file, indicate from where
+    /// (this information is internal and is only meant to help developers,
+    /// do not rely on its validity as it will not be provided in all cases).
+    std::string m_sourceFileName;
+    std::pair<int,int> m_sourceFilePos;
 
 public:
     /// Name of the object.

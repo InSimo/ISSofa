@@ -75,6 +75,22 @@ void BaseElement::setBaseFile(const std::string& newBaseFile)
     basefile = newBaseFile;
 }
 
+void BaseElement::setSourceFile(const std::string& newSourceFile, int row, int column)
+{
+    sourcefile = newSourceFile;
+    sourcepos = std::make_pair(row, column);
+}
+
+const std::string& BaseElement::getSourceFile() const
+{
+    return sourcefile;
+}
+
+const std::pair<int,int>& BaseElement::getSourcePos() const
+{
+    return sourcepos;
+}
+
 /// Return true if this element was the root of the file
 bool BaseElement::isFileRoot()
 {

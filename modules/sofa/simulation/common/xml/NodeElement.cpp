@@ -61,6 +61,8 @@ bool NodeElement::initNode()
     core::objectmodel::BaseNode::SPtr obj = Factory::CreateObject(this->getType(), this);
     if (obj != NULL)
     {
+        if (!getSourceFile().empty())
+            obj->setSourceFile(getSourceFile(), getSourcePos().first, getSourcePos().second);
         setObject(obj);
         if (getTypedObject()!=NULL && getParentElement()!=NULL && core::objectmodel::BaseNode::DynamicCast(getParentElement()->getObject())!=NULL)
         {

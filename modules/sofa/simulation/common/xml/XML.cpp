@@ -200,6 +200,8 @@ BaseElement* createNode(TiXmlNode* root, const char *basefilename,ElementNameHel
     if (isRoot)
         node->setBaseFile( basefilename );
 
+    node->setSourceFile( basefilename, root->Row(), root->Column() );
+
     //std::cout << "Node "<<root->name<<" name "<<name<<" type "<<type<<" created.\n";
 
     // List attributes
@@ -548,6 +550,8 @@ BaseElement* createNode(xmlNodePtr root, const char *basefilename, bool isRoot =
 
     if (isRoot)
         node->setBaseFile( basefilename );
+
+    node->setSourceFile( basefilename, xmlGetLineNo(root), 0 );
 
     //std::cout << "Node "<<root->name<<" name "<<name<<" type "<<type<<" created.\n";
 

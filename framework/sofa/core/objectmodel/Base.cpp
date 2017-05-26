@@ -60,6 +60,8 @@ BOOL winHasConsoleScreenBufferInfo = GetConsoleScreenBufferInfo(winConsole, &win
 
 Base::Base()
     : ref_counter(0)
+    , m_sourceFileName()
+    , m_sourceFilePos(0,0)
     , name(initData(&name,unnamed_label,"name","object name"))
     , f_printLog(initData(&f_printLog, false, "printLog", "if true, print logs at run-time"))
     , f_tags(initData( &f_tags, "tags", "list of the subsets the objet belongs to"))
@@ -714,6 +716,22 @@ void  Base::writeDatas (std::ostream& out, const std::string& separator)
                 out << separator << link->getName() << "=\""<< xmlencode(val) << "\" ";
         }
     }
+}
+
+void Base::setSourceFile(const std::string& name, int line, int column)
+{
+    m_sourceFileName = name;
+    m_sourceFilePos = std::make_pair(line,column);
+}
+
+const std::string& Base::getSourceFileName() const
+{
+    return m_sourceFileName;
+}
+
+std::pair<int,int> Base::getSourceFilePos() const
+{
+    return m_sourceFilePos;
 }
 
 } // namespace objectmodel
