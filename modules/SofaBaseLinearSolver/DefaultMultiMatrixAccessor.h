@@ -109,6 +109,12 @@ public:
     //then it demande to create a new matrix
     static defaulttype::BaseMatrix* createMatrix(const sofa::core::behavior::BaseMechanicalState* mstate1, const sofa::core::behavior::BaseMechanicalState* mstate2);
 
+    /// Getter for the map storing the offset for each non-mapped state
+    const std::map< const sofa::core::behavior::BaseMechanicalState*, int >& getRealStateOffsets() const
+    {
+        return realStateOffsets;
+    }
+
 protected:
 
     defaulttype::BaseMatrix* globalMatrix;
