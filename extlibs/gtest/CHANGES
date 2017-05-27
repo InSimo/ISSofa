@@ -1,3 +1,5 @@
+=== This is from master on 2017-05-26 (42bc671f47b122fad36db5eccbc06868afdf7862) ===
+
 Changes for 1.7.0:
 
 * New feature: death tests are supported on OpenBSD and in iOS
