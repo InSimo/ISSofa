@@ -148,6 +148,7 @@
 
 namespace testing {
 
+int seedValue=(unsigned int)time(NULL);
 using internal::CountIf;
 using internal::ForEach;
 using internal::GetElementOr;
@@ -5341,6 +5342,16 @@ void ParseGoogleTestFlagsOnly(int* argc, wchar_t** argv) {
 // wchar_t.
 template <typename CharType>
 void InitGoogleTestImpl(int* argc, CharType** argv) {
+  if(*argc>1)
+  {
+    // Test if a seed argument is given it should be given as: seed 785
+    if(StreamableToString(argv[*argc-2]) == std::string("seed"))
+    {
+      seedValue = atoi(StreamableToString(argv[*argc-1]).c_str());
+      std::cout << "Seed value given as command line argument = " << seedValue << std::endl;
+    }
+  }
+
   // We don't want to run the initialization code twice.
   if (GTestIsInitialized()) return;
 
@@ -5353,7 +5364,10 @@ void InitGoogleTestImpl(int* argc, CharType** argv) {
 
   ParseGoogleTestFlagsOnly(argc, argv);
   GetUnitTestImpl()->PostFlagParsingInit();
+
+  std::cout << "Seed Value used for the tests = " << seedValue << std::endl;
 }
+
 
 }  // namespace internal
 
