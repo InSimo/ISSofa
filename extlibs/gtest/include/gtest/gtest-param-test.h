@@ -1418,7 +1418,15 @@ internal::CartesianProductHolder10<Generator1, Generator2, Generator3,
 // Note: test names must be non-empty, unique, and may only contain ASCII
 // alphanumeric characters or underscore.
 
-# define INSTANTIATE_TEST_CASE_P(prefix, test_case_name, generator, ...) \
+// Note: a wrapper is added around to macro to never have an empty __VA_ARG__
+// to fix the following gcc warning with -Wpedantic:
+//     warning: ISO C++11 requires at least one argument for the "..." in a
+//     variadic macro
+
+# define INSTANTIATE_TEST_CASE_P(prefix, test_case_name, ...)       \
+  INSTANTIATE_TEST_CASE_P2(prefix, test_case_name, __VA_ARGS__, 0)
+
+# define INSTANTIATE_TEST_CASE_P2(prefix, test_case_name, generator, ...) \
   ::testing::internal::ParamGenerator<test_case_name::ParamType> \
       gtest_##prefix##test_case_name##_EvalGenerator_() { return generator; } \
   ::std::string gtest_##prefix##test_case_name##_EvalGenerateName_( \

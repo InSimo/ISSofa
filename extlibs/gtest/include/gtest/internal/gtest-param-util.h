@@ -386,7 +386,7 @@ std::string DefaultParamName(const TestParamInfo<ParamType>& info) {
 // INSTANTIATE_TEST_CASE_P macro choose between the default parameterized
 // test name generator and user param name generator.
 template <class ParamType, class ParamNameGenFunctor>
-ParamNameGenFunctor GetParamNameGen(ParamNameGenFunctor func) {
+ParamNameGenFunctor GetParamNameGen(ParamNameGenFunctor func, int) {
   return func;
 }
 
@@ -396,7 +396,7 @@ struct ParamNameGenFunc {
 };
 
 template <class ParamType>
-typename ParamNameGenFunc<ParamType>::Type *GetParamNameGen() {
+typename ParamNameGenFunc<ParamType>::Type *GetParamNameGen(int) {
   return DefaultParamName;
 }
 
