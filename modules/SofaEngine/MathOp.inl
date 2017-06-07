@@ -230,7 +230,7 @@ struct MathOpNAnd
         *out = in[0];
         for (unsigned int i=1;i<in.size();++i)
             *out &= in[i];
-        *out = !out;
+        *out = !(*out);
     }
 };
 
@@ -243,7 +243,7 @@ struct MathOpNOr
         *out = in[0];
         for (unsigned int i=1;i<in.size();++i)
             *out |= in[i];
-        *out = !out;
+        *out = !(*out);
     }
 };
 
@@ -256,7 +256,7 @@ struct MathOpXNor
         *out = in[0];
         for (unsigned int i=1;i<in.size();++i)
             *out ^= in[i];
-        *out = !out;
+        *out = !(*out);
     }
 };
 
