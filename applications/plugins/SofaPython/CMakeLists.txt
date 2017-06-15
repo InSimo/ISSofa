@@ -41,10 +41,9 @@ if(UNIX)
   list(APPEND PYTHON_LIBRARIES dl)
 endif()
 
-find_package(SofaGui REQUIRED)
 find_package(SofaGeneral REQUIRED)
 find_package(SofaMisc REQUIRED)
-set(SOFAPYTHON_DEPENDENCY_INCLUDE_DIR ${SofaGui_INCLUDE_DIRS} ${SofaGeneral_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} )
+set(SOFAPYTHON_DEPENDENCY_INCLUDE_DIR ${SofaGeneral_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} )
 
 set(SOFA_HAVE_PYTHON 1)
 
@@ -180,7 +179,7 @@ if( UNITY_BUILD_${PROJECT_NAME} )
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} )
-target_link_libraries( ${PROJECT_NAME} PUBLIC SofaSimulationCommon SofaUserInteraction SofaGuiCommon SofaComponentMisc SofaComponentGeneral ${PYTHON_LIBRARIES})
+target_link_libraries( ${PROJECT_NAME} PUBLIC SofaSimulationCommon SofaUserInteraction SofaComponentMisc SofaComponentGeneral SofaComponentBase SofaComponentCommon ${PYTHON_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>") 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPYTHON_SOURCE_INCLUDE_DIR}>") 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPYTHON_DEPENDENCY_INCLUDE_DIR}>")

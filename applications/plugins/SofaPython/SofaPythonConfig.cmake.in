@@ -9,7 +9,8 @@ set_and_check(SOFAPYTHON_INCLUDE_DIR  "@PACKAGE_SOFAPYTHON_INCLUDE_DIR@")
 
 check_required_components(SofaPython)
 
-find_package(SofaGui REQUIRED)
+find_package(SofaGeneral REQUIRED)
+find_package(SofaMisc REQUIRED)
 
 set(SOFA_HAVE_PYTHON "@SOFA_HAVE_PYTHON@")
 
@@ -18,4 +19,4 @@ if( NOT TARGET SofaPython )
 endif() 
 
 set(SofaPython_LIBRARIES SofaPython )
-set(SofaPython_INCLUDE_DIRS ${SOFAPYTHON_INCLUDE_DIR} ${SofaGui_INCLUDE_DIRS} )
+set(SofaPython_INCLUDE_DIRS ${SOFAPYTHON_INCLUDE_DIR})

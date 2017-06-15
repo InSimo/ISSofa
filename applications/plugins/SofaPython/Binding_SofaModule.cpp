@@ -32,10 +32,7 @@
 
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/ObjectFactory.h>
-#include <sofa/gui/BaseGUI.h>
-#include <sofa/gui/BaseViewer.h>
-#include <sofa/gui/GUIManager.h>
-
+#include <sofa/simulation/common/GUIFactory.h>
 
 
 using namespace sofa::core;
@@ -156,16 +153,14 @@ extern "C" PyObject * Sofa_getChildNode(PyObject * /*self*/, PyObject * /*args*/
     Py_RETURN_NONE;
 }
 
-using namespace sofa::gui;
-
 // send a text message to the GUI
 extern "C" PyObject * Sofa_sendGUIMessage(PyObject * /*self*/, PyObject * args)
 {
     char *msgType;
     char *msgValue;
     if (!PyArg_ParseTuple(args, "ss",&msgType,&msgValue))
-        Py_RETURN_NONE;
-    BaseGUI *gui = GUIManager::getGUI();
+    Py_RETURN_NONE;
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR( "sendGUIMessage("<<msgType<<","<<msgValue<<"): no GUI!" )
@@ -182,11 +177,11 @@ extern "C" PyObject * Sofa_setGUIMaxFPS(PyObject* /*self*/, PyObject* args)
     double maxFps = -1.0;
     if (!PyArg_ParseTuple(args, "d", &maxFps))
     {
-        PyErr_BadArgument();
+    PyErr_BadArgument();
         return 0;
     }
 
-    BaseGUI *gui = GUIManager::getGUI();
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR("setGUIMaxFPS(" << maxFps << "): no GUI!")
@@ -204,10 +199,10 @@ extern "C" PyObject * Sofa_saveScreenshot(PyObject * /*self*/, PyObject * args)
     char *filename;
     if (!PyArg_ParseTuple(args, "s",&filename))
     {
-        PyErr_BadArgument();
+    PyErr_BadArgument();
         return 0;
     }
-    BaseGUI *gui = GUIManager::getGUI();
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR( "saveScreenshot("<<filename<<"): no GUI!" )
@@ -226,10 +221,10 @@ extern "C" PyObject * Sofa_setViewerResolution(PyObject * /*self*/, PyObject * a
 	int width, height;
     if (!PyArg_ParseTuple(args, "ii",&width,&height))
     {
-        PyErr_BadArgument();
+    PyErr_BadArgument();
         return 0;
     }
-    BaseGUI *gui = GUIManager::getGUI();
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR( "setViewerResolution("<<width<<","<<height<<"): no GUI!" )
@@ -249,7 +244,7 @@ extern "C" PyObject * Sofa_setViewerBackgroundColor(PyObject * /*self*/, PyObjec
 	sofa::defaulttype::Vector3 color;
     if (!PyArg_ParseTuple(args, "fff", &r, &g, &b))
     {
-        PyErr_BadArgument();
+    PyErr_BadArgument();
         return 0;
     }
 	color[0] = r; color[1] = g; color[2] = b;
@@ -260,7 +255,7 @@ extern "C" PyObject * Sofa_setViewerBackgroundColor(PyObject * /*self*/, PyObjec
 		}
 	}
 
-    BaseGUI *gui = GUIManager::getGUI();
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR( "setViewerBackgroundColor("<<r<<","<<g<<","<<b<<"): no GUI!" )
@@ -280,24 +275,17 @@ extern "C" PyObject * Sofa_setViewerCamera(PyObject * /*self*/, PyObject * args)
 
     if (!PyArg_ParseTuple(args, "fffffff", &px, &py, &pz, &qx, &qy, &qz, &qw))
     {
-        PyErr_BadArgument();
+    PyErr_BadArgument();
         return 0;
     }
 
-
-    BaseGUI *gui = GUIManager::getGUI();
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR( "setViewerCamera: no GUI!" )
         return Py_BuildValue("i",-1);
     }
-    BaseViewer * viewer = gui->getViewer();
-    if (!viewer)
-    {
-        SP_MESSAGE_ERROR( "setViewerCamera: no Viewer!" )
-        return Py_BuildValue("i",-1);
-    }
-    viewer->setView(sofa::defaulttype::Vector3(px,py,pz),sofa::defaulttype::Quat(qx,qy,qz,qw));
+    gui->setViewerView(sofa::defaulttype::Vector3(px, py, pz), sofa::defaulttype::Quat(qx, qy, qz, qw));
 
     return Py_BuildValue("i",0);
 }
@@ -309,19 +297,13 @@ extern "C" PyObject * Sofa_getViewerCamera(PyObject * /*self*/, PyObject *)
     sofa::defaulttype::Quat orient;
 
 
-    BaseGUI *gui = GUIManager::getGUI();
+    auto* gui = sofa::simulation::gui::getCurrentGUI();
     if (!gui)
     {
         SP_MESSAGE_ERROR( "getViewerCamera: no GUI!" )
         return Py_BuildValue("i",-1);
     }
-    BaseViewer * viewer = gui->getViewer();
-    if (!viewer)
-    {
-        SP_MESSAGE_ERROR( "getViewerCamera: no Viewer! ")
-        return Py_BuildValue("i",-1);
-    }
-    viewer->getView(pos,orient);
+    gui->getViewerView(pos, orient);
 
     return Py_BuildValue("fffffff",pos.x(),pos.y(),pos.z(),orient[0],orient[1],orient[2],orient[3]);
 }
