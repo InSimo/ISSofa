@@ -89,8 +89,8 @@ typename DataTypes::Real QuadSetGeometryAlgorithms< DataTypes >::computeQuadArea
 {
     const Quad &t = this->m_topology->getQuad(i);
     const typename DataTypes::VecCoord& p =(this->object->read(core::ConstVecCoordId::position())->getValue());
-    Real area = (Real)((areaProduct(p[t[1]]-p[t[0]],p[t[2]]-p[t[0]])
-            + areaProduct(p[t[3]]-p[t[2]],p[t[0]]-p[t[2]])) * (Real) 0.5);
+    Real area = (Real)((areaProduct(DataTypes::getCPos(p[t[1]])-DataTypes::getCPos(p[t[0]]),DataTypes::getCPos(p[t[2]])-DataTypes::getCPos(p[t[0]]))
+            + areaProduct(DataTypes::getCPos(p[t[3]])-DataTypes::getCPos(p[t[2]]),DataTypes::getCPos(p[t[0]])-DataTypes::getCPos(p[t[2]]))) * (Real) 0.5);
     return area;
 }
 
@@ -99,8 +99,8 @@ typename DataTypes::Real QuadSetGeometryAlgorithms< DataTypes >::computeRestQuad
 {
     const Quad &t = this->m_topology->getQuad(i);
     const typename DataTypes::VecCoord& p = (this->object->read(core::ConstVecCoordId::restPosition())->getValue());
-    Real area = (Real)((areaProduct(p[t[1]]-p[t[0]],p[t[2]]-p[t[0]])
-            + areaProduct(p[t[3]]-p[t[2]],p[t[0]]-p[t[2]])) * (Real) 0.5);
+    Real area = (Real)((areaProduct(DataTypes::getCPos(p[t[1]])-DataTypes::getCPos(p[t[0]]),DataTypes::getCPos(p[t[2]])-DataTypes::getCPos(p[t[0]]))
+            + areaProduct(DataTypes::getCPos(p[t[3]])-DataTypes::getCPos(p[t[2]]),DataTypes::getCPos(p[t[0]])-DataTypes::getCPos(p[t[2]]))) * (Real) 0.5);
     return area;
 }
 
@@ -115,8 +115,8 @@ void QuadSetGeometryAlgorithms<DataTypes>::computeQuadArea( BasicArrayInterface<
     {
         // ta.size()
         const Quad &t = this->m_topology->getQuad(i);  //ta[i];
-        ai[i] = (Real)((areaProduct(p[t[1]]-p[t[0]],p[t[2]]-p[t[0]])
-                + areaProduct(p[t[3]]-p[t[2]],p[t[0]]-p[t[2]])) * (Real) 0.5);
+        ai[i] = (Real)((areaProduct(DataTypes::getCPos(p[t[1]])-DataTypes::getCPos(p[t[0]]),DataTypes::getCPos(p[t[2]])-DataTypes::getCPos(p[t[0]]))
+                + areaProduct(DataTypes::getCPos(p[t[3]])-DataTypes::getCPos(p[t[2]]),DataTypes::getCPos(p[t[0]])-DataTypes::getCPos(p[t[2]]))) * (Real) 0.5);
     }
 }
 
