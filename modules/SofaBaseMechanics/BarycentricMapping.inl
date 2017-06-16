@@ -295,10 +295,10 @@ int BarycentricMapperMeshTopology<In,Out>::createPointInLine ( const typename Ou
 {
     SReal baryCoords[1];
     const sofa::core::topology::BaseMeshTopology::Line& elem = this->fromTopology->getLine ( lineIndex );
-    const typename In::Coord p0 = ( *points ) [elem[0]];
-    const typename In::Coord pA = ( *points ) [elem[1]] - p0;
-    typename In::Coord pos = Out::getCPos(p) - p0;
-    baryCoords[0] = ( ( pos*pA ) /pA.norm2() );
+    const typename In::CPos p0 = In::getCPos( ( *points ) [elem[0]] );
+    const typename In::CPos pA = In::getCPos( ( *points ) [elem[1]] ) - p0;
+    typename In::CPos pos = Out::getCPos(p) - p0;
+    baryCoords[0] = ( pos*pA ) / pA.norm2() ;
     return this->addPointInLine ( lineIndex, baryCoords );
 }
 
@@ -308,14 +308,14 @@ int BarycentricMapperMeshTopology<In,Out>::createPointInTriangle ( const typenam
     SReal baryCoords[2];
     const sofa::core::topology::BaseMeshTopology::Triangle& elem = this->fromTopology->getTriangle ( triangleIndex );
 
-    const typename In::Coord & p1 = ( *points ) [elem[0]];
-    const typename In::Coord & p2 = ( *points ) [elem[1]];
-    const typename In::Coord & p3 = ( *points ) [elem[2]];
-    const typename In::Coord & to_be_projected = Out::getCPos(p);
+    const typename In::CPos & p1 = In::getCPos( ( *points ) [elem[0]] );
+    const typename In::CPos & p2 = In::getCPos( ( *points ) [elem[1]] );
+    const typename In::CPos & p3 = In::getCPos( ( *points ) [elem[2]] );
+    const typename In::CPos &  to_be_projected = Out::getCPos(p) ;
 
-    const typename In::Coord AB = p2-p1;
-    const typename In::Coord AC = p3-p1;
-    const typename In::Coord AQ = to_be_projected -p1;
+    const typename In::CPos AB = p2-p1;
+    const typename In::CPos AC = p3-p1;
+    const typename In::CPos AQ = to_be_projected -p1;
     sofa::defaulttype::Mat<2,2,typename In::Real> A;
     sofa::defaulttype::Vec<2,typename In::Real> b;
     A[0][0] = AB*AB;
@@ -403,18 +403,18 @@ int BarycentricMapperMeshTopology<In,Out>::createPointInQuad ( const typename Ou
 {
     SReal baryCoords[2];
     const sofa::core::topology::BaseMeshTopology::Quad& elem = this->fromTopology->getQuad ( quadIndex );
-    const typename In::Coord p0 = ( *points ) [elem[0]];
-    const typename In::Coord pA = ( *points ) [elem[1]] - p0;
-    const typename In::Coord pB = ( *points ) [elem[3]] - p0;
-    typename In::Coord pos = Out::getCPos(p) - p0;
+    const typename In::CPos p0 = In::getCPos( ( *points ) [elem[0]] );
+    const typename In::CPos pA = In::getCPos( ( *points ) [elem[1]] ) - p0;
+    const typename In::CPos pB = In::getCPos( ( *points ) [elem[3]] ) - p0;
+    typename In::CPos pos = Out::getCPos(p) - p0;
     sofa::defaulttype::Mat<3,3,typename In::Real> m,mt,base;
     m[0] = pA;
     m[1] = pB;
     m[2] = cross ( pA, pB );
     mt.transpose ( m );
     base.invert ( mt );
-    const typename In::Coord base0 = base[0];
-    const typename In::Coord base1 = base[1];
+    typename In::CPos base0 = base[0];
+    typename In::CPos base1 = base[1];
     baryCoords[0] = base0 * pos;
     baryCoords[1] = base1 * pos;
     return this->addPointInQuad ( quadIndex, baryCoords );
@@ -453,9 +453,10 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
             unsigned int e;
             for ( e=0; e<edges.size(); e++ )
             {
-                lengthEdges.push_back ( ( in[edges[e][1]]-in[edges[e][0]] ).norm() );
+                lengthEdges.push_back ( ( In::getCPos( in[edges[e][1]] - in[edges[e][0]] ) ).norm() );
 
-                sofa::defaulttype::Vector3 V12 = ( in[edges[e][1]]-in[edges[e][0]] ); V12.normalize();
+                sofa::defaulttype::Vector3 V12 = ( In::getCPos( in[edges[e][1]] - in[edges[e][0]] ) );
+                V12.normalize();
                 unitaryVectors.push_back ( V12 );
             }
 
@@ -467,8 +468,12 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
                     SReal lengthEdge = lengthEdges[e];
                     sofa::defaulttype::Vector3 V12 =unitaryVectors[e];
 
-                    coef = ( V12 ) * sofa::defaulttype::Vector3 ( Out::getCPos(out[i])-in[edges[e][0]] ) /lengthEdge;
-                    if ( coef >= 0 && coef <= 1 ) {addPointInLine ( e,&coef );  break; }
+                    coef = ( V12 ) * sofa::defaulttype::Vector3 ( Out::getCPos(out[i])-In::getCPos(in[edges[e][0]]) ) /lengthEdge;
+                    if ( coef >= 0 && coef <= 1 )
+                    {
+                        addPointInLine ( e,&coef );
+                        break;
+                    }
 
                 }
                 //If no good coefficient has been found, we add to the last element
@@ -486,22 +491,22 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
             for ( unsigned int t = 0; t < triangles.size(); t++ )
             {
                 sofa::defaulttype::Mat3x3d m,mt;
-                m[0] = in[triangles[t][1]]-in[triangles[t][0]];
-                m[1] = in[triangles[t][2]]-in[triangles[t][0]];
+                m[0] = In::getCPos(in[triangles[t][1]] - in[triangles[t][0]]);
+                m[1] = In::getCPos(in[triangles[t][2]] - in[triangles[t][0]]);
                 m[2] = cross ( m[0],m[1] );
                 mt.transpose ( m );
                 bases[t].invert ( mt );
-                centers[t] = ( in[triangles[t][0]]+in[triangles[t][1]]+in[triangles[t][2]] ) /3;
+                centers[t] = In::getCPos(in[triangles[t][0]] + in[triangles[t][1]] + in[triangles[t][2]])/3;
             }
             for ( unsigned int c = 0; c < quads.size(); c++ )
             {
                 sofa::defaulttype::Mat3x3d m,mt;
-                m[0] = in[quads[c][1]]-in[quads[c][0]];
-                m[1] = in[quads[c][3]]-in[quads[c][0]];
+                m[0] = In::getCPos(in[quads[c][1]] - in[quads[c][0]]);
+                m[1] = In::getCPos(in[quads[c][3]] - in[quads[c][0]]);
                 m[2] = cross ( m[0],m[1] );
                 mt.transpose ( m );
                 bases[c0+c].invert ( mt );
-                centers[c0+c] = ( in[quads[c][0]]+in[quads[c][1]]+in[quads[c][2]]+in[quads[c][3]] ) *0.25;
+                centers[c0+c] = In::getCPos( in[quads[c][0]] + in[quads[c][1]] + in[quads[c][2]] + in[quads[c][3]] )*0.25;
             }
             for ( unsigned int i=0; i<out.size(); i++ )
             {
@@ -511,14 +516,14 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
                 double distance = 1e10;
                 for ( unsigned int t = 0; t < triangles.size(); t++ )
                 {
-                    sofa::defaulttype::Vec3d v = bases[t] * ( pos - in[triangles[t][0]] );
+                    sofa::defaulttype::Vec3d v = bases[t] * ( pos - In::getCPos(in[triangles[t][0]]) );
                     double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( ( v[2]<0?-v[2]:v[2] )-0.01,v[0]+v[1]-1 ) );
                     if ( d>0 ) d = ( pos-centers[t] ).norm2();
                     if ( d<distance ) { coefs = v; distance = d; index = t; }
                 }
                 for ( unsigned int c = 0; c < quads.size(); c++ )
                 {
-                    sofa::defaulttype::Vec3d v = bases[c0+c] * ( pos - in[quads[c][0]] );
+                    sofa::defaulttype::Vec3d v = bases[c0+c] * ( pos - In::getCPos(in[quads[c][0]]) );
                     double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( std::max ( v[1]-1,v[0]-1 ),std::max ( v[2]-0.01,-v[2]-0.01 ) ) );
                     if ( d>0 ) d = ( pos-centers[c0+c] ).norm2();
                     if ( d<distance ) { coefs = v; distance = d; index = c0+c; }
@@ -543,27 +548,27 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
         for ( unsigned int t = 0; t < tetrahedra.size(); t++ )
         {
             sofa::defaulttype::Mat3x3d m,mt;
-            m[0] = in[tetrahedra[t][1]]-in[tetrahedra[t][0]];
-            m[1] = in[tetrahedra[t][2]]-in[tetrahedra[t][0]];
-            m[2] = in[tetrahedra[t][3]]-in[tetrahedra[t][0]];
+            m[0] = In::getCPos(in[tetrahedra[t][1]] - in[tetrahedra[t][0]]);
+            m[1] = In::getCPos(in[tetrahedra[t][2]] - in[tetrahedra[t][0]]);
+            m[2] = In::getCPos(in[tetrahedra[t][3]] - in[tetrahedra[t][0]]);
             mt.transpose ( m );
             bases[t].invert ( mt );
-            centers[t] = ( in[tetrahedra[t][0]]+in[tetrahedra[t][1]]+in[tetrahedra[t][2]]+in[tetrahedra[t][3]] ) *0.25;
+            centers[t] = In::getCPos( in[tetrahedra[t][0]] + in[tetrahedra[t][1]] + in[tetrahedra[t][2]] + in[tetrahedra[t][3]]) *0.25;
             //sout << "Tetra "<<t<<" center="<<centers[t]<<" base="<<m<<sendl;
         }
         for ( unsigned int c = 0; c < cubes.size(); c++ )
         {
             sofa::defaulttype::Mat3x3d m,mt;
-            m[0] = in[cubes[c][1]]-in[cubes[c][0]];
+            m[0] = In::getCPos(in[cubes[c][1]] - in[cubes[c][0]]);
 #ifdef SOFA_NEW_HEXA
-            m[1] = in[cubes[c][3]]-in[cubes[c][0]];
+            m[1] = In::getCPos(in[cubes[c][3]] - in[cubes[c][0]]);
 #else
-            m[1] = in[cubes[c][2]]-in[cubes[c][0]];
+            m[1] = In::getCPos(in[cubes[c][2]] - in[cubes[c][0]]);
 #endif
-            m[2] = in[cubes[c][4]]-in[cubes[c][0]];
+            m[2] = In::getCPos(in[cubes[c][4]] - in[cubes[c][0]]);
             mt.transpose ( m );
             bases[c0+c].invert ( mt );
-            centers[c0+c] = ( in[cubes[c][0]]+in[cubes[c][1]]+in[cubes[c][2]]+in[cubes[c][3]]+in[cubes[c][4]]+in[cubes[c][5]]+in[cubes[c][6]]+in[cubes[c][7]] ) *0.125;
+            centers[c0+c] = In::getCPos(in[cubes[c][0]] + in[cubes[c][1]] + in[cubes[c][2]] + in[cubes[c][3]] + in[cubes[c][4]] + in[cubes[c][5]] + in[cubes[c][6]] + in[cubes[c][7]] )*0.125;
         }
         for ( unsigned int i=0; i<out.size(); i++ )
         {
@@ -573,14 +578,14 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
             double distance = 1e10;
             for ( unsigned int t = 0; t < tetrahedra.size(); t++ )
             {
-                sofa::defaulttype::Vector3 v = bases[t] * ( pos - in[tetrahedra[t][0]] );
+                sofa::defaulttype::Vector3 v = bases[t] * ( pos - In::getCPos(in[tetrahedra[t][0]]) );
                 double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( -v[2],v[0]+v[1]+v[2]-1 ) );
                 if ( d>0 ) d = ( pos-centers[t] ).norm2();
                 if ( d<distance ) { coefs = v; distance = d; index = t; }
             }
             for ( unsigned int c = 0; c < cubes.size(); c++ )
             {
-                sofa::defaulttype::Vector3 v = bases[c0+c] * ( pos - in[cubes[c][0]] );
+                sofa::defaulttype::Vector3 v = bases[c0+c] * ( pos - In::getCPos(in[cubes[c][0]]) );
                 double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( std::max ( -v[2],v[0]-1 ),std::max ( v[1]-1,v[2]-1 ) ) );
                 if ( d>0 ) d = ( pos-centers[c0+c] ).norm2();
                 if ( d<distance ) { coefs = v; distance = d; index = c0+c; }
@@ -627,10 +632,10 @@ int BarycentricMapperEdgeSetTopology<In,Out>::createPointInLine ( const typename
 {
     SReal baryCoords[1];
     const topology::Edge& elem = this->fromTopology->getEdge ( edgeIndex );
-    const typename In::Coord p0 = ( *points ) [elem[0]];
-    const typename In::Coord pA = ( *points ) [elem[1]] - p0;
-    typename In::Coord pos = Out::getCPos(p) - p0;
-    baryCoords[0] = dot ( pA,pos ) /dot ( pA,pA );
+    const typename In::CPos p0 = In::getCPos( ( *points ) [elem[0]] );
+    const typename In::CPos pA = In::getCPos( ( *points ) [elem[1]] ) - p0;
+    typename In::CPos pos = Out::getCPos(p) - p0;
+    baryCoords[0] = dot ( pA, pos ) /dot ( pA, pA );
     return this->addPointInLine ( edgeIndex, baryCoords );
 }
 
@@ -680,14 +685,15 @@ int BarycentricMapperTriangleSetTopology<In,Out>::createPointInTriangle ( const 
 {
     SReal baryCoords[2];
     const topology::Triangle& elem = this->fromTopology->getTriangle ( triangleIndex );
-    const typename In::Coord p0 = ( *points ) [elem[0]];
-    const typename In::Coord pA = ( *points ) [elem[1]] - p0;
-    const typename In::Coord pB = ( *points ) [elem[2]] - p0;
-    typename In::Coord pos = Out::getCPos(p) - p0;
+    const typename In::CPos p0 = In::getCPos( ( *points ) [elem[0]] );
+    const typename In::CPos pA = In::getCPos( ( *points ) [elem[1]] ) - p0;
+    const typename In::CPos pB = In::getCPos( ( *points ) [elem[2]] ) - p0;
+    typename In::CPos pos = Out::getCPos(p) - p0;
     // First project to plane
-    typename In::Coord normal = cross ( pA, pB );
+    typename In::CPos normal = cross ( pA, pB);
     Real norm2 = normal.norm2();
-    pos -= normal* ( ( pos*normal ) /norm2 );
+    pos-= normal* ( ( pos*normal ) /norm2);
+
     baryCoords[0] = ( Real ) sqrt ( cross ( pB, pos ).norm2() / norm2 );
     baryCoords[1] = ( Real ) sqrt ( cross ( pA, pos ).norm2() / norm2 );
     return this->addPointInTriangle ( triangleIndex, baryCoords );
@@ -753,14 +759,14 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCr
             obj->m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition()) : obj->m_stateFrom->read(sofa::core::ConstVecCoordId::position());
 
     sofa::defaulttype::Mat3x3d m;
-    m[0] = pIn[triangle[1]] - pIn[triangle[0]];
-    m[1] = pIn[triangle[2]] - pIn[triangle[0]];
+    m[0] = In::getCPos(pIn[triangle[1]] - pIn[triangle[0]]);
+    m[1] = In::getCPos(pIn[triangle[2]] - pIn[triangle[0]]);
     m[2] = cross(m[0], m[1]);
     sofa::defaulttype::Mat3x3d mTranspose;
     mTranspose.transpose(m);
 
     baryTriangleInfo.restBase.invert(mTranspose);
-    baryTriangleInfo.restCenter = (pIn[triangle[0]] + pIn[triangle[1]] + pIn[triangle[2]]) / 3;
+    baryTriangleInfo.restCenter = (In::getCPos(pIn[triangle[0]] + pIn[triangle[1]] + pIn[triangle[2]])) / 3;
 
     helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = obj->d_vBaryTriangleInfo;
 
@@ -846,7 +852,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
 
         for (unsigned int t = 0; t < triangles.size(); t++)
         {
-            sofa::defaulttype::Vec3d xTri = (m_useRestPosition && pIn.size() > 0) ? pIn[triangles[t][0]] : in[triangles[t][0]];
+            sofa::defaulttype::Vec3d xTri = (m_useRestPosition && pIn.size() > 0) ? In::getCPos(pIn[triangles[t][0]]) : In::getCPos(in[triangles[t][0]]);
 
             const BaryElementInfo& baryTriangleInfo = vBaryTriangleInfo[t];
             const sofa::defaulttype::Mat3x3d& restBase = baryTriangleInfo.restBase;
@@ -909,18 +915,18 @@ int BarycentricMapperQuadSetTopology<In,Out>::createPointInQuad ( const typename
 {
     SReal baryCoords[2];
     const topology::Quad& elem = this->fromTopology->getQuad ( quadIndex );
-    const typename In::Coord p0 = ( *points ) [elem[0]];
-    const typename In::Coord pA = ( *points ) [elem[1]] - p0;
-    const typename In::Coord pB = ( *points ) [elem[3]] - p0;
-    typename In::Coord pos = Out::getCPos(p) - p0;
+    const typename In::CPos p0 = In::getCPos( ( *points ) [elem[0]] );
+    const typename In::CPos pA = In::getCPos( ( *points ) [elem[1]] ) - p0;
+    const typename In::CPos pB = In::getCPos( ( *points ) [elem[3]] ) - p0;
+    typename In::CPos pos = Out::getCPos(p) - p0;
     sofa::defaulttype::Mat<3,3,typename In::Real> m,mt,base;
     m[0] = pA;
     m[1] = pB;
-    m[2] = cross ( pA, pB );
+    m[2] = cross ( m[0],m[1] );
     mt.transpose ( m );
     base.invert ( mt );
-    const typename In::Coord base0 = base[0];
-    const typename In::Coord base1 = base[1];
+    typename In::CPos base0 = base[0];
+    typename In::CPos base1 = base[1];
     baryCoords[0] = base0 * pos;
     baryCoords[1] = base1 * pos;
     return this->addPointInQuad ( quadIndex, baryCoords );
@@ -944,12 +950,12 @@ void BarycentricMapperQuadSetTopology<In,Out>::init ( const typename Out::VecCoo
     for ( unsigned int c = 0; c < quads.size(); c++ )
     {
         sofa::defaulttype::Mat3x3d m,mt;
-        m[0] = in[quads[c][1]]-in[quads[c][0]];
-        m[1] = in[quads[c][3]]-in[quads[c][0]];
+        m[0] = In::getCPos(in[quads[c][1]])-In::getCPos(in[quads[c][0]]);
+        m[1] = In::getCPos(in[quads[c][3]])-In::getCPos(in[quads[c][0]]);
         m[2] = cross ( m[0],m[1] );
         mt.transpose ( m );
         bases[c].invert ( mt );
-        centers[c] = ( in[quads[c][0]]+in[quads[c][1]]+in[quads[c][2]]+in[quads[c][3]] ) *0.25;
+        centers[c] = ( In::getCPos(in[quads[c][0]])+In::getCPos(in[quads[c][1]])+In::getCPos(in[quads[c][2]])+In::getCPos(in[quads[c][3]]) ) *0.25;
     }
 
     for ( unsigned int i=0; i<out.size(); i++ )
@@ -960,7 +966,7 @@ void BarycentricMapperQuadSetTopology<In,Out>::init ( const typename Out::VecCoo
         double distance = 1e10;
         for ( unsigned int c = 0; c < quads.size(); c++ )
         {
-            sofa::defaulttype::Vec3d v = bases[c] * ( pos - in[quads[c][0]] );
+            sofa::defaulttype::Vec3d v = bases[c] * ( pos - In::getCPos(in[quads[c][0]]) );
             double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( std::max ( v[1]-1,v[0]-1 ),std::max ( v[2]-0.01,-v[2]-0.01 ) ) );
             if ( d>0 ) d = ( pos-centers[c] ).norm2();
             if ( d<distance ) { coefs = v; distance = d; index = c; }
@@ -1535,8 +1541,8 @@ void BarycentricMapperMeshTopology<In,Out>::apply ( typename Out::VecCoord& out,
             int index = map1d[i].in_index;
             {
                 const sofa::core::topology::BaseMeshTopology::Line& line = lines[index];
-                Out::setCPos(out[i] , in[line[0]] * ( 1-fx )
-                        + in[line[1]] * fx );
+                Out::setCPos(out[i] , In::getCPos(in[line[0]]) * ( 1-fx )
+                        + In::getCPos(in[line[1]]) * fx );
             }
         }
     }
@@ -1552,19 +1558,19 @@ void BarycentricMapperMeshTopology<In,Out>::apply ( typename Out::VecCoord& out,
             if ( index<c0 )
             {
                 const sofa::core::topology::BaseMeshTopology::Triangle& triangle = triangles[index];
-                Out::setCPos(out[i+i0] , in[triangle[0]] * ( 1-fx-fy )
-                        + in[triangle[1]] * fx
-                        + in[triangle[2]] * fy );
+                Out::setCPos(out[i+i0] , In::getCPos(in[triangle[0]]) * ( 1-fx-fy )
+                        + In::getCPos(in[triangle[1]]) * fx
+                        + In::getCPos(in[triangle[2]]) * fy );
             }
             else
             {
                 if (quads.size())
                 {
                     const sofa::core::topology::BaseMeshTopology::Quad& quad = quads[index-c0];
-                    Out::setCPos(out[i+i0] , in[quad[0]] * ( ( 1-fx ) * ( 1-fy ) )
-                            + in[quad[1]] * ( ( fx ) * ( 1-fy ) )
-                            + in[quad[3]] * ( ( 1-fx ) * ( fy ) )
-                            + in[quad[2]] * ( ( fx ) * ( fy ) ) );
+                    Out::setCPos(out[i+i0] , In::getCPos(in[quad[0]]) * ( ( 1-fx ) * ( 1-fy ) )
+                            + In::getCPos(in[quad[1]]) * ( ( fx ) * ( 1-fy ) )
+                            + In::getCPos(in[quad[3]]) * ( ( 1-fx ) * ( fy ) )
+                            + In::getCPos(in[quad[2]]) * ( ( fx ) * ( fy ) ) );
                 }
             }
         }
@@ -1582,10 +1588,10 @@ void BarycentricMapperMeshTopology<In,Out>::apply ( typename Out::VecCoord& out,
             if ( index<c0 )
             {
                 const sofa::core::topology::BaseMeshTopology::Tetra& tetra = tetrahedra[index];
-                Out::setCPos(out[i+i0] , in[tetra[0]] * ( 1-fx-fy-fz )
-                        + in[tetra[1]] * fx
-                        + in[tetra[2]] * fy
-                        + in[tetra[3]] * fz );
+                Out::setCPos(out[i+i0] , In::getCPos(in[tetra[0]]) * ( 1-fx-fy-fz )
+                        + In::getCPos(in[tetra[1]]) * fx
+                        + In::getCPos(in[tetra[2]]) * fy
+                        + In::getCPos(in[tetra[3]]) * fz );
             }
             else
             {
@@ -1594,23 +1600,23 @@ void BarycentricMapperMeshTopology<In,Out>::apply ( typename Out::VecCoord& out,
 #else
                 const sofa::core::topology::BaseMeshTopology::Cube& cube = cubes[index-c0];
 #endif
-                Out::setCPos(out[i+i0] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                        + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+                Out::setCPos(out[i+i0] , In::getCPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                        + In::getCPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
 #ifdef SOFA_NEW_HEXA
-                        + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                        + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                        + In::getCPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                        + In::getCPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #else
-                        + in[cube[2]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                        + in[cube[3]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                        + In::getCPos(in[cube[2]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                        + In::getCPos(in[cube[3]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #endif
-                        + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                        + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                        + In::getCPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                        + In::getCPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
 #ifdef SOFA_NEW_HEXA
-                        + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                        + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                        + In::getCPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                        + In::getCPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                        + in[cube[6]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                        + in[cube[7]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                        + In::getCPos(in[cube[6]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                        + In::getCPos(in[cube[7]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
             }
         }
@@ -1631,23 +1637,23 @@ void BarycentricMapperRegularGridTopology<In,Out>::apply ( typename Out::VecCoor
         const Real fx = map[i].baryCoords[0];
         const Real fy = map[i].baryCoords[1];
         const Real fz = map[i].baryCoords[2];
-        Out::setCPos(out[i] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+        Out::setCPos(out[i] , In::getCPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
 #ifdef SOFA_NEW_HEXA
-                + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #else
-                + in[cube[2]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                + in[cube[3]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[2]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[3]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #endif
-                + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                + In::getCPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                + In::getCPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
 #ifdef SOFA_NEW_HEXA
-                + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                + In::getCPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                + In::getCPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                + in[cube[6]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                + in[cube[7]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                + In::getCPos(in[cube[6]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                + In::getCPos(in[cube[7]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
     }
 }
@@ -1676,23 +1682,23 @@ void BarycentricMapperSparseGridTopology<In,Out>::apply ( typename Out::VecCoord
         const Real fy = it->baryCoords[1];
         const Real fz = it->baryCoords[2];
 
-        Out::setCPos(out[i] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+        Out::setCPos(out[i] , In::getCPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
 #ifdef SOFA_NEW_HEXA
-                + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #else
-                + in[cube[2]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                + in[cube[3]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[2]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[3]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #endif
-                + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                + In::getCPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                + In::getCPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
 #ifdef SOFA_NEW_HEXA
-                + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                + In::getCPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                + In::getCPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                + in[cube[6]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                + in[cube[7]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                + In::getCPos(in[cube[6]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                + In::getCPos(in[cube[7]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
         ++it;
         ++i;
@@ -1712,8 +1718,8 @@ void BarycentricMapperEdgeSetTopology<In,Out>::apply ( typename Out::VecCoord& o
         const Real fx = vectorData[i].baryCoords[0];
         int index = vectorData[i].in_index;
         const topology::Edge& edge = edges[index];
-        Out::setCPos(out[i] , in[edge[0]] * ( 1-fx )
-                + in[edge[1]] * fx );
+        Out::setCPos(out[i] , In::getCPos(in[edge[0]]) * ( 1-fx )
+                + In::getCPos(in[edge[1]]) * fx );
     }
 }
 
@@ -1734,9 +1740,9 @@ void BarycentricMapperTriangleSetTopology<In,Out>::apply ( typename Out::VecCoor
         const Real fy = map.getValue()[i].baryCoords[1];
         int index = map.getValue()[i].in_index;
         const topology::Triangle& triangle = triangles[index];
-        Out::setCPos(out[i] , in[triangle[0]] * ( 1-fx-fy )
-                + in[triangle[1]] * fx
-                + in[triangle[2]] * fy );
+        Out::setCPos(out[i] , In::getCPos(in[triangle[0]]) * ( 1-fx-fy )
+                + In::getCPos(in[triangle[1]]) * fx
+                + In::getCPos(in[triangle[2]]) * fy );
     }
 }
 
@@ -1751,10 +1757,10 @@ void BarycentricMapperQuadSetTopology<In,Out>::apply ( typename Out::VecCoord& o
         const Real fy = map.getValue()[i].baryCoords[1];
         int index = map.getValue()[i].in_index;
         const topology::Quad& quad = quads[index];
-        Out::setCPos(out[i] , in[quad[0]] * ( ( 1-fx ) * ( 1-fy ) )
-                + in[quad[1]] * ( ( fx ) * ( 1-fy ) )
-                + in[quad[3]] * ( ( 1-fx ) * ( fy ) )
-                + in[quad[2]] * ( ( fx ) * ( fy ) ) );
+        Out::setCPos(out[i] , In::getCPos(in[quad[0]]) * ( ( 1-fx ) * ( 1-fy ) )
+                + In::getCPos(in[quad[1]]) * ( ( fx ) * ( 1-fy ) )
+                + In::getCPos(in[quad[3]]) * ( ( 1-fx ) * ( fy ) )
+                + In::getCPos(in[quad[2]]) * ( ( fx ) * ( fy ) ) );
     }
 }
 
@@ -1799,14 +1805,14 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::apply ( typename Out::VecCo
         const Real fz = map.getValue()[i].baryCoords[2];
         int index = map.getValue()[i].in_index;
         const topology::Hexahedron& cube = cubes[index];
-        Out::setCPos(out[i] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
-                + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
-                + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
-                + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+        Out::setCPos(out[i] , In::getCPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                + In::getCPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                + In::getCPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                + In::getCPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                + In::getCPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
     }
 }
 
@@ -1822,14 +1828,14 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::applyOnePoint( const unsign
     const Real fz = map.getValue()[hexaPointId].baryCoords[2];
     int index = map.getValue()[hexaPointId].in_index;
     const topology::Hexahedron& cube = cubes[index];
-    Out::setCPos(out[hexaPointId] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-            + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
-            + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-            + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
-            + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-            + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
-            + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-            + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+    Out::setCPos(out[hexaPointId] , In::getCPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+            + In::getCPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+            + In::getCPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+            + In::getCPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
+            + In::getCPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+            + In::getCPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
+            + In::getCPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+            + In::getCPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 }
 //--
 
@@ -1877,8 +1883,8 @@ void BarycentricMapperMeshTopology<In,Out>::applyJ ( typename Out::VecDeriv& out
                 int index = map1d[i].in_index;
                 {
                     const sofa::core::topology::BaseMeshTopology::Line& line = lines[index];
-                    Out::setDPos(out[i] , in[line[0]] * ( 1-fx )
-                            + in[line[1]] * fx );
+                    Out::setDPos(out[i] , In::getDPos(in[line[0]]) * ( 1-fx )
+                            + In::getDPos(in[line[1]]) * fx );
                 }
             }
         }
@@ -1894,17 +1900,17 @@ void BarycentricMapperMeshTopology<In,Out>::applyJ ( typename Out::VecDeriv& out
                 if ( index<c0 )
                 {
                     const sofa::core::topology::BaseMeshTopology::Triangle& triangle = triangles[index];
-                    Out::setDPos(out[i+i0] , in[triangle[0]] * ( 1-fx-fy )
-                            + in[triangle[1]] * fx
-                            + in[triangle[2]] * fy );
+                    Out::setDPos(out[i+i0] , In::getDPos(in[triangle[0]]) * ( 1-fx-fy )
+                            + In::getDPos(in[triangle[1]]) * fx
+                            + In::getDPos(in[triangle[2]]) * fy );
                 }
                 else
                 {
                     const sofa::core::topology::BaseMeshTopology::Quad& quad = quads[index-c0];
-                    Out::setDPos(out[i+i0] , in[quad[0]] * ( ( 1-fx ) * ( 1-fy ) )
-                            + in[quad[1]] * ( ( fx ) * ( 1-fy ) )
-                            + in[quad[3]] * ( ( 1-fx ) * ( fy ) )
-                            + in[quad[2]] * ( ( fx ) * ( fy ) ) );
+                    Out::setDPos(out[i+i0] , In::getDPos(in[quad[0]]) * ( ( 1-fx ) * ( 1-fy ) )
+                            + In::getDPos(in[quad[1]]) * ( ( fx ) * ( 1-fy ) )
+                            + In::getDPos(in[quad[3]]) * ( ( 1-fx ) * ( fy ) )
+                            + In::getDPos(in[quad[2]]) * ( ( fx ) * ( fy ) ) );
                 }
             }
         }
@@ -1921,10 +1927,10 @@ void BarycentricMapperMeshTopology<In,Out>::applyJ ( typename Out::VecDeriv& out
                 if ( index<c0 )
                 {
                     const sofa::core::topology::BaseMeshTopology::Tetra& tetra = tetrahedra[index];
-                    Out::setDPos(out[i+i0] , in[tetra[0]] * ( 1-fx-fy-fz )
-                            + in[tetra[1]] * fx
-                            + in[tetra[2]] * fy
-                            + in[tetra[3]] * fz );
+                    Out::setDPos(out[i+i0] , In::getDPos(in[tetra[0]]) * ( 1-fx-fy-fz )
+                            + In::getDPos(in[tetra[1]]) * fx
+                            + In::getDPos(in[tetra[2]]) * fy
+                            + In::getDPos(in[tetra[3]]) * fz );
                 }
                 else
                 {
@@ -1933,23 +1939,23 @@ void BarycentricMapperMeshTopology<In,Out>::applyJ ( typename Out::VecDeriv& out
 #else
                     const sofa::core::topology::BaseMeshTopology::Cube& cube = cubes[index-c0];
 #endif
-                    Out::setDPos(out[i+i0] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                            + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+                    Out::setDPos(out[i+i0] , In::getDPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                            + In::getDPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
 #ifdef SOFA_NEW_HEXA
-                            + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                            + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                            + In::getDPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                            + In::getDPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #else
-                            + in[cube[2]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                            + in[cube[3]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                            + In::getDPos(in[cube[2]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                            + In::getDPos(in[cube[3]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #endif
-                            + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                            + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                            + In::getDPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                            + In::getDPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
 #ifdef SOFA_NEW_HEXA
-                            + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                            + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                            + In::getDPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                            + In::getDPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                            + in[cube[6]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                            + in[cube[7]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                            + In::getDPos(in[cube[6]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                            + In::getDPos(in[cube[7]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
                 }
             }
@@ -1972,23 +1978,23 @@ void BarycentricMapperRegularGridTopology<In,Out>::applyJ ( typename Out::VecDer
             const Real fx = map[i].baryCoords[0];
             const Real fy = map[i].baryCoords[1];
             const Real fz = map[i].baryCoords[2];
-            Out::setDPos(out[i] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                    + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+            Out::setDPos(out[i] , In::getDPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
 #ifdef SOFA_NEW_HEXA
-                    + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                    + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #else
-                    + in[cube[2]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                    + in[cube[3]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[2]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[3]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #endif
-                    + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                    + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                    + In::getDPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                    + In::getDPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
 #ifdef SOFA_NEW_HEXA
-                    + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                    + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                    + In::getDPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                    + In::getDPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                    + in[cube[6]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                    + in[cube[7]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                    + In::getDPos(in[cube[6]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                    + In::getDPos(in[cube[7]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
         }
     }
@@ -2008,23 +2014,23 @@ void BarycentricMapperSparseGridTopology<In,Out>::applyJ ( typename Out::VecDeri
             const Real fx = map[i].baryCoords[0];
             const Real fy = map[i].baryCoords[1];
             const Real fz = map[i].baryCoords[2];
-            Out::setDPos(out[i] , in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                    + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+            Out::setDPos(out[i] , In::getDPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
 #ifdef SOFA_NEW_HEXA
-                    + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                    + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #else
-                    + in[cube[2]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                    + in[cube[3]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[2]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[3]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
 #endif
-                    + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                    + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                    + In::getDPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                    + In::getDPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
 #ifdef SOFA_NEW_HEXA
-                    + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                    + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                    + In::getDPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                    + In::getDPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                    + in[cube[6]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                    + in[cube[7]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                    + In::getDPos(in[cube[6]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                    + In::getDPos(in[cube[7]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
         }
     }
@@ -2042,8 +2048,8 @@ void BarycentricMapperEdgeSetTopology<In,Out>::applyJ ( typename Out::VecDeriv& 
             const Real fx = map.getValue()[i].baryCoords[0];
             int index = map.getValue()[i].in_index;
             const topology::Edge& edge = edges[index];
-            Out::setDPos(out[i] , in[edge[0]] * ( 1-fx )
-                    + in[edge[1]] * fx );
+            Out::setDPos(out[i] , In::getDPos(in[edge[0]]) * ( 1-fx )
+                    + In::getDPos(in[edge[1]]) * fx );
         }
     }
 }
@@ -2061,9 +2067,9 @@ void BarycentricMapperTriangleSetTopology<In,Out>::applyJ ( typename Out::VecDer
             const Real fy = map.getValue()[i].baryCoords[1];
             int index = map.getValue()[i].in_index;
             const topology::Triangle& triangle = triangles[index];
-            Out::setDPos(out[i] , in[triangle[0]] * ( 1-fx-fy )
-                    + in[triangle[1]] * fx
-                    + in[triangle[2]] * fy);
+            Out::setDPos(out[i] , In::getDPos(in[triangle[0]]) * ( 1-fx-fy )
+                    + In::getDPos(in[triangle[1]]) * fx
+                    + In::getDPos(in[triangle[2]]) * fy);
         }
     }
 }
@@ -2081,10 +2087,10 @@ void BarycentricMapperQuadSetTopology<In,Out>::applyJ ( typename Out::VecDeriv& 
             const Real fy = map.getValue()[i].baryCoords[1];
             int index = map.getValue()[i].in_index;
             const topology::Quad& quad = quads[index];
-            Out::setDPos(out[i] , in[quad[0]] * ( ( 1-fx ) * ( 1-fy ) )
-                    + in[quad[1]] * ( ( fx ) * ( 1-fy ) )
-                    + in[quad[3]] * ( ( 1-fx ) * ( fy ) )
-                    + in[quad[2]] * ( ( fx ) * ( fy ) ));
+            Out::setDPos(out[i] , In::getDPos(in[quad[0]]) * ( ( 1-fx ) * ( 1-fy ) )
+                    + In::getDPos(in[quad[1]]) * ( ( fx ) * ( 1-fy ) )
+                    + In::getDPos(in[quad[3]]) * ( ( 1-fx ) * ( fy ) )
+                    + In::getDPos(in[quad[2]]) * ( ( fx ) * ( fy ) ));
         }
     }
 }
@@ -2103,10 +2109,10 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::applyJ ( typename Out::Vec
             const Real fz = map.getValue()[i].baryCoords[2];
             int index = map.getValue()[i].in_index;
             const topology::Tetrahedron& tetra = tetrahedra[index];
-            Out::setDPos(out[i] , in[tetra[0]] * ( 1-fx-fy-fz )
-                    + in[tetra[1]] * fx
-                    + in[tetra[2]] * fy
-                    + in[tetra[3]] * fz );
+            Out::setDPos(out[i] , In::getDPos(in[tetra[0]]) * ( 1-fx-fy-fz )
+                    + In::getDPos(in[tetra[1]]) * fx
+                    + In::getDPos(in[tetra[2]]) * fy
+                    + In::getDPos(in[tetra[3]]) * fz );
         }
     }
 }
@@ -2126,14 +2132,14 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::applyJ ( typename Out::VecD
             int index = map.getValue()[i].in_index;
             const topology::Hexahedron& cube = cubes[index];
             Out::setDPos(out[i] ,
-                    in[cube[0]] * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
-                    + in[cube[1]] * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
-                    + in[cube[3]] * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
-                    + in[cube[2]] * ( ( fx ) * ( fy ) * ( 1-fz ) )
-                    + in[cube[4]] * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
-                    + in[cube[5]] * ( ( fx ) * ( 1-fy ) * ( fz ) )
-                    + in[cube[7]] * ( ( 1-fx ) * ( fy ) * ( fz ) )
-                    + in[cube[6]] * ( ( fx ) * ( fy ) * ( fz ) ) );
+                    In::getDPos(in[cube[0]]) * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[1]]) * ( ( fx ) * ( 1-fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[3]]) * ( ( 1-fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[2]]) * ( ( fx ) * ( fy ) * ( 1-fz ) )
+                    + In::getDPos(in[cube[4]]) * ( ( 1-fx ) * ( 1-fy ) * ( fz ) )
+                    + In::getDPos(in[cube[5]]) * ( ( fx ) * ( 1-fy ) * ( fz ) )
+                    + In::getDPos(in[cube[7]]) * ( ( 1-fx ) * ( fy ) * ( fz ) )
+                    + In::getDPos(in[cube[6]]) * ( ( fx ) * ( fy ) * ( fz ) ) );
         }
     }
 }
@@ -2175,8 +2181,8 @@ void BarycentricMapperMeshTopology<In,Out>::applyJT ( typename In::VecDeriv& out
                 int index = map1d[i].in_index;
                 {
                     const sofa::core::topology::BaseMeshTopology::Line& line = lines[index];
-                    out[line[0]] += v * ( 1-fx );
-                    out[line[1]] += v * fx;
+                In::setDPos(out[line[0]], In::getDPos(out[line[0]]) +  v * ( 1-fx ) );
+                In::setDPos(out[line[1]], In::getDPos(out[line[1]]) + v * fx );
                 }
             }
         }
@@ -2193,17 +2199,17 @@ void BarycentricMapperMeshTopology<In,Out>::applyJT ( typename In::VecDeriv& out
                 if ( index<c0 )
                 {
                     const sofa::core::topology::BaseMeshTopology::Triangle& triangle = triangles[index];
-                    out[triangle[0]] += v * ( 1-fx-fy );
-                    out[triangle[1]] += v * fx;
-                    out[triangle[2]] += v * fy;
+                    In::setDPos(out[triangle[0]], In::getDPos(out[triangle[0]]) + v * ( 1-fx-fy ) );
+                    In::setDPos(out[triangle[1]], In::getDPos(out[triangle[1]]) + v * fx );
+                    In::setDPos(out[triangle[2]], In::getDPos(out[triangle[2]]) + v * fy );
                 }
                 else
                 {
                     const sofa::core::topology::BaseMeshTopology::Quad& quad = quads[index-c0];
-                    out[quad[0]] += v * ( ( 1-fx ) * ( 1-fy ) );
-                    out[quad[1]] += v * ( ( fx ) * ( 1-fy ) );
-                    out[quad[3]] += v * ( ( 1-fx ) * ( fy ) );
-                    out[quad[2]] += v * ( ( fx ) * ( fy ) );
+                    In::setDPos(out[quad[0]], In::getDPos(out[quad[0]]) + v * ( ( 1-fx ) * ( 1-fy ) ) );
+                    In::setDPos(out[quad[1]], In::getDPos(out[quad[1]]) + v * ( ( fx ) * ( 1-fy ) ) );
+                    In::setDPos(out[quad[3]], In::getDPos(out[quad[3]]) + v * ( ( 1-fx ) * ( fy ) ) );
+                    In::setDPos(out[quad[2]], In::getDPos(out[quad[2]]) + v * ( ( fx ) * ( fy ) ) );
                 }
             }
         }
@@ -2221,10 +2227,10 @@ void BarycentricMapperMeshTopology<In,Out>::applyJT ( typename In::VecDeriv& out
                 if ( index<c0 )
                 {
                     const sofa::core::topology::BaseMeshTopology::Tetra& tetra = tetrahedra[index];
-                    out[tetra[0]] += v * ( 1-fx-fy-fz );
-                    out[tetra[1]] += v * fx;
-                    out[tetra[2]] += v * fy;
-                    out[tetra[3]] += v * fz;
+                    In::setDPos(out[tetra[0]], In::getDPos(out[tetra[0]]) + v * ( 1-fx-fy-fz ) );
+                    In::setDPos(out[tetra[1]], In::getDPos(out[tetra[1]]) + v * fx );
+                    In::setDPos(out[tetra[2]], In::getDPos(out[tetra[2]]) + v * fy );
+                    In::setDPos(out[tetra[3]], In::getDPos(out[tetra[3]]) + v * fz );
                 }
                 else
                 {
@@ -2233,23 +2239,23 @@ void BarycentricMapperMeshTopology<In,Out>::applyJT ( typename In::VecDeriv& out
 #else
                     const sofa::core::topology::BaseMeshTopology::Cube& cube = cubes[index-c0];
 #endif
-                    out[cube[0]] += v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) );
-                    out[cube[1]] += v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) );
+                    In::setDPos(out[cube[0]], In::getDPos(out[cube[0]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) ) );
+                    In::setDPos(out[cube[1]], In::getDPos(out[cube[1]]) + v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) ) );
 #ifdef SOFA_NEW_HEXA
-                    out[cube[3]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-                    out[cube[2]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
+                    In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+                    In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
 #else
-                    out[cube[2]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-                    out[cube[3]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
+                    In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+                    In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
 #endif
-                    out[cube[4]] += v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) );
-                    out[cube[5]] += v * ( ( fx ) * ( 1-fy ) * ( fz ) );
+                    In::setDPos(out[cube[4]], In::getDPos(out[cube[4]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) ) );
+                    In::setDPos(out[cube[5]], In::getDPos(out[cube[5]]) + v * ( ( fx ) * ( 1-fy ) * ( fz ) ) );
 #ifdef SOFA_NEW_HEXA
-                    out[cube[7]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-                    out[cube[6]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+                    In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+                    In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-                    out[cube[6]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-                    out[cube[7]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+                    In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+                    In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
                 }
             }
@@ -2272,23 +2278,23 @@ void BarycentricMapperRegularGridTopology<In,Out>::applyJT ( typename In::VecDer
             const OutReal fx = ( OutReal ) map[i].baryCoords[0];
             const OutReal fy = ( OutReal ) map[i].baryCoords[1];
             const OutReal fz = ( OutReal ) map[i].baryCoords[2];
-            out[cube[0]] += v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) );
-            out[cube[1]] += v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) );
+            In::setDPos(out[cube[0]], In::getDPos(out[cube[0]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) ));
+            In::setDPos(out[cube[1]], In::getDPos(out[cube[1]]) + v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) ) );
 #ifdef SOFA_NEW_HEXA
-            out[cube[3]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-            out[cube[2]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
+            In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
 #else
-            out[cube[2]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-            out[cube[3]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
+            In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
 #endif
-            out[cube[4]] += v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) );
-            out[cube[5]] += v * ( ( fx ) * ( 1-fy ) * ( fz ) );
+            In::setDPos(out[cube[4]], In::getDPos(out[cube[4]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) ) );
+            In::setDPos(out[cube[5]], In::getDPos(out[cube[5]]) + v * ( ( fx ) * ( 1-fy ) * ( fz ) ) );
 #ifdef SOFA_NEW_HEXA
-            out[cube[7]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-            out[cube[6]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+            In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+            In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-            out[cube[6]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-            out[cube[7]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+            In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+            In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
         }
     }
@@ -2309,23 +2315,23 @@ void BarycentricMapperSparseGridTopology<In,Out>::applyJT ( typename In::VecDeri
             const OutReal fx = ( OutReal ) map[i].baryCoords[0];
             const OutReal fy = ( OutReal ) map[i].baryCoords[1];
             const OutReal fz = ( OutReal ) map[i].baryCoords[2];
-            out[cube[0]] += v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) );
-            out[cube[1]] += v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) );
+            In::setDPos(out[cube[0]], In::getDPos(out[cube[0]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[1]], In::getDPos(out[cube[1]]) + v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) ) );
 #ifdef SOFA_NEW_HEXA
-            out[cube[3]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-            out[cube[2]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
+            In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
 #else
-            out[cube[2]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-            out[cube[3]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
+            In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
 #endif
-            out[cube[4]] += v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) );
-            out[cube[5]] += v * ( ( fx ) * ( 1-fy ) * ( fz ) );
+            In::setDPos(out[cube[4]], In::getDPos(out[cube[4]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) ) );
+            In::setDPos(out[cube[5]], In::getDPos(out[cube[5]]) + v * ( ( fx ) * ( 1-fy ) * ( fz ) ) );
 #ifdef SOFA_NEW_HEXA
-            out[cube[7]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-            out[cube[6]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+            In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+            In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
 #else
-            out[cube[6]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-            out[cube[7]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+            In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+            In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
 #endif
         }
     }
@@ -2343,8 +2349,8 @@ void BarycentricMapperEdgeSetTopology<In,Out>::applyJT ( typename In::VecDeriv& 
             const OutReal fx = ( OutReal ) map.getValue()[i].baryCoords[0];
             int index = map.getValue()[i].in_index;
             const topology::Edge& edge = edges[index];
-            out[edge[0]] += v * ( 1-fx );
-            out[edge[1]] += v * fx;
+            In::setDPos(out[edge[0]], In::getDPos(out[edge[0]]) + v * ( 1-fx ) );
+            In::setDPos(out[edge[1]], In::getDPos(out[edge[1]]) + v * fx );
         }
     }
 }
@@ -2362,9 +2368,9 @@ void BarycentricMapperTriangleSetTopology<In,Out>::applyJT ( typename In::VecDer
             const OutReal fy = ( OutReal ) map.getValue()[i].baryCoords[1];
             int index = map.getValue()[i].in_index;
             const topology::Triangle& triangle = triangles[index];
-            out[triangle[0]] += v * ( 1-fx-fy );
-            out[triangle[1]] += v * fx;
-            out[triangle[2]] += v * fy;
+            In::setDPos(out[triangle[0]], In::getDPos(out[triangle[0]]) + v * ( 1-fx-fy ) );
+            In::setDPos(out[triangle[1]], In::getDPos(out[triangle[1]]) + v * fx);
+            In::setDPos(out[triangle[2]], In::getDPos(out[triangle[2]]) + v * fy);
         }
     }
 }
@@ -2382,10 +2388,10 @@ void BarycentricMapperQuadSetTopology<In,Out>::applyJT ( typename In::VecDeriv& 
             const OutReal fy = ( OutReal ) map.getValue()[i].baryCoords[1];
             int index = map.getValue()[i].in_index;
             const topology::Quad& quad = quads[index];
-            out[quad[0]] += v * ( ( 1-fx ) * ( 1-fy ) );
-            out[quad[1]] += v * ( ( fx ) * ( 1-fy ) );
-            out[quad[3]] += v * ( ( 1-fx ) * ( fy ) );
-            out[quad[2]] += v * ( ( fx ) * ( fy ) );
+            In::setDPos(out[quad[0]], In::getDPos(out[quad[0]]) + v * ( ( 1-fx ) * ( 1-fy ) ) );
+            In::setDPos(out[quad[1]], In::getDPos(out[quad[1]]) + v * ( ( fx ) * ( 1-fy ) ) );
+            In::setDPos(out[quad[3]], In::getDPos(out[quad[3]]) + v * ( ( 1-fx ) * ( fy ) ) );
+            In::setDPos(out[quad[2]], In::getDPos(out[quad[2]]) + v * ( ( fx ) * ( fy ) ) );
         }
     }
 }
@@ -2404,10 +2410,10 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::applyJT ( typename In::Vec
             const OutReal fz = ( OutReal ) map.getValue()[i].baryCoords[2];
             int index = map.getValue()[i].in_index;
             const topology::Tetrahedron& tetra = tetrahedra[index];
-            out[tetra[0]] += v * ( 1-fx-fy-fz );
-            out[tetra[1]] += v * fx;
-            out[tetra[2]] += v * fy;
-            out[tetra[3]] += v * fz;
+            In::setDPos(out[tetra[0]], In::getDPos(out[tetra[0]]) + v * ( 1-fx-fy-fz ) );
+            In::setDPos(out[tetra[1]], In::getDPos(out[tetra[1]]) + v * fx );
+            In::setDPos(out[tetra[2]], In::getDPos(out[tetra[2]]) + v * fy );
+            In::setDPos(out[tetra[3]], In::getDPos(out[tetra[3]]) + v * fz );
         }
     }
 }
@@ -2435,14 +2441,14 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::applyJT ( typename In::VecD
             const OutReal fz = ( OutReal ) map.getValue()[i].baryCoords[2];
             int index = map.getValue()[i].in_index;
             const topology::Hexahedron& cube = cubes[index];
-            out[cube[0]] += v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) );
-            out[cube[1]] += v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) );
-            out[cube[3]] += v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) );
-            out[cube[2]] += v * ( ( fx ) * ( fy ) * ( 1-fz ) );
-            out[cube[4]] += v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) );
-            out[cube[5]] += v * ( ( fx ) * ( 1-fy ) * ( fz ) );
-            out[cube[7]] += v * ( ( 1-fx ) * ( fy ) * ( fz ) );
-            out[cube[6]] += v * ( ( fx ) * ( fy ) * ( fz ) );
+            In::setDPos(out[cube[0]], In::getDPos(out[cube[0]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[1]], In::getDPos(out[cube[1]]) + v * ( ( fx ) * ( 1-fy ) * ( 1-fz ) ) ) ;
+            In::setDPos(out[cube[3]], In::getDPos(out[cube[3]]) + v * ( ( 1-fx ) * ( fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[2]], In::getDPos(out[cube[2]]) + v * ( ( fx ) * ( fy ) * ( 1-fz ) ) );
+            In::setDPos(out[cube[4]], In::getDPos(out[cube[4]]) + v * ( ( 1-fx ) * ( 1-fy ) * ( fz ) ) );
+            In::setDPos(out[cube[5]], In::getDPos(out[cube[5]]) + v * ( ( fx ) * ( 1-fy ) * ( fz ) ) );
+            In::setDPos(out[cube[7]], In::getDPos(out[cube[7]]) + v * ( ( 1-fx ) * ( fy ) * ( fz ) ) );
+            In::setDPos(out[cube[6]], In::getDPos(out[cube[6]]) + v * ( ( fx ) * ( fy ) * ( fz ) ) );
         }
     }
 }
@@ -2925,7 +2931,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
                     {
                         //                         glColor3f((float)f[j],1,(float)f[j]);
                         points.push_back ( Out::getCPos(out[i+i0]) );
-                        points.push_back ( in[line[j]] );
+                        points.push_back ( In::getCPos(in[line[j]]) );
                     }
                 }
             }
@@ -2953,7 +2959,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
                     {
                         //                         glColor3f((float)f[j],1,(float)f[j]);
                         points.push_back ( Out::getCPos(out[i+i0]) );
-                        points.push_back ( in[triangle[j]] );
+                        points.push_back ( In::getCPos(in[triangle[j]]) );
                     }
                 }
             }
@@ -2971,7 +2977,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
                     {
                         //                         glColor3f((float)f[j],1,(float)f[j]);
                         points.push_back ( Out::getCPos(out[i+i0]) );
-                        points.push_back ( in[quad[j]] );
+                        points.push_back ( In::getCPos(in[quad[j]]) );
                     }
                 }
             }
@@ -3001,7 +3007,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
                     {
                         //                         glColor3f((float)f[j],1,(float)f[j]);
                         points.push_back ( Out::getCPos(out[i+i0]) );
-                        points.push_back ( in[tetra[j]] );
+                        points.push_back ( In::getCPos(in[tetra[j]]) );
                     }
                 }
             }
@@ -3037,7 +3043,7 @@ void BarycentricMapperMeshTopology<In,Out>::draw  (const core::visual::VisualPar
                     {
                         //                         glColor3f((float)f[j],1,1);
                         points.push_back ( Out::getCPos(out[i+i0]) );
-                        points.push_back ( in[cube[j]] );
+                        points.push_back ( In::getCPos(in[cube[j]]) );
                     }
                 }
             }
@@ -3086,7 +3092,7 @@ void BarycentricMapperRegularGridTopology<In,Out>::draw  (const core::visual::Vi
             {
                 //glColor3f((float)f[j],(float)f[j],1);
                 points.push_back ( Out::getCPos(out[i]) );
-                points.push_back ( in[cube[j]] );
+                points.push_back ( In::getCPos(in[cube[j]]) );
             }
         }
     }
@@ -3133,7 +3139,7 @@ void BarycentricMapperSparseGridTopology<In,Out>::draw  (const core::visual::Vis
             {
                 //glColor3f((float)f[j],(float)f[j],1);
                 points.push_back ( Out::getCPos(out[i]) );
-                points.push_back ( in[cube[j]] );
+                points.push_back ( In::getCPos(in[cube[j]]) );
             }
         }
     }
@@ -3159,7 +3165,7 @@ void BarycentricMapperEdgeSetTopology<In,Out>::draw  (const core::visual::Visual
                 {
                     //                     glColor3f((float)f,1,(float)f);
                     points.push_back ( Out::getCPos(out[i]) );
-                    points.push_back ( in[edge[0]] );
+                    points.push_back ( In::getCPos(in[edge[0]]) );
                 }
             }
             {
@@ -3168,7 +3174,7 @@ void BarycentricMapperEdgeSetTopology<In,Out>::draw  (const core::visual::Visual
                 {
                     //                     glColor3f((float)f,1,(float)f);
                     points.push_back ( Out::getCPos(out[i]) );
-                    points.push_back ( in[edge[1]] );
+                    points.push_back ( In::getCPos(in[edge[1]]) );
                 }
             }
         }
@@ -3199,7 +3205,7 @@ void BarycentricMapperTriangleSetTopology<In,Out>::draw  (const core::visual::Vi
                 {
                     //                     glColor3f((float)f[j],1,(float)f[j]);
                     points.push_back ( Out::getCPos(out[i]) );
-                    points.push_back ( in[triangle[j]] );
+                    points.push_back ( In::getCPos(in[triangle[j]]) );
                 }
             }
         }
@@ -3230,7 +3236,7 @@ void BarycentricMapperQuadSetTopology<In,Out>::draw  (const core::visual::Visual
                 {
                     //                     glColor3f((float)f[j],1,(float)f[j]);
                     points.push_back ( Out::getCPos(out[i]) );
-                    points.push_back ( in[quad[j]] );
+                    points.push_back ( In::getCPos(in[quad[j]]) );
                 }
             }
         }
@@ -3263,7 +3269,7 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::draw  (const core::visual:
                 {
                     //                     glColor3f((float)f[j],1,(float)f[j]);
                     points.push_back ( Out::getCPos(out[i]) );
-                    points.push_back ( in[tetra[j]] );
+                    points.push_back ( In::getCPos(in[tetra[j]]) );
                 }
             }
         }
@@ -3300,7 +3306,7 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::draw  (const core::visual::
                 {
                     //                     glColor3f((float)f[j],1,1);
                     points.push_back ( Out::getCPos(out[i]) );
-                    points.push_back ( in[cube[j]] );
+                    points.push_back ( In::getCPos(in[cube[j]]) );
                 }
             }
         }
@@ -3365,7 +3371,8 @@ void BarycentricMapperMeshTopology<In,Out>::applyJT ( typename In::MatrixDeriv& 
             for ( ; colIt != colItEnd; ++colIt)
             {
                 indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
                 // 1D elements
                 if ( indexIn < i1d )
@@ -3464,7 +3471,8 @@ void BarycentricMapperRegularGridTopology<In,Out>::applyJT ( typename In::Matrix
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned int indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
 #ifdef SOFA_NEW_HEXA
                 const topology::RegularGridTopology::Hexa cube = this->fromTopology->getHexaCopy ( this->map[indexIn].in_index );
@@ -3518,7 +3526,8 @@ void BarycentricMapperSparseGridTopology<In,Out>::applyJT ( typename In::MatrixD
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
 #ifdef SOFA_NEW_HEXA
                 const topology::SparseGridTopology::Hexa cube = this->fromTopology->getHexahedron ( this->map[indexIn].in_index );
@@ -3594,7 +3603,8 @@ void BarycentricMapperEdgeSetTopology<In,Out>::applyJT ( typename In::MatrixDeri
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
                 const topology::Edge edge = edges[this->map.getValue()[indexIn].in_index];
                 const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
@@ -3624,7 +3634,8 @@ void BarycentricMapperTriangleSetTopology<In,Out>::applyJT ( typename In::Matrix
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
                 const topology::Triangle triangle = triangles[this->map.getValue()[indexIn].in_index];
                 const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
@@ -3656,7 +3667,8 @@ void BarycentricMapperQuadSetTopology<In,Out>::applyJT ( typename In::MatrixDeri
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
                 const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
                 const OutReal fy = ( OutReal ) map.getValue()[indexIn].baryCoords[1];
@@ -3689,7 +3701,8 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::applyJT ( typename In::Mat
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
                 const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
                 const OutReal fy = ( OutReal ) map.getValue()[indexIn].baryCoords[1];
@@ -3724,7 +3737,8 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::applyJT ( typename In::Matr
             for ( ; colIt != colItEnd; ++colIt)
             {
                 unsigned indexIn = colIt.index();
-                InDeriv data = (InDeriv) Out::getDPos(colIt.val());
+                InDeriv data;
+                In::setDPos(data, Out::getDPos(colIt.val()));
 
                 const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
                 const OutReal fy = ( OutReal ) map.getValue()[indexIn].baryCoords[1];
@@ -3785,7 +3799,7 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::handleTopologyChange(core::
                     const int j = *iter;
                     if ( mapData[j].in_index == -1 ) // compute new mapping
                     {
-                        //	std::cout << "BarycentricMapperHexahedronSetTopology : new mapping" << std::endl;
+                        //  std::cout << "BarycentricMapperHexahedronSetTopology : new mapping" << std::endl;
                         sofa::defaulttype::Vector3 coefs;
                         typename In::Coord pos;
                         pos[0] = mapData[j].baryCoords[0];
@@ -3809,7 +3823,9 @@ void BarycentricMapperHexahedronSetTopology<In,Out>::handleTopologyChange(core::
                             else
                             {
                                 const typename MechanicalStateT::VecCoord& xto0 = (mState->read(core::ConstVecCoordId::restPosition())->getValue());
-                                index = _fromGeomAlgo->findNearestElementInRestPos ( Out::getCPos(xto0[j]), coefs, distance );
+                                typename In::Coord xto0coord;
+                                In::setCPos(xto0coord,Out::getCPos(xto0[j]));
+                                index = _fromGeomAlgo->findNearestElementInRestPos ( xto0coord, coefs, distance );
                                 //_fromGeomAlgo->findNearestElementInRestPos ( pos, coefs, distance );
                                 coefs = _fromGeomAlgo->computeHexahedronRestBarycentricCoeficients(index, pos);
                             }

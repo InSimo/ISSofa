@@ -151,8 +151,8 @@ void TPointModel<DataTypes>::draw(const core::visual::VisualParams* ,int index)
     if ((unsigned)index < normals.size())
     {
         glBegin(GL_LINES);
-        helper::gl::glVertexT(p.p());
-        helper::gl::glVertexT(p.p()+normals[index]*0.1f);
+        helper::gl::glVertexT(DataTypes::getCPos(p.p()));
+        helper::gl::glVertexT(DataTypes::getCPos(p.p())+normals[index]*0.1f);
         glEnd();
     }
 #endif /* SOFA_NO_OPENGL */
