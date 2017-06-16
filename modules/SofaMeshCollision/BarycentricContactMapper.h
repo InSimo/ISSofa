@@ -160,9 +160,10 @@ public:
     inline int addPointB(const Coord& P, int index, Real& r ){return addPoint(P,index,r);}
 };
 
-/// Mapper for TriangleModel
-template<class DataTypes>
-class ContactMapper<TriangleModel, DataTypes> : public BarycentricContactMapper<TriangleModel, DataTypes>
+
+/// Generic Mapper for Triangle based collision Model
+template<class TriangleCollisionModel, class DataTypes>
+class TriangleContactMapper : public BarycentricContactMapper<TriangleCollisionModel, DataTypes>
 {
 public:
     typedef typename DataTypes::Real Real;
@@ -186,7 +187,9 @@ public:
             }
         }
     }
-    int addPointB(const Coord& P, int index, Real& /*r*/, const defaulttype::Vector3& baryP)
+
+
+    int addPointB(const typename DataTypes::CPos& P, int index, Real& /*r*/, const defaulttype::Vector3& baryP)
     {
 
         int nbt = this->model->getMeshTopology()->getNbTriangles();
@@ -198,7 +201,11 @@ public:
             int qindex = (index - nbt)/2;
             int nbq = this->model->getMeshTopology()->getNbQuads();
             if (qindex < nbq)
-                return this->mapper->createPointInQuad(P, qindex, &this->model->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue());
+            {
+                typename DataTypes::Coord pc;
+                DataTypes::setCPos(pc,P);
+                return this->mapper->createPointInQuad(pc, qindex, &this->model->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue());
+            }
             else
             {
                 std::cerr << "ContactMapper<TriangleMeshModel>: ERROR invalid contact element index "<<index<<" on a topology with "<<nbt<<" triangles and "<<nbq<<" quads."<<std::endl;
@@ -211,6 +218,15 @@ public:
     inline int addPointB(const Coord& P, int index, Real& r ){return addPoint(P,index,r);}
 
 };
+
+
+/// Mapper for flat TriangleModel
+template<class DataTypes>
+class ContactMapper<TriangleModel, DataTypes> : public TriangleContactMapper<TriangleModel, DataTypes>
+{
+};
+
+
 
 
 template <class DataTypes>
