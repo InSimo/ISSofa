@@ -22,6 +22,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	RigidVec6Types.h	
 	SolidTypes.h	
 	SolidTypes.inl	
+	StructTypeInfo.h
 	#SparseConstraintTypes.h	
 	TemplatesAliases.h
 	Vec.h	
