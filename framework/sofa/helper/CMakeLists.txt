@@ -43,6 +43,7 @@ set(SOFAHELPER_HEADERS
     list.h
     MarchingCubeUtility.h
     MemoryManager.h
+    preprocessor.h
     decompose.h
     decompose.inl
     Quater.h

@@ -9,6 +9,7 @@ set(SOURCE_FILES
     #defaulttype/MatTypesTest.cpp
     defaulttype/RigidMass_test.cpp
     helper/map_ptr_stable_compare_test.cpp
+    helper/preprocessorTest.cpp
     helper/system/atomicTest.cpp
     helper/system/FileSystemTest.cpp
     helper/system/UtilsTest.cpp
