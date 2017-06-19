@@ -16,6 +16,7 @@ set(SOURCE_FILES
     core/objectmodel/AspectPoolTest.cpp
     core/objectmodel/DataTest.cpp
     core/objectmodel/DataTypeInfoTest.cpp
+    core/objectmodel/StructTypeInfoTest.cpp
     #plugin-system/PluginSystemTest.cpp
     )
 
