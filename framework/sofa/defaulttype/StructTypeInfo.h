@@ -29,6 +29,7 @@
 #include <type_traits>
 #include <string>
 #include <tuple>
+#include <sofa/helper/preprocessor.h>
 
 namespace sofa
 {
@@ -267,16 +268,22 @@ public:
     }
 };*/
 
-#define SOFA_STRUCT_MEMBER_I(TStruct, MemberName) \
-struct sofa_concat(TStruct, MemberName) \
-{ \
-    typedef decltype(TStruct::MemberName) type; \
-    static const char* name() { return sofa_tostring(MemberName); } \
-    static const type& readRef(const TStruct& s) { return s.MemberName; } \
-    static type& writeRef(TStruct& s) { return s.MemberName; } \
 };
 
-};
+#define SOFA_STRUCT_MEMBER(MemberName)                                       \
+    struct MemberInfo_##MemberName{                                          \
+    typedef decltype(MemberName) type;                                       \
+    static const char* name() { return SOFA_TO_STRING_1(MemberName); }       \
+    static const type& readRef(const StructType& s) { return s.MemberName; } \
+    static type& writeRef(StructType& s) { return s.MemberName; }            \
+    };
+
+#define SOFA_MEMBERINFO_TYPE_NAME(MemberName)  MemberInfo_##MemberName
+
+#define SOFA_STRUCT_DECL(TStruct, ...)                                  \
+ using StructType = TStruct;                                            \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)   \
+ using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>
 
 } // namespace defaulttype
 

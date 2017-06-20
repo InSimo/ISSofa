@@ -26,7 +26,7 @@ struct EmptyStruct
 {
     inline friend std::ostream& operator<<(std::ostream& os, const EmptyStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, EmptyStruct& /*s*/) { return in; }
-    using MembersTuple = std::tuple<>;
+    SOFA_STRUCT_DECL(EmptyStruct);
 };
 struct SimpleStruct
 {
@@ -36,12 +36,7 @@ struct SimpleStruct
     bool myBool = true;
     inline friend std::ostream& operator<<(std::ostream& os, const SimpleStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, SimpleStruct& /*s*/) { return in; }
-    
-    SOFA_STRUCT_MEMBER_I(SimpleStruct, myInt)
-    SOFA_STRUCT_MEMBER_I(SimpleStruct, myFloat)
-    SOFA_STRUCT_MEMBER_I(SimpleStruct, myUChar)
-    SOFA_STRUCT_MEMBER_I(SimpleStruct, myBool)
-    using MembersTuple = std::tuple<SimpleStructmyInt, SimpleStructmyFloat, SimpleStructmyUChar, SimpleStructmyBool>;
+    SOFA_STRUCT_DECL(SimpleStruct, myInt, myFloat, myUChar, myBool);
 };
 struct NestedStruct
 {
