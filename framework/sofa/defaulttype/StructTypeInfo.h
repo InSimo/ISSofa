@@ -26,11 +26,9 @@
 #define SOFA_DEFAULTTYPE_STRUCTTYPEINFO_H
 
 #include <sofa/defaulttype/DataTypeInfo.h>
-#include <vector>
 #include <type_traits>
-#include <map>
-#include <sstream>
-#include <typeinfo>
+#include <string>
+#include <tuple>
 
 namespace sofa
 {
@@ -38,18 +36,13 @@ namespace sofa
 namespace defaulttype
 {
 
-template<class TDataType, class TMembersTuple = TDataType::MyMembers>
+template<class TDataType, class TMembersTuple = typename TDataType::MembersTuple>
 // ? IsPOD
 // ? FixedSize
 struct StructTypeInfo
 {
     typedef TDataType DataType;
-
-//    typedef ?? StructMemberNameEnum;
-
-    typedef std::string    KeyType;         ///< type uniquely identifying items (or void if not applicable)
-// OR    typedef StructMemberNameEnum KeyType;
-
+    typedef const char* KeyType;         ///< type uniquely identifying items (or void if not applicable)
     typedef TMembersTuple MembersTuple;
 
     static constexpr bool IsContainer        = false; ///< true if this type is a container
@@ -88,66 +81,200 @@ struct StructTypeInfo
         static_assert(FixedStructSize,"Structs must have a fixed number of members");
         return StructSize;
     }
+    
+    template<size_t Index>
+    using MemberType = typename std::tuple_element<Index,MembersTuple>::type;
+    template<size_t Index>
+    using MemberDataType = typename MemberType<Index>::type;
 
-    static void resetValue(DataType& data, size_t reserve = 0)
+    // TODO: replace with generic lambda in C++14
+    struct ResetValue
     {
-        /*
-          foreach(Member m) {
-            DataTypeInfo<m::type>::resetValue(m.ref(data));
-          }
-        */
+        template <typename T>
+        void operator()(T&& t) const { DataTypeInfo<T>::resetValue(t); }
+    };
+    static void resetValue(DataType& data, size_t /*reserve*/ = 0)
+    {
+        for_each(data, ResetValue{});
+    }    
+    template<size_t Index>
+    static auto getMemberValue(const DataType& data) -> const MemberDataType<Index>&
+    {
+        return MemberType<Index>::readRef(data);
     }
 
-    template<size_t index>
-    static auto getMemberValue(const DataType& data) -> decltype(const typename std::get<index>(MembersTuple())::type &)
-    {
-        return std::get<index>(MembersTuple())::readRef(data);
-    }
-
-    template<size_t index>
+    template<size_t Index>
     static const KeyType& getMemberName(const DataType& data)
     {
-        return std::get<index>(MembersTuple())::name();
+        return MemberType<Index>::name();
     }
 
-    template<size_t index>
-    static auto editMemberValue(DataType& data) -> decltype(typename std::get<index>(MemberTypes())::type &)
+    template<size_t Index>
+    static auto editMemberValue(DataType& data) -> MemberDataType<Index>&
     {
-        return std::get<index>(MembersTuple())::writeRef(data);
+        return MemberType<Index>::writeRef(data);
     }
+    
+    ///< Call f<MemberType>() for each struct member
+    template <typename F>
+    static void for_each(F&& f)
+    {
+        TupleForEach<MembersTuple>::loop(std::forward<F>(f), std::forward<F>(f));
+    }
+    ///< Call f(const MemberDataType&) for each struct member
+    template <typename F>
+    static void for_each(const DataType& data, F&& f)
+    {
+        TupleForEach<MembersTuple>::loop(data, std::forward<F>(f), std::forward<F>(f));
+    }   
+    ///< Call f(MemberDataType&) for each struct member
+    template <typename F>
+    static void for_each(DataType& data, F&& f)
+    {
+        TupleForEach<MembersTuple>::loop(data, std::forward<F>(f), std::forward<F>(f));
+    }
+    ///< Call f<MemberType>() for each struct member except lf<MemberType>() for the last member (useful for serializers)
+    template <typename F, typename LastF>
+    static void for_each(F&& f, LastF&& lf)
+    {
+        TupleForEach<MembersTuple>::loop(std::forward<F>(f), std::forward<LastF>(lf));
+    }
+    ///< Call f(const MemberDataType&) for each struct member except lf<MemberType>() for the last member (useful for serializers)
+    template <typename F, typename LastF>
+    static void for_each(const DataType& data, F&& f, LastF&& lf)
+    {
+        TupleForEach<MembersTuple>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
+    }   
+    ///< Call f(MemberDataType&) for each struct member except except lf<MemberType>() for the last member (useful for serializers)
+    template <typename F, typename LastF>
+    static void for_each(DataType& data, F&& f, LastF&& lf)
+    {
+        TupleForEach<MembersTuple>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
+    }
+
+private:
+    // visit all struct members using (tail) recursion
+    template <class Tuple, std::size_t I = 0,std::size_t N = std::tuple_size<Tuple>::value-1>
+    class TupleForEach
+    {
+    public:
+        template <typename F, typename LastF>
+        static void loop(F&& f, LastF&& lf)
+        {
+            f.template operator()<MemberType<I>>();
+            TupleForEach<Tuple,I+1>::loop(std::forward<F>(f), std::forward<LastF>(lf));
+        }
+        template <typename F, typename LastF>
+        static void loop(const DataType& data, F&& f, LastF&& lf)
+        {
+            f(getMemberValue<I>(data));
+            TupleForEach<Tuple,I+1>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
+        }
+        template <typename F, typename LastF>
+        static void loop(DataType& data, F&& f, LastF&& lf)
+        {
+            f(editMemberValue<I>(data));
+            TupleForEach<Tuple,I+1>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
+        }
+    };
+     
+    // Last member : end of recursion
+    template <class Tuple, std::size_t N>
+    class TupleForEach<Tuple, N, N>
+    {
+    public:
+        template <typename F, typename LastF>
+        static void loop(F&& f, LastF&& lf)
+        {
+            SOFA_UNUSED(f);
+            lf.template operator()<MemberType<N>>();
+        }
+        template <typename F, typename LastF>
+        static void loop(const DataType& data, F&& f, LastF&& lf)
+        {
+            SOFA_UNUSED(f);
+            lf(getMemberValue<N>(data));
+        }
+        template <typename F, typename LastF>
+        static void loop(DataType& data, F&& f, LastF&& lf)
+        {
+            SOFA_UNUSED(f);
+            lf(editMemberValue<N>(data));
+        }
+    };
+
+    // Required for empty structs
+    template <class Tuple>
+    class TupleForEach<Tuple, 0, -1>
+    {
+    public:
+        template <typename F, typename LastF>
+        static void loop(F&& f, LastF&& lf)
+        {
+            SOFA_UNUSED(f);
+            SOFA_UNUSED(lf);
+        }
+        template <typename F, typename LastF>
+        static void loop(const DataType& data, F&& f, LastF&& lf)
+        {
+            SOFA_UNUSED(data);
+            SOFA_UNUSED(f);
+            SOFA_UNUSED(lf);
+        }
+        template <typename F, typename LastF>
+        static void loop(DataType& data, F&& f, LastF&& lf)
+        {
+            SOFA_UNUSED(data);
+            SOFA_UNUSED(f);
+            SOFA_UNUSED(lf);
+        }
+    };
+    
+// TODO: decide if we want to support accessing a member with a runtime index
+/* 
+private:
+    template <size_t I>
+    struct visit_impl
+    {
+        template <typename T, typename F>
+        static void visit(T& tup, size_t idx, F fun)
+        {
+            if (idx == I - 1) fun(std::get<I - 1>(tup));
+            else visit_impl<I - 1>::visit(tup, idx, fun);
+        }
+    };
+
+    template <>
+    struct visit_impl<0>
+    {
+        template <typename T, typename F>
+        static void visit(T& tup, size_t idx, F fun) { assert(false); }
+    };
+
+public:
+    template <typename F, typename... Ts>
+    void visit_at(std::tuple<Ts...> const& tup, size_t idx, F fun)
+    {
+        visit_impl<sizeof...(Ts)>::visit(tup, idx, fun);
+    }
+
+    template <typename F, typename... Ts>
+    void visit_at(std::tuple<Ts...>& tup, size_t idx, F fun)
+    {
+        visit_impl<sizeof...(Ts)>::visit(tup, idx, fun);
+    }
+};*/
+
+#define SOFA_STRUCT_MEMBER_I(TStruct, MemberName) \
+struct sofa_concat(TStruct, MemberName) \
+{ \
+    typedef decltype(TStruct::MemberName) type; \
+    static const char* name() { return sofa_tostring(MemberName); } \
+    static const type& readRef(const TStruct& s) { return s.MemberName; } \
+    static type& writeRef(TStruct& s) { return s.MemberName; } \
 };
 
-template <class TStruct, const char* Name, class TMember, TMember* TStruct::MemberPtr>
-struct MyStructMember {
-    typedef decltype(((TStruct*)nullptr)->MemberName) type;
-    static const char* name() { return SOFA_TOSTRING(MemberName); }
-    static const type& readRef(const TStruct& s) { return s.MemberName; }
-    static type& writeRef(TStruct& s) { return s.MemberName; }
-}
-
-
-typedef std::tuple<
-    struct M1 { ...},
-    struct M2 { ...} > T;
-
-
-
-struct MyMember1 { ...};
-struct MyMember2 { ...};
-typedef std::tuple<M1, M2 > MyMembers;
-
-#define SOFA_STRUCT_MEMBER_I(TStruct, MemberName)
-struct {
-    typedef decltype(((TStruct*)nullptr)->MemberName) type;
-    static const char* name() { return SOFA_TOSTRING(MemberName); }
-    static const type& readRef(const TStruct& s) { return s.MemberName; }
-    static type& writeRef(TStruct& s) { return s.MemberName; }
-}
-
-#define SOFA_STRUCT_MEMBERS(TStruct, TMembers) \
-    std::tuple<
-        SOFA_CALL_FOREACH(SOFA_STRUCT_MEMBER_I, TMembers)
-    >
+};
 
 } // namespace defaulttype
 

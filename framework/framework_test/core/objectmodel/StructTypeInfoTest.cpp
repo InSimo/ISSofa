@@ -26,15 +26,22 @@ struct EmptyStruct
 {
     inline friend std::ostream& operator<<(std::ostream& os, const EmptyStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, EmptyStruct& /*s*/) { return in; }
+    using MembersTuple = std::tuple<>;
 };
 struct SimpleStruct
 {
-    int myInt;
-    float myFloat;
-    unsigned char myUChar;
-    bool myBool;
+    int myInt = 10;
+    float myFloat = -0.1f;
+    unsigned char myUChar = 'c';
+    bool myBool = true;
     inline friend std::ostream& operator<<(std::ostream& os, const SimpleStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, SimpleStruct& /*s*/) { return in; }
+    
+    SOFA_STRUCT_MEMBER_I(SimpleStruct, myInt)
+    SOFA_STRUCT_MEMBER_I(SimpleStruct, myFloat)
+    SOFA_STRUCT_MEMBER_I(SimpleStruct, myUChar)
+    SOFA_STRUCT_MEMBER_I(SimpleStruct, myBool)
+    using MembersTuple = std::tuple<SimpleStructmyInt, SimpleStructmyFloat, SimpleStructmyUChar, SimpleStructmyBool>;
 };
 struct NestedStruct
 {
@@ -44,8 +51,8 @@ struct NestedStruct
 };
 struct ContainerStruct
 {
-    std::vector<int> myIntVector;
-    helper::set<float> myFloatSet;
+    helper::vector<int> myIntVector = {1,2,3};
+    std::set<float> myFloatSet = {9,8,7};
     inline friend std::ostream& operator<<(std::ostream& os, const ContainerStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, ContainerStruct& /*s*/) { return in; }
 };
@@ -58,10 +65,10 @@ struct PointerStruct
 
 using StructTypes = testing::Types<
     EmptyStruct,
-    SimpleStruct,
-    NestedStruct,
-    ContainerStruct,
-    PointerStruct
+    SimpleStruct//,
+    //NestedStruct,
+    //ContainerStruct//,
+    //PointerStruct
 >;
 
 TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);
@@ -72,12 +79,92 @@ TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);
 /////////////
 
 
+struct PrintName
+{
+    template <typename MemberType>
+    void operator()() const
+    { 
+        using DataType = typename MemberType::type;
+        std::cout << DataTypeName<DataType>::name() << " " << MemberType::name() << ", ";
+    }
+};
+struct PrintLastName
+{
+    template <typename MemberType>
+    void operator()() const
+    {
+        using DataType = typename MemberType::type;
+        std::cout << DataTypeName<DataType>::name() << " " << MemberType::name();
+    }
+};
+struct PrintValue
+{
+    template <typename DataType>
+    void operator()(const DataType& t) const
+    { 
+        std::cout << t << ", ";
+    }
+};
+struct PrintLastValue
+{
+    template <typename DataType>
+    void operator()(const DataType& t) const
+    { 
+        std::cout << t;
+    }
+};
+
 TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
 {
     using StructType = TypeParam;
     Data<StructType> data("Struct");
+    //BaseData* baseData = &data;
     StructTypeInfo<StructType> structTypeInfo;
+    
+    std::cout << "STATIC TYPEINFO" << std::endl;
+    std::cout << "struct " << structTypeInfo.name() << " { ";
+    StructTypeInfo<StructType>::for_each(PrintName{}, PrintLastName{});
+    std::cout << " };" << std::endl;
+    
+    std::cout << "DYNAMIC TYPEINFO" << std::endl;
+    std::cout << "struct " << structTypeInfo.name() << " { ";
+    StructTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
+    std::cout << " };" << std::endl;
+}
+
+TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
+{
+    using StructType = TypeParam;
+    //Data<StructType> data("Struct");
+    //BaseData* baseData = &data;
+    
     //const AbstractTypeInfo* typeInfo = data.getValueTypeInfo();
+    //EXPECT_TRUE(typeInfo->isStruct());
+}
+
+struct ExpectCleared
+{
+    template <typename DataType>
+    void operator()(const DataType& t) const
+    {
+        EXPECT_EQ(t, DataType());
+    }
+};
+
+TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
+{
+    using StructType = TypeParam;
+    Data<StructType> data("Struct");
+    //BaseData* baseData = &data;
+    StructTypeInfo<StructType>::resetValue(*data.beginEdit());
+    data.endEdit();
+    
+    StructTypeInfo<StructType>::for_each(data.getValue(), ExpectCleared{});
+    
+    // DEBUG (warning : printing '\0' characters will end the output of std::cout)
+    //std::cout << "RESET : struct " << StructTypeInfo<StructType>::name() << " { ";
+    //StructTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
+    //std::cout << " };" << std::endl;
 }
 
 }
