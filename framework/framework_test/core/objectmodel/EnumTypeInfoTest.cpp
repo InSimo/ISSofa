@@ -43,7 +43,7 @@ SOFA_ENUM(unscopedEnum, uns, sco, ped)
 
 std::ostream& operator<< (std::ostream& stream, const uIntEnum2& myEnum)
 {
-    stream << static_cast<unsigned int>(myEnum);
+    stream << static_cast<std::underlying_type<uIntEnum2>::type>(myEnum);
     return stream;
 }
 
@@ -54,7 +54,7 @@ std::istream& operator>> (std::istream& stream, uIntEnum2& myEnum)
 
 std::ostream& operator<< (std::ostream& stream, const charEnum2& myEnum)
 {
-    stream << static_cast<unsigned int>(myEnum);
+    stream << static_cast<std::underlying_type<charEnum2>::type>(myEnum);
     return stream;
 }
 
@@ -65,7 +65,7 @@ std::istream& operator >> (std::istream& stream, charEnum2& myEnum)
 
 std::ostream& operator<< (std::ostream& stream, const unscopedEnum& myEnum)
 {
-    stream << static_cast<unsigned int>(myEnum);
+    stream << static_cast<std::underlying_type<unscopedEnum>::type>(myEnum);
     return stream;
 }
 
@@ -139,7 +139,7 @@ TEST(DataEnumTypeInfoTest2, checkcharEnum2)
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::FixedFinalSize, true);
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::enumSize(), 4);
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorName<0>(), "aa");
-    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getValue<1>(), static_cast<int>('b'));
+    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getValue<1>(), 'b');
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumerator<2>(), charEnum2::cc);
 }
 
