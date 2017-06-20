@@ -37,33 +37,41 @@ struct SimpleStruct
     inline friend std::ostream& operator<<(std::ostream& os, const SimpleStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, SimpleStruct& /*s*/) { return in; }
     SOFA_STRUCT_DECL(SimpleStruct, myInt, myFloat, myUChar, myBool);
+
+    bool operator==(const SimpleStruct& rhs) const
+    {
+        return (myInt == rhs.myInt && myFloat == rhs.myFloat && myUChar == rhs.myUChar && myBool == rhs.myBool);
+    }
 };
 struct NestedStruct
 {
     SimpleStruct mySimpleStruct;
     inline friend std::ostream& operator<<(std::ostream& os, const NestedStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, NestedStruct& /*s*/) { return in; }
+    SOFA_STRUCT_DECL(NestedStruct, mySimpleStruct);
 };
 struct ContainerStruct
 {
     helper::vector<int> myIntVector = {1,2,3};
-    std::set<float> myFloatSet = {9,8,7};
+    helper::set<float> myFloatSet = std::set<float>({9,8,7});
     inline friend std::ostream& operator<<(std::ostream& os, const ContainerStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, ContainerStruct& /*s*/) { return in; }
+    SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet);
 };
 struct PointerStruct
 {
     double *myDoublePointer;
     inline friend std::ostream& operator<<(std::ostream& os, const PointerStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, PointerStruct& /*s*/) { return in; }
+    SOFA_STRUCT_DECL(PointerStruct, myDoublePointer);
 };
 
 using StructTypes = testing::Types<
     EmptyStruct,
-    SimpleStruct//,
-    //NestedStruct,
-    //ContainerStruct//,
-    //PointerStruct
+    SimpleStruct,
+    NestedStruct,
+    ContainerStruct,
+    PointerStruct
 >;
 
 TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);
@@ -104,7 +112,7 @@ struct PrintLastValue
 {
     template <typename DataType>
     void operator()(const DataType& t) const
-    { 
+    {
         std::cout << t;
     }
 };
