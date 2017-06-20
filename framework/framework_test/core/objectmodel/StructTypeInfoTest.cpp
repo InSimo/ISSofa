@@ -58,6 +58,18 @@ struct ContainerStruct
     inline friend std::istream& operator>>(std::istream& in, ContainerStruct& /*s*/) { return in; }
     SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet);
 };
+
+template<typename T1, typename T2>
+struct TemplatedStruct
+{
+    T1 myMemberT1;
+    T2 myMemberT2;
+    inline friend std::ostream& operator<<(std::ostream& os, const TemplatedStruct<T1, T2>& /*s*/) { return os; }
+    inline friend std::istream& operator >> (std::istream& in, TemplatedStruct<T1, T2>& /*s*/) { return in; }
+    using TemplatedStruct_t = TemplatedStruct<T1, T2>;
+    SOFA_STRUCT_DECL(TemplatedStruct_t, myMemberT1, myMemberT2);
+};
+
 struct PointerStruct
 {
     double *myDoublePointer;
@@ -71,6 +83,7 @@ using StructTypes = testing::Types<
     SimpleStruct,
     NestedStruct,
     ContainerStruct,
+    TemplatedStruct<int, SimpleStruct>,
     PointerStruct
 >;
 
