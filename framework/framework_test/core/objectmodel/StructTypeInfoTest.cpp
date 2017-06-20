@@ -21,7 +21,8 @@ struct DataStructTypeInfoTest: public ::testing::Test
 //////////////////////////
 /// Structures to test ///
 //////////////////////////
-
+namespace test_struct
+{
 struct EmptyStruct
 {
     inline friend std::ostream& operator<<(std::ostream& os, const EmptyStruct& /*s*/) { return os; }
@@ -52,8 +53,8 @@ struct NestedStruct
 };
 struct ContainerStruct
 {
-    helper::vector<int> myIntVector = {1,2,3};
-    helper::set<float> myFloatSet = std::set<float>({9,8,7});
+    helper::vector<int> myIntVector = { 1,2,3 };
+    helper::set<float> myFloatSet = std::set<float>({ 9,8,7 });
     inline friend std::ostream& operator<<(std::ostream& os, const ContainerStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, ContainerStruct& /*s*/) { return in; }
     SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet);
@@ -65,7 +66,7 @@ struct TemplatedStruct
     T1 myMemberT1;
     T2 myMemberT2;
     inline friend std::ostream& operator<<(std::ostream& os, const TemplatedStruct<T1, T2>& /*s*/) { return os; }
-    inline friend std::istream& operator >> (std::istream& in, TemplatedStruct<T1, T2>& /*s*/) { return in; }
+    inline friend std::istream& operator>>(std::istream& in, TemplatedStruct<T1, T2>& /*s*/) { return in; }
     using TemplatedStruct_t = TemplatedStruct<T1, T2>;
     SOFA_STRUCT_DECL(TemplatedStruct_t, myMemberT1, myMemberT2);
 };
@@ -77,14 +78,25 @@ struct PointerStruct
     inline friend std::istream& operator>>(std::istream& in, PointerStruct& /*s*/) { return in; }
     SOFA_STRUCT_DECL(PointerStruct, myDoublePointer);
 };
+}
+
+namespace defaulttype
+{
+    template<> struct DataTypeInfo<test_struct::EmptyStruct> : public StructTypeInfo<test_struct::EmptyStruct> {};
+    template<> struct DataTypeInfo<test_struct::SimpleStruct> : public StructTypeInfo<test_struct::SimpleStruct> {};
+    template<> struct DataTypeInfo<test_struct::NestedStruct> : public StructTypeInfo<test_struct::NestedStruct> {};
+    template<> struct DataTypeInfo<test_struct::ContainerStruct> : public StructTypeInfo<test_struct::ContainerStruct> {};
+    template<> struct DataTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> : public StructTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> {};
+    template<> struct DataTypeInfo<test_struct::PointerStruct> : public StructTypeInfo<test_struct::PointerStruct> {};
+}
 
 using StructTypes = testing::Types<
-    EmptyStruct,
-    SimpleStruct,
-    NestedStruct,
-    ContainerStruct,
-    TemplatedStruct<int, SimpleStruct>,
-    PointerStruct
+    test_struct::EmptyStruct,
+    test_struct::SimpleStruct,
+    test_struct::NestedStruct,
+    test_struct::ContainerStruct,
+    test_struct::TemplatedStruct<int, test_struct::SimpleStruct>,
+    test_struct::PointerStruct
 >;
 
 TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);

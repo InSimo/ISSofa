@@ -46,6 +46,9 @@ struct StructTypeInfo
     typedef const char* KeyType;         ///< type uniquely identifying items (or void if not applicable)
     typedef TMembersTuple MembersTuple;
 
+    static constexpr ContainerKindEnum ContainerKind = ContainerKindEnum::Struct;
+    static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Void; // TODO
+
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
     static constexpr bool IsMultiValue       = false; /// TODO: check if all member types are identical
@@ -116,6 +119,19 @@ struct StructTypeInfo
         return MemberType<Index>::writeRef(data);
     }
     
+
+    template<typename DataTypeRef>
+    static void getDataValueString(const DataTypeRef& data, std::string& value)
+    {
+        // TODO
+    }
+
+    template<typename DataTypeRef>
+    static void setDataValueString(DataTypeRef&& data, const std::string& value)
+    {
+        // TODO
+    }
+
     ///< Call f<MemberType>() for each struct member
     template <typename F>
     static void for_each(F&& f)
