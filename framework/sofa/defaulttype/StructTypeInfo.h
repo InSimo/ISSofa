@@ -139,13 +139,13 @@ struct StructTypeInfo
     {
         TupleForEach<MembersTuple>::loop(std::forward<F>(f), std::forward<LastF>(lf));
     }
-    ///< Call f(const MemberDataType&) for each struct member except lf<MemberType>() for the last member (useful for serializers)
+    ///< Call f(const MemberDataType&) for each struct member except lf(const MemberDataType&) for the last member (useful for serializers)
     template <typename F, typename LastF>
     static void for_each(const DataType& data, F&& f, LastF&& lf)
     {
         TupleForEach<MembersTuple>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
     }   
-    ///< Call f(MemberDataType&) for each struct member except except lf<MemberType>() for the last member (useful for serializers)
+    ///< Call f(MemberDataType&) for each struct member except except lf(MemberDataType&) for the last member (useful for serializers)
     template <typename F, typename LastF>
     static void for_each(DataType& data, F&& f, LastF&& lf)
     {
@@ -154,14 +154,15 @@ struct StructTypeInfo
 
 private:
     // visit all struct members using (tail) recursion
-    template <class Tuple, std::size_t I = 0,std::size_t N = std::tuple_size<Tuple>::value-1>
+    template <class Tuple, std::size_t I = 0, std::size_t N = std::tuple_size<Tuple>::value-1>
     class TupleForEach
     {
     public:
         template <typename F, typename LastF>
         static void loop(F&& f, LastF&& lf)
         {
-            f.template operator()<MemberType<I>>();
+            //f.template operator()<MemberType<I>>(); // Does not work with VS2015, need to instanciate
+            f(MemberType<I>{});
             TupleForEach<Tuple,I+1>::loop(std::forward<F>(f), std::forward<LastF>(lf));
         }
         template <typename F, typename LastF>
@@ -187,7 +188,8 @@ private:
         static void loop(F&& f, LastF&& lf)
         {
             SOFA_UNUSED(f);
-            lf.template operator()<MemberType<N>>();
+            //lf.template operator()<MemberType<N>>(); // Does not work with VS2015, need to instanciate
+            lf(MemberType<N>{});
         }
         template <typename F, typename LastF>
         static void loop(const DataType& data, F&& f, LastF&& lf)

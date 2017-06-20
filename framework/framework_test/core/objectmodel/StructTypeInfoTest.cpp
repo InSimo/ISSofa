@@ -82,7 +82,7 @@ TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);
 struct PrintName
 {
     template <typename MemberType>
-    void operator()() const
+    void operator()(MemberType&& mt) const
     { 
         using DataType = typename MemberType::type;
         std::cout << DataTypeName<DataType>::name() << " " << MemberType::name() << ", ";
@@ -91,7 +91,7 @@ struct PrintName
 struct PrintLastName
 {
     template <typename MemberType>
-    void operator()() const
+    void operator()(MemberType&& mt) const
     {
         using DataType = typename MemberType::type;
         std::cout << DataTypeName<DataType>::name() << " " << MemberType::name();
