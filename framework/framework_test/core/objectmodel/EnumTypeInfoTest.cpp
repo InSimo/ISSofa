@@ -35,11 +35,11 @@ enum unscopedEnum : unsigned int
 };
 
 
-SOFA_ENUM(uIntEnum2, un, dix, cent);
+SOFA_ENUM(uIntEnum2, un, dix, cent)
 
-SOFA_ENUM(charEnum2, aa, bb, cc, dd);
+SOFA_ENUM(charEnum2, aa, bb, cc, dd)
 
-SOFA_ENUM(unscopedEnum, uns, sco, ped);
+SOFA_ENUM(unscopedEnum, uns, sco, ped)
 
 std::ostream& operator<< (std::ostream& stream, const uIntEnum2& myEnum)
 {

@@ -44,14 +44,14 @@ namespace sofa
         ////////////////////////
         // EnumTypeInfo struct definition
 
-        template<class TDataType, class TMappedType, class TMembersTuple = TDataType::MyMembers>
+        template<class TDataType, class TMembersTuple>
         struct EnumTypeInfo
         {
             typedef TDataType DataType;
 
             typedef TMembersTuple MembersTuple;
 
-            typedef TMappedType MappedType;      ///< type contained in DataType
+            typedef typename std::underlying_type<DataType>::type MappedType;      ///< type contained in DataType
             typedef DataTypeInfo<MappedType> MappedTypeInfo;
             typedef typename MappedTypeInfo::FinalValueType  FinalValueType;  ///< type of the final atomic values (or void if not applicable)
 
@@ -181,7 +181,7 @@ namespace sofa
                                                                                                                                     \
             template<>                                                                                                              \
             struct DataTypeInfo<myEnum##myEnumT> :                                                                                  \
-                public EnumTypeInfo<myEnum##myEnumT, myEnum##myEnumType, myEnum##nspace::myEnum##myEnumTuple>                       \
+                public EnumTypeInfo<myEnum##myEnumT, myEnum##nspace::myEnum##myEnumTuple>                                           \
             {    };                                                                                                                 \
             template<> struct DataTypeName<myEnum##myEnumT> { static const char* name() { return "enum"; } };
 
