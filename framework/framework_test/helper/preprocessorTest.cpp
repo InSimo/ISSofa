@@ -29,7 +29,7 @@ TEST(SofaPreprocessorTest, EmptyArgs)
     static_assert(0 == SOFA_NUM_ARGS(), "SOFA_NUM_ARGS() is not 0");
 
     std::vector<const char*> text_vector;
-    SOFA_FOR_EACH(SOFA_PP_TEST_ADD_VECTOR, SOFA_EMPTY_DELIMITER)
+    SOFA_FOR_EACH(SOFA_PP_TEST_ADD_VECTOR, SOFA_EMPTY_DELIMITER, SOFA_EMPTY)
 
     EXPECT_EQ(0, text_vector.size());
 
