@@ -6,6 +6,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
 	BoundingBox.h	
 	DataTypeInfo.h	
+	EnumTypeInfo.h	
 	DataTypeKind.h	
 	Frame.h	 
 	LaparoscopicRigidTypes.h	
