@@ -2,10 +2,7 @@
 #include <gtest/gtest.h>
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/defaulttype/EnumTypeInfo.h>
-#include <sofa/helper/vector.h>
-#include <sofa/helper/set.h>
 #include <iostream>
-#include <sofa/core/objectmodel/BaseObject.h>
 
 namespace sofa
 {
