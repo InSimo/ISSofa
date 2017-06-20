@@ -114,15 +114,14 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
     using StructType = TypeParam;
     Data<StructType> data("Struct");
     //BaseData* baseData = &data;
-    StructTypeInfo<StructType> structTypeInfo;
     
     std::cout << "STATIC TYPEINFO" << std::endl;
-    std::cout << "struct " << structTypeInfo.name() << " { ";
+    std::cout << "struct " << StructTypeInfo<StructType>::name() << " { ";
     StructTypeInfo<StructType>::for_each(PrintName{}, PrintLastName{});
     std::cout << " };" << std::endl;
     
     std::cout << "DYNAMIC TYPEINFO" << std::endl;
-    std::cout << "struct " << structTypeInfo.name() << " { ";
+    std::cout << "struct " << StructTypeInfo<StructType>::name() << " { ";
     StructTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
     std::cout << " };" << std::endl;
 }
