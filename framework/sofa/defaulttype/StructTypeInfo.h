@@ -94,8 +94,8 @@ struct StructTypeInfo
     // TODO: replace with generic lambda in C++14
     struct ResetValue
     {
-        template <typename T>
-        void operator()(T&& t) const { DataTypeInfo<T>::resetValue(t); }
+        template <typename MemberType>
+        void operator()(MemberType&& mt, typename MemberType::type& t) const { DataTypeInfo<MemberType::type>::resetValue(t); }
     };
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
@@ -119,17 +119,32 @@ struct StructTypeInfo
         return MemberType<Index>::writeRef(data);
     }
     
+    static void getDataValueStream(const DataType& data, std::ostream& os)
+    {
+        os << "{ ";
+        auto functor = StructToStream(os);
+        for_each(data, functor);
+        os << "}";
+    }
+
+    static void setDataValueStream(DataType& data, std::istream& is)
+    {
+        is.ignore(1, '{');
+        auto functor = StreamToStruct(is);
+        for_each(data, functor);
+        is.ignore(2, '}');
+    }
 
     template<typename DataTypeRef>
     static void getDataValueString(const DataTypeRef& data, std::string& value)
     {
-        // TODO
+        DataTypeInfo_ToString(data, value);
     }
 
     template<typename DataTypeRef>
     static void setDataValueString(DataTypeRef&& data, const std::string& value)
     {
-        // TODO
+        DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
     ///< Call f<MemberType>() for each struct member
@@ -185,13 +200,13 @@ private:
         template <typename F, typename LastF>
         static void loop(const DataType& data, F&& f, LastF&& lf)
         {
-            f(getMemberValue<I>(data));
+            f(MemberType<I>{}, getMemberValue<I>(data));
             TupleForEach<Tuple,I+1>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
         }
         template <typename F, typename LastF>
         static void loop(DataType& data, F&& f, LastF&& lf)
         {
-            f(editMemberValue<I>(data));
+            f(MemberType<I>{}, editMemberValue<I>(data));
             TupleForEach<Tuple,I+1>::loop(data, std::forward<F>(f), std::forward<LastF>(lf));
         }
     };
@@ -212,13 +227,13 @@ private:
         static void loop(const DataType& data, F&& f, LastF&& lf)
         {
             SOFA_UNUSED(f);
-            lf(getMemberValue<N>(data));
+            lf(MemberType<N>{}, getMemberValue<N>(data));
         }
         template <typename F, typename LastF>
         static void loop(DataType& data, F&& f, LastF&& lf)
         {
             SOFA_UNUSED(f);
-            lf(editMemberValue<N>(data));
+            lf(MemberType<N>{}, editMemberValue<N>(data));
         }
     };
 
@@ -247,6 +262,39 @@ private:
             SOFA_UNUSED(f);
             SOFA_UNUSED(lf);
         }
+    };
+
+    class StructToStream
+    {
+    public:
+        StructToStream(std::ostream& os) : m_stream(os) {}
+        template <typename MemberType>
+        void operator()(MemberType&& mt, const typename MemberType::type& data)
+        {
+            using DataType = typename MemberType::type;
+            m_stream << DataTypeName<DataType>::name() << " " << MemberType::name() << " = " << data << " ; ";
+        }
+    private:
+        std::ostream& m_stream;
+    };
+
+    class StreamToStruct
+    {
+    public:
+        StreamToStruct(std::istream& is) : m_stream(is) {}
+        template <typename MemberType>
+        void operator()(MemberType&& mt, typename MemberType::type& data)
+        {
+            using DataType = typename MemberType::type;
+            std::string str;
+            m_stream >> str; // Type
+            m_stream >> str; // MemberName
+            m_stream.ignore(2, '=');
+            m_stream >> data; // Value
+            m_stream.ignore(2, ';');
+        }
+    private:
+        std::istream& m_stream;
     };
     
 // TODO: decide if we want to support accessing a member with a runtime index
@@ -300,6 +348,10 @@ public:
  using StructType = TStruct;                                            \
  SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)   \
  using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>
+
+#define SOFA_STRUCT_STREAM_METHODS(TStruct) \
+  inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
+  inline friend std::istream& operator >> (std::istream& in, TStruct& s) { StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; }
 
 } // namespace defaulttype
 
