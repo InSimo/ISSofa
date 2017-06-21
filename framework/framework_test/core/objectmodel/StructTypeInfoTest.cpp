@@ -162,10 +162,11 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
 TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
 {
     using StructType = TypeParam;
-    //Data<StructType> data("Struct");
-    //BaseData* baseData = &data;
+    Data<StructType> data("Struct");
+    sofa::core::objectmodel::BaseData* baseData = &data;
     
-    //const AbstractTypeInfo* typeInfo = data.getValueTypeInfo();
+    const AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
+    SOFA_UNUSED(typeInfo);
     //EXPECT_TRUE(typeInfo->isStruct());
 }
 
