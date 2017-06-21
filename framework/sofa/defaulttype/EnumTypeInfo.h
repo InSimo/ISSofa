@@ -97,17 +97,17 @@ namespace sofa
             }
 
             template<size_t index>
-            static MappedType getValue()
+            static MappedType getEnumeratorValue()
             {
                 static_assert(index < EnumSize, "Index out of enum bound");
-                return std::tuple_element<index, MembersTuple>::type::readVal();
+                return std::tuple_element<index, MembersTuple>::type::enumeratorValue();
             }
 
             template<size_t index>
             static const char* getEnumeratorName()
             {
                 static_assert(index < EnumSize, "Index out of enum bound");
-                return std::tuple_element<index, MembersTuple>::type::name();
+                return std::tuple_element<index, MembersTuple>::type::enumeratorName();
             }
 
             template<size_t index>
@@ -162,8 +162,8 @@ namespace sofa
 
         #define SOFA_STRUCTURIZE_1(enumerator)                                                                                      \
             struct MyEnumMember##enumerator {                                                                                       \
-                static const char* name() { return SOFA_TO_STRING_1(enumerator); }                                                  \
-                static myEnumType readVal() { return static_cast<myEnumType>(myEnumT::enumerator); }                                \
+                static const char* enumeratorName() { return SOFA_TO_STRING_1(enumerator); }                                                  \
+                static myEnumType enumeratorValue() { return static_cast<myEnumType>(myEnumT::enumerator); }                                \
                 static myEnumT getEnumerator() { return myEnumT::enumerator; }                                                      \
             };
 

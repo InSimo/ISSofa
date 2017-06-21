@@ -149,13 +149,13 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
     //BaseData* baseData = &data;
     
     std::cout << "STATIC TYPEINFO" << std::endl;
-    std::cout << "struct " << StructTypeInfo<StructType>::name() << " { ";
-    StructTypeInfo<StructType>::for_each(PrintName{}, PrintLastName{});
+    std::cout << "struct " << DataTypeInfo<StructType>::name() << " { ";
+    DataTypeInfo<StructType>::for_each(PrintName{}, PrintLastName{});
     std::cout << " };" << std::endl;
     
     std::cout << "DYNAMIC TYPEINFO" << std::endl;
-    std::cout << "struct " << StructTypeInfo<StructType>::name() << " { ";
-    StructTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
+    std::cout << "struct " << DataTypeInfo<StructType>::name() << " { ";
+    DataTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
     std::cout << " };" << std::endl;
 }
 
@@ -183,14 +183,14 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
     using StructType = TypeParam;
     Data<StructType> data("Struct");
     //BaseData* baseData = &data;
-    StructTypeInfo<StructType>::resetValue(*data.beginEdit());
+    DataTypeInfo<StructType>::resetValue(*data.beginEdit());
     data.endEdit();
     
-    StructTypeInfo<StructType>::for_each(data.getValue(), ExpectCleared{});
+    DataTypeInfo<StructType>::for_each(data.getValue(), ExpectCleared{});
     
     // DEBUG (warning : printing '\0' characters will end the output of std::cout)
-    //std::cout << "RESET : struct " << StructTypeInfo<StructType>::name() << " { ";
-    //StructTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
+    //std::cout << "RESET : struct " << DataTypeInfo<StructType>::name() << " { ";
+    //DataTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
     //std::cout << " };" << std::endl;
 }
 

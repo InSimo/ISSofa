@@ -128,7 +128,7 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
     
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::enumSize(), 3);
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorName<0>(), "un");
-    ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getValue<1>(), 10u);
+    ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorValue<1>(), 10u);
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumerator<2>(), uIntEnum2::cent);
 }
 
@@ -139,7 +139,7 @@ TEST(DataEnumTypeInfoTest2, checkcharEnum2)
 
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::enumSize(), 4);
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorName<0>(), "aa");
-    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getValue<1>(), 'b');
+    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorValue<1>(), 'b');
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumerator<2>(), charEnum2::cc);
 }
 
@@ -150,8 +150,12 @@ TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
 
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::enumSize(), 3);
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorName<0>(), "uns");
-    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getValue<1>(), 1);
+    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorValue<1>(), 1);
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumerator<2>(), unscopedEnum::ped);
+
+    helper::WriteAccessor<Data<unscopedEnum> > dataTestW = dataTest;
+    defaulttype::DataTypeInfo<unscopedEnum>::resetValue(dataTestW);
+
 }
 
 
