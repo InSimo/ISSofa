@@ -38,8 +38,6 @@ namespace defaulttype
 {
 
 template<class TDataType, class TMembersTuple = typename TDataType::MembersTuple>
-// ? IsPOD
-// ? FixedSize
 struct StructTypeInfo
 {
     typedef TDataType   DataType;

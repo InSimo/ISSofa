@@ -25,7 +25,7 @@ namespace test_struct
 {
 struct EmptyStruct
 {
-    SOFA_STRUCT_DECL(EmptyStruct);
+    SOFA_STRUCT_DECL(EmptyStruct, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(EmptyStruct);
 
     bool operator==(const EmptyStruct& rhs) const
