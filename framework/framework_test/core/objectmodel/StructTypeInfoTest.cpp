@@ -21,14 +21,17 @@ struct DataStructTypeInfoTest: public ::testing::Test
 //////////////////////////
 /// Structures to test ///
 //////////////////////////
- 
-
 namespace test_struct
 {
 struct EmptyStruct
 {
     SOFA_STRUCT_DECL(EmptyStruct);
-    SOFA_STRUCT_STREAM_METHODS(EmptyStruct)
+    SOFA_STRUCT_STREAM_METHODS(EmptyStruct);
+
+    bool operator==(const EmptyStruct& rhs) const
+    {
+        return true;
+    }
 };
 struct SimpleStruct
 {
@@ -37,25 +40,23 @@ struct SimpleStruct
     unsigned char myUChar = 'c';
     bool myBool = true;
     SOFA_STRUCT_DECL(SimpleStruct, myInt, myFloat, myUChar, myBool);
-    SOFA_STRUCT_STREAM_METHODS(SimpleStruct)
-
-    bool operator==(const SimpleStruct& rhs) const
-    {
-        return (myInt == rhs.myInt && myFloat == rhs.myFloat && myUChar == rhs.myUChar && myBool == rhs.myBool);
-    }
+    SOFA_STRUCT_STREAM_METHODS(SimpleStruct);
+    SOFA_STRUCT_COMPARE_METHOD(SimpleStruct, myInt, myFloat, myUChar, myBool);
 };
 struct NestedStruct
 {
     SimpleStruct mySimpleStruct;
     SOFA_STRUCT_DECL(NestedStruct, mySimpleStruct);
-    SOFA_STRUCT_STREAM_METHODS(NestedStruct)
+    SOFA_STRUCT_STREAM_METHODS(NestedStruct);
+    SOFA_STRUCT_COMPARE_METHOD(NestedStruct, mySimpleStruct);
 };
 struct ContainerStruct
 {
     helper::vector<int> myIntVector = { 1,2,3 };
     helper::set<float> myFloatSet = std::set<float>({ 9,8,7 });
     SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet);
-    SOFA_STRUCT_STREAM_METHODS(ContainerStruct)
+    SOFA_STRUCT_STREAM_METHODS(ContainerStruct);
+    SOFA_STRUCT_COMPARE_METHOD(ContainerStruct, myIntVector, myFloatSet);
 };
 
 template<typename T1, typename T2>
@@ -65,7 +66,19 @@ struct TemplatedStruct
     T2 myMemberT2;
     using TemplatedStruct_t = TemplatedStruct<T1, T2>;
     SOFA_STRUCT_DECL(TemplatedStruct_t, myMemberT1, myMemberT2);
-    SOFA_STRUCT_STREAM_METHODS(TemplatedStruct_t)
+    SOFA_STRUCT_STREAM_METHODS(TemplatedStruct_t);
+    SOFA_STRUCT_COMPARE_METHOD(TemplatedStruct_t, myMemberT1, myMemberT2);
+};
+
+struct NoDefaultConstrStruct
+{
+    int myInt;
+
+    SOFA_STRUCT_DECL(NoDefaultConstrStruct, myInt);
+    SOFA_STRUCT_STREAM_METHODS(NoDefaultConstrStruct);
+    SOFA_STRUCT_COMPARE_METHOD(NoDefaultConstrStruct, myInt);
+
+    NoDefaultConstrStruct(int value) : myInt(value) {}
 };
 
 /*struct PointerStruct
@@ -169,24 +182,14 @@ TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
     ASSERT_EQ(std::tuple_size<typename StructType::MembersTuple>::value, typeInfo->StructureType()->structSize());
 }
 
-struct ExpectCleared
-{
-    template <typename MemberType>
-    void operator()(MemberType&& mt, const typename MemberType::type& t) const
-    {
-        // TODO: need to call default constructor if available in reset
-        //EXPECT_EQ(t, MemberType::type());
-    }
-};
-
+// Test reset for all types that have default constructor
 TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
 {
     using StructType = TypeParam;
     Data<StructType> data("Struct");
     DataTypeInfo<StructType>::resetValue(*data.beginEdit());
     data.endEdit();
-    
-    DataTypeInfo<StructType>::for_each(data.getValue(), ExpectCleared{});
+    EXPECT_EQ(data.getValue(), StructType());
     
     // DEBUG (warning : printing '\0' characters will end the output of std::cout)
     //std::cout << "RESET : struct " << DataTypeInfo<StructType>::name() << " { ";
@@ -194,6 +197,23 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
     //std::cout << " };" << std::endl;
 }
 
+struct ExpectCleared
+{
+    template <typename MemberType>
+    void operator()(MemberType&& mt, const typename MemberType::type& t) const
+    {
+        MemberType::type memberCompare;
+        DataTypeInfo<MemberType::type>::resetValue(memberCompare);
+        EXPECT_EQ(t, memberCompare);
+    }
+};
+
+TEST(DataStructTypeInfoTest, checkNoDefaultConstrStruct_ResetValueIsOk)
+{
+    test_struct::NoDefaultConstrStruct testValue(10);
+    StructTypeInfo<test_struct::NoDefaultConstrStruct>::resetValue(testValue);
+    StructTypeInfo<test_struct::NoDefaultConstrStruct>::for_each(testValue, ExpectCleared{});
+}
 TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
 {
     Data<test_struct::SimpleStruct> data("SimpleStruct");

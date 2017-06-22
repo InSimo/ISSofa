@@ -92,17 +92,11 @@ struct StructTypeInfo
         return StructSize;
     }
     
-    // TODO: replace with generic lambda in C++14
-    struct ResetValue
-    {
-        template <typename MemberType>
-        void operator()(MemberType&& mt, typename MemberType::type& t) const { DataTypeInfo<typename MemberType::type>::resetValue(t); }
-    };
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
-        for_each(data, ResetValue{});
+        ResetValue<DataType>::resetValue(data);
     }
-    
+
     template<size_t Index>
     static auto getMemberValue(const DataType& data) -> const MemberDataType<Index>&
     {
@@ -326,6 +320,33 @@ protected:
     private:
         std::istream& m_stream;
     };
+
+    // This resetValue will be used if T does not have a default constructor
+    template <typename T, typename Enable = void>
+    struct ResetValue
+    {
+        // TODO: replace with generic lambda in C++14
+        struct ResetValueFunctor
+        {
+            template <typename MemberType>
+            void operator()(MemberType&& mt, typename MemberType::type& t) const { DataTypeInfo<MemberType::type>::resetValue(t); }
+        };
+
+        static void resetValue(DataType& data)
+        {
+            for_each(data, ResetValueFunctor{});
+        }
+    };
+
+    // This resetValue will be used if T has a default constructor
+    template <typename T>
+    struct ResetValue<T, typename std::enable_if<std::is_default_constructible<T>::value>::type>
+    {
+        static void resetValue(DataType& data)
+        {
+            data = DataType();
+        }
+    };
     
     
     // Visit all struct members using (tail) recursion and call a method on a specific indexed one
@@ -366,7 +387,16 @@ protected:
 
 #define SOFA_STRUCT_STREAM_METHODS(TStruct) \
   inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
-  inline friend std::istream& operator >> (std::istream& in, TStruct& s) { StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; }
+  inline friend std::istream& operator >> (std::istream& in, TStruct& s) { StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
+
+
+#define SOFA_COMPARE_MEMBER(MemberName) \
+MemberName == rhs.MemberName
+
+#define SOFA_STRUCT_COMPARE_METHOD(TStruct, ...) \
+bool operator==(const TStruct& rhs) const { return ( \
+SOFA_FOR_EACH(SOFA_COMPARE_MEMBER, (&&), __VA_ARGS__) \
+);} SOFA_REQUIRE_SEMICOLON
 
 } // namespace defaulttype
 
