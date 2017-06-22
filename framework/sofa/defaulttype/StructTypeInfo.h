@@ -125,7 +125,7 @@ struct StructTypeInfo
 
     static void setDataValueStream(DataType& data, std::istream& is)
     {
-        is.ignore(1, '{');
+        is.ignore(2, '{');
         auto functor = StreamToStruct(is);
         for_each(data, functor);
         is.ignore(2, '}');
@@ -311,7 +311,17 @@ protected:
         {
             using DataType = typename MemberType::type;
             std::string str;
-            m_stream >> str; // Type
+
+            // type name can be more than one word
+            auto typeName = DataTypeName<DataType>::name();
+            std::string readName;
+            while (readName != typeName)
+            {
+                m_stream >> str; // Type
+                if (!readName.empty())
+                    readName += " ";
+                readName += str;
+            }
             m_stream >> str; // MemberName
             m_stream.ignore(2, '=');
             m_stream >> data; // Value
