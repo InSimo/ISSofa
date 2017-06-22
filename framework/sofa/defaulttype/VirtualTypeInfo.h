@@ -121,11 +121,6 @@ public:
         Info::setDataValueString(*(DataType*)data, value);
     }
 
-    virtual bool getAvailableItems(std::vector<std::string>& result, const void* data) const override
-    {
-        // @TODO support for enums
-        return false;
-    }
     
     virtual const std::type_info* type_info() const override { return &typeid(DataType); }
     
@@ -247,6 +242,20 @@ public:
     {
         Info::setDataValue(*(DataType*)data, value);
     }
+
+    virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const override
+    {
+        if (FinalValueKind() == ValueKindEnum::Enum)
+        {
+            Info::getAvailableItems(*(DataType*)data, result);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 };
 
 template<class TDataType>

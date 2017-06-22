@@ -79,13 +79,7 @@ TYPED_TEST(DataEnumTypeInfoTest, checkEnumTypeInfo)
     Data<EnumType> dataTest("Enum");
 
     ASSERT_TRUE(defaulttype::DataTypeInfo<EnumType>::FixedFinalSize);
-
-    //std::cout << "DEBUG L" << __LINE__ << " : " << defaulttype::DataTypeInfo<EnumType>::FixedFinalSize << std::endl;
-    //std::cout << "DEBUG L" << __LINE__ << " : " << defaulttype::DataTypeInfo<EnumType>::enumSize() << std::endl;
-    //std::cout << "DEBUG L" << __LINE__ << " : " << defaulttype::DataTypeInfo<EnumType>::getEnumeratorName<0>() << std::endl;
-    //std::cout << "DEBUG L" << __LINE__ << " : " << defaulttype::DataTypeInfo<EnumType>::getValue<1>() << std::endl;
-    //std::cout << "DEBUG L" << __LINE__ << " : " << defaulttype::DataTypeInfo<EnumType>::getEnumerator<2>() << std::endl;
-
+    
 }
 
 TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
@@ -167,6 +161,55 @@ TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
 }
 
 
+TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
+{
+    typedef defaulttype::uIntEnum2 uIntEnum2;
+    Data<uIntEnum2> dataTest("Enum");
+    dataTest.setValue(uIntEnum2::dix);
+
+    sofa::core::objectmodel::BaseData* baseData = &dataTest;
+
+    const defaulttype::AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
+
+    EXPECT_TRUE(typeInfo->SingleValueType());
+    EXPECT_TRUE(typeInfo->MultiValueType());
+    EXPECT_FALSE(typeInfo->ContainerType());
+    EXPECT_FALSE(typeInfo->StructureType());
+
+
+    std::string value;
+    typeInfo->getDataValueString(dataTest.getValueVoidPtr(), value);
+    ASSERT_EQ(value, "10");
+
+    std::string value1("cent");
+    typeInfo->setDataValueString(dataTest.beginEditVoidPtr(), value1);
+    dataTest.endEditVoidPtr();
+
+    std::string value2;
+    typeInfo->getDataValueString(dataTest.getValueVoidPtr(), value2);
+    ASSERT_EQ(value2, "100");
+
+
+
+    const defaulttype::AbstractValueTypeInfo* enumTypeInfo = typeInfo->SingleValueType();
+
+    std::vector<std::string > enumNames;
+    enumTypeInfo->getAvailableItems(dataTest.getValueVoidPtr(), enumNames);
+    ASSERT_EQ(enumNames.size(), 3);
+    ASSERT_EQ(enumNames[0], "cent");
+
+    std::string value3;
+    uIntEnum2 value4(uIntEnum2::un);
+    enumTypeInfo->setDataValueInteger(dataTest.beginEditVoidPtr(), static_cast<long long>(value4));
+    dataTest.endEditVoidPtr();
+    typeInfo->getDataValueString(dataTest.getValueVoidPtr(), value3);
+    ASSERT_EQ(value3, "1");
+
+
+    long long value5 = enumTypeInfo->getDataValueInteger(dataTest.getValueVoidPtr());
+    ASSERT_EQ(value5, static_cast<long long>(uIntEnum2::un));
+
+}
 
 }// namespace enumTypeInfoTest
 

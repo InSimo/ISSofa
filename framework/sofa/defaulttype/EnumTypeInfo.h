@@ -60,8 +60,8 @@ namespace sofa
             static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Enum;
 
             static constexpr bool IsContainer        = false;  ///< true if this type is a container
-            static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
-            static constexpr bool IsMultiValue       = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+            static constexpr bool IsSingleValue      = true;  ///< true if this type is a single value
+            static constexpr bool IsMultiValue       = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
             static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
             static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
@@ -168,6 +168,21 @@ namespace sofa
             };
 
 
+            class GetDataEnumeratorsNames
+            {
+            public:
+                GetDataEnumeratorsNames(std::vector<std::string>& enumNames) : m_enumNames(enumNames) {}
+
+                template <typename T>
+                void operator()(T&& MemberTypeI, DataType& data)
+                {
+                    m_enumNames.push_back(T::enumeratorName());
+                }
+            private:
+                std::vector<std::string>& m_enumNames;
+            };
+
+
             class SetData
             {
             public:
@@ -247,7 +262,7 @@ namespace sofa
 
 
             template<typename DataTypeRef, typename MappedType>
-            static void setDataValue(DataTypeRef&& data, const MappedType& value)   // set the enumerator value as a string
+            static void setDataValue(DataTypeRef& data, const MappedType& value)   // set the enumerator value
             {
                 auto functor = SetData(value);
                 for_each(data, functor);
@@ -258,6 +273,15 @@ namespace sofa
             {
                 value = static_cast<MappedType>(data);
             }
+
+            template <typename DataTypeRef>
+            static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames)   // get the enumerator value
+            {
+                auto functor = GetDataEnumeratorsNames(enumNames);
+                DataTypeRef tempData = data;
+                for_each(tempData, functor);
+            }
+            
 
 
             ///////////

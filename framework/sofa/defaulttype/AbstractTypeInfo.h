@@ -71,7 +71,6 @@ public:
     virtual void getDataValueString(const void* data, std::string& value) const = 0;
     virtual void setDataValueString(void* data, const std::string& value) const = 0;
 
-    virtual bool getAvailableItems(std::vector<std::string>& result, const void* data) const = 0;
 
     virtual const std::type_info* type_info() const = 0; // WARNING: Pointer equality is NOT guaranteed across instances of AbstractTypeInfo of the same type, and hash_code() unicity is NOT guaranteed across all types
     virtual std::size_t typeInfoID() const = 0; // NOTE: ID unicity is guaranteed across all types
@@ -129,6 +128,8 @@ public:
 
     virtual void setDataValueInteger(void* data, long long value) const = 0;
     virtual void setDataValueScalar (void* data, double value) const = 0;
+
+    virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const = 0;
 
     // void has no value
     // enum can be accessed with either IntegerValue (0..n-1) or TextValue (one of getAvailableItems)

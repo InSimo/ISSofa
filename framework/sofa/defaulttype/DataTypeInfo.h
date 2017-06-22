@@ -285,6 +285,10 @@ struct InvalidDataTypeInfo
     {
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
+
+    template <typename DataTypeRef>
+    static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames) {}
+
 };
 
 #ifdef DEFAULT_DataTypeInfo
@@ -395,6 +399,9 @@ public:
     {
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
+
+    template <typename DataTypeRef>
+    static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames) {}
 
     // Multi Value API
 
@@ -617,6 +624,9 @@ public:
     {
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
+
+    template <typename DataTypeRef>
+    static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames) {}
 
     // Multi Value API
 
