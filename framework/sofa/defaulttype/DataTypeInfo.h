@@ -660,6 +660,7 @@ public:
 
 
 template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize> struct DataTypeInfo_ContainerTypes;
+
 template<class TDataType, size_t TFixedSize> struct DataTypeInfo_ContainerTypes<TDataType, ContainerKindEnum::Array, TFixedSize>
 {
     typedef typename TDataType::size_type      KeyType;
@@ -1239,6 +1240,11 @@ public:
     }
 };
 
+
+template<class T, std::size_t N>
+struct DataTypeInfo< std::array<T,N> > : public ContainerTypeInfo<std::array<T,N>, ContainerKindEnum::Array, N> {};
+template<class T, std::size_t N>
+struct DataTypeName< std::array<T,N> > { static std::string name() { std::ostringstream o; o << "std::array<" << DataTypeName<T>::name() << "," << N << ">"; return o.str(); } };
 
 template<class T, std::size_t N>
 struct DataTypeInfo< sofa::helper::fixed_array<T,N> > : public ContainerTypeInfo<sofa::helper::fixed_array<T,N>, ContainerKindEnum::Array, N> {};
