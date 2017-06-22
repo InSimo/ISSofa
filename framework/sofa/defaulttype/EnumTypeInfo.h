@@ -302,6 +302,21 @@ namespace sofa
             ///////////
 
 
+
+            ///////////
+            // to/from stream
+
+            static void setDataValueStream(DataType& data, std::istream& is)
+            {
+                std::string enumeratorName;
+                is >> enumeratorName;
+                setDataValueString(data, enumeratorName);
+            }
+
+            // end of to/from stream
+            ///////////
+
+
         };
 
         // end of EnumTypeInfo struct definition
@@ -318,8 +333,8 @@ namespace sofa
 
         #define SOFA_STRUCTURIZE_1(enumerator)                                                                                      \
             struct MyEnumMember##enumerator {                                                                                       \
-                static const char* enumeratorName() { return SOFA_TO_STRING_1(enumerator); }                                                  \
-                static myEnumType enumeratorValue() { return static_cast<myEnumType>(myEnumT::enumerator); }                                \
+                static const char* enumeratorName() { return SOFA_TO_STRING_1(enumerator); }                                        \
+                static myEnumType enumeratorValue() { return static_cast<myEnumType>(myEnumT::enumerator); }                        \
                 static myEnumT getEnumerator() { return myEnumT::enumerator; }                                                      \
             };
 
@@ -339,7 +354,10 @@ namespace sofa
             struct DataTypeInfo<myEnum##myEnumT> :                                                                                  \
                 public EnumTypeInfo<myEnum##myEnumT, myEnum##nspace::myEnum##myEnumTuple>                                           \
             {    };                                                                                                                 \
-            template<> struct DataTypeName<myEnum##myEnumT> { static const char* name() { return "enum"; } };
+            template<> struct DataTypeName<myEnum##myEnumT> { static const char* name() { return "enum"; } };                       \
+                                                                                                                                    \
+            inline std::ostream& operator<<(std::ostream& os, const myEnum##myEnumT& s) { os << static_cast<myEnum##myEnumType>(s); return os; }        \
+            inline std::istream& operator >> (std::istream& in, myEnum##myEnumT& s) { DataTypeInfo<myEnum##myEnumT>::setDataValueStream(s, in); return in; }
 
         // end of enum macro definition
         ////////////////////////

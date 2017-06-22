@@ -41,41 +41,6 @@ SOFA_ENUM(charEnum2, aa, bb, cc, dd)
 
 SOFA_ENUM(unscopedEnum, uns, sco, ped)
 
-std::ostream& operator<< (std::ostream& stream, const uIntEnum2& myEnum)
-{
-    stream << static_cast<std::underlying_type<uIntEnum2>::type>(myEnum);
-    return stream;
-}
-
-std::istream& operator>> (std::istream& stream, uIntEnum2& myEnum)
-{
-    return stream;
-}
-
-std::ostream& operator<< (std::ostream& stream, const charEnum2& myEnum)
-{
-    stream << static_cast<std::underlying_type<charEnum2>::type>(myEnum);
-    return stream;
-}
-
-std::istream& operator >> (std::istream& stream, charEnum2& myEnum)
-{
-    stream >> myEnum;
-    return stream;
-}
-
-std::ostream& operator<< (std::ostream& stream, const unscopedEnum& myEnum)
-{
-    stream << static_cast<std::underlying_type<unscopedEnum>::type>(myEnum);
-    return stream;
-}
-
-std::istream& operator >> (std::istream& stream, unscopedEnum& myEnum)
-{
-    stream >> myEnum;
-    return stream;
-}
-
 } // namespace defaulttype
 
 } // namespace sofa
@@ -137,6 +102,18 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
     helper::WriteAccessor<Data<uIntEnum2> > dataTestW = dataTest;
     defaulttype::DataTypeInfo<uIntEnum2>::resetValue(dataTestW);
     ASSERT_EQ(dataTest, uIntEnum2::un);   // for now, the reset change the data to the first value of the enum
+
+    std::ostringstream oVal;
+    oVal << dataTest;
+    ASSERT_EQ(oVal.str(), "1");
+
+
+    std::istringstream iVal("dix");
+    iVal >> dataTestW;
+    std::string value2;
+    defaulttype::DataTypeInfo<uIntEnum2>::getDataValueString(dataTest, value2);
+    ASSERT_EQ(value2, "10");
+
 }
 
 TEST(DataEnumTypeInfoTest2, checkcharEnum2)
