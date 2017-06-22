@@ -96,56 +96,170 @@ namespace sofa
                 return EnumSize;
             }
 
+            template<size_t Index>
+            using MemberType = typename std::tuple_element<Index, MembersTuple>::type;
+
             template<size_t index>
             static MappedType getEnumeratorValue()
             {
                 static_assert(index < EnumSize, "Index out of enum bound");
-                return std::tuple_element<index, MembersTuple>::type::enumeratorValue();
+                return MemberType<index>::enumeratorValue();
             }
 
             template<size_t index>
             static const char* getEnumeratorName()
             {
                 static_assert(index < EnumSize, "Index out of enum bound");
-                return std::tuple_element<index, MembersTuple>::type::enumeratorName();
+                return MemberType<index>::enumeratorName();
             }
 
             template<size_t index>
             static DataType getEnumerator()
             {
                 static_assert(index < EnumSize, "Index out of enum bound");
-                return std::tuple_element<index, MembersTuple>::type::getEnumerator();
+                return MemberType<index>::getEnumerator();
             }
 
 
             static void resetValue(DataType& data, size_t /*reserve*/ = 0)
             {
-                DataTypeInfo_Clear(data);
+                //DataTypeInfo_Clear(data);
+                data = MemberType<0>::getEnumerator(); // TODO : enforce default value to enum
             }
 
-            template <typename DataTypeRef, typename T>
-            static void getDataValue(const DataTypeRef& data, T& value)
+
+            ///////////
+            // for_each utility with functors
+
+            class SetDataFromString
             {
-                //getDataValueForString(data, value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+            public:
+                SetDataFromString(const char* value) : m_string(value) {}
+
+                template <typename T>
+                void operator()(T&& MemberTypeI, DataType& data) const
+                {
+                    if (!std::strcmp(T::enumeratorName(), m_string))
+                    {
+                        data = T::getEnumerator();
+                    }
+                }
+            private:
+                const char* m_string;
+            };
+
+
+            class GetDataEnumeratorName
+            {
+            public:
+                GetDataEnumeratorName(const char*& value) : m_string(value) {}
+
+                template <typename T>
+                void operator()(T&& MemberTypeI, DataType& data)
+                {
+                    if (T::getEnumerator() == data)
+                    {
+                        m_string = T::enumeratorName();
+                    }
+                }
+            private:
+                const char*& m_string;
+            };
+
+
+            class SetData
+            {
+            public:
+                SetData(const MappedType value) : m_val(value) {
+                }
+
+                template <typename T>
+                void operator()(T&& MemberTypeI, DataType& data) const
+                {
+                    if (T::enumeratorValue() == m_val)
+                    {
+                        data = T::getEnumerator();
+                    }
+                }
+            private:
+                const MappedType m_val;
+            };
+            
+
+            // Call f(MemberDataType&) for each enum member
+            template <typename F>
+            static void for_each(DataType& data, F&& f)
+            {
+                TupleForEach<MembersTuple, EnumSize - 1 >::loop(data, std::forward<F>(f));
             }
 
-            template<typename DataTypeRef, typename T>
-            static void setDataValue(DataTypeRef&& data, const T& value)
+            template<class Tuple, std::size_t I>
+            class TupleForEach
             {
-                //setDataValueForString(std::forward<DataTypeRef>(data), value, std::integral_constant<bool, FinalValueKind == ValueKindEnum::String>());
+            public:
+                template <typename F>
+                static void loop(DataType& data, F&& f)
+                {
+                    f(MemberType<I>{}, data);
+                    TupleForEach<Tuple, I - 1>::loop(data, std::forward<F>(f));
+                }
+            };
+
+            template<class Tuple>
+            class TupleForEach<Tuple, 0>
+            {
+            public:
+                template <typename F>
+                static void loop(DataType& data, F&& f)
+                {
+                    f(MemberType<0>{}, data);
+                }
+            };
+
+            // end for_each utility
+            ///////////
+
+            template<typename DataTypeRef>
+            static void setDataValueString(DataTypeRef&& data, const std::string& enumeratorName)   // set the given data according to the value of a given string
+            {
+                auto functor = SetDataFromString(enumeratorName.c_str());
+                for_each(data, functor);
             }
 
             template<typename DataTypeRef>
-            static void getDataValueString(const DataTypeRef& data, std::string& value)
+            static void getDataEnumeratorString(const DataTypeRef& data, std::string& valueToFill)   // get the enumerator name as a string
             {
-                //DataTypeInfo_ToString(data, value);
+                const char* value;
+                auto functor = GetDataEnumeratorName(value);
+                DataTypeRef tempData = data;
+                for_each(tempData, functor);
+                
+                std::ostringstream o; o << value; valueToFill = o.str();
+
             }
 
             template<typename DataTypeRef>
-            static void setDataValueString(DataTypeRef&& data, const std::string& value)
+            static void getDataValueString(const DataTypeRef& data, std::string& valueToFill)   // get the enumerator value as a string
             {
-                //DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
+                DataTypeInfo_ToString(data, valueToFill);
             }
+
+
+            template<typename DataTypeRef, typename MappedType>
+            static void setDataValue(DataTypeRef&& data, const MappedType& value)   // set the enumerator value as a string
+            {
+                auto functor = SetData(value);
+                for_each(data, functor);
+            }
+
+            template <typename DataTypeRef, typename MappedType>
+            static void getDataValue(const DataTypeRef& data, MappedType& value)   // get the enumerator value
+            {
+                value = static_cast<MappedType>(data);
+            }
+
+
+
         };
 
         // end of EnumTypeInfo struct definition
