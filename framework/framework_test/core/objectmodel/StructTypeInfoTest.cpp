@@ -202,8 +202,8 @@ struct ExpectCleared
     template <typename MemberType>
     void operator()(MemberType&& mt, const typename MemberType::type& t) const
     {
-        MemberType::type memberCompare;
-        DataTypeInfo<MemberType::type>::resetValue(memberCompare);
+        typename MemberType::type memberCompare;
+        DataTypeInfo<typename MemberType::type>::resetValue(memberCompare);
         EXPECT_EQ(t, memberCompare);
     }
 };

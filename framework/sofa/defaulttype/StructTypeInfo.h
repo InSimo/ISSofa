@@ -339,7 +339,7 @@ protected:
         struct ResetValueFunctor
         {
             template <typename MemberType>
-            void operator()(MemberType&& mt, typename MemberType::type& t) const { DataTypeInfo<MemberType::type>::resetValue(t); }
+            void operator()(MemberType&&, typename MemberType::type& t) const { DataTypeInfo<typename MemberType::type>::resetValue(t); }
         };
 
         static void resetValue(DataType& data)
