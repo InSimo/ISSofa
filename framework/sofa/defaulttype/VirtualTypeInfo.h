@@ -28,6 +28,7 @@
 #include "AbstractTypeInfo.h"
 #include "DataTypeInfo.h"
 #include <typeinfo>
+#include <array>
 
 namespace sofa
 {
