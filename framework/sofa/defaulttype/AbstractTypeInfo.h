@@ -41,6 +41,7 @@ namespace defaulttype
 class AbstractValueTypeInfo;
 class AbstractMultiValueTypeInfo;
 class AbstractContainerTypeInfo;
+class AbstractStructureTypeInfo;
 
 class SOFA_DEFAULTTYPE_API AbstractTypeInfo
 {
@@ -54,10 +55,12 @@ public:
     virtual bool IsSingleValue() const = 0;
     virtual bool IsContainer() const = 0;
     virtual bool IsMultiValue() const = 0;
+    virtual bool IsStructure() const = 0;
 
     virtual const AbstractValueTypeInfo* SingleValueType() const = 0;
     virtual const AbstractMultiValueTypeInfo* MultiValueType() const = 0;
     virtual const AbstractContainerTypeInfo* ContainerType() const = 0;
+    virtual const AbstractStructureTypeInfo* StructureType() const = 0;
 
     virtual bool ZeroConstructor() const = 0;
     virtual bool SimpleCopy() const = 0;
@@ -301,6 +304,19 @@ public:
 
 class SOFA_DEFAULTTYPE_API AbstractContainerMultiValueTypeInfo : public AbstractContainerTypeInfo, public AbstractMultiValueTypeInfo
 {
+};
+
+
+class SOFA_DEFAULTTYPE_API AbstractStructureTypeInfo : public virtual AbstractTypeInfo
+{
+public:
+    virtual size_t structSize() const = 0;
+    
+    virtual AbstractTypeInfo* getMemberTypeForIndex(size_t index) const = 0;
+    
+    virtual const void* getMemberValue(const void* data, size_t index) const = 0;
+    virtual std::string getMemberName(const void* data, size_t index) const = 0;
+    virtual void* editMemberValue(void* data, size_t index) const = 0;
 };
 
 } // namespace defaulttype

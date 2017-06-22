@@ -233,6 +233,7 @@ struct InvalidDataTypeInfo
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
     static constexpr bool IsMultiValue       = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
     static constexpr bool ValidInfo          = false;  ///< true if this type has valid infos
     static constexpr bool Integer            = false;  ///< true if this type uses integer values
@@ -309,6 +310,7 @@ struct SingleValueTypeInfo
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = true;  ///< true if this type is a single value
     static constexpr bool IsMultiValue       = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsStructure        = false; ///< true if this type is a structure
 
     static constexpr bool ValidInfo          = true;  ///< true if this type has valid infos
     /// true if this type uses integer values
@@ -521,9 +523,10 @@ struct MultiValueTypeInfo
     static constexpr ContainerKindEnum ContainerKind = ContainerKindEnum::Single;
     static constexpr ValueKindEnum     FinalValueKind = MappedTypeInfo::FinalValueKind;
 
-    static constexpr bool IsContainer = false; ///< true if this type is a container
+    static constexpr bool IsContainer   = false;  ///< true if this type is a container
     static constexpr bool IsSingleValue = false;  ///< true if this type is a single value
-    static constexpr bool IsMultiValue = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsMultiValue  = true;   ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsStructure   = false;  ///< true if this type is a structure
 
     static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
                                              /// true if this type uses integer values
@@ -1033,12 +1036,13 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
 
     static constexpr ContainerKindEnum ContainerKind  = TContainerKind;
 
-    static constexpr bool IsContainer        = true; ///< true if this type is a container
+    static constexpr bool IsContainer        = true;   ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
     //static constexpr bool IsMultiValue       =
     //    (TContainerKind==ContainerKindEnum::Array ||
     //     (TContainerKind==ContainerKindEnum::Set && MappedTypeInfo::FinalSize == 1)) &&
     //    MappedTypeInfo::IsMultiValue && MappedTypeInfo::FixedFinalSize;
+    static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
     static constexpr bool ValidInfo          = MappedTypeInfo::ValidInfo; ///< true if this type has valid infos
     static constexpr bool Integer            = MappedTypeInfo::Integer;   ///< true if this type uses integer values

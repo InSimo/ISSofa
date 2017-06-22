@@ -21,6 +21,8 @@ struct DataStructTypeInfoTest: public ::testing::Test
 //////////////////////////
 /// Structures to test ///
 //////////////////////////
+ 
+
 namespace test_struct
 {
 struct EmptyStruct
@@ -76,7 +78,7 @@ struct PointerStruct
     double *myDoublePointer;
     inline friend std::ostream& operator<<(std::ostream& os, const PointerStruct& /*s*/) { return os; }
     inline friend std::istream& operator>>(std::istream& in, PointerStruct& /*s*/) { return in; }
-    SOFA_STRUCT_DECL(PointerStruct, myDoublePointer);
+    //SOFA_STRUCT_DECL(PointerStruct, myDoublePointer);
 };
 }
 
@@ -87,7 +89,7 @@ namespace defaulttype
     template<> struct DataTypeInfo<test_struct::NestedStruct> : public StructTypeInfo<test_struct::NestedStruct> {};
     template<> struct DataTypeInfo<test_struct::ContainerStruct> : public StructTypeInfo<test_struct::ContainerStruct> {};
     template<> struct DataTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> : public StructTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> {};
-    template<> struct DataTypeInfo<test_struct::PointerStruct> : public StructTypeInfo<test_struct::PointerStruct> {};
+    //template<> struct DataTypeInfo<test_struct::PointerStruct> : public StructTypeInfo<test_struct::PointerStruct> {};
 }
 
 using StructTypes = testing::Types<
@@ -95,8 +97,8 @@ using StructTypes = testing::Types<
     test_struct::SimpleStruct,
     test_struct::NestedStruct,
     test_struct::ContainerStruct,
-    test_struct::TemplatedStruct<int, test_struct::SimpleStruct>,
-    test_struct::PointerStruct
+    test_struct::TemplatedStruct<int, test_struct::SimpleStruct>//,
+    //test_struct::PointerStruct
 >;
 
 TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);
@@ -166,8 +168,11 @@ TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
     sofa::core::objectmodel::BaseData* baseData = &data;
     
     const AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
-    SOFA_UNUSED(typeInfo);
-    //EXPECT_TRUE(typeInfo->isStruct());
+    
+    ASSERT_TRUE(typeInfo->ValidInfo());
+    ASSERT_FALSE(typeInfo->IsContainer());
+    ASSERT_TRUE(typeInfo->IsStructure());
+    ASSERT_EQ(std::tuple_size<typename StructType::MembersTuple>::value, typeInfo->StructureType()->structSize());
 }
 
 struct ExpectCleared
@@ -183,7 +188,6 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
 {
     using StructType = TypeParam;
     Data<StructType> data("Struct");
-    //BaseData* baseData = &data;
     DataTypeInfo<StructType>::resetValue(*data.beginEdit());
     data.endEdit();
     
@@ -193,6 +197,26 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
     //std::cout << "RESET : struct " << DataTypeInfo<StructType>::name() << " { ";
     //DataTypeInfo<StructType>::for_each(data.getValue(), PrintValue{}, PrintLastValue{});
     //std::cout << " };" << std::endl;
+}
+
+TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
+{
+    Data<test_struct::SimpleStruct> data("SimpleStruct");
+    sofa::core::objectmodel::BaseData* baseData = &data;
+    
+    const AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
+    const AbstractStructureTypeInfo* structureInfo = typeInfo->StructureType();
+    
+    const AbstractTypeInfo* typeInfoM0 = structureInfo->getMemberTypeForIndex(0);
+    EXPECT_TRUE(typeInfoM0->IsSingleValue());
+    EXPECT_TRUE(typeInfoM0->SingleValueType()->Integer());
+    
+    EXPECT_EQ(*(const int*)structureInfo->getMemberValue(data.getValueVoidPtr(), 0), 10);
+    EXPECT_EQ(structureInfo->getMemberName(data.getValueVoidPtr(), 0), "myInt");
+    
+    *(int*)structureInfo->editMemberValue(data.beginEditVoidPtr(), 0) = 42;
+    data.endEditVoidPtr();
+    EXPECT_EQ(*(const int*)structureInfo->getMemberValue(data.getValueVoidPtr(), 0), 42);
 }
 
 }

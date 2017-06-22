@@ -35,14 +35,15 @@ namespace sofa
 namespace defaulttype
 {
 
-template<class TDataType, bool TSingleValue, bool TMultiValue, bool TContainer>
+template<class TDataType, bool TSingleValue, bool TMultiValue, bool TContainer, bool TStructure>
 class VirtualTypeInfoImpl;
 
 template<class TDataType>
 class VirtualTypeInfo : public VirtualTypeInfoImpl<TDataType,
     DataTypeInfo<TDataType>::IsSingleValue,
     DataTypeInfo<TDataType>::IsMultiValue,
-    DataTypeInfo<TDataType>::IsContainer>
+    DataTypeInfo<TDataType>::IsContainer,
+    DataTypeInfo<TDataType>::IsStructure>
 {
 public:
     typedef TDataType DataType;
@@ -71,6 +72,7 @@ public:
     virtual bool IsSingleValue() const override { return Info::IsSingleValue; }
     virtual bool IsContainer() const override   { return Info::IsContainer;   }
     virtual bool IsMultiValue() const override  { return Info::IsMultiValue;  }
+    virtual bool IsStructure() const override   { return Info::IsStructure;   }
 
     virtual bool ZeroConstructor() const override { return Info::ZeroConstructor; }
     virtual bool SimpleCopy() const override      { return Info::SimpleCopy;      }
@@ -99,7 +101,7 @@ public:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, false, false> : public AbstractTypeInfoImpl<TDataType, AbstractTypeInfo>
+class VirtualTypeInfoImpl<TDataType, false, false, false, false> : public AbstractTypeInfoImpl<TDataType, AbstractTypeInfo>
 {
 public:
     typedef TDataType DataType;
@@ -107,9 +109,10 @@ public:
 
     // Base API
 
-    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return NULL; }
-    virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return NULL; }
-    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return NULL; }
+    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return nullptr; }
+    virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
+    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
     
 };
 
@@ -174,7 +177,7 @@ public:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, true, true, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractValueTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, true, true, false, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractValueTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -184,7 +187,8 @@ public:
     
     virtual const AbstractValueTypeInfo*      SingleValueType() const override { return this; }
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
-    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return NULL; }
+    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
 
     // Value API
 
@@ -214,7 +218,7 @@ public:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, true, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractMultiValueTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, false, true, false, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractMultiValueTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -222,9 +226,10 @@ public:
 
     // Base API
 
-    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return NULL; }
+    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return nullptr; }
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
-    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return NULL; }
+    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
 };
 
 
@@ -286,7 +291,7 @@ public:
         }
         else
         {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -428,12 +433,12 @@ protected:
     template<class Iterator>
     void* getItemValueIf(Iterator& /*iter*/, std::false_type) const
     {
-        return NULL;
+        return nullptr;
     }
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, true, true> : public AbstractContainerTypeInfoImpl< TDataType, AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerMultiValueTypeInfo> > >
+class VirtualTypeInfoImpl<TDataType, false, true, true, false> : public AbstractContainerTypeInfoImpl< TDataType, AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerMultiValueTypeInfo> > >
 {
 public:
     typedef TDataType DataType;
@@ -441,14 +446,15 @@ public:
 
     // Base API
     
-    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return NULL; }
+    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return nullptr; }
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return this; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
 
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, false, true> : public AbstractContainerTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, false, false, true, false> : public AbstractContainerTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -456,9 +462,82 @@ public:
 
     // Base API
     
-    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return NULL; }
-    virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return NULL; }
+    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return nullptr; }
+    virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return this; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+
+};
+
+template<class TDataType, class TBaseClass>
+class AbstractStructureTypeInfoImpl : public TBaseClass
+{
+public:
+    typedef TDataType DataType;
+    typedef DataTypeInfo<DataType> Info;
+    typedef typename Info::KeyType KeyType;
+    typedef typename Info::MappedType MappedType;
+    typedef std::array<AbstractTypeInfo*, Info::StructSize> MemberTypeInfoArray;
+
+    AbstractStructureTypeInfoImpl()
+    {
+        Info::for_each(FillMemberTypeInfos{m_memberTypeInfos});
+    }
+    
+    // Structure API
+    
+    virtual size_t structSize() const override
+    {
+        return Info::structSize();
+    }
+    
+    virtual AbstractTypeInfo* getMemberTypeForIndex(size_t index) const override
+    {
+        return m_memberTypeInfos[index];
+    }
+    
+    virtual const void* getMemberValue(const void* data, size_t index) const override
+    {
+        return Info::getMemberValue(*(const DataType*)data, index);
+    }
+    virtual std::string getMemberName(const void* data, size_t index) const override
+    {
+        return Info::getMemberName(*(const DataType*)data, index);
+    }
+    virtual void* editMemberValue(void* data, size_t index) const override
+    {
+        return Info::editMemberValue(*(DataType*)data, index);
+    }
+    
+protected:
+        struct FillMemberTypeInfos
+        {
+            FillMemberTypeInfos(MemberTypeInfoArray& mti) : m_memberTypeInfos(mti) {}
+            
+            template <typename MemberType>
+            void operator()(MemberType&&) { m_memberTypeInfos[m_curIndex++] = VirtualTypeInfo<typename MemberType::type>::get(); }
+            
+        private:
+            std::size_t m_curIndex = 0ul;
+            MemberTypeInfoArray& m_memberTypeInfos;
+        };
+
+        MemberTypeInfoArray m_memberTypeInfos;
+};
+
+template<class TDataType>
+class VirtualTypeInfoImpl<TDataType, false, false, false, true> : public AbstractStructureTypeInfoImpl<TDataType, AbstractTypeInfoImpl<TDataType, AbstractStructureTypeInfo> >
+{
+public:
+    typedef TDataType DataType;
+    typedef DataTypeInfo<DataType> Info;
+
+    // Base API
+    
+    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return nullptr; }
+    virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
+    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return this; }
 
 };
 

@@ -59,9 +59,10 @@ namespace sofa
             //static constexpr ValueKindEnum     FinalValueKind = MappedTypeInfo::FinalValueKind;
             static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Enum;
 
-            static constexpr bool IsContainer = false; ///< true if this type is a container
-            static constexpr bool IsSingleValue = false;  ///< true if this type is a single value
-            static constexpr bool IsMultiValue = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+            static constexpr bool IsContainer        = false;  ///< true if this type is a container
+            static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+            static constexpr bool IsMultiValue       = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+            static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
             static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
                                                                             /// true if this type uses integer values
