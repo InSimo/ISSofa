@@ -73,7 +73,8 @@ public:
 
     virtual bool getAvailableItems(std::vector<std::string>& result, const void* data) const = 0;
 
-    virtual const std::type_info* type_info() const = 0;
+    virtual const std::type_info* type_info() const = 0; // WARNING: Pointer equality is NOT guaranteed across instances of AbstractTypeInfo of the same type, and hash_code() unicity is NOT guaranteed across all types
+    virtual std::size_t typeInfoID() const = 0; // NOTE: ID unicity is guaranteed across all types
 
     AbstractTypeInfo(const AbstractTypeInfo&) = delete;
     AbstractTypeInfo(AbstractTypeInfo&&) = delete;

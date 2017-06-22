@@ -180,6 +180,15 @@ TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
     ASSERT_FALSE(typeInfo->IsContainer());
     ASSERT_TRUE(typeInfo->IsStructure());
     ASSERT_EQ(std::tuple_size<typename StructType::MembersTuple>::value, typeInfo->StructureType()->structSize());
+    
+    
+    Data<StructType> data2("Struct");
+    Data<int> dataInt("Int");
+    Data<helper::vector<float>> dataVecFloat("VecFloat");
+    
+    ASSERT_EQ(typeInfo->typeInfoID(), data2.getValueTypeInfo()->typeInfoID());
+    ASSERT_NE(typeInfo->typeInfoID(), dataInt.getValueTypeInfo()->typeInfoID());
+    ASSERT_NE(typeInfo->typeInfoID(), dataVecFloat.getValueTypeInfo()->typeInfoID());
 }
 
 // Test reset for all types that have default constructor

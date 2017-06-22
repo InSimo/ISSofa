@@ -36,6 +36,34 @@ namespace sofa
 namespace defaulttype
 {
 
+namespace typeIDHelper
+{
+
+class type_id_t
+{
+    using defctor = type_id_t();
+
+    defctor* id;
+    constexpr type_id_t(defctor* id) : id{id} {}
+
+public:
+    template<typename T>
+    friend constexpr type_id_t Type_id();
+    
+    constexpr defctor* getID() const { return id; }
+
+    bool operator==(type_id_t o) const { return id == o.id; }
+    bool operator!=(type_id_t o) const { return id != o.id; }
+};
+
+template<typename T>
+constexpr type_id_t Type_id() { return &Type_id<T>; }
+
+template<typename T>
+size_t type_id() { return reinterpret_cast<size_t>(Type_id<T>().getID()); }
+
+}
+
 template<class TDataType, bool TSingleValue, bool TMultiValue, bool TContainer, bool TStructure>
 class VirtualTypeInfoImpl;
 
@@ -98,7 +126,10 @@ public:
         // @TODO support for enums
         return false;
     }
+    
     virtual const std::type_info* type_info() const override { return &typeid(DataType); }
+    
+    virtual std::size_t typeInfoID() const override { return typeIDHelper::type_id<DataType>(); }
 };
 
 template<class TDataType>
