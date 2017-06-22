@@ -214,6 +214,7 @@ TEST(DataStructTypeInfoTest, checkNoDefaultConstrStruct_ResetValueIsOk)
     StructTypeInfo<test_struct::NoDefaultConstrStruct>::resetValue(testValue);
     StructTypeInfo<test_struct::NoDefaultConstrStruct>::for_each(testValue, ExpectCleared{});
 }
+
 TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
 {
     Data<test_struct::SimpleStruct> data("SimpleStruct");
@@ -232,6 +233,27 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
     *(int*)structureInfo->editMemberValue(data.beginEditVoidPtr(), 0) = 42;
     data.endEditVoidPtr();
     EXPECT_EQ(*(const int*)structureInfo->getMemberValue(data.getValueVoidPtr(), 0), 42);
+}
+
+TEST(DataStructTypeInfoTest, ostreamTest)
+{
+    test_struct::TemplatedStruct<int, test_struct::SimpleStruct> testValue{};
+
+    std::ostringstream stringStream;
+    stringStream << testValue;
+    EXPECT_EQ("{ int myMemberT1 = 0 ; SimpleStruct myMemberT2 = { int myInt = 10 ; float myFloat = -0.1 ; unsigned char myUChar = c ; bool myBool = 1 ; } ; }", stringStream.str());
+}
+
+TEST(DataStructTypeInfoTest, istreamTest)
+{
+    test_struct::TemplatedStruct<int, test_struct::SimpleStruct> testValue{};
+
+    std::istringstream stringStream("{ int myMemberT1 = 0 ; SimpleStruct myMemberT2 = { int myInt = 15 ; float myFloat = -0.1 ; unsigned char myUChar = f ; bool myBool = 1 ; } ; }");
+    stringStream >> testValue;
+    test_struct::TemplatedStruct<int, test_struct::SimpleStruct> compareValue{};
+    compareValue.myMemberT2.myInt = 15;
+    compareValue.myMemberT2.myUChar = 'f';
+    EXPECT_EQ(testValue, compareValue);
 }
 
 }
