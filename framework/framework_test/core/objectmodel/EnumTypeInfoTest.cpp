@@ -60,6 +60,7 @@ std::ostream& operator<< (std::ostream& stream, const charEnum2& myEnum)
 
 std::istream& operator >> (std::istream& stream, charEnum2& myEnum)
 {
+    stream >> myEnum;
     return stream;
 }
 
@@ -71,6 +72,7 @@ std::ostream& operator<< (std::ostream& stream, const unscopedEnum& myEnum)
 
 std::istream& operator >> (std::istream& stream, unscopedEnum& myEnum)
 {
+    stream >> myEnum;
     return stream;
 }
 
@@ -125,22 +127,54 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
 {
     typedef defaulttype::uIntEnum2 uIntEnum2;
     Data<uIntEnum2> dataTest("Enum");
+    dataTest.setValue(uIntEnum2::dix);
     
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::enumSize(), 3);
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorName<0>(), "un");
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorValue<1>(), 10u);
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumerator<2>(), uIntEnum2::cent);
+
+    helper::WriteAccessor<Data<uIntEnum2> > dataTestW = dataTest;
+    defaulttype::DataTypeInfo<uIntEnum2>::resetValue(dataTestW);
+    ASSERT_EQ(dataTest, uIntEnum2::un);   // for now, the reset change the data to the first value of the enum
 }
 
 TEST(DataEnumTypeInfoTest2, checkcharEnum2)
 {
     typedef defaulttype::charEnum2 charEnum2;
     Data<charEnum2> dataTest("Enum");
+    dataTest.setValue(charEnum2::bb);
 
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::enumSize(), 4);
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorName<0>(), "aa");
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorValue<1>(), 'b');
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumerator<2>(), charEnum2::cc);
+
+    std::string value;
+    defaulttype::DataTypeInfo<charEnum2>::getDataValueString(dataTest, value);
+    ASSERT_EQ(value, "b");
+
+    std::string value1("dd");
+    helper::WriteAccessor<Data<charEnum2> > dataTestW = dataTest;
+    defaulttype::DataTypeInfo<charEnum2>::setDataValueString(dataTestW, value1);
+
+    std::string value2;
+    defaulttype::DataTypeInfo<charEnum2>::getDataValueString(dataTest, value2);
+    ASSERT_EQ(value2, "d");
+
+
+    std::string value3;
+    defaulttype::DataTypeInfo<charEnum2>::getDataEnumeratorString(dataTest.getValue(), value3);
+    ASSERT_EQ(value3, "dd");
+
+    charEnum2 value4(charEnum2::aa);
+    helper::WriteAccessor<Data<charEnum2> > dataTestW2 = dataTest;
+    defaulttype::DataTypeInfo<charEnum2>::setDataValue(dataTestW2, value4);
+
+    charEnum2 value5;
+    defaulttype::DataTypeInfo<charEnum2>::getDataValue(dataTest.getValue(), value5);
+    ASSERT_EQ(value5, charEnum2::aa);
+
 }
 
 TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
@@ -152,9 +186,6 @@ TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorName<0>(), "uns");
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorValue<1>(), 1);
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumerator<2>(), unscopedEnum::ped);
-
-    helper::WriteAccessor<Data<unscopedEnum> > dataTestW = dataTest;
-    defaulttype::DataTypeInfo<unscopedEnum>::resetValue(dataTestW);
 
 }
 
