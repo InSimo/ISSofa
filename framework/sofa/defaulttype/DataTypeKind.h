@@ -36,7 +36,7 @@ namespace defaulttype
 enum class ContainerKindEnum
 {
     Single = 0,
-    Array,       ///< An ordered list of arbitrary values, all having the same type (vector, pair, tuple, ...)
+    Array,       ///< An ordered list of arbitrary values, all having the same type (vector, array)
     Set,         ///< An unordered list of unique keys, all having the same type (set, unordered_set)
     Map          ///< An unordered list of key/value pairs, all having the same type (map, unordered_map)
 };
