@@ -60,8 +60,8 @@ namespace sofa
             static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Enum;
 
             static constexpr bool IsContainer = false; ///< true if this type is a container
-            static constexpr bool IsSingleValue = false;  ///< true if this type is a single value
-            static constexpr bool IsMultiValue = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+            static constexpr bool IsSingleValue = true;  ///< true if this type is a single value
+            static constexpr bool IsMultiValue = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
 
             static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
                                                                             /// true if this type uses integer values
@@ -258,6 +258,47 @@ namespace sofa
                 value = static_cast<MappedType>(data);
             }
 
+
+            ///////////
+            // Multi Value API
+
+            static constexpr size_t FinalSize = 1;
+            static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+
+            static void setFinalSize(DataType& /*data*/, size_t /*size*/)
+            {
+            }
+
+            template <typename DataTypeRef, typename T>
+            static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
+            {
+                if (index != 0) return;
+                getDataValue(data, value);
+            }
+
+            template<typename DataTypeRef, typename T>
+            static void setFinalValue(DataTypeRef&& data, size_t index, const T& value)
+            {
+                if (index != 0) return;
+                setDataValue(std::forward<DataTypeRef>(data), value);
+            }
+
+            template<typename DataTypeRef>
+            static void getFinalValueString(const DataTypeRef& data, size_t index, std::string& value)
+            {
+                if (index != 0) return;
+                getDataValueString(data, value);
+            }
+
+            template<typename DataTypeRef>
+            static void setFinalValueString(DataTypeRef&& data, size_t index, const std::string& value)
+            {
+                if (index != 0) return;
+                setDataValueString(std::forward<DataTypeRef>(data), value);
+            }
+
+            // end of Multi Value API
+            ///////////
 
 
         };
