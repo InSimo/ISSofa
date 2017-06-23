@@ -155,7 +155,8 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
 {
     using StructType = TypeParam;
     Data<StructType> data("Struct");
-    //BaseData* baseData = &data;
+    
+    ASSERT_TRUE(DataTypeInfo<StructType>::ValidInfo);
     
     std::cout << "STATIC TYPEINFO" << std::endl;
     std::cout << "struct " << DataTypeInfo<StructType>::name() << " { ";
@@ -177,6 +178,7 @@ TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
     const AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
     
     ASSERT_TRUE(typeInfo->ValidInfo());
+    ASSERT_FALSE(typeInfo->IsSingleValue());
     ASSERT_FALSE(typeInfo->IsContainer());
     ASSERT_TRUE(typeInfo->IsStructure());
     ASSERT_EQ(std::tuple_size<typename StructType::MembersTuple>::value, typeInfo->StructureType()->structSize());

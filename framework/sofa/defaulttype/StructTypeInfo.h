@@ -54,31 +54,50 @@ struct StructTypeInfo
     static constexpr ContainerKindEnum ContainerKind = ContainerKindEnum::Single;
     static constexpr ValueKindEnum     FinalValueKind = ValueKindEnum::Void; // TODO
 
-    static constexpr bool IsContainer        = false; ///< true if this type is a container
-    static constexpr bool IsSingleValue      = false; ///< true if this type is a single value
-    static constexpr bool IsMultiValue       = false; /// TODO: check if all member types are identical
-    static constexpr bool IsStructure        = true;  ///< true if this type is a structure
-
-    static constexpr bool ValidInfo          = true;  ///< TODO: check if all member types are valid
-    static constexpr bool Integer            = false; ///< true if this type uses integer values
-    static constexpr bool Scalar             = false; ///< true if this type uses scalar values
-    static constexpr bool String             = false; ///< true if this type uses text values
-    static constexpr bool Unsigned           = false; ///< true if this type is unsigned
+    // Fold expression emulation in C++11
+    // Example result for structs with 3 members : op(op(f(M1), f(M2)), f(M3))
+    template <class Tuple, std::size_t N = std::tuple_size<Tuple>::value>
+    struct ApplyOnMembers
+    {
+        template<typename F, typename Op>
+        static constexpr bool apply(F&& f, Op&& op) { return op(f(MemberType<N-1>{}), ApplyOnMembers<Tuple, N-1>::apply(std::forward<F>(f), std::forward<Op>(op))); }
+    };
+    template <class Tuple>
+    struct ApplyOnMembers<Tuple, 0>
+    {
+        template<typename F, typename Op>
+        static constexpr bool apply(F&&, Op&&) { return true; }
+    };
+    // Functions that can be used as Op
+    static constexpr bool And(bool b1, bool b2) { return b1 && b2; }
+    static constexpr bool Or(bool b1, bool b2) { return b1 || b2; }
+    // Functions to apply on members
+    struct IsMemberValidInfo  { template <typename MemberType> constexpr bool operator()(MemberType&&) { return DataTypeInfo<typename MemberType::type>::ValidInfo;  }};
+    struct IsMemberSimpleCopy { template <typename MemberType> constexpr bool operator()(MemberType&&) { return DataTypeInfo<typename MemberType::type>::SimpleCopy; }};
+    
+    ///< true if this type is a container
+    static constexpr bool IsContainer        = false;
+    ///< true if this type is a single value
+    static constexpr bool IsSingleValue      = false;
+    ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsMultiValue       = false; // TODO: check if all member types are identical
+    ///< true if this type is a structure
+    static constexpr bool IsStructure        = true;
+    ///< true if this type has valid infos
+    static constexpr bool ValidInfo          = ApplyOnMembers<MembersTuple>::apply(IsMemberValidInfo{}, And);
+    ///< true if this type uses integer values
+    static constexpr bool Integer            = false;
+    ///< true if this type uses scalar values
+    static constexpr bool Scalar             = false;
+    ///< true if this type uses text values
+    static constexpr bool String             = false;
+    ///< true if this type is unsigned
+    static constexpr bool Unsigned           = false;
 
     /// true if the constructor is equivalent to setting memory to 0
     static constexpr bool ZeroConstructor    = false; // TODO (for data links optimization)
-    template <class Tuple, std::size_t N = std::tuple_size<Tuple>::value>
-    struct ComputeSimpleCopy
-    {
-        static constexpr bool get() { return DataTypeInfo<MemberDataType<N-1>>::SimpleCopy && ComputeSimpleCopy<Tuple, N-1>::get(); }
-    };
-    template <class Tuple>
-    struct ComputeSimpleCopy<Tuple, 0>
-    {
-        static constexpr bool get() { return true; }
-    };
     /// true if copying the data can be done with a memcpy
-    static constexpr bool SimpleCopy         = ComputeSimpleCopy<MembersTuple>::get();
+    static constexpr bool SimpleCopy         = ApplyOnMembers<MembersTuple>::apply(IsMemberSimpleCopy{}, And);
     /// true if the layout in memory is simply N values of the same base type
     static constexpr bool SimpleLayout       = false; // TODO (for data links optimization)
     /// true if this type uses copy-on-write
@@ -88,8 +107,10 @@ struct StructTypeInfo
     /// true if the item values are stored within the data structure
     static constexpr bool StoreValues        = true;
 
-    static constexpr size_t StructSize = std::tuple_size<MembersTuple>::value; ///< size of the structure 
-
+    ///< size of the structure 
+    static constexpr size_t StructSize = std::tuple_size<MembersTuple>::value;
+    
+    ///< name of the structure
     static constexpr std::string name()
     {
         return DataTypeName<TDataType>::name();
