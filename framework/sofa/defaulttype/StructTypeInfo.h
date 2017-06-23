@@ -72,8 +72,8 @@ struct StructTypeInfo
     static constexpr bool And(bool b1, bool b2) { return b1 && b2; }
     static constexpr bool Or(bool b1, bool b2) { return b1 || b2; }
     // Functions to apply on members
-    struct IsMemberValidInfo  { template <typename MemberType> constexpr bool operator()(MemberType&&) { return DataTypeInfo<typename MemberType::type>::ValidInfo;  }};
-    struct IsMemberSimpleCopy { template <typename MemberType> constexpr bool operator()(MemberType&&) { return DataTypeInfo<typename MemberType::type>::SimpleCopy; }};
+    struct IsMemberValidInfo  { template <typename MemberType> constexpr bool operator()(MemberType&&) const { return DataTypeInfo<typename MemberType::type>::ValidInfo;  }};
+    struct IsMemberSimpleCopy { template <typename MemberType> constexpr bool operator()(MemberType&&) const { return DataTypeInfo<typename MemberType::type>::SimpleCopy; }};
     
     ///< true if this type is a container
     static constexpr bool IsContainer        = false;
