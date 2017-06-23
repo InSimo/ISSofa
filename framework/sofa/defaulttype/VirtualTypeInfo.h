@@ -245,9 +245,9 @@ public:
 
     virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const override
     {
-        if (FinalValueKind() == ValueKindEnum::Enum)
+        if (Info::FinalValueKind == ValueKindEnum::Enum)
         {
-            Info::getAvailableItems(*(DataType*)data, result);
+            Info::getAvailableItems(*(const DataType*)data, result);
             return true;
         }
         else
