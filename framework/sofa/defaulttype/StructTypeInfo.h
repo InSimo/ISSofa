@@ -67,8 +67,18 @@ struct StructTypeInfo
 
     /// true if the constructor is equivalent to setting memory to 0
     static constexpr bool ZeroConstructor    = false; // TODO (for data links optimization)
+    template <class Tuple, std::size_t N = std::tuple_size<Tuple>::value>
+    struct ComputeSimpleCopy
+    {
+        static constexpr bool get() { return DataTypeInfo<MemberDataType<N-1>>::SimpleCopy && ComputeSimpleCopy<Tuple, N-1>::get(); }
+    };
+    template <class Tuple>
+    struct ComputeSimpleCopy<Tuple, 0>
+    {
+        static constexpr bool get() { return true; }
+    };
     /// true if copying the data can be done with a memcpy
-    static constexpr bool SimpleCopy         = false; // TODO (for data links optimization)
+    static constexpr bool SimpleCopy         = ComputeSimpleCopy<MembersTuple>::get();
     /// true if the layout in memory is simply N values of the same base type
     static constexpr bool SimpleLayout       = false; // TODO (for data links optimization)
     /// true if this type uses copy-on-write
@@ -224,6 +234,10 @@ struct StructTypeInfo
     
 protected:
     
+    ////////////////////////
+    /// Tuple visitation ///
+    ////////////////////////
+    
     // Visit all struct members using (tail) recursion and call a method on each of them
     template <class Tuple, std::size_t I = 0, std::size_t N = std::tuple_size<Tuple>::value-1>
     class TupleForEach
@@ -285,6 +299,32 @@ protected:
         template <typename F, typename LastF>
         static void visit(DataType&, F&&, LastF&&) {}
     };
+
+    
+    // Visit all struct members using (tail) recursion and call a method on a specific indexed one
+    template <class Tuple, size_t I = std::tuple_size<Tuple>::value>
+    struct TupleForElem
+    {
+        template <typename D, typename F>
+        static void visit(D&& data, size_t index, F&& f)
+        {
+            if (index == I-1) f(MemberType<I-1>{}, std::forward<D>(data));
+            else TupleForElem<Tuple, I-1>::visit( std::forward<D>(data), index, std::forward<F>(f));
+        }
+    };
+
+    // End of recursion : should not happen
+    template <class Tuple>
+    struct TupleForElem<Tuple, 0>
+    {
+        template <typename D, typename F>
+        static void visit(D&&, size_t, F&&) { assert(false); }
+    };
+    
+    
+    ////////////////
+    /// Functors ///
+    ////////////////
 
     class StructToStream
     {
@@ -354,27 +394,6 @@ protected:
         {
             data = DataType();
         }
-    };
-    
-    
-    // Visit all struct members using (tail) recursion and call a method on a specific indexed one
-    template <class Tuple, size_t I = std::tuple_size<Tuple>::value>
-    struct TupleForElem
-    {
-        template <typename D, typename F>
-        static void visit(D&& data, size_t index, F&& f)
-        {
-            if (index == I-1) f(MemberType<I-1>{}, std::forward<D>(data));
-            else TupleForElem<Tuple, I-1>::visit( std::forward<D>(data), index, std::forward<F>(f));
-        }
-    };
-
-    // End of recursion : should not happen
-    template <class Tuple>
-    struct TupleForElem<Tuple, 0>
-    {
-        template <typename D, typename F>
-        static void visit(D&&, size_t, F&&) { assert(false); }
     };
 };
 

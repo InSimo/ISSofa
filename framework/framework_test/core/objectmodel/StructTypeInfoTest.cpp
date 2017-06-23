@@ -217,7 +217,7 @@ struct ExpectCleared
     }
 };
 
-TEST(DataStructTypeInfoTest, checkNoDefaultConstrStruct_ResetValueIsOk)
+TEST(DataStructTypeInfoTest2, checkNoDefaultConstrStruct_ResetValueIsOk)
 {
     test_struct::NoDefaultConstrStruct testValue(10);
     StructTypeInfo<test_struct::NoDefaultConstrStruct>::resetValue(testValue);
@@ -242,6 +242,30 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
     *(int*)structureInfo->editMemberValue(data.beginEditVoidPtr(), 0) = 42;
     data.endEditVoidPtr();
     EXPECT_EQ(*(const int*)structureInfo->getMemberValue(data.getValueVoidPtr(), 0), 42);
+}
+
+TEST(DataStructTypeInfoTest2, checkSimpleCopy)
+{
+    {
+        Data<test_struct::EmptyStruct> data("EmptyStruct");
+        EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
+    }
+    {
+        Data<test_struct::SimpleStruct> data("SimpleStruct");
+        EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
+    }
+    {
+        Data<test_struct::NestedStruct> data("NestedStruct");
+        EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
+    }
+    {
+        Data<test_struct::ContainerStruct> data("ContainerStruct");
+        EXPECT_FALSE(data.getValueTypeInfo()->SimpleCopy());
+    }
+    {
+        Data<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> data("TemplatedStruct<int, SimpleStruct>");
+        EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
+    }
 }
 
 TEST(DataStructTypeInfoTest, ostreamTest)
