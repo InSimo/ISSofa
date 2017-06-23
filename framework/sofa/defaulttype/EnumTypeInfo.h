@@ -156,7 +156,7 @@ namespace sofa
                 GetDataEnumeratorName(const char*& value) : m_string(value) {}
 
                 template <typename T>
-                void operator()(T&& MemberTypeI, DataType& data)
+                void operator()(T&& MemberTypeI, const DataType& data)
                 {
                     if (T::getEnumerator() == data)
                     {
@@ -174,7 +174,7 @@ namespace sofa
                 GetDataEnumeratorsNames(std::vector<std::string>& enumNames) : m_enumNames(enumNames) {}
 
                 template <typename T>
-                void operator()(T&& MemberTypeI, DataType& data)
+                void operator()(T&& MemberTypeI, const DataType& data)
                 {
                     m_enumNames.push_back(T::enumeratorName());
                 }
@@ -202,12 +202,19 @@ namespace sofa
             };
             
 
-            // Call f(MemberDataType&) for each enum member
+            // Call f(MemberDataType&&, DataType&) for each enum member
             template <typename F>
             static void for_each(DataType& data, F&& f)
             {
                 TupleForEach<MembersTuple, EnumSize - 1 >::loop(data, std::forward<F>(f));
             }
+            // Call f(MemberDataType&&, const DataType&) for each enum member
+            template <typename F>
+            static void for_each(const DataType& data, F&& f)
+            {
+                TupleForEach<MembersTuple, EnumSize - 1 >::loop(data, std::forward<F>(f));
+            }
+
 
             template<class Tuple, std::size_t I>
             class TupleForEach
@@ -219,6 +226,13 @@ namespace sofa
                     f(MemberType<I>{}, data);
                     TupleForEach<Tuple, I - 1>::loop(data, std::forward<F>(f));
                 }
+                template <typename F>
+                static void loop(const DataType& data, F&& f)
+                {
+                    f(MemberType<I>{}, data);
+                    TupleForEach<Tuple, I - 1>::loop(data, std::forward<F>(f));
+                }
+
             };
 
             template<class Tuple>
@@ -230,6 +244,12 @@ namespace sofa
                 {
                     f(MemberType<0>{}, data);
                 }
+                template <typename F>
+                static void loop(const DataType& data, F&& f)
+                {
+                    f(MemberType<0>{}, data);
+                }
+
             };
 
             // end for_each utility
@@ -247,8 +267,7 @@ namespace sofa
             {
                 const char* value;
                 auto functor = GetDataEnumeratorName(value);
-                DataTypeRef tempData = data;
-                for_each(tempData, functor);
+                for_each(data, functor);
                 
                 std::ostringstream o; o << value; valueToFill = o.str();
 
@@ -278,8 +297,7 @@ namespace sofa
             static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames)   // get the enumerator value
             {
                 auto functor = GetDataEnumeratorsNames(enumNames);
-                DataTypeRef tempData = data;
-                for_each(tempData, functor);
+                for_each(data, functor);
             }
             
 
