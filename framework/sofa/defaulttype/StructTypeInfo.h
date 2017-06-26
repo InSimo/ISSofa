@@ -133,7 +133,7 @@ struct StructTypeInfo
     }
 
     template<size_t Index>
-    static const KeyType& getMemberName(const DataType& data)
+    static KeyType getMemberName(const DataType& data)
     {
         return MemberType<Index>::name();
     }
@@ -211,7 +211,6 @@ struct StructTypeInfo
     }
 
     
-    // TODO: replace with generic lambdas in C++14
     struct GetMemberValue
     {
         template <typename MemberType>
@@ -237,7 +236,7 @@ struct StructTypeInfo
         TupleForElem<MembersTuple>::visit(std::forward<const DataType>(data), index, std::forward<GetMemberValue>(gmv));
         return gmv.m_value;
     }
-    static const std::string getMemberName(const DataType& data, size_t index)
+    static KeyType getMemberName(const DataType& data, size_t index)
     {
         assert(index < StructSize);
         GetMemberName gmn;
