@@ -64,9 +64,10 @@ struct ContainerStruct
 {
     helper::vector<int> myIntVector = { 1,2,3 };
     helper::set<float> myFloatSet = std::set<float>({ 9,8,7 });
-    SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet);
+    helper::vector<SimpleStruct> myStructVector;
+    SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet, myStructVector);
     SOFA_STRUCT_STREAM_METHODS(ContainerStruct);
-    SOFA_STRUCT_COMPARE_METHOD(ContainerStruct, myIntVector, myFloatSet);
+    SOFA_STRUCT_COMPARE_METHOD(ContainerStruct, myIntVector, myFloatSet, myStructVector);
 };
 
 template<typename T1, typename T2>
