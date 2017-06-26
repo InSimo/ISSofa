@@ -27,6 +27,8 @@ TYPED_TEST_CASE(DataPairTypeInfoTest, PairTypes);
 /// Tests ///
 /////////////
 
+using namespace sofa::defaulttype;
+
 struct PrintName
 {
     template <typename MemberType>
@@ -62,7 +64,6 @@ struct PrintLastValue
     }
 };
 
-using namespace sofa::defaulttype;
 TYPED_TEST(DataPairTypeInfoTest, checkPairTypeInfoIsOk)
 {
     using PairType = TypeParam;

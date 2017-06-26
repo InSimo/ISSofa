@@ -48,7 +48,6 @@ struct SimpleStruct
 
 SOFA_STRUCT_DEFINE(sofa::test_struct::SimpleStruct);
 
-
 namespace sofa
 {
 namespace test_struct
@@ -101,16 +100,9 @@ struct NoDefaultConstrStruct
 } // namespace test_struct
 } // namespace sofa
 
-
-
-
 SOFA_STRUCT_DEFINE(sofa::test_struct::EmptyStruct);
 SOFA_STRUCT_DEFINE(sofa::test_struct::NestedStruct);
 SOFA_STRUCT_DEFINE(sofa::test_struct::ContainerStruct);
-
-
-
-
 
 namespace sofa
 {
