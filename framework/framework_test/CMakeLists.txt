@@ -17,6 +17,7 @@ set(SOURCE_FILES
     core/objectmodel/AspectPoolTest.cpp
     core/objectmodel/DataTest.cpp
     core/objectmodel/DataTypeInfoTest.cpp
+    core/objectmodel/PairTypeInfoTest.cpp
     core/objectmodel/StructTypeInfoTest.cpp
     core/objectmodel/EnumTypeInfoTest.cpp
     #plugin-system/PluginSystemTest.cpp

@@ -18,7 +18,8 @@ set(SOFADEFAULTTYPE_HEADERS
 	Quat.h	
 	Quat.inl	
 	#RigidInertia.h	
-	#RigidInertia.inl	
+	#RigidInertia.inl
+	PairTypeInfo.h	
 	RigidTypes.h	
 	RigidVec6Types.h	
 	SolidTypes.h	
