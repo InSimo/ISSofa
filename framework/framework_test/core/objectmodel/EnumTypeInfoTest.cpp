@@ -4,47 +4,6 @@
 #include <sofa/defaulttype/EnumTypeInfo.h>
 #include <iostream>
 
-namespace sofa
-{
-
-namespace defaulttype
-{
-
-
-
-enum class uIntEnum2 : unsigned int
-{
-    un = 1u,
-    dix = 10u,
-    cent = 100u
-};
-
-enum charEnum2 : char
-{
-    aa = 'a',
-    bb = 'b',
-    cc = 'c',
-    dd = 'd'
-};
-
-enum unscopedEnum : unsigned int
-{
-    uns,
-    sco,
-    ped
-};
-
-
-SOFA_ENUM(uIntEnum2, un, dix, cent)
-
-SOFA_ENUM(charEnum2, aa, bb, cc, dd)
-
-SOFA_ENUM(unscopedEnum, uns, sco, ped)
-
-} // namespace defaulttype
-
-} // namespace sofa
-
 
 /////////////
 /// Tests ///
@@ -56,6 +15,60 @@ namespace sofa
 namespace enumTypeInfoTest
 {
 
+
+enum class uIntEnum2 : unsigned int
+{
+    un = 1u,
+    dix = 10u,
+    cent = 100u
+};
+
+SOFA_ENUM_DECL(uIntEnum2, un, dix, cent);
+SOFA_ENUM_STREAM_METHODS(uIntEnum2);
+
+enum charEnum2 : char
+{
+    aa = 'a',
+    bb = 'b',
+    cc = 'c',
+    dd = 'd'
+};
+
+SOFA_ENUM_DECL(charEnum2, aa, bb, cc, dd);
+SOFA_ENUM_STREAM_METHODS(charEnum2);
+
+enum unscopedEnum : unsigned int
+{
+    uns,
+    sco,
+    ped
+};
+
+SOFA_ENUM_DECL(unscopedEnum, uns, sco, ped);
+SOFA_ENUM_STREAM_METHODS(unscopedEnum);
+
+
+} // namespace enumTypeInfoTest
+} // namespace sofa
+
+
+
+
+SOFA_ENUM_DEFINE(sofa::enumTypeInfoTest::uIntEnum2);
+SOFA_ENUM_DEFINE(sofa::enumTypeInfoTest::charEnum2);
+SOFA_ENUM_DEFINE(sofa::enumTypeInfoTest::unscopedEnum);
+
+
+
+
+
+namespace sofa
+{
+
+namespace enumTypeInfoTest
+{
+
+
 template <typename _EnumType>
 struct DataEnumTypeInfoTest : public ::testing::Test
 {
@@ -64,9 +77,9 @@ struct DataEnumTypeInfoTest : public ::testing::Test
 
 
 using EnumTypes = testing::Types<
-    defaulttype::uIntEnum2,
-    defaulttype::charEnum2,
-    defaulttype::unscopedEnum
+    uIntEnum2,
+    charEnum2,
+    unscopedEnum
 >;
 
 TYPED_TEST_CASE(DataEnumTypeInfoTest, EnumTypes);
@@ -84,7 +97,7 @@ TYPED_TEST(DataEnumTypeInfoTest, checkEnumTypeInfo)
 
 TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
 {
-    typedef defaulttype::uIntEnum2 uIntEnum2;
+    typedef uIntEnum2 uIntEnum2;
     Data<uIntEnum2> dataTest("Enum");
     dataTest.setValue(uIntEnum2::dix);
     
@@ -112,7 +125,7 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
 
 TEST(DataEnumTypeInfoTest2, checkcharEnum2)
 {
-    typedef defaulttype::charEnum2 charEnum2;
+    typedef charEnum2 charEnum2;
     Data<charEnum2> dataTest("Enum");
     dataTest.setValue(charEnum2::bb);
 
@@ -150,7 +163,7 @@ TEST(DataEnumTypeInfoTest2, checkcharEnum2)
 
 TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
 {
-    typedef defaulttype::unscopedEnum unscopedEnum;
+    typedef unscopedEnum unscopedEnum;
     Data<unscopedEnum> dataTest("Enum");
 
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::enumSize(), 3);
@@ -163,7 +176,7 @@ TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
 
 TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
 {
-    typedef defaulttype::uIntEnum2 uIntEnum2;
+    typedef uIntEnum2 uIntEnum2;
     Data<uIntEnum2> dataTest("Enum");
     dataTest.setValue(uIntEnum2::dix);
 
@@ -211,6 +224,6 @@ TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
 
 }
 
-}// namespace enumTypeInfoTest
 
+}// namespace enumTypeInfoTest
 } // namespace sofa

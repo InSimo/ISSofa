@@ -43,13 +43,14 @@ struct SimpleStruct
     SOFA_STRUCT_STREAM_METHODS(SimpleStruct);
     SOFA_STRUCT_COMPARE_METHOD(SimpleStruct, myInt, myFloat, myUChar, myBool);
 };
-}
+} // namespace test_struct
+} // namespace sofa
 
-namespace defaulttype
+SOFA_STRUCT_DEFINE(sofa::test_struct::SimpleStruct);
+
+
+namespace sofa
 {
-    template<> struct DataTypeInfo<test_struct::SimpleStruct> : public StructTypeInfo<test_struct::SimpleStruct> {};
-}
-
 namespace test_struct
 {
 struct NestedStruct
@@ -96,17 +97,33 @@ struct NoDefaultConstrStruct
     SOFA_STRUCT_DECL(PointerStruct, myDoublePointer);
     SOFA_STRUCT_STREAM_METHODS(PointerStruct)
 };*/
-}
+} // namespace test_struct
+} // namespace sofa
+
+
+
+
+SOFA_STRUCT_DEFINE(sofa::test_struct::EmptyStruct);
+SOFA_STRUCT_DEFINE(sofa::test_struct::NestedStruct);
+SOFA_STRUCT_DEFINE(sofa::test_struct::ContainerStruct);
+
+
+
+
+
+namespace sofa
+{
 
 namespace defaulttype
 {
-    template<> struct DataTypeInfo<test_struct::EmptyStruct> : public StructTypeInfo<test_struct::EmptyStruct> {};    
-    template<> struct DataTypeInfo<test_struct::NestedStruct> : public StructTypeInfo<test_struct::NestedStruct> {};
-    template<> struct DataTypeInfo<test_struct::ContainerStruct> : public StructTypeInfo<test_struct::ContainerStruct> {};
     template<> struct DataTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> : public StructTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> {};
 //    template<> struct DataTypeInfo<test_struct::PointerStruct> : public StructTypeInfo<test_struct::PointerStruct> {};
-}
+} // namespace defaulttype 
 
+
+
+namespace test_struct_2
+{
 using StructTypes = testing::Types<
     test_struct::EmptyStruct,
     test_struct::SimpleStruct,
@@ -299,4 +316,5 @@ TEST(DataStructTypeInfoTest, istreamTest)
     EXPECT_EQ(testValue, compareValue);
 }
 
-}
+} // namespace test_struct_2
+} // namespace sofa

@@ -445,6 +445,10 @@ bool operator==(const TStruct& rhs) const { return ( \
 SOFA_FOR_EACH(SOFA_COMPARE_MEMBER, (&&), __VA_ARGS__) \
 );} SOFA_REQUIRE_SEMICOLON
 
+#define SOFA_STRUCT_DEFINE(TStruct)                         \
+template<> struct sofa::defaulttype::DataTypeInfo<TStruct> : public sofa::defaulttype::StructTypeInfo<TStruct> {};  SOFA_REQUIRE_SEMICOLON
+
+
 } // namespace defaulttype
 
 } // namespace sofa
