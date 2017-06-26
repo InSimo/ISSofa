@@ -448,9 +448,10 @@ bool operator==(const TStruct& rhs) const { return ( \
 SOFA_FOR_EACH(SOFA_COMPARE_MEMBER, (&&), __VA_ARGS__) \
 );} SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_STRUCT_DEFINE(TStruct)                                          \
+// Variadic macro to handle templated arguments like T<int, int> (semicolon is a separator for macro)
+#define SOFA_STRUCT_DEFINE(...)                                          \
 namespace sofa { namespace defaulttype {                                     \
-template<> struct DataTypeInfo<TStruct> : public StructTypeInfo<TStruct> {}; \
+template<> struct DataTypeInfo<__VA_ARGS__> : public StructTypeInfo<__VA_ARGS__> {}; \
 }} SOFA_REQUIRE_SEMICOLON
 
 

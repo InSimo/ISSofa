@@ -103,17 +103,11 @@ struct NoDefaultConstrStruct
 SOFA_STRUCT_DEFINE(sofa::test_struct::EmptyStruct);
 SOFA_STRUCT_DEFINE(sofa::test_struct::NestedStruct);
 SOFA_STRUCT_DEFINE(sofa::test_struct::ContainerStruct);
+SOFA_STRUCT_DEFINE(sofa::test_struct::TemplatedStruct<int, test_struct::SimpleStruct>);
+//SOFA_STRUCT_DEFINE(sofa::test_struct::PointerStruct);
 
 namespace sofa
 {
-
-namespace defaulttype
-{
-    template<> struct DataTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> : public StructTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> {};
-//    template<> struct DataTypeInfo<test_struct::PointerStruct> : public StructTypeInfo<test_struct::PointerStruct> {};
-} // namespace defaulttype 
-
-
 
 namespace test_struct_2
 {
