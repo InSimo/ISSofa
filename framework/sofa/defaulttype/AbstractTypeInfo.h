@@ -233,8 +233,6 @@ class SOFA_DEFAULTTYPE_API AbstractContainerTypeInfo : public virtual AbstractTy
 public:
     virtual AbstractTypeInfo* getKeyType() const = 0; // DTK_ARRAY: must be integer type, DTK_STRUCT: must be enum type, DTK_MAP/DTK_SET: arbitrary
     virtual AbstractTypeInfo* getMappedType() const = 0; // DTK_ARRAY/DTK_MAP/DTK_SET: arbitrary, DTK_STRUCT: void unless all values are the same
-    virtual AbstractTypeInfo* getValueTypeForIndex(const void* data, size_t index) const = 0;
-    virtual AbstractTypeInfo* getValueTypeForKey(const void* data, const void* key) const = 0;
     virtual bool FixedContainerSize() const = 0; // true for DTK_STRUCT and for fixed-size DTK_ARRAY
 
     virtual size_t containerSize(const void* data) const = 0;

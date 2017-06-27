@@ -276,13 +276,6 @@ public:
 };
 
 
-template<class T, class K>
-AbstractTypeInfo* VirtualTypeInfo_GetValueType(const T& data, const K& key)
-{
-    // TODO: support for struct with different types per key
-    return VirtualTypeInfo< typename DataTypeInfo<T>::MappedType >::get();
-}
-
 template<class TDataType, class TBaseClass>
 class AbstractContainerTypeInfoImpl : public TBaseClass
 {
@@ -297,14 +290,7 @@ public:
 
     virtual AbstractTypeInfo* getKeyType() const override { return VirtualTypeInfo<KeyType>::get(); }
     virtual AbstractTypeInfo* getMappedType() const override { return VirtualTypeInfo<MappedType>::get(); }
-    virtual AbstractTypeInfo* getValueTypeForIndex(const void* data, size_t index) const override
-    {
-        return VirtualTypeInfo_GetValueType(*(const DataType*)data, index);
-    }
-    virtual AbstractTypeInfo* getValueTypeForKey(const void* data, const void* key) const
-    {
-        return VirtualTypeInfo_GetValueType(*(const DataType*)data, *(const KeyType*)key);
-    }
+
     virtual bool FixedContainerSize() const override { return Info::FixedContainerSize; }
 
     virtual size_t containerSize(const void* data) const override
