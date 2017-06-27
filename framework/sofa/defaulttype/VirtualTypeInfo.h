@@ -121,9 +121,9 @@ public:
         Info::setDataValueString(*(DataType*)data, value);
     }
 
+    virtual size_t byteSize(const void* data) const override { return Info::byteSize(*(const DataType*)data); }
     
     virtual const std::type_info* type_info() const override { return &typeid(DataType); }
-    
     virtual std::size_t typeInfoID() const override { return typeIDHelper::type_id<DataType>(); }
 };
 

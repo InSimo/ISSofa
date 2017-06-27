@@ -71,6 +71,7 @@ public:
     virtual void getDataValueString(const void* data, std::string& value) const = 0;
     virtual void setDataValueString(void* data, const std::string& value) const = 0;
 
+    virtual size_t byteSize(const void* data) const = 0; // If SimpleCopy is true, returns the size in bytes of the underlying memory of the type, else returns 0
 
     virtual const std::type_info* type_info() const = 0; // WARNING: Pointer equality is NOT guaranteed across instances of AbstractTypeInfo of the same type, and hash_code() unicity is NOT guaranteed across all types
     virtual std::size_t typeInfoID() const = 0; // NOTE: ID unicity is guaranteed across all types

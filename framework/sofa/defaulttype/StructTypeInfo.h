@@ -112,6 +112,8 @@ struct StructTypeInfo
 
     ///< size of the structure 
     static constexpr size_t StructSize = std::tuple_size<MembersTuple>::value;
+    ///< if known at compile time, the size in bytes of the DataType, else 0
+    static constexpr size_t ByteSize = SimpleCopy && StructSize > 0 ? sizeof(DataType) : 0; // Force 0 for empty struct as the standard mandates that any object must be at least of size 1 so different objects have different addresses
     
     ///< name of the structure
     static constexpr std::string name()
@@ -122,6 +124,10 @@ struct StructTypeInfo
     static constexpr size_t structSize()
     {
         return StructSize;
+    }
+    static constexpr size_t byteSize(const DataType& /*data*/)
+    {
+        return ByteSize;
     }
     
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)

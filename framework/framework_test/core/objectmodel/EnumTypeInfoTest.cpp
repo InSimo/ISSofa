@@ -87,6 +87,7 @@ TYPED_TEST(DataEnumTypeInfoTest, checkEnumTypeInfo)
 
     ASSERT_TRUE(defaulttype::DataTypeInfo<EnumType>::FixedFinalSize);
     
+    ASSERT_EQ(defaulttype::DataTypeInfo<EnumType>::byteSize(dataTest.getValue()), sizeof(typename std::underlying_type<EnumType>::type));
 }
 
 TEST(DataEnumTypeInfoTest2, checkuIntEnum2)

@@ -252,8 +252,10 @@ struct InvalidDataTypeInfo
 
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t ByteSize = 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+    static constexpr size_t byteSize(const DataType& /*data*/) { return ByteSize; }
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
@@ -339,9 +341,11 @@ struct SingleValueTypeInfo
 
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t ByteSize = sizeof(DataType); ///< if known at compile time, the size in bytes of the DataType, else 0
 
     //static constexpr size_t containerSize(const DataType& /*data*/) { return ContainerSize; }
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+    static constexpr size_t byteSize(const DataType& /*data*/) { return ByteSize; }
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
@@ -554,7 +558,8 @@ struct MultiValueTypeInfo
     static constexpr bool StoreKeys = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
-    static constexpr size_t FinalSize = (TFixedSize==0?1: TFixedSize)*MappedTypeInfo::FinalSize; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t FinalSize = (TFixedSize == 0 ? 1 : TFixedSize)*MappedTypeInfo::FinalSize; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t ByteSize = FixedFinalSize ? TFixedSize * MappedTypeInfo::ByteSize : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static size_t finalSize(const DataType& data)
     {
@@ -566,6 +571,12 @@ struct MultiValueTypeInfo
         {
             return data.size() * FinalSize;
         }
+    }
+    static constexpr size_t byteSize(const DataType& /*data*/)
+    {
+        // No general formula exists to compute the byteSize (finalSize(data) * MappedTypeInfo::ByteSize is wrong when DataType is vector<bool> because it's a bitset)
+        // Use Single Value API or Container API if available
+        return ByteSize;
     }
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
@@ -1076,6 +1087,7 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
     static constexpr bool StoreValues        = (TContainerKind!=ContainerKindEnum::Set);
 
     static constexpr size_t ContainerSize = TFixedSize>0 ? TFixedSize : 1; ///< 0, or fixed container size if FixedContainerSize is 1
+    static constexpr size_t ByteSize = SimpleCopy && FixedContainerSize ? TFixedSize * MappedTypeInfo::ByteSize : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static std::string name()
     {
@@ -1092,6 +1104,10 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
         {
             return data.size();
         }
+    }
+    static constexpr size_t byteSize(const DataType& data)
+    {
+        return SimpleCopy ? containerSize(data) * MappedTypeInfo::ByteSize : 0;
     }
 
     static void resetValue(DataType& data, size_t reserve = 0)

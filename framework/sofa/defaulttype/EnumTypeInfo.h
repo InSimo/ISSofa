@@ -82,18 +82,21 @@ struct EnumTypeInfo
     static constexpr bool StoreKeys = true;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues = true;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
-
     static constexpr size_t EnumSize = std::tuple_size<MembersTuple>::value;
+    static constexpr size_t ByteSize = MappedTypeInfo::ByteSize; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static std::string name()
     {
         return DataTypeName<MappedType>::name();
     }
-
     static size_t enumSize()
     {
         static_assert(FixedFinalSize, "Enums must have a fixed number of options");
         return EnumSize;
+    }
+    static constexpr size_t byteSize(const DataType& /*data*/)
+    {
+        return ByteSize;
     }
 
     template<size_t Index>
