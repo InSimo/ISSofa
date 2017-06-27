@@ -257,6 +257,8 @@ struct InvalidDataTypeInfo
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
     static constexpr size_t byteSize(const DataType& /*data*/) { return ByteSize; }
 
+    static const void* getValuePtr(const DataType& /*data*/) { return nullptr; }
+
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
         DataTypeInfo_Clear(data);
@@ -341,11 +343,39 @@ struct SingleValueTypeInfo
 
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
-    static constexpr size_t ByteSize = sizeof(DataType); ///< if known at compile time, the size in bytes of the DataType, else 0
+    static constexpr size_t ByteSize = !String ? sizeof(DataType) : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     //static constexpr size_t containerSize(const DataType& /*data*/) { return ContainerSize; }
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
-    static constexpr size_t byteSize(const DataType& /*data*/) { return ByteSize; }
+    static constexpr size_t byteSize(const DataType& data)
+    {
+            return byteSize(data, std::integral_constant<bool, String>());
+    }
+protected:
+    static size_t byteSize(const DataType& data, std::true_type)
+    {
+        return static_cast<std::string>(data).size(); //TODO: handle the string as a container<char>
+    }
+    static size_t byteSize(const DataType& data, std::false_type)
+    {
+        return ByteSize;
+    }
+public:
+
+    static const void* getValuePtr(const DataType& data)
+    {
+        return getValuePtr(data, std::integral_constant<bool, String>());
+    }
+protected:
+    static const void* getValuePtr(const DataType& data, std::true_type)
+    {
+        return static_cast<std::string>(data).data(); //TODO: handle the string as a container<char>
+    }
+    static const void* getValuePtr(const DataType& data, std::false_type)
+    {
+        return &data;
+    }
+public:
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
@@ -577,6 +607,11 @@ struct MultiValueTypeInfo
         // No general formula exists to compute the byteSize (finalSize(data) * MappedTypeInfo::ByteSize is wrong when DataType is vector<bool> because it's a bitset)
         // Use Single Value API or Container API if available
         return ByteSize;
+    }
+
+    static const void* getValuePtr(const DataType& data)
+    {
+        return nullptr; // TODO
     }
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
@@ -1110,6 +1145,22 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
         return SimpleCopy ? containerSize(data) * MappedTypeInfo::ByteSize : 0;
     }
 
+    static const void* getValuePtr(const DataType& data)
+    {
+        return getValuePtr(data, std::integral_constant<bool, SimpleCopy>());
+    }
+protected:
+    static const void* getValuePtr(const DataType& data, std::true_type)
+    {
+        //return containerSize(data) > 0 ? data.data() : nullptr; // data() member method is missing on some types, so we need to use iterators
+        return containerSize(data) > 0 ? std::addressof(*data.cbegin()) : nullptr;
+    }
+    static const void* getValuePtr(const DataType& /*data*/, std::false_type)
+    {
+        return nullptr;
+    }
+    
+public:
     static void resetValue(DataType& data, size_t reserve = 0)
     {
         ContainerTypes::clear(data);

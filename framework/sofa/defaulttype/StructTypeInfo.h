@@ -131,6 +131,11 @@ struct StructTypeInfo
         return ByteSize;
     }
     
+    static const void* getValuePtr(const DataType& data)
+    {
+        return SimpleCopy ? &data : nullptr;
+    }
+    
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
         ResetValue<DataType>::resetValue(data);

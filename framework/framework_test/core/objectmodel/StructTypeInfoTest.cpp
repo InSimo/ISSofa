@@ -250,12 +250,16 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
     EXPECT_TRUE(typeInfoM0->IsSingleValue());
     EXPECT_TRUE(typeInfoM0->SingleValueType()->Integer());
     
-    EXPECT_EQ(*(const int*)structureInfo->getMemberValue(data.getValueVoidPtr(), 0), 10);
+    const void* M0cptr = structureInfo->getMemberValue(data.getValueVoidPtr(), 0);
+    EXPECT_EQ(typeInfoM0->byteSize(M0cptr), sizeof(int));
+    EXPECT_EQ(typeInfoM0->getValuePtr(M0cptr), &(data.getValue().myInt));
+    
+    EXPECT_EQ(*(const int*)M0cptr, 10);
     EXPECT_EQ(structureInfo->getMemberName(data.getValueVoidPtr(), 0), "myInt");
     
     *(int*)structureInfo->editMemberValue(data.beginEditVoidPtr(), 0) = 42;
     data.endEditVoidPtr();
-    EXPECT_EQ(*(const int*)structureInfo->getMemberValue(data.getValueVoidPtr(), 0), 42);
+    EXPECT_EQ(*(const int*)M0cptr, 42);
 }
 
 TEST(DataStructTypeInfoTest2, checkSimpleCopy)

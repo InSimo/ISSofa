@@ -99,6 +99,11 @@ struct EnumTypeInfo
         return ByteSize;
     }
 
+    static const void* getValuePtr(const DataType& data)
+    {
+        return &data;
+    }
+    
     template<size_t Index>
     using MemberType = typename std::tuple_element<Index, MembersTuple>::type;
 
