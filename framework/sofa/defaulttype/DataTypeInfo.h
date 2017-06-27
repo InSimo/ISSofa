@@ -1105,7 +1105,7 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
             return data.size();
         }
     }
-    static constexpr size_t byteSize(const DataType& data)
+    static size_t byteSize(const DataType& data)
     {
         return SimpleCopy ? containerSize(data) * MappedTypeInfo::ByteSize : 0;
     }
