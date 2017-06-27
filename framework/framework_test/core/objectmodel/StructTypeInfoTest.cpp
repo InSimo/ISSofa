@@ -287,7 +287,16 @@ TEST(DataStructTypeInfoTest2, checkSimpleCopy)
     }
 }
 
-TEST(DataStructTypeInfoTest, ostreamTest)
+TEST(DataStructTypeInfoTest2, checkFixedFinalSize)
+{
+    EXPECT_TRUE(DataTypeInfo<test_struct::EmptyStruct>::FixedFinalSize);
+    EXPECT_TRUE(DataTypeInfo<test_struct::SimpleStruct>::FixedFinalSize);
+    EXPECT_TRUE(DataTypeInfo<test_struct::NestedStruct>::FixedFinalSize);
+    EXPECT_FALSE(DataTypeInfo<test_struct::ContainerStruct>::FixedFinalSize);
+    EXPECT_TRUE((DataTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>>::FixedFinalSize));
+}
+
+TEST(DataStructTypeInfoTest2, ostreamTest)
 {
     test_struct::TemplatedStruct<int, test_struct::SimpleStruct> testValue{};
 
@@ -296,7 +305,7 @@ TEST(DataStructTypeInfoTest, ostreamTest)
     EXPECT_EQ("{ int myMemberT1 = 0 ; SimpleStruct myMemberT2 = { int myInt = 10 ; float myFloat = -0.1 ; unsigned char myUChar = c ; bool myBool = 1 ; } ; }", stringStream.str());
 }
 
-TEST(DataStructTypeInfoTest, istreamTest)
+TEST(DataStructTypeInfoTest2, istreamTest)
 {
     test_struct::TemplatedStruct<int, test_struct::SimpleStruct> testValue{};
 

@@ -72,6 +72,7 @@ struct StructTypeInfo
     static constexpr bool And(bool b1, bool b2) { return b1 && b2; }
     static constexpr bool Or(bool b1, bool b2) { return b1 || b2; }
     // Functions to apply on members
+    struct IsMemberFixedFinalSize { template <typename MemberType> constexpr bool operator()(MemberType&&) const { return DataTypeInfo<typename MemberType::type>::FixedFinalSize; } };
     struct IsMemberValidInfo  { template <typename MemberType> constexpr bool operator()(MemberType&&) const { return DataTypeInfo<typename MemberType::type>::ValidInfo;  }};
     struct IsMemberSimpleCopy { template <typename MemberType> constexpr bool operator()(MemberType&&) const { return DataTypeInfo<typename MemberType::type>::SimpleCopy; }};
     
@@ -107,7 +108,7 @@ struct StructTypeInfo
     /// true if the item values are stored within the data structure
     static constexpr bool StoreValues        = true;
 
-    static constexpr bool FixedFinalSize = true;  ///< true if this type has a fixed size for all level until the final values
+    static constexpr bool FixedFinalSize = ApplyOnMembers<MembersTuple>::apply(IsMemberFixedFinalSize{}, And);  ///< true if this type has a fixed size for all level until the final values
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
 
     ///< size of the structure 
