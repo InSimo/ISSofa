@@ -179,10 +179,10 @@ TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
 
     const defaulttype::AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
 
-    EXPECT_TRUE(typeInfo->SingleValueType());
-    EXPECT_TRUE(typeInfo->MultiValueType());
-    EXPECT_FALSE(typeInfo->ContainerType());
-    EXPECT_FALSE(typeInfo->StructureType());
+    EXPECT_TRUE(typeInfo->IsSingleValue());
+    EXPECT_TRUE(typeInfo->IsMultiValue());
+    EXPECT_FALSE(typeInfo->IsContainer());
+    EXPECT_FALSE(typeInfo->IsStructure());
 
 
     std::string value;
