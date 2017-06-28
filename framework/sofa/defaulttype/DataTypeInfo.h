@@ -346,20 +346,10 @@ struct SingleValueTypeInfo
 
     //static constexpr size_t containerSize(const DataType& /*data*/) { return ContainerSize; }
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
-    static constexpr size_t byteSize(const DataType& data)
-    {
-            return byteSize(data, std::integral_constant<bool, String>());
-    }
-protected:
-    static size_t byteSize(const DataType& data, std::true_type)
-    {
-        return static_cast<std::string>(data).size(); //TODO: handle the string as a container<char>
-    }
-    static size_t byteSize(const DataType& data, std::false_type)
+    static constexpr size_t byteSize(const DataType& /*data*/)
     {
         return ByteSize;
     }
-public:
 
     static const void* getValuePtr(const DataType& data)
     {
@@ -368,7 +358,7 @@ public:
 protected:
     static const void* getValuePtr(const DataType& data, std::true_type)
     {
-        return static_cast<std::string>(data).data(); //TODO: handle the string as a container<char>
+        return nullptr;
     }
     static const void* getValuePtr(const DataType& data, std::false_type)
     {
@@ -547,7 +537,11 @@ template<> struct DataTypeName<float> { static const char* name() { return "floa
 template<> struct DataTypeInfo<double> : public SingleValueTypeInfo<double, ValueKindEnum::Scalar> {};
 template<> struct DataTypeName<double> { static const char* name() { return "double"; } };
 
-template<> struct DataTypeInfo<std::string> : public SingleValueTypeInfo<std::string, ValueKindEnum::String> {};
+template<> struct DataTypeInfo<std::string> : public SingleValueTypeInfo<std::string, ValueKindEnum::String>
+{
+    static size_t byteSize(const DataType& data) { return data.size(); }
+    static const void* getValuePtr(const DataType& data) { return data.data(); }
+};
 template<> struct DataTypeName<std::string> { static const char* name() { return "string"; } };
 
 
