@@ -323,7 +323,6 @@ struct SingleValueTypeInfo
     static constexpr bool ValidInfo          = true;  ///< true if this type has valid infos
     /// true if this type uses integer values
     static constexpr bool Integer            = (TValueKind == ValueKindEnum::Integer ||
-                                                TValueKind == ValueKindEnum::Enum  ||
                                                 TValueKind == ValueKindEnum::Bool  );
     /// true if this type uses scalar values
     static constexpr bool Scalar             = (TValueKind == ValueKindEnum::Scalar);
