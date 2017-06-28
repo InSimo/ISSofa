@@ -333,12 +333,12 @@ struct SingleValueTypeInfo
     //static constexpr bool FixedContainerSize = true;  ///< true if this type has a fixed size for this container level
     static constexpr bool FixedFinalSize     = true;  ///< true if this type has a fixed size for all level until the final values
     
-    static constexpr bool ZeroConstructor    = true;  ///< true if the constructor is equivalent to setting memory to 0
-    static constexpr bool SimpleCopy         = true;  ///< true if copying the data can be done with a memcpy
-    static constexpr bool SimpleLayout       = true;  ///< true if the layout in memory is simply N values of the same base type
-    static constexpr bool CopyOnWrite        = false; ///< true if this type uses copy-on-write
-    static constexpr bool StoreKeys          = true;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
-    static constexpr bool StoreValues        = true;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool ZeroConstructor    = !String;  ///< true if the constructor is equivalent to setting memory to 0
+    static constexpr bool SimpleCopy         = true;     ///< true if copying the data can be done with a memcpy
+    static constexpr bool SimpleLayout       = true;     ///< true if the layout in memory is simply N values of the same base type
+    static constexpr bool CopyOnWrite        = false;    ///< true if this type uses copy-on-write
+    static constexpr bool StoreKeys          = true;     ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool StoreValues        = true;     ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
