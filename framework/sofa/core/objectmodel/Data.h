@@ -35,7 +35,7 @@
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
 #include <boost/shared_ptr.hpp>
-#include <sofa/helper/RawTextDataParser.h>
+#include <sofa/helper/DataParserRegistry.h>
 #include <stdlib.h>
 #include <string>
 #include <sstream>
