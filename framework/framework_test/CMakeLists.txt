@@ -8,6 +8,7 @@ set(SOURCE_FILES
     defaulttype/VecTypesTest.cpp
     #defaulttype/MatTypesTest.cpp
     defaulttype/RigidMass_test.cpp
+    helper/DataParserRegistryTest.cpp
     helper/map_ptr_stable_compare_test.cpp
     helper/preprocessorTest.cpp
     helper/system/atomicTest.cpp

@@ -448,8 +448,8 @@ protected:
  using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>
 
 #define SOFA_STRUCT_STREAM_METHODS(TStruct) \
-  inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
-  inline friend std::istream& operator >> (std::istream& in, TStruct& s) { StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
+  inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
+  inline friend std::istream& operator >> (std::istream& in, TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
 
 
 #define SOFA_COMPARE_MEMBER(MemberName) \

@@ -35,6 +35,7 @@
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
 #include <boost/shared_ptr.hpp>
+#include <sofa/helper/RawTextDataParser.h>
 #include <stdlib.h>
 #include <string>
 #include <sstream>
@@ -127,11 +128,11 @@ public:
     {
         if (s.empty())
             return false;
-        //serr<<"Field::read "<<s.c_str()<<sendl;
-        std::istringstream istr( s.c_str() );
-        istr >> *virtualBeginEdit();
+
+        auto* parser = helper::DataParserRegistry::getParser(0);
+        bool success = parser->toData(s, virtualBeginEdit(), getValueTypeInfo());
         virtualEndEdit();
-        if( istr.fail() )
+        if(!success)
         {
             return false;
         }
