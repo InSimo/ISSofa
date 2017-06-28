@@ -34,7 +34,7 @@ namespace sofa
 namespace helper
 {
 
-class SOFA_HELPER_API RawTextDataParser : DataParser
+class SOFA_HELPER_API RawTextDataParser : public DataParser
 {
 public:
     using DataParser::ParserId;
