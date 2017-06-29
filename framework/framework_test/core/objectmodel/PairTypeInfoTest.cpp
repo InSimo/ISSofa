@@ -17,9 +17,9 @@ struct DataPairTypeInfoTest : public ::testing::Test
 
 using PairTypes = testing::Types<
     sofa::helper::pair<int, int>,
-    sofa::helper::pair<int, sofa::helper::pair<double, char>>,
+    sofa::helper::pair<int, sofa::helper::pair<double, bool>>,
     sofa::helper::pair<sofa::helper::vector<sofa::helper::pair<double, long long>>, 
-        std::map<sofa::helper::pair<int, char>, sofa::helper::pair<double, sofa::helper::vector<sofa::helper::pair<double, char>>>>>
+    std::map<sofa::helper::pair<int, short>, sofa::helper::pair<double, sofa::helper::vector<sofa::helper::pair<double, float>>>>>
 >;
 TYPED_TEST_CASE(DataPairTypeInfoTest, PairTypes);
 
