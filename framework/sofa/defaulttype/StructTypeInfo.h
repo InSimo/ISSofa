@@ -162,16 +162,14 @@ struct StructTypeInfo
     static void getDataValueStream(const DataType& data, std::ostream& os)
     {
         os << "{ ";
-        auto functor = StructToStream(os);
-        for_each(data, functor);
+        for_each(data, StructToStream(os), StructToStreamLast(os));
         os << "}";
     }
 
     static void setDataValueStream(DataType& data, std::istream& is)
     {
         is.ignore(2, '{');
-        auto functor = StreamToStruct(is);
-        for_each(data, functor);
+        for_each(data, StreamToStruct(is), StreamToStructLast(is));
         is.ignore(2, '}');
     }
 
@@ -366,10 +364,23 @@ protected:
     public:
         StructToStream(std::ostream& os) : m_stream(os) {}
         template <typename MemberType>
-        void operator()(MemberType&& mt, const typename MemberType::type& data)
+        void operator()(MemberType&&, const typename MemberType::type& data)
         {
             using DataType = typename MemberType::type;
-            m_stream << DataTypeName<DataType>::name() << " " << MemberType::name() << " = " << data << " ; ";
+            m_stream << data << "; ";
+        }
+    private:
+        std::ostream& m_stream;
+    };
+    class StructToStreamLast
+    {
+    public:
+        StructToStreamLast(std::ostream& os) : m_stream(os) {}
+        template <typename MemberType>
+        void operator()(MemberType&&, const typename MemberType::type& data)
+        {
+            using DataType = typename MemberType::type;
+            m_stream << data << " ";
         }
     private:
         std::ostream& m_stream;
@@ -380,29 +391,27 @@ protected:
     public:
         StreamToStruct(std::istream& is) : m_stream(is) {}
         template <typename MemberType>
-        void operator()(MemberType&& mt, typename MemberType::type& data)
+        void operator()(MemberType&&, typename MemberType::type& data)
         {
-            using DataType = typename MemberType::type;
-            std::string str;
-
-            // type name can be more than one word
-            auto typeName = DataTypeName<DataType>::name();
-            std::string readName;
-            while (readName != typeName)
-            {
-                m_stream >> str; // Type
-                if (!readName.empty())
-                    readName += " ";
-                readName += str;
-            }
-            m_stream >> str; // MemberName
-            m_stream.ignore(2, '=');
             m_stream >> data; // Value
             m_stream.ignore(2, ';');
         }
     private:
         std::istream& m_stream;
     };
+    class StreamToStructLast
+    {
+    public:
+        StreamToStructLast(std::istream& is) : m_stream(is) {}
+        template <typename MemberType>
+        void operator()(MemberType&&, typename MemberType::type& data)
+        {
+            m_stream >> data; // Value
+        }
+    private:
+        std::istream& m_stream;
+    };
+
 
     // This resetValue will be used if T does not have a default constructor
     template <typename T, typename Enable = void>

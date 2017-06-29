@@ -93,13 +93,12 @@ TEST(DataParserRegistryTest, structTest)
     auto* parser = sofa::helper::DataParserRegistry::getParser(0);
 
     sofa::Data<test_struct::SimpleStruct> testValue("");
-    parser->toData(std::string("{ int myInt = 121 ; float myFloat = 3.14 ; unsigned char myUChar = b ; bool myBool = 0 ; }"), 
-        testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
+    parser->toData(std::string("{ 121; 3.14; b; 0 }"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
     testValue.endEditVoidPtr();
 
     std::string output;
     parser->fromData(output, testValue.getValueVoidPtr(), testValue.getValueTypeInfo());
-    EXPECT_EQ(std::string("{ int myInt = 121 ; float myFloat = 3.14 ; unsigned char myUChar = b ; bool myBool = 0 ; }"), output);
+    EXPECT_EQ(std::string("{ 121; 3.14; b; 0 }"), output);
 
     sofa::helper::ReadAccessor<sofa::Data<test_struct::SimpleStruct>> readTestValue = testValue;
     EXPECT_FALSE(readTestValue->myBool);

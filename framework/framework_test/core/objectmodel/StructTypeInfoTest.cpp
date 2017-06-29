@@ -306,14 +306,14 @@ TEST(DataStructTypeInfoTest2, ostreamTest)
 
     std::ostringstream stringStream;
     stringStream << testValue;
-    EXPECT_EQ("{ int myMemberT1 = 0 ; SimpleStruct myMemberT2 = { int myInt = 10 ; float myFloat = -0.1 ; unsigned char myUChar = c ; bool myBool = 1 ; } ; }", stringStream.str());
+    EXPECT_EQ("{ 0; { 10; -0.1; c; 1 } }", stringStream.str());
 }
 
 TEST(DataStructTypeInfoTest2, istreamTest)
 {
     test_struct::TemplatedStruct<int, test_struct::SimpleStruct> testValue{};
 
-    std::istringstream stringStream("{ int myMemberT1 = 0 ; SimpleStruct myMemberT2 = { int myInt = 15 ; float myFloat = -0.1 ; unsigned char myUChar = f ; bool myBool = 1 ; } ; }");
+    std::istringstream stringStream("{ 0 ; { 15 ; -0.1 ; f ; 1 } }");
     stringStream >> testValue;
     test_struct::TemplatedStruct<int, test_struct::SimpleStruct> compareValue{};
     compareValue.myMemberT2.myInt = 15;
