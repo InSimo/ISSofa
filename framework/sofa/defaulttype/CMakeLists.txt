@@ -27,6 +27,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	StructTypeInfo.h
 	#SparseConstraintTypes.h	
 	TemplatesAliases.h
+	Units.h
 	Vec.h	
 	VecTypes.h	
 	MatSym.h	
