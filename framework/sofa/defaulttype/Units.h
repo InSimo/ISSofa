@@ -30,17 +30,23 @@ namespace sofa {
 namespace units {
 
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 //
-// Vocabulary : a quantity (eg : a force) has got 
-//    units (or dimensions, eg : kg.m.s-2 for a force)
+// Vocabulary convention : a physical Quantity (eg : a force) 
+//    has got units (or dimensions, eg : kg.m.s-2 for a force),
+//      can have a prefix (a factor which is a multiple or a fraction)
+//
+// Important : any physical Quantity can be described thanks to a combination 
+//    of 7 "elementary" units which are kilogram, meter, second, Ampere, kelvin, mole, candela.
+//      It could be possible to describe a physical Quantity in other units 
+//            (eg Celsius instead of Kelvin) thanks to conversion algorithms.
 //
 // Example of usage : see UnitsTest.cpp
 //
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 
 
-//////////////////////////// Base class Units //////////////////////////////
+//////////////////////////// Base class Quantity //////////////////////////////
 
 template<class T, // Precision
             int kg, // Mass
@@ -50,19 +56,19 @@ template<class T, // Precision
                             int K, // Thermodynamic temperature
                                 int mol, // Amount of substance
                                     int cd> // Luminous intensity
-class Units
+class Quantity
 {
 public:
 
     // Operator: default constructor
     explicit
-        Units(T initVal = 0)
+        Quantity(T initVal = 0)
         : m_value(initVal)
     {
     }
 
     // Operator: Assignment from type T
-    Units<T, kg, m, s, A, K, mol, cd>&
+    Quantity<T, kg, m, s, A, K, mol, cd>&
         operator= (const T rhs)
     {
         m_value = rhs;
@@ -70,23 +76,23 @@ public:
     }
 
     // Operator: +=
-    Units<T, kg, m, s, A, K, mol, cd>&
-        operator+= (const Units<T, kg, m, s, A, K, mol, cd>& rhs)
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator+= (const Quantity<T, kg, m, s, A, K, mol, cd>& rhs)
     {
         m_value += rhs.m_value;
         return *this;
     }
 
     // Operator -=
-    Units<T, kg, m, s, A, K, mol, cd>&
-        operator-= (const Units<T, kg, m, s, A, K, mol, cd>& rhs)
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator-= (const Quantity<T, kg, m, s, A, K, mol, cd>& rhs)
     {
         m_value -= rhs.m_value;
         return *this;
     }
 
     // Operator *=
-    Units<T, kg, m, s, A, K, mol, cd>&
+    Quantity<T, kg, m, s, A, K, mol, cd>&
         operator*= (T rhs)
     {
         m_value *= rhs;
@@ -94,7 +100,7 @@ public:
     }
 
     // Operator /=
-    Units<T, kg, m, s, A, K, mol, cd>&
+    Quantity<T, kg, m, s, A, K, mol, cd>&
         operator/= (T rhs)
     {
         m_value /= rhs;
@@ -139,42 +145,42 @@ private:
 // Operator: Multiplication
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd,
     class Scalar>
-    const Units<T, kg, m, s, A, K, mol, cd>
-    operator* (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd>
+    operator* (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
         const Scalar& rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(lhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(lhs);
     return result *= rhs;
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd,
     class Scalar>
-    const Units<T, kg, m, s, A, K, mol, cd>
+    const Quantity<T, kg, m, s, A, K, mol, cd>
     operator* (const Scalar& lhs,
-        const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+        const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(rhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(rhs);
     return result *= lhs;
 }
 
 // Operator: Division
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd,
     class Scalar>
-    const Units<T, kg, m, s, A, K, mol, cd>
-    operator/ (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd>
+    operator/ (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
         const Scalar& rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(lhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(lhs);
     return result /= rhs;
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd,
     class Scalar>
-    const Units<T, -kg, -m, -s, -A, -K, -mol, -cd>
+    const Quantity<T, -kg, -m, -s, -A, -K, -mol, -cd>
     operator/ (const Scalar& lhs,
-        const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+        const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
-    Units<T, -kg, -m, -s, -A, -K, -mol, -cd> result(lhs);
+    Quantity<T, -kg, -m, -s, -A, -K, -mol, -cd> result(lhs);
     return result /= rhs.value();
 }
 
@@ -185,41 +191,41 @@ template<class T, int kg, int m, int s, int A, int K, int mol, int cd,
 
 // Operator: Addition
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
-const Units<T, kg, m, s, A, K, mol, cd>
-operator+ (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+const Quantity<T, kg, m, s, A, K, mol, cd>
+operator+ (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(lhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(lhs);
     return result += rhs;
 }
 
 // Operator: Substraction
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
-const Units<T, kg, m, s, A, K, mol, cd>
-operator- (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+const Quantity<T, kg, m, s, A, K, mol, cd>
+operator- (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(lhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(lhs);
     return result -= rhs;
 }
 
 // Operator: Multiplication
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
-const Units<T, kg, m, s, A, K, mol, cd>
-operator* (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+const Quantity<T, kg, m, s, A, K, mol, cd>
+operator* (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(lhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(lhs);
     return result *= rhs;
 }
 
 // Operator: Division
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
-const Units<T, kg, m, s, A, K, mol, cd>
-operator/ (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+const Quantity<T, kg, m, s, A, K, mol, cd>
+operator/ (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
-    Units<T, kg, m, s, A, K, mol, cd> result(lhs);
+    Quantity<T, kg, m, s, A, K, mol, cd> result(lhs);
     return result /= rhs;
 }
 
@@ -234,12 +240,12 @@ template<class T,
     int kg2, int m2, int s2, int A2, int K2, int mol2, int cd2>
 
     // Return Type
-    Units<T, kg1 + kg2, m1 + m2, s1 + s2, A1 + A2, K1 + K2, mol1 + mol2, cd1 + cd2>
-    operator* (const Units<T, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
-        const Units<T, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
+    Quantity<T, kg1 + kg2, m1 + m2, s1 + s2, A1 + A2, K1 + K2, mol1 + mol2, cd1 + cd2>
+    operator* (const Quantity<T, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
+        const Quantity<T, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
 {
     // New Return type
-    typedef Units<T,
+    typedef Quantity<T,
         kg1 + kg2,
         m1 + m2,
         s1 + s2,
@@ -257,12 +263,12 @@ template<class T,
     int kg2, int m2, int s2, int A2, int K2, int mol2, int cd2>
 
     // Return Type
-    Units<T, kg1 - kg2, m1 - m2, s1 - s2, A1 - A2, K1 - K2, mol1 - mol2, cd1 - cd2>
-    operator/ (const Units<T, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
-        const Units<T, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
+    Quantity<T, kg1 - kg2, m1 - m2, s1 - s2, A1 - A2, K1 - K2, mol1 - mol2, cd1 - cd2>
+    operator/ (const Quantity<T, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
+        const Quantity<T, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
 {
     // New Return type
-    typedef Units<T,
+    typedef Quantity<T,
         kg1 - kg2,
         m1 - m2,
         s1 - s2,
@@ -281,48 +287,48 @@ template<class T,
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 bool
-operator< (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+operator< (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
     return lhs.value() < rhs.value();
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 bool
-operator> (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+operator> (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
     return lhs.value() > rhs.value();
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 bool
-operator<= (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+operator<= (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
     return lhs.value() <= rhs.value();
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 bool
-operator>= (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+operator>= (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
     return lhs.value() >= rhs.value();
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 bool
-operator== (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+operator== (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
     return lhs.value() == rhs.value();
 }
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 bool
-operator!= (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
-    const Units<T, kg, m, s, A, K, mol, cd> & rhs)
+operator!= (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
+    const Quantity<T, kg, m, s, A, K, mol, cd> & rhs)
 {
     return lhs.value() != rhs.value();
 }
@@ -333,42 +339,42 @@ operator!= (const Units<T, kg, m, s, A, K, mol, cd> & lhs,
 ////////////////////////// Some types definitions ///////////////////////////
 
 //  Base Quantities (units from the International System)
-typedef Units<double, 0, 0, 0, 0, 0, 0, 0> uScalar;             // unitless
+typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> Scalar;             // unitless
 
-typedef Units<double, 1, 0, 0, 0, 0, 0, 0> uMass;               // mass in kilogram (kg)
-typedef Units<double, 0, 1, 0, 0, 0, 0, 0> uLength;             // length in meter (m)
-typedef Units<double, 0, 0, 1, 0, 0, 0, 0> uTime;               // time in second (s)
-typedef Units<double, 0, 0, 0, 1, 0, 0, 0> uECurrent;           // electric current in ampere (A)
-typedef Units<double, 0, 0, 0, 0, 1, 0, 0> uTemperature;        // temperature in kelvin (K)
-typedef Units<double, 0, 0, 0, 0, 0, 1, 0> uAmount;             // amount of substance in mole (mol)
-typedef Units<double, 0, 0, 0, 0, 0, 0, 1> uLIntensity;         // luminous intensity in candela (cd)
+typedef Quantity<double, 1, 0, 0, 0, 0, 0, 0> Mass;               // mass in kilogram (kg)
+typedef Quantity<double, 0, 1, 0, 0, 0, 0, 0> Length;             // length in meter (m)
+typedef Quantity<double, 0, 0, 1, 0, 0, 0, 0> Time;               // time in second (s)
+typedef Quantity<double, 0, 0, 0, 1, 0, 0, 0> ECurrent;           // electric current in ampere (A)
+typedef Quantity<double, 0, 0, 0, 0, 1, 0, 0> Temperature;        // temperature in kelvin (K)
+typedef Quantity<double, 0, 0, 0, 0, 0, 1, 0> Amount;             // amount of substance in mole (mol)
+typedef Quantity<double, 0, 0, 0, 0, 0, 0, 1> LIntensity;         // luminous intensity in candela (cd)
 
 
 //  Derived Quantities (combinations of units from the International System)
-typedef Units<double, 0, 2, 0, 0, 0, 0, 0> uArea;               // Length^2
-typedef Units<double, 0, 3, 0, 0, 0, 0, 0> uVolume;             // Length^3
+typedef Quantity<double, 0, 2, 0, 0, 0, 0, 0> Area;               // Length^2
+typedef Quantity<double, 0, 3, 0, 0, 0, 0, 0> Volume;             // Length^3
 
-typedef Units<double, 0, 0,-1, 0, 0, 0, 0> uFrequency;          // Time^(-1)
+typedef Quantity<double, 0, 0,-1, 0, 0, 0, 0> Frequency;          // Time^(-1)
 
-typedef Units<double, 0, 1,-1, 0, 0, 0, 0> uVelocity;           // Length over Time
-typedef Units<double, 0, 1,-2, 0, 0, 0, 0> uAcceleration;       // Length over Time^2
+typedef Quantity<double, 0, 1,-1, 0, 0, 0, 0> Velocity;           // Length over Time
+typedef Quantity<double, 0, 1,-2, 0, 0, 0, 0> Acceleration;       // Length over Time^2
 
-typedef Units<double, 1, 1,-2, 0, 0, 0, 0> uForce;              // Mass * Acceleration
-typedef Units<double, 1, 2,-2, 0, 0, 0, 0> uMomentum;           // Force * Length
+typedef Quantity<double, 1, 1,-2, 0, 0, 0, 0> Force;              // Mass * Acceleration
+typedef Quantity<double, 1, 2,-2, 0, 0, 0, 0> Momentum;           // Force * Length
 
-typedef Units<double, 1,-1,-2, 0, 0, 0, 0> uPressure;           // Force over Area
-typedef Units<double, 1,-1,-2, 0, 0, 0, 0> uStress;             // same as pressure
-typedef Units<double, 1,-1,-2, 0, 0, 0, 0> uYoungModulus;       // same as pressure
+typedef Quantity<double, 1,-1,-2, 0, 0, 0, 0> Pressure;           // Force over Area
+typedef Quantity<double, 1,-1,-2, 0, 0, 0, 0> Stress;             // same as pressure
+typedef Quantity<double, 1,-1,-2, 0, 0, 0, 0> YoungModulus;       // same as pressure
 
-typedef Units<double, 1, 2,-2, 0, 0, 0, 0> uEnergy;             // same as momentum
-typedef Units<double, 1, 2,-3, 0, 0, 0, 0> uPower;              // energy over Time
+typedef Quantity<double, 1, 2,-2, 0, 0, 0, 0> Energy;             // same as momentum
+typedef Quantity<double, 1, 2,-3, 0, 0, 0, 0> Power;              // energy over Time
 
-typedef Units<double, 1, 0,-2, 0, 0, 0, 0> uStiffness;          // Force over Length
-typedef Units<double,-1, 0, 2, 0, 0, 0, 0> uComplicance;        // 1 over Stiffness
+typedef Quantity<double, 1, 0,-2, 0, 0, 0, 0> Stiffness;          // Force over Length
+typedef Quantity<double,-1, 0, 2, 0, 0, 0, 0> Complicance;        // 1 over Stiffness
 
-typedef Units<double, 0, 0, 0, 0, 0, 0, 0> uPoissonsRatio;      // unitless
-typedef Units<double, 0, 0, 0, 0, 0, 0, 0> uStrain;             // unitless
-typedef Units<double, 0, 0, 0, 0, 0, 0, 0> uAngle;              // radian (unitless)
+typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> PoissonsRatio;      // unitless
+typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> Strain;             // unitless
+typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> Angle;              // radian (unitless)
 
 
 } // namespace units
