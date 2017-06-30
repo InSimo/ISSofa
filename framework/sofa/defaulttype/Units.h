@@ -34,7 +34,7 @@ namespace units {
 //
 // Vocabulary convention : a physical Quantity (eg : a force) 
 //    has got units (or dimensions, eg : kg.m.s-2 for a force),
-//      can have a prefix (a factor which is a multiple or a fraction)
+//      and can have a prefix (a factor which is a multiple or a fraction).
 //
 // Important : any physical Quantity can be described thanks to a combination of 7
 //    "elementary" units which are kilogram, meter, second, Ampere, kelvin, mole, candela.
@@ -43,16 +43,16 @@ namespace units {
 //
 //
 // Example of usage : 
-//    Mass            m0( 1 );
-//    Acceleration    a0( 2 );
+//    Mass<double>            m0( 1 );
+//    Acceleration<double>    a0( 2 );
 //
-//    Force           f0( m0 * a0 );      // this will compile
-//    Time            t0( a0 );           // this won't compile
+//    Force<double>           f0( m0 * a0 );      // will compile
+//    Time<double>            t0( a0 );           // won't compile
 //
-//    if( f0 == Force(4) ) {}             // this will compile
-//    if( f0 == 4 ) {}                    // this won't compile
-//    if( f0.value() == 4) {}             // this will compile
-//    if( Scalar(10) == 42 ) {}           // this will compile as 42 thanks to a template specialization on scalars
+//    if( f0 == Force<double>(4) ) {}     // will compile
+//    if( f0 == 4 ) {}                    // won't compile
+//    if( f0.value() == 4) {}             // will compile
+//    if( Scalar<double>(10) == 42.0 ) {}   // will compile thanks to a template specialization on scalars
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -425,42 +425,42 @@ private:
 ////////////////////////// Some types definitions ///////////////////////////
 
 //  Base Quantities (units from the International System)
-typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> Scalar;             // unitless
+template<typename T0> using Scalar =        Quantity<T0, 0, 0, 0, 0, 0, 0, 0>;      // unitless
 
-typedef Quantity<double, 1, 0, 0, 0, 0, 0, 0> Mass;               // mass in kilogram (kg)
-typedef Quantity<double, 0, 1, 0, 0, 0, 0, 0> Length;             // length in meter (m)
-typedef Quantity<double, 0, 0, 1, 0, 0, 0, 0> Time;               // time in second (s)
-typedef Quantity<double, 0, 0, 0, 1, 0, 0, 0> ECurrent;           // electric current in ampere (A)
-typedef Quantity<double, 0, 0, 0, 0, 1, 0, 0> Temperature;        // temperature in kelvin (K)
-typedef Quantity<double, 0, 0, 0, 0, 0, 1, 0> Amount;             // amount of substance in mole (mol)
-typedef Quantity<double, 0, 0, 0, 0, 0, 0, 1> LIntensity;         // luminous intensity in candela (cd)
+template<typename T0> using Mass =          Quantity<T0, 1, 0, 0, 0, 0, 0, 0>;      // mass in kilogram (kg)
+template<typename T0> using Length =        Quantity<T0, 0, 1, 0, 0, 0, 0, 0>;      // length in meter (m)
+template<typename T0> using Time =          Quantity<T0, 0, 0, 1, 0, 0, 0, 0>;      // time in second (s)
+template<typename T0> using ECurrent =      Quantity<T0, 0, 0, 0, 1, 0, 0, 0>;      // electric current in ampere (A)
+template<typename T0> using Temperature =   Quantity<T0, 0, 0, 0, 0, 1, 0, 0>;      // temperature in kelvin (K)
+template<typename T0> using Amount =        Quantity<T0, 0, 0, 0, 0, 0, 1, 0>;      // amount of substance in mole (mol)
+template<typename T0> using LIntensity =    Quantity<T0, 0, 0, 0, 0, 0, 0, 1>;      // luminous intensity in candela (cd)
 
 
 //  Derived Quantities (combinations of units from the International System)
-typedef Quantity<double, 0, 2, 0, 0, 0, 0, 0> Area;               // Length^2
-typedef Quantity<double, 0, 3, 0, 0, 0, 0, 0> Volume;             // Length^3
+template<typename T0> using Area =          Quantity<T0, 0, 2, 0, 0, 0, 0, 0>;      // Length^2
+template<typename T0> using Volume =        Quantity<T0, 0, 3, 0, 0, 0, 0, 0>;      // Length^3
 
-typedef Quantity<double, 0, 0,-1, 0, 0, 0, 0> Frequency;          // Time^(-1)
+template<typename T0> using Frequency =     Quantity<T0, 0, 0,-1, 0, 0, 0, 0>;      // Time^(-1)
 
-typedef Quantity<double, 0, 1,-1, 0, 0, 0, 0> Velocity;           // Length over Time
-typedef Quantity<double, 0, 1,-2, 0, 0, 0, 0> Acceleration;       // Length over Time^2
+template<typename T0> using Velocity =      Quantity<T0, 0, 1,-1, 0, 0, 0, 0>;      // Length over Time
+template<typename T0> using Acceleration =  Quantity<T0, 0, 1,-2, 0, 0, 0, 0>;      // Length over Time^2
 
-typedef Quantity<double, 1, 1,-2, 0, 0, 0, 0> Force;              // Mass * Acceleration
-typedef Quantity<double, 1, 2,-2, 0, 0, 0, 0> Momentum;           // Force * Length
+template<typename T0> using Force =         Quantity<T0, 1, 1,-2, 0, 0, 0, 0>;      // Mass * Acceleration
+template<typename T0> using Momentum =      Quantity<T0, 1, 2,-2, 0, 0, 0, 0>;      // Force * Length
 
-typedef Quantity<double, 1,-1,-2, 0, 0, 0, 0> Pressure;           // Force over Area
-typedef Quantity<double, 1,-1,-2, 0, 0, 0, 0> Stress;             // same as pressure
-typedef Quantity<double, 1,-1,-2, 0, 0, 0, 0> YoungModulus;       // same as pressure
+template<typename T0> using Pressure =      Quantity<T0, 1,-1,-2, 0, 0, 0, 0>;      // Force over Area
+template<typename T0> using Stress =        Quantity<T0, 1,-1,-2, 0, 0, 0, 0>;      // same as pressure
+template<typename T0> using YoungModulus =  Quantity<T0, 1,-1,-2, 0, 0, 0, 0>;      // same as pressure
 
-typedef Quantity<double, 1, 2,-2, 0, 0, 0, 0> Energy;             // same as momentum
-typedef Quantity<double, 1, 2,-3, 0, 0, 0, 0> Power;              // energy over Time
+template<typename T0> using Energy =        Quantity<T0, 1, 2,-2, 0, 0, 0, 0>;      // same as momentum
+template<typename T0> using Power =         Quantity<T0, 1, 2,-3, 0, 0, 0, 0>;      // energy over Time
 
-typedef Quantity<double, 1, 0,-2, 0, 0, 0, 0> Stiffness;          // Force over Length
-typedef Quantity<double,-1, 0, 2, 0, 0, 0, 0> Complicance;        // 1 over Stiffness
+template<typename T0> using Stiffness =     Quantity<T0, 1, 0,-2, 0, 0, 0, 0>;      // Force over Length
+template<typename T0> using Complicance =   Quantity<T0,-1, 0, 2, 0, 0, 0, 0>;      // 1 over Stiffness
 
-typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> PoissonsRatio;      // unitless
-typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> Strain;             // unitless
-typedef Quantity<double, 0, 0, 0, 0, 0, 0, 0> Angle;              // radian (unitless)
+template<typename T0> using PoissonsRatio = Quantity<T0, 0, 0, 0, 0, 0, 0, 0>;      // unitless
+template<typename T0> using Strain =        Quantity<T0, 0, 0, 0, 0, 0, 0, 0>;      // unitless
+template<typename T0> using Angle =         Quantity<T0, 0, 0, 0, 0, 0, 0, 0>;      // radian (unitless)
 
 
 } // namespace units
