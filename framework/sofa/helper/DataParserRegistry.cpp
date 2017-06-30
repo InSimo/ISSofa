@@ -43,7 +43,7 @@ bool DataParserRegistry::addParser(std::unique_ptr<DataParser> parser)
                 return false;
         }
         return true;
-    }(), "DataParserRegistry error : there is already a parser with the same id");
+    }());
 
     m_parsers.emplace_back(std::move(parser));
     return true;
