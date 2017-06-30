@@ -27,6 +27,7 @@
 
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/SofaFramework.h>
+#include <sofa/defaulttype/PairTypeInfo.h>
 
 
 namespace sofa
@@ -39,7 +40,7 @@ class SOFA_DEFAULTTYPE_API BoundingBox
 {
 
 public:
-    typedef std::pair< Vector3, Vector3 > bbox_t;
+    typedef sofa::helper::pair< Vector3, Vector3 > bbox_t;
 
     BoundingBox();
     /// Define using the endpoints of the main diagonal
@@ -105,8 +106,12 @@ public:
     }
 
 
-protected:
+public:
     bbox_t bbox;
+
+    SOFA_STRUCT_DECL(BoundingBox, bbox);
+//    SOFA_STRUCT_STREAM_METHODS(BoundingBox);
+//    SOFA_STRUCT_COMPARE_METHOD(BoundingBox, bbox);
 };
 
 
@@ -128,7 +133,7 @@ class SOFA_DEFAULTTYPE_API BoundingBox2D
 {
 
 public:
-    typedef std::pair< Vector2, Vector2 > bbox_t;
+    typedef sofa::helper::pair< Vector2, Vector2 > bbox_t;
 
     BoundingBox2D();
     /// Define using the endpoints of the main diagonal
@@ -193,8 +198,12 @@ public:
     }
 
 
-protected:
+public:
     bbox_t bbox;
+
+    SOFA_STRUCT_DECL(BoundingBox2D, bbox);
+//    SOFA_STRUCT_STREAM_METHODS(BoundingBox2D);
+//    SOFA_STRUCT_COMPARE_METHOD(BoundingBox2D, bbox);
 };
 
 
@@ -204,7 +213,7 @@ class SOFA_DEFAULTTYPE_API BoundingBox1D
 {
 
 public:
-    typedef std::pair< SReal, SReal > bbox_t;
+    typedef sofa::helper::pair< SReal, SReal > bbox_t;
 
     BoundingBox1D();
     /// Define using the endpoints of the main diagonal
@@ -263,12 +272,21 @@ public:
     }
 
 
-protected:
+public:
     bbox_t bbox;
+
+    SOFA_STRUCT_DECL(BoundingBox1D, bbox);
+//    SOFA_STRUCT_STREAM_METHODS(BoundingBox1D);
+//    SOFA_STRUCT_COMPARE_METHOD(BoundingBox1D, bbox);
 };
 
 
 }
 }
+
+SOFA_STRUCT_DEFINE(sofa::defaulttype::BoundingBox);
+SOFA_STRUCT_DEFINE(sofa::defaulttype::BoundingBox2D);
+SOFA_STRUCT_DEFINE(sofa::defaulttype::BoundingBox1D);
+
 
 #endif // SOFA_DEFAULTTYPE_BOUNDINGBOX_H

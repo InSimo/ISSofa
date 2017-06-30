@@ -1552,50 +1552,50 @@ float SparseGridTopology::getMassCoef(int elementIdx)
 
 void SparseGridTopology::updateEdges()
 {
-    std::map<pair<int,int>,bool> edgesMap;
+    std::map<sofa::helper::pair<int,int>,bool> edgesMap;
     for(unsigned i=0; i<seqHexahedra.getValue().size(); ++i)
     {
         Hexa c = seqHexahedra.getValue()[i];
 
 #ifdef SOFA_NEW_HEXA
         // horizontal
-        edgesMap[pair<int,int>(c[0],c[1])]=0;
-        edgesMap[pair<int,int>(c[3],c[2])]=0;
-        edgesMap[pair<int,int>(c[4],c[5])]=0;
-        edgesMap[pair<int,int>(c[7],c[6])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[0],c[1])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[3],c[2])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[4],c[5])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[7],c[6])]=0;
         // vertical
-        edgesMap[pair<int,int>(c[0],c[3])]=0;
-        edgesMap[pair<int,int>(c[1],c[2])]=0;
-        edgesMap[pair<int,int>(c[4],c[7])]=0;
-        edgesMap[pair<int,int>(c[5],c[6])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[0],c[3])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[1],c[2])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[4],c[7])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[5],c[6])]=0;
         // profondeur
-        edgesMap[pair<int,int>(c[0],c[4])]=0;
-        edgesMap[pair<int,int>(c[1],c[5])]=0;
-        edgesMap[pair<int,int>(c[3],c[7])]=0;
-        edgesMap[pair<int,int>(c[2],c[6])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[0],c[4])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[1],c[5])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[3],c[7])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[2],c[6])]=0;
 #else
         // horizontal
-        edgesMap[pair<int,int>(c[0],c[1])]=0;
-        edgesMap[pair<int,int>(c[3],c[2])]=0;
-        edgesMap[pair<int,int>(c[4],c[5])]=0;
-        edgesMap[pair<int,int>(c[7],c[6])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[0],c[1])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[3],c[2])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[4],c[5])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[7],c[6])]=0;
         // vertical
-        edgesMap[pair<int,int>(c[0],c[2])]=0;
-        edgesMap[pair<int,int>(c[1],c[3])]=0;
-        edgesMap[pair<int,int>(c[4],c[6])]=0;
-        edgesMap[pair<int,int>(c[5],c[7])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[0],c[2])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[1],c[3])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[4],c[6])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[5],c[7])]=0;
         // profondeur
-        edgesMap[pair<int,int>(c[0],c[4])]=0;
-        edgesMap[pair<int,int>(c[1],c[5])]=0;
-        edgesMap[pair<int,int>(c[2],c[6])]=0;
-        edgesMap[pair<int,int>(c[3],c[7])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[0],c[4])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[1],c[5])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[2],c[6])]=0;
+        edgesMap[sofa::helper::pair<int,int>(c[3],c[7])]=0;
 #endif
     }
 
     SeqEdges& edges = *seqEdges.beginEdit();
     edges.clear();
     edges.reserve(edgesMap.size());
-    for( std::map<pair<int,int>,bool>::iterator it=edgesMap.begin(); it!=edgesMap.end(); ++it)
+    for( std::map<sofa::helper::pair<int,int>,bool>::iterator it=edgesMap.begin(); it!=edgesMap.end(); ++it)
         edges.push_back( Edge( (*it).first.first,  (*it).first.second ));
     seqEdges.endEdit();
 }
