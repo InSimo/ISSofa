@@ -63,7 +63,7 @@ inline DataParser::ParserId DataParser::getId()
     return m_id;
 }
 
-DataParser::DataParser(std::string name) : m_id(generateDataParserId(std::move(name)))
+inline DataParser::DataParser(std::string name) : m_id(generateDataParserId(std::move(name)))
 {
 }
 
