@@ -62,6 +62,7 @@ struct EnumTypeInfo
     static constexpr bool IsSingleValue      = true;  ///< true if this type is a single value
     static constexpr bool IsMultiValue       = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
     static constexpr bool IsStructure        = false;  ///< true if this type is a structure
+    static constexpr bool IsEnum             = true;  ///< true if this type is a enum
 
     static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
                                                                     /// true if this type uses integer values

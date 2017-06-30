@@ -42,6 +42,7 @@ class AbstractValueTypeInfo;
 class AbstractMultiValueTypeInfo;
 class AbstractContainerTypeInfo;
 class AbstractStructureTypeInfo;
+class AbstractEnumTypeInfo;
 
 class SOFA_DEFAULTTYPE_API AbstractTypeInfo
 {
@@ -56,11 +57,13 @@ public:
     virtual bool IsContainer() const = 0;
     virtual bool IsMultiValue() const = 0;
     virtual bool IsStructure() const = 0;
+    virtual bool IsEnum() const = 0;
 
     virtual const AbstractValueTypeInfo* SingleValueType() const = 0;
     virtual const AbstractMultiValueTypeInfo* MultiValueType() const = 0;
     virtual const AbstractContainerTypeInfo* ContainerType() const = 0;
     virtual const AbstractStructureTypeInfo* StructureType() const = 0;
+    virtual const AbstractEnumTypeInfo*      EnumType()      const = 0;
 
     virtual bool ZeroConstructor() const = 0;
     virtual bool SimpleCopy() const = 0;
@@ -132,10 +135,7 @@ public:
     virtual void setDataValueInteger(void* data, long long value) const = 0;
     virtual void setDataValueScalar (void* data, double value) const = 0;
 
-    virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const = 0;
-
     // void has no value
-    // enum can be accessed with either IntegerValue (0..n-1) or TextValue (one of getAvailableItems)
     // bool can be accessed with either IntegerValue (0/1) or TextValue (false/true)
     // pointer can be accessed with either IntegerValue (but not valid for storage) or TextValue
 
@@ -320,6 +320,18 @@ public:
     virtual const void* getMemberValue(const void* data, size_t index) const = 0;
     virtual std::string getMemberName(const void* data, size_t index) const = 0;
     virtual void* editMemberValue(void* data, size_t index) const = 0;
+};
+
+
+class SOFA_DEFAULTTYPE_API AbstractEnumTypeInfo : public virtual AbstractValueTypeInfo
+{
+public:
+
+    virtual std::string getDataEnumeratorString(const void* data) const = 0;
+    virtual void setDataEnumeratorString(void* data,const std::string& value) const = 0;
+    virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const = 0;
+
+
 };
 
 } // namespace defaulttype

@@ -84,6 +84,8 @@ struct StructTypeInfo
     static constexpr bool IsMultiValue       = false; // TODO: check if all member types are identical
     ///< true if this type is a structure
     static constexpr bool IsStructure        = true;
+    ///< true if this type is a Enum
+    static constexpr bool IsEnum             = false;
     ///< true if this type has valid infos
     static constexpr bool ValidInfo          = ApplyOnMembers<MembersTuple>::apply(IsMemberValidInfo{}, And);
     ///< true if this type uses integer values

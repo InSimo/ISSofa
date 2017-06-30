@@ -232,6 +232,7 @@ struct InvalidDataTypeInfo
 
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+    static constexpr bool IsEnum             = false;  ///< true if this type is a enum
     static constexpr bool IsMultiValue       = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
     static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
@@ -242,7 +243,7 @@ struct InvalidDataTypeInfo
     static constexpr bool Unsigned           = false;  ///< true if this type is unsigned
     //static constexpr bool FixedContainerSize = true; ///< true if this type has a fixed size for this container level
     static constexpr bool FixedFinalSize     = false;  ///< true if this type has a fixed size for all level until the final values
-    
+
     static constexpr bool ZeroConstructor    = false;  ///< true if the constructor is equivalent to setting memory to 0
     static constexpr bool SimpleCopy         = false;  ///< true if copying the data can be done with a memcpy
     static constexpr bool SimpleLayout       = false;  ///< true if the layout in memory is simply N values of the same base type
@@ -290,9 +291,6 @@ struct InvalidDataTypeInfo
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
-    template <typename DataTypeRef>
-    static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames) {}
-
 };
 
 #ifdef DEFAULT_DataTypeInfo
@@ -317,6 +315,7 @@ struct SingleValueTypeInfo
 
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = true;  ///< true if this type is a single value
+    static constexpr bool IsEnum             = (TValueKind == ValueKindEnum::Enum );
     static constexpr bool IsMultiValue       = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
     static constexpr bool IsStructure        = false; ///< true if this type is a structure
 
@@ -332,7 +331,7 @@ struct SingleValueTypeInfo
     static constexpr bool Unsigned           = TUnsigned;
     //static constexpr bool FixedContainerSize = true;  ///< true if this type has a fixed size for this container level
     static constexpr bool FixedFinalSize     = true;  ///< true if this type has a fixed size for all level until the final values
-    
+
     static constexpr bool ZeroConstructor    = !String;  ///< true if the constructor is equivalent to setting memory to 0
     static constexpr bool SimpleCopy         = true;     ///< true if copying the data can be done with a memcpy
     static constexpr bool SimpleLayout       = true;     ///< true if the layout in memory is simply N values of the same base type
@@ -423,15 +422,13 @@ public:
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
-    template <typename DataTypeRef>
-    static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames) {}
 
     // Multi Value API
 
     static void setFinalSize(DataType& /*data*/, size_t /*size*/)
     {
     }
-    
+
     template <typename DataTypeRef, typename T>
     static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
     {
@@ -462,7 +459,7 @@ public:
 
 #if 0
     // iterators support (trivial here)
-    
+
     template<class DataPtr> class single_iterator
     {
         DataPtr m_data;
@@ -559,6 +556,7 @@ struct MultiValueTypeInfo
 
     static constexpr bool IsContainer   = false;  ///< true if this type is a container
     static constexpr bool IsSingleValue = false;  ///< true if this type is a single value
+    static constexpr bool IsEnum        = false;  ///< true if this type is a enum
     static constexpr bool IsMultiValue  = true;   ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
     static constexpr bool IsStructure   = false;  ///< true if this type is a structure
 
@@ -664,8 +662,6 @@ public:
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
-    template <typename DataTypeRef>
-    static void getAvailableItems(const DataTypeRef& data, std::vector<std::string>& enumNames) {}
 
     // Multi Value API
 
@@ -1088,6 +1084,7 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
 
     static constexpr bool IsContainer        = true;   ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+    static constexpr bool IsEnum             = false;  ///< true if this type is a enum
     //static constexpr bool IsMultiValue       =
     //    (TContainerKind==ContainerKindEnum::Array ||
     //     (TContainerKind==ContainerKindEnum::Set && MappedTypeInfo::FinalSize == 1)) &&
@@ -1152,7 +1149,7 @@ protected:
     {
         return nullptr;
     }
-    
+
 public:
     static void resetValue(DataType& data, size_t reserve = 0)
     {
@@ -1259,7 +1256,7 @@ public:
         return ContainerTypes::erase(data, key);
     }
 
-    
+
     typedef typename ContainerTypes::iterator iterator;
     typedef typename ContainerTypes::const_iterator const_iterator;
     static iterator begin(DataType& data)

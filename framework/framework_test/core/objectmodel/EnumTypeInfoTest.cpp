@@ -181,6 +181,7 @@ TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
 
     EXPECT_TRUE(typeInfo->IsSingleValue());
     EXPECT_TRUE(typeInfo->IsMultiValue());
+    EXPECT_TRUE(typeInfo->IsEnum());
     EXPECT_FALSE(typeInfo->IsContainer());
     EXPECT_FALSE(typeInfo->IsStructure());
 
@@ -197,25 +198,34 @@ TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
     typeInfo->getDataValueString(dataTest.getValueVoidPtr(), value2);
     ASSERT_EQ(value2, "100");
 
+    const defaulttype::AbstractEnumTypeInfo* einfo = typeInfo->EnumType();
+
+    std::string name = einfo->getDataEnumeratorString(dataTest.getValueVoidPtr());
+    ASSERT_EQ(name, "cent");
 
 
-    const defaulttype::AbstractValueTypeInfo* enumTypeInfo = typeInfo->SingleValueType();
+    einfo->setDataEnumeratorString(dataTest.beginEditVoidPtr(),"dix");
+    std::string value3;
+    einfo->getDataValueString(dataTest.getValueVoidPtr(), value3);
+    ASSERT_EQ(value3, "10");
+
+
 
     std::vector<std::string > enumNames;
-    enumTypeInfo->getAvailableItems(dataTest.getValueVoidPtr(), enumNames);
+    einfo->getAvailableItems(dataTest.getValueVoidPtr(), enumNames);
     ASSERT_EQ(enumNames.size(), 3);
     ASSERT_EQ(enumNames[0], "cent");
 
-    std::string value3;
-    uIntEnum2 value4(uIntEnum2::un);
-    enumTypeInfo->setDataValueInteger(dataTest.beginEditVoidPtr(), static_cast<long long>(value4));
+    std::string value4;
+    uIntEnum2 value5(uIntEnum2::un);
+    einfo->setDataValueInteger(dataTest.beginEditVoidPtr(), static_cast<long long>(value5));
     dataTest.endEditVoidPtr();
-    typeInfo->getDataValueString(dataTest.getValueVoidPtr(), value3);
-    ASSERT_EQ(value3, "1");
+    typeInfo->getDataValueString(dataTest.getValueVoidPtr(), value4);
+    ASSERT_EQ(value4, "1");
 
 
-    long long value5 = enumTypeInfo->getDataValueInteger(dataTest.getValueVoidPtr());
-    ASSERT_EQ(value5, static_cast<long long>(uIntEnum2::un));
+    long long value6 = einfo->getDataValueInteger(dataTest.getValueVoidPtr());
+    ASSERT_EQ(value6, static_cast<long long>(uIntEnum2::un));
 
 }
 

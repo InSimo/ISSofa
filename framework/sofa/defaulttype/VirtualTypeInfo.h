@@ -64,7 +64,7 @@ size_t type_id() { return reinterpret_cast<size_t>(Type_id<T>().getID()); }
 
 }
 
-template<class TDataType, bool TSingleValue, bool TMultiValue, bool TContainer, bool TStructure>
+template<class TDataType, bool TSingleValue, bool TMultiValue, bool TContainer, bool TStructure, bool TEnum>
 class VirtualTypeInfoImpl;
 
 template<class TDataType>
@@ -72,7 +72,8 @@ class VirtualTypeInfo : public VirtualTypeInfoImpl<TDataType,
     DataTypeInfo<TDataType>::IsSingleValue,
     DataTypeInfo<TDataType>::IsMultiValue,
     DataTypeInfo<TDataType>::IsContainer,
-    DataTypeInfo<TDataType>::IsStructure>
+    DataTypeInfo<TDataType>::IsStructure,
+    DataTypeInfo<TDataType>::IsEnum>
 {
 public:
     typedef TDataType DataType;
@@ -102,6 +103,7 @@ public:
     virtual bool IsContainer() const override   { return Info::IsContainer;   }
     virtual bool IsMultiValue() const override  { return Info::IsMultiValue;  }
     virtual bool IsStructure() const override   { return Info::IsStructure;   }
+    virtual bool IsEnum() const override        { return Info::IsEnum;   }
 
     virtual bool ZeroConstructor() const override { return Info::ZeroConstructor; }
     virtual bool SimpleCopy() const override      { return Info::SimpleCopy;      }
@@ -130,7 +132,7 @@ public:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, false, false, false> : public AbstractTypeInfoImpl<TDataType, AbstractTypeInfo>
+class VirtualTypeInfoImpl<TDataType, false, false, false, false, false> : public AbstractTypeInfoImpl<TDataType, AbstractTypeInfo>
 {
 public:
     typedef TDataType DataType;
@@ -142,6 +144,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*  EnumType()        const override { return nullptr; }
     
 };
 
@@ -206,7 +209,7 @@ public:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, true, true, false, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractValueTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, true, true, false, false, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractValueTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -218,6 +221,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*  EnumType()        const override { return nullptr; }
 
     // Value API
 
@@ -245,23 +249,87 @@ public:
         Info::setDataValue(*(DataType*)data, value);
     }
 
+
+};
+
+
+template<class TDataType, class TBaseClass>
+class AbstractEnumTypeInfoImpl : public AbstractMultiValueTypeInfoImpl<TDataType,TBaseClass>
+{
+public:
+    typedef TDataType DataType;
+    typedef DataTypeInfo<DataType> Info;
+
+    AbstractEnumTypeInfoImpl()
+    {
+    }
+
+    // Enum API
+
+    virtual std::string getDataEnumeratorString(const void* data) const override
+    {
+        std::string out;
+        Info::getDataEnumeratorString(*(const DataType*)data,out);
+        return out;
+    }
+
+    virtual void setDataEnumeratorString(void* data,const std::string& value) const override
+    {
+        Info::setDataValueString(*(DataType*)data,value);
+    }
+
     virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const override
     {
-        if (Info::FinalValueKind == ValueKindEnum::Enum)
-        {
-            Info::getAvailableItems(*(const DataType*)data, result);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        Info::getAvailableItems(*(const DataType*)data, result);
     }
 
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, true, false, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractMultiValueTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, true, true, false, false, true> : public AbstractEnumTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractEnumTypeInfo> >
+{
+public:
+    typedef TDataType DataType;
+    typedef DataTypeInfo<DataType> Info;
+
+    // Base API
+
+    virtual const AbstractValueTypeInfo*      SingleValueType() const override { return this; }
+    virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
+    virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
+    virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return this; }
+
+    // SingleValue API
+    virtual bool Unsigned() const override { return Info::Unsigned; }
+
+    virtual long long   getDataValueInteger(const void* data) const override
+    {
+        long long v = 0;
+        Info::getDataValue(*(const DataType*)data, v);
+        return v;
+    }
+    virtual double      getDataValueScalar (const void* data) const override
+    {
+        double v = 0;
+        Info::getDataValue(*(const DataType*)data, v);
+        return v;
+    }
+
+    virtual void setDataValueInteger(void* data, long long value) const override
+    {
+        Info::setDataValue(*(DataType*)data, value);
+    }
+    virtual void setDataValueScalar (void* data, double value) const override
+    {
+        Info::setDataValue(*(DataType*)data, value);
+    }
+
+};
+
+
+template<class TDataType>
+class VirtualTypeInfoImpl<TDataType, false, true, false, false, false> : public AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractMultiValueTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -273,6 +341,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return nullptr; }
 };
 
 
@@ -467,7 +536,7 @@ protected:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, true, true, false> : public AbstractContainerTypeInfoImpl< TDataType, AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerMultiValueTypeInfo> > >
+class VirtualTypeInfoImpl<TDataType, false, true, true, false, false> : public AbstractContainerTypeInfoImpl< TDataType, AbstractMultiValueTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerMultiValueTypeInfo> > >
 {
 public:
     typedef TDataType DataType;
@@ -479,11 +548,12 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return this; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return nullptr; }
 
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, false, true, false> : public AbstractContainerTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, false, false, true, false, false> : public AbstractContainerTypeInfoImpl< TDataType, AbstractTypeInfoImpl<TDataType, AbstractContainerTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -495,6 +565,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return this; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return nullptr; }
 
 };
 
@@ -555,7 +626,7 @@ protected:
 };
 
 template<class TDataType>
-class VirtualTypeInfoImpl<TDataType, false, false, false, true> : public AbstractStructureTypeInfoImpl<TDataType, AbstractTypeInfoImpl<TDataType, AbstractStructureTypeInfo> >
+class VirtualTypeInfoImpl<TDataType, false, false, false, true, false> : public AbstractStructureTypeInfoImpl<TDataType, AbstractTypeInfoImpl<TDataType, AbstractStructureTypeInfo> >
 {
 public:
     typedef TDataType DataType;
@@ -567,6 +638,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return this; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return nullptr; }
 
 };
 
