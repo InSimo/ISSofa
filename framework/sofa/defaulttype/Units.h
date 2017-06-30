@@ -36,14 +36,26 @@ namespace units {
 //    has got units (or dimensions, eg : kg.m.s-2 for a force),
 //      can have a prefix (a factor which is a multiple or a fraction)
 //
-// Important : any physical Quantity can be described thanks to a combination 
-//    of 7 "elementary" units which are kilogram, meter, second, Ampere, kelvin, mole, candela.
+// Important : any physical Quantity can be described thanks to a combination of 7
+//    "elementary" units which are kilogram, meter, second, Ampere, kelvin, mole, candela.
 //      It could be possible to describe a physical Quantity in other units 
 //            (eg Celsius instead of Kelvin) thanks to conversion algorithms.
 //
-// Example of usage : see UnitsTest.cpp
+//
+// Example of usage : 
+//    Mass            m0( 1 );
+//    Acceleration    a0( 2 );
+//
+//    Force           f0( m0 * a0 );      // this will compile
+//    Time            t0( a0 );           // this won't compile
+//
+//    if( f0 == Force(4) ) {}             // this will compile
+//    if( f0 == 4 ) {}                    // this won't compile
+//    if( f0.value() == 4) {}             // this will compile
+//    if( Scalar(10) == 42 ) {}           // this will compile as 42 thanks to a template specialization on scalars
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
 
 
 //////////////////////////// Base class Quantity //////////////////////////////
@@ -334,6 +346,80 @@ operator!= (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
 }
 
 
+/////////////// Template specialization for the scalars //////////////////
+
+template<class T>
+class Quantity<T, 0, 0, 0, 0, 0, 0, 0>
+{
+public:
+
+    // Operator: default constructor
+    explicit
+    Quantity(T initVal = 0)
+        : m_value(initVal)
+    {
+    }
+
+    // to/from values of type T
+    operator T() const { return val; }
+    
+
+    // Operator: Assignment from type T
+    Quantity<T, 0, 0, 0, 0, 0, 0, 0>&
+        operator= (const T rhs)
+    {
+        m_value = rhs;
+        return *this;
+    }
+
+    // Operator: +=
+    Quantity<T, 0, 0, 0, 0, 0, 0, 0>&
+        operator+= (const Quantity<T, 0, 0, 0, 0, 0, 0, 0>& rhs)
+    {
+        m_value += rhs.m_value;
+        return *this;
+    }
+
+    // Operator -=
+    Quantity<T, 0, 0, 0, 0, 0, 0, 0>&
+        operator-= (const Quantity<T, 0, 0, 0, 0, 0, 0, 0>& rhs)
+    {
+        m_value -= rhs.m_value;
+        return *this;
+    }
+
+    // Operator *=
+    Quantity<T, 0, 0, 0, 0, 0, 0, 0>&
+        operator*= (T rhs)
+    {
+        m_value *= rhs;
+        return *this;
+    }
+
+    // Operator /=
+    Quantity<T, 0, 0, 0, 0, 0, 0, 0>&
+        operator/= (T rhs)
+    {
+        m_value /= rhs;
+        return *this;
+    }
+
+    // Get Reference
+    T&
+        value()
+    {
+        return m_value;
+    }
+
+    // Get Value
+    const T&
+        value() const
+    {
+        return m_value;
+    }
+private:
+    T m_value;
+};
 
 
 ////////////////////////// Some types definitions ///////////////////////////
