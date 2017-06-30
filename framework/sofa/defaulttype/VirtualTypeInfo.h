@@ -28,6 +28,7 @@
 #include "AbstractTypeInfo.h"
 #include "DataTypeInfo.h"
 #include <typeinfo>
+#include <type_traits>
 #include <array>
 
 namespace sofa
@@ -62,7 +63,28 @@ constexpr type_id_t Type_id() { return &Type_id<T>; }
 template<typename T>
 size_t type_id() { return reinterpret_cast<size_t>(Type_id<T>().getID()); }
 
+} // typeIDHelper
+
+
+namespace createInstanceHelper
+{
+
+template<typename T>
+void deleter(const void* data)
+{
+    T const * p = static_cast<T const*>(data);
+    delete p;
 }
+
+template<typename T>
+unique_void_ptr make_unique_void(T * ptr)
+{
+    return unique_void_ptr(ptr, &deleter<T>);
+}
+
+} // createInstanceHelper
+
+
 
 template<class TDataType, bool TSingleValue, bool TMultiValue, bool TContainer, bool TStructure, bool TEnum>
 class VirtualTypeInfoImpl;
@@ -129,6 +151,11 @@ public:
     
     virtual const std::type_info* type_info() const override { return &typeid(DataType); }
     virtual std::size_t typeInfoID() const override { return typeIDHelper::type_id<DataType>(); }
+    
+    virtual unique_void_ptr createInstance() const override { return createInstance(typename std::is_default_constructible<DataType>::type()); }
+protected:
+    static unique_void_ptr createInstance(std::true_type) { return createInstanceHelper::make_unique_void(new DataType()); }
+    static unique_void_ptr createInstance(std::false_type) { return createInstanceHelper::make_unique_void((DataType*)nullptr); }
 };
 
 template<class TDataType>

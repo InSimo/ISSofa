@@ -262,6 +262,47 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
     EXPECT_EQ(*(const int*)M0cptr, 42);
 }
 
+TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
+{
+    Data<test_struct::ContainerStruct> data("ContainerStruct");
+    test_struct::ContainerStruct* d = data.beginEdit();
+    d->myIntVector.resize(10);
+    d->myFloatSet.insert({1.0f, 2.0f, 3.0f});
+    data.endEdit();
+    sofa::core::objectmodel::BaseData* baseData = &data;
+
+    const AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
+    const void* vptr = baseData->getValueVoidPtr();
+
+    const void* subptr;
+    const AbstractTypeInfo* subTypeInfo;
+
+
+    defaulttype::getSubTypeInfo(vptr, typeInfo, {}, subptr, subTypeInfo);
+    EXPECT_EQ(vptr, subptr);
+    EXPECT_EQ(typeInfo, subTypeInfo);
+
+
+    std::size_t ks = 0; // key type is size_t for structures
+    const AbstractTypeInfo* firstContainerKeyType = typeInfo->StructureType()->getMemberTypeForIndex(0)->ContainerType()->getKeyType();
+    defaulttype::unique_void_ptr kv = firstContainerKeyType->createInstance();
+    firstContainerKeyType->setDataValueString(kv.get(), "3"); // equivalent to *kv = 3 but we're not supposed to know the type
+
+    defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kv.get()}, subptr, subTypeInfo);
+    EXPECT_EQ(subptr, &data.getValue().myIntVector[3]);
+    EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(0)->ContainerType()->getMappedType());
+
+
+    ks = 1;
+    const AbstractTypeInfo* secondContainerKeyType = typeInfo->StructureType()->getMemberTypeForIndex(1)->ContainerType()->getKeyType();
+    defaulttype::unique_void_ptr kset = secondContainerKeyType->createInstance();
+    secondContainerKeyType->setDataValueString(kset.get(), "2.0f"); // equivalent to *kset = 2.0f but we're not supposed to know the type
+
+    defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kset.get()}, subptr, subTypeInfo);
+    EXPECT_EQ(subptr, &(*data.getValue().myFloatSet.find(2.0f)));
+    EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(1)->ContainerType()->getMappedType());
+}
+
 TEST(DataStructTypeInfoTest2, checkSimpleCopy)
 {
     {
