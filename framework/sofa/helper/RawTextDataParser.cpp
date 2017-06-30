@@ -30,12 +30,10 @@ namespace sofa
 namespace helper
 {
 
-bool result = DataParserRegistry::addParser(std::unique_ptr<DataParser>(new RawTextDataParser()));
+bool result = DataParserRegistry::addParser(std::unique_ptr<DataParser>(new RawTextDataParser(std::string("raw_text_data_parser"))));
 
-DataParser::ParserId RawTextDataParser::getId()
-{
-    return 0; // TODO
-}
+RawTextDataParser::RawTextDataParser(std::string name) : DataParser(std::move(name))
+{}
 
 bool RawTextDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
 {

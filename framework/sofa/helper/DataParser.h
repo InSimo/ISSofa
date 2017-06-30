@@ -38,18 +38,34 @@ namespace helper
 class DataParser
 {
 public:
-    using ParserId = int;
+    using ParserId = size_t;
 
-    virtual ParserId getId() = 0;
+    DataParser(std::string name);
+
+    ParserId getId();
 
     virtual bool toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
-
     virtual bool toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
 
     virtual bool fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
-
     virtual bool fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
+private:
+    ParserId m_id;
 };
+
+inline DataParser::ParserId generateDataParserId(std::string name)
+{
+    return std::hash<std::string>{}(std::move(name));
+}
+
+inline DataParser::ParserId DataParser::getId()
+{
+    return m_id;
+}
+
+DataParser::DataParser(std::string name) : m_id(generateDataParserId(std::move(name)))
+{
+}
 
 } // namespace helper
 

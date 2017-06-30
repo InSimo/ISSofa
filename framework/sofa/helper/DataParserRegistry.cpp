@@ -23,6 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include "DataParserRegistry.h"
+#include <cassert>
 
 namespace sofa
 {
@@ -34,8 +35,24 @@ std::vector<std::unique_ptr<DataParser>> DataParserRegistry::m_parsers = {};
 
 bool DataParserRegistry::addParser(std::unique_ptr<DataParser> parser)
 {
+    assert([&]()
+    {
+        for (auto& existingParser : m_parsers)
+        {
+            if (existingParser->getId() == parser->getId())
+                return false;
+        }
+        return true;
+    }(), "DataParserRegistry error : there is already a parser with the same id");
+
     m_parsers.emplace_back(std::move(parser));
     return true;
+}
+
+
+DataParser* DataParserRegistry::getParser(std::string parserName)
+{
+    return getParser(generateDataParserId(parserName));
 }
 
 DataParser* DataParserRegistry::getParser(DataParser::ParserId id)

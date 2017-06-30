@@ -129,7 +129,7 @@ public:
         if (s.empty())
             return false;
 
-        auto* parser = helper::DataParserRegistry::getParser(0);
+        auto* parser = helper::DataParserRegistry::getParser(std::string("raw_text_data_parser"));
         bool success = parser->toData(s, virtualBeginEdit(), getValueTypeInfo());
         virtualEndEdit();
         if(!success)

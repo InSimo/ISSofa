@@ -40,6 +40,7 @@ class SOFA_HELPER_API DataParserRegistry
 {
 public:
     static bool addParser(std::unique_ptr<DataParser> parser);
+    static DataParser* getParser(std::string parserName);
     static DataParser* getParser(DataParser::ParserId id);
 
 private:

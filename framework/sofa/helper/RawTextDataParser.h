@@ -37,9 +37,7 @@ namespace helper
 class SOFA_HELPER_API RawTextDataParser : public DataParser
 {
 public:
-    using DataParser::ParserId;
-
-    ParserId getId() override;
+    RawTextDataParser(std::string name);
 
     bool toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) override;
     bool toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) override;
