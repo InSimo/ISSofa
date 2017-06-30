@@ -37,7 +37,6 @@
 #include <sofa/core/objectmodel/DDGNode.h>
 #include <sofa/core/objectmodel/BaseLink.h>
 #include <sofa/defaulttype/AbstractTypeInfo.h>
-#include <sofa/defaulttype/Units.h>
 
 namespace sofa
 {

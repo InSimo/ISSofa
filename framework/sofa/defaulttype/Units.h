@@ -26,8 +26,12 @@
 #ifndef SOFA_DEFAULTTYPE_UNITS_H
 #define SOFA_DEFAULTTYPE_UNITS_H
 
-namespace sofa {
-namespace units {
+#include <iostream>
+
+namespace sofa
+{
+namespace units
+{
 
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +135,18 @@ public:
         value() const
     {
         return m_value;
+    }
+
+    // Output stream
+    inline friend std::ostream& operator<< ( std::ostream& os, const Quantity<T, kg, m, s, A, K, mol, cd>& q)
+    {
+        return os << q.m_value;
+    }
+
+    // Input stream
+    inline friend std::istream& operator>> ( std::istream& is, Quantity<T, kg, m, s, A, K, mol, cd>& q)
+    {
+        return is >> q.m_value;
     }
 
 private:
@@ -417,6 +433,7 @@ public:
     {
         return m_value;
     }
+
 private:
     T m_value;
 };
