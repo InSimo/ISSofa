@@ -47,7 +47,7 @@ class AbstractStructureTypeInfo;
 class AbstractEnumTypeInfo;
 
 
-using unique_void_ptr = std::unique_ptr<void, void (&)(const void*)>;
+using unique_void_ptr = std::unique_ptr<void, void (*)(const void*)>;
 
 
 class SOFA_DEFAULTTYPE_API AbstractTypeInfo
