@@ -361,7 +361,7 @@ public:
     }
 
     // to/from values of type T
-    operator T() const { return val; }
+    operator T() const { return m_value; }
     
 
     // Operator: Assignment from type T
