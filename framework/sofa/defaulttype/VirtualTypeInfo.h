@@ -171,7 +171,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return nullptr; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
-    virtual const AbstractEnumTypeInfo*  EnumType()        const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return nullptr; }
     
 };
 
@@ -248,7 +248,7 @@ public:
     virtual const AbstractMultiValueTypeInfo* MultiValueType()  const override { return this; }
     virtual const AbstractContainerTypeInfo*  ContainerType()   const override { return nullptr; }
     virtual const AbstractStructureTypeInfo*  StructureType()   const override { return nullptr; }
-    virtual const AbstractEnumTypeInfo*  EnumType()        const override { return nullptr; }
+    virtual const AbstractEnumTypeInfo*       EnumType()        const override { return nullptr; }
 
     // Value API
 
