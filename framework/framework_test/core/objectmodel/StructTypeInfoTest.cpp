@@ -168,8 +168,6 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
     using StructType = TypeParam;
     Data<StructType> data("Struct");
     
-    ASSERT_TRUE(DataTypeInfo<StructType>::ValidInfo);
-    
     std::cout << "STATIC TYPEINFO" << std::endl;
     std::cout << "struct " << DataTypeInfo<StructType>::name() << " { ";
     DataTypeInfo<StructType>::for_each(PrintName{}, PrintLastName{});
@@ -330,15 +328,6 @@ TEST(DataStructTypeInfoTest2, checkSimpleCopy)
         EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
         EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 16);
     }
-}
-
-TEST(DataStructTypeInfoTest2, checkFixedFinalSize)
-{
-    EXPECT_TRUE(DataTypeInfo<test_struct::EmptyStruct>::FixedFinalSize);
-    EXPECT_TRUE(DataTypeInfo<test_struct::SimpleStruct>::FixedFinalSize);
-    EXPECT_TRUE(DataTypeInfo<test_struct::NestedStruct>::FixedFinalSize);
-    EXPECT_FALSE(DataTypeInfo<test_struct::ContainerStruct>::FixedFinalSize);
-    EXPECT_TRUE((DataTypeInfo<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>>::FixedFinalSize));
 }
 
 TEST(DataStructTypeInfoTest2, ostreamTest)

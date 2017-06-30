@@ -69,8 +69,6 @@ TYPED_TEST(DataPairTypeInfoTest, checkPairTypeInfoIsOk)
     using PairType = TypeParam;
     Data<PairType> data("Pair");
 
-    ASSERT_TRUE(DataTypeInfo<PairType>::ValidInfo);
-
     std::cout << "STATIC TYPEINFO" << std::endl;
     std::cout << "pair " << DataTypeInfo<PairType>::name() << " { ";
     DataTypeInfo<PairType>::for_each(PrintName{}, PrintLastName{});

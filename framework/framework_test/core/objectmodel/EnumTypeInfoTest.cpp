@@ -85,9 +85,17 @@ TYPED_TEST(DataEnumTypeInfoTest, checkEnumTypeInfo)
     using EnumType = TypeParam;
     Data<EnumType> dataTest("Enum");
 
-    ASSERT_TRUE(defaulttype::DataTypeInfo<EnumType>::FixedFinalSize);
-    
     ASSERT_EQ(defaulttype::DataTypeInfo<EnumType>::byteSize(dataTest.getValue()), sizeof(typename std::underlying_type<EnumType>::type));
+}
+
+TYPED_TEST(DataEnumTypeInfoTest, checkEnumAbstractTypeInfo)
+{
+    using EnumType = TypeParam;
+    Data<EnumType> dataTest("Enum");
+    const defaulttype::AbstractTypeInfo* typeInfo = dataTest.getValueTypeInfo();
+
+    ASSERT_TRUE(typeInfo->IsSingleValue());
+    ASSERT_TRUE(typeInfo->SingleValueType()->FixedFinalSize());
 }
 
 TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
