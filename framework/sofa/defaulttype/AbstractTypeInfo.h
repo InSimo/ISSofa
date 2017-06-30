@@ -329,7 +329,7 @@ public:
 
     virtual std::string getDataEnumeratorString(const void* data) const = 0;
     virtual void setDataEnumeratorString(void* data,const std::string& value) const = 0;
-    virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const = 0;
+    virtual void getAvailableItems(const void* data, std::vector<std::string>& result) const = 0;
 
 
 };

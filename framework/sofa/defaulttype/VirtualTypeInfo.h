@@ -278,7 +278,7 @@ public:
         Info::setDataValueString(*(DataType*)data,value);
     }
 
-    virtual bool getAvailableItems(const void* data, std::vector<std::string>& result) const override
+    virtual void getAvailableItems(const void* data, std::vector<std::string>& result) const override
     {
         Info::getAvailableItems(*(const DataType*)data, result);
     }
