@@ -97,7 +97,7 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
     dataTest.setValue(uIntEnum2::dix);
     
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::enumSize(), 3);
-    ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorName<0>(), "un");
+    ASSERT_EQ(std::string(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorName<0>()), std::string("un"));
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorValue<1>(), 10u);
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumerator<2>(), uIntEnum2::cent);
 
@@ -125,7 +125,7 @@ TEST(DataEnumTypeInfoTest2, checkcharEnum2)
     dataTest.setValue(charEnum2::bb);
 
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::enumSize(), 4);
-    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorName<0>(), "aa");
+    ASSERT_EQ(std::string(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorName<0>()), std::string("aa"));
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorValue<1>(), 'b');
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumerator<2>(), charEnum2::cc);
 
@@ -162,7 +162,7 @@ TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
     Data<unscopedEnum> dataTest("Enum");
 
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::enumSize(), 3);
-    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorName<0>(), "uns");
+    ASSERT_EQ(std::string(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorName<0>()), std::string("uns"));
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorValue<1>(), 1);
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumerator<2>(), unscopedEnum::ped);
 
