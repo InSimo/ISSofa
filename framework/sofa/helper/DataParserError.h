@@ -22,7 +22,11 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "RawTextDataParser.h"
+#ifndef SOFA_HELPER_DATAPARSERERROR_H
+#define SOFA_HELPER_DATAPARSERERROR_H
+
+#include <sofa/SofaFramework.h>
+#include <system_error>
 
 namespace sofa
 {
@@ -30,37 +34,42 @@ namespace sofa
 namespace helper
 {
 
-bool result = DataParserRegistry::addParser(std::unique_ptr<DataParser>(new RawTextDataParser(std::string("raw_text_data_parser"))));
-
-RawTextDataParser::RawTextDataParser(std::string name) : DataParser(std::move(name))
-{}
-
-std::error_code RawTextDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
+enum class DataParserError : int
 {
-    std::string input(std::istreambuf_iterator<char>(is), {});
-    return toData(input, data, typeInfo);
+    container_size_mismatch = 1, 
+    multivalue_size_mismatch,
+    structure_size_mismatch,
+    incorrect_type_info
+};
+
+class SOFA_HELPER_API DataParserErrorCategory : public std::error_category
+{
+public:
+    const char* name() const noexcept override { return "sofa_data_parser"; }
+    std::string message(int value) const override;
+
+    std::error_condition default_error_condition(int value) const noexcept override { return std::errc::io_error; }
+};
+
+const std::error_category& getDataParserErrorCategory();
+
+std::error_code make_error_code(DataParserError ec)
+{
+    return std::error_code(static_cast<int>(ec), getDataParserErrorCategory());
 }
 
-std::error_code RawTextDataParser::toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
+std::error_condition make_error_condition(DataParserError ec)
 {
-    typeInfo->setDataValueString(data, input);
-    return std::error_code();
-}
-
-std::error_code RawTextDataParser::fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo)
-{
-    std::string output;
-    auto error_code = fromData(output, data, typeInfo);
-    os << output;
-    return error_code;
-}
-
-std::error_code RawTextDataParser::fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo)
-{
-    typeInfo->getDataValueString(data, output);
-    return std::error_code();
+    return std::error_condition(static_cast<int>(ec), getDataParserErrorCategory());
 }
 
 } // namespace helper
 
 } // namespace sofa
+
+namespace std
+{
+    template <> struct is_error_code_enum<sofa::helper::DataParserError> : std::true_type {};
+}
+
+#endif //SOFA_HELPER_DATAPARSERERROR_H

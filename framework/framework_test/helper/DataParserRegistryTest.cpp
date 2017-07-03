@@ -23,6 +23,20 @@ SOFA_STRUCT_DEFINE(test_struct::SimpleStruct);
 namespace
 {
 
+TEST(DataParserRegistryTest, errorCodeTest)
+{
+    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+
+    sofa::Data<int> testValue(""); 
+    auto error_code = parser->toData(std::string("22"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
+    testValue.endEditVoidPtr();
+
+    EXPECT_FALSE(error_code); // No error
+    std::string output;
+    error_code = parser->fromData(output, testValue.getValueVoidPtr(), testValue.getValueTypeInfo());
+    EXPECT_FALSE(error_code); // No error
+}
+
 TEST(DataParserRegistryTest, intTest)
 {
     auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");

@@ -5,6 +5,7 @@ set(SOFAHELPER_HEADERS
     ArgumentParser.h
     BackTrace.h
     DataParser.h
+    DataParserError.h
     DataParserRegistry.h
     DecodeTypeName.h
 	deque.h
@@ -105,6 +106,7 @@ set (SOFAHELPER_SOURCES_OUTSIDE_UNITY
 set(SOFAHELPER_SOURCES_UNITY
 	ArgumentParser.cpp
     BackTrace.cpp
+    DataParserError.cpp
     DataParserRegistry.cpp
     DecodeTypeName.cpp
     DualQuat.cpp

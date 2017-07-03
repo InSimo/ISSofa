@@ -22,7 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "RawTextDataParser.h"
+#include "DataParserError.h"
 
 namespace sofa
 {
@@ -30,35 +30,22 @@ namespace sofa
 namespace helper
 {
 
-bool result = DataParserRegistry::addParser(std::unique_ptr<DataParser>(new RawTextDataParser(std::string("raw_text_data_parser"))));
-
-RawTextDataParser::RawTextDataParser(std::string name) : DataParser(std::move(name))
-{}
-
-std::error_code RawTextDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
+std::string DataParserErrorCategory::message(int value) const
 {
-    std::string input(std::istreambuf_iterator<char>(is), {});
-    return toData(input, data, typeInfo);
+    switch (static_cast<DataParserError>(value))
+    {
+    case DataParserError::container_size_mismatch: return std::string("Error: stream value size mismatch with container size");
+    case DataParserError::multivalue_size_mismatch: return std::string("Error: stream value size mismatch with multivalue size"); 
+    case DataParserError::structure_size_mismatch: return std::string("Error: stream value size mismatch with struct size");
+    case DataParserError::incorrect_type_info: return std::string("Error: Abstract type could not be used to parse data");
+    default: return std::string("Incorrect error value");
+    }
 }
 
-std::error_code RawTextDataParser::toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
+const std::error_category& getDataParserErrorCategory()
 {
-    typeInfo->setDataValueString(data, input);
-    return std::error_code();
-}
-
-std::error_code RawTextDataParser::fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo)
-{
-    std::string output;
-    auto error_code = fromData(output, data, typeInfo);
-    os << output;
-    return error_code;
-}
-
-std::error_code RawTextDataParser::fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo)
-{
-    typeInfo->getDataValueString(data, output);
-    return std::error_code();
+    static DataParserErrorCategory categorySingleton;
+    return categorySingleton;
 }
 
 } // namespace helper

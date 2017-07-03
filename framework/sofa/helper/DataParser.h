@@ -29,6 +29,8 @@
 #include <string>
 #include <sofa/defaulttype/AbstractTypeInfo.h>
 
+#include "DataParserError.h"
+
 namespace sofa
 {
 
@@ -44,11 +46,11 @@ public:
 
     ParserId getId();
 
-    virtual bool toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
-    virtual bool toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
+    virtual std::error_code toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
+    virtual std::error_code toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
 
-    virtual bool fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
-    virtual bool fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
+    virtual std::error_code fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
+    virtual std::error_code fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
 private:
     ParserId m_id;
 };
