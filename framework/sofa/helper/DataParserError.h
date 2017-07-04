@@ -53,12 +53,12 @@ public:
 
 const std::error_category& getDataParserErrorCategory();
 
-std::error_code make_error_code(DataParserError ec)
+inline std::error_code make_error_code(DataParserError ec)
 {
     return std::error_code(static_cast<int>(ec), getDataParserErrorCategory());
 }
 
-std::error_condition make_error_condition(DataParserError ec)
+inline std::error_condition make_error_condition(DataParserError ec)
 {
     return std::error_condition(static_cast<int>(ec), getDataParserErrorCategory());
 }
