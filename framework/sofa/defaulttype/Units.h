@@ -27,6 +27,7 @@
 #define SOFA_DEFAULTTYPE_UNITS_H
 
 #include <iostream>
+#include <sofa/helper/fixed_array.h>
 
 namespace sofa
 {
@@ -47,16 +48,17 @@ namespace units
 //
 //
 // Example of usage : 
-//    Mass<double>            m0( 1 );
-//    Acceleration<double>    a0( 2 );
+//    Mass<double>           m0( 1 );
+//    Acceleration<Deriv>    a0(Deriv(1, 2, 3);
 //
-//    Force<double>           f0( m0 * a0 );      // will compile
-//    Time<double>            t0( a0 );           // won't compile
+//    Force<Deriv>           f0( m0 * a0 );      // will compile
+//    Time<double>           t0( m0 );           // won't compile
 //
-//    if( f0 == Force<double>(4) ) {}     // will compile
-//    if( f0 == 4 ) {}                    // won't compile
-//    if( f0.value() == 4) {}             // will compile
+//    if( m0 == Mass<double>(4) ) {}     // will compile
+//    if( m0 == 4 ) {}                    // won't compile
+//    if( m0.value() == 4) {}             // will compile
 //    if( Scalar<double>(10) == 42.0 ) {}   // will compile thanks to a template specialization on scalars
+//
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,8 +80,9 @@ public:
 
     // Operator: default constructor
     explicit
-        Quantity(T initVal = 0)
+        Quantity(T initVal = T())
         : m_value(initVal)
+        , m_units{ kg, m, s, A, K, mol, cd}
     {
     }
 
@@ -137,6 +140,32 @@ public:
         return m_value;
     }
 
+    // Get Units (/dimensions)
+    const helper::fixed_array<int, 7>&
+        units() const
+    {
+        return m_units;
+    }
+    
+    // Get Units as text (e.g. returns "kg.m.s-2" for a force)
+    const std::string
+        unitsAsText() const
+    {
+        int nbkg{ m_units[0] }, nbm{ m_units[1] }, nbs{ m_units[2] }, nbA{ m_units[3] },          \
+                nbK{ m_units[4] }, nbmol{ m_units[5] }, nbcd{ m_units[6] };
+
+        std::string txtkg = (nbkg != 0) ? "kg" + ((abs(nbkg) > 1) ? std::to_string(nbkg) + "." : ".") : "";
+        std::string txtm = (nbm != 0) ? "m" + ((abs(nbm) > 1) ? std::to_string(nbm) + "." : ".") : "";
+        std::string txts = (nbs != 0) ? "s" + ((abs(nbs) > 1) ? std::to_string(nbs) + "." : ".") : "";
+        std::string txtA = (nbA != 0) ? "A" + ((abs(nbA) > 1) ? std::to_string(nbA) + "." : ".") : ""; ;
+        std::string txtK = (nbK != 0)   ? "K"  + ((abs(nbK) > 1) ? std::to_string(nbK) + "." : ".") : "";
+        std::string txtmol = (nbmol != 0) ? "mol" + ((abs(nbmol) > 1) ? std::to_string(nbmol) + "." : ".") : "";
+        std::string txtcd = (nbcd != 0)  ? "cd" + ((abs(nbcd) > 1) ? std::to_string(nbcd) + "." : ".") : "";
+
+        std::string txt = txtkg + txtm + txts + txtA + txtK + txtmol + txtcd;
+        return txt.substr(0, txt.size()-1);
+    }
+
     // Output stream
     inline friend std::ostream& operator<< ( std::ostream& os, const Quantity<T, kg, m, s, A, K, mol, cd>& q)
     {
@@ -151,6 +180,7 @@ public:
 
 private:
     T m_value;
+    helper::fixed_array<int, 7> m_units;
 };
 
 
@@ -263,17 +293,15 @@ operator/ (const Quantity<T, kg, m, s, A, K, mol, cd> & lhs,
 // Operators between different types
 
 // Operator: Multiplication (Creates New Type)
-template<class T,
-    int kg1, int m1, int s1, int A1, int K1, int mol1, int cd1,
-    int kg2, int m2, int s2, int A2, int K2, int mol2, int cd2>
-
-    // Return Type
-    Quantity<T, kg1 + kg2, m1 + m2, s1 + s2, A1 + A2, K1 + K2, mol1 + mol2, cd1 + cd2>
-    operator* (const Quantity<T, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
-        const Quantity<T, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
+template<class T1, int kg1, int m1, int s1, int A1, int K1, int mol1, int cd1,
+            class T2, int kg2, int m2, int s2, int A2, int K2, int mol2, int cd2>
+auto 
+operator* (const Quantity<T1, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
+    const Quantity<T2, kg2, m2, s2, A2, K2, mol2, cd2>& rhs) 
+        -> Quantity< decltype(lhs.value()*rhs.value()), kg1 + kg2, m1 + m2, s1 + s2, A1 + A2, K1 + K2, mol1 + mol2, cd1 + cd2>
 {
     // New Return type
-    typedef Quantity<T,
+    typedef Quantity< decltype(lhs.value()*rhs.value()),
         kg1 + kg2,
         m1 + m2,
         s1 + s2,
@@ -286,17 +314,15 @@ template<class T,
 }
 
 // Operator: Division (Creates New Type)
-template<class T,
-    int kg1, int m1, int s1, int A1, int K1, int mol1, int cd1,
-    int kg2, int m2, int s2, int A2, int K2, int mol2, int cd2>
-
-    // Return Type
-    Quantity<T, kg1 - kg2, m1 - m2, s1 - s2, A1 - A2, K1 - K2, mol1 - mol2, cd1 - cd2>
-    operator/ (const Quantity<T, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
-        const Quantity<T, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
+template<class T1, int kg1, int m1, int s1, int A1, int K1, int mol1, int cd1,
+            class T2, int kg2, int m2, int s2, int A2, int K2, int mol2, int cd2>
+auto
+operator/ (const Quantity<T1, kg1, m1, s1, A1, K1, mol1, cd1>& lhs,
+    const Quantity<T2, kg2, m2, s2, A2, K2, mol2, cd2>& rhs)
+        -> Quantity< decltype(lhs.value()*rhs.value()), kg1 - kg2, m1 - m2, s1 - s2, A1 - A2, K1 - K2, mol1 - mol2, cd1 - cd2>
 {
     // New Return type
-    typedef Quantity<T,
+    typedef Quantity< decltype(lhs.value()*rhs.value()),
         kg1 - kg2,
         m1 - m2,
         s1 - s2,
