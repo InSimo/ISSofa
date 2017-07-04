@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <functional>
+#include <sstream>
 
 namespace sofa
 {
@@ -355,6 +357,7 @@ inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const
     for (const void* key : keys)
     {
         assert(key);
+        assert(subTypeInfo->ValidInfo());
 
         if (subTypeInfo->IsSingleValue())
         {
@@ -395,6 +398,74 @@ inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const
             return false;
         }
     }
+
+    assert(subTypeInfo->ValidInfo());
+    return true;
+}
+
+/// This function recursively navigates inside the data using serialized keys one after the other
+/// Outputs a pointer to the sub-data and to its associated AbstractTypeInfo
+/// Returns false in the following cases : too many keys, wrong key, or if a MultiValue is encountered
+inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const typeInfo, const std::vector<std::reference_wrapper<const std::string>>& keys, const void*& subData, const AbstractTypeInfo*& subTypeInfo)
+{
+    assert(data);
+    assert(typeInfo);
+
+    subData = data;
+    subTypeInfo = typeInfo;
+
+    for (const std::string& key : keys)
+    {
+        assert(subTypeInfo->ValidInfo());
+
+        if (subTypeInfo->IsSingleValue())
+        {
+            // should not have gotten a key
+            return false;
+        }
+        else if (subTypeInfo->IsContainer())
+        {
+            const AbstractContainerTypeInfo* cinfo = subTypeInfo->ContainerType();
+
+            const AbstractTypeInfo* kinfo = cinfo->getKeyType();
+            unique_void_ptr keyValuePtr = kinfo->createInstance();
+            kinfo->setDataValueString(keyValuePtr.get(), key);
+
+            const void* res = cinfo->findItem(subData, keyValuePtr.get());
+            if (!res)
+            {
+                // key does not exist in the container
+                return false;
+            }
+
+            subData = res;
+            subTypeInfo = cinfo->getMappedType();
+        }
+        else if (subTypeInfo->IsStructure())
+        {
+            const AbstractStructureTypeInfo* sinfo = subTypeInfo->StructureType();
+
+            std::size_t keyIndex;
+            std::istringstream keySS(key);
+            keySS >> keyIndex;
+
+            if (keyIndex >= sinfo->structSize())
+            {
+                // key is too big for the structure
+                return false;
+            }
+
+            subData = sinfo->getMemberValue(subData, keyIndex);
+            subTypeInfo = sinfo->getMemberTypeForIndex(keyIndex);
+        }
+        else if (subTypeInfo->IsMultiValue())
+        {
+            // cannot get pointer to element indexed by key
+            return false;
+        }
+    }
+
+    assert(subTypeInfo->ValidInfo());
     return true;
 }
 

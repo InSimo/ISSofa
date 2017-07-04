@@ -266,6 +266,7 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
     test_struct::ContainerStruct* d = data.beginEdit();
     d->myIntVector.resize(10);
     d->myFloatSet.insert({1.0f, 2.0f, 3.0f});
+    d->myStructVector.resize(3);
     data.endEdit();
     sofa::core::objectmodel::BaseData* baseData = &data;
 
@@ -276,7 +277,7 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
     const AbstractTypeInfo* subTypeInfo;
 
 
-    defaulttype::getSubTypeInfo(vptr, typeInfo, {}, subptr, subTypeInfo);
+    defaulttype::getSubTypeInfo(vptr, typeInfo, std::vector<const void*>{}, subptr, subTypeInfo);
     EXPECT_EQ(vptr, subptr);
     EXPECT_EQ(typeInfo, subTypeInfo);
 
@@ -299,6 +300,13 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
     defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kset.get()}, subptr, subTypeInfo);
     EXPECT_EQ(subptr, &(*data.getValue().myFloatSet.find(2.0f)));
     EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(1)->ContainerType()->getMappedType());
+
+
+    std::string two("2");
+    std::string one("1");
+    defaulttype::getSubTypeInfo(vptr, typeInfo, {two, one}, subptr, subTypeInfo);
+    EXPECT_EQ(subptr, &data.getValue().myStructVector[1]);
+    EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(2)->ContainerType()->getMappedType());
 }
 
 TEST(DataStructTypeInfoTest2, checkSimpleCopy)
