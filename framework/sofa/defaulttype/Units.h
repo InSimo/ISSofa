@@ -82,7 +82,6 @@ public:
     explicit
         Quantity(T initVal = T())
         : m_value(initVal)
-        , m_units{ kg, m, s, A, K, mol, cd}
     {
     }
 
@@ -141,28 +140,24 @@ public:
     }
 
     // Get Units (/dimensions)
-    const helper::fixed_array<int, 7>&
+    constexpr helper::fixed_array<int, 7>
         units() const
     {
-        return m_units;
+        return { kg, m, s, A, K, mol, cd };
     }
     
     // Get Units as text (e.g. returns "kg.m.s-2" for a force)
     const std::string
         unitsAsText() const
     {
-        int nbkg{ m_units[0] }, nbm{ m_units[1] }, nbs{ m_units[2] }, nbA{ m_units[3] },          \
-                nbK{ m_units[4] }, nbmol{ m_units[5] }, nbcd{ m_units[6] };
+        std::string txt = (kg != 0) ? "kg" + ((std::abs(kg) > 1) ? std::to_string(kg) + "." : ".") : "";
+        txt += (m != 0) ? "m" + ((std::abs(m) > 1) ? std::to_string(m) + "." : ".") : "";
+        txt += (s != 0) ? "s" + ((std::abs(s) > 1) ? std::to_string(s) + "." : ".") : "";
+        txt += (A != 0) ? "A" + ((std::abs(A) > 1) ? std::to_string(A) + "." : ".") : "";
+        txt += (K != 0)   ? "K"  + ((std::abs(K) > 1) ? std::to_string(K) + "." : ".") : "";
+        txt += (mol != 0) ? "mol" + ((std::abs(mol) > 1) ? std::to_string(mol) + "." : ".") : "";
+        txt += (cd != 0)  ? "cd" + ((std::abs(cd) > 1) ? std::to_string(cd) + "." : ".") : "";
 
-        std::string txtkg = (nbkg != 0) ? "kg" + ((abs(nbkg) > 1) ? std::to_string(nbkg) + "." : ".") : "";
-        std::string txtm = (nbm != 0) ? "m" + ((abs(nbm) > 1) ? std::to_string(nbm) + "." : ".") : "";
-        std::string txts = (nbs != 0) ? "s" + ((abs(nbs) > 1) ? std::to_string(nbs) + "." : ".") : "";
-        std::string txtA = (nbA != 0) ? "A" + ((abs(nbA) > 1) ? std::to_string(nbA) + "." : ".") : ""; ;
-        std::string txtK = (nbK != 0)   ? "K"  + ((abs(nbK) > 1) ? std::to_string(nbK) + "." : ".") : "";
-        std::string txtmol = (nbmol != 0) ? "mol" + ((abs(nbmol) > 1) ? std::to_string(nbmol) + "." : ".") : "";
-        std::string txtcd = (nbcd != 0)  ? "cd" + ((abs(nbcd) > 1) ? std::to_string(nbcd) + "." : ".") : "";
-
-        std::string txt = txtkg + txtm + txts + txtA + txtK + txtmol + txtcd;
         return txt.substr(0, txt.size()-1);
     }
 
@@ -180,7 +175,6 @@ public:
 
 private:
     T m_value;
-    helper::fixed_array<int, 7> m_units;
 };
 
 
