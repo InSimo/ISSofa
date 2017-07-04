@@ -51,7 +51,7 @@ public:
     std::error_condition default_error_condition(int value) const noexcept override { return std::errc::io_error; }
 };
 
-const std::error_category& getDataParserErrorCategory();
+SOFA_HELPER_API const std::error_category& getDataParserErrorCategory();
 
 inline std::error_code make_error_code(DataParserError ec)
 {
