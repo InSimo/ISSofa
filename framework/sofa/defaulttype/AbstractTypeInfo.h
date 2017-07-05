@@ -173,7 +173,7 @@ public:
 
     AbstractTypeInfo* valueType()
     {
-        return m_typeinfo->getValueTypeForKey(m_data, key());
+        return m_typeinfo->getMappedType();
     }
 
     AbstractTypeInfo* keyType()
