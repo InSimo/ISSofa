@@ -26,9 +26,9 @@
 #define SOFA_HELPER_DATAPARSERREGISTRY_H
 
 #include "DataParser.h"
+#include <sofa/SofaFramework.h>
 #include <memory>
 #include <vector>
-#include <assert.h>
 
 namespace sofa
 {

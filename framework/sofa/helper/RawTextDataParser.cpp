@@ -23,6 +23,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include "RawTextDataParser.h"
+#include <sofa/defaulttype/AbstractTypeInfo.h>
 
 namespace sofa
 {

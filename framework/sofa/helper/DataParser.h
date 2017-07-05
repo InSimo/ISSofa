@@ -27,12 +27,16 @@
 
 #include <iostream>
 #include <string>
-#include <sofa/defaulttype/AbstractTypeInfo.h>
 
 #include "DataParserError.h"
 
 namespace sofa
 {
+
+namespace defaulttype
+{
+class AbstractTypeInfo;
+} // namespace defaulttype
 
 namespace helper
 {
