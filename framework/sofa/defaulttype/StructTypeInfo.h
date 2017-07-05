@@ -160,7 +160,12 @@ struct StructTypeInfo
     {
         return MemberType<Index>::writeRef(data);
     }
-    
+
+    static void evalEqual(const DataType& lhs, const DataType& rhs, bool &isEqual)
+    {
+        for_each(lhs, rhs, EvalEqual(isEqual));
+    }
+
     static void getDataValueStream(const DataType& data, std::ostream& os)
     {
         os << "{ ";
@@ -185,8 +190,7 @@ struct StructTypeInfo
     static void setDataValueString(DataTypeRef&& data, const std::string& value)
     {
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
-    }
-    
+    }    
 
     ///< Call f<MemberType>() for each struct member
     template <typename F>
@@ -224,7 +228,12 @@ struct StructTypeInfo
     {
         TupleForEach<MembersTuple>::visit(data, std::forward<F>(f), std::forward<LastF>(lf));
     }
-
+    ///< Call f(MemberDataType&) for each member of 2 structs
+    template <typename F>
+    static void for_each(const DataType& data, const DataType& data2, F&& f)
+    {
+        TupleForEach<MembersTuple>::visit(data, data2, std::forward<F>(f), std::forward<F>(f));
+    }
     
     struct GetMemberValue
     {
@@ -292,6 +301,12 @@ protected:
             TupleForEach<Tuple,I+1>::visit(data, std::forward<F>(f), std::forward<LastF>(lf));
         }
         template <typename F, typename LastF>
+        static void visit(const DataType& data, const DataType& data2, F&& f, LastF&& lf)
+        {
+            f(MemberType<I>{}, getMemberValue<I>(data), getMemberValue<I>(data2));
+            TupleForEach<Tuple, I + 1>::visit(data, data2, std::forward<F>(f), std::forward<LastF>(lf));
+        }
+        template <typename F, typename LastF>
         static void visit(DataType& data, F&& f, LastF&& lf)
         {
             f(MemberType<I>{}, editMemberValue<I>(data));
@@ -314,6 +329,11 @@ protected:
         static void visit(const DataType& data, F&&, LastF&& lf)
         {
             lf(MemberType<N>{}, getMemberValue<N>(data));
+        }
+        template <typename F, typename LastF>
+        static void visit(const DataType& data, const DataType& data2, F&&, LastF&& lf)
+        {
+            lf(MemberType<N>{}, getMemberValue<N>(data), getMemberValue<N>(data2));
         }
         template <typename F, typename LastF>
         static void visit(DataType& data, F&&, LastF&& lf)
@@ -360,6 +380,20 @@ protected:
     ////////////////
     /// Functors ///
     ////////////////
+
+    class EvalEqual
+    {
+    public:
+        EvalEqual(bool& isEqual) : m_isEqual(isEqual) {}
+        template <typename MemberType>
+        void operator()(MemberType&&, const typename MemberType::type& lhs, const typename MemberType::type& rhs)
+        {
+            using DataType = typename MemberType::type;
+            m_isEqual = m_isEqual && (lhs == rhs);
+        }
+    private:
+        bool& m_isEqual;
+    };
 
     class StructToStream
     {
@@ -414,7 +448,6 @@ protected:
         std::istream& m_stream;
     };
 
-
     // This resetValue will be used if T does not have a default constructor
     template <typename T, typename Enable = void>
     struct ResetValue
@@ -462,14 +495,9 @@ protected:
   inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
   inline friend std::istream& operator >> (std::istream& in, TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
 
-
-#define SOFA_COMPARE_MEMBER(MemberName) \
-MemberName == rhs.MemberName
-
-#define SOFA_STRUCT_COMPARE_METHOD(TStruct, ...) \
-bool operator==(const TStruct& rhs) const { return ( \
-SOFA_FOR_EACH(SOFA_COMPARE_MEMBER, (&&), __VA_ARGS__) \
-);} SOFA_REQUIRE_SEMICOLON
+#define SOFA_STRUCT_COMPARE_METHOD(TStruct)                                                                                                                 \
+inline bool operator==(const TStruct& rhs) const { bool isEqual = true; sofa::defaulttype::StructTypeInfo<TStruct>::evalEqual(*this, rhs, isEqual); return isEqual; }     \
+ SOFA_REQUIRE_SEMICOLON
 
 // Variadic macro to handle templated arguments like T<int, int> (semicolon is a separator for macro)
 #define SOFA_STRUCT_DEFINE_TYPEINFO(...)                                          \

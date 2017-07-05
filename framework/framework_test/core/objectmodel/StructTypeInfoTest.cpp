@@ -41,7 +41,7 @@ struct SimpleStruct
     bool myBool = true;
     SOFA_STRUCT_DECL(SimpleStruct, myInt, myFloat, myUChar, myBool);
     SOFA_STRUCT_STREAM_METHODS(SimpleStruct);
-    SOFA_STRUCT_COMPARE_METHOD(SimpleStruct, myInt, myFloat, myUChar, myBool);
+    SOFA_STRUCT_COMPARE_METHOD(SimpleStruct);
 };
 } // namespace test_struct
 } // namespace sofa
@@ -57,7 +57,7 @@ struct NestedStruct
     SimpleStruct mySimpleStruct;
     SOFA_STRUCT_DECL(NestedStruct, mySimpleStruct);
     SOFA_STRUCT_STREAM_METHODS(NestedStruct);
-    SOFA_STRUCT_COMPARE_METHOD(NestedStruct, mySimpleStruct);
+    SOFA_STRUCT_COMPARE_METHOD(NestedStruct);
 };
 struct ContainerStruct
 {
@@ -66,7 +66,7 @@ struct ContainerStruct
     helper::vector<SimpleStruct> myStructVector;
     SOFA_STRUCT_DECL(ContainerStruct, myIntVector, myFloatSet, myStructVector);
     SOFA_STRUCT_STREAM_METHODS(ContainerStruct);
-    SOFA_STRUCT_COMPARE_METHOD(ContainerStruct, myIntVector, myFloatSet, myStructVector);
+    SOFA_STRUCT_COMPARE_METHOD(ContainerStruct);
 };
 
 template<typename T1, typename T2>
@@ -77,7 +77,7 @@ struct TemplatedStruct
     using TemplatedStruct_t = TemplatedStruct<T1, T2>;
     SOFA_STRUCT_DECL(TemplatedStruct_t, myMemberT1, myMemberT2);
     SOFA_STRUCT_STREAM_METHODS(TemplatedStruct_t);
-    SOFA_STRUCT_COMPARE_METHOD(TemplatedStruct_t, myMemberT1, myMemberT2);
+    SOFA_STRUCT_COMPARE_METHOD(TemplatedStruct_t);
 };
 
 struct NoDefaultConstrStruct
@@ -86,7 +86,7 @@ struct NoDefaultConstrStruct
 
     SOFA_STRUCT_DECL(NoDefaultConstrStruct, myInt);
     SOFA_STRUCT_STREAM_METHODS(NoDefaultConstrStruct);
-    SOFA_STRUCT_COMPARE_METHOD(NoDefaultConstrStruct, myInt);
+    SOFA_STRUCT_COMPARE_METHOD(NoDefaultConstrStruct);
 
     NoDefaultConstrStruct(int value) : myInt(value) {}
 };
@@ -162,6 +162,7 @@ struct PrintLastValue
         std::cout << t;
     }
 };
+
 
 TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoIsOk)
 {

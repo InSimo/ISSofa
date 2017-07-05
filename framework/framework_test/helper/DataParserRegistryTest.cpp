@@ -14,7 +14,7 @@ namespace test_struct
         bool myBool = true;
         SOFA_STRUCT_DECL(SimpleStruct, myInt, myFloat, myUChar, myBool);
         SOFA_STRUCT_STREAM_METHODS(SimpleStruct);
-        SOFA_STRUCT_COMPARE_METHOD(SimpleStruct, myInt, myFloat, myUChar, myBool);
+        SOFA_STRUCT_COMPARE_METHOD(SimpleStruct);
     };
 } // namespace test_struct
 
