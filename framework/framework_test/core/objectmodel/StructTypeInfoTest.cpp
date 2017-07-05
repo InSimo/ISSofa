@@ -277,7 +277,10 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
     const AbstractTypeInfo* subTypeInfo;
 
 
-    defaulttype::getSubTypeInfo(vptr, typeInfo, std::vector<const void*>{}, subptr, subTypeInfo);
+    // Valid cases
+
+    bool res = defaulttype::getSubTypeInfo(vptr, typeInfo, std::vector<const void*>{}, subptr, subTypeInfo);
+    EXPECT_TRUE(res);
     EXPECT_EQ(vptr, subptr);
     EXPECT_EQ(typeInfo, subTypeInfo);
 
@@ -287,7 +290,8 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
     defaulttype::unique_void_ptr kv = firstContainerKeyType->createInstance();
     firstContainerKeyType->setDataValueString(kv.get(), "3"); // equivalent to *kv = 3 but we're not supposed to know the type
 
-    defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kv.get()}, subptr, subTypeInfo);
+    res = defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kv.get()}, subptr, subTypeInfo);
+    EXPECT_TRUE(res);
     EXPECT_EQ(subptr, &data.getValue().myIntVector[3]);
     EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(0)->ContainerType()->getMappedType());
 
@@ -297,16 +301,35 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
     defaulttype::unique_void_ptr kset = secondContainerKeyType->createInstance();
     secondContainerKeyType->setDataValueString(kset.get(), "2.0f"); // equivalent to *kset = 2.0f but we're not supposed to know the type
 
-    defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kset.get()}, subptr, subTypeInfo);
+    res = defaulttype::getSubTypeInfo(vptr, typeInfo, {&ks, kset.get()}, subptr, subTypeInfo);
+    EXPECT_TRUE(res);
     EXPECT_EQ(subptr, &(*data.getValue().myFloatSet.find(2.0f)));
     EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(1)->ContainerType()->getMappedType());
 
 
     std::string two("2");
     std::string one("1");
-    defaulttype::getSubTypeInfo(vptr, typeInfo, {two, one}, subptr, subTypeInfo);
+    res = defaulttype::getSubTypeInfo(vptr, typeInfo, {two, one}, subptr, subTypeInfo);
+    EXPECT_TRUE(res);
     EXPECT_EQ(subptr, &data.getValue().myStructVector[1]);
     EXPECT_EQ(subTypeInfo, typeInfo->StructureType()->getMemberTypeForIndex(2)->ContainerType()->getMappedType());
+
+
+    // Invalid cases
+
+    std::string zero("0");
+    res = defaulttype::getSubTypeInfo(vptr, typeInfo, {zero, zero, zero}, subptr, subTypeInfo);
+    EXPECT_FALSE(res); // cannot use key on a Single Value
+
+
+    std::string three("3");
+    res = defaulttype::getSubTypeInfo(vptr, typeInfo, {three}, subptr, subTypeInfo);
+    EXPECT_FALSE(res); // key is too big for the structure
+
+
+    std::string eleven("11");
+    res = defaulttype::getSubTypeInfo(vptr, typeInfo, {zero, eleven}, subptr, subTypeInfo);
+    EXPECT_FALSE(res); // key does not exist in the container
 }
 
 TEST(DataStructTypeInfoTest2, checkSimpleCopy)
