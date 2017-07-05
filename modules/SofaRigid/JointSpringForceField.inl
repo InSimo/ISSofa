@@ -355,11 +355,8 @@ void JointSpringForceField<DataTypes>::addKToMatrixT(const core::MechanicalParam
         KT_global = (R0.multDiagonal(spring.KT)).multTranspose(R0);
 
         defaulttype::Mat<6, 6, Real> K_global;
-        std::copy(KT_global.begin(), KT_global.end(), K_global.begin());
-        
-        for (std::size_t i = 0; i < 3; ++i)
-            for (std::size_t j = 0; j < 3; ++j)
-                K_global[i + 3][j + 3] = KR_global[i][j];
+        K_global.setsub(0, 0, KT_global);
+        K_global.setsub(3, 3, KR_global);
 
         mwriter.addDiag(spring.m1, -K_global * kFact);
         mwriter.addDiag(spring.m2, -K_global * kFact);
