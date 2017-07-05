@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_INTERACTIONFORCEFIELD_JOINTSPRINGFORCEFIELD_INL
 
 #include <SofaRigid/JointSpringForceField.h>
+#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/behavior/PairInteractionForceField.inl>
 #include <sofa/core/topology/BaseMeshTopology.h>
@@ -322,7 +323,7 @@ template<class DataTypes>
 void JointSpringForceField<DataTypes>::addSpringDForce(VecDeriv& f1, const VecDeriv& dx1, VecDeriv& f2, const VecDeriv& dx2, int , /*const*/ Spring& spring, Real kFactor)
 {
     const Deriv Mdx1dx2 = dx2[spring.m2]-dx1[spring.m1];
-
+    
     Vector df = spring.ref.rotate(spring.KT.linearProduct(spring.ref.inverseRotate(getVCenter(Mdx1dx2))));
     Vector dR = spring.ref.rotate(spring.KR.linearProduct(spring.ref.inverseRotate(getVOrientation(Mdx1dx2))));
 
@@ -333,7 +334,45 @@ void JointSpringForceField<DataTypes>::addSpringDForce(VecDeriv& f1, const VecDe
 }
 
 template<class DataTypes>
-void JointSpringForceField<DataTypes>::addForce(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataVecDeriv& data_f1, DataVecDeriv& data_f2, const DataVecCoord& data_x1, const DataVecCoord& data_x2, const DataVecDeriv& data_v1, const DataVecDeriv& data_v2 )
+template<class MatrixWriter>
+void JointSpringForceField<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
+{
+    Real kFact = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
+    sofa::helper::WriteAccessor<sofa::Data< helper::vector<Spring> > > springs = this->springs;
+
+    for (unsigned int i = 0; i < springs.size(); ++i)
+    {
+        const Spring& spring = springs[i];
+
+        // get the rotation matrix from the initial orientation of the frame
+        double rotMatrix[4][4];
+        spring.ref.buildRotationMatrix(rotMatrix);
+        Mat R0, KR_global, KT_global;
+
+        for (std::size_t i = 0; i < 3; ++i)
+            for (std::size_t j = 0; j < 3; ++j)
+                R0[i][j] = rotMatrix[i][j];
+
+        //the stiffness is expressed in the local frame
+        //we need it expressed in the global frame as input for the stiffness matrix
+        KR_global = (R0.multDiagonal(spring.KR)).multTranspose(R0);
+        KT_global = (R0.multDiagonal(spring.KT)).multTranspose(R0);
+
+        defaulttype::Mat<6, 6, Real> K_global;
+        std::copy(KT_global.begin(), KT_global.end(), K_global.begin());
+        
+        for (std::size_t i = 0; i < 3; ++i)
+            for (std::size_t j = 0; j < 3; ++j)
+                K_global[i + 3][j + 3] = KR_global[i][j];
+
+        mwriter.addDiag(spring.m1, -K_global * kFact);
+        mwriter.addDiag(spring.m2, -K_global * kFact);
+        mwriter.addSym(spring.m1, spring.m2, K_global * kFact);
+    }
+}
+
+template<class DataTypes>
+void JointSpringForceField<DataTypes>::addForce(const core::MechanicalParams* /*mparams*/, DataVecDeriv& data_f1, DataVecDeriv& data_f2, const DataVecCoord& data_x1, const DataVecCoord& data_x2, const DataVecDeriv& data_v1, const DataVecDeriv& data_v2 )
 {
 
     VecDeriv&       f1 = *data_f1.beginEdit();
@@ -381,6 +420,15 @@ void JointSpringForceField<DataTypes>::addDForce(const core::MechanicalParams *m
 
     data_df1.endEdit();
     data_df2.endEdit();
+}
+
+template<class DataTypes>
+void JointSpringForceField<DataTypes>::addKToMatrix(const sofa::core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
+{
+    if (this->mstate1 != this->mstate2) return;
+
+    component::linearsolver::BlocMatrixWriter<defaulttype::Mat<6,6,Real>> writer;
+    writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate1));
 }
 
 template<class DataTypes>

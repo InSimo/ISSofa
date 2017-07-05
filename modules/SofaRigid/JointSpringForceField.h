@@ -67,6 +67,7 @@ public:
     Vector KT;	// linear stiffness
     Vector KR;	// angular stiffness
     defaulttype::Quat ref; // referential of the spring (p1) to use it in addSpringDForce()
+    Deriv dfdx; /// intermediate results to use in addKToMatrix
 
     Vector  initTrans;		/// offset length of the spring
     defaulttype::Quat initRot;			/// offset orientation of the spring
@@ -341,8 +342,13 @@ public:
     virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& data_df1, DataVecDeriv& data_df2, const DataVecDeriv& data_dx1, const DataVecDeriv& data_dx2);
     ///SOFA_DEPRECATED_ForceField <<<virtual void addDForce(VecDeriv& df1, VecDeriv& df2, const VecDeriv& dx1, const VecDeriv& dx2);
 
-    virtual double getPotentialEnergy(const core::MechanicalParams* /* PARAMS FIRST */, const DataVecCoord&, const DataVecCoord& ) const { return m_potentialEnergy; }
-    ///SOFA_DEPRECATED_ForceField <<<virtual double getPotentialEnergy(const VecCoord&, const VecCoord&) const { return m_potentialEnergy; }
+    virtual void addKToMatrix(const sofa::core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix);
+    
+    /// Fill in the stiffness matrix
+    template<class MatrixWriter>
+    void addKToMatrixT(const sofa::core::MechanicalParams* mparams, MatrixWriter m);
+
+    virtual SReal getPotentialEnergy(const core::MechanicalParams*, const DataVecCoord&, const DataVecCoord& ) const { return m_potentialEnergy; }
 
     sofa::helper::vector<Spring> * getSprings() { return springs.beginEdit(); }
 
