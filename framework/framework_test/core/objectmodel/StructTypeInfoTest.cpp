@@ -219,7 +219,7 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
     //std::cout << " };" << std::endl;
 }
 
-struct ExpectCleared
+struct ExpectReset
 {
     template <typename MemberType>
     void operator()(MemberType&& mt, const typename MemberType::type& t) const
@@ -234,7 +234,7 @@ TEST(DataStructTypeInfoTest2, checkNoDefaultConstrStruct_ResetValueIsOk)
 {
     test_struct::NoDefaultConstrStruct testValue(10);
     StructTypeInfo<test_struct::NoDefaultConstrStruct>::resetValue(testValue);
-    StructTypeInfo<test_struct::NoDefaultConstrStruct>::for_each(testValue, ExpectCleared{});
+    StructTypeInfo<test_struct::NoDefaultConstrStruct>::for_each(testValue, ExpectReset{});
 }
 
 TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)

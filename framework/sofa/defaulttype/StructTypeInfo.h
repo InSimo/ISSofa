@@ -86,6 +86,7 @@ struct StructTypeInfo
     static constexpr bool IsStructure        = true;
     ///< true if this type is a Enum
     static constexpr bool IsEnum             = false;
+
     ///< true if this type has valid infos
     static constexpr bool ValidInfo          = ApplyOnMembers<MembersTuple>::apply(IsMemberValidInfo{}, And);
     ///< true if this type uses integer values
@@ -161,9 +162,11 @@ struct StructTypeInfo
         return MemberType<Index>::writeRef(data);
     }
 
-    static void evalEqual(const DataType& lhs, const DataType& rhs, bool &isEqual)
+    static bool areEqual(const DataType& lhs, const DataType& rhs)
     {
-        for_each(lhs, rhs, EvalEqual(isEqual));
+        bool equal = true;
+        for_each(lhs, rhs, StructEqual(equal));
+        return equal;
     }
 
     static void getDataValueStream(const DataType& data, std::ostream& os)
@@ -235,6 +238,7 @@ struct StructTypeInfo
         TupleForEach<MembersTuple>::visit(data, data2, std::forward<F>(f), std::forward<F>(f));
     }
     
+
     struct GetMemberValue
     {
         template <typename MemberType>
@@ -304,7 +308,7 @@ protected:
         static void visit(const DataType& data, const DataType& data2, F&& f, LastF&& lf)
         {
             f(MemberType<I>{}, getMemberValue<I>(data), getMemberValue<I>(data2));
-            TupleForEach<Tuple, I + 1>::visit(data, data2, std::forward<F>(f), std::forward<LastF>(lf));
+            TupleForEach<Tuple,I+1>::visit(data, data2, std::forward<F>(f), std::forward<LastF>(lf));
         }
         template <typename F, typename LastF>
         static void visit(DataType& data, F&& f, LastF&& lf)
@@ -381,18 +385,18 @@ protected:
     /// Functors ///
     ////////////////
 
-    class EvalEqual
+    class StructEqual
     {
     public:
-        EvalEqual(bool& isEqual) : m_isEqual(isEqual) {}
+        StructEqual(bool& areEqual) : m_areEqual(areEqual) {}
         template <typename MemberType>
         void operator()(MemberType&&, const typename MemberType::type& lhs, const typename MemberType::type& rhs)
         {
             using DataType = typename MemberType::type;
-            m_isEqual = m_isEqual && (lhs == rhs);
+            m_areEqual &= (lhs == rhs);
         }
     private:
-        bool& m_isEqual;
+        bool& m_areEqual;
     };
 
     class StructToStream
@@ -495,8 +499,8 @@ protected:
   inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
   inline friend std::istream& operator >> (std::istream& in, TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_STRUCT_COMPARE_METHOD(TStruct)                                                                                                                 \
-inline bool operator==(const TStruct& rhs) const { bool isEqual = true; sofa::defaulttype::StructTypeInfo<TStruct>::evalEqual(*this, rhs, isEqual); return isEqual; }     \
+#define SOFA_STRUCT_COMPARE_METHOD(TStruct)                                                                                    \
+inline bool operator==(const TStruct& rhs) const { return sofa::defaulttype::StructTypeInfo<TStruct>::areEqual(*this, rhs); } \
  SOFA_REQUIRE_SEMICOLON
 
 // Variadic macro to handle templated arguments like T<int, int> (semicolon is a separator for macro)
