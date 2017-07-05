@@ -46,7 +46,7 @@ struct SimpleStruct
 } // namespace test_struct
 } // namespace sofa
 
-SOFA_STRUCT_DEFINE(sofa::test_struct::SimpleStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::SimpleStruct);
 
 namespace sofa
 {
@@ -100,10 +100,10 @@ struct NoDefaultConstrStruct
 } // namespace test_struct
 } // namespace sofa
 
-SOFA_STRUCT_DEFINE(sofa::test_struct::EmptyStruct);
-SOFA_STRUCT_DEFINE(sofa::test_struct::NestedStruct);
-SOFA_STRUCT_DEFINE(sofa::test_struct::ContainerStruct);
-SOFA_STRUCT_DEFINE(sofa::test_struct::TemplatedStruct<int, test_struct::SimpleStruct>);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::EmptyStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::NestedStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::ContainerStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::TemplatedStruct<int, test_struct::SimpleStruct>);
 //SOFA_STRUCT_DEFINE(sofa::test_struct::PointerStruct);
 
 namespace sofa

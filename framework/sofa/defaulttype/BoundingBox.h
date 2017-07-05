@@ -284,9 +284,9 @@ public:
 }
 }
 
-SOFA_STRUCT_DEFINE(sofa::defaulttype::BoundingBox);
-SOFA_STRUCT_DEFINE(sofa::defaulttype::BoundingBox2D);
-SOFA_STRUCT_DEFINE(sofa::defaulttype::BoundingBox1D);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::BoundingBox);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::BoundingBox2D);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::BoundingBox1D);
 
 
 #endif // SOFA_DEFAULTTYPE_BOUNDINGBOX_H

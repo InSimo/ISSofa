@@ -472,7 +472,7 @@ SOFA_FOR_EACH(SOFA_COMPARE_MEMBER, (&&), __VA_ARGS__) \
 );} SOFA_REQUIRE_SEMICOLON
 
 // Variadic macro to handle templated arguments like T<int, int> (semicolon is a separator for macro)
-#define SOFA_STRUCT_DEFINE(...)                                          \
+#define SOFA_STRUCT_DEFINE_TYPEINFO(...)                                          \
 namespace sofa { namespace defaulttype {                                     \
 template<> struct DataTypeInfo<__VA_ARGS__> : public StructTypeInfo<__VA_ARGS__> {}; \
 }} SOFA_REQUIRE_SEMICOLON

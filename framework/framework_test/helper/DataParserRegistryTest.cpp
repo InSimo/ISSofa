@@ -18,7 +18,7 @@ namespace test_struct
     };
 } // namespace test_struct
 
-SOFA_STRUCT_DEFINE(test_struct::SimpleStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(test_struct::SimpleStruct);
 
 namespace
 {

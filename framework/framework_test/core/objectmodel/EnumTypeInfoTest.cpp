@@ -51,9 +51,9 @@ SOFA_ENUM_STREAM_METHODS(unscopedEnum);
 } // namespace enumTypeInfoTest
 } // namespace sofa
 
-SOFA_ENUM_DEFINE(sofa::enumTypeInfoTest::uIntEnum2);
-SOFA_ENUM_DEFINE(sofa::enumTypeInfoTest::charEnum2);
-SOFA_ENUM_DEFINE(sofa::enumTypeInfoTest::unscopedEnum);
+SOFA_ENUM_DEFINE_TYPEINFO(sofa::enumTypeInfoTest::uIntEnum2);
+SOFA_ENUM_DEFINE_TYPEINFO(sofa::enumTypeInfoTest::charEnum2);
+SOFA_ENUM_DEFINE_TYPEINFO(sofa::enumTypeInfoTest::unscopedEnum);
 
 
 namespace sofa

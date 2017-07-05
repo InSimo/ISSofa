@@ -398,7 +398,7 @@ struct EnumTypeInfo
         SOFA_STRUCTURIZE(__VA_ARGS__)                                                                                       \
         typedef std::tuple<SOFA_TO_STRING_STRUCT_NAMES(__VA_ARGS__)>  myEnumTuple;   }                                  SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_ENUM_DEFINE(myEnum)                                                                                                          \
+#define SOFA_ENUM_DEFINE_TYPEINFO(myEnum)                                                                                                          \
     namespace sofa { namespace defaulttype {                                                                                              \
     template<> struct DataTypeInfo<myEnum##myEnumT> : public EnumTypeInfo<myEnum##myEnumT, myEnum##nspace::myEnumTuple> {    };           \
     template<> struct DataTypeName<myEnum##myEnumT> { static const char* name() { return "enum"; } };                                     \
