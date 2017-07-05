@@ -344,14 +344,10 @@ void JointSpringForceField<DataTypes>::addKToMatrixT(const core::MechanicalParam
     {
         const Spring& spring = springs[i];
 
-        // get the rotation matrix from the initial orientation of the frame
-        double rotMatrix[4][4];
-        spring.ref.buildRotationMatrix(rotMatrix);
-        Mat R0, KR_global, KT_global;
+        Mat R0, KR_global, KT_global;;
 
-        for (std::size_t i = 0; i < 3; ++i)
-            for (std::size_t j = 0; j < 3; ++j)
-                R0[i][j] = rotMatrix[i][j];
+        // get the rotation matrix from the initial orientation of the frame        
+        spring.ref.toMatrix(R0);
 
         //the stiffness is expressed in the local frame
         //we need it expressed in the global frame as input for the stiffness matrix
