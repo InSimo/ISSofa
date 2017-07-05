@@ -642,8 +642,8 @@ bool TetrahedronSetTopologyContainer::checkTopology() const
     bool ret = true;
     helper::ReadAccessor< Data< sofa::helper::vector<Tetrahedron> > > m_tetrahedron = d_tetrahedron;
 
-    if(hasTetrahedraAroundVertex())
-    {
+//    if(hasTetrahedraAroundVertex())
+//    {
         for (unsigned int i=0; i<m_tetrahedraAroundVertex.size(); ++i)
         {
             const sofa::helper::vector<unsigned int> &tvs = m_tetrahedraAroundVertex[i];
@@ -660,10 +660,10 @@ bool TetrahedronSetTopologyContainer::checkTopology() const
                 }
             }
         }
-    }
+//    }
 
-    if (hasTetrahedraAroundEdge())
-    {
+//    if (hasTetrahedraAroundEdge())
+//    {
         for (unsigned int i=0; i<m_tetrahedraAroundEdge.size(); ++i)
         {
             const sofa::helper::vector<unsigned int> &tes=m_tetrahedraAroundEdge[i];
@@ -682,10 +682,10 @@ bool TetrahedronSetTopologyContainer::checkTopology() const
                 }
             }
         }
-    }
+//    }
 
-    if (hasTetrahedraAroundTriangle())
-    {
+//    if (hasTetrahedraAroundTriangle())
+//    {
         for (unsigned int i=0; i<m_tetrahedraAroundTriangle.size(); ++i)
         {
             const sofa::helper::vector<unsigned int> &tes=m_tetrahedraAroundTriangle[i];
@@ -702,7 +702,7 @@ bool TetrahedronSetTopologyContainer::checkTopology() const
                 }
             }
         }
-    }
+//    }
 
     return ret && TriangleSetTopologyContainer::checkTopology();
 #else
