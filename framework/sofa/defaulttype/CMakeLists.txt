@@ -12,6 +12,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	Frame.h	 
 	LaparoscopicRigidTypes.h	
 	MapMapSparseMatrix.h	
+    MapMapSparseMatrixEigenUtils.h
 	Mat.h	
 	Mat_solve_LU.h	
 	Mat_solve_SVD.h	
