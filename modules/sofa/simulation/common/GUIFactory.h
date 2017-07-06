@@ -26,6 +26,7 @@
 #define SOFA_SIMULATION_COMMON_GUIFACTORY_H
 
 #include <sofa/helper/system/config.h>
+#include <sofa/helper/Factory.h>
 #include <sofa/simulation/common/Node.h>
 
 #include <map>
@@ -46,92 +47,25 @@ namespace gui
 
 SOFA_SIMULATION_COMMON_API BaseGUI* getCurrentGUI();
 
-class SOFA_SIMULATION_COMMON_API GUIFactory
-{
-public:
-    class Creator
-    {
-    public:
-        std::string name;
-        std::string description;
-        std::string license;
-        std::vector<std::string> aliases;
+SOFA_SIMULATION_COMMON_API bool initGUI(const std::string& guiName);
 
-        virtual void init() = 0;
-        virtual BaseGUI* create() = 0;
-    };
-    typedef std::map<std::string, std::shared_ptr<Creator> > CreatorMap;
+SOFA_SIMULATION_COMMON_API BaseGUI* createGUI(const std::string& guiName, const std::string& programName,
+                                              const std::vector<std::string>& guiOptions);
 
-    GUIFactory() = default;
-    GUIFactory(const GUIFactory& rhs) = delete;
-    GUIFactory& operator=(const GUIFactory& rhs) = delete;
-    
-    void addCreator(std::unique_ptr<Creator> creator);
+SOFA_SIMULATION_COMMON_API void closeGUI();
 
-    void createInstance(std::string creatorName);
-
-    static GUIFactory* getInstance();
-
-protected:
-    CreatorMap m_creators;
-};
-
-template<class GUI>
-class SimpleCreator : public GUIFactory::Creator
-{
-public:    
-    void init() override
-    {}
-
-    BaseGUI* create() override
-    {
-        return new GUI();
-    }
-};
-
-template<class GUI, class GUICreator = SimpleCreator<GUI> >
-class RegisterGUI
-{
-public:
-
-    /// Start the registration by giving the name and description of this gui.
-    RegisterGUI(std::string name, std::string description)
-    {
-        creator = std::unique_ptr<GUICreator>(new GUICreator());
-        creator->name = std::move(name);
-        creator->description = std::move(description);
-    }
-
-    /// Specify a license (LGPL, GPL, ...)
-    RegisterGUI& addLicense(std::string license)
-    {
-        creator->license = std::move(license);
-        return *this;
-    }
-
-    /// Specify a license (LGPL, GPL, ...)
-    RegisterGUI& addAlias(std::string alias)
-    {
-        creator->aliases.push_back(std::move(alias));
-        return *this;
-    }
-
-    /// This is the final operation that will actually commit the additions to the factory.
-    operator int()
-    {
-        if (!creator || creator->name.empty())
-            return 0;
-        GUIFactory::getInstance()->addCreator(std::move(creator));
-        return 1;
-    }
-
-protected:
-    std::unique_ptr<GUICreator> creator;
-};
+typedef sofa::helper::Factory< std::string, BaseGUI, const BaseGUIArgument* > GUIFactory;
 
 } // namespace gui
 
 } // namespace simulation
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_SIMULATION_COMMON)
+namespace helper
+{
+extern template class SOFA_SIMULATION_COMMON_API Factory<std::string, sofa::simulation::gui::BaseGUI, const sofa::simulation::gui::BaseGUIArgument*>;
+} // namespace helper
+#endif
 
 } // namespace sofa
 

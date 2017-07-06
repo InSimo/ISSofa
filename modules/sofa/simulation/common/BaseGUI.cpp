@@ -36,9 +36,13 @@ namespace simulation
 namespace gui
 {
 
-void BaseGUI::addGUIOption(const char* option)
+BaseGUI::BaseGUI(const BaseGUIArgument* argument)
+: m_argument(*argument)
 {
-    guiOptions.push_back(option);
+}
+
+BaseGUI::~BaseGUI()
+{
 }
 
 } // namespace gui

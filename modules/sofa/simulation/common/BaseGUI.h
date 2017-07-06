@@ -42,6 +42,13 @@ namespace simulation
 namespace gui
 {
 
+struct BaseGUIArgument
+{
+    std::string guiName;
+    std::string programName;
+    std::vector<std::string> guiOptions;
+};
+
 class SOFA_SIMULATION_COMMON_API BaseGUI
 {
 public:
@@ -58,7 +65,10 @@ public:
         int height;
     };
 
-    virtual void initialize(const char* programName) = 0;
+    BaseGUI(const BaseGUIArgument* arguments);
+    virtual ~BaseGUI();
+
+    virtual void initialize() = 0;
     virtual void stepMainLoop() {}
     virtual int mainLoop() = 0;
     virtual void setViewerResolution(int  width, int  height) {};
@@ -77,10 +87,18 @@ public:
     virtual void getViewerView(sofa::defaulttype::Vec3d& pos, sofa::defaulttype::Quat& ori) = 0;
     virtual void setViewerView(const sofa::defaulttype::Vec3d& pos, const sofa::defaulttype::Quat &ori) = 0;
 
-    void addGUIOption(const char* option);
+    template <class TGUI>
+    static BaseGUI* create(TGUI*, const BaseGUIArgument* argument)
+    {
+        return TGUI::CreateGUI(argument);
+    }
+
+    const std::string& getGUIName() const { return m_argument.guiName; }
+    const std::string& getProgramName() const { return m_argument.guiName; }
+    const std::vector<std::string>& getGUIOptions() const { return m_argument.guiOptions; }
 
 protected:
-    std::vector<std::string> guiOptions;
+    BaseGUIArgument m_argument;
 };
 
 } // namespace gui
