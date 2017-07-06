@@ -50,9 +50,7 @@
 #include <sofa/helper/BackTrace.h>
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/system/SetDirectory.h>
-#include <sofa/gui/GUIManager.h>
-#include <sofa/gui/Main.h>
-#include <sofa/gui/BatchGUI.h>  // For the default number of iterations
+#include <sofa/simulation/common/GUIFactory.h>
 #include <sofa/helper/system/gl.h>
 #include <sofa/helper/system/glut.h>
 #include <sofa/helper/system/atomic.h>
@@ -136,9 +134,6 @@ int main(int argc, char** argv)
 
 #endif
 
-
-    sofa::gui::initMain();
-
     std::string fileName ;
     bool        startAnim = false;
     bool        printFactory = false;
@@ -150,7 +145,7 @@ int main(int argc, char** argv)
     std::vector<std::string> guiOptions;
     std::string viewerDimension = "800x600";
 
-    std::string gui = "";
+    std::string guiName = "SofaGuiQt";
     std::string verif = "";
 #ifdef SOFA_SMP
     std::string simulationType = "smp";
@@ -165,15 +160,11 @@ int main(int argc, char** argv)
     bool        affinity = false;
 #endif
 
-    std::string gui_help = "choose the UI (";
-    gui_help += sofa::gui::GUIManager::ListSupportedGUI('|');
-    gui_help += ")";
-
     sofa::helper::parse(&files, "This is a SOFA application. Here are the command line arguments")
     // alphabetical order on short name
     .option(&startAnim,'a',"start","start the animation loop")
     .option(&computationTimeSampling,'c',"computationTimeSampling","Frequency of display of the computation time statistics, in number of animation steps. 0 means never.")
-    .option(&gui,'g',"gui",gui_help.c_str())
+    .option(&guiName, 'g', "gui", "Name of the GUI or GUI plugin")
     .option(&guiOptions,'o',"guiOption","Options for the chosen GUI")
     .option(&viewerDimension,'d',"dimension","Set the GUI viewer dimension in WIDTHxHEIGHT format or with any other separator")
     .option(&plugins,'l',"load","load given plugins")
@@ -211,7 +202,7 @@ int main(int argc, char** argv)
 #endif /* SOFA_SMP */
 
 #ifndef SOFA_NO_OPENGL
-    if(gui!="batch") glutInit(&argc,argv);
+    if(guiName != "batch") glutInit(&argc,argv);
 #endif
 
 #ifdef SOFA_HAVE_DAG
@@ -251,26 +242,31 @@ int main(int argc, char** argv)
     for (unsigned int i=0; i<plugins.size(); i++)
         sofa::helper::system::PluginManager::getInstance().loadPlugin(plugins[i]);
 
-    sofa::helper::system::PluginManager::getInstance().init();
-
-    if (gui.compare("batch") == 0 && nbIterations <= 0)
+    if (!sofa::simulation::gui::initGUI(guiName))
     {
-        nbIterations = sofa::gui::BatchGUI::DEFAULT_NUMBER_OF_ITERATIONS;
+        std::cerr << "ERROR(SofaGUI): GUI \""<<guiName<<"\" initialization failed." << std::endl;
+        return EXIT_FAILURE;
     }
+
+    sofa::helper::system::PluginManager::getInstance().init();
 
     if(nbIterations > 0)
     {
         std::ostringstream oss ;
         oss << "nbIterations=";
         oss << nbIterations;
-        sofa::gui::GUIManager::AddGUIOption(oss.str().c_str());
+
+        guiOptions.push_back(oss.str());
     }
 
-    for (unsigned int i=0; i<guiOptions.size(); i++)
-        sofa::gui::GUIManager::AddGUIOption(guiOptions[i].c_str());
+    auto *gui = sofa::simulation::gui::createGUI(guiName, argv[0], guiOptions);
+    if (!gui)
+    {
+        std::cerr << "ERROR(SofaGUI): The GUI was not loaded." << std::endl;
+        return EXIT_FAILURE;
+    }
 
-    if (int err = sofa::gui::GUIManager::Init(argv[0],gui.c_str()))
-        return err;
+    gui->initialize();
 
     if (fileName.empty())
     {
@@ -288,10 +284,6 @@ int main(int argc, char** argv)
         fileName = sofa::helper::system::DataRepository.getFile(fileName);
     }
 
-
-    if (int err=sofa::gui::GUIManager::createGUI(NULL))
-        return err;
-
     //To set a specific resolution for the viewer, you can also use the component ViewerSetting in you scene graph
     if (!viewerDimension.empty())
     {
@@ -302,7 +294,7 @@ int main(int argc, char** argv)
             int width = atoi(widthStr.c_str());
             std::string heightStr(viewerDimension,sep+1);
             int height = atoi(heightStr.c_str());
-            sofa::gui::GUIManager::SetDimension(width, height);
+            gui->setViewerResolution(width, height);
         }
     }
 
@@ -325,7 +317,7 @@ int main(int argc, char** argv)
     if (startAnim)
         groot->setAnimate(true);
 
-    sofa::gui::GUIManager::SetScene(groot,fileName.c_str(), temporaryFile);
+    gui->setScene(groot,fileName.c_str(), temporaryFile);
 
 
     //=======================================
@@ -346,15 +338,14 @@ int main(int argc, char** argv)
 
     //=======================================
     // Run the main loop
-    if (int err = sofa::gui::GUIManager::MainLoop(groot,fileName.c_str()))
+    if (int err = gui->mainLoop())
         return err;
-    groot = sofa::simulation::Node::DynamicCast( sofa::gui::GUIManager::CurrentSimulation() );
+    groot = sofa::simulation::Node::DynamicCast(gui->getCurrentSimulation() );
 
     if (groot!=NULL)
         sofa::simulation::getSimulation()->unload(groot);
 
-
-    sofa::gui::GUIManager::closeGUI();
+    sofa::simulation::gui::closeGUI();
 
     return 0;
 }
