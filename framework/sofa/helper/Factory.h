@@ -28,6 +28,7 @@
 #include <map>
 #include <iostream>
 #include <typeinfo>
+#include <vector>
 
 #include <sofa/SofaFramework.h>
 
@@ -53,6 +54,8 @@ public:
     virtual ~BaseCreator() { }
     virtual ObjectPtr createInstance(Argument arg) = 0;
     virtual const std::type_info& type() = 0;
+    virtual const std::string& description() const = 0;
+    virtual int priority() const { return 0; }
 };
 
 template <typename TKey, class TObject, typename TArgument, typename TPtr = TObject* >
@@ -88,7 +91,7 @@ public:
     void uniqueKeys(OutIterator out);
 
     bool hasKey(Key key);
-    bool duplicateEntry( Key existing, Key duplicate);
+    bool duplicateEntry( Key existing, Key duplicate, bool multi=false);
     bool resetEntry( Key existingKey);
 
     static Factory<Key, Object, Argument, ObjectPtr>* getInstance();
@@ -108,9 +111,9 @@ public:
         return getInstance()->hasKey(key);
     }
 
-    static bool DuplicateEntry(Key existing,Key duplicate )
+    static bool DuplicateEntry(Key existing, Key duplicate, bool multi=false)
     {
-        return getInstance()->duplicateEntry(existing, duplicate);
+        return getInstance()->duplicateEntry(existing, duplicate, multi);
     }
 
     static bool ResetEntry(Key existing)
@@ -125,6 +128,10 @@ public:
     typedef typename std::multimap<Key, Creator*>::const_iterator const_iterator;
     const_iterator begin() const { return registry.begin(); }
     const_iterator end() const { return registry.end(); }
+
+protected:
+    ObjectPtr createObjectRange(iterator begin, iterator end, Argument arg);
+
 };
 
 template <class Factory, class RealObject>
@@ -135,10 +142,16 @@ public:
     typedef typename Factory::ObjectPtr ObjectPtr;
     typedef typename Factory::Argument  Argument;
     typedef typename Factory::Key       Key;
-    explicit Creator(Key key, bool multi=false)
-        : Key(key)
+    explicit Creator(Key key, bool multi=false, int priority = 0, const std::string& description="", const std::vector<Key>& aliases = {})
+    : Key(key), m_priority(priority), m_description(description), m_aliases(aliases)
     {
         Factory::getInstance()->registerCreator(key, this, multi);
+        for (const Key& k : aliases)
+        {
+            //we can't use duplicateEntry because other creators might already be registered with the same key
+            //Factory::getInstance()->duplicateEntry(key, k, multi);
+            Factory::getInstance()->registerCreator(k, this, multi);
+        }
     }
     ObjectPtr createInstance(Argument arg)
     {
@@ -156,6 +169,25 @@ public:
 		printf("[SOFA]Registration of class : %s\n", type().name());
 	}
 
+    virtual const std::string& description() const
+    {
+        return m_description;
+    }
+
+    virtual int priority() const
+    {
+        return m_priority;
+    }
+
+    virtual const std::vector<Key>& aliases() const
+    {
+        return m_aliases;
+    }
+
+protected:
+    int m_priority;
+    std::string m_description;
+    std::vector<Key> m_aliases;
 };
 /*
 /// Generic object creator. Can be specialized for custom objects creation
@@ -174,12 +206,17 @@ public:
     typedef typename Factory::Argument  Argument;
     typedef typename Factory::Key       Key;
     typedef ObjectPtr Fn(RealObject* obj, Argument arg);
-    Fn* constructor;
 
-    CreatorFn(Key key, Fn* constructor, bool multi=false)
-        : Key(key), constructor(constructor)
+    CreatorFn(Key key, Fn* constructor, bool multi=false, int priority = 0, const std::string& description="", const std::vector<Key>& aliases = {})
+        : Key(key), constructor(constructor), m_priority(priority), m_description(description), m_aliases(aliases)
     {
         Factory::getInstance()->registerCreator(key, this, multi);
+        for (const Key& k : aliases)
+        {
+            //we can't use duplicateEntry because other creators might already be registered with the same key
+            //Factory::getInstance()->duplicateEntry(key, k, multi);
+            Factory::getInstance()->registerCreator(k, this, multi);
+        }
     }
 
     ObjectPtr createInstance(Argument arg)
@@ -191,6 +228,27 @@ public:
     {
         return typeid(RealObject);
     }
+
+    virtual const std::string& description() const
+    {
+        return m_description;
+    }
+
+    virtual int priority() const
+    {
+        return m_priority;
+    }
+
+    virtual const std::vector<Key>& aliases() const
+    {
+        return m_aliases;
+    }
+
+protected:
+    Fn* constructor;
+    int m_priority;
+    std::string m_description;
+    std::vector<Key> m_aliases;
 };
 
 

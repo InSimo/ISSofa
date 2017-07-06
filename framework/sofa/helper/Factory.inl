@@ -28,6 +28,7 @@
 #include <sofa/helper/Factory.h>
 #include <iostream>
 #include <typeinfo>
+#include <limits>
 
 // added by Sylvere F.
 // this inclusion must be done but not in this part of code. For the moment, I don't know where ;)
@@ -44,45 +45,60 @@ namespace helper
 template <typename TKey, class TObject, typename TArgument, typename TPtr>
 TPtr Factory<TKey, TObject, TArgument, TPtr>::createObject(Key key, Argument arg)
 {
-    ObjectPtr object;
-    Creator* creator;
-    typename std::multimap<Key, Creator*>::iterator it = registry.lower_bound(key);
-    typename std::multimap<Key, Creator*>::iterator end = registry.upper_bound(key);
-    while (it != end)
-    {
-        creator = (*it).second;
-        object = creator->createInstance(arg);
-        if (object != NULL)
-        {
-            /*
-            std::cout<<"Object type "<<key<<" created: "<<gettypename(typeid(*object))<<std::endl;*/
-            return object;
-        }
-        ++it;
-    }
-//	std::cerr<<"Object type "<<key<<" creation failed."<<std::endl;
-    return NULL;
+    iterator begin = registry.lower_bound(key);
+    iterator end   = registry.upper_bound(key);
+    TPtr object = createObjectRange(begin, end, arg);
+//	if (!object) std::cerr<<"Object type "<<key<<" creation failed."<<std::endl;
+    return object;
 }
 
 template <typename TKey, class TObject, typename TArgument, typename TPtr>
 TPtr Factory<TKey, TObject, TArgument, TPtr>::createAnyObject(Argument arg)
 {
+    iterator begin = registry.begin();
+    iterator end   = registry.end();
+    return createObjectRange(begin, end, arg);
+}
+
+template <typename TKey, class TObject, typename TArgument, typename TPtr>
+TPtr Factory<TKey, TObject, TArgument, TPtr>::createObjectRange(iterator begin, iterator end, Argument arg)
+{
     ObjectPtr object;
     Creator* creator;
-    typename std::multimap<Key, Creator*>::iterator it = registry.begin();
-    typename std::multimap<Key, Creator*>::iterator end = registry.end();
-    while (it != end)
+    // try creators by descending order of priority
+    int currentPriority = std::numeric_limits<int>::max();
+    int remaining = 0;
+    do
     {
-        creator = (*it).second;
-        object = creator->createInstance(arg);
-        if (object != NULL)
+        int nextPriority = currentPriority;
+        remaining = 0;
+        iterator it = begin;
+        while (it != end)
         {
-            return object;
+            creator = (*it).second;
+            int priority = creator->priority();
+            if (priority == currentPriority)
+            {
+                object = creator->createInstance(arg);
+                if (object != nullptr)
+                {
+                    return object;
+                }
+            }
+            else if (priority < currentPriority)
+            {
+                if (!remaining || priority > nextPriority)
+                {
+                    nextPriority = priority;
+                }
+                ++remaining;
+            }
+            ++it;
         }
-        ++it;
+        currentPriority = nextPriority;
     }
-//	std::cerr<<"Object type "<<key<<" creation failed."<<std::endl;
-    return NULL;
+    while (remaining > 0);
+    return nullptr;
 }
 
 
@@ -120,7 +136,7 @@ Factory<TKey, TObject, TArgument, TPtr>* Factory<TKey, TObject, TArgument, TPtr>
 
 
 template <typename TKey, class TObject, typename TArgument, typename TPtr>
-bool Factory<TKey, TObject, TArgument, TPtr>::duplicateEntry( Key existing, Key duplicate)
+bool Factory<TKey, TObject, TArgument, TPtr>::duplicateEntry(Key existing, Key duplicate, bool multi)
 {
     if( !hasKey(existing) )
     {
@@ -128,10 +144,10 @@ bool Factory<TKey, TObject, TArgument, TPtr>::duplicateEntry( Key existing, Key 
         return false;
     }
 
-    if( hasKey(duplicate) )
+    if( !multi && hasKey(duplicate) )
     {
         std::cerr << "ERROR: Cannot duplicate "<< duplicate << ", it already exists." << std::endl;
-        std::cerr << "ERROR: must call resetEntry(" << duplicate << "," << existing << ") first." << std::endl;
+        std::cerr << "ERROR: must call resetEntry(" << duplicate << "," << existing << ") first, or enable multi flag." << std::endl;
         return false;
     }
 
