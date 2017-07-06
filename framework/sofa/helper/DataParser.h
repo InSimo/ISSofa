@@ -48,7 +48,7 @@ public:
 
     DataParser(std::string name);
 
-    ParserId getId();
+    ParserId getId() const;
 
     virtual std::error_code toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
     virtual std::error_code toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) = 0;
@@ -59,12 +59,12 @@ private:
     ParserId m_id;
 };
 
-inline DataParser::ParserId generateDataParserId(std::string name)
+static inline DataParser::ParserId generateDataParserId(std::string name)
 {
     return std::hash<std::string>{}(std::move(name));
 }
 
-inline DataParser::ParserId DataParser::getId()
+inline DataParser::ParserId DataParser::getId() const
 {
     return m_id;
 }
