@@ -31,7 +31,6 @@ set(HEADER_FILES
     SofaPhysicsDataMonitor_impl.h 
     SofaPhysicsDataController_impl.h 
     SofaPhysicsOutputMesh_Tetrahedron_impl.h
-    fakegui.h
     
     )
 
@@ -43,15 +42,12 @@ set(SOURCE_FILES
     SofaPhysicsDataMonitor.cpp 
     SofaPhysicsDataController.cpp 
     SofaPhysicsOutputMesh_Tetrahedron.cpp
-    fakegui.cpp
-    
     )
 
-find_package(SofaGui REQUIRED)
 find_package(SofaGeneral  REQUIRED)
 find_package(SofaAdvanced REQUIRED)
 find_package(SofaMisc     REQUIRED)
-set(SOFAPHYSICSAPI_DEPENDENCY_INCLUDE_DIR ${SofaGui_INCLUDE_DIRS} ${SofaGeneral_INCLUDE_DIRS}) 
+set(SOFAPHYSICSAPI_DEPENDENCY_INCLUDE_DIR ${SofaGeneral_INCLUDE_DIRS}) 
     
 
 
@@ -83,7 +79,7 @@ if( UNITY_BUILD_${PROJECT_NAME} )
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} )
-target_link_libraries( ${PROJECT_NAME} PUBLIC SofaGuiMain SofaComponentGeneral SofaComponentAdvanced SofaComponentMisc ) 
+target_link_libraries( ${PROJECT_NAME} PUBLIC SofaComponentGeneral SofaComponentAdvanced SofaComponentMisc SofaComponentBase SofaComponentCommon) 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPHYSICSAPI_SOURCE_INCLUDE_DIR}>") 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAPHYSICSAPI_DEPENDENCY_INCLUDE_DIR}>")
 

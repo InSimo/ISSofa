@@ -8,8 +8,6 @@
 set_and_check(SOFAPHYSICSAPI_INCLUDE_DIR  "@PACKAGE_SOFAPHYSICSAPI_INCLUDE_DIR@")
 
 find_package(SofaGeneral  REQUIRED)
-find_package(SofaGui      REQUIRED)
-find_package(SofaGeneral  REQUIRED)
 find_package(SofaAdvanced REQUIRED)
 find_package(SofaMisc     REQUIRED)
 

@@ -16,13 +16,8 @@
 
 #include <sofa/core/objectmodel/GUIEvent.h>
 
-#include <sofa/gui/GUIManager.h>
-#include <sofa/gui/Main.h>
 #include <sofa/helper/system/glut.h>
-
-#include <sofa/gui/BaseGUI.h>
-
-#include "fakegui.h"
+#include <sofa/simulation/common/GUIFactory.h>
 
 #include <SofaComponentCommon/initComponentCommon.h>
 #include <SofaComponentBase/initComponentBase.h>
@@ -195,32 +190,40 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_), GUIShareRenderingContext(shareRend
 
         sofa::simulation::xml::initXml();
 
-        if ( !useGUI ) {
-          // FakeGUI to be able to receive messages
-          FakeGUI::Create();
-        } else {
-          sofa::gui::initMain();
+        if (useGUI)
+        {
+            int argc = 1;
+            char* argv[] = { const_cast<char*>("a") };
+            glutInit(&argc, argv);
 
-          int argc= 1;
-          char* argv[]= { const_cast<char*>("a") };
-          glutInit(&argc,argv);
-
-          if (GUIShareRenderingContext)
-          {
-              std::ostringstream o;
-              o << "shareRenderingContext="<<(unsigned long long)GUIShareRenderingContext;
-              std::cout << o.str() << std::endl;
-              sofa::gui::GUIManager::AddGUIOption(o.str().c_str());
-          }
-
-          if (sofa::gui::GUIManager::Init(argv[0],"qt"))
-              std::cerr << "ERROR in sofa::gui::GUIManager::Init()" << std::endl;
-
-          if (sofa::gui::GUIManager::createGUI(NULL))
-              std::cerr << "ERROR in sofa::gui::GUIManager::CreateGUI()" << std::endl;
-
-          sofa::gui::GUIManager::SetDimension(600,600);
+            std::string guiName("SofaGuiQt");
+            if (sofa::simulation::gui::initGUI(guiName))
+            {
+                std::vector<std::string> options;
+                if (GUIShareRenderingContext)
+                {
+                    std::ostringstream o;
+                    o << "shareRenderingContext=" << (unsigned long long)GUIShareRenderingContext;
+                    std::cout << o.str() << std::endl;
+                    options.push_back(o.str());
+                }
+                auto* gui = sofa::simulation::gui::createGUI(guiName, argv[0],options);
+                if (gui)
+                {
+                    gui->initialize();
+                    gui->setViewerResolution(600, 600);
+                }
+                else
+                {
+                    useGUI = false;
+                }
+            }
+            else
+            {
+                useGUI = false;
+            }
         }
+
         first = false;
     }
 
@@ -258,9 +261,8 @@ SofaPhysicsSimulation::Impl::~Impl()
     if ( m_RootNode.get() ) {
         m_Simulation->unload ( m_RootNode );
     }
-
-    if ( useGUI ) {
-        sofa::gui::GUIManager::closeGUI();
+    if (useGUI) {
+        sofa::simulation::gui::closeGUI();
     }
 }
 
@@ -274,6 +276,7 @@ bool SofaPhysicsSimulation::Impl::load(const char* cfilename)
     bool success = true;
     sofa::helper::system::DataRepository.findFile(filename);
     m_RootNode = m_Simulation->load(filename.c_str());
+
     if (m_RootNode.get())
     {
         sceneFileName = filename;
@@ -282,8 +285,9 @@ bool SofaPhysicsSimulation::Impl::load(const char* cfilename)
         getAllOutputMeshes();
         updateOutputMeshes();
 
-        if ( useGUI ) {
-          sofa::gui::GUIManager::SetScene(m_RootNode.get(),cfilename);
+        if (useGUI) {
+            auto* gui = sofa::simulation::gui::getCurrentGUI();
+            gui->setScene(m_RootNode.get(), cfilename);
         }
     }
     else
@@ -430,18 +434,18 @@ void SofaPhysicsSimulation::Impl::step()
     beginStep();
     getSimulation()->animate(groot);
     getSimulation()->updateVisual(groot);
-    if ( useGUI ) {
-      sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
-      gui->stepMainLoop();
-      if (GUIFramerate)
-      {
-          sofa::helper::system::thread::ctime_t curtime = sofa::helper::system::thread::CTime::getRefTime();
-          if ((curtime-lastRedrawTime) > (double)timeTicks/GUIFramerate)
-          {
-              lastRedrawTime = curtime;
-              gui->redraw();
-          }
-      }
+    if (useGUI) {
+        auto* gui = sofa::simulation::gui::getCurrentGUI();
+        gui->stepMainLoop();
+        if (GUIFramerate)
+        {
+            sofa::helper::system::thread::ctime_t curtime = sofa::helper::system::thread::CTime::getRefTime();
+            if ((curtime-lastRedrawTime) > (double)timeTicks/GUIFramerate)
+            {
+                lastRedrawTime = curtime;
+                gui->redraw();
+            }
+        }
     }
     endStep();
 }
@@ -473,8 +477,9 @@ void SofaPhysicsSimulation::Impl::updateCurrentFPS()
             int i = ((frameCounter/10)%10);
             currentFPS = ((double)timeTicks / (curtime - stepTime[i]))*(frameCounter<100?frameCounter:100);
             stepTime[i] = curtime;
-            if ( useGUI ) {
-                sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
+
+            if (useGUI) {
+                auto* gui = sofa::simulation::gui::getCurrentGUI();
                 gui->showFPS(currentFPS);
             }
         }
@@ -916,24 +921,21 @@ void SofaPhysicsSimulation::Impl::calcProjection()
 bool SofaPhysicsSimulation::Impl::getCopyScreenRequest(SofaPhysicsCopyScreen* info)
 {
     bool res = false;
-    if ( useGUI )
+    if (useGUI)
     {
-        sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
-        sofa::gui::CopyScreenInfo ginfo;
+        auto* gui = sofa::simulation::gui::getCurrentGUI();
+        sofa::simulation::gui::BaseGUI::CopyScreenInfo ginfo;
         ginfo.ctx = info->ctx;
         ginfo.name = info->name;
         ginfo.target = info->target;
-        //ginfo.level = 0;
         ginfo.srcX = info->srcX;
         ginfo.srcY = info->srcY;
-        //ginfo.srcZ = 0;
         ginfo.dstX = info->dstX;
         ginfo.dstY = info->dstY;
-        //ginfo.dstZ = 0;
         ginfo.width = info->width;
         ginfo.height = info->height;
-        //ginfo.depth = 1;
-        res = gui->getCopyScreenRequest(&ginfo);
+
+        res = gui->getCopyScreenRequest(ginfo);
         if (res)
         {
             info->ctx = ginfo.ctx;
@@ -956,24 +958,20 @@ bool SofaPhysicsSimulation::Impl::getCopyScreenRequest(SofaPhysicsCopyScreen* in
 
 void SofaPhysicsSimulation::Impl::copyScreen(SofaPhysicsCopyScreen* info)
 {
-    if ( useGUI )
+    if (useGUI)
     {
-        sofa::gui::BaseGUI* gui = sofa::gui::GUIManager::getGUI();
-        sofa::gui::CopyScreenInfo ginfo;
+        auto* gui = sofa::simulation::gui::getCurrentGUI();
+        sofa::simulation::gui::BaseGUI::CopyScreenInfo ginfo;
         ginfo.ctx = info->ctx;
         ginfo.name = info->name;
         ginfo.target = info->target;
-        //ginfo.level = 0;
         ginfo.srcX = info->srcX;
         ginfo.srcY = info->srcY;
-        //ginfo.srcZ = 0;
         ginfo.dstX = info->dstX;
         ginfo.dstY = info->dstY;
-        //ginfo.dstZ = 0;
         ginfo.width = info->width;
         ginfo.height = info->height;
-        //ginfo.depth = 1;
-        gui->useCopyScreen(&ginfo);
+        gui->useCopyScreen(ginfo);
     }
 }
 #endif
