@@ -39,7 +39,8 @@ enum class DataParserError : int
     container_size_mismatch = 1, 
     multivalue_size_mismatch,
     structure_size_mismatch,
-    incorrect_type_info
+    incorrect_type_info,
+    unsupported_operation
 };
 
 class SOFA_HELPER_API DataParserErrorCategory : public std::error_category

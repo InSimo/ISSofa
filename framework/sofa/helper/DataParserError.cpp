@@ -38,6 +38,7 @@ std::string DataParserErrorCategory::message(int value) const
     case DataParserError::multivalue_size_mismatch: return std::string("Error: stream value size mismatch with multivalue size"); 
     case DataParserError::structure_size_mismatch: return std::string("Error: stream value size mismatch with struct size");
     case DataParserError::incorrect_type_info: return std::string("Error: Abstract type could not be used to parse data");
+    case DataParserError::unsupported_operation: return std::string("Error: the operation is not supported by the current parser");
     default: return std::string("Incorrect error value");
     }
 }
