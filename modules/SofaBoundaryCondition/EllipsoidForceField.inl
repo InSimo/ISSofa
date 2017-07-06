@@ -73,29 +73,56 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
     VecDeriv& f1        = *(dataF.beginEdit());
     const VecCoord& p1  =   dataX.getValue()  ;
     const VecDeriv& v1  =   dataV.getValue()  ;
-    const CPos center = this->center.getValue();
-    const CPos r = this->vradius.getValue();
+
+    const sofa::helper::vector<CPos> vcenter = this->center.getValue();
+    const sofa::helper::vector<CPos> vr = this->vradius.getValue();
     const Real stiffness = this->stiffness.getValue();
     const Real stiffabs = helper::rabs(stiffness);
-    //const Real s2 = (stiff < 0 ? - stiff*stiff : stiff*stiff );
-    CPos inv_r2;
+    unsigned int nelems = (vr.size() > vcenter.size()) ? vr.size() : vcenter.size();
 
-    for (int j=0; j<N; j++) inv_r2[j] = 1/(r[j]*r[j]);
+    //const Real s2 = (stiff < 0 ? - stiff*stiff : stiff*stiff );
+    sofa::helper::vector<CPos> inv_r2;
+    inv_r2.resize(nelems);
+
     sofa::helper::vector<Contact>* contacts = this->contacts.beginEdit();
     contacts->clear();
     f1.resize(p1.size());
-    for (unsigned int i=0; i<p1.size(); i++)
+    for (unsigned int i = 0; i < p1.size(); i++)
     {
-        CPos dp = DataTypes::getCPos(p1[i]) - center;
-        Real norm2 = 0;
-        for (int j=0; j<N; j++) norm2 += (dp[j]*dp[j])*inv_r2[j];
-        //Real d = (norm2-1)*s2;
-        if ((norm2-1)*stiffness<0)
+        CPos bdp;
+        Real bnorm2 = -1;
+        int be = -1;
+
+        for (unsigned int e = 0; e < nelems; ++e)
         {
-            Real norm = helper::rsqrt(norm2);
+            CPos dp = DataTypes::getCPos(p1[i]) - vcenter[e];
+            for (int j = 0; j < N; j++)
+            {
+                inv_r2[e][j] = 1 / (vr[e][j] * vr[e][j]);
+            }
+            Real norm2 = 0;
+            for (int j = 0; j < N; j++)
+            {
+                norm2 += (dp[j] * dp[j]) * inv_r2[e][j];
+            }
+            if (be == -1 || norm2 < bnorm2)
+            {
+                bnorm2 = norm2;
+                be = e;
+                bdp = dp;
+            }
+        }
+
+        if ((bnorm2-1)*stiffness<0)
+        {
+            int e = be;
+            Real norm = helper::rsqrt(bnorm2);
             Real v = norm-1;
-            CPos grad;
-            for (int j=0; j<N; j++) grad[j] = dp[j]*inv_r2[j];
+            DPos grad;
+            for (int j = 0; j < N; j++)
+            {
+                grad[j] = bdp[j] * inv_r2[e][j];
+            }
             Real gnorm2 = grad.norm2();
             Real gnorm = helper::rsqrt(gnorm2);
             //grad /= gnorm; //.normalize();
@@ -112,8 +139,10 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
             for (int ci = 0; ci < N; ++ci)
             {
                 for (int cj = 0; cj < N; ++cj)
-                    c.m[ci][cj] = grad[ci]*grad[cj] * (fact1 + fact3*inv_r2[cj]);
-                c.m[ci][ci] += fact2*inv_r2[ci];
+                {
+                    c.m[ci][cj] = grad[ci] * grad[cj] * (fact1 + fact3 * inv_r2[e][cj]);
+                }
+                c.m[ci][ci] += fact2 * inv_r2[e][ci];
             }
             contacts->push_back(c);
         }
@@ -173,26 +202,38 @@ void EllipsoidForceField<DataTypes>::draw(const core::visual::VisualParams* vpar
 #ifndef SOFA_NO_OPENGL
     if (!vparams->displayFlags().getShowForceFields()) return;
     if (!bDraw.getValue()) return;
-    CPos c = center.getValue();
-    Real cx = c.size()>0 ? c[0] : 0;
-    Real cy = c.size()>1 ? c[1] : 0;
-    Real cz = c.size()>2 ? c[2] : 0;
-    CPos r = vradius.getValue();
-    Real rx = r.size()>0 ? r[0] : 0;
-    Real ry = r.size()>1 ? r[1] : 0;
-    Real rz = r.size()>2 ? r[2] : 0;
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_COLOR_MATERIAL);
-    glColor3f(color.getValue()[0],color.getValue()[1],color.getValue()[2]);
-    glPushMatrix();
-    glTranslated(cx, cy, cz);
-    glScaled(rx, ry, (stiffness.getValue()>0?rz:-rz));
-    glutSolidSphere(1,32,16);
-    glPopMatrix();
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_COLOR_MATERIAL);
+
+    const sofa::helper::vector<CPos> vcenter = this->center.getValue();
+    const sofa::helper::vector<CPos> vr = this->vradius.getValue();
+
+    unsigned int nelems = (vr.size() > vcenter.size()) ? vr.size() : vcenter.size();
+
+    for (unsigned int e = 0; e < nelems; ++e)
+    {
+        CPos c = vcenter[e];
+        Real cx = c.size()>0 ? c[0] : 0;
+        Real cy = c.size()>1 ? c[1] : 0;
+        Real cz = c.size()>2 ? c[2] : 0;
+        CPos r = vr[e];
+        Real rx = r.size()>0 ? r[0] : 0;
+        Real ry = r.size()>1 ? r[1] : 0;
+        Real rz = r.size()>2 ? r[2] : 0;
+
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_COLOR_MATERIAL);
+        glColor3f(color.getValue()[0],color.getValue()[1],color.getValue()[2]);
+
+        glPushMatrix();
+        glTranslated(cx, cy, cz);
+        glScaled(rx, ry, (stiffness.getValue() > 0 ? rz : -rz));
+        glutSolidSphere(1,32,16);
+        glPopMatrix();
+
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_COLOR_MATERIAL);
+    }
 #endif /* SOFA_NO_OPENGL */
 }
 

@@ -100,8 +100,8 @@ protected:
 
 public:
 
-    Data<CPos> center;
-    Data<CPos> vradius;
+    Data<sofa::helper::vector<CPos>> center;
+    Data<sofa::helper::vector<CPos>> vradius;
     Data<Real> stiffness;
     Data<Real> damping;
     Data<defaulttype::Vec3f> color;

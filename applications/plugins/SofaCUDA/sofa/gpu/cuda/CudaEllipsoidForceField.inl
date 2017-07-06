@@ -68,8 +68,8 @@ void EllipsoidForceField<gpu::cuda::CudaVec3fTypes>::addForce(const core::Mechan
     const VecCoord& x = d_x.getValue();
     const VecDeriv& v = d_v.getValue();
 
-    const Coord center = this->center.getValue();
-    const Coord r = this->vradius.getValue();
+    const Coord center = this->center.getValue()[0];
+    const Coord r = this->vradius.getValue()[0];
     const Real stiffness = this->stiffness.getValue();
     const Real damping = this->damping.getValue();
     data.ellipsoid.center = center;
@@ -105,8 +105,8 @@ void EllipsoidForceField<gpu::cuda::CudaVec3f1Types>::addForce(const core::Mecha
     const VecCoord& x = d_x.getValue();
     const VecDeriv& v = d_v.getValue();
 
-    const Coord center = this->center.getValue();
-    const Coord r = this->vradius.getValue();
+    const Coord center = this->center.getValue()[0];
+    const Coord r = this->vradius.getValue()[0];
     const Real stiffness = this->stiffness.getValue();
     const Real damping = this->damping.getValue();
     data.ellipsoid.center = center;

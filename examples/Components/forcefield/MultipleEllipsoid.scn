@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<Node name="root" dt="0.01">
+
+    <VisualStyle name="visualStyle"  displayFlags="showVisual hideCollision showForceFields hideMapping hideOptions" />
+
+    <Gravity name="Gravity" gravity="0 10 0"  />
+
+    <Node name="Cube 1">
+        <EulerImplicitSolver />
+        <CGLinearSolver name="linear solver" iterations="25" tolerance="1e-10" threshold="10e-10" />
+
+        <MeshObjLoader name="loader" filename="mesh/cube.obj"/>
+        <Mesh src="@loader"/>
+
+        <MechanicalObject name="Volume" src="@loader" translation="0 0 0" rotation="0 0 0" showIndices="1"/>
+        <UniformMass totalmass="10" />
+
+        <TriangularFEMForceFieldOptim name="FEM" poissonRatio="0.45" youngModulus="200" showStressValue="1" method="large" />
+
+        <EllipsoidForceField name="doubleEllipsoidFF" center="0 0 0  0 15 0" vradius="5 10 7  5 10 7" stiffness="-3e7" damping="10" draw="true"/>
+
+        <Node name="Visu">
+            <TriangleSetTopologyContainer name="ContainerVisu" triangles="@../loader.triangles" position="@../loader.position" />
+            <TriangleSetTopologyModifier />
+            <OglModel name="CubeVisu" material="Default Diffuse 1 0 0 1 0.4 Ambient 1 0 0 0.2 1 Specular 0 0 0 1 1 Emissive 0 0 0 1 1 Shininess 0 45"/>
+            <IdentityMapping mapForces="false" mapConstraints="false" mapMasses="false"/>
+        </Node>
+    </Node>
+
+    <Node name="Cube 2">
+        <EulerImplicitSolver />
+        <CGLinearSolver name="linear solver" iterations="25" tolerance="1e-10" threshold="10e-10" />
+
+        <MeshObjLoader name="loader" filename="mesh/cube.obj"/>
+        <Mesh src="@loader"/>
+
+        <MechanicalObject name="Volume" src="@loader" translation="20 0 0" rotation="0 0 0" showIndices="1"/>
+        <UniformMass totalmass="10" />
+
+        <TriangularFEMForceFieldOptim name="FEM" poissonRatio="0.45" youngModulus="200" showStressValue="1" method="large" />
+
+        <EllipsoidForceField name="ellipsoidFF" center="20 0 0" vradius="5 10 7" stiffness="-3e7" damping="10" draw="true"/>
+
+        <Node name="Visu">
+            <TriangleSetTopologyContainer name="ContainerVisu" triangles="@../loader.triangles" position="@../loader.position" />
+            <TriangleSetTopologyModifier />
+            <OglModel name="CubeVisu" material="Default Diffuse 1 0 0 1 0.4 Ambient 1 0 0 0.2 1 Specular 0 0 0 1 1 Emissive 0 0 0 1 1 Shininess 0 45"/>
+            <IdentityMapping mapForces="false" mapConstraints="false" mapMasses="false"/>
+        </Node>
+    </Node>
+</Node>
