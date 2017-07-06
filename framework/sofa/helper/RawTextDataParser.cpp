@@ -38,8 +38,10 @@ RawTextDataParser::RawTextDataParser(std::string name) : DataParser(std::move(na
 
 std::error_code RawTextDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
 {
-    std::string input(std::istreambuf_iterator<char>(is), {});
-    return toData(input, data, typeInfo);
+    return helper::make_error_code(DataParserError::unsupported_operation);
+    // doing the following would consume the entire istream, so better return an error until there is a proper implementation of the parser
+    //std::string input(std::istreambuf_iterator<char>(is), {});
+    //return toData(input, data, typeInfo);
 }
 
 std::error_code RawTextDataParser::toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo)
