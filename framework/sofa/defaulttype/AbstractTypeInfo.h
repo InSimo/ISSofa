@@ -406,6 +406,7 @@ inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const
 /// This function recursively navigates inside the data using serialized keys one after the other
 /// Outputs a pointer to the sub-data and to its associated AbstractTypeInfo
 /// Returns false in the following cases : too many keys, wrong key, or if a MultiValue is encountered
+/// TODO: use parser instead of setDataValueString and istringstream >>
 inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const typeInfo, const std::vector<std::reference_wrapper<const std::string>>& keys, const void*& subData, const AbstractTypeInfo*& subTypeInfo)
 {
     assert(data);
