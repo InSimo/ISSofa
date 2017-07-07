@@ -46,7 +46,7 @@ public:
     typedef units::Quantity<TDataType, kg, m, s, A, K, mol, cd> DataType;
 
 
-    static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+    static constexpr size_t finalSize(const DataType& /*data*/) { return DataTypeInfo<TDataType>::FinalSize; }
     static constexpr size_t byteSize(const DataType& /*data*/)
     {
         return byteSize(DataType());
@@ -111,9 +111,9 @@ template <typename TDataType, int kg, int m, int s, int A, int K, int mol, int c
 class QuantityTypeInfo<TDataType, kg, m, s, A, K, mol, cd, typename std::enable_if<DataTypeInfo<TDataType>::IsContainer>::type> : public DataTypeInfo<TDataType>
 {
 public:
-    static const void* getValuePtr(const DataType& data)
+    static const void* getValuePtr(const TDataType& data)
     {
-        return getValuePtr(data.value());
+        return DataTypeInfo<TDataType>::getValuePtr(data.value());
     }
 
 //    typedef units::Quantity<TDataType, kg, m, s, A, K, mol, cd> DataType;    
