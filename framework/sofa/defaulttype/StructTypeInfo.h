@@ -480,6 +480,12 @@ protected:
     };
 };
 
+
+////////////////////////////// MACRO definitions ///////////////////////////////////
+
+////////////////////////
+// "Functors" of the SOFA_FOR_EACH macro
+
 #define SOFA_STRUCT_MEMBER(MemberName)                                       \
     struct MemberInfo_##MemberName{                                          \
     typedef decltype(MemberName) type;                                       \
@@ -490,20 +496,61 @@ protected:
 
 #define SOFA_MEMBERINFO_TYPE_NAME(MemberName)  MemberInfo_##MemberName
 
+////////////////////////
+// Define tuple typed on struct::members' types inside structure (macro required for reflection)
+
 #define SOFA_STRUCT_DECL(TStruct, ...)                                  \
  using StructType = TStruct;                                            \
  SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)   \
- using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>
+ using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>;    SOFA_REQUIRE_SEMICOLON
+
+////////////////////////
+// Define tuple typed on struct::members' types inside structure for inheriting structures (macro required for reflection)
+
+#define SOFA_STRUCT_DECL_W_BASECLASS(TStruct, TBaseStruct, ...)                                                                                             \
+ using StructType = TStruct;                                                                                                                                \
+ using BaseStructType = TBaseStruct;                                                                                                                        \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                                                       \
+ using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(), BaseStructType::MembersTuple()));   \
+      SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_STRUCT_DECL_W2_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, ...)                                          \
+ using StructType = TStruct;                                                                                            \
+ using BaseStructType = TBaseStruct;                                                                                    \
+ using BaseStruct2Type = TBaseStruct2;                                                                                  \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                   \
+ using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(), \
+      BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple()));    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_STRUCT_DECL_W3_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, TBaseStruct3, ...)                                        \
+ using StructType = TStruct;                                                                                                        \
+ using BaseStructType = TBaseStruct;                                                                                                \
+ using BaseStruct2Type = TBaseStruct2;                                                                                              \
+ using BaseStruct3Type = TBaseStruct3;                                                                                              \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                               \
+ using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(),             \
+      BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple(), BaseStruct3Type::MembersTuple()));    SOFA_REQUIRE_SEMICOLON
+
+
+////////////////////////
+// Define stream operators inside structures (macro not required for reflection)
 
 #define SOFA_STRUCT_STREAM_METHODS(TStruct) \
   inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
   inline friend std::istream& operator >> (std::istream& in, TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
 
+////////////////////////
+// Define comparison operators inside structures (macro not required for reflection)
+
 #define SOFA_STRUCT_COMPARE_METHOD(TStruct)                                                                                    \
 inline bool operator==(const TStruct& rhs) const { return sofa::defaulttype::StructTypeInfo<TStruct>::areEqual(*this, rhs); } \
  SOFA_REQUIRE_SEMICOLON
 
-// Variadic macro to handle templated arguments like T<int, int> (semicolon is a separator for macro)
+////////////////////////
+// Declares DataTypeInfo for a previously defined structure outside structures (macro required for reflection),
+//    it is a variadic macro to handle templated arguments like T<int, int> 
+//    (otherwise, there is an issue with semicolons being considered separators for macro)
+
 #define SOFA_STRUCT_DEFINE_TYPEINFO(...)                                          \
 namespace sofa { namespace defaulttype {                                     \
 template<> struct DataTypeInfo<__VA_ARGS__> : public StructTypeInfo<__VA_ARGS__> {}; \

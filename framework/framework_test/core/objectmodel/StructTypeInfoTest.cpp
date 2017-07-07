@@ -59,6 +59,14 @@ struct NestedStruct
     SOFA_STRUCT_STREAM_METHODS(NestedStruct);
     SOFA_STRUCT_COMPARE_METHOD(NestedStruct);
 };
+struct InheritingStruct: public SimpleStruct
+{
+    int myInt_2 = 20;
+    float myFloat_2 = -0.8f;
+    SOFA_STRUCT_DECL_W_BASECLASS(InheritingStruct, SimpleStruct, myInt_2, myFloat_2);
+    SOFA_STRUCT_STREAM_METHODS(InheritingStruct);
+    SOFA_STRUCT_COMPARE_METHOD(InheritingStruct);
+};
 struct ContainerStruct
 {
     helper::vector<int> myIntVector = { 1,2,3 };
@@ -102,6 +110,7 @@ struct NoDefaultConstrStruct
 
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::EmptyStruct);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::NestedStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::InheritingStruct);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::ContainerStruct);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::TemplatedStruct<int, test_struct::SimpleStruct>);
 //SOFA_STRUCT_DEFINE(sofa::test_struct::PointerStruct);
@@ -115,6 +124,7 @@ using StructTypes = testing::Types<
     test_struct::EmptyStruct,
     test_struct::SimpleStruct,
     test_struct::NestedStruct,
+    test_struct::InheritingStruct,
     test_struct::ContainerStruct,
     test_struct::TemplatedStruct<int, test_struct::SimpleStruct>//,
 //    test_struct::PointerStruct
@@ -260,6 +270,46 @@ TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSimpleStruct)
     data.endEditVoidPtr();
     EXPECT_EQ(*(const int*)M0cptr, 42);
 }
+
+
+TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoInheritingStruct)
+{
+    Data<test_struct::InheritingStruct> data("InheritingStruct");
+    sofa::core::objectmodel::BaseData* baseData = &data;
+
+    const AbstractTypeInfo* typeInfo = baseData->getValueTypeInfo();
+    const AbstractStructureTypeInfo* structureInfo = typeInfo->StructureType();
+
+    std::cout << "STATIC TYPEINFO" << std::endl;
+    std::cout << "struct " << DataTypeInfo<test_struct::InheritingStruct>::name() << " { ";
+    DataTypeInfo<test_struct::InheritingStruct>::for_each(PrintName{}, PrintLastName{});
+    std::cout << " };" << std::endl;
+
+    const AbstractTypeInfo* typeInfoM0 = structureInfo->getMemberTypeForIndex(0);
+    EXPECT_TRUE(typeInfoM0->IsSingleValue());
+    EXPECT_TRUE(typeInfoM0->SingleValueType()->Integer());
+
+    const void* M0cptr = structureInfo->getMemberValue(data.getValueVoidPtr(), 0);
+    EXPECT_EQ(typeInfoM0->byteSize(M0cptr), sizeof(int));
+    EXPECT_EQ(typeInfoM0->getValuePtr(M0cptr), &(data.getValue().myInt_2));
+
+    EXPECT_EQ(*(const int*)M0cptr, 20);
+    EXPECT_EQ(structureInfo->getMemberName(data.getValueVoidPtr(), 0), "myInt_2");
+
+    *(int*)structureInfo->editMemberValue(data.beginEditVoidPtr(), 0) = 20;
+    data.endEditVoidPtr();
+    EXPECT_EQ(*(const int*)M0cptr, 20);
+
+
+    const void* M2cptr = structureInfo->getMemberValue(data.getValueVoidPtr(), 2);
+    EXPECT_EQ(*(const int*)M2cptr, 10);
+    EXPECT_EQ(structureInfo->getMemberName(data.getValueVoidPtr(), 2), "myInt");
+
+    *(int*)structureInfo->editMemberValue(data.beginEditVoidPtr(), 2) = 24;
+    data.endEditVoidPtr();
+    EXPECT_EQ(*(const int*)M2cptr, 24);
+}
+
 
 TEST(DataStructTypeInfoTest2, checkAbstractTypeInfoSubTypeInfoContainerStruct)
 {
