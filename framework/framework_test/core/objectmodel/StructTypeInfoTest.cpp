@@ -204,20 +204,20 @@ TYPED_TEST(DataStructTypeInfoTest, checkAbstractTypeInfoIsOk)
     EXPECT_TRUE(typeInfo->IsStructure());
     EXPECT_EQ(std::tuple_size<typename StructType::MembersTuple>::value, typeInfo->StructureType()->structSize());
     
-    EXPECT_EQ(AbstractTypeInfo::getType(typeInfo->typeInfoID()), typeInfo);
+    EXPECT_EQ(AbstractTypeInfo::GetType(typeInfo->typeInfoID()), typeInfo);
     std::size_t id = typeInfo->typeInfoID();
-    EXPECT_EQ(AbstractTypeInfo::getType(id)->typeInfoID(), id);
+    EXPECT_EQ(AbstractTypeInfo::GetType(id)->typeInfoID(), id);
     
     Data<StructType> data2("Struct");
     Data<int> dataInt("Int");
     Data<helper::vector<float>> dataVecFloat("VecFloat");
     
     EXPECT_EQ(data2.getValueTypeInfo()->typeInfoID(), id);
-    EXPECT_EQ(AbstractTypeInfo::getType(data2.GetValueTypeInfo()->typeInfoID()), typeInfo);
+    EXPECT_EQ(AbstractTypeInfo::GetType(data2.GetValueTypeInfo()->typeInfoID()), typeInfo);
     EXPECT_NE(dataInt.getValueTypeInfo()->typeInfoID(), id);
-    EXPECT_NE(AbstractTypeInfo::getType(dataInt.GetValueTypeInfo()->typeInfoID()), typeInfo);
+    EXPECT_NE(AbstractTypeInfo::GetType(dataInt.GetValueTypeInfo()->typeInfoID()), typeInfo);
     EXPECT_NE(dataVecFloat.getValueTypeInfo()->typeInfoID(), id);
-    EXPECT_NE(AbstractTypeInfo::getType(dataVecFloat.getValueTypeInfo()->typeInfoID()), typeInfo);
+    EXPECT_NE(AbstractTypeInfo::GetType(dataVecFloat.getValueTypeInfo()->typeInfoID()), typeInfo);
 }
 
 // Test reset for all types that have default constructor

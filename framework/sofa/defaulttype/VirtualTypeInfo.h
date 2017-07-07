@@ -108,7 +108,7 @@ protected:
     {
         // Register this TypeInfo with its id
         // Since this constructor will only be called once the first time get() is called, the registering has no real impact on performance
-        typeIdHelper::id2TypeInfo.emplace(typeIdHelper::type_id<DataType>(), this);
+        this->registerTypeInfoId(typeIdHelper::type_id<DataType>());
     }
 
     ~VirtualTypeInfo() = default;
