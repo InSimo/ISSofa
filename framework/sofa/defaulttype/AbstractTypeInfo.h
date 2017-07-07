@@ -29,6 +29,7 @@
 #include <sofa/defaulttype/DataTypeKind.h>
 #include <sofa/helper/SSOBuffer.h>
 #include <typeinfo>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -42,12 +43,22 @@ namespace sofa
 namespace defaulttype
 {
 
+class AbstractTypeInfo;
 class AbstractValueTypeInfo;
 class AbstractMultiValueTypeInfo;
 class AbstractContainerTypeInfo;
 class AbstractStructureTypeInfo;
 class AbstractEnumTypeInfo;
 
+namespace typeIdHelper
+{
+static std::unordered_map<std::size_t, const AbstractTypeInfo*> id2TypeInfo;
+static inline const AbstractTypeInfo* get_type(std::size_t id)
+{
+    auto it = id2TypeInfo.find(id);
+    return it != id2TypeInfo.cend() ? it->second : nullptr;
+}
+} // namespace typeIdHelper
 
 using unique_void_ptr = std::unique_ptr<void, void (*)(const void*)>;
 
@@ -88,6 +99,7 @@ public:
 
     virtual const std::type_info* type_info() const = 0; // WARNING: Pointer equality is NOT guaranteed across instances of AbstractTypeInfo of the same type, and hash_code() unicity is NOT guaranteed across all types
     virtual std::size_t typeInfoID() const = 0; // NOTE: ID unicity is guaranteed across all types
+    static const AbstractTypeInfo* getType(std::size_t id) { return typeIdHelper::get_type(id); }
 
     virtual unique_void_ptr createInstance() const = 0; // returns null unique pointer if the type is not default-constructible
 

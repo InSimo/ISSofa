@@ -37,7 +37,7 @@ namespace sofa
 namespace defaulttype
 {
 
-namespace typeIDHelper
+namespace typeIdHelper
 {
 
 class type_id_t
@@ -63,7 +63,7 @@ constexpr type_id_t Type_id() { return &Type_id<T>; }
 template<typename T>
 size_t type_id() { return reinterpret_cast<size_t>(Type_id<T>().getID()); }
 
-} // typeIDHelper
+} // namespace typeIdHelper
 
 
 namespace createInstanceHelper
@@ -82,7 +82,7 @@ unique_void_ptr make_unique_void(T * ptr)
     return unique_void_ptr(ptr, &deleter<T>);
 }
 
-} // createInstanceHelper
+} // namespace createInstanceHelper
 
 
 
@@ -104,7 +104,13 @@ public:
     static VirtualTypeInfo<DataType>* get() { static VirtualTypeInfo<DataType> t; return &t; }
 
 protected:
-    VirtualTypeInfo() = default;
+    VirtualTypeInfo()
+    {
+        // Register this TypeInfo with its id
+        // Since this constructor will only be called once the first time get() is called, the registering has no real impact on performance
+        typeIdHelper::id2TypeInfo.emplace(typeIdHelper::type_id<DataType>(), this);
+    }
+
     ~VirtualTypeInfo() = default;
 };
 
@@ -150,8 +156,8 @@ public:
     virtual const void* getValuePtr(const void* data) const override { return Info::getValuePtr(*(const DataType*)data); }
     
     virtual const std::type_info* type_info() const override { return &typeid(DataType); }
-    virtual std::size_t typeInfoID() const override { return typeIDHelper::type_id<DataType>(); }
-    
+    virtual std::size_t typeInfoID() const override { return typeIdHelper::type_id<DataType>(); }
+
     virtual unique_void_ptr createInstance() const override { return createInstance(typename std::is_default_constructible<DataType>::type()); }
 protected:
     static unique_void_ptr createInstance(std::true_type) { return createInstanceHelper::make_unique_void(new DataType()); }
