@@ -15,6 +15,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	Mat_solve_LU.h	
 	Mat_solve_SVD.h	
 	Mat_solve_Cholesky.h	
+	QuantityTypeInfo.h
 	Quat.h	
 	Quat.inl	
 	#RigidInertia.h	
