@@ -421,9 +421,9 @@ int fromName(const std::string& name)
   }
   else if (name.substr(0,2)=="0x")
   {
-    int t = 0;
+    unsigned int t = 0;
     sscanf(name.c_str(), "0x%x", &t);
-    return t;
+    return (int)t;
   }
   else
   {

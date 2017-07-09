@@ -520,7 +520,7 @@ void QwtPlotHistogram::flushPolygon( QPainter *painter,
     {
         painter->setPen( Qt::NoPen );
         painter->setBrush( d_data->brush );
-
+        std::size_t size0 = polygon.size();
         if ( orientation() == Qt::Horizontal )
         {
             polygon += QPointF( polygon.last().x(), baseLine );
@@ -532,7 +532,7 @@ void QwtPlotHistogram::flushPolygon( QPainter *painter,
             polygon += QPointF( baseLine, polygon.first().y() );
         }
         QwtPainter::drawPolygon( painter, polygon );
-        polygon.resize( polygon.size() - 2 );
+        polygon.resize( size0 );
     }
     if ( d_data->pen.style() != Qt::NoPen )
     {

@@ -678,7 +678,7 @@ QwtSymbol::QwtSymbol( const QwtSymbol &other )
 {
     d_data = new PrivateData( other.style(), other.brush(),
         other.pen(), other.size() );
-};
+}
 
 //! Destructor
 QwtSymbol::~QwtSymbol()

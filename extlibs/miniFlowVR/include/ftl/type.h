@@ -423,13 +423,15 @@ protected:
     {
       unsigned char* ptr; ///< for larger data
       int* refs; ///< Number of references to the allocated data
-    };
+    } s;
   };
 public:
 
   TypedArray()
-  : valueType(Type::Null), dataSize(0), ptr(NULL), refs(NULL)
+  : valueType(Type::Null), dataSize(0)
   {
+      s.ptr = NULL;
+      s.refs = NULL;
   }
 
   TypedArray(int type, const void* data, unsigned int size)
@@ -437,8 +439,8 @@ public:
   {
     if (data == NULL || size<=0)
     {
-      ptr = NULL;
-      refs = NULL;
+      s.ptr = NULL;
+      s.refs = NULL;
       dataSize = 0;
     }
     else if (size <= sizeof(sdata))
@@ -448,11 +450,11 @@ public:
     }
     else
     {
-      ptr = new unsigned char[size];
-      memcpy(ptr,data,size);
+      s.ptr = new unsigned char[size];
+      memcpy(s.ptr,data,size);
       dataSize=size;
-      refs = new int;
-      *refs = 1;
+      s.refs = new int;
+      *s.refs = 1;
     }
     if (dataSize>0 && !Type::endianOk(valueType))
     {
@@ -491,8 +493,8 @@ public:
   {
     if (dataSize == 0)
     {
-      ptr = NULL;
-      refs = NULL;
+      s.ptr = NULL;
+      s.refs = NULL;
     }
     else if (dataSize <= sizeof(sdata))
     {
@@ -500,9 +502,9 @@ public:
     }
     else
     {
-      ptr = from.ptr;
-      refs = from.refs;
-      ++(*refs);
+      s.ptr = from.s.ptr;
+      s.refs = from.s.refs;
+      ++(*s.refs);
     }
   }
 
@@ -510,10 +512,10 @@ public:
   {
     if (dataSize > sizeof(sdata))
     {
-      if (--(*refs)==0)
+      if (--(*s.refs)==0)
       {
-	delete[] ptr;
-	delete refs;
+	delete[] s.ptr;
+	delete s.refs;
       }
     }
   }
@@ -522,18 +524,18 @@ public:
   {
     if (dataSize > sizeof(sdata))
     {
-      if (--(*refs)==0)
+      if (--(*s.refs)==0)
       {
-	delete[] ptr;
-	delete refs;
+	delete[] s.ptr;
+	delete s.refs;
       }
     }
     valueType=from.valueType;
     dataSize=from.dataSize;
     if (dataSize == 0)
     {
-      ptr = NULL;
-      refs = NULL;
+      s.ptr = NULL;
+      s.refs = NULL;
     }
     else if (dataSize <= sizeof(sdata))
     {
@@ -541,15 +543,15 @@ public:
     }
     else
     {
-      ptr = from.ptr;
-      refs = from.refs;
-      ++(*refs);
+      s.ptr = from.s.ptr;
+      s.refs = from.s.refs;
+      ++(*s.refs);
     }
   }
 
   const unsigned char* data() const
   {
-    return (dataSize<=sizeof(sdata))?sdata:ptr;
+    return (dataSize<=sizeof(sdata))?sdata:s.ptr;
   }
 
   unsigned int size() const
