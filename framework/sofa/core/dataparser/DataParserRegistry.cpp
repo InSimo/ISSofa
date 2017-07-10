@@ -22,55 +22,54 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_HELPER_DATAPARSERERROR_H
-#define SOFA_HELPER_DATAPARSERERROR_H
-
-#include <sofa/SofaFramework.h>
-#include <system_error>
+#include "DataParserRegistry.h"
+#include <cassert>
 
 namespace sofa
 {
 
-namespace helper
+namespace core
 {
 
-enum class DataParserError : int
+namespace dataparser
 {
-    container_size_mismatch = 1, 
-    multivalue_size_mismatch,
-    structure_size_mismatch,
-    incorrect_type_info,
-    unsupported_operation
-};
 
-class SOFA_HELPER_API DataParserErrorCategory : public std::error_category
+std::vector<std::unique_ptr<DataParser>> DataParserRegistry::m_parsers = {};
+
+bool DataParserRegistry::addParser(std::unique_ptr<DataParser> parser)
 {
-public:
-    const char* name() const noexcept override { return "sofa_data_parser"; }
-    std::string message(int value) const override;
+    assert([&]()
+    {
+        for (auto& existingParser : m_parsers)
+        {
+            if (existingParser->getId() == parser->getId())
+                return false;
+        }
+        return true;
+    }());
 
-    std::error_condition default_error_condition(int value) const noexcept override { return std::errc::io_error; }
-};
-
-SOFA_HELPER_API const std::error_category& getDataParserErrorCategory();
-
-inline std::error_code make_error_code(DataParserError ec)
-{
-    return std::error_code(static_cast<int>(ec), getDataParserErrorCategory());
+    m_parsers.emplace_back(std::move(parser));
+    return true;
 }
 
-inline std::error_condition make_error_condition(DataParserError ec)
+
+DataParser* DataParserRegistry::getParser(std::string parserName)
 {
-    return std::error_condition(static_cast<int>(ec), getDataParserErrorCategory());
+    return getParser(generateDataParserId(parserName));
 }
 
-} // namespace helper
+DataParser* DataParserRegistry::getParser(DataParser::ParserId id)
+{
+    for (auto& parser : m_parsers)
+    {
+        if (parser->getId() == id)
+            return parser.get();
+    }
+    return nullptr;
+}
+
+} // namespace dataparser
+
+} // namespace core
 
 } // namespace sofa
-
-namespace std
-{
-    template <> struct is_error_code_enum<sofa::helper::DataParserError> : std::true_type {};
-}
-
-#endif //SOFA_HELPER_DATAPARSERERROR_H

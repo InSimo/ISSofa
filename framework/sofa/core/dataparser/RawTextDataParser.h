@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_HELPER_RAWTEXTDATAPARSER_H
-#define SOFA_HELPER_RAWTEXTDATAPARSER_H
+#ifndef SOFA_CORE_RAWTEXTDATAPARSER_H
+#define SOFA_CORE_RAWTEXTDATAPARSER_H
 
 #include "DataParser.h"
 #include "DataParserRegistry.h"
@@ -31,23 +31,28 @@
 namespace sofa
 {
 
-namespace helper
+namespace core
 {
 
-class SOFA_HELPER_API RawTextDataParser : public DataParser
+namespace dataparser
+{
+
+class SOFA_CORE_API RawTextDataParser : public DataParser
 {
 public:
     RawTextDataParser(std::string name);
 
-    std::error_code toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) override;
-    std::error_code toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) override;
+    std::error_code toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
+    std::error_code toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
 
-    std::error_code fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) override;
-    std::error_code fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) override;
+    std::error_code fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
+    std::error_code fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
 };
+
+} // namespace dataparser
 
 } // namespace helper
 
 } // namespace sofa
 
-#endif //SOFA_HELPER_RAWTEXTDATAPARSER_H
+#endif //SOFA_CORE_RAWTEXTDATAPARSER_H

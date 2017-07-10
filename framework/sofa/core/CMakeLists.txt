@@ -78,6 +78,11 @@ set(SOFACORE_HEADERS
 	collision/NarrowPhaseDetection.h
 	collision/Pipeline.h
 	collision/IntersectorFactory.h
+	dataparser/DataParser.h
+	dataparser/DataParserError.h
+	dataparser/DataParserRegistry.h
+	#dataparser/JsonDataParser.h
+	dataparser/RawTextDataParser.h
 	topology/BaseMeshTopology.h
 	topology/BaseTopology.h
 	topology/BaseTopologyObject.h
@@ -188,6 +193,10 @@ set(SOFACORE_SOURCES
 	collision/Contact.cpp
 	collision/Intersection.cpp
 	collision/Pipeline.cpp
+	dataparser/DataParserError.cpp
+	dataparser/DataParserRegistry.cpp
+	#dataparser/JsonDataParser.cpp
+	dataparser/RawTextDataParser.cpp
 	topology/BaseMeshTopology.cpp
 	topology/BaseTopology.cpp
 	topology/TopologyChange.cpp
@@ -276,6 +285,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${SOFACORE_HEADERS} ${SOFACORE_SOURCES})
 target_link_libraries( ${PROJECT_NAME} PUBLIC SofaDefaultType)
+#target_include_directories(${PROJECT_NAME} PUBLIC "${SOFA_EXTLIBS_DIR}/rapidjson/include")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAMEWORK_SOURCE_INCLUDE_DIR}>") 
 
 set( SOFACORE_COMPILER_FLAGS "-DSOFA_BUILD_CORE")

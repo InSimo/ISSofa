@@ -1,4 +1,4 @@
-#include <sofa/helper/DataParserRegistry.h>
+#include <sofa/core/dataparser/DataParserRegistry.h>
 #include <sofa/defaulttype/AbstractTypeInfo.h>
 #include <sofa/defaulttype/StructTypeInfo.h>
 #include <sofa/core/objectmodel/Data.h>
@@ -25,7 +25,7 @@ namespace
 
 TEST(DataParserRegistryTest, errorCodeTest)
 {
-    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+    auto* parser = sofa::core::dataparser::DataParserRegistry::getParser("raw_text_data_parser");
 
     sofa::Data<int> testValue(""); 
     auto error_code = parser->toData(std::string("22"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
@@ -39,7 +39,7 @@ TEST(DataParserRegistryTest, errorCodeTest)
 
 TEST(DataParserRegistryTest, intTest)
 {
-    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+    auto* parser = sofa::core::dataparser::DataParserRegistry::getParser("raw_text_data_parser");
 
     sofa::Data<int> testValue("");
     parser->toData(std::string("22"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
@@ -53,7 +53,7 @@ TEST(DataParserRegistryTest, intTest)
 
 TEST(DataParserRegistryTest, stringTest)
 {
-    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+    auto* parser = sofa::core::dataparser::DataParserRegistry::getParser("raw_text_data_parser");
 
     sofa::Data<std::string> testValue("");
     parser->toData(std::string("Parse me"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
@@ -68,7 +68,7 @@ TEST(DataParserRegistryTest, stringTest)
 
 TEST(DataParserRegistryTest, vecDoubleTest)
 {
-    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+    auto* parser = sofa::core::dataparser::DataParserRegistry::getParser("raw_text_data_parser");
 
     sofa::Data<sofa::helper::vector<double>> testValue("");
     parser->toData(std::string("1.11 2.1 3.1 4.1 8.13"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
@@ -86,7 +86,7 @@ TEST(DataParserRegistryTest, vecDoubleTest)
 
 TEST(DataParserRegistryTest, vecBoolTest)
 {
-    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+    auto* parser = sofa::core::dataparser::DataParserRegistry::getParser("raw_text_data_parser");
 
     sofa::Data<sofa::helper::vector<bool>> testValue("");
     parser->toData(std::string("1 1 0 1"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());
@@ -104,7 +104,7 @@ TEST(DataParserRegistryTest, vecBoolTest)
 
 TEST(DataParserRegistryTest, structTest)
 {
-    auto* parser = sofa::helper::DataParserRegistry::getParser("raw_text_data_parser");
+    auto* parser = sofa::core::dataparser::DataParserRegistry::getParser("raw_text_data_parser");
 
     sofa::Data<test_struct::SimpleStruct> testValue("");
     parser->toData(std::string("{ 121; 3.14; b; 0 }"), testValue.beginEditVoidPtr(), testValue.getValueTypeInfo());

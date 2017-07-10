@@ -22,33 +22,60 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "DataParserError.h"
+#ifndef SOFA_CORE_DATAPARSERERROR_H
+#define SOFA_CORE_DATAPARSERERROR_H
+
+#include <sofa/SofaFramework.h>
+#include <system_error>
 
 namespace sofa
 {
 
-namespace helper
+namespace core
 {
 
-std::string DataParserErrorCategory::message(int value) const
+namespace dataparser
 {
-    switch (static_cast<DataParserError>(value))
-    {
-    case DataParserError::container_size_mismatch: return std::string("Error: stream value size mismatch with container size");
-    case DataParserError::multivalue_size_mismatch: return std::string("Error: stream value size mismatch with multivalue size"); 
-    case DataParserError::structure_size_mismatch: return std::string("Error: stream value size mismatch with struct size");
-    case DataParserError::incorrect_type_info: return std::string("Error: Abstract type could not be used to parse data");
-    case DataParserError::unsupported_operation: return std::string("Error: the operation is not supported by the current parser");
-    default: return std::string("Incorrect error value");
-    }
+
+enum class DataParserError : int
+{
+    container_size_mismatch = 1,
+    multivalue_size_mismatch,
+    structure_size_mismatch,
+    incorrect_type_info,
+    unsupported_operation
+};
+
+class SOFA_CORE_API DataParserErrorCategory : public std::error_category
+{
+public:
+    const char* name() const noexcept override { return "sofa_data_parser"; }
+    std::string message(int value) const override;
+
+    std::error_condition default_error_condition(int value) const noexcept override { return std::errc::io_error; }
+};
+
+SOFA_CORE_API const std::error_category& getDataParserErrorCategory();
+
+inline std::error_code make_error_code(DataParserError ec)
+{
+    return std::error_code(static_cast<int>(ec), getDataParserErrorCategory());
 }
 
-const std::error_category& getDataParserErrorCategory()
+inline std::error_condition make_error_condition(DataParserError ec)
 {
-    static DataParserErrorCategory categorySingleton;
-    return categorySingleton;
+    return std::error_condition(static_cast<int>(ec), getDataParserErrorCategory());
 }
 
-} // namespace helper
+} // namespace dataparser
+
+} // namespace core
 
 } // namespace sofa
+
+namespace std
+{
+    template <> struct is_error_code_enum<sofa::core::dataparser::DataParserError> : std::true_type {};
+}
+
+#endif //SOFA_CORE_DATAPARSERERROR_H

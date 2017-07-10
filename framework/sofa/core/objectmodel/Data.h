@@ -35,7 +35,7 @@
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
 #include <boost/shared_ptr.hpp>
-#include <sofa/helper/DataParserRegistry.h>
+#include <sofa/core/dataparser/DataParserRegistry.h>
 #include <stdlib.h>
 #include <string>
 #include <sstream>
@@ -129,7 +129,7 @@ public:
         if (s.empty())
             return false;
 
-        auto* parser = helper::DataParserRegistry::getParser(std::string("raw_text_data_parser"));
+        auto* parser = dataparser::DataParserRegistry::getParser(std::string("raw_text_data_parser"));
         auto error_code = parser->toData(s, virtualBeginEdit(), getValueTypeInfo());
         virtualEndEdit();
         if(error_code)

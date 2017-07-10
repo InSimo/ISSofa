@@ -22,49 +22,38 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "DataParserRegistry.h"
-#include <cassert>
+#ifndef SOFA_CORE_DATAPARSERREGISTRY_H
+#define SOFA_CORE_DATAPARSERREGISTRY_H
+
+#include "DataParser.h"
+#include <sofa/SofaFramework.h>
+#include <memory>
+#include <vector>
 
 namespace sofa
 {
 
-namespace helper
+namespace core
 {
 
-std::vector<std::unique_ptr<DataParser>> DataParserRegistry::m_parsers = {};
-
-bool DataParserRegistry::addParser(std::unique_ptr<DataParser> parser)
+namespace dataparser
 {
-    assert([&]()
-    {
-        for (auto& existingParser : m_parsers)
-        {
-            if (existingParser->getId() == parser->getId())
-                return false;
-        }
-        return true;
-    }());
 
-    m_parsers.emplace_back(std::move(parser));
-    return true;
-}
-
-
-DataParser* DataParserRegistry::getParser(std::string parserName)
+class SOFA_CORE_API DataParserRegistry
 {
-    return getParser(generateDataParserId(parserName));
-}
+public:
+    static bool addParser(std::unique_ptr<DataParser> parser);
+    static DataParser* getParser(std::string parserName);
+    static DataParser* getParser(DataParser::ParserId id);
 
-DataParser* DataParserRegistry::getParser(DataParser::ParserId id)
-{
-    for (auto& parser : m_parsers)
-    {
-        if (parser->getId() == id)
-            return parser.get();
-    }
-    return nullptr;
-}
+private:
+    static std::vector<std::unique_ptr<DataParser>> m_parsers;
+};
 
-} // namespace helper
+} // namespace dataparser
+
+} // namespace core
 
 } // namespace sofa
+
+#endif //SOFA_CORE_DATAPARSERREGISTRY_H

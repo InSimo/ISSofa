@@ -4,9 +4,6 @@ project(SofaHelper)
 set(SOFAHELPER_HEADERS
     ArgumentParser.h
     BackTrace.h
-    DataParser.h
-    DataParserError.h
-    DataParserRegistry.h
     DecodeTypeName.h
 	deque.h
     DualQuat.inl
@@ -51,7 +48,6 @@ set(SOFAHELPER_HEADERS
     decompose.inl
     Quater.h
     Quater.inl
-    RawTextDataParser.h
     rmath.h
     RandomGenerator.h
     set.h
@@ -106,8 +102,6 @@ set (SOFAHELPER_SOURCES_OUTSIDE_UNITY
 set(SOFAHELPER_SOURCES_UNITY
 	ArgumentParser.cpp
     BackTrace.cpp
-    DataParserError.cpp
-    DataParserRegistry.cpp
     DecodeTypeName.cpp
     DualQuat.cpp
     Factory.cpp
@@ -132,7 +126,6 @@ set(SOFAHELPER_SOURCES_UNITY
     decompose.cpp
     Quater.cpp
     RandomGenerator.cpp
-    RawTextDataParser.cpp
 	system/gl.cpp
     system/SetDirectory.cpp
     system/FileRepository.cpp

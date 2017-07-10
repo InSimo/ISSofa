@@ -22,33 +22,53 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_HELPER_DATAPARSERREGISTRY_H
-#define SOFA_HELPER_DATAPARSERREGISTRY_H
-
-#include "DataParser.h"
-#include <sofa/SofaFramework.h>
-#include <memory>
-#include <vector>
+#include "RawTextDataParser.h"
+#include <sofa/defaulttype/AbstractTypeInfo.h>
 
 namespace sofa
 {
 
-namespace helper
+namespace core
 {
 
-class SOFA_HELPER_API DataParserRegistry
+namespace dataparser
 {
-public:
-    static bool addParser(std::unique_ptr<DataParser> parser);
-    static DataParser* getParser(std::string parserName);
-    static DataParser* getParser(DataParser::ParserId id);
 
-private:
-    static std::vector<std::unique_ptr<DataParser>> m_parsers;
-};
+bool resultRawText = DataParserRegistry::addParser(std::unique_ptr<DataParser>(new RawTextDataParser(std::string("raw_text_data_parser"))));
+
+RawTextDataParser::RawTextDataParser(std::string name) : DataParser(std::move(name))
+{}
+
+std::error_code RawTextDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+{
+    return make_error_code(DataParserError::unsupported_operation);
+    // doing the following would consume the entire istream, so better return an error until there is a proper implementation of the parser
+    //std::string input(std::istreambuf_iterator<char>(is), {});
+    //return toData(input, data, typeInfo);
+}
+
+std::error_code RawTextDataParser::toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+{
+    typeInfo->setDataValueString(data, input);
+    return std::error_code();
+}
+
+std::error_code RawTextDataParser::fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+{
+    std::string output;
+    auto error_code = fromData(output, data, typeInfo);
+    os << output;
+    return error_code;
+}
+
+std::error_code RawTextDataParser::fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+{
+    typeInfo->getDataValueString(data, output);
+    return std::error_code();
+}
+
+} // namespace dataparser
 
 } // namespace helper
 
 } // namespace sofa
-
-#endif //SOFA_HELPER_DATAPARSERREGISTRY_H
