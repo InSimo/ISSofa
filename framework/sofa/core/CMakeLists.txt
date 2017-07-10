@@ -143,6 +143,18 @@ set(SOFACORE_HEADERS
 	CategoryLibrary.h
 	ComponentLibrary.h
 	objectmodel/GUIEvent.h
+
+    # Mesh.h is deprecated, dependent of core classes
+    # But it is in the helper folder for backward compatibility issue 
+    ../helper/io/Mesh.h
+    ../helper/io/MeshOBJ.h
+    ../helper/io/MeshVTK.h
+    ../helper/io/MeshSTL.h
+    ../helper/io/MeshTopologyLoader.h
+    ../helper/io/MeshTrian.h
+
+    # Those are dependent of Mesh
+    ../helper/MarchingCubeUtility.h
 	)
 
 set(SOFACORE_SOURCES
@@ -225,6 +237,18 @@ set(SOFACORE_SOURCES
 	visual/VisualParams.cpp
 	objectmodel/HapticDeviceEvent.cpp
 	objectmodel/GUIEvent.cpp
+
+	# Mesh.h is deprecated, dependent of core classes
+    # But it is in the helper folder for backward compatibility issue 
+    ../helper/io/Mesh.cpp
+    ../helper/io/MeshOBJ.cpp
+    ../helper/io/MeshVTK.cpp
+    ../helper/io/MeshSTL.cpp
+    ../helper/io/MeshTopologyLoader.cpp
+    ../helper/io/MeshTrian.cpp
+
+    # Those are dependent of Mesh
+    ../helper/MarchingCubeUtility.cpp
 	)
 
 if(NOT SOFA-MISC_NO_OPENGL)

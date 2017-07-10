@@ -41,7 +41,9 @@ namespace helper
 namespace io
 {
 
-class SOFA_HELPER_API Mesh
+// WARNING: Mesh is dependent of sofa::core classes, and is compiled in core
+// It is in the helper folder and namespace to stay backward compatible
+class SOFA_CORE_API Mesh
 {    
 public:
     

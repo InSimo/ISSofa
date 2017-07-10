@@ -44,7 +44,9 @@ namespace io
 /// nombre de faces
 ///liste de toutes les faces ex 1 2 3 0 0 0 les 3 derniers chiffres ne sont pas utilises pour le moment
 
-class SOFA_HELPER_API MeshTrian : public Mesh
+// WARNING: Mesh is dependent of sofa::core classes, and is compiled in core
+// It is in the helper folder and namespace to stay backward compatible
+class SOFA_CORE_API MeshTrian : public Mesh
 {
 private:
 
