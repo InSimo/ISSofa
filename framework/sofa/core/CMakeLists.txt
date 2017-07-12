@@ -81,7 +81,8 @@ set(SOFACORE_HEADERS
 	dataparser/DataParser.h
 	dataparser/DataParserError.h
 	dataparser/DataParserRegistry.h
-	#dataparser/JsonDataParser.h
+	dataparser/JsonDataParser.h
+	dataparser/JsonDataHandler.h
 	dataparser/RawTextDataParser.h
 	topology/BaseMeshTopology.h
 	topology/BaseTopology.h
@@ -207,7 +208,8 @@ set(SOFACORE_SOURCES
 	collision/Pipeline.cpp
 	dataparser/DataParserError.cpp
 	dataparser/DataParserRegistry.cpp
-	#dataparser/JsonDataParser.cpp
+	dataparser/JsonDataParser.cpp
+	dataparser/JsonDataHandler.cpp
 	dataparser/RawTextDataParser.cpp
 	topology/BaseMeshTopology.cpp
 	topology/BaseTopology.cpp
@@ -309,8 +311,8 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${SOFACORE_HEADERS} ${SOFACORE_SOURCES})
 target_link_libraries( ${PROJECT_NAME} PUBLIC SofaDefaultType)
-#target_include_directories(${PROJECT_NAME} PUBLIC "${SOFA_EXTLIBS_DIR}/rapidjson/include")
-target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAMEWORK_SOURCE_INCLUDE_DIR}>") 
+target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAFRAMEWORK_SOURCE_INCLUDE_DIR}>"
+                                                  "$<BUILD_INTERFACE:${SOFAFRAMEWORK_DEPENDENCY_INCLUDE_DIRECTORIES}>")
 
 set( SOFACORE_COMPILER_FLAGS "-DSOFA_BUILD_CORE")
 # make the name of debug libraries end in _d.

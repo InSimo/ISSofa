@@ -9,7 +9,7 @@ set(SOURCE_FILES
     #defaulttype/MatTypesTest.cpp
     defaulttype/RigidMass_test.cpp
     helper/DataParserRegistryTest.cpp
-    #helper/JsonDataParserTest.cpp
+    core/JsonDataParserTest.cpp
     helper/map_ptr_stable_compare_test.cpp
     helper/preprocessorTest.cpp
     helper/SSOBufferTest.cpp

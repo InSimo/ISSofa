@@ -43,7 +43,8 @@ enum class DataParserError : int
     multivalue_size_mismatch,
     structure_size_mismatch,
     incorrect_type_info,
-    unsupported_operation
+    unsupported_operation,
+    invalid_json
 };
 
 class SOFA_CORE_API DataParserErrorCategory : public std::error_category

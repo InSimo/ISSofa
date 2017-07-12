@@ -22,7 +22,15 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "DataParserError.h"
+#ifndef SOFA_CORE_JSONDATAPARSER_H
+#define SOFA_CORE_JSONDATAPARSER_H
+
+#include "DataParser.h"
+#include <sofa/SofaFramework.h>
+
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/stringbuffer.h>
 
 namespace sofa
 {
@@ -33,28 +41,28 @@ namespace core
 namespace dataparser
 {
 
-std::string DataParserErrorCategory::message(int value) const
+class SOFA_CORE_API JsonDataParser : public DataParser
 {
-    switch (static_cast<DataParserError>(value))
-    {
-    case DataParserError::container_size_mismatch: return std::string("Error: stream value size mismatch with container size");
-    case DataParserError::multivalue_size_mismatch: return std::string("Error: stream value size mismatch with multivalue size");
-    case DataParserError::structure_size_mismatch: return std::string("Error: stream value size mismatch with struct size");
-    case DataParserError::incorrect_type_info: return std::string("Error: Abstract type could not be used to parse data");
-    case DataParserError::unsupported_operation: return std::string("Error: the operation is not supported by the current parser");
-    case DataParserError::invalid_json: return std::string("Error: input json is invalid");
-    default: return std::string("Incorrect error value");
-    }
-}
+public:
+    JsonDataParser(std::string name);
 
-const std::error_category& getDataParserErrorCategory()
-{
-    static DataParserErrorCategory categorySingleton;
-    return categorySingleton;
-}
+    // Uses RapidJSON wrappers for std::basic_istream. The performance will be lower than the other methods.
+    std::error_code toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
+    std::error_code toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
+    std::error_code toData(rapidjson::StringStream& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const;
+
+
+    // Uses RapidJSON wrappers for std::basic_ostream. The performance will be lower than the other methods.
+    std::error_code fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
+    // Will do a copy of memory allocated by StringBuffer to std::string. If it's possible, StringBuffer should be used directly
+    std::error_code fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const override;
+    std::error_code fromData(rapidjson::StringBuffer& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const;
+};
 
 } // namespace dataparser
 
 } // namespace core
 
 } // namespace sofa
+
+#endif //SOFA_CORE_JSONDATAPARSER_H

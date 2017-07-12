@@ -260,21 +260,21 @@ struct StructTypeInfo
     static const void* getMemberValue(const DataType& data, size_t index)
     {
         assert(index < StructSize);
-        GetMemberValue gmv;
+        GetMemberValue gmv{};
         TupleForElem<MembersTuple>::visit(std::forward<const DataType>(data), index, std::forward<GetMemberValue>(gmv));
         return gmv.m_value;
     }
     static KeyType getMemberName(const DataType& data, size_t index)
     {
         assert(index < StructSize);
-        GetMemberName gmn;
+        GetMemberName gmn{};
         TupleForElem<MembersTuple>::visit(std::forward<const DataType>(data), index,  std::forward<GetMemberName>(gmn));
         return gmn.m_name;
     }
     static void* editMemberValue(DataType& data, size_t index)
     {
         assert(index < StructSize);
-        EditMemberValue emv;
+        EditMemberValue emv{};
         TupleForElem<MembersTuple>::visit(std::forward<DataType>(data), index,  std::forward<EditMemberValue>(emv));
         return emv.m_value;
     }
