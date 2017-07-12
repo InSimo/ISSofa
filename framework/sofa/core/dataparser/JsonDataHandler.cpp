@@ -131,7 +131,7 @@ bool DataHandler::Key(const char* str, SizeType length, bool copy)
     switch (state.type) {
     case State::Type::ContainerType:
     {
-        auto* containerTypeinfo = reinterpret_cast<const defaulttype::AbstractContainerTypeInfo*>(state.typeInfo);
+        auto* containerTypeinfo = state.typeInfo->ContainerType();
 
         if (containerTypeinfo->ContainerKind() == sofa::defaulttype::ContainerKindEnum::Map)
         {
@@ -152,7 +152,7 @@ bool DataHandler::Key(const char* str, SizeType length, bool copy)
     case State::Type::StructType:
     {
         std::string memberName(str, length);
-        auto* structTypeinfo = reinterpret_cast<const defaulttype::AbstractStructureTypeInfo*>(state.typeInfo);
+        auto* structTypeinfo = state.typeInfo->StructureType();
         size_t structSize = structTypeinfo->structSize();
         for (size_t id = 0u; id < structSize; id++)
         {
@@ -180,7 +180,7 @@ bool DataHandler::StartObject()
     auto& state = m_stack.top();
     if (state.type == State::Type::ContainerType)
     {
-        auto* containerTypeinfo = reinterpret_cast<const defaulttype::AbstractContainerTypeInfo*>(state.typeInfo);
+        auto* containerTypeinfo = state.typeInfo->ContainerType();
         if (containerTypeinfo->ContainerKind() == sofa::defaulttype::ContainerKindEnum::Map)
         {
             containerTypeinfo->resetValue(state.data);
@@ -200,14 +200,14 @@ bool DataHandler::StartArray()
     switch (state.type) {
     case State::Type::ContainerType:
     {
-        auto* containerTypeinfo = reinterpret_cast<const defaulttype::AbstractContainerTypeInfo*>(state.typeInfo);
+        auto* containerTypeinfo = state.typeInfo->ContainerType();
         containerTypeinfo->resetValue(state.data);
         state.index = 0u;
         break;
     }
     case State::Type::MultiValueType:
     {
-        auto* multiValueTypeinfo = reinterpret_cast<const defaulttype::AbstractMultiValueTypeInfo*>(state.typeInfo);
+        auto* multiValueTypeinfo = state.typeInfo->MultiValueType();
         multiValueTypeinfo->resetValue(state.data);
         state.index = 0u;
         break;
@@ -235,7 +235,7 @@ void DataHandler::BeginIteration()
         case State::Type::ContainerType:
         {
             State nextState;
-            auto* containerTypeinfo = reinterpret_cast<const defaulttype::AbstractContainerTypeInfo*>(state.typeInfo);
+            auto* containerTypeinfo = state.typeInfo->ContainerType();
             nextState.typeInfo = containerTypeinfo->getMappedType();
 
             switch (containerTypeinfo->ContainerKind()) {
@@ -259,7 +259,7 @@ void DataHandler::BeginIteration()
         case State::Type::StructType:
         {
             State nextState;
-            auto* structTypeinfo = reinterpret_cast<const defaulttype::AbstractStructureTypeInfo*>(state.typeInfo);
+            auto* structTypeinfo = state.typeInfo->StructureType();
             nextState.typeInfo = structTypeinfo->getMemberTypeForIndex(state.index);
             nextState.data = *(state.buffer.get<void*>());
             m_stack.emplace(std::move(nextState));
@@ -268,7 +268,7 @@ void DataHandler::BeginIteration()
         }
         case State::Type::MultiValueType:
         {
-            auto* multiValueTypeinfo = reinterpret_cast<const defaulttype::AbstractMultiValueTypeInfo*>(state.typeInfo);
+            auto* multiValueTypeinfo = state.typeInfo->MultiValueType();
             multiValueTypeinfo->setFinalSize(state.data, state.index + 1); // Not optimal
             break;
         }
@@ -299,7 +299,7 @@ void DataHandler::EndIteration()
             if (state.type == State::Type::ContainerType) // Switch?
             {
                 state.index++;
-                auto* containerTypeinfo = reinterpret_cast<const defaulttype::AbstractContainerTypeInfo*>(state.typeInfo);
+                auto* containerTypeinfo = state.typeInfo->ContainerType();
                 if (containerTypeinfo->ContainerKind() == sofa::defaulttype::ContainerKindEnum::Set)
                 {
                     void* key = containerTypeinfo->newKey(state.data, state.buffer); // Will return the correct key
