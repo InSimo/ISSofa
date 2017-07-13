@@ -49,6 +49,8 @@ class vector;
 namespace defaulttype
 {
 
+class AbstractMetadata;
+
 #define DEFAULT_DataTypeInfo
 #define DEFAULT_DataTypeName
 
@@ -251,6 +253,8 @@ struct InvalidDataTypeInfo
     static constexpr bool StoreKeys          = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues        = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); };
+
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
     static constexpr size_t ByteSize = 0; ///< if known at compile time, the size in bytes of the DataType, else 0
@@ -338,6 +342,8 @@ struct SingleValueTypeInfo
     static constexpr bool CopyOnWrite        = false;    ///< true if this type uses copy-on-write
     static constexpr bool StoreKeys          = true;     ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues        = true;     ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); };
 
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
@@ -578,6 +584,8 @@ struct MultiValueTypeInfo
     static constexpr bool CopyOnWrite = TFixedSize == 0; ///< true if this type uses copy-on-write
     static constexpr bool StoreKeys = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); };
 
     static constexpr size_t FinalSize = (TFixedSize == 0 ? 1 : TFixedSize)*MappedTypeInfo::FinalSize; ///< 1, or fixed final size if FixedFinalSize is 1
     static constexpr size_t ByteSize = FixedFinalSize ? TFixedSize * MappedTypeInfo::ByteSize : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
@@ -1110,6 +1118,8 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
     static constexpr bool StoreKeys          = (TContainerKind==ContainerKindEnum::Set || TContainerKind==ContainerKindEnum::Map);
     /// true if the item values are stored within the data structure
     static constexpr bool StoreValues        = (TContainerKind!=ContainerKindEnum::Set);
+
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); };
 
     static constexpr size_t ContainerSize = TFixedSize>0 ? TFixedSize : 1; ///< 0, or fixed container size if FixedContainerSize is 1
     static constexpr size_t ByteSize = SimpleCopy && FixedContainerSize ? TFixedSize * MappedTypeInfo::ByteSize : 0; ///< if known at compile time, the size in bytes of the DataType, else 0

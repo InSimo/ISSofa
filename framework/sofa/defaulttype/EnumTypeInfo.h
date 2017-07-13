@@ -40,6 +40,7 @@ namespace sofa
 
 namespace defaulttype
 {
+class AbstractMetadata;
 
 ////////////////////////
 // EnumTypeInfo struct definition
@@ -83,12 +84,15 @@ struct EnumTypeInfo
     static constexpr bool StoreKeys = true;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues = true;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); };
+
     static constexpr size_t EnumSize = std::tuple_size<MembersTuple>::value;
     static constexpr size_t ByteSize = MappedTypeInfo::ByteSize; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static std::string name()
     {
-        return DataTypeName<MappedType>::name();
+        std::string txt = DataTypeName<TDataType>::name();  // returns "enum"+ DataType
+        return txt.substr(4, txt.size());
     }
     static size_t enumSize()
     {
@@ -401,7 +405,6 @@ struct EnumTypeInfo
 #define SOFA_ENUM_DEFINE_TYPEINFO(myEnum)                                                                                                          \
     namespace sofa { namespace defaulttype {                                                                                              \
     template<> struct DataTypeInfo<myEnum##myEnumT> : public EnumTypeInfo<myEnum##myEnumT, myEnum##nspace::myEnumTuple> {    };           \
-    template<> struct DataTypeName<myEnum##myEnumT> { static const char* name() { return "enum"; } };                                     \
     }}                                                                                                                                SOFA_REQUIRE_SEMICOLON
 
 #define SOFA_ENUM_STREAM_METHODS(myEnum)                                                                                                            \

@@ -35,6 +35,7 @@
 #include <cassert>
 #include <functional>
 #include <sstream>
+#include <map>
 
 namespace sofa
 {
@@ -42,6 +43,7 @@ namespace sofa
 namespace defaulttype
 {
 
+class AbstractMetadata;
 class AbstractValueTypeInfo;
 class AbstractMultiValueTypeInfo;
 class AbstractContainerTypeInfo;
@@ -80,6 +82,8 @@ public:
     virtual void resetValue(void* data, size_t reserve = 0) const = 0;
     virtual void getDataValueString(const void* data, std::string& value) const = 0;
     virtual void setDataValueString(void* data, const std::string& value) const = 0;
+
+    virtual std::map<int, defaulttype::AbstractMetadata*> getMetadata() const = 0;
 
     virtual size_t byteSize(const void* data) const = 0; // If SimpleCopy is true, returns the size in bytes of the underlying memory of the type, else returns 0
     

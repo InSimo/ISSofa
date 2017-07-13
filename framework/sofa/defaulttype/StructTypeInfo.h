@@ -26,6 +26,7 @@
 #define SOFA_DEFAULTTYPE_STRUCTTYPEINFO_H
 
 #include <sofa/defaulttype/DataTypeInfo.h>
+#include <map>
 #include <type_traits>
 #include <string>
 #include <tuple>
@@ -36,6 +37,7 @@ namespace sofa
 
 namespace defaulttype
 {
+class AbstractMetadata;
 
 template<class TDataType, class TMembersTuple = typename TDataType::MembersTuple>
 struct StructTypeInfo
@@ -110,6 +112,8 @@ struct StructTypeInfo
     static constexpr bool StoreKeys          = false;
     /// true if the item values are stored within the data structure
     static constexpr bool StoreValues        = true;
+
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); };
 
     static constexpr bool FixedFinalSize = ApplyOnMembers<MembersTuple>::apply(IsMemberFixedFinalSize{}, And);  ///< true if this type has a fixed size for all level until the final values
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1

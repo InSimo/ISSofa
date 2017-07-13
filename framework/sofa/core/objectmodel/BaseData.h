@@ -400,8 +400,13 @@ public:
         }
     }
 
+    // specific method for backward compatibility
+	// TODO : isReadOnly();
+	// TODO : isDisplayed();
+
 protected:
 
+    //helper for basic access method of metadata
     template<class M>
     bool addMetaI(M metadata)
     {
@@ -411,8 +416,6 @@ protected:
         m_metadata[id] = abstractMetadata;
         return true;
     }
-
-    // specific 
 
     // end of the metadata mechanism
     //////////////////////////////////////

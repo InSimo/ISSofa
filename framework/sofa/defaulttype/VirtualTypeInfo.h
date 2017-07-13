@@ -151,6 +151,11 @@ public:
         Info::setDataValueString(*(DataType*)data, value);
     }
 
+    virtual std::map<int, defaulttype::AbstractMetadata*> getMetadata() const override 
+    { 
+        return Info::getMetadata();
+    }
+
     virtual size_t byteSize(const void* data) const override { return Info::byteSize(*(const DataType*)data); }
     
     virtual const void* getValuePtr(const void* data) const override { return Info::getValuePtr(*(const DataType*)data); }

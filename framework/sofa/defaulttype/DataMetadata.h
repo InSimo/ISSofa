@@ -34,6 +34,7 @@
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/helper/pair.h>
 #include <string>
+#include <array>
 
 namespace sofa
 {
@@ -145,7 +146,7 @@ public:
     bool readOnly;
 
     ReadOnly(bool readOnly) : readOnly(readOnly) {};
-    ReadOnly() : readOnly(true) {};
+    constexpr ReadOnly() : readOnly(true) {};
 
     SOFA_STRUCT_DECL(ReadOnly, readOnly);
     SOFA_STRUCT_STREAM_METHODS(ReadOnly);
@@ -182,33 +183,19 @@ public:
 };
 
 
-//template<int kg, int m, int s, int A, int K, int mol, int cd>
-//struct Units
-//{
-//public:
-//    helper::fixed_array<int, 7> units;
-//
-//    Units(helper::fixed_array<int, 7> units) : units(units) {};
-//    Units() : units(helper::fixed_array<int, 7>{0, 0, 0, 0, 0, 0, 0}) {};
-//
-//    using Units_t = Units<kg, m, s, A, K, mol, cd>;
-//    SOFA_STRUCT_DECL(Units_t, units);
-//    SOFA_STRUCT_STREAM_METHODS(Units_t);
-//    SOFA_STRUCT_COMPARE_METHOD(Units_t);
-//};
-
 struct Units
 {
 public:
-    helper::fixed_array<int, 7> units;
+    std::array<int, 7> units;
 
-    Units(helper::fixed_array<int, 7> units) : units(units) {};
+    constexpr Units(std::array<int, 7> units) : units(units) {};
     Units() {};
 
     SOFA_STRUCT_DECL(Units, units);
-    SOFA_STRUCT_STREAM_METHODS(Units);
-    //SOFA_STRUCT_COMPARE_METHOD(Units);    // ISSUE !
+    inline friend std::ostream& operator<<(std::ostream& os, const Units& s) { return os; }
+    inline friend std::istream& operator>> (std::istream& in, Units& s) { return in; }
 };
+
 
 struct HelpMsg
 {
@@ -233,10 +220,20 @@ public:
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::ReadOnly);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Displayed);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::HelpMsg);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Units);
 
-namespace sofa {
-
+namespace sofa { 
 namespace defaulttype {
+    inline std::ostream& operator<<(std::ostream& os, const std::array<int, 7>& s)
+    {
+        std::cout << "DataMetadata.h : the operator<< you are trying to use is not correctly implemented" << std::endl;
+        return os;
+    }
+    inline std::istream& operator >> (std::istream& in, std::array<int, 7>& s)
+    {
+        std::cout << "DataMetadata.h : the operator>> you are trying to use is not correctly implemented" << std::endl;
+        return in;
+    }
 
 template<typename T>
 struct DataTypeInfo<sofa::meta::Range<T> > : public StructTypeInfo<sofa::meta::Range<T> > {};
@@ -249,9 +246,6 @@ struct DataTypeInfo<sofa::meta::PossibleValues<T> > : public StructTypeInfo<sofa
 } // namespace sofa
 
 
-//template<int kg, int m, int s, int A, int K, int mol, int cd>
-//struct sofa::defaulttype::DataTypeInfo<sofa::meta::Units<kg, m, s, A, K, mol, cd> >
-//    : public sofa::defaulttype::StructTypeInfo<sofa::meta::Units<kg, m, s, A, K, mol, cd> > {};
 
 
 

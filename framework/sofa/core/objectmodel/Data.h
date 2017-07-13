@@ -72,6 +72,7 @@ public:
     explicit TData(const BaseInitData& init)
         : BaseData(init), parentData(initLink("parentSameType", "Linked Data in case it stores exactly the same type of Data, and efficient copies can be made (by value or by sharing pointers with Copy-on-Write)"))
     {
+        addMetaFromDataType();
     }
 
     TData( const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
@@ -170,6 +171,12 @@ public:
     }
 
 protected:
+
+    void addMetaFromDataType()
+    {
+        std::map<int, defaulttype::AbstractMetadata* >& metadataTuple = defaulttype::DataTypeInfo<T>::getMetadata();
+        m_metadata.insert(metadataTuple.begin(), metadataTuple.end());
+    }
 
     BaseLink::InitLink<TData<T> >
     initLink(const char* name, const char* help)

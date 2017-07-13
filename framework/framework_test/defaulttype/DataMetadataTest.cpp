@@ -21,16 +21,18 @@ public:
     SOFA_CLASS(TestOnData, core::objectmodel::BaseObject);
 
     Data<double > d_test;
+    Data<units::Force<double> > d_force;
 
     TestOnData()
         : d_test(initData("test", "helpMsg").addMeta(meta::Displayed(), meta::PossibleValues<double>(helper::vector<double>{1.2, 1.4, 1.5})))
+        , d_force(initData("force", "helpMsg").addMeta(meta::Displayed()))
     {}
 
     void doStuff()
     {
         d_test.addMeta(meta::ReadOnly());
         d_test.addMeta(meta::Range<double>(helper::pair<double, double>{0, 10}));
-        d_test.addMeta(meta::Units(helper::fixed_array<int, 7>{1, 1, -2, 0, 0, 0, 0}));
+        d_test.addMeta(meta::Units(std::array<int, 7>{1, 1, -2, 0, 0, 0, 0}));
         
         meta::Range<double>* dTestRange;
         if (d_test.getMeta(dTestRange))
@@ -65,6 +67,20 @@ public:
         }
     }
 
+    void doStuffWithTheForce()
+    {
+        meta::Units* dForceUnits;
+        if (d_force.getMeta(dForceUnits))
+        {
+            EXPECT_EQ(dForceUnits->units[0], 1);
+            EXPECT_EQ(dForceUnits->units[1], 1);
+            EXPECT_EQ(dForceUnits->units[2], -2);
+
+            meta::ReadOnly* dForceReadOnly;
+            EXPECT_TRUE(d_force.getMeta(dForceReadOnly));
+        }
+
+    }
 };
 
 
@@ -72,6 +88,7 @@ TEST(DataMetadataTest, checkMetadata)
 {
     TestOnData test;
     test.doStuff();
+    test.doStuffWithTheForce();
 }
 
 } // namespace dataMetadataTest

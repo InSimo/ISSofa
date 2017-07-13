@@ -28,6 +28,7 @@
 
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/defaulttype/Units.h>
+#include <array>
 
 namespace sofa
 {
@@ -137,8 +138,65 @@ public:
 };
 
 
+
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
-struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public QuantityTypeInfo<T, kg, m, s, A, K, mol, cd> {    };
+struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public QuantityTypeInfo<T, kg, m, s, A, K, mol, cd>
+{
+    typedef std::tuple<meta::Units, meta::ReadOnly> MetaTuple;
+    static constexpr MetaTuple Metadata = { meta::Units(std::array<int, 7>{kg, m, s, A, K, mol, cd} ), meta::ReadOnly() };
+
+    class AddMetaI
+    {
+    public:
+        class AddMetaI(std::map<int, defaulttype::AbstractMetadata*>& value) : m_map(value) {}
+
+        template <typename T, typename T2>
+        void operator()(T&& MemberTypeI, T2&& MemberTypeI2) const
+        {
+            auto abstractMetadata = new defaulttype::VirtualMetadata<T>(MemberTypeI2);
+            int id = abstractMetadata->getId();
+            m_map[id] = abstractMetadata;
+        }
+    private:
+        std::map<int, defaulttype::AbstractMetadata*>& m_map;
+    };
+
+    template<size_t Index>
+    using MemberType = typename std::tuple_element<Index, MetaTuple>::type;
+
+    template<class Tuple, std::size_t I>
+    class TupleForEach
+    {
+    public:
+        template <typename F>
+        static void loop(F&& f)
+        {
+            f(MemberType<I>{}, std::get<I> (Metadata));
+            TupleForEach<Tuple, I - 1>::loop(std::forward<F>(f));
+        }
+
+    };
+
+    template<class Tuple>
+    class TupleForEach<Tuple, 0>
+    {
+    public:
+        template <typename F>
+        static void loop(F&& f)
+        {
+            f(MemberType<0>{}, std::get<0>(Metadata));
+        }
+    };
+
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata()
+    {
+        std::map<int, defaulttype::AbstractMetadata*> metadataMap;
+        AddMetaI functor = AddMetaI(metadataMap);
+        TupleForEach<MetaTuple, std::tuple_size<MetaTuple>::value -1 >::loop(std::forward<AddMetaI>(functor));
+        return metadataMap;
+    }
+
+};
 
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd> 
