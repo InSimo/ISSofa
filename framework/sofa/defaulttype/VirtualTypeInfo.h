@@ -151,8 +151,8 @@ public:
         Info::setDataValueString(*(DataType*)data, value);
     }
 
-    virtual std::map<int, defaulttype::AbstractMetadata*> getMetadata() const override 
-    { 
+    virtual std::map<int, defaulttype::AbstractMetadata*> getMetadata() const override
+    {
         return Info::getMetadata();
     }
 

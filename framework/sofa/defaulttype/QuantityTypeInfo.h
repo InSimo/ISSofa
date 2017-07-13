@@ -247,17 +247,17 @@ template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public QuantityTypeInfo<T, kg, m, s, A, K, mol, cd>
 {
     typedef std::tuple<meta::Units, meta::ReadOnly> MetaTuple;
-    static constexpr MetaTuple Metadata = { meta::Units(std::array<int, 7>{kg, m, s, A, K, mol, cd} ), meta::ReadOnly() };
+    static constexpr MetaTuple Metadata = MetaTuple{ meta::Units(std::array<int, 7>{kg, m, s, A, K, mol, cd} ), meta::ReadOnly() };
 
     class AddMetaI
     {
     public:
-        class AddMetaI(std::map<int, defaulttype::AbstractMetadata*>& value) : m_map(value) {}
+        AddMetaI(std::map<int, defaulttype::AbstractMetadata*>& value) : m_map(value) {}
 
-        template <typename T, typename T2>
-        void operator()(T&& MemberTypeI, T2&& MemberTypeI2) const
+        template <typename T1, typename T2>
+        void operator()(T1&& MemberTypeI, T2&& MemberTypeI2) const
         {
-            auto abstractMetadata = new defaulttype::VirtualMetadata<T>(MemberTypeI2);
+            auto abstractMetadata = new defaulttype::VirtualMetadata<T1>(MemberTypeI2);
             int id = abstractMetadata->getId();
             m_map[id] = abstractMetadata;
         }
@@ -275,7 +275,7 @@ struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public Quant
         template <typename F>
         static void loop(F&& f)
         {
-            f(MemberType<I>{}, std::get<I> (Metadata));
+            f(MemberType<I>{}, std::get<I> (DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd>>::Metadata));
             TupleForEach<Tuple, I - 1>::loop(std::forward<F>(f));
         }
 
@@ -288,15 +288,18 @@ struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public Quant
         template <typename F>
         static void loop(F&& f)
         {
-            f(MemberType<0>{}, std::get<0>(Metadata));
+            f(MemberType<0>{}, std::get<0>(DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd>>::Metadata));
         }
     };
 
     static std::map<int, defaulttype::AbstractMetadata*> getMetadata()
     {
         std::map<int, defaulttype::AbstractMetadata*> metadataMap;
-        AddMetaI functor = AddMetaI(metadataMap);
-        TupleForEach<MetaTuple, std::tuple_size<MetaTuple>::value -1 >::loop(std::forward<AddMetaI>(functor));
+
+        // TODO Circular Dependencies between VirtualTypeInfo and QuantityTypeInfo, need to find another design
+
+        /*AddMetaI functor = AddMetaI(metadataMap);
+        TupleForEach<MetaTuple, std::tuple_size<MetaTuple>::value -1>::loop(std::forward<AddMetaI>(functor));*/
         return metadataMap;
     }
 

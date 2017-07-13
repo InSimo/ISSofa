@@ -174,7 +174,7 @@ protected:
 
     void addMetaFromDataType()
     {
-        std::map<int, defaulttype::AbstractMetadata* >& metadataTuple = defaulttype::DataTypeInfo<T>::getMetadata();
+        std::map<int, defaulttype::AbstractMetadata*> metadataTuple = defaulttype::DataTypeInfo<T>::getMetadata();
         m_metadata.insert(metadataTuple.begin(), metadataTuple.end());
     }
 
