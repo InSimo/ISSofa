@@ -119,7 +119,7 @@ public:
         template<class ...M>
         BaseInitData addMeta(M... metadatas)
         {
-            std::initializer_list<bool> result{ addMetaI(metadatas)...};
+            std::initializer_list<bool>{ addMetaI(metadatas)... };
             return *this;
         }
 
@@ -360,7 +360,7 @@ public:
     template<class ...M>
     void addMeta(M... metadatas)
     {
-        std::initializer_list<bool> result{ addMetaI(metadatas)... };
+        std::initializer_list<bool>{ addMetaI(metadatas)... };
     }
 
     template<class ...M>

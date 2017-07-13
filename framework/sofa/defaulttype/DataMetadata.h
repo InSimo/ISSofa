@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <sofa/helper/fixed_array.h>
+#include <sofa/defaulttype/VirtualTypeInfo.h>
 #include <sofa/defaulttype/StructTypeInfo.h>
 #include <sofa/defaulttype/EnumTypeInfo.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
@@ -76,9 +77,10 @@ namespace defaulttype
 class AbstractMetadata
 {
 public:
-    virtual const int getId() const = 0;
-    virtual const std::string& getName() const = 0;
+    virtual int getId() const = 0;
+    virtual std::string getName() const = 0;
 
+    virtual ~AbstractMetadata() {}
 }; // AbstractProperty
 
 
@@ -92,15 +94,15 @@ public:
     typedef TMetadata Metadata;
     Metadata m_metadata;
 
-    VirtualMetadata(Metadata p) : m_metadata(std::move(p)) {};
-    VirtualMetadata() {};
+    VirtualMetadata(Metadata p) : m_metadata(std::move(p)) {}
+    VirtualMetadata() {}
 
-    const int getId() const override 
+    int getId() const override
     {
         return VirtualTypeInfo<Metadata>::get()->typeInfoID();
     }
 
-    const std::string& getName() const override
+    std::string getName() const override
     {
         return VirtualTypeInfo<Metadata>::get()->name();
     }
@@ -232,16 +234,23 @@ SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::ReadOnly);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Displayed);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::HelpMsg);
 
-template<typename T>
-struct sofa::defaulttype::DataTypeInfo<sofa::meta::Range<T> >               \
-    : public sofa::defaulttype::StructTypeInfo<sofa::meta::Range<T> > {};
+namespace sofa {
+
+namespace defaulttype {
 
 template<typename T>
-struct sofa::defaulttype::DataTypeInfo<sofa::meta::PossibleValues<T> >               \
-    : public sofa::defaulttype::StructTypeInfo<sofa::meta::PossibleValues<T> > {};
+struct DataTypeInfo<sofa::meta::Range<T> > : public StructTypeInfo<sofa::meta::Range<T> > {};
+
+template<typename T>
+struct DataTypeInfo<sofa::meta::PossibleValues<T> > : public StructTypeInfo<sofa::meta::PossibleValues<T> > {};
+
+} // namespace defaulttype
+
+} // namespace sofa
+
 
 //template<int kg, int m, int s, int A, int K, int mol, int cd>
-//struct sofa::defaulttype::DataTypeInfo<sofa::meta::Units<kg, m, s, A, K, mol, cd> >               \
+//struct sofa::defaulttype::DataTypeInfo<sofa::meta::Units<kg, m, s, A, K, mol, cd> >
 //    : public sofa::defaulttype::StructTypeInfo<sofa::meta::Units<kg, m, s, A, K, mol, cd> > {};
 
 
