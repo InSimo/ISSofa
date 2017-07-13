@@ -74,55 +74,15 @@ template<class T, // Precision
                             int K, // Thermodynamic temperature
                                 int mol, // Amount of substance
                                     int cd> // Luminous intensity
-class Quantity
+class QuantityBase
 {
 public:
 
     // Operator: default constructor
     explicit
-        Quantity(T initVal = T())
+        QuantityBase(T initVal = T())
         : m_value(initVal)
     {
-    }
-
-    // Operator: Assignment from type T
-    Quantity<T, kg, m, s, A, K, mol, cd>&
-        operator= (const T rhs)
-    {
-        m_value = rhs;
-        return *this;
-    }
-
-    // Operator: +=
-    Quantity<T, kg, m, s, A, K, mol, cd>&
-        operator+= (const Quantity<T, kg, m, s, A, K, mol, cd>& rhs)
-    {
-        m_value += rhs.m_value;
-        return *this;
-    }
-
-    // Operator -=
-    Quantity<T, kg, m, s, A, K, mol, cd>&
-        operator-= (const Quantity<T, kg, m, s, A, K, mol, cd>& rhs)
-    {
-        m_value -= rhs.m_value;
-        return *this;
-    }
-
-    // Operator *=
-    Quantity<T, kg, m, s, A, K, mol, cd>&
-        operator*= (T rhs)
-    {
-        m_value *= rhs;
-        return *this;
-    }
-
-    // Operator /=
-    Quantity<T, kg, m, s, A, K, mol, cd>&
-        operator/= (T rhs)
-    {
-        m_value /= rhs;
-        return *this;
     }
 
     // Get Reference
@@ -139,13 +99,127 @@ public:
         return m_value;
     }
 
+protected:
+    T m_value;
+};
+
+template <class T, int kg, int m, int s, int A, int K, int mol, int cd, class dummy = void>
+class QuantitySpecialization : public QuantityBase<T, kg, m, s, A, K, mol, cd>
+{
+public:
+    explicit
+     QuantitySpecialization(T initVal = T())
+     : QuantityBase<T, kg, m, s, A, K, mol, cd>(initVal)
+    {}
+};
+
+// Specialization for array
+// We expect all type using this specialization to have a BidirectionalIterator
+template <class T, int kg, int m, int s, int A, int K, int mol, int cd>
+class QuantitySpecialization<T, kg, m, s, A, K, mol, cd,
+        typename std::enable_if<std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename T::iterator>::iterator_category>::value>::type > : public QuantityBase<T, kg, m, s, A, K, mol, cd>
+{
+public:
+    explicit
+        QuantitySpecialization(T initVal = T())
+        : QuantityBase<T, kg, m, s, A, K, mol, cd>(initVal)
+    {}
+
+    using ValueType = T;
+
+    // We could define a iterator on Quantity<T::value_type, ...>
+    // But to do that, we need to be able to reinterpret_cast frome T::reference to Quantity
+    // A way to do that is to make Quantity a aggregate to respect type aliasing
+    // Unfortunately we cannot use a base class like QuantitySpecialization in a aggregate (C++17 is changing that)
+    using iterator = typename T::iterator;
+    using const_iterator = typename T::const_iterator;
+
+    iterator begin()
+    {
+        return this->m_value.begin();
+    }
+
+    const_iterator begin() const
+    {
+        return this->m_value.begin();
+    }
+
+    const_iterator cbegin() const
+    {
+        return this->m_value.cbegin();
+    }
+
+    iterator end()
+    {
+        return this->m_value.end();
+    }
+
+    const_iterator end() const
+    {
+        return this->m_value.end();
+    }
+
+    const_iterator cend() const
+    {
+        return this->m_value.cend();
+    }
+};
+
+template <class T, int kg, int m, int s, int A, int K, int mol, int cd>
+class Quantity : public QuantitySpecialization<T, kg, m, s, A, K, mol, cd>
+{
+public:
+    explicit
+        Quantity(T initVal = T())
+        : QuantitySpecialization<T, kg, m, s, A, K, mol, cd>(initVal)
+    {}
+
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator= (const T& rhs)
+    {
+        this->m_value = rhs;
+        return *this;
+    }
+
+    // Operator: +=
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator+= (const Quantity<T, kg, m, s, A, K, mol, cd>& rhs)
+    {
+        this->m_value += rhs.m_value;
+        return *this;
+    }
+
+    // Operator -=
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator-= (const Quantity<T, kg, m, s, A, K, mol, cd>& rhs)
+    {
+        this->m_value -= rhs.m_value;
+        return *this;
+    }
+
+    // Operator *=
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator*= (T rhs)
+    {
+        this->m_value *= rhs;
+        return *this;
+    }
+
+    // Operator /=
+    Quantity<T, kg, m, s, A, K, mol, cd>&
+        operator/= (T rhs)
+    {
+        this->m_value /= rhs;
+        return *this;
+    }
+
     // Get Units (/dimensions)
     constexpr helper::fixed_array<int, 7>
         units() const
     {
         return { kg, m, s, A, K, mol, cd };
     }
-    
+
     // Get Units as text (e.g. returns "kg.m.s-2" for a force)
     const std::string
         unitsAsText() const
@@ -164,19 +238,15 @@ public:
     // Output stream
     inline friend std::ostream& operator<< ( std::ostream& os, const Quantity<T, kg, m, s, A, K, mol, cd>& q)
     {
-        return os << q.m_value;
+        return os << q.value();
     }
 
     // Input stream
     inline friend std::istream& operator>> ( std::istream& is, Quantity<T, kg, m, s, A, K, mol, cd>& q)
     {
-        return is >> q.m_value;
+        return is >> q.value();
     }
-
-private:
-    T m_value;
 };
-
 
 ////////////////////////////// Operators ///////////////////////////////////
 

@@ -23,7 +23,7 @@ TEST(UnitsTest, checkUnits)
     EXPECT_EQ(l0 / t0, units::Velocity<double>(2));
     EXPECT_EQ(s0.value(), 16);
     EXPECT_EQ(s0.unitsAsText(), "kg.s-2");
-
+    EXPECT_EQ(m0 + m0, units::Mass<double>(2));
 }
 
 TEST(UnitsTest, checkDataUnits)
@@ -90,19 +90,30 @@ TEST(UnitsTest, checkDataUnitsOnCoord)
 {
     typedef defaulttype::Vec3dTypes::Coord Coord;
     Coord initPosition{ 1.0, 2.0, 3.0 };
-    //units::Length<Coord> position(initPosition);
-    //EXPECT_EQ(position.value(), initPosition);
-    //EXPECT_EQ(position.unitsAsText(), "m");
+    units::Length<Coord> position(initPosition);
+    EXPECT_EQ(position.value(), initPosition);
+    EXPECT_EQ(position.unitsAsText(), "m");
 
-    //Data<units::Length<Coord> > d_position("Position");
-    //d_position.setValue(units::Length<Coord>(initPosition));
+    Data<units::Length<Coord> > d_position("Position");
+    d_position.setValue(units::Length<Coord>(initPosition));
+    EXPECT_EQ(d_position.getValue().value(), initPosition);
 
-    //EXPECT_EQ(d_position.getValue().value(), initPosition);
+    Coord position2{ 0.0, 1.0, 2.0 };
+    d_position.beginEdit()->value() = position2;
+    d_position.endEdit();
+    EXPECT_EQ(d_position.getValue().value(), position2);
 
-    //Coord position2{ 0.0, 1.0, 2.0 };
-    //d_position.beginEdit()->value() = position2;
-    //d_position.endEdit();
-    //EXPECT_EQ(d_position.getValue().value(), position2);
+    //////////////////////////
+    // tests on the TypeInfo
+    ASSERT_STREQ(defaulttype::DataTypeName<units::Length<Coord>>::name(), "Vec3d");
+
+    const defaulttype::AbstractTypeInfo* typeInfo = d_position.getValueTypeInfo();
+    EXPECT_FALSE(typeInfo->IsSingleValue());
+    EXPECT_TRUE(typeInfo->IsMultiValue());
+    EXPECT_TRUE(typeInfo->IsContainer());
+
+    const defaulttype::AbstractContainerTypeInfo* containerTypeInfo = typeInfo->ContainerType();
+    EXPECT_EQ(3, containerTypeInfo->containerSize(d_position.getValueVoidPtr()));
 }
 
 

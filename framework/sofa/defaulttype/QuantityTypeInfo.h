@@ -112,28 +112,132 @@ template <typename TDataType, int kg, int m, int s, int A, int K, int mol, int c
 class QuantityTypeInfo<TDataType, kg, m, s, A, K, mol, cd, typename std::enable_if<DataTypeInfo<TDataType>::IsContainer>::type> : public DataTypeInfo<TDataType>
 {
 public:
-    static const void* getValuePtr(const TDataType& data)
+
+    using QuantityDataType = units::Quantity<TDataType, kg, m, s, A, K, mol, cd>;
+    using ValueDataType = TDataType;
+    using ValueInfo = DataTypeInfo<TDataType>;
+
+    static void resetValue(QuantityDataType& data, size_t reserve = 0)
     {
-        return DataTypeInfo<TDataType>::getValuePtr(data.value());
+        ValueInfo::resetValue(data.value(), reserve);
     }
 
-//    typedef units::Quantity<TDataType, kg, m, s, A, K, mol, cd> DataType;    
-//    typedef typename DataTypeInfo<TDataType>::ContainerTypes DContainerTypes;
-//
-//    typedef typename TDataType::size_type      KeyType;
-//    typedef typename TDataType::const_iterator const_iterator;
-//    typedef typename TDataType::iterator       iterator;
-//    typedef sofa::helper::SSOBuffer<> TypeInfoKeyBuffer;
-//
-//    static auto value(const DataType&, const const_iterator& it) -> decltype(*it) { return *it; }
-//    static auto value(DataType&, const       iterator& it) -> decltype(*it) { return *it; }
-//    static KeyType key(const DataType& data, const const_iterator& it) { return (it - data.begin()); }
-//    static const KeyType& key(const DataType& data, const const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
-//    {
-//        KeyType& key = *keyBuffer.getOrCreate<KeyType>();
-//        key = (it - data.begin());
-//        return key;
-//    }
+    static void getDataValueString(const QuantityDataType& data, std::string& value)
+    {
+        ValueInfo::getDataValueString(data.value(), value);
+    }
+
+    static void setDataValueString(QuantityDataType& data, const std::string& value)
+    {
+        ValueInfo::setDataValueString(data.value(), value);
+    }
+
+    static constexpr size_t byteSize(const QuantityDataType& data)
+    {
+        return ValueInfo::byteSize(data.value());
+    }
+
+    static size_t containerSize(const QuantityDataType& data)
+    {
+        return ValueInfo::containerSize(data.value());
+    }
+
+    static void setContainerSize(QuantityDataType& data, size_t size)
+    {
+        ValueInfo::setContainerSize(data.value(), size);
+    }
+
+    static auto getItemKey(const QuantityDataType& data, size_t index) -> decltype(ValueInfo::getItemKey(data.value(), index))
+    {
+        return ValueInfo::getItemKey(data.value(), index);
+    }
+
+    static const typename ValueInfo::KeyType& getItemKey(const QuantityDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    {
+        return ValueInfo::getItemKey(data.value(), index,keyBuffer);
+    }
+
+    static const typename ValueInfo::MappedType& getItemValue(const QuantityDataType& data, size_t index)
+    {
+        return ValueInfo::getItemValue(data.value(), index);
+    }
+
+    static typename ValueInfo::MappedType* editItemValue(QuantityDataType& data, size_t index)
+    {
+        return ValueInfo::editItemValue(data.value(), index);
+    }
+
+    static const void* getValuePtr(const QuantityDataType& data)
+    {
+        return ValueInfo::getValuePtr(data.value());
+    }
+
+    static const typename ValueInfo::MappedType* findItem(const QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    {
+        return ValueInfo::findItem(data.value(), key);
+    }
+
+    static typename ValueInfo::MappedType* findEditItem(QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    {
+        return ValueInfo::findEditItem(data.value(), key);
+    }
+
+    static typename ValueInfo::MappedType* insertItem(QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    {
+        return ValueInfo::insertItem(data.value(), key);
+    }
+
+    static bool eraseItem(QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    {
+        return ValueInfo::eraseItem(data.value(), key);
+    }
+
+    static const typename ValueInfo::KeyType& key(const QuantityDataType& data, const typename ValueInfo::const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
+    {
+        return ValueInfo::key(data.value(), it, keyBuffer);
+    }
+
+    static auto value(const QuantityDataType& data, const typename ValueInfo::const_iterator& it) -> decltype(ValueInfo::value(data.value(), it))
+    {
+        return ValueInfo::value(data.value(), it);
+    }
+
+    static auto value(QuantityDataType& data, const typename ValueInfo::iterator& it) -> decltype(ValueInfo::value(data.value(), it))
+    {
+        return ValueInfo::value(data.value(), it);
+    }
+
+    static size_t finalSize(const QuantityDataType& data)
+    {
+        return ValueInfo::finalSize(data.value());
+    }
+
+    static void setFinalSize(QuantityDataType& data, size_t size)
+    {
+        ValueInfo::setFinalSize(data.value(), size);
+    }
+
+    template <typename T>
+    static void getFinalValue(const QuantityDataType& data, size_t index, T& value)
+    {
+        ValueInfo::getFinalValue(data.value(), index, value);
+    }
+
+    template<typename T>
+    static void setFinalValue(QuantityDataType& data, size_t index, const T& value)
+    {
+        ValueInfo::setFinalValue(data.value(), index, value);
+    }
+
+    static void getFinalValueString(const QuantityDataType& data, size_t index, std::string& value)
+    {
+        ValueInfo::getFinalValueString(data.value(), index, value);
+    }
+
+    static void setFinalValueString(QuantityDataType& data, size_t index, const std::string& value)
+    {
+        ValueInfo::setFinalValueString(data.value(), index, value);
+    }
 
 };
 
