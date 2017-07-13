@@ -87,10 +87,15 @@ BaseData::BaseData( const BaseInitData& init)
     }
     //setAutoLink(true);
     if (m_owner) m_owner->addData(this, m_name);
+    m_metadata = init.m_metadataBID;
 }
 
 BaseData::~BaseData()
 {
+    for (auto propertyI : m_metadata)
+    {
+        delete propertyI.second;
+    }
 }
 
 bool BaseData::validParent(BaseData* parent)
@@ -365,6 +370,8 @@ void BaseData::releaseAspect(int aspect)
         (*iLink)->releaseAspect(aspect);
     }
 }
+
+
 
 } // namespace objectmodel
 

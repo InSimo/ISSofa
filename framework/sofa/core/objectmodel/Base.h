@@ -297,6 +297,7 @@ protected:
     /// Helper method used by initData()
     void initData0( BaseData* field, BaseData::BaseInitData& res, const char* name, const char* help, bool isDisplayed=true, bool isReadOnly=false );
     void initData0( BaseData* field, BaseData::BaseInitData& res, const char* name, const char* help, BaseData::DataFlags dataFlags );
+    void initData0( BaseData::BaseInitData& res, const char* name, const char* help);
 
     /// Helper method used by initData()
     template<class T>
