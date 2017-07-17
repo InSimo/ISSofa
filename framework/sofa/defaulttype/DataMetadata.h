@@ -132,8 +132,8 @@ struct Displayed
 public:
     bool displayed;
 
-    Displayed(bool displayed) : displayed(displayed) {};
-    Displayed() : displayed(true) {};
+    Displayed(bool displayed) : displayed(displayed) {}
+    Displayed() : displayed(true) {}
 
     SOFA_STRUCT_DECL(Displayed, displayed);
     SOFA_STRUCT_STREAM_METHODS(Displayed);
@@ -145,8 +145,8 @@ struct ReadOnly
 public:
     bool readOnly;
 
-    ReadOnly(bool readOnly) : readOnly(readOnly) {};
-    constexpr ReadOnly() : readOnly(true) {};
+    ReadOnly(bool readOnly) : readOnly(readOnly) {}
+    constexpr ReadOnly() : readOnly(true) {}
 
     SOFA_STRUCT_DECL(ReadOnly, readOnly);
     SOFA_STRUCT_STREAM_METHODS(ReadOnly);
@@ -159,8 +159,8 @@ struct Range
 public:
     helper::pair<T, T> range;
 
-    Range(helper::pair<T, T> range) : range(range) {};
-    Range() {};
+    Range(helper::pair<T, T> range) : range(range) {}
+    Range() {}
 
     SOFA_STRUCT_DECL(Range, range);
     SOFA_STRUCT_STREAM_METHODS(Range);
@@ -174,8 +174,8 @@ struct PossibleValues
 public:
     helper::vector<T> possibleValues;
 
-    PossibleValues(helper::vector<T> possibleValues) : possibleValues(possibleValues) {};
-    PossibleValues() {};
+    PossibleValues(const helper::vector<T>& possibleValues) : possibleValues(possibleValues) {}
+    PossibleValues() {}
 
     SOFA_STRUCT_DECL(PossibleValues<T>, possibleValues);
     SOFA_STRUCT_STREAM_METHODS(PossibleValues<T>);
@@ -188,8 +188,8 @@ struct Units
 public:
     std::array<int, 7> units;
 
-    constexpr Units(std::array<int, 7> units) : units(units) {};
-    Units() {};
+    constexpr Units(const std::array<int, 7>& units) : units(units) {}
+    Units() {}
 
     SOFA_STRUCT_DECL(Units, units);
     inline friend std::ostream& operator<<(std::ostream& os, const Units& s) { return os; }
@@ -202,7 +202,7 @@ struct HelpMsg
 public:
     std::string helpMsg;
 
-    HelpMsg(std::string helpMsg) : helpMsg(helpMsg) {};
+    HelpMsg(std::string helpMsg) : helpMsg(helpMsg) {}
 
     SOFA_STRUCT_DECL(HelpMsg, helpMsg);
     SOFA_STRUCT_STREAM_METHODS(HelpMsg);
@@ -222,18 +222,21 @@ SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Displayed);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::HelpMsg);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Units);
 
-namespace sofa { 
-namespace defaulttype {
-    inline std::ostream& operator<<(std::ostream& os, const std::array<int, 7>& s)
-    {
-        std::cout << "DataMetadata.h : the operator<< you are trying to use is not correctly implemented" << std::endl;
-        return os;
-    }
-    inline std::istream& operator >> (std::istream& in, std::array<int, 7>& s)
-    {
-        std::cout << "DataMetadata.h : the operator>> you are trying to use is not correctly implemented" << std::endl;
-        return in;
-    }
+namespace sofa
+{
+namespace defaulttype
+{
+
+inline std::ostream& operator<<(std::ostream& os, const std::array<int, 7>& s)
+{
+    std::cout << "DataMetadata.h : the operator<< you are trying to use is not correctly implemented" << std::endl;
+    return os;
+}
+inline std::istream& operator >> (std::istream& in, std::array<int, 7>& s)
+{
+    std::cout << "DataMetadata.h : the operator>> you are trying to use is not correctly implemented" << std::endl;
+    return in;
+}
 
 template<typename T>
 struct DataTypeInfo<sofa::meta::Range<T> > : public StructTypeInfo<sofa::meta::Range<T> > {};
