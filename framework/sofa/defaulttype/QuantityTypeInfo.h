@@ -296,15 +296,15 @@ struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public Quant
     {
         std::map<int, defaulttype::AbstractMetadata*> metadataMap;
 
-        // TODO Circular Dependencies between VirtualTypeInfo and QuantityTypeInfo, need to find another design
-
-        /*AddMetaI functor = AddMetaI(metadataMap);
-        TupleForEach<MetaTuple, std::tuple_size<MetaTuple>::value -1>::loop(std::forward<AddMetaI>(functor));*/
+        AddMetaI functor = AddMetaI(metadataMap);
+        TupleForEach<MetaTuple, std::tuple_size<MetaTuple>::value -1>::loop(std::forward<AddMetaI>(functor));
         return metadataMap;
     }
 
 };
 
+template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
+constexpr typename DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> >::MetaTuple DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> >::Metadata;
 
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd> 
 struct DataTypeName<units::Quantity<T, kg, m, s, A, K, mol, cd> > { static const char* name() { return DataTypeName<T>::name(); } };
