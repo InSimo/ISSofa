@@ -116,6 +116,13 @@ public:
     using QuantityDataType = units::Quantity<TDataType, kg, m, s, A, K, mol, cd>;
     using ValueDataType = TDataType;
     using ValueInfo = DataTypeInfo<TDataType>;
+    
+    // In short KeyType = DataTypeInfo<TDataType>::KeyType
+    // and MappedType = DataTypeInfo<TDataType>::MappedType
+    // This has to be done because MSVC try to do stuff even if there is no template instanciation
+    // and it deduces DataTypeInfo<TDataType>::KeyType to be void
+    using KeyType = typename std::conditional<std::is_same<typename DataTypeInfo<TDataType>::KeyType, void>::value, int, typename DataTypeInfo<TDataType>::KeyType>::type;
+    using MappedType = typename std::conditional<std::is_same<typename DataTypeInfo<TDataType>::MappedType, void>::value, int, typename DataTypeInfo<TDataType>::MappedType>::type;
 
     static void resetValue(QuantityDataType& data, size_t reserve = 0)
     {
@@ -152,12 +159,12 @@ public:
         return ValueInfo::getItemKey(data.value(), index);
     }
 
-    static const typename ValueInfo::KeyType& getItemKey(const QuantityDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    static const KeyType& getItemKey(const QuantityDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
     {
         return ValueInfo::getItemKey(data.value(), index,keyBuffer);
     }
 
-    static const typename ValueInfo::MappedType& getItemValue(const QuantityDataType& data, size_t index)
+    static const MappedType& getItemValue(const QuantityDataType& data, size_t index)
     {
         return ValueInfo::getItemValue(data.value(), index);
     }
@@ -172,27 +179,27 @@ public:
         return ValueInfo::getValuePtr(data.value());
     }
 
-    static const typename ValueInfo::MappedType* findItem(const QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    static const typename ValueInfo::MappedType* findItem(const QuantityDataType& data, const KeyType& key)
     {
         return ValueInfo::findItem(data.value(), key);
     }
 
-    static typename ValueInfo::MappedType* findEditItem(QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    static typename ValueInfo::MappedType* findEditItem(QuantityDataType& data, const KeyType& key)
     {
         return ValueInfo::findEditItem(data.value(), key);
     }
 
-    static typename ValueInfo::MappedType* insertItem(QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    static typename ValueInfo::MappedType* insertItem(QuantityDataType& data, const KeyType& key)
     {
         return ValueInfo::insertItem(data.value(), key);
     }
 
-    static bool eraseItem(QuantityDataType& data, const typename ValueInfo::KeyType& key)
+    static bool eraseItem(QuantityDataType& data, const KeyType& key)
     {
         return ValueInfo::eraseItem(data.value(), key);
     }
 
-    static const typename ValueInfo::KeyType& key(const QuantityDataType& data, const typename ValueInfo::const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
+    static const KeyType& key(const QuantityDataType& data, const typename ValueInfo::const_iterator& it, TypeInfoKeyBuffer& keyBuffer)
     {
         return ValueInfo::key(data.value(), it, keyBuffer);
     }
