@@ -37,8 +37,6 @@ namespace behavior
 SOFA_ABSTRACT_CLASS_IMPL((ConstraintSolver));
 
 ConstraintSolver::ConstraintSolver()
-    : m_fId(VecDerivId::externalForce())
-    , m_dxId(VecDerivId::dx())
 {}
 
 ConstraintSolver::~ConstraintSolver()
