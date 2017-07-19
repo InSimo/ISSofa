@@ -31,7 +31,6 @@
 #include <sofa/defaulttype/VirtualTypeInfo.h>
 #include <sofa/defaulttype/StructTypeInfo.h>
 #include <sofa/defaulttype/EnumTypeInfo.h>
-#include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/helper/pair.h>
 #include <string>
 #include <array>
@@ -49,7 +48,8 @@ namespace defaulttype
 //  Convention for the metadata :
 //      each piece of metadata is a struct with a single member value named after the struct's name
 //      and with two constructors, one of them is the default constructor with no argument and the other
-//      fills in the member value.         The structs should also have reflection abilities.
+//      fills in the member value. The boolean metadata have "value = true" by their presence in the data.metadata.
+//      The structs should also have reflection abilities.
 //  eg : 
 //      struct Meta1 {
 //        T meta1;
@@ -127,39 +127,52 @@ namespace sofa
 namespace meta
 {
 
-struct Displayed
+struct Displayed   // should the data be displayed in the GUI ?
 {
 public:
-    bool displayed;
+    constexpr Displayed() {}
 
-    Displayed(bool displayed) : displayed(displayed) {}
-    Displayed() : displayed(true) {}
-
-    SOFA_STRUCT_DECL(Displayed, displayed);
+    SOFA_STRUCT_DECL(Displayed, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(Displayed);
-    SOFA_STRUCT_COMPARE_METHOD(Displayed);
+    bool operator==(const Displayed& rhs) const
+    {
+        return true;
+    }
 };
 
-struct ReadOnly
+struct ReadOnly   // is the data ReadOnly ?
 {
 public:
-    bool readOnly;
+    constexpr ReadOnly() {}
 
-    ReadOnly(bool readOnly) : readOnly(readOnly) {}
-    constexpr ReadOnly() : readOnly(true) {}
-
-    SOFA_STRUCT_DECL(ReadOnly, readOnly);
+    SOFA_STRUCT_DECL(ReadOnly, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(ReadOnly);
-    SOFA_STRUCT_COMPARE_METHOD(ReadOnly);
+    bool operator==(const ReadOnly& rhs) const
+    {
+        return true;
+    }
+};
+
+struct ForDebug   // is it a parameter only aimed at debugging ?
+{
+public:
+    constexpr ForDebug() {}
+
+    SOFA_STRUCT_DECL(ForDebug, SOFA_EMPTY);
+    SOFA_STRUCT_STREAM_METHODS(ForDebug);
+    bool operator==(const ForDebug& rhs) const
+    {
+        return true;
+    }
 };
 
 template<typename T> // T should be the type of the data
-struct Range
+struct Range   // what is the range of values acceptable for this data ?
 {
 public:
     helper::pair<T, T> range;
 
-    Range(helper::pair<T, T> range) : range(range) {}
+    constexpr Range(helper::pair<T, T> range) : range(range) {}
     Range() {}
 
     SOFA_STRUCT_DECL(Range, range);
@@ -169,12 +182,12 @@ public:
 
 
 template<typename T> // T should be the type of the data
-struct PossibleValues
+struct PossibleValues   // what are the values acceptable for this data ?
 {
 public:
     helper::vector<T> possibleValues;
 
-    PossibleValues(const helper::vector<T>& possibleValues) : possibleValues(possibleValues) {}
+    constexpr PossibleValues(const helper::vector<T>& possibleValues) : possibleValues(possibleValues) {}
     PossibleValues() {}
 
     SOFA_STRUCT_DECL(PossibleValues<T>, possibleValues);
@@ -183,7 +196,7 @@ public:
 };
 
 
-struct Units
+struct Units   // what are the units of the data data ?
 {
 public:
     std::array<int, 7> units;
@@ -197,7 +210,7 @@ public:
 };
 
 
-struct HelpMsg
+struct HelpMsg   // helpMsg stored in the data ?
 {
 public:
     std::string helpMsg;
@@ -219,6 +232,7 @@ public:
 // introspection of the Property structs
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::ReadOnly);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Displayed);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::ForDebug);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::HelpMsg);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Units);
 

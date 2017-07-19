@@ -25,7 +25,7 @@ public:
 
     TestOnData()
         : d_test(initData("test", "helpMsg").addMeta(meta::Displayed(), meta::PossibleValues<double>(helper::vector<double>{1.2, 1.4, 1.5})))
-        , d_force(initData("force", "helpMsg").addMeta(meta::Displayed()))
+        , d_force(initData("force", "helpMsg").addMeta(meta::ReadOnly()))
     {}
 
     void doStuff()
@@ -52,19 +52,10 @@ public:
         }
 
         meta::ReadOnly* dTestReadOnly;
-        if (d_test.getMeta(dTestReadOnly))
-        {
-            EXPECT_TRUE(dTestReadOnly->readOnly);
-        }
+        EXPECT_TRUE(d_test.getMeta(dTestReadOnly));
 
         meta::Displayed* dTestDisplayed;
-        if (d_test.getMeta(dTestDisplayed))
-        {
-            EXPECT_TRUE(dTestDisplayed->displayed);
-            dTestDisplayed->displayed = false;
-            d_test.getMeta(dTestDisplayed);
-            EXPECT_FALSE(dTestDisplayed->displayed);
-        }
+        EXPECT_TRUE(d_test.getMeta(dTestDisplayed));
     }
 
     void doStuffWithTheForce()

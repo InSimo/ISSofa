@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <sofa/helper/fixed_array.h>
+#include <sofa/defaulttype/QuantityTypeInfo.h>
 
 namespace sofa
 {

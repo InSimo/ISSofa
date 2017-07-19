@@ -26,15 +26,24 @@
 #define SOFA_DEFAULTTYPE_QUANTITYTYPEINFO_H
 
 
+#include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
-#include <sofa/defaulttype/Units.h>
 #include <array>
 
 namespace sofa
 {
 
+namespace units
+{
+template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
+class Quantity;
+} // namespace units
+
+
 namespace defaulttype
 {
+
+class AbstractMetadata;
 
 template <typename T, int kg, int m, int s, int A, int K, int mol, int cd, typename Enable = void>
 class QuantityTypeInfo : public DataTypeInfo<T> {};
@@ -253,8 +262,8 @@ public:
 template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public QuantityTypeInfo<T, kg, m, s, A, K, mol, cd>
 {
-    typedef std::tuple<meta::Units, meta::ReadOnly> MetaTuple;
-    static constexpr MetaTuple Metadata = MetaTuple{ meta::Units(std::array<int, 7>{kg, m, s, A, K, mol, cd} ), meta::ReadOnly() };
+    typedef std::tuple<meta::Units> MetaTuple;
+    static constexpr MetaTuple Metadata = MetaTuple{ meta::Units(std::array<int, 7>{kg, m, s, A, K, mol, cd} ) };
 
     class AddMetaI
     {
