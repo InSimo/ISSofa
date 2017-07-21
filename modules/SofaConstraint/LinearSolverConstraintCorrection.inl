@@ -313,6 +313,7 @@ void LinearSolverConstraintCorrection< DataTypes >::applyMotionCorrection(const 
         auto v = sofa::helper::write(v_d, cparams);
         auto dx = sofa::helper::write(dx_d, cparams);
 
+        const Real complianceFactor = d_complianceFactor.getValue(cparams);
         const VecDeriv& correction = correction_d.getValue(cparams);
         const VecCoord& x_free = cparams->readX(this->mstate)->getValue();
         const VecDeriv& v_free = cparams->readV(this->mstate)->getValue();
@@ -341,6 +342,7 @@ void LinearSolverConstraintCorrection< DataTypes >::applyPositionCorrection(cons
         auto x  = sofa::helper::write(x_d, cparams);
         auto dx = sofa::helper::write(dx_d, cparams);
 
+        const Real complianceFactor = d_complianceFactor.getValue(cparams);
         const VecDeriv& correction = correction_d.getValue(cparams);
         const VecCoord& x_free = cparams->readX(this->mstate)->getValue();
 
@@ -365,6 +367,7 @@ void LinearSolverConstraintCorrection< DataTypes >::applyVelocityCorrection(cons
         auto v  = sofa::helper::write(v_d,cparams);
         auto dv = sofa::helper::write(dv_d, cparams); 
 
+        const Real complianceFactor = d_complianceFactor.getValue(cparams);
         const VecDeriv& correction = correction_d.getValue(cparams);
         const VecDeriv& v_free     = cparams->readV(this->mstate)->getValue();
 

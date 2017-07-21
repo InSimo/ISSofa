@@ -25,7 +25,7 @@
 #define SOFA_COMPONENT_CONSTRAINT_GENERICCONSTRAINTCORRECTION_CPP
 
 #include "GenericConstraintCorrection.h"
-#include <sofa/simulation/MechanicalMatrixVisitor.h>
+#include <sofa/simulation/common/MechanicalMatrixVisitor.h>
 #include <sofa/core/behavior/OdeSolver.h>
 #include <sofa/core/behavior/LinearSolver.h>
 #include <sofa/core/ObjectFactory.h>
