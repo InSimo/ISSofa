@@ -226,6 +226,9 @@ public:
     /// Get the linear system matrix, or NULL if this solver does not build it
     defaulttype::BaseMatrix* getSystemBaseMatrix() { return currentGroup->systemMatrix; }
 
+    /// Get the MultiMatrix view of the linear system, or NULL if this solved does not build it
+    const core::behavior::MultiMatrixAccessor* getSystemMultiMatrixAccessor() const { return &currentGroup->matrixAccessor; }
+
     /// Get the linear system right-hand term vector, or NULL if this solver does not build it
     defaulttype::BaseVector* getSystemRHBaseVector() { return currentGroup->systemRHVector; }
 
@@ -292,7 +295,7 @@ public:
 
     virtual bool buildComplianceMatrix(defaulttype::BaseMatrix* result, double fact);
 
-    virtual void applyContactForce(const defaulttype::BaseVector* f,double positionFactor,double velocityFactor);
+    virtual void applyConstraintForce(const sofa::core::ConstraintParams* cparams, sofa::core::MultiVecDerivId dx, const defaulttype::BaseVector* f);
 
     virtual void computeResidual(const core::ExecParams* params, defaulttype::BaseVector* f);
 
@@ -455,6 +458,9 @@ template<> SOFA_BASE_LINEAR_SOLVER_API
 defaulttype::BaseMatrix* MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManager>::getSystemBaseMatrix();
 
 template<> SOFA_BASE_LINEAR_SOLVER_API
+const core::behavior::MultiMatrixAccessor* MatrixLinearSolver<GraphScatteredMatrix, GraphScatteredVector, NoThreadManager>::getSystemMultiMatrixAccessor() const;
+
+template<> SOFA_BASE_LINEAR_SOLVER_API
 defaulttype::BaseVector* MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManager>::getSystemRHBaseVector();
 
 template<> SOFA_BASE_LINEAR_SOLVER_API
@@ -464,7 +470,7 @@ template<> SOFA_BASE_LINEAR_SOLVER_API
 void MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManager>::setSystemMatrix(GraphScatteredMatrix * matrix);
 
 template<> SOFA_BASE_LINEAR_SOLVER_API
-void MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManager>::applyContactForce(const defaulttype::BaseVector* f,double positionFactor,double velocityFactor);
+void MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManager>::applyConstraintForce(const sofa::core::ConstraintParams* /*cparams*/, sofa::core::MultiVecDerivId /*dx*/, const defaulttype::BaseVector* /*f*/);
 
 template<> SOFA_BASE_LINEAR_SOLVER_API
 void MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManager>::computeResidual(const core::ExecParams* params,defaulttype::BaseVector* f);
