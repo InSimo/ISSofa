@@ -152,6 +152,16 @@ public:
 	/// \param cParams defines the state vectors to use for positions and velocities. Also defines the order of the constraint (POS, VEL, ACC) and resolution parameters (smoothness, ...)
 	/// \param resTab is the result vector that contains the contraint resolution algorithms
     virtual void getConstraintResolution(const ConstraintParams* cParams, std::vector<ConstraintResolution*> &resTab, unsigned int &offset) = 0;
+
+
+    /// Store the constraint lambda at the constraint dofs at the given VecDerivId location. 
+    /// res = J^t * lambda. 
+    /// J is the sparse matrix containing the constraint jacobian that was used to build the constraint matrix ( see BaseConstraintSet::buildConstraintMatrix ).
+    /// \param cParams stores the id of the state vectors used during the constraint solving step. Mostly it helps retrieving the MatrixDerivId where
+    ///        the constraint jacobian J is stored.
+    /// \param res is the state vector Id where to store the result.
+    /// \param lambda is the vector of scalar constraint impulses. The direction are stored in the MatrixDerivId stored in the cParams.
+    virtual void storeLambda(const ConstraintParams* cParams, MultiVecDerivId res, const sofa::defaulttype::BaseVector* lambda) = 0;
 };
 
 } // namespace behavior
