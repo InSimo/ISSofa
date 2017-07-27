@@ -9,6 +9,7 @@ set(HEADER_FILES
     ConstraintAttachBodyPerformer.h
     ConstraintAttachBodyPerformer.inl
     ConstraintSolverImpl.h
+    ConstraintStoreLambdaVisitor.h
     ContactDescription.h
     FreeMotionAnimationLoop.h
     FrictionContact.h
@@ -57,6 +58,8 @@ set(SOURCE_FILES
     LinearSolverConstraintCorrection.cpp
     LCPConstraintSolver.cpp
     ConstraintSolverImpl.cpp
+    ConstraintStoreLambdaVisitor.cpp
+    ContactIdentifier.cpp
     FreeMotionAnimationLoop.cpp
     GenericConstraintSolver.cpp
     BilateralInteractionConstraint.cpp
