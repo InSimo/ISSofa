@@ -31,17 +31,13 @@
 #include <sofa/core/behavior/MechanicalState.h>
 
 #include <sofa/defaulttype/Mat.h>
-#include <sofa/defaulttype/RigidTypes.h>
-#include <sofa/defaulttype/Vec.h>
-#include <sofa/defaulttype/VecTypes.h>
+#include <sofa/core/behavior/BaseConstraint.h>
 
 #include <sofa/core/objectmodel/Event.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
 #include <sofa/simulation/common/AnimateEndEvent.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
-
-#include <deque>
 
 namespace sofa
 {
@@ -61,7 +57,9 @@ using sofa::core::behavior::ConstraintResolution ;
 class BilateralConstraintResolution : public ConstraintResolution
 {
 public:
-    BilateralConstraintResolution(double* initF=NULL) : _f(initF) {}
+    BilateralConstraintResolution(double* initF=NULL) 
+        : ConstraintResolution(1)
+        , _f(initF) {}
     virtual void resolution(int line, double** w, double* d, double* force, double *dfree)
     {
         SOFA_UNUSED(dfree);
@@ -91,7 +89,11 @@ class BilateralConstraintResolution3Dof : public ConstraintResolution
 {
 public:
 
-    BilateralConstraintResolution3Dof(sofa::defaulttype::Vec3d* vec=NULL) : _f(vec) { nbLines=3; }
+    BilateralConstraintResolution3Dof(sofa::defaulttype::Vec3d* vec = NULL)
+        : ConstraintResolution(3)
+        , _f(vec)
+    {
+    }
     virtual void init(int line, double** w, double *force)
     {
         sofa::defaulttype::Mat<3,3,double> temp;
@@ -151,7 +153,11 @@ template <int N>
 class BilateralConstraintResolutionNDof : public ConstraintResolution
 {
 public:
-    BilateralConstraintResolutionNDof(sofa::defaulttype::Vec<N, double>* vec=NULL) : _f(vec) { nbLines=N; }
+    BilateralConstraintResolutionNDof(sofa::defaulttype::Vec<N, double>* vec=NULL) 
+        : ConstraintResolution(N)
+        , _f(vec) 
+    { 
+    }
     virtual void init(int line, double** w, double *force)
     {
         sofa::defaulttype::Mat<N,N,double> temp;
