@@ -73,26 +73,32 @@ set(SOURCE_FILES
     )
 
 if(SOFA_HAVE_EIGEN2)
- 	list(APPEND HEADER_FILES "BarycentricDistanceLMConstraintContact.h")
-	list(APPEND HEADER_FILES "BarycentricDistanceLMConstraintContact.inl")
-	list(APPEND HEADER_FILES "DOFBlockerLMConstraint.h")
-	list(APPEND HEADER_FILES "DOFBlockerLMConstraint.inl")
-	list(APPEND HEADER_FILES "FixedLMConstraint.h")
-	list(APPEND HEADER_FILES "FixedLMConstraint.inl")
-	list(APPEND HEADER_FILES "DistanceLMContactConstraint.h")
-	list(APPEND HEADER_FILES "DistanceLMContactConstraint.inl")
-	list(APPEND HEADER_FILES "DistanceLMConstraint.h")
-	list(APPEND HEADER_FILES "DistanceLMConstraint.inl")
-	list(APPEND HEADER_FILES "LMConstraintSolver.h")
-	list(APPEND HEADER_FILES "LMConstraintDirectSolver.h")
 
-	list(APPEND SOURCE_FILES "BarycentricDistanceLMConstraintContact.cpp")
-	list(APPEND SOURCE_FILES "DOFBlockerLMConstraint.cpp")
-	list(APPEND SOURCE_FILES "FixedLMConstraint.cpp")
-	list(APPEND SOURCE_FILES "DistanceLMContactConstraint.cpp")
-	list(APPEND SOURCE_FILES "DistanceLMConstraint.cpp")
-	list(APPEND SOURCE_FILES "LMConstraintSolver.cpp")
-	list(APPEND SOURCE_FILES "LMConstraintDirectSolver.cpp")
+list(APPEND HEADER_FILES
+    BarycentricDistanceLMConstraintContact.h
+    BarycentricDistanceLMConstraintContact.inl
+    DOFBlockerLMConstraint.h
+    DOFBlockerLMConstraint.inl
+    FixedLMConstraint.h
+    FixedLMConstraint.inl
+    DistanceLMContactConstraint.h
+    DistanceLMContactConstraint.inl
+    DistanceLMConstraint.h
+    DistanceLMConstraint.inl
+    LMConstraintSolver.h
+    LMConstraintDirectSolver.h
+)
+
+list(APPEND SOURCE_FILES
+    BarycentricDistanceLMConstraintContact.cpp
+    DOFBlockerLMConstraint.cpp
+    FixedLMConstraint.cpp
+    DistanceLMContactConstraint.cpp
+    DistanceLMConstraint.cpp
+    LMConstraintSolver.cpp
+    LMConstraintDirectSolver.cpp
+)
+
 endif()
 
 set(GROUP_BASE_DIR "..")
