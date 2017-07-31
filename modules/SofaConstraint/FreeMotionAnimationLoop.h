@@ -70,8 +70,6 @@ public:
 
     Data<bool> displayTime;
 
-    Data<bool> d_linearizeMappingsAroundFreeMotion;
-
     Data<bool> m_solveVelocityConstraintFirst;
 
 protected :

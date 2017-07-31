@@ -62,9 +62,6 @@ using namespace sofa::simulation;
 FreeMotionAnimationLoop::FreeMotionAnimationLoop(simulation::Node* gnode)
     : Inherit(gnode)
     , displayTime(initData(&displayTime,false,"displayTime","Dump the computation times"))
-    , d_linearizeMappingsAroundFreeMotion(initData(&d_linearizeMappingsAroundFreeMotion,false,"linearizeMappingsAroundFreeMotion","If true the linearisation (jacobian) used for constraint accumulation and solving\
-                                                                                                                                   will be around the freemotion, otherwise the linearisation around the position at\
-                                                                                                                                   the beginning of the time step is used."))
     , m_solveVelocityConstraintFirst(initData(&m_solveVelocityConstraintFirst , false, "solveVelocityConstraintFirst", "solve separately velocity constraint violations before position constraint violations"))
     , constraintSolver(NULL)
     , defaultSolver(NULL)
@@ -138,6 +135,7 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     cparams.setJ(sofa::core::ConstMatrixDerivId::holonomicC());
     cparams.setDx(constraintSolver->getDx());
     cparams.setLambda(constraintSolver->getLambda());
+    cparams.setOrder(m_solveVelocityConstraintFirst.getValue() ? core::ConstraintParams::VEL : core::ConstraintParams::POS_AND_VEL);
 
     {
         MultiVecDeriv dx(&vop, core::VecDerivId::dx() ); dx.realloc( &vop, true, true );
@@ -217,7 +215,17 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     {
         mop.projectResponse(freeVel);
         mop.propagateDx(freeVel, true);
+
+        if (cparams.constOrder() == core::ConstraintParams::POS ||
+            cparams.constOrder() == core::ConstraintParams::POS_AND_VEL)
+        {
+            // xfree = x + vfree*dt
+            simulation::MechanicalVOpVisitor freePosEqPosPlusFreeVelDt(params, freePos, pos, freeVel, dt);
+            freePosEqPosPlusFreeVelDt.setMapped(true);
+            this->getContext()->executeVisitor(&freePosEqPosPlusFreeVelDt);
+        }
     }
+
     if (f_printLog.getValue())
         serr << " SolveVisitor for freeMotion performed" << sendl;
 
@@ -234,14 +242,6 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     computeCollision(params);
     AdvancedTimer::stepEnd  ("Collision");
 
-
-    if (!d_linearizeMappingsAroundFreeMotion.getValue())
-    {
-        // call apply() method in each mapping so as to recompute their linearisation around 
-        // the position at the beginning of the time step
-        mop.propagateX(pos); 
-    }
-
     if (displayTime.getValue())
     {
         sout << " computeCollision " << ((double) CTime::getTime() - time) * timeScale << " ms" << sendl;
@@ -253,18 +253,20 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     {
         AdvancedTimer::stepBegin("ConstraintSolver");
 
-        if (m_solveVelocityConstraintFirst.getValue())
+        if (cparams.constOrder() == core::ConstraintParams::VEL )
         {
-            cparams.setOrder(core::ConstraintParams::VEL);
             constraintSolver->solveConstraint(&cparams, vel);
-
-            MultiVecDeriv dv(&vop, constraintSolver->getDx());
-            mop.projectResponse(dv);
-            mop.propagateDx(dv,true);
-
-            // x = xfree + dv * dt
+            // x_t+1 = x_t + ( vfree + dv ) * dt
             pos.eq(pos, vel, dt);
         }
+        else
+        {
+            constraintSolver->solveConstraint(&cparams, pos, vel);
+        }
+
+        MultiVecDeriv dx(&vop, constraintSolver->getDx());
+        mop.projectResponse(dx);
+        mop.propagateDx(dx, true);
 
         AdvancedTimer::stepEnd("ConstraintSolver");
 
