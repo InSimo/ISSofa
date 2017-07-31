@@ -78,9 +78,9 @@ void BarycentricDistanceLMConstraintContact<TCollisionModel1,TCollisionModel2,Re
     if (ff==NULL)
     {
 
-        MechanicalState1* mstate1 = mapper1.createMapping(GenerateStirngID::generate().c_str());
+        MechanicalState1* mstate1 = mapper1.createMapping(GenerateStringID::generate().c_str());
         mapper1.setConstraintMode();
-        MechanicalState2* mstate2 = mapper2.createMapping(GenerateStirngID::generate().c_str());
+        MechanicalState2* mstate2 = mapper2.createMapping(GenerateStringID::generate().c_str());
         mapper2.setConstraintMode();
         ff = sofa::core::objectmodel::New<ResponseType>(mstate1,mstate2);
         ff->setName( getName() );

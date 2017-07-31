@@ -53,7 +53,7 @@ namespace component
 namespace collision
 {
 
-class GenerateStirngID
+class GenerateStringID
 {
 public :
 
