@@ -4,8 +4,10 @@
     <FreeMotionAnimationLoop solveVelocityConstraintFirst="1" />
     <CollisionPipeline depth="15" verbose="0" draw="0" />
     <BruteForceDetection name="N2" />
-    <LocalMinDistance name="Proximity" alarmDistance="0.3" contactDistance="0.1" useLMDFilters="0" />
-    <CollisionResponse name="Response" response="FrictionContact" />
+    <!-- <LocalMinDistance name="Proximity" alarmDistance="0.3" contactDistance="0.01" useLMDFilters="0" /> -->
+    <NewProximityIntersection name="Proximity" alarmDistance="0.3" contactDistance="0.01" />
+    <CollisionResponse name="Response" response="FrictionContact" responseParams="mu=0.8" />
+    <!-- <CollisionResponse name="Response" response="FrictionContact" responseParams="mu=0" /> -->
     <Node>
         <EulerImplicit name="cg_odesolver" printLog="false" />
         <CGLinearSolver iterations="25" name="linear solver" tolerance="1.0e-9" threshold="1.0e-9" />
@@ -23,8 +25,8 @@
                 <Mesh src="@loader"/>
                 <MechanicalObject src="@loader" scale="0.3" />
                 <Triangle />
-                <Line />
-                <Point />
+                <!-- <Line /> -->
+                <!-- <Point /> -->
                 <RigidMapping />
             </Node>
         </Node>
@@ -41,8 +43,8 @@
                 <Mesh src="@loader"/>
                 <MechanicalObject src="@loader" scale="0.3" />
                 <Triangle />
-                <Line />
-                <Point />
+                <!-- <Line /> -->
+                <!-- <Point /> -->
                 <RigidMapping />
             </Node>
         </Node>
@@ -59,8 +61,8 @@
                 <Mesh src="@loader"/>
                 <MechanicalObject src="@loader" scale="0.3" />
                 <Triangle />
-                <Line />
-                <Point />
+                <!-- <Line /> -->
+                <!-- <Point /> -->
                 <RigidMapping />
             </Node>
         </Node>
@@ -77,8 +79,8 @@
                 <Mesh src="@loader"/>
                 <MechanicalObject src="@loader" scale="0.3" />
                 <Triangle />
-                <Line />
-                <Point />
+                <!-- <Line /> -->
+                <!-- <Point /> -->
                 <RigidMapping />
             </Node>
         </Node>
@@ -95,8 +97,8 @@
                 <Mesh src="@loader"/>
                 <MechanicalObject src="@loader" scale="0.3" />
                 <Triangle />
-                <Line />
-                <Point />
+                <!-- <Line /> -->
+                <!-- <Point /> -->
                 <RigidMapping />
             </Node>
         </Node>
@@ -113,8 +115,8 @@
                 <Mesh src="@loader"/>
                 <MechanicalObject src="@loader" scale="0.3" />
                 <Triangle />
-                <Line />
-                <Point />
+                <!-- <Line /> -->
+                <!-- <Point /> -->
                 <RigidMapping />
             </Node>
         </Node>
@@ -123,8 +125,8 @@
             <Mesh src="@loader"/>
             <MechanicalObject src="@loader" />
             <Triangle simulated="0" moving="0" />
-            <Line simulated="0" moving="0" />
-            <Point simulated="0" moving="0" />
+            <!-- <Line simulated="0" moving="0" /> -->
+            <!-- <Point simulated="0" moving="0" /> -->
             <OglModel name="Visual" fileMesh="mesh/box_outside.obj" color="0 0.8 0.3 0.3" />
         </Node>
     </Node>
