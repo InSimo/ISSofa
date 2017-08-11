@@ -26,8 +26,12 @@
 #define SOFA_SIMULATION_TREE_EXPORTDOTACTION_H
 
 #include <sofa/simulation/tree/GNodeVisitor.h>
+#include <sofa/core/visual/DisplayFlags.h> // for tristate
+#include <sofa/helper/set.h>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <list>
 
 
 namespace sofa
@@ -47,19 +51,24 @@ public:
     bool showNode;
     bool showObject;
     bool showSlaves;
+    bool showSolverGroups;
     bool showBehaviorModel;
     bool showCollisionModel;
     bool showVisualModel;
+    bool showVisualObject;
     bool showMapping;
     bool showContext;
     bool showEngine;
     bool showLoader;
     bool showCollisionPipeline;
+    bool showAnimationLoop;
+    bool showController;
     bool showSolver;
     bool showMechanicalState;
     bool showForceField;
     bool showInteractionForceField;
     bool showConstraint;
+    bool showProjectiveConstraint;
     bool showMass;
     bool showTopology;
     bool showTopologyObject;
@@ -67,10 +76,19 @@ public:
     bool showMechanicalMapping;
     bool showOthers;
 
+    std::map<std::string,std::string> graphAttrs;
+    std::map<std::string,std::string> nodeAttrs;
+    std::map<std::string,std::string> edgeAttrs;
+
     bool labelNodeName;
     bool labelNodeClass;
     bool labelObjectName;
     bool labelObjectClass;
+
+    helper::set<std::string> excludeNames;
+    helper::set<std::string> includeNames;
+    helper::set<std::string> inputLinks;
+    helper::set<std::string> outputLinks;
 
     ExportDotVisitor(const sofa::core::ExecParams* params /* PARAMS FIRST */, std::ostream* out);
     ~ExportDotVisitor();
@@ -88,6 +106,11 @@ protected:
     std::map<core::objectmodel::Base*, std::string> names;
     /// Next indice available for duplicated names
     std::map<std::string, int> nextIndex;
+
+    sofa::core::visual::tristate isIncludedOrExcludedStr(const std::string& s);
+    sofa::core::visual::tristate isIncludedOrExcludedBase(core::objectmodel::Base* b);
+    sofa::core::visual::tristate isIncludedOrExcluded(GNode* b);
+    sofa::core::visual::tristate isIncludedOrExcluded(core::objectmodel::BaseObject* b);
 
     /// Test if a node should be displayed
     bool display(GNode* node, const char** color=NULL);
@@ -109,9 +132,11 @@ protected:
     /// Compute the name of a given object
     std::string getName(core::objectmodel::BaseObject* obj);
 
-    /// Tag used to exclude nodes or graphs from exported graph
-    sofa::core::objectmodel::Tag tagNoExportGraph;
+    std::ostringstream olinks;
 
+    std::list< std::pair<std::string,std::string> > nodeOutStack;
+
+    bool first;
 };
 
 } // namespace tree

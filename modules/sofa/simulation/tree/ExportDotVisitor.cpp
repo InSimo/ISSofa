@@ -31,6 +31,7 @@
 #include <sofa/core/topology/BaseTopologyObject.h>
 #include <sofa/core/DataEngine.h>
 #include <sofa/core/behavior/BaseInteractionConstraint.h>
+#include <sofa/core/behavior/BaseController.h>
 
 #include <sofa/core/collision/CollisionGroupManager.h>
 #include <sofa/core/collision/ContactManager.h>
@@ -44,25 +45,33 @@ namespace simulation
 namespace tree
 {
 
+using sofa::core::visual::tristate;
+using sofa::core::objectmodel::Base;
+
 ExportDotVisitor::ExportDotVisitor(const sofa::core::ExecParams* params /* PARAMS FIRST */, std::ostream* out)
     : GNodeVisitor(params),
       out(out),
       showNode(true),
       showObject(true),
       showSlaves(true),
+      showSolverGroups(true),
       showBehaviorModel(true),
       showCollisionModel(true),
       showVisualModel(true),
+      showVisualObject(true),
       showMapping(true),
       showContext(true),
       showEngine(true),
       showLoader(true),
       showCollisionPipeline(true),
+      showAnimationLoop(true),
+      showController(true),
       showSolver(true),
       showMechanicalState(true),
       showForceField(true),
       showInteractionForceField(true),
       showConstraint(true),
+      showProjectiveConstraint(true),
       showMass(true),
       showTopology(true),
       showTopologyObject(true),
@@ -73,16 +82,108 @@ ExportDotVisitor::ExportDotVisitor(const sofa::core::ExecParams* params /* PARAM
       labelNodeClass(false),
       labelObjectName(true),
       labelObjectClass(true),
-      tagNoExportGraph("NoExportGraph")
+      first(true)
 {
-    *out << "digraph G {" << std::endl;
-    //*out << "graph [concentrate=true]" << std::endl;
-    //*out << "graph [splines=curved]" << std::endl;
+    excludeNames.insert("NoExportGraph");
 }
 
 ExportDotVisitor::~ExportDotVisitor()
 {
-    *out << "}" << std::endl;
+    if (!first)
+    {
+        *out << olinks.str();
+        *out << "}" << std::endl;
+    }
+}
+
+namespace
+{
+void acc_favor_true(tristate& lhs, const tristate& rhs)
+{
+    if (rhs != tristate::neutral_value && rhs != lhs)
+    {
+        if (lhs == tristate::neutral_value) lhs = rhs;
+        else lhs = tristate::true_value; // one is false, the other is true
+    }
+}
+bool strPatternMatch(const std::string& pattern, const std::string& s)
+{
+    if (pattern.empty())
+    {
+        return s.empty();
+    }
+    else if (pattern.back() != '*')
+    {
+        return s == pattern;
+    }
+    else if (s[0] != pattern[0]) // quick way out
+    {
+        return false;
+    }
+    else if (s.length() == pattern.length()-1)
+    {
+        return s == pattern.substr(0, pattern.length()-1);
+    }
+    else if (s.length() >= pattern.length())
+    {
+        return s.substr(0, pattern.length()-1) == pattern.substr(0, pattern.length()-1);
+    }
+    else
+    {
+        return false;
+    }
+}
+}
+
+tristate ExportDotVisitor::isIncludedOrExcludedStr(const std::string& s)
+{
+    for (const std::string& s2 : includeNames)
+    {
+        if (strPatternMatch(s2, s))
+        {
+            return tristate::true_value;
+        }
+    }
+    for (const std::string& s2 : excludeNames)
+    {
+        if (strPatternMatch(s2, s))
+        {
+            return tristate::false_value;
+        }
+    }
+    return tristate::neutral_value;
+}
+
+tristate ExportDotVisitor::isIncludedOrExcludedBase(sofa::core::objectmodel::Base* b)
+{
+    tristate current(tristate::neutral_value);
+    acc_favor_true(current, isIncludedOrExcludedStr(b->getName()));
+    acc_favor_true(current, isIncludedOrExcludedStr(b->getClassName()));
+    for(const sofa::core::objectmodel::Tag& t : b->getTags())
+    {
+        if (!t.negative())
+        {
+            acc_favor_true(current, isIncludedOrExcludedStr(t));
+        }
+    }
+    return current;
+}
+
+tristate ExportDotVisitor::isIncludedOrExcluded(sofa::core::objectmodel::BaseObject* b)
+{
+    tristate current = isIncludedOrExcludedBase(b);
+    if (auto n = sofa::core::objectmodel::BaseNode::DynamicCast(b->getContext()))
+    {
+        acc_favor_true(current, isIncludedOrExcludedStr(n->getPathName() + std::string("/") + b->getName()));
+    }
+    return current;
+}
+
+tristate ExportDotVisitor::isIncludedOrExcluded(GNode* b)
+{
+    tristate current = isIncludedOrExcludedBase(b);
+    acc_favor_true(current, isIncludedOrExcludedStr(b->getPathName()));
+    return current;
 }
 
 /// Test if a node should be displayed
@@ -90,13 +191,20 @@ bool ExportDotVisitor::display(GNode* node, const char **color)
 {
     using namespace Colors;
     if (!node) return false;
-    if (showNode)
+    if (color) *color = COLOR[NODE];
+    tristate filtered = isIncludedOrExcluded(node);
+    if (!showNode)
     {
-        if (color) *color = COLOR[NODE];
-        return true;
+        return false;
+    }
+    else if (filtered != tristate::neutral_value)
+    {
+        return filtered;
     }
     else
-        return false;
+    {
+        return true;
+    }
 }
 
 /// Test if an object should be displayed
@@ -106,59 +214,86 @@ bool ExportDotVisitor::display(core::objectmodel::BaseObject* obj, const char **
     const char* c = NULL;
     if (color==NULL) color=&c;
     if (!obj) return false;
-    if (!showObject) return false;
     *color = COLOR[OBJECT];
+    tristate filtered = isIncludedOrExcluded(obj);
+    if (!showObject) return filtered;
     bool show = false;
     bool hide = false;
+    if (core::visual::VisualModel::DynamicCast(obj))
+    {
+        *color = COLOR[VMODEL];
+    }
     if (core::behavior::BaseMechanicalState::DynamicCast(obj))
     {
-        if (showMechanicalState) { show = true; *color = COLOR[MMODEL]; }
+        *color = COLOR[MMODEL];
+        if (showMechanicalState) { show = true; }
         else hide = true;
     }
     if (core::topology::Topology::DynamicCast(obj))
     {
-        if (showTopology) { show = true; *color = COLOR[TOPOLOGY]; }
+        *color = COLOR[TOPOLOGY];
+        if (showTopology) { show = true; }
         else hide = true;
     }
     if (core::CollisionModel::DynamicCast(obj))
     {
-        if (showCollisionModel) { show = true; *color = COLOR[CMODEL]; }
+        *color = COLOR[CMODEL];
+        if (showCollisionModel) { show = true; }
         else hide = true;
     }
     core::BaseMapping* bm = core::BaseMapping::DynamicCast(obj);
+    bool toModelVisible = false;
+    if (bm)
+    {
+        for (core::objectmodel::BaseObject* model2 : bm->getTo())
+        {
+            if (display(model2))
+            {
+                toModelVisible = true;
+                break;
+            }
+        }
+    }
     if (bm && !bm->isMechanical())
     {
-        if (showMapping) { show = true; *color = COLOR[MAPPING]; }
+        *color = COLOR[MAPPING];
+        if (showMapping && toModelVisible) { show = true; }
         else hide = true;
     }
     if (bm && bm->isMechanical())
     {
-        if (showMechanicalMapping) { show = true; *color = COLOR[MMAPPING]; }
+        *color = COLOR[MMAPPING];
+        if (showMechanicalMapping && toModelVisible) { show = true; }
         else hide = true;
     }
     if (core::topology::BaseTopologyObject::DynamicCast(obj))
     {
-        if (showTopologyObject) { show = true; *color = COLOR[TOPOOBJECT]; }
+        *color = COLOR[TOPOOBJECT];
+        if (showTopologyObject) { show = true; }
         else hide = true;
     }
     if (core::topology::TopologicalMapping::DynamicCast(obj))
     {
-        if (showTopologicalMapping) { show = true; *color = COLOR[TOPOMAPPING]; }
+        *color = COLOR[TOPOMAPPING];
+        if (showTopologicalMapping) { show = true; }
         else hide = true;
     }
     if (core::objectmodel::ContextObject::DynamicCast(obj))
     {
-        if (showContext) { show = true; *color = COLOR[CONTEXT]; }
+        *color = COLOR[CONTEXT];
+        if (showContext) { show = true; }
         else hide = true;
     }
     if (core::DataEngine::DynamicCast(obj))
     {
-        if (showEngine) { show = true; *color = COLOR[ENGINE]; }
+        *color = COLOR[ENGINE];
+        if (showEngine) { show = true; }
         else hide = true;
     }
     if (core::loader::BaseLoader::DynamicCast(obj))
     {
-        if (showLoader) { show = true; *color = COLOR[LOADER]; }
+        *color = COLOR[LOADER];
+        if (showLoader) { show = true; }
         else hide = true;
     }
     if (core::collision::Pipeline::DynamicCast(obj)
@@ -167,50 +302,82 @@ bool ExportDotVisitor::display(core::objectmodel::BaseObject* obj, const char **
         || core::collision::ContactManager::DynamicCast(obj)
         || core::collision::CollisionGroupManager::DynamicCast(obj))
     {
-        if (showCollisionPipeline) { show = true; *color = COLOR[COLLISION]; }
+        *color = COLOR[COLLISION];
+        if (showCollisionPipeline) { show = true; }
         else hide = true;
     }
     if (core::behavior::OdeSolver::DynamicCast(obj)
         || core::behavior::LinearSolver::DynamicCast(obj))
     {
-        if (showSolver) { show = true; *color = COLOR[SOLVER]; }
+        *color = COLOR[SOLVER];
+        if (showSolver) { show = true; }
         else hide = true;
     }
     if (core::behavior::BaseInteractionForceField::DynamicCast(obj) &&
         core::behavior::BaseInteractionForceField::DynamicCast(obj)->getMechModel1()!=core::behavior::BaseInteractionForceField::DynamicCast(obj)->getMechModel2())
     {
-        if (showInteractionForceField) { show = true; *color = COLOR[IFFIELD]; }
+        *color = COLOR[IFFIELD];
+        if (showInteractionForceField) { show = true; }
         else hide = true;
     }
     else if (core::behavior::BaseForceField::DynamicCast(obj))
     {
-        if (showForceField) { show = true; *color = COLOR[FFIELD]; }
+        *color = COLOR[FFIELD];
+        if (showForceField) { show = true; }
         else hide = true;
     }
     if (core::behavior::BaseMass::DynamicCast(obj))
     {
-        if (showMass) { show = true; *color = COLOR[MASS]; }
+        *color = COLOR[MASS];
+        if (showMass) { show = true; }
         else hide = true;
     }
     if (core::behavior::BaseProjectiveConstraintSet::DynamicCast(obj))
     {
-        if (showConstraint) { show = true; *color = COLOR[PROJECTIVECONSTRAINTSET]; }
+        *color = COLOR[PROJECTIVECONSTRAINTSET];
+        if (showProjectiveConstraint) { show = true; }
         else hide = true;
     }
     if (core::behavior::BaseConstraintSet::DynamicCast(obj))
     {
-        if (showConstraint) { show = true; *color = COLOR[CONSTRAINTSET]; }
+        *color = COLOR[CONSTRAINTSET];
+        if (showConstraint) { show = true; }
         else hide = true;
     }
     if (core::BehaviorModel::DynamicCast(obj))
     {
-        if (showBehaviorModel) { show = true; *color = COLOR[BMODEL]; }
+        *color = COLOR[BMODEL];
+        if (showBehaviorModel) { show = true; }
         else hide = true;
     }
-
-    if (core::visual::VisualModel::DynamicCast(obj) && !hide && !show)
+    if (core::behavior::BaseController::DynamicCast(obj))
     {
-        if (showVisualModel) { show = true; *color = COLOR[VMODEL]; }
+        *color = COLOR[BMODEL];
+        if (showController) { show = true; }
+        else hide = true;
+    }
+    if (core::behavior::BaseAnimationLoop::DynamicCast(obj))
+    {
+        *color = COLOR[SOLVER];
+        if (showAnimationLoop) { show = true; }
+        else hide = true;
+    }
+    if (core::behavior::ConstraintSolver::DynamicCast(obj))
+    {
+        *color = COLOR[SOLVER];
+        if (showAnimationLoop && (showSolver || showConstraint)) { show = true; }
+        else hide = true;
+    }
+    
+    if (core::visual::VisualModel::DynamicCast(obj) && core::BaseState::DynamicCast(obj))
+    {
+        if (showVisualModel) { show = true; }
+        else hide = true;
+    }
+    
+    if (core::visual::VisualModel::DynamicCast(obj) && !show && !hide)
+    {
+        if (showVisualObject) { show = true; }
         else hide = true;
     }
 
@@ -220,7 +387,14 @@ bool ExportDotVisitor::display(core::objectmodel::BaseObject* obj, const char **
         else hide = true;
     }
 
-    return show || !hide;
+    if (filtered != tristate::neutral_value)
+    {
+        return filtered;
+    }
+    else
+    {
+        return show || !hide;
+    }
 }
 
 /// Find the node or object a given object should be attached to.
@@ -234,34 +408,42 @@ std::string ExportDotVisitor::getParentName(core::objectmodel::BaseObject* obj)
         return getName(master);
     GNode* node = GNode::DynamicCast(obj->getContext());
     if (!node) return "";
-    if (display(node))
-        return getName(node);
-    if (core::BaseMapping::DynamicCast(obj))
-        return "";
-    if (core::topology::TopologicalMapping::DynamicCast(obj))
-        return "";
-    if (!node->collisionPipeline.empty() && display(node->collisionPipeline) &&
-        (core::collision::Intersection::DynamicCast(obj) ||
-                core::collision::Detection::DynamicCast(obj) ||
-                core::collision::ContactManager::DynamicCast(obj) ||
-                core::collision::CollisionGroupManager::DynamicCast(obj)))
-        return getName(node->collisionPipeline);
-    if (!node->topology.empty() && node->topology!=obj && display(node->topology) &&
-        core::topology::BaseTopologyObject::DynamicCast(obj))
-        return getName(node->topology);
-    /// \todo consider all solvers instead of the first one (FF)
-    if (!node->mechanicalState.empty() && node->mechanicalState!=obj && node->linearSolver[0]!=obj && node->solver[0]!=obj  && node->animationManager!=obj && display(node->mechanicalState))
-        return getName(node->mechanicalState);
-    if (!node->linearSolver.empty() && node->linearSolver[0]!=obj && node->solver[0]!=obj && node->animationManager!=obj && display(node->linearSolver[0]))
-        return getName(node->linearSolver[0]);
-    if (!node->solver.empty() && node->solver[0]!=obj && node->animationManager!=obj && display(node->solver[0]))
-        return getName(node->solver[0]);
-    if (!node->animationManager.empty() && node->animationManager!=obj && display(node->solver[0]))
-        return getName(node->animationManager);
-    if ((node->mechanicalState==obj || node->solver[0]==obj) && !node->mechanicalMapping && node->parent() && display(node->parent()->solver[0]))
-        return getName(node->parent()->solver[0]);
-    if ((node->mechanicalState==obj || node->solver[0]==obj || node->animationManager==obj) && !node->mechanicalMapping && node->parent() && display(node->parent()->animationManager))
-        return getName(node->parent()->animationManager);
+    bool isMechanicalState = !node->mechanicalState.empty() && node->mechanicalState==obj;
+    bool isState = core::BaseState::DynamicCast(obj);
+    while (node)
+    {
+        if (display(node))
+            return getName(node);
+        if (core::BaseMapping::DynamicCast(obj))
+            return "";
+        if (core::topology::TopologicalMapping::DynamicCast(obj))
+            return "";
+        if (!node->collisionPipeline.empty() && display(node->collisionPipeline) &&
+            (core::collision::Intersection::DynamicCast(obj) ||
+             core::collision::Detection::DynamicCast(obj) ||
+             core::collision::ContactManager::DynamicCast(obj) ||
+             core::collision::CollisionGroupManager::DynamicCast(obj)))
+            return getName(node->collisionPipeline);
+        if (!node->topology.empty() && node->topology!=obj && display(node->topology) &&
+            core::topology::BaseTopologyObject::DynamicCast(obj))
+            return getName(node->topology);
+        /// \todo consider all solvers instead of the first one (FF)
+        if (!isMechanicalState && !node->mechanicalState.empty() && node->mechanicalState!=obj && node->linearSolver[0]!=obj && node->solver[0]!=obj  && node->animationManager!=obj && display(node->mechanicalState))
+            return getName(node->mechanicalState);
+        if (!isState && !node->state.empty() && node->state!=obj && node->linearSolver[0]!=obj && node->solver[0]!=obj  && node->animationManager!=obj && display(node->state))
+            return getName(node->state);
+        if (!node->linearSolver.empty() && node->linearSolver[0]!=obj && node->solver[0]!=obj && node->animationManager!=obj && display(node->linearSolver[0]))
+            return getName(node->linearSolver[0]);
+        if (!node->solver.empty() && node->solver[0]!=obj && node->animationManager!=obj && display(node->solver[0]))
+            return getName(node->solver[0]);
+        if (!node->animationManager.empty() && node->animationManager!=obj && display(node->animationManager))
+            return getName(node->animationManager);
+        if (isMechanicalState && !node->mechanicalMapping.empty())
+            break;
+        if (isState && !node->mapping.empty())
+            break;
+        node = node->parent();
+    }
     return "";
 }
 
@@ -307,19 +489,27 @@ std::string ExportDotVisitor::getName(core::objectmodel::BaseObject* obj)
 
 void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject* obj)
 {
-    if (obj->hasTag(tagNoExportGraph))
-    {
-        return;
-    }
-
     //std::cout << ' ' << obj->getName() << '(' << sofa::helper::gettypename(typeid(*obj)) << ')';
     const char* color=NULL;
     if (display(obj,&color))
     {
+        if (!nodeOutStack.empty()) // output node hierarchy containing this object
+        {
+            for (const auto& spair : nodeOutStack)
+            {
+                *out << spair.first;
+                olinks << spair.second;
+            }
+            nodeOutStack.clear();
+        }
+
+        std::set<const core::objectmodel::Base*> links;
         std::string name = getName(obj);
         *out << name << " [shape=box,";
         if (color!=NULL)
             *out << "style=\"filled\",fillcolor=\"" << color << "\",";
+        if (color == NULL || !strcmp(color,"#ffffff"))
+            color = "#888888"; // replace white with gray for links
         *out << "label=\"";
         if (labelObjectClass)
         {
@@ -333,6 +523,11 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
         }
         if (labelObjectName)
         {
+            if (!showNode && (core::behavior::BaseMechanicalState::DynamicCast(obj) ||
+                              (core::BaseState::DynamicCast(obj) && !core::visual::VisualModel::DynamicCast(obj))))
+            {
+                *out << obj->getContext()->getName() << "/";
+            }
             if (std::string(obj->getName(),0,7) != "default")
                 *out << obj->getName();
         }
@@ -340,12 +535,13 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
         std::string pname = getParentName(obj);
         if (!pname.empty())
         {
-            *out << pname << " -> " << name;
+            olinks << pname << " -> " << name;
             if (core::BaseMapping::DynamicCast(obj) || core::topology::TopologicalMapping::DynamicCast(obj))
-                *out << "[constraint=false,weight=10]";
+                //olinks << "[constraint=false,weight=10]";
+                olinks << "[weight=0]";
             else
-                *out << "[weight=10]";
-            *out << ";" << std::endl;
+                olinks << "[weight=10]";
+            olinks << ";" << std::endl;
         }
         /*
         core::behavior::BaseMechanicalState* bms = core::behavior::BaseMechanicalState::DynamicCast(obj);
@@ -358,7 +554,7 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 if (topo)
                 {
                     if (display(topo))
-                        *out << name << " -> " << getName(topo) << " [style=\"dashed\",constraint=false,color=\"#808080\",arrowhead=\"none\"];" << std::endl;
+                        olinks << name << " -> " << getName(topo) << " [style=\"dashed\",constraint=false,color=\"#808080\",arrowhead=\"none\"];" << std::endl;
                 }
             }
         }
@@ -368,12 +564,18 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
         {
             core::behavior::BaseMechanicalState* model1 = iff->getMechModel1();
             core::behavior::BaseMechanicalState* model2 = iff->getMechModel2();
-            if (model1 != model2)
+            //if (model1 != model2)
             {
                 if (display(model1))
-                    *out << name << " -> " << getName(model1) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
-                if (display(model2))
-                    *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
+                {
+                    links.insert(model1);
+                    olinks << getName(model1) << " -> " << name << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"none\",arrowtail=\"open\"];" << std::endl;
+                }
+                if (model1 != model2 && display(model2))
+                {
+                    links.insert(model2);
+                    olinks << getName(model2) << " -> " << name << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"none\",arrowtail=\"open\"];" << std::endl;
+                }
             }
         }
         core::behavior::BaseInteractionConstraint* ic = core::behavior::BaseInteractionConstraint::DynamicCast(obj);
@@ -384,9 +586,15 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
             if (model1 != model2)
             {
                 if (display(model1))
-                    *out << name << " -> " << getName(model1) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
+                {
+                    links.insert(model1);
+                    olinks << name << " -> " << getName(model1) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
+                }
                 if (display(model2))
-                    *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
+                {
+                    links.insert(model2);
+                    olinks << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"open\"];" << std::endl;
+                }
             }
         }
         core::BaseMapping* map = core::BaseMapping::DynamicCast(obj);
@@ -404,14 +612,15 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 core::objectmodel::BaseObject* model1 = fromModels[i];
                 if (display(model1))
                 {
-                    *out << getName(model1) << " -> " << name << " [style=\"dashed\",penwidth=" << width << ",color=\"" << color << "\",arrowhead=\"none\"";
+                    links.insert(model1);
+                    olinks << getName(model1) << " -> " << name << " [style=\"dashed\",penwidth=" << width << ",color=\"" << color << "\",arrowhead=\"none\",weight=2";
                     core::BaseMapping* bmm = core::BaseMapping::DynamicCast(obj);
                     if (bmm)
                     {
                         if(bmm->isMechanical())
-                            *out << ",arrowtail=\"open\"";
+                            olinks << ",arrowtail=\"open\"";
                     }
-                    *out << "];" << std::endl;
+                    olinks << "];" << std::endl;
                 }
             }
             for (unsigned int i = 0; i < toModels.size(); ++i)
@@ -419,7 +628,10 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 core::objectmodel::BaseObject* model2 = toModels[i];
 
                 if (display(model2))
-                    *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=" << width << ",color=\"" << color << "\"];" << std::endl;
+                {
+                    links.insert(model2);
+                    olinks << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=" << width << ",color=\"" << color << "\",weight=2];" << std::endl;
+                }
             }
         }
         core::topology::TopologicalMapping* tmap = core::topology::TopologicalMapping::DynamicCast(obj);
@@ -428,18 +640,22 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
             core::objectmodel::BaseObject* model1 = tmap->getFrom();
             if (display(model1))
             {
-                *out << getName(model1) << " -> " << name << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"none\"";
+                links.insert(model1);
+                olinks << getName(model1) << " -> " << name << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",weight=2,arrowhead=\"none\"";
                 if (tmap->propagateFromInputToOutputModel())
                 {
-                    *out << ",arrowtail=\"open\"";
+                    olinks << ",arrowtail=\"open\"";
                 }
-                *out << "];" << std::endl;
+                olinks << "];" << std::endl;
             }
 
             core::objectmodel::BaseObject* model2 = tmap->getTo();
             
             if (display(model2))
-                *out << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\"];" << std::endl;
+            {
+                links.insert(model2);
+                olinks << name << " -> " << getName(model2) << " [style=\"dashed\",penwidth=2.0,color=\"" << color << "\",weight=2];" << std::endl;
+            }
         }
         if (core::DataEngine::DynamicCast(obj) || core::loader::BaseLoader::DynamicCast(obj))
         {
@@ -471,8 +687,9 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 core::objectmodel::BaseObject* model1 = core::objectmodel::BaseObject::DynamicCast(*it);
                 if ((node1 && display(node1)) || (model1 && display(model1)))
                 {
-                    *out << (node1 ? getName(node1) : getName(model1)) << " -> " << name << " [style=\"dotted\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"none\"";
-                    *out << "];" << std::endl;
+                    links.insert(node1 ? (Base*)node1 : (Base*)model1);
+                    olinks << (node1 ? getName(node1) : getName(model1)) << " -> " << name << " [style=\"dotted\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"none\"";
+                    olinks << "];" << std::endl;
                 }
             }
             for(std::set<core::objectmodel::Base*>::const_iterator it = outputs.begin(); it != outputs.end(); ++it)
@@ -481,7 +698,8 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 core::objectmodel::BaseObject* model2 = core::objectmodel::BaseObject::DynamicCast(*it);
                 if ((node2 && display(node2)) || (model2 && display(model2)))
                 {
-                    *out << name << " -> " << (node2 ? getName(node2) : getName(model2)) << " [style=\"dotted\",penwidth=2.0,color=\"" << color << "\"];" << std::endl;
+                    links.insert(node2 ? (Base*)node2 : (Base*)model2);
+                    olinks << name << " -> " << (node2 ? getName(node2) : getName(model2)) << " [style=\"dotted\",penwidth=4.0,color=\"" << color << "\"];" << std::endl;
                 }
             }
         }
@@ -493,43 +711,114 @@ void ExportDotVisitor::processObject(GNode* node, core::objectmodel::BaseObject*
                 this->processObject(node, it->get());
             }
         }
+        links.clear();
+        for (const std::string& linkName : outputLinks)
+        {
+            if (sofa::core::objectmodel::BaseLink* l = obj->findLink(linkName))
+            {
+                const unsigned int size = l->getSize();
+                for (unsigned int i = 0; i < size; ++i)
+                {
+                    sofa::core::objectmodel::Base* b = l->getLinkedBase(i);
+                    GNode* n = GNode::DynamicCast(b);
+                    core::objectmodel::BaseObject* o = core::objectmodel::BaseObject::DynamicCast(b);
+                    if (((n && display(n)) || (o && display(o))) && links.insert(b).second)
+                    {
+                        olinks << name << " -> " << (n ? getName(n) : getName(o)) << " [style=\"solid\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"empty\"];" << std::endl;
+                    }
+                }
+            }
+        }
+        links.clear();
+        for (const std::string& linkName : inputLinks)
+        {
+            if (sofa::core::objectmodel::BaseLink* l = obj->findLink(linkName))
+            {
+                const unsigned int size = l->getSize();
+                for (unsigned int i = 0; i < size; ++i)
+                {
+                    sofa::core::objectmodel::Base* b = l->getLinkedBase(i);
+                    GNode* n = GNode::DynamicCast(b);
+                    core::objectmodel::BaseObject* o = core::objectmodel::BaseObject::DynamicCast(b);
+                    if (((n && display(n)) || (o && display(o))) && links.insert(b).second)
+                    {
+                        olinks << (n ? getName(n) : getName(o)) << " -> " << name << " [style=\"solid\",penwidth=2.0,color=\"" << color << "\",arrowhead=\"empty\"];" << std::endl;
+                    }
+                }
+            }
+        }
     }
 }
 
 simulation::Visitor::Result ExportDotVisitor::processNodeTopDown(GNode* node)
 {
-
-    if (node->hasTag(tagNoExportGraph))
+    if (first)
+    {
+        first = false;
+        *out << "digraph G {" << std::endl;
+        for(const auto& a : graphAttrs)
+        {
+            *out << "graph [" << a.first << "=\""<< a.second <<"\"];" << std::endl;
+        }
+        //*out << "graph [concentrate=true];" << std::endl;
+        //*out << "graph [splines=curved];" << std::endl;
+        for(const auto& a : nodeAttrs)
+        {
+            *out << "node [" << a.first << "=\""<< a.second <<"\"];" << std::endl;
+        }
+        for(const auto& a : edgeAttrs)
+        {
+            *out << "edge [" << a.first << "=\""<< a.second <<"\"];" << std::endl;
+        }
+    }
+    if (isIncludedOrExcluded(node) == sofa::core::visual::tristate::false_value)
     {
         return RESULT_PRUNE;
+    }
+
+    std::ostringstream nodeOut, nodeOlinks;
+
+    if (showSolverGroups && !node->solver.empty())
+    {
+        nodeOut << "subgraph cluster_" << getName(node) << " {\n";
+        nodeOut << "  label=\"" << node->getPathName() << "\" fontsize=20 style=rounded color=grey80 bgcolor=grey95;\n";
     }
 
     const char* color=NULL;
     if (display(node,&color))
     {
-        *out << getName(node) << " [shape=hexagon,width=0.25,height=0.25,style=\"filled\"";
-        if (color) *out << ",fillcolor=\"" << color << "\"";
-        *out << ",label=\"";
+        nodeOut << getName(node) << " [shape=hexagon,width=0.25,height=0.25,style=\"filled\"";
+        if (color) nodeOut << ",fillcolor=\"" << color << "\"";
+        nodeOut << ",label=\"";
         if (labelNodeClass)
         {
             std::string name = helper::gettypename(typeid(*node));
             std::string::size_type pos = name.find('<');
             if (pos != std::string::npos)
                 name.erase(pos);
-            *out << name;
+            nodeOut << name;
             if (labelNodeName)
-                *out << "\\n";
+                nodeOut << "\\n";
         }
         if (labelNodeName)
         {
             if (std::string(node->getName(),0,7) != "default")
-                *out << node->getName();
+                nodeOut << node->getName();
         }
-        *out << "\"];" << std::endl;
+        nodeOut << "\"];" << std::endl;
         if (node->parent())
         {
-            *out << getName(node->parent()) << " -> " << getName(node)<< " [minlen=2,style=\"bold\",weight=10];" << std::endl;
+            nodeOlinks << getName(node->parent()) << " -> " << getName(node)<< " [minlen=2,style=\"bold\",weight=10];" << std::endl;
         }
+    }
+    if (!showObject) // output all nodes
+    {
+        *out << nodeOut.str();
+        olinks << nodeOlinks.str();
+    }
+    else
+    {
+        nodeOutStack.emplace_back(nodeOut.str(),nodeOlinks.str());
     }
 
     for (GNode::ObjectIterator it = node->object.begin(); it != node->object.end(); ++it)
@@ -540,8 +829,22 @@ simulation::Visitor::Result ExportDotVisitor::processNodeTopDown(GNode* node)
     return RESULT_CONTINUE;
 }
 
-void ExportDotVisitor::processNodeBottomUp(GNode* /*node*/)
+void ExportDotVisitor::processNodeBottomUp(GNode* node)
 {
+    if (isIncludedOrExcluded(node) == sofa::core::visual::tristate::false_value)
+    {
+        return;
+    }
+
+    if (showObject && !nodeOutStack.empty())
+    {
+        nodeOutStack.pop_back();
+    }
+
+    if (showSolverGroups && !node->solver.empty())
+    {
+        *out << "}\n";
+    }
 }
 
 } // namespace tree
