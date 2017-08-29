@@ -181,11 +181,11 @@ void TPointModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             TPoint<DataTypes> p(this,i);
             if (p.activated())
             {
-                pointsP.push_back(p.p());
+                pointsP.push_back(DataTypes::getCPos(p.p()));
                 if ((unsigned)i < normals.size())
                 {
-                    pointsL.push_back(p.p());
-                    pointsL.push_back(p.p()+normals[i]*0.1f);
+                    pointsL.push_back(DataTypes::getCPos(p.p()));
+                    pointsL.push_back(DataTypes::getCPos(p.p())+normals[i]*0.1f);
                 }
             }
         }
@@ -202,7 +202,7 @@ void TPointModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
                 TPoint<DataTypes> p(this,i);
                 if (p.activated())
                 {
-                    pointsPFree.push_back(p.pFree());
+                    pointsPFree.push_back(DataTypes::getCPos(p.pFree()));
                 }
             }
 
@@ -293,7 +293,7 @@ void TPointModel<DataTypes>::computeBoundingTree(int maxDepth)
         for (int i=0; i<size; i++)
         {
             TPoint<DataTypes> p(this,i);
-            const defaulttype::Vector3& pt = p.p();
+            const defaulttype::Vector3& pt = DataTypes::getCPos(p.p());
             cubeModel->setParentOf(i, pt - defaulttype::Vector3(distance,distance,distance), pt + defaulttype::Vector3(distance,distance,distance));
         }
         cubeModel->computeBoundingTree(maxDepth);
@@ -331,8 +331,8 @@ void TPointModel<DataTypes>::computeContinuousBoundingTree(double dt, int maxDep
         for (int i=0; i<size; i++)
         {
             TPoint<DataTypes> p(this,i);
-            const defaulttype::Vector3& pt = p.p();
-            const defaulttype::Vector3 ptv = pt + p.v()*dt;
+            const defaulttype::Vector3& pt = DataTypes::getCPos(p.p());
+            const defaulttype::Vector3 ptv = pt + DataTypes::getDPos(p.v())*dt;
 
             for (int c = 0; c < 3; c++)
             {
@@ -368,15 +368,15 @@ void TPointModel<DataTypes>::updateNormals()
             for (unsigned int i=0; i < elems.size(); ++i)
             {
                 const core::topology::BaseMeshTopology::Tetra &e = elems[i];
-                const Coord& p1 = x[e[0]];
-                const Coord& p2 = x[e[1]];
-                const Coord& p3 = x[e[2]];
-                const Coord& p4 = x[e[3]];
-                Coord& n1 = normals[e[0]];
-                Coord& n2 = normals[e[1]];
-                Coord& n3 = normals[e[2]];
-                Coord& n4 = normals[e[3]];
-                Coord n;
+                const CPos& p1 = DataTypes::getCPos(x[e[0]]);
+                const CPos& p2 = DataTypes::getCPos(x[e[1]]);
+                const CPos& p3 = DataTypes::getCPos(x[e[2]]);
+                const CPos& p4 = DataTypes::getCPos(x[e[3]]);
+                DPos& n1 = normals[e[0]];
+                DPos& n2 = normals[e[1]];
+                DPos& n3 = normals[e[2]];
+                DPos& n4 = normals[e[3]];
+                CPos n;
                 n = cross(p3-p1,p2-p1); n.normalize();
                 n1 += n;
                 n2 += n;
@@ -405,13 +405,13 @@ void TPointModel<DataTypes>::updateNormals()
             for (unsigned int i=0; i < elems.size(); ++i)
             {
                 const core::topology::BaseMeshTopology::Triangle &e = elems[i];
-                const Coord& p1 = x[e[0]];
-                const Coord& p2 = x[e[1]];
-                const Coord& p3 = x[e[2]];
-                Coord& n1 = normals[e[0]];
-                Coord& n2 = normals[e[1]];
-                Coord& n3 = normals[e[2]];
-                Coord n;
+                const CPos& p1 = DataTypes::getCPos(x[e[0]]);
+                const CPos& p2 = DataTypes::getCPos(x[e[1]]);
+                const CPos& p3 = DataTypes::getCPos(x[e[2]]);
+                DPos& n1 = normals[e[0]];
+                DPos& n2 = normals[e[1]];
+                DPos& n3 = normals[e[2]];
+                CPos n;
                 n = cross(p2-p1,p3-p1); n.normalize();
                 n1 += n;
                 n2 += n;
@@ -424,15 +424,15 @@ void TPointModel<DataTypes>::updateNormals()
             for (unsigned int i=0; i < elems.size(); ++i)
             {
                 const core::topology::BaseMeshTopology::Quad &e = elems[i];
-                const Coord& p1 = x[e[0]];
-                const Coord& p2 = x[e[1]];
-                const Coord& p3 = x[e[2]];
-                const Coord& p4 = x[e[3]];
-                Coord& n1 = normals[e[0]];
-                Coord& n2 = normals[e[1]];
-                Coord& n3 = normals[e[2]];
-                Coord& n4 = normals[e[3]];
-                Coord n;
+                const CPos& p1 = DataTypes::getCPos(x[e[0]]);
+                const CPos& p2 = DataTypes::getCPos(x[e[1]]);
+                const CPos& p3 = DataTypes::getCPos(x[e[2]]);
+                const CPos& p4 = DataTypes::getCPos(x[e[3]]);
+                DPos& n1 = normals[e[0]];
+                DPos& n2 = normals[e[1]];
+                DPos& n3 = normals[e[2]];
+                DPos& n4 = normals[e[3]];
+                CPos n;
                 n = cross(p3-p1,p4-p2); n.normalize();
                 n1 += n;
                 n2 += n;

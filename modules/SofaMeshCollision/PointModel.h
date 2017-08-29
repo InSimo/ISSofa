@@ -96,6 +96,8 @@ public:
     typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::VecDeriv VecDeriv;
     typedef typename DataTypes::Coord Coord;
+    typedef typename DataTypes::CPos CPos;
+    typedef typename DataTypes::DPos DPos;
     typedef typename DataTypes::Deriv Deriv;
     typedef TPoint<DataTypes> Element;
     typedef helper::vector<unsigned int> VecIndex;
@@ -122,7 +124,7 @@ public:
 
     core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return mstate; }
 
-    //virtual const char* getTypeName() const { return "Point"; }
+    DPos getNormal(int index){ return (normals.size()) ? normals[index] : DPos();}
 
     PointLocalMinDistanceFilter *getFilter() const;
 
@@ -169,7 +171,7 @@ protected:
 
     Data<std::string> PointActiverPath;
 
-    VecDeriv normals;
+    sofa::helper::vector<DPos> normals;
 
     PointLocalMinDistanceFilter *m_lmdFilter;
     EmptyFilter m_emptyFilter;
