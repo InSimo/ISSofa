@@ -83,7 +83,7 @@ public:
 };
 
 template<class TDataTypes>
-class SOFA_MESH_COLLISION_API TPointModel : public core::CollisionModel
+class TPointModel : public core::CollisionModel
 {
 public:
     SOFA_CLASS(SOFA_TEMPLATE(TPointModel, TDataTypes), core::CollisionModel);
