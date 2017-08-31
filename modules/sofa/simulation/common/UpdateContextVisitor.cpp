@@ -36,17 +36,13 @@ namespace simulation
 Visitor::Result UpdateContextVisitor::processNodeTopDown(simulation::Node* node)
 {
 
-    if (!startingNode) startingNode = node;
-    if (node != startingNode)
-        node->updateContext();
+    node->updateContext();
     return RESULT_CONTINUE;
 }
 
 Visitor::Result UpdateSimulationContextVisitor::processNodeTopDown(simulation::Node* node)
 {
-    if (!startingNode) startingNode = node;
-    if (node != startingNode)
-        node->updateSimulationContext();
+    node->updateSimulationContext();
     return RESULT_CONTINUE;
 }
 
@@ -60,10 +56,7 @@ UpdateVisualContextVisitor::UpdateVisualContextVisitor(const sofa::core::visual:
 
 Visitor::Result UpdateVisualContextVisitor::processNodeTopDown(simulation::Node* node)
 {
-
-    if (!startingNode) startingNode = node;
-    if (node != startingNode)
-        node->updateVisualContext();
+    node->updateVisualContext();
     return RESULT_CONTINUE;
 }
 

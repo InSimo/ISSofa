@@ -46,7 +46,7 @@ class SOFA_SIMULATION_COMMON_API UpdateContextVisitor : public Visitor
 {
 public:
     UpdateContextVisitor(const core::ExecParams* params)
-        : Visitor(params), startingNode(NULL)
+        : Visitor(params)
     {
     }
 
@@ -59,8 +59,6 @@ public:
 
     /// Specify whether this action can be parallelized.
     virtual bool isThreadSafe() const { return true; }
-protected:
-    Node* startingNode;
 };
 
 class SOFA_SIMULATION_COMMON_API UpdateSimulationContextVisitor : public UpdateContextVisitor
