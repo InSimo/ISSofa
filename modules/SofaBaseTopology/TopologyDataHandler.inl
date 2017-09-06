@@ -200,12 +200,12 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::swapHelper(unsign
 
     if (elem1Ptr && !elem2Ptr)
     {
-        MappedType* newElem2Ptr = DataTypeInfo::insertItem(containerData, i2);
+        DataTypeInfo::insertItem(containerData, i2);
         DataTypeInfo::eraseItem(containerData, i1);
     }
     if (!elem1Ptr && elem2Ptr)
     {
-        MappedType* newElem1Ptr = DataTypeInfo::insertItem(containerData, i1);
+        DataTypeInfo::insertItem(containerData, i1);
         DataTypeInfo::eraseItem(containerData, i2);
     }
     m_topologyData->endEdit();
