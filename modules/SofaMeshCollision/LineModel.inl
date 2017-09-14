@@ -51,8 +51,7 @@ using core::topology::BaseMeshTopology;
 
 template<class DataTypes>
 TLineModel<DataTypes>::TLineModel()
-    : bothSide(initData(&bothSide, false, "bothSide", "activate collision on both side of the line model (when surface normals are defined on these lines)") )
-    , mstate(NULL), topology(NULL), meshRevision(-1), m_lmdFilter(NULL)
+    : mstate(NULL), topology(NULL), meshRevision(-1), m_lmdFilter(NULL)
     , LineActiverPath(initData(&LineActiverPath,"LineActiverPath", "path of a component LineActiver that activates or deactivates collision line during execution") )
     , m_displayFreePosition(initData(&m_displayFreePosition, false, "displayFreePosition", "Display Collision Model Points free position(in green)") )
     , d_classificationSampling(initData(&d_classificationSampling, (unsigned int)1, "classificationSampling", "Line sub sampling factor to create additional contacts for classification") )

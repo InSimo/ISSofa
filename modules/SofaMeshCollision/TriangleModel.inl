@@ -53,8 +53,7 @@ namespace collision
 
 template<class DataTypes>
 TTriangleModel<DataTypes>::TTriangleModel()
-    : bothSide(initData(&bothSide, false, "bothSide", "activate collision on both side of the triangle model") )
-    , mstate(NULL)
+    : mstate(NULL)
     , computeNormals(initData(&computeNormals, true, "computeNormals", "set to false to disable computation of triangles normal"))
     , meshRevision(-1)
     , m_lmdFilter(NULL)
@@ -575,7 +574,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         //if( size != _topology->getNbTriangles())
         //  updateFromTopology();
 
-        if (bothSide.getValue() || vparams->displayFlags().getShowWireFrame())
+        if (bBothSide.getValue() || vparams->displayFlags().getShowWireFrame())
             vparams->drawTool()->setPolygonMode(0,vparams->displayFlags().getShowWireFrame());
         else
         {

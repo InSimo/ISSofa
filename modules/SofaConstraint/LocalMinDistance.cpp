@@ -1653,7 +1653,7 @@ bool LocalMinDistance::testValidity(Point &p, const Vector3 &PQ)
     {
         /// validity test with nMean, except if bothSide
         PointModel *pM = p.getCollisionModel();
-        bool bothSide_computation = pM->bothSide.getValue();
+        bool bothSide_computation = pM->getBothSide();
         nMean.normalize();
         if (dot(nMean, PQ) < -angleCone.getValue()*PQ.norm() && !bothSide_computation)
         {
@@ -1695,7 +1695,7 @@ bool LocalMinDistance::testValidity(Line &l, const Vector3 &PQ)
 //		std::cout<<"Problem testValidity on inactive point"<<std::endl;
 
     LineModel *lM = l.getCollisionModel();
-    bool bothSide_computation = lM->bothSide.getValue();
+    bool bothSide_computation = lM->getBothSide();
 
 
 
@@ -1833,7 +1833,7 @@ bool LocalMinDistance::testValidity(Line &l, const Vector3 &PQ)
 bool LocalMinDistance::testValidity(Triangle &t, const Vector3 &PQ)
 {
     TriangleModel *tM = t.getCollisionModel();
-    bool bothSide_computation = tM->bothSide.getValue();
+    bool bothSide_computation = tM->getBothSide();
 
     if (!filterIntersection.getValue()  || bothSide_computation)
         return true;

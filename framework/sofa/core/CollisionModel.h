@@ -94,6 +94,7 @@ protected:
         , bMoving(initData(&bMoving, true, "moving", "flag indicating if this object is changing position between iterations"))
         , bSimulated(initData(&bSimulated, true, "simulated", "flag indicating if this object is controlled by a simulation"))
         , bSelfCollision(initData(&bSelfCollision, false, "selfCollision", "flag indication if the object can self collide"))
+        , bBothSide(initData(&bBothSide, false, "bothSide", "flag indication if the object can self collide on both side"))
         , proximity(initData(&proximity, (SReal)0.0, "proximity", "Distance to the actual (visual) surface"))
         , contactStiffness(initData(&contactStiffness, (SReal)10.0, "contactStiffness", "Default contact stiffness"))
         , contactFriction(initData(&contactFriction, (SReal)0.01, "contactFriction", "Default contact friction (damping) coefficient"))
@@ -141,6 +142,18 @@ public:
     void setSelfCollision(bool _bSelfCollision)
     {
         bSelfCollision = _bSelfCollision ;
+    }
+
+    /// Return true if this model process self collision on both side
+    bool getBothSide() const
+    {
+        return bBothSide.getValue();
+    }
+
+    /// set a value to bBothSide
+    void setBothSide(bool _bBothSide)
+    {
+        bBothSide = _bBothSide ;
     }
 
     /// Set the number of elements.
@@ -437,6 +450,8 @@ protected:
     Data<bool> bSimulated;
     /// flag indication if the object can self collide
     Data<bool> bSelfCollision;
+    /// flag indication if the object can self collide on both side
+    Data<bool> bBothSide;
     /// Distance to the actual (visual) surface
     Data<SReal> proximity;
     /// Default contact stiffness
