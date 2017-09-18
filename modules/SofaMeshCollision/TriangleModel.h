@@ -209,6 +209,7 @@ public:
     const VecCoord& getX() const { return(getMechanicalState()->read(core::ConstVecCoordId::position())->getValue()); }
     const sofa::core::topology::BaseMeshTopology::SeqTriangles& getTriangles() const { return *triangles; }
     const VecDeriv& getNormals() const { return normals; }
+    const Deriv& getNormal(unsigned int i) const { return normals[i]; }
 
     TriangleLocalMinDistanceFilter *getFilter() const;
 
