@@ -73,6 +73,8 @@ public:
             sofa::core::topology::BaseMeshTopology* _topology,
             sofa::core::topology::TopologyHandler* _topoHandler);
 
+    ~TopologyEngineImpl();
+
 public:
 
     void init();
@@ -86,6 +88,8 @@ public:
     void registerTopology(sofa::core::topology::BaseMeshTopology* _topology);
 
     void registerTopology();
+
+    void resetTopology();
 
     void registerTopologicalData(t_topologicalData *topologicalData) {m_topologicalData = topologicalData;}
 

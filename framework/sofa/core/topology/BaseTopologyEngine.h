@@ -72,6 +72,8 @@ public:
 
     virtual void registerTopology() = 0;
 
+    virtual void resetTopology() = 0;
+
     //virtual void handleTopologyChange() = 0;
 
 

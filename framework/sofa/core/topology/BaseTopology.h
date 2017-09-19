@@ -289,6 +289,9 @@ public:
     */
     virtual void addTopologyEngine(TopologyEngine* _topologyEngine);
 
+    /** \brief Removes a TopologyEngine from the list.
+     */
+    virtual void removeTopologyEngine(TopologyEngine* _topologyEngine);
 
     /** \brief Provides an iterator on the first element in the list of TopologyEngine objects.
      */

@@ -122,6 +122,11 @@ void TopologyContainer::addTopologyEngine(TopologyEngine *_topologyEngine)
     this->updateTopologyEngineGraph();
 }
 
+void TopologyContainer::removeTopologyEngine(TopologyEngine *_topologyEngine)
+{
+    m_topologyEngineList.remove(_topologyEngine);
+    this->updateTopologyEngineGraph();
+}
 
 sofa::helper::list<const TopologyChange *>::const_iterator TopologyContainer::endChange() const
 {
@@ -184,7 +189,7 @@ void TopologyContainer::resetTopologyEngineList()
     for (std::list<TopologyEngine *>::iterator it=m_topologyEngineList.begin();
             it!=m_topologyEngineList.end(); ++it)
     {
-        //delete (*it);
+        (*it)->resetTopology();
         *it = NULL;
     }
 

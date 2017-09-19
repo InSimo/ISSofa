@@ -409,6 +409,12 @@ void BaseMeshTopology::addTopologyEngine(TopologyEngine* _topologyEngine)
     (void)_topologyEngine;
 }
 
+void BaseMeshTopology::removeTopologyEngine(TopologyEngine* _topologyEngine)
+{
+    serr<<"removeTopologyEngine() not supported." << sendl;
+    (void)_topologyEngine;
+}
+
 int BaseMeshTopology::getEdgeIndex(PointID, PointID)
 {
     serr<<"getEdgeIndex() not supported." << sendl;

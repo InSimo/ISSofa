@@ -56,6 +56,14 @@ TopologyEngineImpl::TopologyEngineImpl(t_topologicalData *_topologicalData,
         serr <<"Error: Topology Handler not available" << sendl;
 }
 
+TopologyEngineImpl::~TopologyEngineImpl()
+{
+    if (m_topology)
+    {
+        m_topology->removeTopologyEngine(this);
+    }
+}
+
 void TopologyEngineImpl::init()
 {
     // A pointData is by default child of positionSet Data
@@ -119,6 +127,12 @@ void TopologyEngineImpl::registerTopology()
     }
     else
         m_topology->addTopologyEngine(this);
+}
+
+
+void TopologyEngineImpl::resetTopology()
+{
+    m_topology = nullptr;
 }
 
 
