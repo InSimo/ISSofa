@@ -353,6 +353,13 @@ Vec<3,T> velocityAtRotatedPoint(const RigidDeriv<3,R>& v, const Vec<3,T>& p)
     return getLinear(v) + cross( getAngular(v),p );
 }
 
+
+template<int N, typename Real>
+Real dot(const RigidDeriv<N, Real>& a, const RigidDeriv<N, Real>& b)
+{
+    return a*b;
+}
+
 template<typename real>
 class RigidCoord<3,real>
 {
