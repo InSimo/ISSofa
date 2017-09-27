@@ -247,19 +247,19 @@ struct StructTypeInfo
     {
         template <typename MemberType>
         void operator()(MemberType&&, const DataType&& data) { m_value = &MemberType::readRef(data); }
-        const void* m_value;   
+        const void* m_value = nullptr;
     };
     struct GetMemberName
     {
         template <typename MemberType>
         void operator()(MemberType&&, const DataType&&) { m_name = MemberType::name(); }
-        const char* m_name;   
+        const char* m_name = nullptr;
     };
     struct EditMemberValue
     {
         template <typename MemberType>
         void operator()(MemberType&&, DataType&& data) { m_value = &MemberType::writeRef(data); }
-        void* m_value;   
+        void* m_value = nullptr;
     };
     static const void* getMemberValue(const DataType& data, size_t index)
     {
