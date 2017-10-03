@@ -59,6 +59,7 @@ public:
     {
     public:
         Status();
+        virtual ~Status();
 
         bool IsBusy() const;
 

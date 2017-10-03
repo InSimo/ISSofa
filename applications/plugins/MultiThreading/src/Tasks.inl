@@ -38,6 +38,8 @@
 #ifndef MultiThreadingTasks_inl__
 #define MultiThreadingTasks_inl__
 
+#include <cassert>
+
 namespace sofa
 {
 
@@ -49,6 +51,11 @@ namespace simulation
 inline Task::Status::Status()
 :mBusy(0)
 {
+}
+
+inline Task::Status::~Status()
+{
+    assert(!IsBusy());
 }
 
 inline bool Task::Status::IsBusy() const
