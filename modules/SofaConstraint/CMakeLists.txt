@@ -33,6 +33,8 @@ set(HEADER_FILES
     BilateralInteractionConstraint.h
     BilateralInteractionConstraint.inl
     ConstraintAnimationLoop.h
+    MappingGeometricStiffnessForceField.h
+    MappingGeometricStiffnessForceField.inl
     RigidMassComplianceEngine.h
     RigidMassComplianceEngine.inl
     StopperConstraint.h
@@ -66,6 +68,7 @@ set(SOURCE_FILES
     BilateralInteractionConstraint.cpp
     ConstraintAnimationLoop.cpp
     RigidMassComplianceEngine.cpp
+    MappingGeometricStiffnessForceField.cpp
     StopperConstraint.cpp
     SlidingConstraint.cpp
     ConstraintAttachBodyPerformer.cpp
