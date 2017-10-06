@@ -39,8 +39,9 @@ set(HEADER_FILES
     StopperConstraint.inl
     SlidingConstraint.h
     SlidingConstraint.inl
-    ConstraintAttachBodyPerformer.h
-    ConstraintAttachBodyPerformer.inl
+    UniformConstraint.h
+    UniformConstraint.inl
+    initConstraint.h
 
     )
 
@@ -69,6 +70,7 @@ set(SOURCE_FILES
     SlidingConstraint.cpp
     ConstraintAttachBodyPerformer.cpp
     GenericConstraintCorrection.cpp
+    UniformConstraint.cpp
 
     )
 
