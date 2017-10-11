@@ -206,16 +206,15 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 	// mechanical action executed from root node to propagate the constraints
 	simulation::MechanicalResetConstraintVisitor(cParams).execute(context);
 	// calling buildConstraintMatrix
-	//simulation::MechanicalAccumulateConstraint(&cparams /* PARAMS FIRST */, core::MatrixDerivId::holonomicC(), numConstraints).execute(context);
+	//simulation::MechanicalAccumulateConstraint(&cparams, cParams->j(), numConstraints).execute(context);
 
     sofa::helper::AdvancedTimer::stepNext("Reset Constraint", "Build Constraint");
 
-	simulation::MechanicalBuildConstraintMatrix(cParams, core::MatrixDerivId::holonomicC(), numConstraints).execute(context);
-
+    simulation::MechanicalBuildConstraintMatrix(cParams, cParams->j(), numConstraints).execute(context);
+    
     sofa::helper::AdvancedTimer::stepNext("Build Constraint", "Accumulate Matrix");
 
-    simulation::MechanicalAccumulateMatrixDeriv(cParams, core::MatrixDerivId::holonomicC(), reverseAccumulateOrder.getValue()).execute(context);
-
+    simulation::MechanicalAccumulateMatrixDeriv(cParams, cParams->j(), reverseAccumulateOrder.getValue()).execute(context);
     sofa::helper::AdvancedTimer::stepNext("Accumulate Matrix", "Project Jacobian");
 
     // suppress the constraints that are on DOFS currently concerned by projective constraint
