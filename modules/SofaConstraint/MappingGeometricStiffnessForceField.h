@@ -19,6 +19,7 @@ public:
     typedef Inherit1 Inherit;
     typedef sofa::SingleLink< MyType, sofa::core::BaseMapping, 
         sofa::BaseLink::FLAG_STRONGLINK | sofa::BaseLink::FLAG_STOREPATH > MappingLink;
+    typedef typename Inherit::Real Real;
     typedef typename Inherit::DataVecDeriv DataVecDeriv;
     typedef typename Inherit::DataVecCoord DataVecCoord;
 
