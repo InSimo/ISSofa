@@ -96,12 +96,14 @@ void MultiTagAnimationLoop::step(const sofa::core::ExecParams* params /* PARAMS 
 
     sofa::core::objectmodel::TagSet::iterator it;
 
+    sofa::core::ConstraintParams cparams(*params);
+
     for (it = tagList.begin(); it != tagList.end(); ++it)
     {
         this->addTag (*it);
 
         if (this->f_printLog.getValue()) sout << "MultiTagAnimationLoop::step, begin constraints reset" << sendl;
-        sofa::simulation::MechanicalResetConstraintVisitor(params).execute(this->getContext());
+        sofa::simulation::MechanicalResetConstraintVisitor(&cparams).execute(this->getContext());
         if (this->f_printLog.getValue()) sout << "MultiTagAnimationLoop::step, end constraints reset" << sendl;
         if (this->f_printLog.getValue()) sout << "MultiTagAnimationLoop::step, begin collision for tag: "<< *it << sendl;
         computeCollision(params);
