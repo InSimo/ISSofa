@@ -1269,14 +1269,14 @@ void MechanicalAddMBKdxVisitor::bwdMechanicalState(simulation::Node* , core::beh
 Visitor::Result MechanicalResetConstraintVisitor::fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm)
 {
     // mm->setC(res);
-    mm->resetConstraint(this->params);
+    mm->resetConstraint(m_cparams);
     return RESULT_CONTINUE;
 }
 
 
 Visitor::Result MechanicalResetConstraintVisitor::fwdMappedMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm)
 {
-    mm->resetConstraint(this->params);
+    mm->resetConstraint(m_cparams);
     return RESULT_CONTINUE;
 }
 

@@ -100,13 +100,14 @@ public:
 class SOFA_SIMULATION_COMMON_API MechanicalGetConstraintJacobianVisitor : public BaseMechanicalVisitor
 {
 public:
+    const core::ConstraintParams* cparams;
     defaulttype::BaseMatrix * J;
     const sofa::core::behavior::MultiMatrixAccessor* matrix;
     int offset;
 
     MechanicalGetConstraintJacobianVisitor(
-        const core::ExecParams* params /* PARAMS FIRST  = core::ExecParams::defaultInstance()*/, defaulttype::BaseMatrix * _J, const sofa::core::behavior::MultiMatrixAccessor* _matrix = NULL)
-        : BaseMechanicalVisitor(params) , J(_J), matrix(_matrix), offset(0)
+        const core::ConstraintParams* cparams, defaulttype::BaseMatrix * _J, const sofa::core::behavior::MultiMatrixAccessor* _matrix = NULL)
+        : BaseMechanicalVisitor(cparams) , cparams(cparams), J(_J), matrix(_matrix), offset(0)
     {}
 
     virtual Result fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* ms)
@@ -114,7 +115,7 @@ public:
         if (matrix) offset = matrix->getGlobalOffset(ms);
 
         unsigned int o = (unsigned int)offset;
-        ms->getConstraintJacobian(this->params,J,o);
+        ms->getConstraintJacobian(cparams,J,o);
         offset = (int)o;
         return RESULT_CONTINUE;
     }
