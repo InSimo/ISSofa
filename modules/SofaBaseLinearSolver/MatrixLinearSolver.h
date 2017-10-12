@@ -293,7 +293,7 @@ public:
 
     virtual bool addMInvJt(defaulttype::BaseMatrix* result, defaulttype::BaseMatrix* J, double fact);
 
-    virtual bool buildComplianceMatrix(defaulttype::BaseMatrix* result, double fact);
+    virtual bool buildComplianceMatrix(const core::ConstraintParams* cparams, defaulttype::BaseMatrix* result, double fact) override;
 
     virtual void applyConstraintForce(const sofa::core::ConstraintParams* cparams, sofa::core::MultiVecDerivId dx, const defaulttype::BaseVector* f);
 
