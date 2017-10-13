@@ -132,7 +132,6 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     core::ConstraintParams cparams(*params);
     cparams.setX(freePos);
     cparams.setV(freeVel);
-    cparams.setJ(sofa::core::MatrixDerivId::holonomicC());
     cparams.setDx(constraintSolver->getDx());
     cparams.setLambda(constraintSolver->getLambda());
     cparams.setOrder(m_solveVelocityConstraintFirst.getValue() ? core::ConstraintParams::VEL : core::ConstraintParams::POS_AND_VEL);
