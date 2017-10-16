@@ -27,6 +27,7 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/core/behavior/BaseConstraintSet.h>
+#include <sofa/core/behavior/BaseConstraintCorrection.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
 #include <sofa/core/MechanicalParams.h>
 
@@ -99,6 +100,10 @@ public:
     /// the result is accumulated in Vecid::force()
     virtual void computeResidual(const core::ExecParams* /*params*/ /* PARAMS FIRST */) { std::cerr << "ComputeResidual is not implemented in " << this->getName() << std::endl; }
 
+
+    /// Add/remove a given constraint correction to the list of constraint problems handled by this constraint solver
+    virtual void registerConstraintCorrection(BaseConstraintCorrection* cc) { serr << "Register method is not implemented for this ConstraintSolver " << sendl; }
+    virtual void unregisterConstraintCorrection(BaseConstraintCorrection* cc) { serr << "Unregister method is not implemented for this ConstraintSolver " << sendl; }
 
     /// @name Resolution DOFs vectors API
     /// @{

@@ -47,6 +47,8 @@ namespace core
 namespace behavior
 {
 
+class ConstraintSolver;
+
 /// @todo All methods in this class need to be commented
 
 /**
@@ -57,9 +59,9 @@ class SOFA_CORE_API BaseConstraintCorrection : public virtual objectmodel::BaseO
 public:
     SOFA_ABSTRACT_CLASS_EXTERNAL((BaseConstraintCorrection), ((objectmodel::BaseObject)));
 protected:
-	BaseConstraintCorrection() {};
-    virtual ~BaseConstraintCorrection() {}
-	
+    BaseConstraintCorrection();
+    virtual ~BaseConstraintCorrection();
+
 private:
 	BaseConstraintCorrection(const BaseConstraintCorrection& n) ;
 	BaseConstraintCorrection& operator=(const BaseConstraintCorrection& n) ;
@@ -68,6 +70,8 @@ private:
 public:
 
 	virtual bool isActive() { return this->getContext()->isActive(); }
+
+    virtual void init() override;
 
 	/// @name Compliance Matrix API
     /// @{
@@ -154,6 +158,9 @@ public:
     }
 
     /// @}
+
+protected:
+    ConstraintSolver* m_constraintSolverPtr;
 };
 
 } // namespace behavior

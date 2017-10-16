@@ -74,7 +74,7 @@ protected:
     {
     };
 public:
-    void init();
+    virtual void init() override;
 
     /// Compute motion correction from the constraint resolution (LCP) calculated force
     ///

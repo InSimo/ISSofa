@@ -180,6 +180,7 @@ set(SOFACORE_SOURCES
 	DataEngine.cpp
 	State.cpp
 	behavior/BaseAnimationLoop.cpp
+	behavior/BaseConstraintCorrection.cpp
 	behavior/LinearSolver.cpp
 	behavior/MultiMatrix.cpp
 	behavior/MultiMatrixAccessor.cpp
