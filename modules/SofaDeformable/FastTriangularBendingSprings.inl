@@ -388,6 +388,8 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_useOldAddForce(initData(&d_useOldAddForce, false,"useOldAddForce","Use old version of addForce"))
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
+, d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSprigEnergy","Maximum value of spring bending enrgy to draw"))
+, d_drawSpringSize(initData(&d_drawSpringSize,(Real) 1.0,"drawSpringSize","Size of drawed lines"))
 , edgeHandler(NULL)
 {
     // Create specific handler for EdgeData
@@ -544,32 +546,43 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     if (!this->mstate) return;
 
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
-    //VecCoord& x_rest = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
-
-    //int nbTriangles=_topology->getNbTriangles();
-
-    glPushAttrib(GL_LIGHTING_BIT);
-    glDisable(GL_LIGHTING);
-
-    //unsigned int nb_to_draw = 0;
-
     const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
+    const Real maxValue = d_drawMaxSpringEnergy.getValue();
+    const bool quadraticBendingModel = d_quadraticBendingModel.getValue();
+    const bool drawSpringSize = d_drawSpringSize.getValue();
 
-    glColor4f(0,1,0,1);
-    glBegin(GL_LINES);
+    VecDeriv emptyVecDeriv;
+    emptyVecDeriv.resize(x.size());
+
     for(i=0; i<edgeInf.size(); ++i)
     {
         if(edgeInf[i].is_activated)
         {
-            //nb_to_draw+=1;
-            helper::gl::glVertexT(x[edgeInf[i].vid[EdgeSpring::A]]);
-            helper::gl::glVertexT(x[edgeInf[i].vid[EdgeSpring::B]]);
+            sofa::helper::vector<sofa::defaulttype::Vector3> points;
+            Real energy = 0;
+            if(quadraticBendingModel)
+            {
+                const Coord pa[2] = {x[edgeInf[i].vid[EdgeSpring::A]], x[edgeInf[i].vid[EdgeSpring::B]]};
+                points.assign(pa, pa + 2);
+                energy = edgeInf[i].addForceQuadratic(emptyVecDeriv, x, emptyVecDeriv);
+            }
+            else
+            {
+                const Coord pa[2] = {x[edgeInf[i].vid[EdgeSpring::C]], x[edgeInf[i].vid[EdgeSpring::D]]};
+                points.assign(pa, pa + 2);
+                energy = edgeInf[i].addForce(emptyVecDeriv, x, emptyVecDeriv);
+            }
 
+            float R = 0.;
+            float G = 0.;
+            float B = 1.;
+
+            B = (float)((maxValue-energy)/maxValue);
+            B = (B < 0.f) ? 0.f : B;
+            R = 1.f - B;
+            vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
         }
     }
-    glEnd();
-    
-    glPopAttrib();
 #endif /* SOFA_NO_OPENGL */
 }
 

@@ -111,6 +111,9 @@ public:
 
     Data<bool>   d_quadraticBendingModel; /// Use quadratic bending model method for Inextensible Surfaces
 
+    Data<Real> d_drawMaxSpringEnergy;
+    Data<Real> d_drawSpringSize;
+
     /// Searches triangle topology and creates the bending springs
     virtual void init();
 
