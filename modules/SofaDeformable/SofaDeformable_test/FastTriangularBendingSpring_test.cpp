@@ -67,7 +67,8 @@ TEST(AddForce_test, checkThatPlanarTrianglesWithDisplacementsAndNoStiffnessDontC
         p.push_back(BendingSpring::Coord(5,5,0));
         p.push_back(BendingSpring::Coord(0,5,0));
 
-        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 0, true);
+        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 0);
+        edgeSpring.computeRestCurvature(p, true);
     }
 
     BendingSpring::VecDeriv df(4);
@@ -98,7 +99,8 @@ TEST(AddForce_test, checkThatNonPlanarTrianglesWithNoDisplacementsDontCreateForc
         p.push_back(BendingSpring::Coord(5,8,5));
         p.push_back(BendingSpring::Coord(0,5,1));
 
-        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000, true);
+        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000);
+        edgeSpring.computeRestCurvature( p, true);
     }
 
     BendingSpring::VecDeriv df(4);
@@ -129,7 +131,8 @@ TEST(AddForce_test, checkThatNonPlanarTrianglesWithEqualDisplacementsDontCreateF
         p.push_back(BendingSpring::Coord(5,50,100));
         p.push_back(BendingSpring::Coord(3,5,50));
 
-        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000, true);
+        edgeSpring.setEdgeSpring(p, 0, 1, 2, 3, 1000);
+        edgeSpring.computeRestCurvature(p, true);
     }
 
     BendingSpring::VecDeriv df(4);
@@ -166,8 +169,10 @@ TEST(BendingVector_test, checkDifferencesBetweenFloatAndDouble)
 		BendingSpringDouble::VecCoord pDouble;
 		std::copy(pFloat.begin(), pFloat.end(), std::back_inserter(pDouble));
 
-		edgeSpringFloat.setEdgeSpring(pFloat, 0, 1, 2, 3, 1000, true);
-		edgeSpringDouble.setEdgeSpring(pDouble, 0, 1, 2, 3, 1000, true);
+        edgeSpringFloat.setEdgeSpring(pFloat, 0, 1, 2, 3, 1000);
+        edgeSpringFloat.computeRestCurvature(pFloat, true);
+        edgeSpringDouble.setEdgeSpring(pDouble, 0, 1, 2, 3, 1000);
+        edgeSpringDouble.computeRestCurvature(pDouble, true);
 
 		sofa::defaulttype::Vec3fTypes::VecDeriv dpFloat;
 		dpFloat.resize(4);
