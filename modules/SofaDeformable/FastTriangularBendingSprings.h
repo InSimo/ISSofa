@@ -107,7 +107,6 @@ public:
 	Data<double> d_minDistValidity; ///< Minimal distance to consider a spring valid
 
     Data<bool>   d_useRestCurvature; ///< Use the rest curvature as the zero energy bending.
-    Data<bool>   d_useOldAddForce; //warning: bug version
     Data<bool>   d_useCorotational;  ///< Use edge rotation to make restCurvature invariant to rotation
 
     Data<bool>   d_quadraticBendingModel; /// Use quadratic bending model method for Inextensible Surfaces

@@ -395,7 +395,6 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 : f_bendingStiffness(initData(&f_bendingStiffness,(double) 1.0,"bendingStiffness","bending stiffness of the material"))
 , d_minDistValidity(initData(&d_minDistValidity,(double) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
 , d_useRestCurvature(initData(&d_useRestCurvature, false, "useRestCurvature", "Use rest curvature as the zero potential energy"))
-, d_useOldAddForce(initData(&d_useOldAddForce, false,"useOldAddForce","Use old version of addForce"))
 , d_useCorotational(initData(&d_useCorotational, false, "useCorotational","Use a rotation to make rest curvature invariant to rotation"))
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
@@ -502,19 +501,9 @@ void FastTriangularBendingSprings<DataTypes>::addDForce(const core::MechanicalPa
 
     sofa::helper::AdvancedTimer::stepBegin("FTBendingSpringAddDForce");
 
-    if(d_useOldAddForce.getValue())
+    for(unsigned i=0; i<edgeInf.size(); i++ )
     {
-        for(unsigned i=0; i<edgeInf.size(); i++ )
-        {
-            edgeInf[i].addDForceBugged(df.wref(),dx,kFactor);
-        }
-    }
-    else
-    {
-        for(unsigned i=0; i<edgeInf.size(); i++ )
-        {
-            edgeInf[i].addDForce(df.wref(),dx,kFactor);
-        }
+        edgeInf[i].addDForce(df.wref(),dx,kFactor);
     }
 
     sofa::helper::AdvancedTimer::stepEnd("FTBendingSpringAddDForce");
