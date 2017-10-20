@@ -84,6 +84,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
         helper::WriteAccessor<Data<vector<EdgeSpring> > > edgeData(ff->edgeSprings);
         const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
         const bool useRestCurvature = ff->d_useRestCurvature.getValue();
+        const bool useCorotational = ff->d_useCorotational.getValue();
         for (unsigned int i=0; i<triangleAdded.size(); ++i)
         {
             /// edges of the new triangle
@@ -137,11 +138,15 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
                     {
                         if(!quadraticBendingModel)
                         {
-						    ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                            ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
                         }
                         if(quadraticBendingModel)
                         {
-                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
+                        }
+                        if(useRestCurvature )
+                        {
+                            ei.computeRestCurvature(restPosition.ref(),useCorotational);
                         }
                     }
                 }
@@ -163,7 +168,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 
         const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
         const bool useRestCurvature = ff->d_useRestCurvature.getValue();
-
+        const bool useCorotational = ff->d_useCorotational.getValue();
         const bool quadraticBendingModel = ff->d_quadraticBendingModel.getValue();
 
         for (unsigned int i=0; i<triangleRemoved.size(); ++i)
@@ -249,11 +254,16 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
                     {
                         if(!quadraticBendingModel)
                         {
-    						ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                            ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
                         }
                         if(quadraticBendingModel)
                         {
-                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness, useRestCurvature);
+                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
+                        }
+
+                        if(useRestCurvature )
+                        {
+                            ei.computeRestCurvature(restPosition.ref(),useCorotational);
                         }
                     }
 					else
@@ -386,6 +396,7 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_minDistValidity(initData(&d_minDistValidity,(double) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
 , d_useRestCurvature(initData(&d_useRestCurvature, false, "useRestCurvature", "Use rest curvature as the zero potential energy"))
 , d_useOldAddForce(initData(&d_useOldAddForce, false,"useOldAddForce","Use old version of addForce"))
+, d_useCorotational(initData(&d_useCorotational, false, "useCorotational","Use a rotation to make rest curvature invariant to rotation"))
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
 , d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSprigEnergy","Maximum value of spring bending enrgy to draw"))
@@ -470,21 +481,13 @@ void FastTriangularBendingSprings<DataTypes>::addForce(const core::MechanicalPar
     const VecDeriv& v = d_v.getValue();
     typename MechanicalState::WriteVecDeriv f(d_f);
     const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
-    const bool quadraticBendingModel = d_quadraticBendingModel.getValue();
+    const bool useCorotaional = d_useCorotational.getValue();
     f.resize(x.size());
 
     m_potentialEnergy = 0;
     for(unsigned i=0; i<edgeInf.size(); i++ )
     {
-        if (quadraticBendingModel)
-        {
-            m_potentialEnergy += edgeInf[i].addForceQuadratic(f.wref(),x,v);
-        }
-        else
-        {
-            m_potentialEnergy += edgeInf[i].addForce(f.wref(),x,v);
-        }
-
+         m_potentialEnergy += edgeInf[i].addForce(f.wref(),x,v, useCorotaional);
     }
 }
 
@@ -548,7 +551,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
     const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
-    const bool quadraticBendingModel = d_quadraticBendingModel.getValue();
+    const bool useCorotaional = d_useCorotational.getValue();
     const bool drawSpringSize = d_drawSpringSize.getValue();
 
     VecDeriv emptyVecDeriv;
@@ -559,19 +562,9 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
         if(edgeInf[i].is_activated)
         {
             sofa::helper::vector<sofa::defaulttype::Vector3> points;
-            Real energy = 0;
-            if(quadraticBendingModel)
-            {
-                const Coord pa[2] = {x[edgeInf[i].vid[EdgeSpring::A]], x[edgeInf[i].vid[EdgeSpring::B]]};
-                points.assign(pa, pa + 2);
-                energy = edgeInf[i].addForceQuadratic(emptyVecDeriv, x, emptyVecDeriv);
-            }
-            else
-            {
-                const Coord pa[2] = {x[edgeInf[i].vid[EdgeSpring::C]], x[edgeInf[i].vid[EdgeSpring::D]]};
-                points.assign(pa, pa + 2);
-                energy = edgeInf[i].addForce(emptyVecDeriv, x, emptyVecDeriv);
-            }
+            const Coord pa[2] = {x[edgeInf[i].vid[EdgeSpring::VC]], x[edgeInf[i].vid[EdgeSpring::VD]]};
+            points.assign(pa, pa + 2);
+            Real energy = edgeInf[i].addForce(emptyVecDeriv, x, emptyVecDeriv, useCorotaional);
 
             float R = 0.;
             float G = 0.;
