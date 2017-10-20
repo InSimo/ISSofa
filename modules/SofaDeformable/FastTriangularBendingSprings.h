@@ -134,8 +134,8 @@ protected:
     class EdgeSpring
     {
     public:
-        enum {VA=0,VB,VC,VD};                    ///< vertex names as in Volino's paper
-        enum {QA=VC,QB=VD,QC=VA,QD=VB};          ///< vertex names as in Bergou paper
+        enum {QA=0,QB,QC,QD};          ///< vertex names as in Bergou paper
+        enum {VA=QC,VB=QD,VC=QB,VD=QA};                    ///< vertex names as in Volino's paper
         sofa::defaulttype::Vec<4,unsigned> vid;  ///< vertex indices, in circular order
         sofa::defaulttype::Vec<4,Real> alpha;    ///< weight of each vertex in the bending vector
         Real lambda;                             ///< bending stiffness
@@ -270,7 +270,7 @@ protected:
 
         Deriv computeBendingVector( const VecCoord& p) const
         {
-           return ( p[vid[VA]]*alpha[VA] +  p[vid[VB]]*alpha[VB] +  p[vid[VC]]*alpha[VC] +  p[vid[VD]]*alpha[VD] );
+           return ( p[vid[QA]]*alpha[QA] +  p[vid[QB]]*alpha[QB] +  p[vid[QC]]*alpha[QC] +  p[vid[QD]]*alpha[QD] );
         }
 
         /// Accumulates force and return potential energy
@@ -289,10 +289,10 @@ protected:
             {
                 R -= R0;
             }
-            f[vid[VA]] -= R * (lambda * alpha[VA]);
-            f[vid[VB]] -= R * (lambda * alpha[VB]);
-            f[vid[VC]] -= R * (lambda * alpha[VC]);
-            f[vid[VD]] -= R * (lambda * alpha[VD]);
+            f[vid[QA]] -= R * (lambda * alpha[QA]);
+            f[vid[QB]] -= R * (lambda * alpha[QB]);
+            f[vid[QC]] -= R * (lambda * alpha[QC]);
+            f[vid[QD]] -= R * (lambda * alpha[QD]);
 
             return (R * R) * lambda * (Real)0.5;
         }
