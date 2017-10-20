@@ -468,12 +468,21 @@ void FastTriangularBendingSprings<DataTypes>::addForce(const core::MechanicalPar
     const VecDeriv& v = d_v.getValue();
     typename MechanicalState::WriteVecDeriv f(d_f);
     const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
+    const bool quadraticBendingModel = d_quadraticBendingModel.getValue();
     f.resize(x.size());
 
     m_potentialEnergy = 0;
     for(unsigned i=0; i<edgeInf.size(); i++ )
     {
-        m_potentialEnergy += edgeInf[i].addForce(f.wref(),x,v);
+        if (quadraticBendingModel)
+        {
+            m_potentialEnergy += edgeInf[i].addForceQuadratic(f.wref(),x,v);
+        }
+        else
+        {
+            m_potentialEnergy += edgeInf[i].addForce(f.wref(),x,v);
+        }
+
     }
 }
 

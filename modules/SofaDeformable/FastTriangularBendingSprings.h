@@ -135,9 +135,10 @@ protected:
         sofa::defaulttype::Vec<4,unsigned> vid;  ///< vertex indices, in circular order
         sofa::defaulttype::Vec<4,Real> alpha;    ///< weight of each vertex in the bending vector
         Real lambda;                             ///< bending stiffness
-        Deriv R0;                                ///< rest curvature;
+        Deriv R0;                                ///< rest curvature in local edge base
         bool is_activated;
         bool is_initialized;
+        bool is_useRestCurvature;
 
         typedef defaulttype::Mat<12,12,Real> StiffnessMatrix;
 
@@ -145,7 +146,7 @@ protected:
         void setEdgeSpring( const VecCoord& p, unsigned iA, unsigned iB, unsigned iC, unsigned iD, Real materialBendingStiffness, bool computeRestCurvature=false )
         {
             is_activated = is_initialized = true;
-
+            is_useRestCurvature = computeRestCurvature;
             vid[A]=iA;
             vid[B]=iB;
             vid[C]=iC;
@@ -173,7 +174,9 @@ protected:
 
             if(computeRestCurvature )
             {
-                R0 = computeBendingVector( p );
+                Mat K0;
+                computeSpringRotation(K0,p);
+                R0 = K0.transposed()*computeBendingVector( p );
             }
             //            cerr<<"EdgeInformation::setEdgeSpring, vertices = " << vid << endl;
         }
@@ -182,6 +185,7 @@ protected:
         void setEdgeSpringQuadratic( const VecCoord& p, unsigned iA, unsigned iB, unsigned iC, unsigned iD, Real materialBendingStiffness, bool computeRestCurvature=false )
         {
             is_activated = is_initialized = true;
+            is_useRestCurvature = computeRestCurvature;
  
             vid[A]=iD;  ///< WARNING vertex names and orientation as in Bergou's paper, different compared Linear method from Volino's paper
             vid[B]=iC;
@@ -211,9 +215,53 @@ protected:
 
             if(computeRestCurvature )
             {
-                R0 = computeBendingVector( p );
+                Mat K0;
+                computeSpringRotation(K0,p,true);
+                R0 = K0.transposed()*computeBendingVector( p );
             }
         }
+
+        ///Compute the Rotation Matrix to SpringBase
+        void computeSpringRotation(Mat& result, const VecCoord& p, bool quadraticBendingModel = false) const
+        {
+            //The spring base is defined as:
+            // u : the edge direction
+            // n : the mean normal of adjacent triangles
+            // v : u X n
+            // Rotation Matrix is R = [u,v,n]
+
+            unsigned int pe1 = vid[C]; //First point id of edge
+            unsigned int pe2 = vid[D]; //Second point id of edge
+            unsigned int pt1 = vid[A]; //point id of first triangle
+            unsigned int pt2 = vid[B]; //point id of second triangle
+            if (quadraticBendingModel)
+            {
+                pe1 = vid[A];
+                pe2 = vid[B];
+                pt1 = vid[C];
+                pt2 = vid[D];
+            }
+            Deriv u = p[pe1] - p[pe2];
+            u.normalize();
+            const Deriv ea1 = p[pt1] - p[pe1];
+            const Deriv ea2 = p[pt2] - p[pe1];
+            Deriv n1 = u.cross(ea1);
+            n1.normalize();
+            Deriv n2 = -u.cross(ea2);
+            n2.normalize();
+            Deriv n = ((n1+n2) * 0.5);
+            n.normalize();
+            Deriv v = n.cross(u);
+            v.normalize();
+
+            for( int i = 0; i < 3; i++)
+            {
+                result[i][0] = u[i];
+                result[i][1] = v[i];
+                result[i][2] = n[i];
+            }
+        }
+
 
         double cotTheta(const Deriv& v, const Deriv& w)
         {
@@ -236,7 +284,31 @@ protected:
             if( !is_activated ) return 0;
 
             Deriv R = computeBendingVector(p);
-            R -= R0;
+            if (is_useRestCurvature)
+            {
+                Mat Kx;
+                computeSpringRotation(Kx,p);
+                R -= Kx*R0;
+            }
+            f[vid[A]] -= R * (lambda * alpha[A]);
+            f[vid[B]] -= R * (lambda * alpha[B]);
+            f[vid[C]] -= R * (lambda * alpha[C]);
+            f[vid[D]] -= R * (lambda * alpha[D]);
+
+            return (R * R) * lambda * (Real)0.5;
+        }
+
+        Real addForceQuadratic( VecDeriv& f, const VecCoord& p, const VecDeriv& /*v*/) const
+        {
+            if( !is_activated ) return 0;
+
+            Deriv R = computeBendingVector(p);
+            if (is_useRestCurvature)
+            {
+                Mat Kx;
+                computeSpringRotation(Kx,p,true);
+                R -= Kx*R0;
+            }
             f[vid[A]] -= R * (lambda * alpha[A]);
             f[vid[B]] -= R * (lambda * alpha[B]);
             f[vid[C]] -= R * (lambda * alpha[C]);
