@@ -365,7 +365,7 @@ bool MeshVTKLoader::LegacyVTKReader::readFile(const char* filename)
         serr << "Error loading the file : " << filename << sendl;
     }
 
-    std::istringstream inVTKFile(filename, std::ifstream::in | std::ifstream::binary);
+    std::istringstream inVTKFile(fileContent, std::ifstream::in | std::ifstream::binary);
 
     std::string line;
 
