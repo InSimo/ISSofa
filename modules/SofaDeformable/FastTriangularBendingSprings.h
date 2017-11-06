@@ -119,6 +119,8 @@ public:
 
     virtual void reinit();
 
+	virtual void createBendingSprings(unsigned int edgeIndex, const sofa::helper::vector<unsigned int> &trianleAroundEdge);
+
     virtual void addForce(const core::MechanicalParams* mparams, DataVecDeriv& d_f, const DataVecCoord& d_x, const DataVecDeriv& d_v);
     virtual void addDForce(const core::MechanicalParams* mparams, DataVecDeriv& d_df, const DataVecDeriv& d_dx);
     /// compute and add all the element stiffnesses to the global stiffness matrix
@@ -140,8 +142,8 @@ protected:
         sofa::defaulttype::Vec<4,Real> alpha;    ///< weight of each vertex in the bending vector
         Real lambda;                             ///< bending stiffness
         Deriv R0;                                ///< rest curvature
-        bool is_activated;
-        bool is_initialized;
+        bool is_activated = false;
+        bool is_initialized = false;
         typedef defaulttype::Mat<12,12,Real> StiffnessMatrix;
 
         /// Store the vertex indices and perform all the precomputations
@@ -180,7 +182,7 @@ protected:
         void setEdgeSpringQuadratic( const VecCoord& p, unsigned iA, unsigned iB, unsigned iC, unsigned iD, Real materialBendingStiffness)
         {
             is_activated = is_initialized = true;
- 
+
             vid[QA]=iD;  ///< WARNING vertex names and orientation as in Bergou's paper, different compared Linear method from Volino's paper
             vid[QB]=iC;
             vid[QC]=iA;
@@ -351,34 +353,42 @@ protected:
             for(unsigned i=0; i<4; i++)
                 vid[i] = newIndices[vid[i]];
         }
-
-
-
-        /// Output stream
-        inline friend std::ostream& operator<< ( std::ostream& os, const EdgeSpring& /*ei*/ )
-        {
-            return os;
-        }
-
-        /// Input stream
-        inline friend std::istream& operator>> ( std::istream& in, EdgeSpring& /*ei*/ )
-        {
-            return in;
-        }
     };
 
-    /// The list of edge springs, one for each edge between two triangles
-    sofa::component::topology::EdgeData<helper::vector<EdgeSpring> > edgeSprings;
+	struct VecEdgeSpring
+	{
+		sofa::helper::vector<EdgeSpring> springs;
 
-    class TriangularBSEdgeHandler : public sofa::component::topology::TopologyDataHandler<Edge,vector<EdgeSpring> >
+		/// Output stream
+		inline friend std::ostream& operator<< ( std::ostream& os, const VecEdgeSpring& ei )
+		{
+			os << "VecEdgeSpring : { ";
+			for (unsigned int i = 0; i < ei.springs.size(); i++)
+			{
+				os << "isActive : " << ei.springs[i].is_activated << " lambda : " << ei.springs[i].lambda << " vid : " << ei.springs[i].vid;
+			}
+			os << " }";
+			return os;
+		}
+
+		/// Input stream
+		inline friend std::istream& operator>> ( std::istream& in, VecEdgeSpring& /*ei*/ )
+		{
+			return in;
+		}
+	};
+    /// The list of edge springs, one for each edge between two triangles
+    sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > edgeSprings;
+
+    class TriangularBSEdgeHandler : public sofa::component::topology::TopologyDataHandler<Edge,vector<VecEdgeSpring> >
     {
     public:
-        typedef typename FastTriangularBendingSprings<DataTypes>::EdgeSpring EdgeSpring;
-        TriangularBSEdgeHandler(FastTriangularBendingSprings<DataTypes>* _ff, sofa::component::topology::EdgeData<sofa::helper::vector<EdgeSpring> >* _data)
-            : sofa::component::topology::TopologyDataHandler<Edge, sofa::helper::vector<EdgeSpring> >(_data), ff(_ff) {}
+        typedef typename FastTriangularBendingSprings<DataTypes>::VecEdgeSpring VecEdgeSpring;
+        TriangularBSEdgeHandler(FastTriangularBendingSprings<DataTypes>* _ff, sofa::component::topology::EdgeData<sofa::helper::vector<VecEdgeSpring> >* _data)
+            : sofa::component::topology::TopologyDataHandler<Edge, sofa::helper::vector<VecEdgeSpring> >(_data), ff(_ff) {}
 
         void applyCreateFunction(unsigned int edgeIndex,
-                EdgeSpring &ei,
+				VecEdgeSpring &ei,
                 const Edge& ,  const sofa::helper::vector< unsigned int > &,
                 const sofa::helper::vector< double >&);
 
@@ -414,7 +424,7 @@ protected:
 
     virtual ~FastTriangularBendingSprings();
 
-    sofa::component::topology::EdgeData<helper::vector<EdgeSpring> > &getEdgeInfo() {return edgeSprings;}
+    sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > &getEdgeInfo() {return edgeSprings;}
 
     TriangularBSEdgeHandler* edgeHandler;
 

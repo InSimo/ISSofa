@@ -60,12 +60,11 @@ namespace forcefield
 typedef sofa::core::topology::BaseMeshTopology::EdgesInTriangle EdgesInTriangle;
 
 template< class DataTypes>
-void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyCreateFunction(unsigned int /*edgeIndex*/, EdgeSpring &ei, const sofa::component::topology::Edge &, const sofa::helper::vector<unsigned int> &, const sofa::helper::vector<double> &)
+void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyCreateFunction(unsigned int /*edgeIndex*/, VecEdgeSpring &ei, const sofa::component::topology::Edge &, const sofa::helper::vector<unsigned int> &, const sofa::helper::vector<double> &)
 {
     if (ff)
     {
-        ei.is_activated=false;
-        ei.is_initialized=false;
+        ei.springs.clear();
     }
 }
 
@@ -77,81 +76,17 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
     using namespace sofa::component::topology;
     if (ff)
     {
-        typename MechanicalState::ReadVecCoord restPosition = ff->mstate->readRestPositions();
-
-        const bool quadraticBendingModel = ff->d_quadraticBendingModel.getValue();
-
-        helper::WriteAccessor<Data<vector<EdgeSpring> > > edgeData(ff->edgeSprings);
-        const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
-        const bool useRestCurvature = ff->d_useRestCurvature.getValue();
-        const bool useCorotational = ff->d_useCorotational.getValue();
         for (unsigned int i=0; i<triangleAdded.size(); ++i)
         {
             /// edges of the new triangle
             EdgesInTriangle te2 = ff->_topology->getEdgesInTriangle(triangleAdded[i]);
-            /// vertices of the new triangle
-            Triangle t2 = ff->_topology->getTriangle(triangleAdded[i]);
-
-			double epsilonSq = ff->d_minDistValidity.getValue();
-			epsilonSq *= epsilonSq;
-
             // for each edge in the new triangle
-            for(unsigned int j=0; j<3; ++j)
+            for (unsigned int j = 0; j < 3; ++j)
             {
-                EdgeSpring &ei = edgeData[te2[j]]; // edge spring
                 unsigned int edgeIndex = te2[j];
-
                 const sofa::helper::vector< unsigned int > shell = ff->_topology->getTrianglesAroundEdge(edgeIndex);
-                    
-                if (shell.size()==2)   // there is another triangle attached to this edge, so a spring is needed
-                {
-                    // the other triangle and its edges
-                    EdgesInTriangle te1;
-                    Triangle t1;
-                    if(shell[0] == triangleAdded[i])
-                    {
+                ff->createBendingSprings(edgeIndex, shell);
 
-                        te1 = ff->_topology->getEdgesInTriangle(shell[1]);
-                        t1 = ff->_topology->getTriangle(shell[1]);
-
-                    }
-                    else   // shell[1] == triangleAdded[i]
-                    {
-
-                        te1 = ff->_topology->getEdgesInTriangle(shell[0]);
-                        t1 = ff->_topology->getTriangle(shell[0]);
-                    }
-
-                    int i1 = ff->_topology->getEdgeIndexInTriangle(te1, edgeIndex); // index of the vertex opposed to the current edge in the other triangle (?)
-                    int i2 = ff->_topology->getEdgeIndexInTriangle(te2, edgeIndex); // index of the vertex opposed to the current edge in the new triangle (?)
-                    Edge edge = ff->_topology->getEdge(edgeIndex);                  // indices of the vertices of the current edge
-
-					const PointID& v1 = t1[i1];
-					const PointID& v2 = t2[i2];
-					const PointID& e1 = edge[0];
-					const PointID& e2 = edge[1];
-
-					Deriv vp = restPosition[v2]-restPosition[v1];
-					Deriv ve = restPosition[e2]-restPosition[e1];
-
-					if(vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
-                    {
-                        if(!quadraticBendingModel)
-                        {
-                            ei.setEdgeSpring( restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
-                        }
-                        if(quadraticBendingModel)
-                        {
-                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
-                        }
-                        if(useRestCurvature )
-                        {
-                            ei.computeRestCurvature(restPosition.ref(),useCorotational);
-                        }
-                    }
-                }
-                else
-                    ei.is_activated = ei.is_initialized = false;
             }
         }
     }
@@ -163,120 +98,31 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyTria
 {
     if (ff)
     {
-        typename MechanicalState::ReadVecCoord restPosition = ff->mstate->readRestPositions();
-        helper::vector<EdgeSpring>& edgeData = *(ff->edgeSprings.beginEdit());
-
-        const Real bendingStiffness = (Real)ff->f_bendingStiffness.getValue();
-        const bool useRestCurvature = ff->d_useRestCurvature.getValue();
-        const bool useCorotational = ff->d_useCorotational.getValue();
-        const bool quadraticBendingModel = ff->d_quadraticBendingModel.getValue();
-
-        for (unsigned int i=0; i<triangleRemoved.size(); ++i)
+        for (unsigned int i = 0; i < triangleRemoved.size(); ++i)
         {
             /// describe the jth edge index of triangle no i
             EdgesInTriangle te = ff->_topology->getEdgesInTriangle(triangleRemoved[i]);
             /// describe the jth vertex index of triangle no i
             //Triangle t = ff->_topology->getTriangle(triangleRemoved[i]);
 
-			double epsilonSq = ff->d_minDistValidity.getValue();
-			epsilonSq *= epsilonSq;
-
-            for(unsigned int j=0; j<3; ++j)
+            for (unsigned int j = 0; j < 3; ++j)
             {
-                EdgeSpring &ei = edgeData[te[j]]; // ff->edgeInfo
                 unsigned int edgeIndex = te[j];
 
                 const sofa::helper::vector< unsigned int > shell = ff->_topology->getTrianglesAroundEdge(edgeIndex);
-
-                //check if there is going to be only 2 triangles after modification
-                bool valid=false;
-                std::vector<unsigned int> keepingTri;
-                keepingTri.reserve(2);
-                if(shell.size()>3)
+                sofa::helper::vector< unsigned int> keepingTri;
+                for (unsigned int k = 0; k < shell.size(); ++k)
                 {
-                    unsigned int toSuppr=0;
-                    for(unsigned int k = 0 ; k < shell.size() ; ++k)
-                        if(std::find(triangleRemoved.begin(),triangleRemoved.end(),shell[k])!=triangleRemoved.end())
-                            toSuppr++;
-                        else
-                            keepingTri.push_back(shell[k]);
-
-                    if(shell.size()-toSuppr==2)
-                        valid=true;
-                }
-                else if(shell.size()==3)
-                {
-                    valid=true;
-                    if(shell[0]==triangleRemoved[i])
+                    if (std::find(triangleRemoved.begin(), triangleRemoved.end(), shell[k]) == triangleRemoved.end())
                     {
-                        keepingTri.push_back(shell[1]);
-                        keepingTri.push_back(shell[2]);
-                    }
-                    else if(shell[1]==triangleRemoved[i])
-                    {
-                        keepingTri.push_back(shell[0]);
-                        keepingTri.push_back(shell[2]);
-                    }
-                    else
-                    {
-                        keepingTri.push_back(shell[0]);
-                        keepingTri.push_back(shell[1]);
+                        keepingTri.push_back(shell[k]);
                     }
                 }
 
-                //in this case : set a bending spring
-                if (valid)
-                {
-                    EdgesInTriangle te1;
-                    Triangle t1;
-                    EdgesInTriangle te2;
-                    Triangle t2;
-
-                    te1 = ff->_topology->getEdgesInTriangle(keepingTri[0]);
-                    t1 = ff->_topology->getTriangle(keepingTri[0]);
-                    te2 = ff->_topology->getEdgesInTriangle(keepingTri[1]);
-                    t2 = ff->_topology->getTriangle(keepingTri[1]);
-
-                    int i1 = ff->_topology->getEdgeIndexInTriangle(te1, edgeIndex);
-                    int i2 = ff->_topology->getEdgeIndexInTriangle(te2, edgeIndex);
-
-                    Edge edge = ff->_topology->getEdge(edgeIndex);
-
-					const PointID& v1 = t1[i1];
-					const PointID& v2 = t2[i2];
-					const PointID& e1 = edge[0];
-					const PointID& e2 = edge[1];
-
-					Deriv vp = restPosition[v2]-restPosition[v1];
-					Deriv ve = restPosition[e2]-restPosition[e1];
-
-					if(vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
-                    {
-                        if(!quadraticBendingModel)
-                        {
-                            ei.setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
-                        }
-                        if(quadraticBendingModel)
-                        {
-                            ei.setEdgeSpringQuadratic( restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
-                        }
-
-                        if(useRestCurvature )
-                        {
-                            ei.computeRestCurvature(restPosition.ref(),useCorotational);
-                        }
-                    }
-					else
-						ei.is_activated = ei.is_initialized = false;
-                }
-                else
-                    ei.is_activated = ei.is_initialized = false;
+                ff->createBendingSprings(edgeIndex, keepingTri);
 
             }
-
         }
-
-        ff->edgeSprings.endEdit();
     }
 
 }
@@ -311,7 +157,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
         unsigned int last = ff->_topology->getNbPoints() -1;
         unsigned int i,j;
 
-        helper::vector<EdgeSpring>& edgeInf = *(ff->edgeSprings.beginEdit());
+        helper::vector<VecEdgeSpring>& edgeInf = *(ff->edgeSprings.beginEdit());
 
         //make a reverse copy of tab
         sofa::helper::vector<unsigned int> lastIndexVec;
@@ -339,7 +185,10 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
                 for(unsigned int k=0; k < 3 ; ++k)
                 {
                     unsigned int ind_j = tej[k];
-                    edgeInf[ind_j].replaceIndex( last, tab[i]);
+                    for (unsigned int l = 0; l < edgeInf[ind_j].springs.size(); l++)
+                    {
+                        edgeInf[ind_j].springs[l].replaceIndex(last, tab[i]);
+                    }
                 }
             }
 
@@ -347,7 +196,10 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
             {
                 for (unsigned int j_loc=0; j_loc<edgeInf.size(); ++j_loc)
                 {
-                    edgeInf[j_loc].replaceIndex( last, tab[i]);
+                    for (unsigned int l = 0; l < edgeInf[j_loc].springs.size(); l++)
+                    {
+                        edgeInf[j_loc].springs[l].replaceIndex(last, tab[i]);
+                    }
                 }
             }
 
@@ -364,12 +216,15 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
 {
     if(ff)
     {
-        helper::vector<EdgeSpring>& edgeInf = *(ff->edgeSprings.beginEdit());
+        helper::vector<VecEdgeSpring>& edgeInf = *(ff->edgeSprings.beginEdit());
         for (int i = 0; i < ff->_topology->getNbEdges(); ++i)
         {
-            if(edgeInf[i].is_activated)
+            for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
             {
-                edgeInf[i].replaceIndices(newIndices);
+                if (edgeInf[i].springs[j].is_activated)
+                {
+                    edgeInf[i].springs[j].replaceIndices(newIndices);
+                }
             }
         }
         ff->edgeSprings.endEdit();
@@ -441,7 +296,7 @@ void FastTriangularBendingSprings<DataTypes>::reinit()
 {
     using namespace sofa::component::topology;
     /// prepare to store info in the edge array
-    helper::vector<EdgeSpring>& edgeInf = *(edgeSprings.beginEdit());
+    helper::vector<VecEdgeSpring>& edgeInf = *(edgeSprings.beginEdit());
     edgeInf.resize(_topology->getNbEdges());
     int i;
     // set edge tensor to 0
@@ -466,6 +321,64 @@ void FastTriangularBendingSprings<DataTypes>::reinit()
     edgeSprings.endEdit();
 }
 
+
+template< class DataTypes>
+void FastTriangularBendingSprings<DataTypes>::createBendingSprings(unsigned int edgeIndex, const sofa::helper::vector<unsigned int>& shell)
+{
+
+    typename MechanicalState::ReadVecCoord restPosition = this->mstate->readRestPositions();
+    const bool quadraticBendingModel = d_quadraticBendingModel.getValue();
+    const Real bendingStiffness = (Real)f_bendingStiffness.getValue();
+    const bool useRestCurvature = d_useRestCurvature.getValue();
+    const bool useCorotational = d_useCorotational.getValue();
+    sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring> > > edgeData(edgeSprings);
+    double epsilonSq = d_minDistValidity.getValue();
+    epsilonSq *= epsilonSq;
+    VecEdgeSpring& ei = edgeData[edgeIndex]; // edge spring
+    ei.springs.resize(1);
+
+
+    if (shell.size() == 2)   // there is another triangle attached to this edge, so a spring is needed
+    {
+        // the other triangle and its edges
+        EdgesInTriangle te1 = _topology->getEdgesInTriangle(shell[0]);
+        Triangle t1 = _topology->getTriangle(shell[0]);
+
+        EdgesInTriangle te2 = _topology->getEdgesInTriangle(shell[1]);
+        Triangle t2 = _topology->getTriangle(shell[1]);
+
+        int i1 = _topology->getEdgeIndexInTriangle(te1, edgeIndex); // index of the vertex opposed to the current edge in the other triangle (?)
+        int i2 = _topology->getEdgeIndexInTriangle(te2, edgeIndex); // index of the vertex opposed to the current edge in the new triangle (?)
+        Edge edge = _topology->getEdge(edgeIndex);                  // indices of the vertices of the current edge
+
+        const PointID& v1 = t1[i1];
+        const PointID& v2 = t2[i2];
+        const PointID& e1 = edge[0];
+        const PointID& e2 = edge[1];
+
+        Deriv vp = restPosition[v2] - restPosition[v1];
+        Deriv ve = restPosition[e2] - restPosition[e1];
+
+        if (vp.norm2()>epsilonSq && ve.norm2()>epsilonSq)
+        {
+            if (!quadraticBendingModel)
+            {
+                ei.springs[0].setEdgeSpring(restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
+            }
+            if (quadraticBendingModel)
+            {
+                ei.springs[0].setEdgeSpringQuadratic(restPosition.ref(), v1, v2, e1, e2, bendingStiffness);
+            }
+            if (useRestCurvature)
+            {
+                ei.springs[0].computeRestCurvature(restPosition.ref(), useCorotational);
+            }
+        }
+    }
+    else
+        ei.springs[0].is_activated = ei.springs[0].is_initialized = false;
+}
+
 template <class DataTypes>
 double FastTriangularBendingSprings<DataTypes>::getPotentialEnergy(const core::MechanicalParams*, const DataVecCoord&) const
 {
@@ -479,14 +392,17 @@ void FastTriangularBendingSprings<DataTypes>::addForce(const core::MechanicalPar
     const VecCoord& x = d_x.getValue();
     const VecDeriv& v = d_v.getValue();
     typename MechanicalState::WriteVecDeriv f(d_f);
-    const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
     const bool useCorotaional = d_useCorotational.getValue();
     f.resize(x.size());
 
     m_potentialEnergy = 0;
     for(unsigned i=0; i<edgeInf.size(); i++ )
     {
-         m_potentialEnergy += edgeInf[i].addForce(f.wref(),x,v, useCorotaional);
+        for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
+        {
+            m_potentialEnergy += edgeInf[i].springs[j].addForce(f.wref(), x, v, useCorotaional);
+        }
     }
 }
 
@@ -495,7 +411,7 @@ void FastTriangularBendingSprings<DataTypes>::addDForce(const core::MechanicalPa
 {
     const VecDeriv& dx = d_dx.getValue();
     typename MechanicalState::WriteVecDeriv df(d_df);
-    const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
     const Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     df.resize(dx.size());
 
@@ -503,7 +419,10 @@ void FastTriangularBendingSprings<DataTypes>::addDForce(const core::MechanicalPa
 
     for(unsigned i=0; i<edgeInf.size(); i++ )
     {
-        edgeInf[i].addDForce(df.wref(),dx,kFactor);
+        for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
+        {
+            edgeInf[i].springs[j].addDForce(df.wref(), dx, kFactor);
+        }
     }
 
     sofa::helper::AdvancedTimer::stepEnd("FTBendingSpringAddDForce");
@@ -521,10 +440,13 @@ template<class MatrixWriter>
 void FastTriangularBendingSprings<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
 {
     const Real kFactor = (Real)mparams->kFactor();
-    const helper::vector<EdgeSpring>& springs = edgeSprings.getValue();
-    for(unsigned i=0; i< springs.size() ; i++)
+    const helper::vector<VecEdgeSpring>& Vecsprings = edgeSprings.getValue();
+    for(unsigned i=0; i< Vecsprings.size() ; i++)
     {
-        springs[i].addStiffness(mwriter, kFactor);
+        for (unsigned int j = 0; j < Vecsprings[i].springs.size(); j++)
+        {
+            Vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
+        }
     }
 }
 
@@ -538,7 +460,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     if (!this->mstate) return;
 
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
-    const helper::vector<EdgeSpring>& edgeInf = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
     const bool useCorotaional = d_useCorotational.getValue();
     const bool drawSpringSize = d_drawSpringSize.getValue();
@@ -546,23 +468,36 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     VecDeriv emptyVecDeriv;
     emptyVecDeriv.resize(x.size());
 
-    for(i=0; i<edgeInf.size(); ++i)
+    for (i = 0; i<edgeInf.size(); ++i)
     {
-        if(edgeInf[i].is_activated)
+        if (edgeInf[i].springs.size() > 0)
         {
             sofa::helper::vector<sofa::defaulttype::Vector3> points;
-            const Coord pa[2] = {x[edgeInf[i].vid[EdgeSpring::VC]], x[edgeInf[i].vid[EdgeSpring::VD]]};
+            const Coord pa[2] = { x[edgeInf[i].springs[0].vid[EdgeSpring::VC]], x[edgeInf[i].springs[0].vid[EdgeSpring::VD]] };
             points.assign(pa, pa + 2);
-            Real energy = edgeInf[i].addForce(emptyVecDeriv, x, emptyVecDeriv, useCorotaional);
+            Real energy = 0;
+            bool is_activated = false;
+            for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
+            {
+                if (edgeInf[i].springs[j].is_activated)
+                {
+                    energy += edgeInf[i].springs[j].addForce(emptyVecDeriv, x, emptyVecDeriv, useCorotaional);
+                    is_activated = true;
+                }
+            }
 
             float R = 0.;
             float G = 0.;
             float B = 1.;
 
-            B = (float)((maxValue-energy)/maxValue);
+            B = (float)((maxValue - energy) / maxValue);
             B = (B < 0.f) ? 0.f : B;
             R = 1.f - B;
-            vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
+
+            if (is_activated)
+            {
+                vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
+            }
         }
     }
 #endif /* SOFA_NO_OPENGL */
