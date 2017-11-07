@@ -462,8 +462,8 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
     const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
-    const bool useCorotaional = d_useCorotational.getValue();
-    const bool drawSpringSize = d_drawSpringSize.getValue();
+    const bool useCorotational = d_useCorotational.getValue();
+    const Real drawSpringSize = d_drawSpringSize.getValue();
 
     VecDeriv emptyVecDeriv;
     emptyVecDeriv.resize(x.size());
@@ -481,7 +481,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
             {
                 if (edgeInf[i].springs[j].is_activated)
                 {
-                    energy += edgeInf[i].springs[j].addForce(emptyVecDeriv, x, emptyVecDeriv, useCorotaional);
+                    energy += edgeInf[i].springs[j].addForce(emptyVecDeriv, x, emptyVecDeriv, useCorotational);
                     is_activated = true;
                 }
             }
