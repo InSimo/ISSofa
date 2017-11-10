@@ -83,6 +83,8 @@ template <typename TopologyElementType, typename ContainerType>
 void TopologyDataHandler <TopologyElementType, ContainerType>::init()
 {
     this->setLastTopoSize(TopologyDataHandler_GetTopologySize(m_topologyData->getTopology(), TopologyElementInfoT::type()));
+    auto containerWriteAccess = sofa::helper::write(*m_topologyData);
+    DataTypeInfo::setContainerSize(containerWriteAccess.wref(), this->getLastTopoSize());
 }
 
 template <typename TopologyElementType, typename ContainerType>

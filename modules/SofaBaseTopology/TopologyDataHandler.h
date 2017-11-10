@@ -61,6 +61,8 @@ public:
     typedef typename DataTypeInfo::KeyType              KeyType; 
     typedef typename DataTypeInfo::MappedType           MappedType;
 
+    static_assert(DataTypeInfo::IsContainer == true, "TopologyDataHandler work only with containers");
+
     typedef typename core::topology::TopologyElementInfo<TopologyElementType>    TopologyElementInfoT;
     typedef typename core::topology::TopologyObjectType                          TopologyObjectType;
 
