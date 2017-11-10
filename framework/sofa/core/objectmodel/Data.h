@@ -602,6 +602,12 @@ extern template class SOFA_CORE_API Data< bool >;
 
 #endif
 
+template< typename TData > 
+struct DataTraits
+{
+    typedef typename TData::value_type value_type;///<Wraps the type contained in the Data into an opaque type named value_type
+};
+
 } // namespace objectmodel
 
 } // namespace core
@@ -690,38 +696,63 @@ public:
     WriteOnlyAccessor(const core::ExecParams* params, data_container_type* d) : Inherit( d->beginWriteOnly(), *d, params ) {}
 };
 
-/// Easy syntax for getting read/write access to a Data using operator ->. Example: write(someFlagData)->setFlagValue(true);
-template<class T>
-inline WriteAccessor<core::objectmodel::Data<T> > write(core::objectmodel::Data<T>& data, const core::ExecParams* params)
+
+template<class TData>
+using is_base_of_data = std::is_base_of< sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type >, TData >;
+
+template<class TData>
+using enable_if_is_base_of_data = std::enable_if< is_base_of_data<TData>::value >;
+
+
+/**
+* \defgroup Write/Read helper methods to construct accessor objects for Data types
+*           these methods work also for types that derive from Data like BaseTopologyData, or DataFileName.
+* @brief These methods allow to construct accessor objects using the following syntax
+*         auto data_read_access = read(d_data);
+*         auto data_write_access = write(d_data);
+* @param The data whose accessor is being constructed
+* @param An optional ExecParams instance
+* @retval An accessor object for the Data
+* @{
+*/
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline WriteAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+write(TData& data, const core::ExecParams* params)
 {
-    return WriteAccessor<core::objectmodel::Data<T> >(params,data);
+    return WriteAccessor< sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> >(params,data);
 }
 
 
-template<class T>
-inline WriteAccessor<core::objectmodel::Data<T> > write(core::objectmodel::Data<T>& data) 
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline WriteAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+write(TData& data)
 { 
     return write(data,sofa::core::ExecParams::defaultInstance() ); 
 }
 
 
-template<class T>
-inline ReadAccessor<core::objectmodel::Data<T> > read(const core::objectmodel::Data<T>& data, const core::ExecParams* params)
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline ReadAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+read(const TData& data, const core::ExecParams* params)
 {
-    return ReadAccessor<core::objectmodel::Data<T> >(params, data);
+    return ReadAccessor< sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> >(params, data);
 }
 
 
-template<class T>
-inline ReadAccessor<core::objectmodel::Data<T> > read(core::objectmodel::Data<T>& data)
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline ReadAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+read(TData& data)
 {
     return read(data, sofa::core::ExecParams::defaultInstance());
 }
 
-/// Easy syntax for getting write only access to a Data using operator ->. Example: writeOnly(someFlagData)->setFlagValue(true);
-template<class T>
-inline WriteOnlyAccessor<core::objectmodel::Data<T> > writeOnly(core::objectmodel::Data<T>& data) { return WriteOnlyAccessor<core::objectmodel::Data<T> >(data); }
-
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline WriteOnlyAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+writeOnly(TData& data) 
+{ 
+    return WriteOnlyAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> >(data);
+}
+/** @} */
 
 } // namespace helper
 
