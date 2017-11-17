@@ -121,8 +121,7 @@ public:
         collisionModels.clear();
     }
 
-    /* for debugging */
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams*  vparams);
 
     inline virtual bool needsDeepBoundingTree()const {return true;}
     
