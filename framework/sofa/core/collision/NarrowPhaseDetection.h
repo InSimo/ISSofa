@@ -30,6 +30,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <sofa/core/visual/VisualParams.h>
 
 namespace sofa
 {
@@ -52,6 +53,12 @@ public:
     typedef sofa::helper::map_ptr_stable_compare< std::pair< core::CollisionModel*, core::CollisionModel* >, DetectionOutputVector* > DetectionOutputMap;
 
 protected:
+    NarrowPhaseDetection()
+    :d_showDetectionOutputMap(initData(&d_showDetectionOutputMap, false, "showDetectionOutputMap", "Set to true to draw the content of detection output map"))
+    {
+
+    }
+
     /// Destructor
     virtual ~NarrowPhaseDetection() { }
 public:
@@ -126,6 +133,33 @@ public:
     inline bool zeroCollision()const{
         return m_outputsMap.empty();
     }
+
+    void draw(const sofa::core::visual::VisualParams* vparams)
+    {
+        if (d_showDetectionOutputMap.getValue(vparams))
+        {
+           
+            for (auto it = m_outputsMap.cbegin(); it != m_outputsMap.cend(); ++it)
+            {
+                const DetectionOutputVector* outputVector = it->second;
+                std::vector< sofa::defaulttype::Vector3 > lines;
+                for (std::size_t i=0; i< outputVector->size(); ++i)
+                {
+                    DetectionOutput o;
+                    if (outputVector->getDetectionOutput(i, o))
+                    {
+                        lines.push_back(o.point[0]);
+                        lines.push_back(o.point[1]);
+                    }
+                }
+
+                vparams->drawTool()->drawLines(lines, 1.f, sofa::defaulttype::Vec4f(1.f, 1.f, 1.f, 1.f));
+            }
+        }
+
+    }
+
+    sofa::Data<bool> d_showDetectionOutputMap;
 
 protected:
     bool _zeroCollision;//true if the last narrow phase detected no collision, to use after endNarrowPhase
