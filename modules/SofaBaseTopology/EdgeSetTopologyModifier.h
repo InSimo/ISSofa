@@ -308,7 +308,7 @@ protected:
     void addEdgeProcess(Edge e);
 
 private:
-    EdgeSetTopologyContainer* 	m_container;
+    EdgeSetTopologyContainer* m_container = nullptr;
 };
 
 } // namespace topology

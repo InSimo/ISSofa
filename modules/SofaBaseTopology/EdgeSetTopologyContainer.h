@@ -279,7 +279,7 @@ protected:
 
 
     /// Boolean used to know if the topology Data of this container is dirty
-    bool m_edgeTopologyDirty;
+    bool m_edgeTopologyDirty = false;
 
     /// List of engines related to this specific container
     sofa::helper::list <sofa::core::topology::TopologyEngine *> m_enginesList;

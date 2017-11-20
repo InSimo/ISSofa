@@ -289,7 +289,7 @@ protected:
 
     Data<sofa::helper::vector <unsigned int> > list_Out;
 private:
-    TriangleSetTopologyContainer*	m_container;
+    TriangleSetTopologyContainer* m_container = nullptr;
 };
 
 } // namespace topology

@@ -215,7 +215,7 @@ public:
     { }
 
 private:
-    PointSetTopologyContainer* 	m_container;
+    PointSetTopologyContainer* m_container = nullptr;
 };
 
 } // namespace topology

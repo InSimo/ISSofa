@@ -416,7 +416,7 @@ protected:
     sofa::helper::vector <PointID> m_pointsOnBorder;
 
     /// Boolean used to know if the topology Data of this container is dirty
-    bool m_triangleTopologyDirty;
+    bool m_triangleTopologyDirty = false;
 
     /// List of engines related to this specific container
     sofa::helper::list <sofa::core::topology::TopologyEngine *> m_enginesList;

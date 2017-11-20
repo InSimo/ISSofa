@@ -217,7 +217,7 @@ void TopologyData_fixture::removePoints(const std::vector<PointID>& pointsToRemo
     // All triangles around each given point will be removed
     for (const PointID pointIdToRemove : pointsToRemove)
     {
-        if (pointIdToRemove >= container->getNbPoints()) return;
+        if (pointIdToRemove >= unsigned(container->getNbPoints())) return;
         const TrianglesAroundVertex& trianglesAroundVertex = container->getTrianglesAroundVertex(pointIdToRemove);
         ASSERT_TRUE(trianglesAroundVertex.size() == 3); // we are only handling the case of points which were created by the subdivideTriangles() method above
 
