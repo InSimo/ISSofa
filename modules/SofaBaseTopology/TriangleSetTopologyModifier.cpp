@@ -86,7 +86,7 @@ void TriangleSetTopologyModifier::reinit()
         }
     }
 
-    std::cout << trianglesToBeRemoved << std::endl;
+    sout << trianglesToBeRemoved << sendl;
     this->removeItems(trianglesToBeRemoved);
 }
 
@@ -119,7 +119,7 @@ void TriangleSetTopologyModifier::addTriangles(const sofa::helper::vector<Triang
     }
     else
     {
-        std::cout << " TriangleSetTopologyModifier::addTriangleProcess(), preconditions for adding this triangle are not fulfilled. " << std::endl;
+        serr << " TriangleSetTopologyModifier::addTriangleProcess(), preconditions for adding this triangle are not fulfilled. " << sendl;
     }
 }
 
@@ -153,7 +153,7 @@ void TriangleSetTopologyModifier::addTriangles(const sofa::helper::vector<Triang
     }
     else
     {
-        std::cout << " TriangleSetTopologyModifier::addTriangleProcess(), preconditions for adding this triangle are not fulfilled. " << std::endl;
+        serr << " TriangleSetTopologyModifier::addTriangleProcess(), preconditions for adding this triangle are not fulfilled. " << sendl;
     }
 }
 
@@ -350,7 +350,7 @@ void TriangleSetTopologyModifier::removeTriangles(sofa::helper::vector< unsigned
     {
         if( triangles[i] >= m_triangle.size())
         {
-            std::cout << "Error: TriangleSetTopologyModifier::removeTriangles: Triangle: "<< triangles[i] <<" is out of bound" << std::endl;
+            serr << "Error: TriangleSetTopologyModifier::removeTriangles: Triangle: "<< triangles[i] <<" is out of bound" << sendl;
             return;
         }
     }
@@ -369,7 +369,7 @@ void TriangleSetTopologyModifier::removeTriangles(sofa::helper::vector< unsigned
     }
     else
     {
-        std::cout << " TriangleSetTopologyModifier::removeItems(), preconditions for removal are not fulfilled. " << std::endl;
+        serr << " TriangleSetTopologyModifier::removeItems(), preconditions for removal are not fulfilled. " << sendl;
     }
 
 }
