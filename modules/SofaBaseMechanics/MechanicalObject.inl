@@ -1050,9 +1050,7 @@ void MechanicalObject<DataTypes>::init()
     {
         sout << "Initialization with topology " << l_topology->getTypeName() << " " << l_topology->getName() << " ( " << l_topology->getNbPoints() << " points " << (l_topology->hasPos() ? "WITH" : "WITHOUT") << " positions)" << sendl;
     }    // Make sure the sizes of the vectors and the arguments of the scene matches
-
-    const std::vector<std::pair<const std::string, const size_t>> vector_sizes = 
-    {
+    const std::vector<std::pair<const std::string, const size_t>> vector_sizes = {
             {x.getName(),                x.getValue().size()},
             {v.getName(),                v.getValue().size()},
             {f.getName(),                f.getValue().size()},
@@ -1067,13 +1065,11 @@ void MechanicalObject<DataTypes>::init()
 
     // Get the maximum size of all argument's vectors
     auto maxElement = std::max_element(vector_sizes.begin(), vector_sizes.end(),
-       [] (const std::pair<const std::string, const size_t> &a, const std::pair<const std::string, const size_t> &b) 
-    {
+       [] (const std::pair<const std::string, const size_t> &a, const std::pair<const std::string, const size_t> &b) {
             return a.second < b.second;
     });
 
-    if (maxElement != vector_sizes.end()) 
-    {
+    if (maxElement != vector_sizes.end()) {
         size_t maxSize = (*maxElement).second;
 
         // Resize the mechanical object size to match the maximum size of argument's vectors
@@ -1082,28 +1078,23 @@ void MechanicalObject<DataTypes>::init()
 
         // Print a warning if one or more vector don't match the maximum size
         bool allSizeAreEqual = true;
-        for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) 
-        {
+        for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) {
             const size_t & size = vector_size.second;
-            if (size > 1 && size != maxSize) 
-            {
+            if (size > 1 && size != maxSize) {
                 allSizeAreEqual = false;
                 break;
             }
         }
 
-        if (!allSizeAreEqual) 
-        {
+        if (!allSizeAreEqual) {
             std::string message_warning = "One or more of the state vectors passed as argument don't match the size of the others : ";
-            for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) 
-            {
+            for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) {
                 const std::string & name = vector_size.first;
                 const size_t & size = vector_size.second;
-                if (size <= 1) 
-                    continue;
+                if (size <= 1) continue;
                 message_warning += name + "(size " + std::to_string(size) + ") ";
             }
-            serr << message_warning << sendl;
+            msg_warning() << message_warning;
         }
     }
 
