@@ -34,13 +34,24 @@ namespace sofa
 namespace defaulttype
 {
 
-template<class MatrixRow, class VecDeriv>
-typename VecDeriv::Real SparseMatrixVecDerivMult(const MatrixRow& row, const VecDeriv& vec)
+template<class MatrixRow, class VecDeriv, typename Real>
+Real SparseMatrixVecDerivMult(const MatrixRow& row, const VecDeriv& vec)
 {
-    typename VecDeriv::Real r = 0;
+    Real r = 0;
     for (typename MatrixRow::const_iterator it = row.begin(), itend = row.end(); it != itend; ++it)
         r += it->second * vec[it->first];
     return r;
+}
+
+template<class MatrixRow, class VecDeriv>
+void convertSparseMatrixRowToVecDeriv(const MatrixRow& row, VecDeriv& out)
+{
+    out.clear();
+
+    for (typename MatrixRow::const_iterator it = row.begin(), itend = row.end(); it != itend; ++it)
+    {
+        out.push_back(it->second);
+    }
 }
 
 template <class T>
@@ -132,6 +143,13 @@ public:
             }
         }
     }
+
+    template<typename VecDeriv>
+    void fillVecDeriv(VecDeriv& v) const
+    {
+        convertSparseMatrixRowToVecDeriv(begin().row(),v);
+    }
+
 
 protected:
 
@@ -372,8 +390,8 @@ public:
             return m_internal > it2.m_internal;
         }
 
-        template <class VecDeriv>
-        typename VecDeriv::Real operator*(const VecDeriv& v) const
+        template <class VecDeriv, typename Real>
+        Real operator*(const VecDeriv& v) const
         {
             return SparseMatrixVecDerivMult(row(), v);
         }
