@@ -145,7 +145,7 @@ void Mass<DataTypes>::addDForce(const MechanicalParams*
 #ifndef NDEBUG
     // @TODO Remove
     // Hack to disable warning message
-    mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
+    mparams->kFactor();
 #endif
 }
 
@@ -153,9 +153,12 @@ template<class DataTypes>
 void Mass<DataTypes>::addMBKdx(const MechanicalParams* mparams /* PARAMS FIRST */, MultiVecDerivId dfId)
 {
     this->ForceField<DataTypes>::addMBKdx(mparams /* PARAMS FIRST */, dfId);
-    if (mparams->mFactorIncludingRayleighDamping(rayleighMass.getValue()) != 0.0)
+    if (mparams->mFactor() != 0.0)
     {
-        addMDx(mparams /* PARAMS FIRST */, *dfId[this->mstate.get(mparams)].write(), *mparams->readDx(this->mstate), mparams->mFactorIncludingRayleighDamping(rayleighMass.getValue()));
+        const SReal mFactor = mparams->mFactor();
+        mparams->setMFactor(mFactor - mparams->bFactor() * this->rayleighMass.getValue());
+        addMDx(mparams /* PARAMS FIRST */, *dfId[this->mstate.get(mparams)].write(), *mparams->readDx(this->mstate), mparams->mFactor());
+        mparams->setMFactor(mFactor);
     }
 }
 
@@ -233,8 +236,13 @@ template<class DataTypes>
 void Mass<DataTypes>::addMBKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
     this->ForceField<DataTypes>::addMBKToMatrix(mparams /* PARAMS FIRST */, matrix);
-    if (mparams->mFactorIncludingRayleighDamping(rayleighMass.getValue()) != 0.0)
+    if (mparams->mFactor() != 0.0)
+    {
+        const SReal mFactor = mparams->mFactor();
+        mparams->setMFactor(mFactor - mparams->bFactor() * this->rayleighMass.getValue());
         addMToMatrix(mparams /* PARAMS FIRST */, matrix);
+        mparams->setMFactor(mFactor);
+    }
 }
 
 template<class DataTypes>

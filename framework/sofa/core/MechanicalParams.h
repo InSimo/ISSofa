@@ -66,10 +66,10 @@ public:
      */
     /// @{
 
-    /// \returns kfactor +  bfactor*rayleighStiffness
-    SReal kFactorIncludingRayleighDamping( SReal rayleighStiffness ) const { return kFactor() + bFactor()*rayleighStiffness; }
-    /// \returns mfactor +  bfactor*rayleighMass
-    SReal mFactorIncludingRayleighDamping( SReal rayleighMass ) const { return mFactor() - bFactor()*rayleighMass; }
+    /// \returns kfactor +  bfactor*rayleighStiffness (Deprecated : this operation is now done directly in base ForceField components)
+    SReal kFactorIncludingRayleighDamping(SReal rayleighStiffness) const { return kFactor() /*+ bFactor()*rayleighStiffness;*/; }
+    /// \returns mfactor +  bfactor*rayleighMass (Deprecated : this operation is now done directly in base Mass components)
+    SReal mFactorIncludingRayleighDamping(SReal rayleighMass) const { return mFactor() /*- bFactor()*rayleighMass; */; }
 
     /// @}
 
@@ -149,22 +149,22 @@ public:
     /// @{
 
     /// Set time step
-    MechanicalParams& setDt(SReal v) { m_dt = v; return *this; }
+    void setDt(SReal v) { m_dt = v; }
 
     /// Specify if the time integration scheme is implicit
-    MechanicalParams& setImplicit(bool v) { m_implicit = v; return *this; }
+    void setImplicit(bool v) { m_implicit = v; }
 
     /// Set Mass matrix contributions factor (for implicit schemes)
-    MechanicalParams& setMFactor(SReal v) { m_mFactor = v; return *this; }
+    void setMFactor(SReal v) const { m_mFactor = v; }
 
     /// Set Damping matrix contributions factor (for implicit schemes)
-    MechanicalParams& setBFactor(SReal v) { m_bFactor = v; return *this; }
+    void setBFactor(SReal v) { m_bFactor = v; }
 
     /// Set Stiffness matrix contributions factor (for implicit schemes)
-    MechanicalParams& setKFactor(SReal v) { m_kFactor = v; return *this; }
+    void setKFactor(SReal v) const { m_kFactor = v; }
 
     /// Set the symmetric matrix flag (for implicit schemes), for solvers specialized on symmetric matrices
-    MechanicalParams& setSymmetricMatrix(bool b) { m_symmetricMatrix = b; return *this; }
+    void setSymmetricMatrix(bool b) { m_symmetricMatrix = b; }
 
 #ifndef NDEBUG
     /// Checks wether or nor kFactor is used in ForceFields. Temporary here for compatiblity reasons
@@ -305,13 +305,13 @@ protected:
     ConstMultiVecDerivId m_df;
 
     /// Mass matrix contributions factor (for implicit schemes)
-    SReal m_mFactor;
+    mutable SReal m_mFactor;
 
     /// Damping matrix contributions factor (for implicit schemes)
     SReal m_bFactor;
 
     /// Stiffness matrix contributions factor (for implicit schemes)
-    SReal m_kFactor;
+    mutable SReal m_kFactor;
 
     /// True if a symmetric matrix is assumed in the left-hand term of the dynamics equations, for solvers specialized on symmetric matrices
     bool m_symmetricMatrix;

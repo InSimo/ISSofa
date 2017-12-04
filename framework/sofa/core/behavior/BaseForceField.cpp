@@ -46,8 +46,17 @@ BaseForceField::BaseForceField()
 
 void BaseForceField::addMBKdx(const MechanicalParams* mparams /* PARAMS FIRST */, MultiVecDerivId dfId)
 {
-    if (mparams->kFactorIncludingRayleighDamping(rayleighStiffness.getValue()) != 0.0 || mparams->bFactor() != 0.0)
+    if (mparams->kFactor() != 0.0 || mparams->bFactor() != 0.0)
+    {
+        //rewrite kFactor to include Rayleigh damping defined at ForceField level if any
+        const SReal kFactor = mparams->kFactor();
+        mparams->setKFactor(kFactor + mparams->bFactor()*this->rayleighStiffness.getValue());
+
         addDForce(mparams /* PARAMS FIRST */, dfId);
+
+        //reset the kFactor so that other ForceField are not impacted
+        mparams->setKFactor(kFactor);
+    }
 }
 
 void BaseForceField::addBToMatrix(const MechanicalParams* /*mparams*/ /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* /*matrix*/)
@@ -56,25 +65,49 @@ void BaseForceField::addBToMatrix(const MechanicalParams* /*mparams*/ /* PARAMS 
 
 void BaseForceField::addMBKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
-    if (mparams->kFactorIncludingRayleighDamping(rayleighStiffness.getValue()) != 0.0 )
+    if (mparams->kFactor() != 0.0)
+    {
+        //rewrite kFactor to include Rayleigh damping defined at ForceField level if any
+        const SReal kFactor = mparams->kFactor();
+        mparams->setKFactor(kFactor + mparams->bFactor()*this->rayleighStiffness.getValue());
+        
         addKToMatrix(mparams /* PARAMS FIRST */, matrix);
+        
+        //reset the kFactor so that other ForceField are not impacted
+        mparams->setKFactor(kFactor);
+    }
     if (mparams->bFactor() != 0.0)
+    {
         addBToMatrix(mparams /* PARAMS FIRST */, matrix);
+    }
 }
 
 void BaseForceField::addSubMBKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> subMatrixIndex)
 {
-    if (mparams->kFactorIncludingRayleighDamping(rayleighStiffness.getValue()) != 0.0 )
-        addSubKToMatrix(mparams /* PARAMS FIRST */, matrix,subMatrixIndex);
+    if (mparams->kFactor() != 0.0)
+    {
+        //rewrite kFactor to include Rayleigh damping defined at ForceField level if any
+        const SReal kFactor = mparams->kFactor();
+        mparams->setKFactor(kFactor + mparams->bFactor()*this->rayleighStiffness.getValue());
+
+        addSubKToMatrix(mparams /* PARAMS FIRST */, matrix, subMatrixIndex);
+
+        //reset the kFactor so that other ForceField are not impacted
+        mparams->setKFactor(kFactor);
+    }
     if (mparams->bFactor() != 0.0)
-        addSubBToMatrix(mparams /* PARAMS FIRST */, matrix,subMatrixIndex);
+    {
+        addSubBToMatrix(mparams /* PARAMS FIRST */, matrix, subMatrixIndex);
+    }
 }
 
-void BaseForceField::addSubKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & /*subMatrixIndex*/) {
+void BaseForceField::addSubKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & /*subMatrixIndex*/) 
+{
     addKToMatrix(mparams,matrix);
 }
 
-void BaseForceField::addSubBToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & /*subMatrixIndex*/) {
+void BaseForceField::addSubBToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & /*subMatrixIndex*/) 
+{
     addBToMatrix(mparams,matrix);
 }
 

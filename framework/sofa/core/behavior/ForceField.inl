@@ -59,7 +59,9 @@ void ForceField<DataTypes>::init()
     BaseForceField::init();
 
     if (!mstate.get())
+    {
         mstate.set(MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState()));
+    }
 }
 
 #ifdef SOFA_SMP
@@ -114,7 +116,6 @@ void ForceField<DataTypes>::addDForce(const MechanicalParams* mparams /* PARAMS 
 #ifndef NDEBUG
             mparams->setKFactorUsed(false);
 #endif
-
         addDForce(mparams /* PARAMS FIRST */, *dfId[mstate.get(mparams)].write(), *mparams->readDx(mstate.get(mparams)));
 
 #ifndef NDEBUG
@@ -137,9 +138,14 @@ template<class DataTypes>
 void ForceField<DataTypes>::addKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix )
 {
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
-    if (r)
-        addKToMatrix(r.matrix, mparams->kFactorIncludingRayleighDamping(rayleighStiffness.getValue()), r.offset);
-    else serr<<"ERROR("<<getClassName()<<"): addKToMatrix found no valid matrix accessor." << sendl;
+    if (r) 
+    {
+        addKToMatrix(r.matrix, mparams->kFactor(), r.offset);
+    }
+    else 
+    {
+        serr << "ERROR(" << getClassName() << "): addKToMatrix found no valid matrix accessor." << sendl;
+    }
 }
 
 template<class DataTypes>
@@ -149,11 +155,17 @@ void ForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMatrix * /*mat*/
 }
 
 template<class DataTypes>
-void ForceField<DataTypes>::addSubKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & subMatrixIndex )
+void ForceField<DataTypes>::addSubKToMatrix(const MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix, const helper::vector<unsigned> & subMatrixIndex)
 {
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
-    if (r) addSubKToMatrix(r.matrix, subMatrixIndex, mparams->kFactorIncludingRayleighDamping(rayleighStiffness.getValue()), r.offset);
-    else serr<<"ERROR("<<getClassName()<<"): addKToMatrix found no valid matrix accessor." << sendl;
+    if (r)
+    {
+        addKToMatrix(r.matrix, mparams->kFactor(), r.offset);
+    }
+    else
+    {
+        serr << "ERROR(" << getClassName() << "): addKToMatrix found no valid matrix accessor." << sendl;
+    }
 }
 
 template<class DataTypes>
