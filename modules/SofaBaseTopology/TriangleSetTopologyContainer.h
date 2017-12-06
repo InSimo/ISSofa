@@ -396,6 +396,9 @@ public:
     /// provides the set of triangles.
     Data< sofa::helper::vector<Triangle> > d_triangle;
 
+    /// If true, this will erase the loaded edge set and create another one based on the triangular topology
+    Data< bool >                           d_createEdgeSetArray;
+
 protected:
     /// provides the 3 edges in each triangle.
     sofa::helper::vector<EdgesInTriangle> m_edgesInTriangle;

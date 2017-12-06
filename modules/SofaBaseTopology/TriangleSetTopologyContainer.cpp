@@ -51,6 +51,7 @@ int TriangleSetTopologyContainerClass = core::RegisterObject("Triangle set topol
 TriangleSetTopologyContainer::TriangleSetTopologyContainer()
     : EdgeSetTopologyContainer()
     , d_triangle(initData(&d_triangle, "triangles", "List of triangle indices"))
+    , d_createEdgeSetArray(initData(&d_createEdgeSetArray, true, "createEdgeSetArray", "If true, this will erase the loaded edge set and create another one based on the triangular topology"))
 {
 
 }
@@ -73,7 +74,11 @@ void TriangleSetTopologyContainer::init()
 {
     //std::cout << "TriangleSetTopologyContainer::init()" << std::endl;
     d_triangle.updateIfDirty(); // make sure m_triangle is up to date
-    createEdgeSetArray(); // create the edges for the triangles
+
+    if (d_createEdgeSetArray.getValue())
+    {
+        createEdgeSetArray(); // create the edges for the triangles
+    }
     EdgeSetTopologyContainer::init(); 
     
     // udpate the neighborhood information.
@@ -164,7 +169,9 @@ void TriangleSetTopologyContainer::createEdgeSetArray()
 #endif
 
         // clear edges and all shells that depend on edges
-        EdgeSetTopologyContainer::clear();
+        //EdgeSetTopologyContainer::clear(); //do not call to avoid clearing points
+        clearEdges();
+        clearEdgesAroundVertex();
 
         if(hasEdgesInTriangle())
             clearEdgesInTriangle();
