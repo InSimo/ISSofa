@@ -7,6 +7,7 @@
 #include <sofa/helper/gl/RAII.h>
 
 #include <sofa/simulation/common/xml/initXml.h>
+#include <sofa/simulation/common/UpdateContextVisitor.h>
 #include <sofa/simulation/tree/TreeSimulation.h>
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/system/SetDirectory.h>
@@ -285,9 +286,19 @@ bool SofaPhysicsSimulation::Impl::load(const char* cfilename)
         getAllOutputMeshes();
         updateOutputMeshes();
 
-        if (useGUI) {
+        if( useGUI )
+        {
             auto* gui = sofa::simulation::gui::getCurrentGUI();
-            gui->setScene(m_RootNode.get(), cfilename);
+            gui->setScene( m_RootNode.get(), cfilename );
+        }
+        else
+        {
+            // NOTE: if there is no GUI we must reset the scene manually to maintain the same behavior
+            // since gui->setScene() is internally calling reset()
+            // Based on default behaviour of setScene in BatchGUI
+            m_RootNode->setTime( 0. );
+            m_Simulation->reset( m_RootNode.get() );
+            sofa::simulation::UpdateSimulationContextVisitor( sofa::core::ExecParams::defaultInstance() ).execute( m_RootNode.get() );
         }
     }
     else
