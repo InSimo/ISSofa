@@ -46,11 +46,9 @@ Real SparseMatrixVecDerivMult(const MatrixRow& row, const VecDeriv& vec)
 template<class MatrixRow, class VecDeriv>
 void convertSparseMatrixRowToVecDeriv(const MatrixRow& row, VecDeriv& out)
 {
-    out.clear();
-
     for (typename MatrixRow::const_iterator it = row.begin(), itend = row.end(); it != itend; ++it)
     {
-        out.push_back(it->second);
+        out[it->first] += it->second;
     }
 }
 
