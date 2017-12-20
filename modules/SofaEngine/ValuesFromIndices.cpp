@@ -43,6 +43,7 @@ int ValuesFromIndicesClass = core::RegisterObject("Find the values given a list 
         .add< ValuesFromIndices<std::string> >()
         .add< ValuesFromIndices<int> >()
         .add< ValuesFromIndices<unsigned int> >()
+        .add< ValuesFromIndices<helper::vector<int> > >()
         .add< ValuesFromIndices< helper::fixed_array<unsigned int, 2> > >()
         .add< ValuesFromIndices< helper::fixed_array<unsigned int, 3> > >()
         .add< ValuesFromIndices< helper::fixed_array<unsigned int, 4> > >()
