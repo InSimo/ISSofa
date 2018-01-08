@@ -160,7 +160,7 @@ void ForceField<DataTypes>::addSubKToMatrix(const MechanicalParams* mparams /* P
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
     if (r)
     {
-        addKToMatrix(r.matrix, mparams->kFactor(), r.offset);
+        addSubKToMatrix(r.matrix, subMatrixIndex, mparams->kFactor(), r.offset);
     }
     else
     {
