@@ -67,6 +67,7 @@ class TetrahedralCorotationalFEMForceField : public core::behavior::ForceField<D
 public:
     SOFA_CLASS(SOFA_TEMPLATE(TetrahedralCorotationalFEMForceField, DataTypes), SOFA_TEMPLATE(core::behavior::ForceField, DataTypes));
 
+    typedef sofa::core::behavior::ForceField<DataTypes> Inherit;
     typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::VecDeriv VecDeriv;
     typedef typename DataTypes::VecReal VecReal;

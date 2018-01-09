@@ -56,8 +56,7 @@ SurfacePressureForceField<DataTypes>::SurfacePressureForceField():
     m_pressureSpeed(initData(&m_pressureSpeed, (Real)0.0, "pressureSpeed", "Continuous pressure application in Pascal per second. Only active in pulse mode")),
     m_volumeConservationMode(initData(&m_volumeConservationMode, false, "volumeConservationMode", "Pressure variation follow the inverse of the volume variation")),
     m_defaultVolume(initData(&m_defaultVolume, (Real)-1.0, "defaultVolume", "Default Volume")),
-    m_mainDirection(initData(&m_mainDirection, Deriv(), "mainDirection", "Main direction for pressure application")),
-    m_drawForceScale(initData(&m_drawForceScale, (Real)0, "drawForceScale", "DEBUG: scale used to render force vectors"))
+    m_mainDirection(initData(&m_mainDirection, Deriv(), "mainDirection", "Main direction for pressure application"))
 {
 
 }
@@ -140,7 +139,7 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
 //    const Data<VecCoord>* xRest= this->mstate->read(core::ConstVecCoordId::restPosition()) ;
 //    const VecCoord &x0 = xRest->getValue();
 
-    m_f.resize(f.size());  for(unsigned int i=0;i<m_f.size();i++) m_f[i].clear(); // store forces for visualization
+    f.resize(x.size());
 
     Real p = m_pulseMode.getValue() ? computePulseModePressure() : m_pressure.getValue();
 
@@ -175,7 +174,7 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
         {
             for (unsigned int i = 0; i < m_triangleIndices.getValue().size(); i++)
             {
-                addTriangleSurfacePressure(m_triangleIndices.getValue()[i], m_f,x,v,p, true);
+                addTriangleSurfacePressure(m_triangleIndices.getValue()[i], f,x,v,p, true);
             }
         }
         else if (m_topology->getNbTriangles() > 0)
@@ -185,7 +184,7 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
                 Triangle t = m_topology->getTriangle(i);
                 if ( isInPressuredBox(x[t[0]]) && isInPressuredBox(x[t[1]]) && isInPressuredBox(x[t[2]]) )
                 {
-                    addTriangleSurfacePressure(i, m_f,x,v,p, true);
+                    addTriangleSurfacePressure(i, f,x,v,p, true);
                 }
             }
 
@@ -218,7 +217,7 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
         {
             for (unsigned int i = 0; i < m_quadIndices.getValue().size(); i++)
             {
-                addQuadSurfacePressure(m_quadIndices.getValue()[i], m_f,x,v,p);
+                addQuadSurfacePressure(m_quadIndices.getValue()[i], f,x,v,p);
             }
         }
         else if (m_topology->getNbQuads() > 0)
@@ -229,14 +228,13 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
 
                 if ( isInPressuredBox(x[q[0]]) && isInPressuredBox(x[q[1]]) && isInPressuredBox(x[q[2]]) && isInPressuredBox(x[q[3]]) )
                 {
-                    addQuadSurfacePressure(i, m_f,x,v,p);
+                    addQuadSurfacePressure(i, f,x,v,p);
                 }
             }
         }
 
     }
 
-    for(unsigned int i=0;i<m_f.size();i++) f[i]+=m_f[i];
     d_f.endEdit();
 }
 
@@ -538,72 +536,6 @@ const typename SurfacePressureForceField<DataTypes>::Real SurfacePressureForceFi
     return 0.0;
 }
 
-
-
-template<class DataTypes>
-void SurfacePressureForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
-{
-#ifndef SOFA_NO_OPENGL
-    if (!vparams->displayFlags().getShowForceFields()) return;
-    if (!this->mstate) return;
-
-    if (vparams->displayFlags().getShowWireFrame())
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-    glDisable(GL_LIGHTING);
-
-    glColor4f(0.f,0.8f,0.3f,1.f);
-
-    glBegin(GL_LINE_LOOP);
-    glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-    glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-    glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-    glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-    glEnd();
-
-    glBegin(GL_LINE_LOOP);
-    glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-    glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-    glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-    glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-    glEnd();
-
-    glBegin(GL_LINES);
-    glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-    glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-
-    glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-    glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-
-    glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-    glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-
-    glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-    glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-    glEnd();
-
-
-    if (vparams->displayFlags().getShowWireFrame())
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
-    helper::ReadAccessor<DataVecCoord> x = this->mstate->read(core::ConstVecCoordId::position());
-    if (m_drawForceScale.getValue() && m_f.size()==x.size())
-    {
-        sofa::helper::vector< defaulttype::Vector3 > points;
-        const sofa::defaulttype::Vec<4,float> color(0,1,0.5,1);
-
-        for (unsigned int i=0; i<x.size(); i++)
-        {
-            points.push_back(x[i]);
-            points.push_back(x[i]+m_f[i]*m_drawForceScale.getValue());
-        }
-        vparams->drawTool()->drawLines(points, 1, color);
-    }
-#endif /* SOFA_NO_OPENGL */
-}
-
 #ifndef SOFA_FLOAT
 
 template<>
@@ -790,69 +722,7 @@ void SurfacePressureForceField<defaulttype::Rigid3dTypes>::verifyDerivative(VecD
 {
 }
 
-template<>
-void SurfacePressureForceField<defaulttype::Rigid3dTypes>::draw(const core::visual::VisualParams* vparams)
-{
-#ifndef SOFA_NO_OPENGL
-	if (!vparams->displayFlags().getShowForceFields()) return;
-	if (!this->mstate) return;
 
-	if (vparams->displayFlags().getShowWireFrame())
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-	glDisable(GL_LIGHTING);
-
-	glColor4f(0.f,0.8f,0.3f,1.f);
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glEnd();
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-	glEnd();
-
-
-	if (vparams->displayFlags().getShowWireFrame())
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
-	helper::ReadAccessor<DataVecCoord> x = this->mstate->read(core::ConstVecCoordId::position());
-	if (m_drawForceScale.getValue() && m_f.size()==x.size())
-	{
-        sofa::helper::vector< defaulttype::Vector3 > points;
-		const defaulttype::Vec<4,float> color(0,1,0.5,1);
-
-		for (unsigned int i=0; i<x.size(); i++)
-		{
-			points.push_back(x[i].getCenter());
-			points.push_back(x[i].getCenter()+m_f[i].getVCenter()*m_drawForceScale.getValue());
-		}
-		vparams->drawTool()->drawLines(points, 1, color);
-	}
-#endif /* SOFA_NO_OPENGL */
-}
 
 #endif
 
@@ -1042,69 +912,6 @@ void SurfacePressureForceField<defaulttype::Rigid3fTypes>::verifyDerivative(VecD
 {
 }
 
-template<>
-void SurfacePressureForceField<defaulttype::Rigid3fTypes>::draw(const core::visual::VisualParams* vparams)
-{
-#ifndef SOFA_NO_OPENGL
-	if (!vparams->displayFlags().getShowForceFields()) return;
-	if (!this->mstate) return;
-
-	if (vparams->displayFlags().getShowWireFrame())
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-	glDisable(GL_LIGHTING);
-
-	glColor4f(0.f,0.8f,0.3f,1.f);
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glEnd();
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_min.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_min.getValue()[2]);
-
-	glVertex3d(m_max.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_max.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-
-	glVertex3d(m_min.getValue()[0],m_min.getValue()[1],m_max.getValue()[2]);
-	glVertex3d(m_min.getValue()[0],m_max.getValue()[1],m_max.getValue()[2]);
-	glEnd();
-
-
-	if (vparams->displayFlags().getShowWireFrame())
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
-	helper::ReadAccessor<DataVecCoord> x = this->mstate->read(core::ConstVecCoordId::position());
-	if (m_drawForceScale.getValue() && m_f.size()==x.size())
-	{
-        sofa::helper::vector< defaulttype::Vector3 > points;
-		const defaulttype::Vec<4,float> color(0,1,0.5,1);
-
-		for (unsigned int i=0; i<x.size(); i++)
-		{
-			points.push_back(x[i].getCenter());
-			points.push_back(x[i].getCenter()+m_f[i].getVCenter()*m_drawForceScale.getValue());
-		}
-		vparams->drawTool()->drawLines(points, 1, color);
-	}
-#endif /* SOFA_NO_OPENGL */
-}
 
 #endif
 

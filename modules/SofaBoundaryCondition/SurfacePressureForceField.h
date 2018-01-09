@@ -92,9 +92,6 @@ protected:
     Data< Real >	m_defaultVolume;			///< Default Volume.
     Data< Deriv >	m_mainDirection;			///< Main axis for pressure application.
 
-    Data< Real > m_drawForceScale;  ///< scale used to render force vectors
-    vector< Deriv> m_f;             ///< store forces for visualization
-
     State state;								///< In pulse mode, says wether pressure is increasing or decreasing.
     Real m_pulseModePressure;					///< Current pressure computed in pulse mode.
 
@@ -111,8 +108,6 @@ public:
         serr << "Get potentialEnergy not implemented" << sendl;
         return 0.0;
     }
-
-    void draw(const core::visual::VisualParams* vparams);
 
     void setPressure(const Real _pressure)
     {
@@ -177,10 +172,6 @@ void SurfacePressureForceField<defaulttype::Rigid3dTypes>::addQuadSurfacePressur
 template<>
 void SurfacePressureForceField<defaulttype::Rigid3dTypes>::verifyDerivative(VecDeriv& v_plus, VecDeriv& v,  VecVec3DerivValues& DVval, VecVec3DerivIndices& DVind, const VecDeriv& Din);
 
-
-template<>
-void SurfacePressureForceField<defaulttype::Rigid3dTypes>::draw(const core::visual::VisualParams* vparams);
-
 #endif
 
 #ifndef SOFA_DOUBLE
@@ -198,9 +189,6 @@ void SurfacePressureForceField<defaulttype::Rigid3fTypes>::addQuadSurfacePressur
 
 template<>
 void SurfacePressureForceField<defaulttype::Rigid3fTypes>::verifyDerivative(VecDeriv& v_plus, VecDeriv& v,  VecVec3DerivValues& DVval, VecVec3DerivIndices& DVind, const VecDeriv& Din);
-
-template<>
-void SurfacePressureForceField<defaulttype::Rigid3fTypes>::draw(const core::visual::VisualParams* vparams);
 
 #endif
 

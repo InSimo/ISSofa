@@ -1305,6 +1305,8 @@ void TetrahedralCorotationalFEMForceField<DataTypes>::applyStiffnessPolar( Vecto
 template<class DataTypes>
 void TetrahedralCorotationalFEMForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
+    Inherit::draw(vparams);
+
     if (!vparams->displayFlags().getShowForceFields()) return;
     if (!this->mstate) return;
     if (!f_drawing.getValue()) return;
