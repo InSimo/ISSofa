@@ -134,6 +134,13 @@ public:
         set( r1, r2, r3, r4, r5, r6, r7, r8, r9 );
     }
 
+    /// Specific constructor for 10-elements vectors.
+    template<int NN = N, typename std::enable_if<NN==10,int>::type = 0>
+    Vec(real r1, real r2, real r3, real r4, real r5, real r6, real r7, real r8, real r9, real r10)
+    {
+        set( r1, r2, r3, r4, r5, r6, r7, r8, r9, r10 );
+    }
+
     /// Specific constructor for 12-elements vectors.
     Vec(real r1, real r2, real r3, real r4, real r5, real r6, real r7, real r8, real r9, real r10, real r11, real r12)
     {
@@ -237,6 +244,23 @@ public:
         this->elems[6]=r7;
         this->elems[7]=r8;
         this->elems[8]=r9;
+    }
+
+    /// Specific set for 10-elements vectors.
+    template<int NN = N, typename std::enable_if<NN==10,int>::type = 0>
+    void set(real r1, real r2, real r3, real r4, real r5, real r6, real r7, real r8, real r9, real r10)
+    {
+        static_assert(N == 10, "");
+        this->elems[0]=r1;
+        this->elems[1]=r2;
+        this->elems[2]=r3;
+        this->elems[3]=r4;
+        this->elems[4]=r5;
+        this->elems[5]=r6;
+        this->elems[6]=r7;
+        this->elems[7]=r8;
+        this->elems[8]=r9;
+        this->elems[9]=r10;
     }
 
     /// Specific set for 12-elements vectors.
