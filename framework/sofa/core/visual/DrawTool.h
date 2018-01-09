@@ -58,8 +58,8 @@ public:
     typedef sofa::defaulttype::Vec<2,int> Vec2i;
     typedef sofa::defaulttype::Quaternion Quaternion;
 
-    DrawTool() { clear(); }
-    virtual ~DrawTool() {}
+    DrawTool();
+    virtual ~DrawTool();
 
     /// @name Primitive rendering methods
     /// @{
@@ -155,6 +155,13 @@ public:
     virtual void setPolygonMode(int _mode, bool _wireframe) = 0 ;
 
     virtual void setLightingEnabled(bool _isAnabled) = 0 ;
+    
+    // define map of predefined colors, to be called in constructor of the DrawTool
+    virtual void setColors();
+
+    virtual Vec4f getColor(const std::string colorName);
+
+    static helper::vector<std::string> GetDefaultColorNames();
     /// @}
 
 
@@ -167,6 +174,8 @@ public:
 
     virtual void clear() {};
 
+protected:
+    std::map<std::string, defaulttype::Vec4f> m_colors;
 
 };
 

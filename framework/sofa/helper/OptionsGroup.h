@@ -82,6 +82,8 @@ public :
     ///Example m_options.setNames(4,"button0","button1","button2","button3");
     void setNames(int nbofRadioButton,...);
 
+    void setNames(const helper::vector<std::string>& names);
+
     ///Setting the activated item by its id
     void setSelectedItem(unsigned int id_item);
 

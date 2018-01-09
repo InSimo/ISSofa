@@ -36,6 +36,9 @@
 
 #include <sofa/defaulttype/Vec3Types.h>
 #include <sofa/defaulttype/RigidTypes.h>
+#include <sofa/core/topology/BaseMeshTopology.h>
+#include <sofa/helper/OptionsGroup.h>
+#include <sofa/core/visual/VisualParams.h>
 
 namespace sofa
 {
@@ -59,6 +62,7 @@ public:
     SOFA_ABSTRACT_CLASS_UNIQUE((PairInteractionForceField<TDataTypes>), ((BaseInteractionForceField)));
 
     typedef TDataTypes DataTypes;
+    typedef typename DataTypes::Real             Real;
     typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::VecDeriv VecDeriv;
     typedef typename DataTypes::Coord Coord;
@@ -245,9 +249,57 @@ public:
         return name;
     }
 
+
+    bool storeStatsAddForces() const 
+    { 
+        return d_computeStatsOnAddForce.getValue() || d_drawStatsForcesObj1.getValue() || d_drawStatsForcesObj2.getValue();
+    }
+
+    Data< bool > d_computeStatsOnAddForce;
+
+    Data< unsigned int > d_statsNumberOfActiveDofsObj1;
+
+    Data< Real > d_statsMaxAddForceObj1;
+    Data< Real > d_statsMeanAddForceObj1;
+    Data< Real > d_statsMedianAddForceObj1;
+    Data< Real > d_statsMinAddForceObj1;
+
+    Data< unsigned int > d_statsNumberOfActiveDofsObj2;
+    Data< Real > d_statsMaxAddForceObj2;
+    Data< Real > d_statsMeanAddForceObj2;
+    Data< Real > d_statsMedianAddForceObj2;
+    Data< Real > d_statsMinAddForceObj2;
+
+    Data < bool >  d_drawStatsForcesObj1;
+    Data < sofa::helper::OptionsGroup >  d_drawStatsForcesColorObj1;
+    Data< bool > d_drawStatsActiveDofsObj1;
+    Data < sofa::helper::OptionsGroup >  d_drawStatsActiveDofsColorObj1;
+
+    Data < bool >  d_drawStatsForcesObj2;
+    Data < sofa::helper::OptionsGroup >  d_drawStatsForcesColorObj2;
+    Data< bool > d_drawStatsActiveDofsObj2;
+    Data < sofa::helper::OptionsGroup >  d_drawStatsActiveDofsColorObj2;
+
+    Data< float > d_drawStatsArrowWidth;
+    Data< float > d_drawStatsArrowScaleLength;
+    Data< float > d_drawStatsSpheresRadius;
+
+    // vectors storing increments from methods addForce() and addDForce()
+    Data< VecDeriv > d_statsAddForcesObj1;
+    Data< VecDeriv > d_statsAddForcesObj2;
+
+    void draw(const core::visual::VisualParams* vparams);
+
 protected:
     SingleLink<PairInteractionForceField<DataTypes>, MechanicalState<DataTypes>, BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> mstate1;
     SingleLink<PairInteractionForceField<DataTypes>, MechanicalState<DataTypes>, BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> mstate2;
+
+    void computeStatsOnAddForce(const unsigned int objectID);
+    virtual void getStatsActivePoints(helper::vector<core::topology::Topology::PointID>& pointsInTopology, sofa::core::topology::BaseMeshTopology* topology, MechanicalState<DataTypes>* mechState);
+
+    sofa::core::topology::BaseMeshTopology* m_statsTopology1 = nullptr;
+    sofa::core::topology::BaseMeshTopology* m_statsTopology2 = nullptr;
+
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_CORE)

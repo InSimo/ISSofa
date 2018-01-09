@@ -34,6 +34,9 @@
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
+#include <sofa/helper/OptionsGroup.h>
+#include <sofa/core/topology/BaseMeshTopology.h>
+#include <sofa/core/visual/VisualParams.h>
 
 namespace sofa
 {
@@ -225,8 +228,40 @@ public:
         return name;
     }
 
+    bool storeStatsAddForces() const {return d_computeStatsOnAddForce.getValue() || d_drawStatsForces.getValue();}
+
+    Data< bool > d_computeStatsOnAddForce;
+
+    Data< unsigned int > d_statsNumberOfActiveDofs;
+
+    Data< Real > d_statsMaxAddForce;
+    Data< Real > d_statsMeanAddForce;
+    Data< Real > d_statsMedianAddForce;
+    Data< Real > d_statsMinAddForce;
+
+    Data < bool >  d_drawStatsForces;
+    Data < sofa::helper::OptionsGroup >  d_drawStatsForcesColor;
+    Data< bool > d_drawStatsActiveDofs;
+    Data < sofa::helper::OptionsGroup >  d_drawStatsActiveDofsColor;
+
+    Data< float > d_drawStatsArrowWidth;
+    Data< float > d_drawStatsArrowScaleLength;
+    Data< float > d_drawStatsSpheresRadius;
+
+    // vectors storing increments from methods addForce() and addDForce()
+    Data< VecDeriv > d_statsAddForces;
+
+    void draw(const core::visual::VisualParams* vparams); 
+
 protected:
     SingleLink<ForceField<DataTypes>,MechanicalState<DataTypes>,BaseLink::FLAG_STRONGLINK> mstate;
+
+    void computeStatsOnAddForce();
+    virtual void getStatsActivePoints(helper::vector<core::topology::Topology::PointID>& pointsInTopology);
+
+    // topology used to compute the statistics and draw on the addForce
+    sofa::core::topology::BaseMeshTopology* m_statsTopology = nullptr;
+
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_CORE)

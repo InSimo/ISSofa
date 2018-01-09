@@ -214,6 +214,7 @@ set(SOFACORE_SOURCES
 	loader/VoxelLoader.cpp
 	loader/SceneLoader.cpp
 	visual/DisplayFlags.cpp
+	visual/DrawTool.cpp
 	visual/VisualParams.cpp
 	objectmodel/HapticDeviceEvent.cpp
 	objectmodel/GUIEvent.cpp
