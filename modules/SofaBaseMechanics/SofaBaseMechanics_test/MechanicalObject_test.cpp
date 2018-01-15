@@ -45,6 +45,7 @@ struct StubMechanicalObject : public component::container::MechanicalObject<T>
 template<typename T>
 struct MechanicalObject_test :  public ::testing::Test
 {
+    typedef typename StubMechanicalObject<T>::DataTypes::VecCoord  VecCoord;
     typedef typename StubMechanicalObject<T>::DataTypes::Coord  Coord;
     typedef typename StubMechanicalObject<T>::DataTypes::Real   Real;
 
@@ -52,6 +53,11 @@ struct MechanicalObject_test :  public ::testing::Test
 };
 
 using namespace sofa::defaulttype;
+
+struct MechanicalObject_test3D : public MechanicalObject_test<Vec3dTypes>
+{
+};
+
 typedef ::testing::Types<
     Vec1fTypes, Vec1dTypes,
     Vec2fTypes, Vec2dTypes,
@@ -117,6 +123,121 @@ TYPED_TEST(MechanicalObject_test, checkThatTheSizeOfTheDefaultPositionIsEqualToT
 TYPED_TEST(MechanicalObject_test, checkThatPositionDefaultValueIsAVectorOfValueInitializedReals)
 {
     TestHelpers::CheckPosition(this->mechanicalObject);
+}
+
+TEST_F(MechanicalObject_test3D, checkIncorrectInitX)
+{
+    mechanicalObject.x.read("0 0 0 1 1 1");
+    mechanicalObject.x0.read("0 0 0 1 1 1 2 2 2");
+    mechanicalObject.init();
+    ASSERT_EQ(3u, this->mechanicalObject.getSize());
+    
+    EXPECT_FALSE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkIncorrectInitX0)
+{
+    mechanicalObject.x.read("0 0 0 1 1 1 2 2 2");
+    mechanicalObject.x0.read("0 0 0 1 1 1");
+    mechanicalObject.init();
+    ASSERT_EQ(3u, this->mechanicalObject.getSize());
+    
+    EXPECT_FALSE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkCorrectInitX0)
+{
+    mechanicalObject.x0.read("1 2 3 4 5 6");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x0 = mechanicalObject.x0;
+    ASSERT_EQ(2, x0.size());
+    ASSERT_EQ(1, x0[0][0]);
+    ASSERT_EQ(2, x0[0][1]);
+    ASSERT_EQ(3, x0[0][2]);
+
+    EXPECT_TRUE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkCorrectInitX)
+{
+    mechanicalObject.x.read("2 3 4 5 6 7");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x0 = mechanicalObject.x0;
+    ASSERT_EQ(2, x0.size());
+    ASSERT_EQ(2, x0[0][0]);
+    ASSERT_EQ(3, x0[0][1]);
+    ASSERT_EQ(4, x0[0][2]);
+
+    EXPECT_TRUE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkIncorrectInitF)
+{
+    mechanicalObject.f.read("2 3 4 5 6 7");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x0 = mechanicalObject.x0;
+    ASSERT_EQ(2, x0.size());
+    ASSERT_EQ(0, x0[0][0]);
+    ASSERT_EQ(0, x0[0][1]);
+    ASSERT_EQ(0, x0[0][2]);
+
+    EXPECT_FALSE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkCorrectInitFX)
+{
+    mechanicalObject.f.read("2 3 4 5 6 7");
+    mechanicalObject.x.read("1 2 3 4 5 6");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x0 = mechanicalObject.x0;
+    ASSERT_EQ(2, x0.size());
+    ASSERT_EQ(1, x0[0][0]);
+    ASSERT_EQ(2, x0[0][1]);
+    ASSERT_EQ(3, x0[0][2]);
+    
+    EXPECT_TRUE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkCorrectInitFX0)
+{
+    mechanicalObject.f.read("2 3 4 5 6 7");
+    mechanicalObject.x0.read("1 2 3 4 5 6");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x = mechanicalObject.x;
+    ASSERT_EQ(2, x.size());
+    ASSERT_EQ(1, x[0][0]);
+    ASSERT_EQ(2, x[0][1]);
+    ASSERT_EQ(3, x[0][2]);
+
+    EXPECT_TRUE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkIncorrectInitFX0)
+{
+    mechanicalObject.f.read("2 3 4 5 6 7");
+    mechanicalObject.x0.read("1 2 3 4 5 6 7 8 9");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x = mechanicalObject.x;
+    ASSERT_EQ(3, x.size());
+    ASSERT_EQ(1, x[0][0]);
+    ASSERT_EQ(2, x[0][1]);
+    ASSERT_EQ(3, x[0][2]);
+
+    EXPECT_FALSE(mechanicalObject.getWarnings().empty());
+}
+
+TEST_F(MechanicalObject_test3D, checkIncorrectInitFX)
+{
+    mechanicalObject.f.read("2 3 4 5 6 7");
+    mechanicalObject.x.read("1 2 3 4 5 6 7 8 9 10 11 12");
+    mechanicalObject.init();
+    sofa::helper::ReadAccessor< sofa::Data< VecCoord > > x0 = mechanicalObject.x0;
+    ASSERT_EQ(4, x0.size());
+    ASSERT_EQ(1, x0[0][0]);
+    ASSERT_EQ(2, x0[0][1]);
+    ASSERT_EQ(3, x0[0][2]);
+
+    EXPECT_FALSE(mechanicalObject.getWarnings().empty());
 }
 
 } // namespace

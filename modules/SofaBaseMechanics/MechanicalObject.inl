@@ -1048,18 +1048,98 @@ void MechanicalObject<DataTypes>::init()
 
     if (l_topology)
     {
-        sout << "Initialization with topology " << l_topology->getTypeName() << " " << l_topology->getName() << " ( " << l_topology->getNbPoints() << " points " << (l_topology->hasPos() ? "WITH" : "WITHOUT") << " positions)" << sendl;
+        sout << "Initialization with topology " << l_topology->getTypeName() << " " << l_topology->getName() 
+             << " ( " << l_topology->getNbPoints() << " points " << (l_topology->hasPos() ? "WITH" : "WITHOUT") << " positions)" << sendl;
+    }    
+    
+    // Make sure the sizes of the vectors and the arguments of the scene matches
+    const std::vector<std::pair<const std::string, const size_t>> vector_sizes = 
+    {
+            {x.getName(),                x.getValue().size()},
+            {v.getName(),                v.getValue().size()},
+            {f.getName(),                f.getValue().size()},
+            {externalForces.getName(),   externalForces.getValue().size()},
+            {dx.getName(),               dx.getValue().size()},
+            {xfree.getName(),            xfree.getValue().size()},
+            {vfree.getName(),            vfree.getValue().size()},
+            {x0.getName(),               x0.getValue().size()},
+            {reset_position.getName(),   reset_position.getValue().size()},
+            {reset_velocity.getName(),   reset_velocity.getValue().size()}
+    };
+
+    // Get the maximum size of all argument's vectors
+    const auto minmaxElement = std::minmax_element(vector_sizes.begin(), vector_sizes.end(),
+       [] (const std::pair<const std::string, const size_t> &a, const std::pair<const std::string, const size_t> &b) 
+    {
+            return a.second < b.second;
+    });
+
+    bool copyX0ToX = false;
+    //copyXToX0 is not really used for copy, as this is done implicitely afterward.
+    //This var shows the symmetry of behaviour between position and rest_position
+    bool copyXToX0 = false;
+
+    size_t sizePosition = vectorsCoord[core::ConstVecCoordId::position().index]->getValue().size();
+    size_t sizeRestPosition = vectorsCoord[core::ConstVecCoordId::restPosition().index]->getValue().size();
+
+    if (minmaxElement.first != minmaxElement.second)
+    {
+        size_t maxSize = (*minmaxElement.second).second;
+
+        // Resize the mechanical object size to match the maximum size of argument's vectors
+        if ((size_t)getSize() < maxSize)
+        {
+            copyX0ToX = sizePosition <  sizeRestPosition;
+            copyXToX0 = sizePosition >  sizeRestPosition;
+            resize(maxSize);
+        }
+
+        // Print a warning if one or more vector don't match the maximum size
+        bool allSizeAreEqual = true;
+        for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) 
+        {
+            const std::string& name = vector_size.first;
+            const size_t & size = vector_size.second;
+            if (name == x.getName() || name == x0.getName())
+                continue;
+            //check size>1 due to forceSet in constructor
+            //vector can be maxSize if it matches position and rest_position 
+            //position and rest_position leads decision on correct vector size
+            if (size > 1 &&
+                 (   size != maxSize 
+                 || (size != sizePosition && !copyX0ToX)
+                 || (size != sizeRestPosition && !copyXToX0)))
+            {
+                allSizeAreEqual = false;
+                break;
+            }
+        }
+
+        //one vector is not the good size
+        //special check if position and rest_position have different sizes
+        if (!allSizeAreEqual || (copyXToX0 && sizeRestPosition>1) || (copyX0ToX && sizePosition>1))
+        {
+            std::string message_warning = "One or more of the state vectors passed as argument don't match the size of the others : ";
+            for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) 
+            {
+                const std::string & name = vector_size.first;
+                const size_t & size = vector_size.second;
+                //skip size<=1 due to forceSet in constructor
+                if (size <= 1) 
+                    continue;
+                message_warning += name + "(size " + std::to_string(size) + ") ";
+            }
+            serr << message_warning << sendl;
+        }
     }
 
-    //helper::WriteAccessor< Data<VecCoord> > x_wA = *this->write(VecCoordId::position());
-    //helper::WriteAccessor< Data<VecDeriv> > v_wA = *this->write(VecDerivId::velocity());
     Data<VecCoord>* x_wAData = this->write(sofa::core::VecCoordId::position());
     Data<VecDeriv>* v_wAData = this->write(sofa::core::VecDerivId::velocity());
     VecCoord& x_wA = *x_wAData->beginEdit();
     VecDeriv& v_wA = *v_wAData->beginEdit();
 
     //case if X0 has been set but not X
-    if (read(core::ConstVecCoordId::restPosition())->getValue().size() > x_wA.size())
+    if (copyX0ToX)
     {
         vOp(core::ExecParams::defaultInstance(), core::VecId::position(), core::VecId::restPosition());
     }
@@ -1146,8 +1226,6 @@ void MechanicalObject<DataTypes>::init()
     f.registerTopologicalData();
 #endif
 
-
-
     if (rotation2.getValue()[0]!=0.0 || rotation2.getValue()[1]!=0.0 || rotation2.getValue()[2]!=0.0)
     {
         this->applyRotation(rotation2.getValue()[0],rotation2.getValue()[1],rotation2.getValue()[2]);
@@ -1163,7 +1241,8 @@ void MechanicalObject<DataTypes>::init()
     if (f_reserve.getValue() > 0)
         reserve(f_reserve.getValue());
 
-    if(isToPrint.getValue()==true) {
+    if(isToPrint.getValue()==true) 
+    {
         x.setPersistent(false);
         v.setPersistent(false);
         f.setPersistent(false);
@@ -1172,7 +1251,8 @@ void MechanicalObject<DataTypes>::init()
         xfree.setPersistent(false);
         vfree.setPersistent(false);
         x0.setPersistent(false);
-        reset_position.setPersistent(false);}
+        reset_position.setPersistent(false);
+    }
 }
 
 template <class DataTypes>
