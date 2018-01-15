@@ -253,6 +253,8 @@ void ConstantForceField<DataTypes>::draw(const core::visual::VisualParams* vpara
         return;
     }
 
+    Inherit::draw(vparams);
+
     double aSC = d_arrowSizeCoef.getValue();
 
     if ((!vparams->displayFlags().getShowForceFields() && (aSC == 0)) || (aSC < 0.0))

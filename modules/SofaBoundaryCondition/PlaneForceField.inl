@@ -235,6 +235,8 @@ void PlaneForceField<DataTypes>::rotate( Deriv axe, Real angle )
 template<class DataTypes>
 void PlaneForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
+    Inherit::draw(vparams);
+
     if (!vparams->displayFlags().getShowForceFields()) return;
 	//if (!vparams->isSupported(core::visual::API_OpenGL)) return;
     if (bDraw.getValue()) drawPlane(vparams);

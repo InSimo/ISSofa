@@ -445,6 +445,8 @@ bool RestShapeSpringsForceField<DataTypes>::breakElongatedSprings(const DataVecC
 template<class DataTypes>
 void RestShapeSpringsForceField<DataTypes>::draw(const core::visual::VisualParams *vparams)
 {
+    Inherit::draw(vparams);
+
     if (!vparams->displayFlags().getShowForceFields())
         return;
 

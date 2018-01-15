@@ -96,6 +96,12 @@ void OptionsGroup::setNames(int nbofRadioButton,...)
     selectedItem=0;
 }
 ///////////////////////////////////////
+void OptionsGroup::setNames(const helper::vector<std::string>& names)
+{
+    textItems = names;
+    selectedItem = 0;
+}
+///////////////////////////////////////
 int OptionsGroup::isInOptionsList(const std::string & tempostring) const
 {
     for(unsigned int i=0; i<textItems.size(); i++)

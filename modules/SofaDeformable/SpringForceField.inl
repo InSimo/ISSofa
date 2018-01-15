@@ -35,7 +35,6 @@
 #include <sofa/core/topology/TopologyChange.h>
 #include <sofa/simulation/common/Simulation.h>
 #include <sofa/helper/io/MassSpringLoader.h>
-#include <sofa/helper/gl/template.h>
 #include <sofa/helper/system/config.h>
 #include <cassert>
 #include <iostream>
@@ -193,6 +192,8 @@ void SpringForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMatrix *, 
 template<class DataTypes>
 void SpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
+    Inherit::draw(vparams);
+
     using namespace sofa::defaulttype;
 
     if (!((this->mstate1 == this->mstate2)?vparams->displayFlags().getShowForceFields():vparams->displayFlags().getShowInteractionForceFields())) return;

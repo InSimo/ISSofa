@@ -298,6 +298,9 @@ public:
 
     bool hasBorderElementLists() const;
 
+    /** \brief Returns the type of the topology */
+    virtual sofa::core::topology::TopologyObjectType getTopologyType() const {return sofa::core::topology::TRIANGLE;}
+
 
     /** \brief: Create element lists which are on topology border:
      *

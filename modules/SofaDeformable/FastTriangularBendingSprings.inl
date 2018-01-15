@@ -42,7 +42,6 @@
 #include <fstream> // for reading the file
 #include <iostream> //for debugging
 
-#include <sofa/helper/gl/template.h>
 #include <SofaBaseTopology/TopologyData.inl>
 
 #include <sofa/helper/AdvancedTimer.h>
@@ -454,7 +453,8 @@ void FastTriangularBendingSprings<DataTypes>::addKToMatrixT(const core::Mechanic
 template<class DataTypes>
 void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
-#ifndef SOFA_NO_OPENGL
+    Inherited::draw(vparams);
+
     unsigned int i;
     if (!vparams->displayFlags().getShowForceFields()) return;
     if (!this->mstate) return;
@@ -500,7 +500,6 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
             }
         }
     }
-#endif /* SOFA_NO_OPENGL */
 }
 
 } // namespace forcefield
