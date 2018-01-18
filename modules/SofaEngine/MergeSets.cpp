@@ -40,12 +40,14 @@ SOFA_DECL_CLASS(MergeSets)
 int MergeSetsClass = core::RegisterObject("Merge two sets of indices using specified boolean operation")
         .add< MergeSets<int> >(true)
         .add< MergeSets<unsigned int> >()
+        .add< MergeSets<helper::fixed_array<unsigned int,4> > >()
 //.add< MergeSets<long long> >()
 //.add< MergeSets<unsigned long long> >()
         ;
 
 template class SOFA_ENGINE_API MergeSets<int>;
 template class SOFA_ENGINE_API MergeSets<unsigned int>;
+template class SOFA_ENGINE_API MergeSets<helper::fixed_array<unsigned int,4> > ;
 //template class SOFA_ENGINE_API MergeSets<long long>;
 //template class SOFA_ENGINE_API MergeSets<unsigned long long>;
 
