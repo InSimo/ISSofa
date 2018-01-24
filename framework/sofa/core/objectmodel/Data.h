@@ -35,6 +35,7 @@
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
 #include <boost/shared_ptr.hpp>
+#include <sofa/core/dataparser/DataParserRegistry.h>
 #include <stdlib.h>
 #include <string>
 #include <sstream>
@@ -71,6 +72,7 @@ public:
     explicit TData(const BaseInitData& init)
         : BaseData(init), parentData(initLink("parentSameType", "Linked Data in case it stores exactly the same type of Data, and efficient copies can be made (by value or by sharing pointers with Copy-on-Write)"))
     {
+        addMetaFromDataType();
     }
 
     TData( const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
@@ -127,11 +129,11 @@ public:
     {
         if (s.empty())
             return false;
-        //serr<<"Field::read "<<s.c_str()<<sendl;
-        std::istringstream istr( s.c_str() );
-        istr >> *virtualBeginEdit();
+
+        auto* parser = dataparser::DataParserRegistry::getParser(std::string("raw_text_data_parser"));
+        auto error_code = parser->toData(s, virtualBeginEdit(), getValueTypeInfo());
         virtualEndEdit();
-        if( istr.fail() )
+        if(error_code)
         {
             return false;
         }
@@ -169,6 +171,12 @@ public:
     }
 
 protected:
+
+    void addMetaFromDataType()
+    {
+        std::map<int, defaulttype::AbstractMetadata*> metadataTuple = defaulttype::DataTypeInfo<T>::getMetadata();
+        m_metadata.insert(metadataTuple.begin(), metadataTuple.end());
+    }
 
     BaseLink::InitLink<TData<T> >
     initLink(const char* name, const char* help)

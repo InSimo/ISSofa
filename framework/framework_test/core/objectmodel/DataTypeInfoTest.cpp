@@ -73,6 +73,45 @@ TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorOfVectorSizeIsOk )
     EXPECT_EQ( baseMVInfo->FinalSize(), 3 );
 }
 
+TEST( DataTypeInfoMemcpyTest, checkDataTypeInfoVectorGetValuePtrIsOk )
+{
+    typedef sofa::helper::vector< Vec3Types::Coord > VectorOfCoord;
+    Data< VectorOfCoord > d_vecCoord("VecCoord");
+    sofa::helper::WriteAccessor< Data< VectorOfCoord > > v = d_vecCoord;
+    v.resize(10);
+    int i = -3;
+    std::generate(v.begin(), v.end(), [&i]{ i+=3; return Vec3Types::Coord(i, i+1, i+2); });
+    const AbstractTypeInfo* typeInfo = d_vecCoord.getValueTypeInfo();
+    const void* vptr = d_vecCoord.getValueVoidPtr();
+    
+    ASSERT_TRUE(typeInfo->SimpleCopy());
+    ASSERT_NE(typeInfo->getValuePtr(vptr), nullptr);
+    ASSERT_EQ(typeInfo->byteSize(vptr), 10*sizeof(Vec3Types::Coord));
+    
+    VectorOfCoord vCopy;
+    vCopy.resize(typeInfo->ContainerType()->containerSize(vptr));
+    std::memcpy(vCopy.data(), typeInfo->getValuePtr(vptr), typeInfo->byteSize(vptr));
+    
+    ASSERT_EQ(d_vecCoord.getValue(), vCopy);
+}
+
+TEST( DataTypeInfoMemcpyTest, checkDataTypeInfoStringGetValuePtrIsOk )
+{
+    Data< std::string > d_str("String");
+    d_str.setValue("My String");
+    const AbstractTypeInfo* typeInfo = d_str.getValueTypeInfo();
+    const void* vptr = d_str.getValueVoidPtr();
+    
+    ASSERT_TRUE(typeInfo->SimpleCopy());
+    ASSERT_NE(typeInfo->getValuePtr(vptr), nullptr);
+    ASSERT_EQ(typeInfo->byteSize(vptr), d_str.getValue().size()*sizeof(std::string::value_type));
+    
+    std::string strCopy;
+    strCopy.assign((const char*)typeInfo->getValuePtr(vptr), typeInfo->byteSize(vptr));
+    
+    ASSERT_EQ(d_str.getValue(), strCopy);
+}
+
 
 struct MyType
 {

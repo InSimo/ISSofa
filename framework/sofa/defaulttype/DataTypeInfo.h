@@ -49,6 +49,8 @@ class vector;
 namespace defaulttype
 {
 
+class AbstractMetadata;
+
 #define DEFAULT_DataTypeInfo
 #define DEFAULT_DataTypeName
 
@@ -232,7 +234,9 @@ struct InvalidDataTypeInfo
 
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+    static constexpr bool IsEnum             = false;  ///< true if this type is a enum
     static constexpr bool IsMultiValue       = false;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
     static constexpr bool ValidInfo          = false;  ///< true if this type has valid infos
     static constexpr bool Integer            = false;  ///< true if this type uses integer values
@@ -241,7 +245,7 @@ struct InvalidDataTypeInfo
     static constexpr bool Unsigned           = false;  ///< true if this type is unsigned
     //static constexpr bool FixedContainerSize = true; ///< true if this type has a fixed size for this container level
     static constexpr bool FixedFinalSize     = false;  ///< true if this type has a fixed size for all level until the final values
-    
+
     static constexpr bool ZeroConstructor    = false;  ///< true if the constructor is equivalent to setting memory to 0
     static constexpr bool SimpleCopy         = false;  ///< true if copying the data can be done with a memcpy
     static constexpr bool SimpleLayout       = false;  ///< true if the layout in memory is simply N values of the same base type
@@ -249,10 +253,16 @@ struct InvalidDataTypeInfo
     static constexpr bool StoreKeys          = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues        = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); }
+
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t ByteSize = 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+    static constexpr size_t byteSize(const DataType& /*data*/) { return ByteSize; }
+
+    static const void* getValuePtr(const DataType& /*data*/) { return nullptr; }
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
@@ -284,6 +294,7 @@ struct InvalidDataTypeInfo
     {
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
+
 };
 
 #ifdef DEFAULT_DataTypeInfo
@@ -308,12 +319,13 @@ struct SingleValueTypeInfo
 
     static constexpr bool IsContainer        = false; ///< true if this type is a container
     static constexpr bool IsSingleValue      = true;  ///< true if this type is a single value
+    static constexpr bool IsEnum             = (TValueKind == ValueKindEnum::Enum );
     static constexpr bool IsMultiValue       = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsStructure        = false; ///< true if this type is a structure
 
     static constexpr bool ValidInfo          = true;  ///< true if this type has valid infos
     /// true if this type uses integer values
     static constexpr bool Integer            = (TValueKind == ValueKindEnum::Integer ||
-                                                TValueKind == ValueKindEnum::Enum  ||
                                                 TValueKind == ValueKindEnum::Bool  );
     /// true if this type uses scalar values
     static constexpr bool Scalar             = (TValueKind == ValueKindEnum::Scalar);
@@ -323,19 +335,41 @@ struct SingleValueTypeInfo
     static constexpr bool Unsigned           = TUnsigned;
     //static constexpr bool FixedContainerSize = true;  ///< true if this type has a fixed size for this container level
     static constexpr bool FixedFinalSize     = true;  ///< true if this type has a fixed size for all level until the final values
-    
-    static constexpr bool ZeroConstructor    = true;  ///< true if the constructor is equivalent to setting memory to 0
-    static constexpr bool SimpleCopy         = true;  ///< true if copying the data can be done with a memcpy
-    static constexpr bool SimpleLayout       = true;  ///< true if the layout in memory is simply N values of the same base type
-    static constexpr bool CopyOnWrite        = false; ///< true if this type uses copy-on-write
-    static constexpr bool StoreKeys          = true;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
-    static constexpr bool StoreValues        = true;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    static constexpr bool ZeroConstructor    = !String;  ///< true if the constructor is equivalent to setting memory to 0
+    static constexpr bool SimpleCopy         = true;     ///< true if copying the data can be done with a memcpy
+    static constexpr bool SimpleLayout       = true;     ///< true if the layout in memory is simply N values of the same base type
+    static constexpr bool CopyOnWrite        = false;    ///< true if this type uses copy-on-write
+    static constexpr bool StoreKeys          = true;     ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+    static constexpr bool StoreValues        = true;     ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
+
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); }
 
     //static constexpr size_t ContainerSize = 1; ///< 1, or fixed container size if FixedContainerSize is 1
     static constexpr size_t FinalSize = 1; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t ByteSize = !String ? sizeof(DataType) : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     //static constexpr size_t containerSize(const DataType& /*data*/) { return ContainerSize; }
     static constexpr size_t finalSize(const DataType& /*data*/) { return FinalSize; }
+    static constexpr size_t byteSize(const DataType& /*data*/)
+    {
+        return ByteSize;
+    }
+
+    static const void* getValuePtr(const DataType& data)
+    {
+        return getValuePtr(data, std::integral_constant<bool, String>());
+    }
+protected:
+    static const void* getValuePtr(const DataType& data, std::true_type)
+    {
+        return nullptr;
+    }
+    static const void* getValuePtr(const DataType& data, std::false_type)
+    {
+        return &data;
+    }
+public:
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
     {
@@ -394,12 +428,13 @@ public:
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
+
     // Multi Value API
 
     static void setFinalSize(DataType& /*data*/, size_t /*size*/)
     {
     }
-    
+
     template <typename DataTypeRef, typename T>
     static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
     {
@@ -430,7 +465,7 @@ public:
 
 #if 0
     // iterators support (trivial here)
-    
+
     template<class DataPtr> class single_iterator
     {
         DataPtr m_data;
@@ -505,7 +540,11 @@ template<> struct DataTypeName<float> { static const char* name() { return "floa
 template<> struct DataTypeInfo<double> : public SingleValueTypeInfo<double, ValueKindEnum::Scalar> {};
 template<> struct DataTypeName<double> { static const char* name() { return "double"; } };
 
-template<> struct DataTypeInfo<std::string> : public SingleValueTypeInfo<std::string, ValueKindEnum::String> {};
+template<> struct DataTypeInfo<std::string> : public SingleValueTypeInfo<std::string, ValueKindEnum::String>
+{
+    static size_t byteSize(const DataType& data) { return data.size(); }
+    static const void* getValuePtr(const DataType& data) { return data.data(); }
+};
 template<> struct DataTypeName<std::string> { static const char* name() { return "string"; } };
 
 
@@ -521,9 +560,11 @@ struct MultiValueTypeInfo
     static constexpr ContainerKindEnum ContainerKind = ContainerKindEnum::Single;
     static constexpr ValueKindEnum     FinalValueKind = MappedTypeInfo::FinalValueKind;
 
-    static constexpr bool IsContainer = false; ///< true if this type is a container
+    static constexpr bool IsContainer   = false;  ///< true if this type is a container
     static constexpr bool IsSingleValue = false;  ///< true if this type is a single value
-    static constexpr bool IsMultiValue = true;  ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsEnum        = false;  ///< true if this type is a enum
+    static constexpr bool IsMultiValue  = true;   ///< true if this type is equivalent to multiple values (either single value or a composition of arrays of the same type of values)
+    static constexpr bool IsStructure   = false;  ///< true if this type is a structure
 
     static constexpr bool ValidInfo = MappedTypeInfo::ValidInfo;  ///< true if this type has valid infos
                                              /// true if this type uses integer values
@@ -544,7 +585,10 @@ struct MultiValueTypeInfo
     static constexpr bool StoreKeys = false;  ///< true if the item keys are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
     static constexpr bool StoreValues = false;  ///< true if the item values are stored within the data structure (in which case getContainerKey() returns a const reference instead of a temporary value)
 
-    static constexpr size_t FinalSize = (TFixedSize==0?1: TFixedSize)*MappedTypeInfo::FinalSize; ///< 1, or fixed final size if FixedFinalSize is 1
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); }
+
+    static constexpr size_t FinalSize = (TFixedSize == 0 ? 1 : TFixedSize)*MappedTypeInfo::FinalSize; ///< 1, or fixed final size if FixedFinalSize is 1
+    static constexpr size_t ByteSize = FixedFinalSize ? TFixedSize * MappedTypeInfo::ByteSize : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static size_t finalSize(const DataType& data)
     {
@@ -556,6 +600,17 @@ struct MultiValueTypeInfo
         {
             return data.size() * FinalSize;
         }
+    }
+    static constexpr size_t byteSize(const DataType& /*data*/)
+    {
+        // No general formula exists to compute the byteSize (finalSize(data) * MappedTypeInfo::ByteSize is wrong when DataType is vector<bool> because it's a bitset)
+        // Use Single Value API or Container API if available
+        return ByteSize;
+    }
+
+    static const void* getValuePtr(const DataType& data)
+    {
+        return nullptr; // TODO
     }
 
     static void resetValue(DataType& data, size_t /*reserve*/ = 0)
@@ -615,6 +670,7 @@ public:
         DataTypeInfo_FromString(std::forward<DataTypeRef>(data), value);
     }
 
+
     // Multi Value API
 
     template<typename DataTypeRef>
@@ -657,6 +713,7 @@ public:
 
 
 template<class TDataType, ContainerKindEnum TContainerKind, size_t TFixedSize> struct DataTypeInfo_ContainerTypes;
+
 template<class TDataType, size_t TFixedSize> struct DataTypeInfo_ContainerTypes<TDataType, ContainerKindEnum::Array, TFixedSize>
 {
     typedef typename TDataType::size_type      KeyType;
@@ -1033,12 +1090,14 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
 
     static constexpr ContainerKindEnum ContainerKind  = TContainerKind;
 
-    static constexpr bool IsContainer        = true; ///< true if this type is a container
+    static constexpr bool IsContainer        = true;   ///< true if this type is a container
     static constexpr bool IsSingleValue      = false;  ///< true if this type is a single value
+    static constexpr bool IsEnum             = false;  ///< true if this type is a enum
     //static constexpr bool IsMultiValue       =
     //    (TContainerKind==ContainerKindEnum::Array ||
     //     (TContainerKind==ContainerKindEnum::Set && MappedTypeInfo::FinalSize == 1)) &&
     //    MappedTypeInfo::IsMultiValue && MappedTypeInfo::FixedFinalSize;
+    static constexpr bool IsStructure        = false;  ///< true if this type is a structure
 
     static constexpr bool ValidInfo          = MappedTypeInfo::ValidInfo; ///< true if this type has valid infos
     static constexpr bool Integer            = MappedTypeInfo::Integer;   ///< true if this type uses integer values
@@ -1060,7 +1119,10 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
     /// true if the item values are stored within the data structure
     static constexpr bool StoreValues        = (TContainerKind!=ContainerKindEnum::Set);
 
+    static std::map<int, defaulttype::AbstractMetadata*> getMetadata() { return std::map<int, defaulttype::AbstractMetadata*>(); }
+
     static constexpr size_t ContainerSize = TFixedSize>0 ? TFixedSize : 1; ///< 0, or fixed container size if FixedContainerSize is 1
+    static constexpr size_t ByteSize = SimpleCopy && FixedContainerSize ? TFixedSize * MappedTypeInfo::ByteSize : 0; ///< if known at compile time, the size in bytes of the DataType, else 0
 
     static std::string name()
     {
@@ -1078,7 +1140,27 @@ struct ContainerTypeInfo : public ContainerMultiValueTypeInfo<TDataType, TContai
             return data.size();
         }
     }
+    static size_t byteSize(const DataType& data)
+    {
+        return SimpleCopy ? containerSize(data) * MappedTypeInfo::ByteSize : 0;
+    }
 
+    static const void* getValuePtr(const DataType& data)
+    {
+        return getValuePtr(data, std::integral_constant<bool, SimpleCopy>());
+    }
+protected:
+    static const void* getValuePtr(const DataType& data, std::true_type)
+    {
+        //return containerSize(data) > 0 ? data.data() : nullptr; // data() member method is missing on some types, so we need to use iterators
+        return containerSize(data) > 0 ? std::addressof(*data.cbegin()) : nullptr;
+    }
+    static const void* getValuePtr(const DataType& /*data*/, std::false_type)
+    {
+        return nullptr;
+    }
+
+public:
     static void resetValue(DataType& data, size_t reserve = 0)
     {
         ContainerTypes::clear(data);
@@ -1184,7 +1266,7 @@ public:
         return ContainerTypes::erase(data, key);
     }
 
-    
+
     typedef typename ContainerTypes::iterator iterator;
     typedef typename ContainerTypes::const_iterator const_iterator;
     static iterator begin(DataType& data)
@@ -1235,6 +1317,11 @@ public:
     }
 };
 
+
+template<class T, std::size_t N>
+struct DataTypeInfo< std::array<T,N> > : public ContainerTypeInfo<std::array<T,N>, ContainerKindEnum::Array, N> {};
+template<class T, std::size_t N>
+struct DataTypeName< std::array<T,N> > { static std::string name() { std::ostringstream o; o << "std::array<" << DataTypeName<T>::name() << "," << N << ">"; return o.str(); } };
 
 template<class T, std::size_t N>
 struct DataTypeInfo< sofa::helper::fixed_array<T,N> > : public ContainerTypeInfo<sofa::helper::fixed_array<T,N>, ContainerKindEnum::Array, N> {};

@@ -37,6 +37,8 @@
 #include <sofa/core/objectmodel/DDGNode.h>
 #include <sofa/core/objectmodel/BaseLink.h>
 #include <sofa/defaulttype/AbstractTypeInfo.h>
+#include <sofa/defaulttype/DataMetadata.h>
+#include <initializer_list>
 
 namespace sofa
 {
@@ -104,6 +106,25 @@ public:
         const char* ownerClass;
         const char* group;
         const char* widget;
+
+        template<class M>
+        bool addMetaI(M metadata)
+        {
+            auto abstractMetadata = new defaulttype::VirtualMetadata<M>(metadata);
+            auto id = abstractMetadata->getId();
+            m_metadataBID[id] = abstractMetadata;
+            return true;
+        }
+
+        template<class ...M>
+        BaseInitData addMeta(M... metadatas)
+        {
+            std::initializer_list<bool>{ addMetaI(metadatas)... };
+            return *this;
+        }
+
+        std::map<int, defaulttype::AbstractMetadata*> m_metadataBID;
+
     };
 
     /** Constructor used via the Base::initData() methods. */
@@ -327,6 +348,81 @@ public:
     /// Add a link.
     void addLink(BaseLink* l);
 
+
+
+
+    //////////////////////////////////////
+    // metadata mechanism
+
+public:
+
+    //basic methods for access, addition and removal of metadata
+    template<class ...M>
+    void addMeta(M... metadatas)
+    {
+        std::initializer_list<bool>{ addMetaI(metadatas)... };
+    }
+
+    template<class ...M>
+    void setMeta(M... metadatas)  // alias for the addMeta(M... metadatas);  
+    {
+        addMeta(metadatas...);
+    }
+
+    template<class TMetadata>
+    bool getMeta(TMetadata*& metadata)
+    {
+        int id = (defaulttype::VirtualMetadata<TMetadata>()).getId();
+
+        auto it = m_metadata.find(id);
+        if (it != m_metadata.end())
+        {
+            metadata = &reinterpret_cast<defaulttype::VirtualMetadata<TMetadata>*>(it->second)->getMeta();
+            return true;
+        }
+        return false;
+    }
+
+    void removeAllMeta()
+    {
+        m_metadata.clear();
+    }
+
+    template<class TMetadata>
+    void removeMeta(const TMetadata& metadata)
+    {
+        int id = (defaulttype::VirtualMetadata<TMetadata>(metadata)).getId();
+
+        auto it = m_metadata.find(id);
+        if (it != m_metadata.end())
+        {
+            m_metadata.erase(it);
+        }
+    }
+
+    // specific method for backward compatibility
+	// TODO : isReadOnly();
+	// TODO : isDisplayed();
+
+protected:
+
+    //helper for basic access method of metadata
+    template<class M>
+    bool addMetaI(M metadata)
+    {
+        auto abstractMetadata = new defaulttype::VirtualMetadata<M>(metadata);
+        int id = abstractMetadata->getId();
+
+        m_metadata[id] = abstractMetadata;
+        return true;
+    }
+
+    // end of the metadata mechanism
+    //////////////////////////////////////
+
+    
+
+
 protected:
 
     BaseLink::InitLink<BaseData>
@@ -369,6 +465,8 @@ protected:
 //    std::string m_linkPath;
     /// Parent Data
     SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_OWNERDATA|BaseLink::FLAG_DUPLICATE> parentBaseData;
+
+    std::map<int, defaulttype::AbstractMetadata* > m_metadata;
 
     /// Helper method to get the type name of type T
     template<class T>

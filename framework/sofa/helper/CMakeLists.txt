@@ -21,12 +21,6 @@ set(SOFAHELPER_HEADERS
     io/ImageBMP.h
     io/ImageRAW.h
     io/MassSpringLoader.h
-    io/Mesh.h
-    io/MeshOBJ.h
-    io/MeshVTK.h
-    io/MeshSTL.h
-    io/MeshTopologyLoader.h
-    io/MeshTrian.h
     io/SphereLoader.h
     io/TriangleLoader.h
     io/bvh/BVHChannels.h
@@ -41,8 +35,8 @@ set(SOFAHELPER_HEADERS
     map_ptr_stable_compare.h
     MatEigen.h
     list.h
-    MarchingCubeUtility.h
     MemoryManager.h
+    preprocessor.h
     decompose.h
     decompose.inl
     Quater.h
@@ -110,18 +104,11 @@ set(SOFAHELPER_SOURCES_UNITY
     io/ImageBMP.cpp
     io/ImageRAW.cpp
     io/MassSpringLoader.cpp
-    io/Mesh.cpp
-    io/MeshOBJ.cpp
-    io/MeshVTK.cpp
-    io/MeshSTL.cpp
-    io/MeshTopologyLoader.cpp
-    io/MeshTrian.cpp
     io/TriangleLoader.cpp
     io/bvh/BVHJoint.cpp
     io/bvh/BVHLoader.cpp
     io/bvh/BVHMotion.cpp
     LCPcalc.cpp
-    MarchingCubeUtility.cpp
     decompose.cpp
     Quater.cpp
     RandomGenerator.cpp

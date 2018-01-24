@@ -8,8 +8,12 @@ set(SOURCE_FILES
     defaulttype/VecTypesTest.cpp
     #defaulttype/MatTypesTest.cpp
     defaulttype/RigidMass_test.cpp
+    helper/DataParserRegistryTest.cpp
+    core/JsonDataParserTest.cpp
     helper/map_ptr_stable_compare_test.cpp
     helper/FactoryTest.cpp
+    helper/preprocessorTest.cpp
+    helper/SSOBufferTest.cpp
     helper/system/atomicTest.cpp
     helper/system/FileSystemTest.cpp
     helper/system/UtilsTest.cpp
@@ -17,6 +21,11 @@ set(SOURCE_FILES
     core/objectmodel/AspectPoolTest.cpp
     core/objectmodel/DataTest.cpp
     core/objectmodel/DataTypeInfoTest.cpp
+    core/objectmodel/PairTypeInfoTest.cpp
+    core/objectmodel/StructTypeInfoTest.cpp
+    core/objectmodel/EnumTypeInfoTest.cpp
+    defaulttype/UnitsTest.cpp
+    defaulttype/DataMetadataTest.cpp
     #plugin-system/PluginSystemTest.cpp
     )
 

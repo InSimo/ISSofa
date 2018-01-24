@@ -29,8 +29,13 @@
 #include <sofa/defaulttype/DataTypeKind.h>
 #include <sofa/helper/SSOBuffer.h>
 #include <typeinfo>
+#include <memory>
 #include <string>
 #include <vector>
+#include <cassert>
+#include <functional>
+#include <sstream>
+#include <map>
 
 namespace sofa
 {
@@ -38,9 +43,15 @@ namespace sofa
 namespace defaulttype
 {
 
+class AbstractMetadata;
 class AbstractValueTypeInfo;
 class AbstractMultiValueTypeInfo;
 class AbstractContainerTypeInfo;
+class AbstractStructureTypeInfo;
+class AbstractEnumTypeInfo;
+
+using unique_void_ptr = std::unique_ptr<void, void (*)(const void*)>;
+
 
 class SOFA_DEFAULTTYPE_API AbstractTypeInfo
 {
@@ -54,10 +65,14 @@ public:
     virtual bool IsSingleValue() const = 0;
     virtual bool IsContainer() const = 0;
     virtual bool IsMultiValue() const = 0;
+    virtual bool IsStructure() const = 0;
+    virtual bool IsEnum() const = 0;
 
     virtual const AbstractValueTypeInfo* SingleValueType() const = 0;
     virtual const AbstractMultiValueTypeInfo* MultiValueType() const = 0;
     virtual const AbstractContainerTypeInfo* ContainerType() const = 0;
+    virtual const AbstractStructureTypeInfo* StructureType() const = 0;
+    virtual const AbstractEnumTypeInfo*      EnumType()      const = 0;
 
     virtual bool ZeroConstructor() const = 0;
     virtual bool SimpleCopy() const = 0;
@@ -68,9 +83,17 @@ public:
     virtual void getDataValueString(const void* data, std::string& value) const = 0;
     virtual void setDataValueString(void* data, const std::string& value) const = 0;
 
-    virtual bool getAvailableItems(std::vector<std::string>& result, const void* data) const = 0;
+    virtual std::map<int, defaulttype::AbstractMetadata*> getMetadata() const = 0;
 
-    virtual const std::type_info* type_info() const = 0;
+    virtual size_t byteSize(const void* data) const = 0; // If SimpleCopy is true, returns the size in bytes of the underlying memory of the type, else returns 0
+    
+    virtual const void* getValuePtr(const void* data) const = 0; // Returns a pointer to the underlying memory of the type (nullptr if unavailable)
+
+    virtual const std::type_info* type_info() const = 0; // WARNING: Pointer equality is NOT guaranteed across instances of AbstractTypeInfo of the same type, and hash_code() unicity is NOT guaranteed across all types
+    virtual std::size_t typeInfoID() const = 0; // NOTE: ID unicity is guaranteed across all types
+    static const AbstractTypeInfo* GetType(std::size_t id);
+
+    virtual unique_void_ptr createInstance() const = 0; // returns null unique pointer if the type is not default-constructible
 
     AbstractTypeInfo(const AbstractTypeInfo&) = delete;
     AbstractTypeInfo(AbstractTypeInfo&&) = delete;
@@ -79,6 +102,7 @@ public:
 protected:
     AbstractTypeInfo();
     virtual ~AbstractTypeInfo();
+    void registerTypeInfoId(std::size_t id);
 };
 
                          
@@ -127,7 +151,6 @@ public:
     virtual void setDataValueScalar (void* data, double value) const = 0;
 
     // void has no value
-    // enum can be accessed with either IntegerValue (0..n-1) or TextValue (one of getAvailableItems)
     // bool can be accessed with either IntegerValue (0/1) or TextValue (false/true)
     // pointer can be accessed with either IntegerValue (but not valid for storage) or TextValue
 
@@ -155,7 +178,7 @@ public:
 
     AbstractTypeInfo* valueType()
     {
-        return m_typeinfo->getValueTypeForKey(m_data, key());
+        return m_typeinfo->getMappedType();
     }
 
     AbstractTypeInfo* keyType()
@@ -225,8 +248,6 @@ class SOFA_DEFAULTTYPE_API AbstractContainerTypeInfo : public virtual AbstractTy
 public:
     virtual AbstractTypeInfo* getKeyType() const = 0; // DTK_ARRAY: must be integer type, DTK_STRUCT: must be enum type, DTK_MAP/DTK_SET: arbitrary
     virtual AbstractTypeInfo* getMappedType() const = 0; // DTK_ARRAY/DTK_MAP/DTK_SET: arbitrary, DTK_STRUCT: void unless all values are the same
-    virtual AbstractTypeInfo* getValueTypeForIndex(const void* data, size_t index) const = 0;
-    virtual AbstractTypeInfo* getValueTypeForKey(const void* data, const void* key) const = 0;
     virtual bool FixedContainerSize() const = 0; // true for DTK_STRUCT and for fixed-size DTK_ARRAY
 
     virtual size_t containerSize(const void* data) const = 0;
@@ -302,6 +323,158 @@ public:
 class SOFA_DEFAULTTYPE_API AbstractContainerMultiValueTypeInfo : public AbstractContainerTypeInfo, public AbstractMultiValueTypeInfo
 {
 };
+
+
+class SOFA_DEFAULTTYPE_API AbstractStructureTypeInfo : public virtual AbstractTypeInfo
+{
+public:
+    virtual size_t structSize() const = 0;
+    
+    virtual AbstractTypeInfo* getMemberTypeForIndex(size_t index) const = 0;
+    
+    virtual const void* getMemberValue(const void* data, size_t index) const = 0;
+    virtual std::string getMemberName(const void* data, size_t index) const = 0;
+    virtual void* editMemberValue(void* data, size_t index) const = 0;
+};
+
+
+class SOFA_DEFAULTTYPE_API AbstractEnumTypeInfo : public virtual AbstractValueTypeInfo
+{
+public:
+
+    virtual std::string getDataEnumeratorString(const void* data) const = 0;
+    virtual void setDataEnumeratorString(void* data,const std::string& value) const = 0;
+    virtual void getAvailableItems(const void* data, std::vector<std::string>& result) const = 0;
+};
+
+
+/// This function recursively navigates inside the data using keys one after the other
+/// Outputs a pointer to the sub-data and to its associated AbstractTypeInfo
+/// Returns false in the following cases : too many keys, wrong key, or if a MultiValue is encountered
+inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const typeInfo, const std::vector<const void*>& keys, const void*& subData, const AbstractTypeInfo*& subTypeInfo)
+{
+    assert(data);
+    assert(typeInfo);
+
+    subData = data;
+    subTypeInfo = typeInfo;
+
+    for (const void* key : keys)
+    {
+        assert(key);
+        assert(subTypeInfo->ValidInfo());
+
+        if (subTypeInfo->IsSingleValue())
+        {
+            // should not have gotten a key
+            return false;
+        }
+        else if (subTypeInfo->IsContainer())
+        {
+            const AbstractContainerTypeInfo* cinfo = subTypeInfo->ContainerType();
+
+            const void* res = cinfo->findItem(subData, key);
+            if (!res)
+            {
+                // key does not exist in the container
+                return false;
+            }
+
+            subData = res;
+            subTypeInfo = cinfo->getMappedType();
+        }
+        else if (subTypeInfo->IsStructure())
+        {
+            const AbstractStructureTypeInfo* sinfo = subTypeInfo->StructureType();
+            const size_t keyIndex = *(const size_t*)key;
+
+            if (keyIndex >= sinfo->structSize())
+            {
+                // key is too big for the structure
+                return false;
+            }
+
+            subData = sinfo->getMemberValue(subData, keyIndex);
+            subTypeInfo = sinfo->getMemberTypeForIndex(keyIndex);
+        }
+        else if (subTypeInfo->IsMultiValue())
+        {
+            // cannot get pointer to element indexed by key
+            return false;
+        }
+    }
+
+    assert(subTypeInfo->ValidInfo());
+    return true;
+}
+
+/// This function recursively navigates inside the data using serialized keys one after the other
+/// Outputs a pointer to the sub-data and to its associated AbstractTypeInfo
+/// Returns false in the following cases : too many keys, wrong key, or if a MultiValue is encountered
+/// TODO: use parser instead of setDataValueString and istringstream >>
+inline bool getSubTypeInfo(const void* const data, const AbstractTypeInfo* const typeInfo, const std::vector<std::reference_wrapper<const std::string>>& keys, const void*& subData, const AbstractTypeInfo*& subTypeInfo)
+{
+    assert(data);
+    assert(typeInfo);
+
+    subData = data;
+    subTypeInfo = typeInfo;
+
+    for (const std::string& key : keys)
+    {
+        assert(subTypeInfo->ValidInfo());
+
+        if (subTypeInfo->IsSingleValue())
+        {
+            // should not have gotten a key
+            return false;
+        }
+        else if (subTypeInfo->IsContainer())
+        {
+            const AbstractContainerTypeInfo* cinfo = subTypeInfo->ContainerType();
+
+            const AbstractTypeInfo* kinfo = cinfo->getKeyType();
+            unique_void_ptr keyValuePtr = kinfo->createInstance();
+            kinfo->setDataValueString(keyValuePtr.get(), key);
+
+            const void* res = cinfo->findItem(subData, keyValuePtr.get());
+            if (!res)
+            {
+                // key does not exist in the container
+                return false;
+            }
+
+            subData = res;
+            subTypeInfo = cinfo->getMappedType();
+        }
+        else if (subTypeInfo->IsStructure())
+        {
+            const AbstractStructureTypeInfo* sinfo = subTypeInfo->StructureType();
+
+            std::size_t keyIndex;
+            std::istringstream keySS(key);
+            keySS >> keyIndex;
+
+            if (keyIndex >= sinfo->structSize())
+            {
+                // key is too big for the structure
+                return false;
+            }
+
+            subData = sinfo->getMemberValue(subData, keyIndex);
+            subTypeInfo = sinfo->getMemberTypeForIndex(keyIndex);
+        }
+        else if (subTypeInfo->IsMultiValue())
+        {
+            // cannot get pointer to element indexed by key
+            return false;
+        }
+    }
+
+    assert(subTypeInfo->ValidInfo());
+    return true;
+}
+
 
 } // namespace defaulttype
 

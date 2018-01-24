@@ -23,12 +23,23 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/defaulttype/AbstractTypeInfo.h>
-#include <limits>
+#include <unordered_map>
 
 namespace sofa
 {
 namespace defaulttype
 {
+
+namespace typeIdHelper
+{
+static std::unordered_map<std::size_t, const AbstractTypeInfo*> id2TypeInfo;
+static inline const AbstractTypeInfo* get_type(std::size_t id)
+{
+    auto it = id2TypeInfo.find(id);
+    return it != id2TypeInfo.cend() ? it->second : nullptr;
+}
+} // namespace typeIdHelper
+
 
 AbstractTypeInfo::AbstractTypeInfo()
 {
@@ -36,6 +47,16 @@ AbstractTypeInfo::AbstractTypeInfo()
 
 AbstractTypeInfo::~AbstractTypeInfo()
 {
+}
+
+void AbstractTypeInfo::registerTypeInfoId(std::size_t id)
+{
+    typeIdHelper::id2TypeInfo.emplace(id, this);
+}
+
+const AbstractTypeInfo* AbstractTypeInfo::GetType(std::size_t id)
+{
+    return typeIdHelper::get_type(id);
 }
 
 } // namespace defaulttype

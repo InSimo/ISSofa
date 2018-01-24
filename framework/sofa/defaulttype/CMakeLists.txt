@@ -6,6 +6,8 @@ set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
 	BoundingBox.h	
 	DataTypeInfo.h	
+	EnumTypeInfo.h	
+    DataMetadata.h
 	DataTypeKind.h	
 	Frame.h	 
 	LaparoscopicRigidTypes.h	
@@ -14,16 +16,20 @@ set(SOFADEFAULTTYPE_HEADERS
 	Mat_solve_LU.h	
 	Mat_solve_SVD.h	
 	Mat_solve_Cholesky.h	
+	QuantityTypeInfo.h
 	Quat.h	
 	Quat.inl	
 	#RigidInertia.h	
-	#RigidInertia.inl	
+	#RigidInertia.inl
+	PairTypeInfo.h	
 	RigidTypes.h	
 	RigidVec6Types.h	
 	SolidTypes.h	
 	SolidTypes.inl	
+	StructTypeInfo.h
 	#SparseConstraintTypes.h	
 	TemplatesAliases.h
+	Units.h
 	Vec.h	
 	VecTypes.h	
 	MatSym.h	

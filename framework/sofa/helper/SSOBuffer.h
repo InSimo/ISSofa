@@ -97,7 +97,7 @@ public:
         T* ptr;
         if (sizeof(T) <= SmallSize)
         {
-            ptr = new(smallArray) T;
+            ptr = new(&smallArray) T;
             deleteOrMoveOrCloneFn = deleteOrMoveOrCloneFnSmall<T>;
         }
         else
@@ -169,11 +169,13 @@ protected:
     {
         if (moveFrom)
         {
-            *reinterpret_cast<T*>(&to->smallArray) = std::move(*reinterpret_cast<T*>(&moveFrom->smallArray));
+            // Warning this needs to be called only if to->smallArray has not been constructed
+            new(&to->smallArray) T(std::move(*reinterpret_cast<T*>(&moveFrom->smallArray)));
         }
         else if (cloneFrom)
         {
-            *reinterpret_cast<T*>(&to->smallArray) = *reinterpret_cast<const T*>(&cloneFrom->smallArray);
+            // Warning this needs to be called only if to->smallArray has not been constructed
+            new(&to->smallArray) T(*reinterpret_cast<const T*>(&cloneFrom->smallArray));
         }
         else // delete
         {
