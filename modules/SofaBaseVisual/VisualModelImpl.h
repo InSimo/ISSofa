@@ -474,6 +474,7 @@ public:
     };
 
     virtual void computePositions();
+    virtual void computeRestPositions();
     virtual void computeMesh();
     virtual void computeNormals();
     virtual void computeTangents();

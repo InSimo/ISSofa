@@ -1214,6 +1214,12 @@ void VisualModelImpl::updateVisual()
             }
         }
         computePositions();
+
+        if (this->m_initRestPositions.getValue() && this->m_restPositions.getValue().empty())
+        {
+            computeRestPositions();
+        }
+
         computeNormals();
         if (m_updateTangents.getValue())
             computeTangents();
@@ -1278,6 +1284,19 @@ void VisualModelImpl::computePositions()
             vertices[i] = positions[vertPosIdx[i]];
 
         m_vertices2.endEdit();
+    }
+}
+
+void VisualModelImpl::computeRestPositions()
+{
+    helper::WriteAccessor<Data<VecCoord>> vIn = m_positions;
+    helper::WriteAccessor<Data<VecCoord>> vInRest = m_restPositions;
+
+    vInRest.resize(vIn.size());
+
+    for (int i = 0; i < (int)vIn.size(); ++i)
+    {
+        vInRest[i] = vIn[i];
     }
 }
 
