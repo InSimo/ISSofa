@@ -42,15 +42,15 @@ namespace typeIdHelper
 
 class type_id_t
 {
-    using defctor = type_id_t();
+    using defctor = int;
 
     defctor* id;
     constexpr type_id_t(defctor* id) : id{id} {}
 
 public:
     template<typename T>
-    friend constexpr type_id_t Type_id();
-    
+    friend type_id_t Type_id();
+
     constexpr defctor* getID() const { return id; }
 
     bool operator==(type_id_t o) const { return id == o.id; }
@@ -58,7 +58,10 @@ public:
 };
 
 template<typename T>
-constexpr type_id_t Type_id() { return &Type_id<T>; }
+type_id_t Type_id() {
+    static int id = 0;
+    return &id;
+}
 
 template<typename T>
 size_t type_id() { return reinterpret_cast<size_t>(Type_id<T>().getID()); }
