@@ -248,6 +248,8 @@ public:
     Data< TexCoord > m_scaleTex;
     Data< TexCoord > m_translationTex;
 
+    Data< bool >     m_handleTopologyChange;
+
     void applyTranslation(const Real dx, const Real dy, const Real dz);
 
     /// Apply Rotation from Euler angles (in degree!)

@@ -140,6 +140,7 @@ VisualModelImpl::VisualModelImpl() //const std::string &name, std::string filena
     , m_scale           (initData   (&m_scale, Vec3Real(1.0,1.0,1.0), "scale3d", "Initial Scale of the object"))
     , m_scaleTex        (initData   (&m_scaleTex, TexCoord(1.0,1.0), "scaleTex", "Scale of the texture"))
     , m_translationTex  (initData   (&m_translationTex, TexCoord(0.0,0.0), "translationTex", "Translation of the texture"))
+    , m_handleTopologyChange (initData(&m_handleTopologyChange, true, "handleTopologyChange", "If False, do not handle topology change"))
     #ifdef SOFA_SMP
     , previousProcessorColor(false)
     #endif
@@ -1203,12 +1204,12 @@ void VisualModelImpl::updateVisual()
             sofa::core::topology::TopologyModifier* topoMod;
             this->getContext()->get(topoMod);
 
-            if (topoMod)
+            if (topoMod && m_handleTopologyChange.getValue())
             {
                 useTopology = false; // dynamic topology
                 computeMesh();
             }
-            else if (topoMod == NULL && (m_topology->getRevision() != lastMeshRev))  // static topology
+            else if (m_topology->getRevision() != lastMeshRev)
             {
                 computeMesh();
             }
@@ -1355,6 +1356,14 @@ void VisualModelImpl::computeMesh()
         }
         m_positions.endEdit();
     }
+    else
+    {
+        unsigned int size = m_topology->getNbPoints();
+        sofa::helper::WriteAccessor< sofa::Data<sofa::defaulttype::ResizableExtVector<sofa::defaulttype::ExtVec3fTypes::Coord> > > pos = m_positions;
+        sofa::helper::WriteAccessor< sofa::Data<sofa::defaulttype::ResizableExtVector<sofa::defaulttype::ExtVec3fTypes::Deriv> > > normals = m_vnormals;
+        pos.resize(size);
+        normals.resize(size);
+    }
 
     lastMeshRev = m_topology->getRevision();
 
@@ -1389,6 +1398,7 @@ void VisualModelImpl::computeMesh()
 
 void VisualModelImpl::handleTopologyChange()
 {
+    if (!m_handleTopologyChange.getValue()) return;
     if (!m_topology) return;
     //if (!m_vertPosIdx.getValue().empty()) return;
 
