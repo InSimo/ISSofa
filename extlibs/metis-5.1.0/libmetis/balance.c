@@ -40,7 +40,7 @@ void Balance2Way(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts)
 **************************************************************************/
 void Bnd2WayBalance(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts)
 {
-  idx_t i, ii, j, k, kwgt, nvtxs, nbnd, nswaps, from, to, pass, me, tmp;
+  idx_t i, ii, j, k, kwgt, nvtxs, nbnd, nswaps, from, to, tmp;
   idx_t *xadj, *vwgt, *adjncy, *adjwgt, *where, *id, *ed, *bndptr, *bndind, *pwgts;
   idx_t *moved, *perm;
   rpq_t *queue;

@@ -148,7 +148,7 @@ graph_t *CoarsenGraphNlevels(ctrl_t *ctrl, graph_t *graph, idx_t nlevels)
 /**************************************************************************/
 idx_t Match_RM(ctrl_t *ctrl, graph_t *graph)
 {
-  idx_t i, pi, ii, j, jj, jjinc, k, nvtxs, ncon, cnvtxs, maxidx, last_unmatched;
+  idx_t i, pi, j, k, nvtxs, ncon, cnvtxs, maxidx, last_unmatched;
   idx_t *xadj, *vwgt, *adjncy, *adjwgt, *maxvwgt;
   idx_t *match, *cmap, *perm;
   size_t nunmatched=0;
@@ -275,7 +275,7 @@ idx_t Match_RM(ctrl_t *ctrl, graph_t *graph)
 /**************************************************************************/
 idx_t Match_SHEM(ctrl_t *ctrl, graph_t *graph)
 {
-  idx_t i, pi, ii, j, jj, jjinc, k, nvtxs, ncon, cnvtxs, maxidx, maxwgt, 
+  idx_t i, pi, j, jjinc, k, nvtxs, ncon, cnvtxs, maxidx, maxwgt, 
         last_unmatched, avgdegree;
   idx_t *xadj, *vwgt, *adjncy, *adjwgt, *maxvwgt;
   idx_t *match, *cmap, *degrees, *perm, *tperm;
