@@ -385,7 +385,7 @@ void McRandomBisection(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts,
 void McGrowBisection(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts, 
          idx_t niparts)
 {
-  idx_t i, j, k, nvtxs, ncon, from, bestcut=0, mincut, inbfs;
+  idx_t k, nvtxs, from, bestcut=0, mincut, inbfs;
   idx_t *bestwhere, *where;
 
   WCOREPUSH;
@@ -434,9 +434,9 @@ void GrowBisectionNode(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts,
          idx_t niparts)
 {
   idx_t i, j, k, nvtxs, drain, nleft, first, last, pwgts[2], oneminpwgt, 
-        onemaxpwgt, from, me, bestcut=0, icut, mincut, inbfs;
+        onemaxpwgt, bestcut=0, mincut, inbfs;
   idx_t *xadj, *vwgt, *adjncy, *adjwgt, *where, *bndind;
-  idx_t *queue, *touched, *gain, *bestwhere;
+  idx_t *queue, *touched, *bestwhere;
 
   WCOREPUSH;
 
@@ -570,7 +570,7 @@ void GrowBisectionNode(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts,
 void GrowBisectionNode2(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts, 
          idx_t niparts)
 {
-  idx_t i, j, k, nvtxs, bestcut=0, mincut, inbfs;
+  idx_t i, j, nvtxs, bestcut=0, inbfs;
   idx_t *xadj, *where, *bndind, *bestwhere;
 
   WCOREPUSH;
