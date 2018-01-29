@@ -27,6 +27,7 @@
 #include <sofa/defaulttype/Vec3Types.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/core/ObjectFactory.h>
+#include <sofa/core/objectmodel/KeypressedEvent.h>
 
 namespace sofa
 {
@@ -80,6 +81,11 @@ void BaseMouseInteractor::cleanup()
         removeInteractionPerformer(*performers.begin());
     }
     lastPicked=BodyPicked();
+    if (m_bodyHighlighted)
+    {
+        m_bodyHighlighted->setColor4f(m_bodyHighlightedOriginalColor); // restore old color
+        m_bodyHighlighted = nullptr;
+    }
 }
 
 
@@ -89,6 +95,31 @@ void BaseMouseInteractor::handleEvent(core::objectmodel::Event *e)
     for (; it!=it_end; ++it)
     {
         (*it)->handleEvent(e);
+    }
+    if (core::objectmodel::KeypressedEvent* keypressed = core::objectmodel::KeypressedEvent::DynamicCast(e))
+    {
+        switch (keypressed->getKey())
+        {
+        case 'C':
+            for (auto body : m_taggedBodies)
+            {
+                if (body)
+                {
+                    std::cout << "Enable picking on model " << body->getName() << std::endl;
+                    body->removeTag(core::objectmodel::Tag("NoPicking"));
+                }
+            }
+            m_taggedBodies.clear();
+            break;
+        case 'F':
+            if (lastPicked.body)
+            {
+                std::cout << "Disable picking on model " << lastPicked.body->getName() << std::endl;
+                lastPicked.body->addTag(core::objectmodel::Tag("NoPicking"));
+                m_taggedBodies.push_back(lastPicked.body);
+            }
+            break;
+        }
     }
 }
 
@@ -131,21 +162,27 @@ void BaseMouseInteractor::draw(const core::visual::VisualParams* vparams)
 
     if (lastPicked.body)
     {
-        if (isAttached)
-            glColor4f(1.0f,0.0f,0.0f,1.0f);
-        else
-            glColor4f(0.0f,1.0f,0.0f,1.0f);
+        {
+            if (m_bodyHighlighted != lastPicked.body)
+            {
+                if (m_bodyHighlighted)
+                {
+                    // restore old color
+                    m_bodyHighlighted->setColor4f(m_bodyHighlightedOriginalColor);
+                }
+                m_bodyHighlighted = lastPicked.body;
+                const float* originalColor = m_bodyHighlighted->getColor4f();
+                // save new original color
+                for (int i = 0; i < 4; ++i)
+                    m_bodyHighlightedOriginalColor[i] = originalColor[i];
 
-        glDisable(GL_LIGHTING);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glLineWidth(3);
-        lastPicked.body->draw(vparams,lastPicked.indexCollisionElement);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
-        glColor4f(1,1,1,1);
-        glLineWidth(1);
+                // set collision model color to selection color (orange)
+                m_bodyHighlighted->setColor4f(defaulttype::Vec4f(255.f, 69.f, 0.f, originalColor[3]).array());
+            }
+            std::vector<defaulttype::Vec3d> points = { lastPicked.point };
+            defaulttype::Vec4f color = (isAttached) ? defaulttype::Vec4f(1.0f, 0.0f, 0.0f, 0.5f) : defaulttype::Vec4f(0.0f, 1.0f, 0.0f, 0.5f);
+            vparams->drawTool()->drawPoints(points, 10.f, color);
+        }
     }
 #endif /* SOFA_NO_OPENGL */
 }

@@ -104,6 +104,9 @@ protected:
     SReal distanceFromMouse;
 
     VecPerformer performers;
+    core::CollisionModel *m_bodyHighlighted = nullptr;
+    std::vector<core::CollisionModel*> m_taggedBodies;
+    float m_bodyHighlightedOriginalColor[4];
 };
 
 
@@ -121,7 +124,7 @@ public:
     typedef sofa::component::container::MechanicalObject< DataTypes > MouseContainer;
     typedef typename DataTypes::Coord Coord;
 public:
-    MouseInteractor():mouseInSofa(NULL) {};
+    MouseInteractor():mouseInSofa(NULL) { this->f_listening.setValue(true); };
     ~MouseInteractor() {}
 
     void init();
