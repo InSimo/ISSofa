@@ -437,7 +437,7 @@ idx_t Match_2Hop(ctrl_t *ctrl, graph_t *graph, idx_t *perm, idx_t *match,
 idx_t Match_2HopAny(ctrl_t *ctrl, graph_t *graph, idx_t *perm, idx_t *match, 
           idx_t cnvtxs, size_t *r_nunmatched, size_t maxdegree)
 {
-  idx_t i, pi, ii, j, jj, k, nvtxs;
+  idx_t i, pi, j, jj, nvtxs;
   idx_t *xadj, *adjncy, *colptr, *rowind;
   idx_t *cmap;
   size_t nunmatched;
@@ -516,7 +516,7 @@ idx_t Match_2HopAny(ctrl_t *ctrl, graph_t *graph, idx_t *perm, idx_t *match,
 idx_t Match_2HopAll(ctrl_t *ctrl, graph_t *graph, idx_t *perm, idx_t *match, 
           idx_t cnvtxs, size_t *r_nunmatched, size_t maxdegree)
 {
-  idx_t i, pi, pk, ii, j, jj, k, nvtxs, mask, idegree;
+  idx_t i, pi, pk, j, jj, k, nvtxs, mask, idegree;
   idx_t *xadj, *adjncy;
   idx_t *cmap, *mark;
   ikv_t *keys;
@@ -621,7 +621,7 @@ void PrintCGraphStats(ctrl_t *ctrl, graph_t *graph)
 void CreateCoarseGraph(ctrl_t *ctrl, graph_t *graph, idx_t cnvtxs, 
          idx_t *match)
 {
-  idx_t j, jj, k, kk, l, m, istart, iend, nvtxs, nedges, ncon, cnedges, 
+  idx_t j, jj, k, kk, m, istart, iend, nvtxs, nedges, ncon, cnedges, 
         v, u, mask, dovsize;
   idx_t *xadj, *vwgt, *vsize, *adjncy, *adjwgt;
   idx_t *cmap, *htable;
@@ -932,7 +932,7 @@ void CreateCoarseGraphNoMask(ctrl_t *ctrl, graph_t *graph, idx_t cnvtxs,
 void CreateCoarseGraphPerm(ctrl_t *ctrl, graph_t *graph, idx_t cnvtxs, 
          idx_t *match, idx_t *perm)
 {
-  idx_t i, j, jj, k, kk, l, m, istart, iend, nvtxs, nedges, ncon, cnedges, 
+  idx_t i, j, jj, k, kk, m, istart, iend, nvtxs, nedges, ncon, cnedges, 
         v, u, mask, dovsize;
   idx_t *xadj, *vwgt, *vsize, *adjncy, *adjwgt;
   idx_t *cmap, *htable;

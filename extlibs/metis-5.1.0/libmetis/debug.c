@@ -338,8 +338,8 @@ idx_t IsSeparable(graph_t *graph)
 /*************************************************************************/
 void CheckKWayVolPartitionParams(ctrl_t *ctrl, graph_t *graph)
 {
-  idx_t i, ii, j, k, kk, l, nvtxs, nbnd, mincut, minvol, me, other, pid;
-  idx_t *xadj, *vsize, *adjncy, *pwgts, *where, *bndind, *bndptr;
+  idx_t i, ii, j, k, kk, nvtxs, me, other, pid;
+  idx_t *xadj, *vsize, *adjncy, *where;
   vkrinfo_t *rinfo, *myrinfo, *orinfo, tmprinfo;
   vnbr_t *mynbrs, *onbrs, *tmpnbrs;
 
