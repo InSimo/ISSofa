@@ -84,6 +84,50 @@ namespace simulation
 Node::SPtr Simulation::sRoot = NULL;
 
 using namespace sofa::defaulttype;
+
+void initializeGraph(sofa::simulation::Node* root)
+{
+    if (!root) return;
+
+    sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
+
+    // all the objects have now been created, update the links
+    root->execute<UpdateLinksVisitor>(params);
+
+    // apply the init() and bwdInit() methods to all the components.
+    // and put the VisualModels in a separate graph, rooted at getVisualRoot()
+    root->execute<InitVisitor>(params);
+
+    // Save reset state for later uses in reset()
+    root->execute<StoreResetStateVisitor>(params);
+    {
+        // Why do we need  a copy of the params here ?
+        sofa::core::MechanicalParams mparams(*params);
+        root->execute<MechanicalPropagatePositionAndVelocityVisitor>(&mparams);
+    }
+
+    root->execute<UpdateBoundingBoxVisitor>(params);
+
+    // propagate the visualization settings (showVisualModels, etc.) in the whole graph
+    sofa::core::visual::VisualParams* vparams = sofa::core::visual::VisualParams::defaultInstance();
+    sofa::core::visual::VisualLoop* vloop     = root->getVisualLoop();
+
+    if (vloop)
+    {
+        vloop->updateContextStep(vparams);
+    }
+}
+
+void cleanupGraph(sofa::simulation::Node* root)
+{
+    if (!root) return;
+    sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
+
+    root->detachFromGraph();
+    root->execute<CleanupVisitor>(params);
+    root->execute<DeleteVisitor>(params);
+}
+
 Simulation::Simulation()
 {
 }
@@ -189,25 +233,8 @@ void Simulation::init ( Node* root )
         root->addObject(vloop);
     }
 
-    // all the objects have now been created, update the links
-    root->execute<UpdateLinksVisitor>(params);
+    initializeGraph(root);
 
-    // apply the init() and bwdInit() methods to all the components.
-    // and put the VisualModels in a separate graph, rooted at getVisualRoot()
-    root->execute<InitVisitor>(params);
-
-    // Save reset state for later uses in reset()
-    root->execute<StoreResetStateVisitor>(params);
-    {
-        // Why do we need  a copy of the params here ?
-        sofa::core::MechanicalParams mparams(*params);
-        root->execute<MechanicalPropagatePositionAndVelocityVisitor>(&mparams);
-    }
-
-    root->execute<UpdateBoundingBoxVisitor>(params);
-
-    // propagate the visualization settings (showVisualModels, etc.) in the whole graph
-    updateVisualContext(root);
 }
 
 
