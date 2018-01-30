@@ -121,7 +121,8 @@ public:
     SOFA_CLASS(SOFA_TEMPLATE2(BarycentricMapperTetrahedronSetTopology,In,Out),SOFA_TEMPLATE2(BarycentricMapperTetrahedronSetTopologyRigid,In,Out));
     typedef BarycentricMapperTetrahedronSetTopologyRigid<In,Out> Inherit;
 
-    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology)
+    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
+                                            core::State<In>* stateFrom, core::State<Out>* stateTo)
         : Inherit(fromTopology, _toTopology)
     {}
 

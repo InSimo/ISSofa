@@ -244,7 +244,8 @@ public:
     BarycentricMapperMeshTopology<gpu::cuda::CudaVectorTypes<VecIn,VecIn,float>, gpu::cuda::CudaVectorTypes<VecOut,VecOut,float> > internalMapper;
 
 public:
-    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,helper::ParticleMask *_maskFrom,helper::ParticleMask *_maskTo)
+    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
+                                            core::State< In >* stateFrom, core::State< Out >* stateTo)
         : Inherit(fromTopology, _toTopology),
           internalMapper(fromTopology,_toTopology,_maskFrom,_maskTo)
     {}

@@ -743,7 +743,7 @@ void BarycentricMapperTriangleSetTopology<In,Out>::init(const typename Out::VecC
 
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCreateFunction(unsigned int t,
-    BaryTriangleInfo& baryTriangleInfo,
+    BaryElementInfo& baryTriangleInfo,
     const Triangle & triangle,
     const sofa::helper::vector< unsigned int >& ancestors,
     const sofa::helper::vector< double >& coeffs)
@@ -767,7 +767,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCr
     for (unsigned int ancestor : ancestors)
     {
         assert(ancestor < vBaryTriangleInfo.size());
-        BaryTriangleInfo& baryTriangleInfoA = vBaryTriangleInfo[ancestor];
+        BaryElementInfo& baryTriangleInfoA = vBaryTriangleInfo[ancestor];
         for (auto pointIncluded : baryTriangleInfoA.vPointsIncluded)
         {
             obj->m_dirtyPoints.emplace(pointIncluded);
@@ -779,7 +779,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCr
 
 
 template <class In, class Out>
-void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDestroyFunction(unsigned int t, BaryTriangleInfo& baryTriangleInfo)
+void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDestroyFunction(unsigned int t, BaryElementInfo& baryTriangleInfo)
 {
     for (auto pointIncluded : baryTriangleInfo.vPointsIncluded)
     {
@@ -796,8 +796,8 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::swap(un
 
     helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = obj->map;
 
-    const BaryTriangleInfo& baryTriangleInfo1 = vBaryTriangleInfo[i1];
-    const BaryTriangleInfo& baryTriangleInfo2 = vBaryTriangleInfo[i2];
+    const BaryElementInfo& baryTriangleInfo1 = vBaryTriangleInfo[i1];
+    const BaryElementInfo& baryTriangleInfo2 = vBaryTriangleInfo[i2];
     for (auto pointIncluded : baryTriangleInfo1.vPointsIncluded)
     {
         vectorData[pointIncluded].in_index = i2;
@@ -848,7 +848,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
         {
             sofa::defaulttype::Vec3d xTri = (m_useRestPosition && pIn.size() > 0) ? pIn[triangles[t][0]] : in[triangles[t][0]];
 
-            const BaryTriangleInfo& baryTriangleInfo = vBaryTriangleInfo[t];
+            const BaryElementInfo& baryTriangleInfo = vBaryTriangleInfo[t];
             const sofa::defaulttype::Mat3x3d& restBase = baryTriangleInfo.restBase;
             const sofa::defaulttype::Vector3& restCenter = baryTriangleInfo.restCenter;
 
@@ -989,8 +989,13 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::clear ( int reserve )
     helper::vector<MappingData>& vectorData = *(map.beginEdit());
     vectorData.clear(); if ( reserve>0 ) vectorData.reserve ( reserve );
     map.endEdit();
-}
 
+    helper::WriteAccessor<Data<VecBaryTetraInfo> > vBaryTetraInfo = d_vBaryTetraInfo;
+    vBaryTetraInfo.clear();
+
+    m_dirtyPoints.clear();
+}
+/*
 template <class In, class Out>
 int BarycentricMapperTetrahedronSetTopology<In,Out>::addPointInTetra ( const int tetraIndex, const SReal* baryCoords )
 {
@@ -1003,7 +1008,7 @@ int BarycentricMapperTetrahedronSetTopology<In,Out>::addPointInTetra ( const int
     data.baryCoords[1] = ( Real ) baryCoords[1];
     data.baryCoords[2] = ( Real ) baryCoords[2];
     return map.getValue().size()-1;
-}
+}*/
 
 //template <class In, class Out>
 //int BarycentricMapperTetrahedronSetTopology<In,Out>::createPointInTetra(const typename Out::Coord& p, int index, const typename In::VecCoord* points)
@@ -1012,48 +1017,31 @@ int BarycentricMapperTetrahedronSetTopology<In,Out>::addPointInTetra ( const int
 //}
 
 template <class In, class Out>
-void BarycentricMapperTetrahedronSetTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
+void BarycentricMapperTetrahedronSetTopology<In,Out>::init (const typename Out::VecCoord& out, const typename In::VecCoord& in)
 {
-    _fromContainer->getContext()->get ( _fromGeomAlgo );
+    m_fromContainer->getContext()->get(m_fromGeomAlgo);
 
-    int outside = 0;
-    const sofa::helper::vector<topology::Tetrahedron>& tetrahedra = this->fromTopology->getTetrahedra();
-
-    sofa::helper::vector< sofa::defaulttype::Matrix3> bases;
-    sofa::helper::vector< sofa::defaulttype::Vector3> centers;
-
-    clear ( out.size() );
-    bases.resize ( tetrahedra.size() );
-    centers.resize ( tetrahedra.size() );
-    for ( unsigned int t = 0; t < tetrahedra.size(); t++ )
+    if (m_fromContainer)
     {
-        sofa::defaulttype::Mat3x3d m,mt;
-        m[0] = in[tetrahedra[t][1]]-in[tetrahedra[t][0]];
-        m[1] = in[tetrahedra[t][2]]-in[tetrahedra[t][0]];
-        m[2] = in[tetrahedra[t][3]]-in[tetrahedra[t][0]];
-        mt.transpose ( m );
-        bases[t].invert ( mt );
-        centers[t] = ( in[tetrahedra[t][0]]+in[tetrahedra[t][1]]+in[tetrahedra[t][2]]+in[tetrahedra[t][3]] ) *0.25;
-    }
+        clear(out.size());
+        helper::WriteAccessor<Data<VecBaryTetraInfo> > vBaryTetraInfo = d_vBaryTetraInfo;
 
-    for ( unsigned int i=0; i<out.size(); i++ )
-    {
-        sofa::defaulttype::Vec3d pos = Out::getCPos(out[i]);
-        sofa::defaulttype::Vector3 coefs;
-        int index = -1;
-        double distance = 1e10;
-        for ( unsigned int t = 0; t < tetrahedra.size(); t++ )
+        const sofa::helper::vector<core::topology::Tetrahedron>& tetrahedra = this->m_fromContainer->getTetrahedra();
+        vBaryTetraInfo.resize(tetrahedra.size());
+
+        sofa::helper::vector<unsigned int> ancestorsIndex;
+        const sofa::helper::vector<double> ancestorsCoeff;
+
+        for (unsigned int t = 0; t < tetrahedra.size(); t++)
         {
-            sofa::defaulttype::Vec3d v = bases[t] * ( pos - in[tetrahedra[t][0]] );
-            double d = std::max ( std::max ( -v[0],-v[1] ),std::max ( -v[2],v[0]+v[1]+v[2]-1 ) );
-            if ( d>0 ) d = ( pos-centers[t] ).norm2();
-            if ( d<distance ) { coefs = v; distance = d; index = t; }
+            m_tetraInfoHandler.applyCreateFunction(t, vBaryTetraInfo[t], tetrahedra[t], ancestorsIndex, ancestorsCoeff);
         }
-        if ( distance>0 )
+
+        for (unsigned int i = 0; i < out.size(); ++i)
         {
-            ++outside;
+            m_dirtyPoints.emplace_back(i);
         }
-        addPointInTetra ( index, coefs.ptr() );
+        projectDirtyPoints(out, in);
     }
 }
 
@@ -1065,10 +1053,121 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::initTopologyChange()
         map.createTopologicalEngine(this->toTopology);
         map.registerTopologicalData();
     }
+    d_vBaryTetraInfo.createTopologicalEngine(m_fromContainer, &m_tetraInfoHandler);
+    d_vBaryTetraInfo.registerTopologicalData();
 }
 
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyCreateFunction(unsigned int t,
+    BaryElementInfo& baryElementInfo,
+    const Tetra& tetra,
+    const sofa::helper::vector<unsigned int>& ancestors,
+    const sofa::helper::vector<double>& coeffs)
+{
+    // Get restPositions
+    helper::ReadAccessor<Data<typename core::State<In>::VecCoord>> pIn = obj->m_useRestPosition ?
+            obj->m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition()) : obj->m_stateFrom->read(sofa::core::ConstVecCoordId::position());
 
+    sofa::defaulttype::Mat3x3d m;
+    m[0] = In::getCPos(pIn[tetra[1]]) - In::getCPos(pIn[tetra[0]]);
+    m[1] = In::getCPos(pIn[tetra[2]]) - In::getCPos(pIn[tetra[0]]);
+    m[2] = In::getCPos(pIn[tetra[3]]) - In::getCPos(pIn[tetra[0]]);
+    sofa::defaulttype::Mat3x3d mTranspose;
+    mTranspose.transpose(m);
 
+    baryElementInfo.restBase.invert(mTranspose);
+    baryElementInfo.restCenter = (In::getCPos(pIn[tetra[0]]) + In::getCPos(pIn[tetra[1]]) + In::getCPos(pIn[tetra[2]]) + In::getCPos(pIn[tetra[3]])) * 0.25;
+
+    helper::WriteAccessor<Data<VecBaryTetraInfo>> vBaryTetraInfo = obj->d_vBaryTetraInfo;
+
+    for (unsigned int ancestor : ancestors)
+    {
+        assert(ancestor < vBaryTetraInfo.size());
+        BaryElementInfo& baryTriangleInfoA = vBaryTetraInfo[ancestor];
+        obj->m_dirtyPoints.insert(obj->m_dirtyPoints.end(), baryTriangleInfoA.vPointsIncluded.begin(), baryTriangleInfoA.vPointsIncluded.end());
+        baryTriangleInfoA.vPointsIncluded.clear();
+    }
+}
+
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyDestroyFunction(unsigned int t, BaryElementInfo& baryTetraInfo)
+{
+    obj->m_dirtyPoints.insert(obj->m_dirtyPoints.end(), baryTetraInfo.vPointsIncluded.begin(), baryTetraInfo.vPointsIncluded.end());
+    baryTetraInfo.vPointsIncluded.clear();
+}
+
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::swap(unsigned int i1, unsigned int i2)
+{
+    helper::ReadAccessor<Data<VecBaryTetraInfo> > vBaryTetraInfo = obj->d_vBaryTetraInfo;
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = obj->map;
+
+    const BaryElementInfo& baryTetraInfo1 = vBaryTetraInfo[i1];
+    const BaryElementInfo& baryTetraInfo2 = vBaryTetraInfo[i2];
+    for (auto pointIncluded : baryTetraInfo1.vPointsIncluded)
+    {
+        vectorData[pointIncluded].in_index = i2;
+    }
+
+    for (auto pointIncluded : baryTetraInfo2.vPointsIncluded)
+    {
+        vectorData[pointIncluded].in_index = i1;
+    }
+
+    component::topology::TopologyDataHandler<Tetra, VecBaryTetraInfo >::swap(i1, i2);
+}
+
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in)
+{
+    if (m_dirtyPoints.empty() || !m_fromContainer) return;
+
+    // Get restPositions
+    helper::ReadAccessor<Data<typename core::State<In>::VecCoord>> pIn = m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition());
+    helper::ReadAccessor<Data<typename core::State<Out>::VecCoord>> pOut = m_stateTo->read(sofa::core::ConstVecCoordId::restPosition());
+
+    // Evaluate dirty projections : fill in d_vBaryTetraInfo and map
+    helper::WriteAccessor<Data<VecBaryTetraInfo>> vBaryTetraInfo = d_vBaryTetraInfo;
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData>>> vectorData = map;
+    vectorData.resize(out.size());
+
+    const sofa::helper::vector<core::topology::Tetrahedron>& tetra = this->fromTopology->getTetrahedra();
+
+    assert(tetra.size() == vBaryTetraInfo.size());
+
+    for (auto dirtyPoint : m_dirtyPoints)
+    {
+        sofa::defaulttype::Vec3d pos = (m_useRestPosition && pOut.size() > 0) ? Out::getCPos(pOut[dirtyPoint]) : Out::getCPos(out[dirtyPoint]);
+        sofa::defaulttype::Vector3 coefs;
+        int index = -1;
+        double distance = std::numeric_limits<double>::max();
+
+        for (unsigned int t = 0; t < tetra.size(); t++)
+        {
+            sofa::defaulttype::Vec3d xTetra = (m_useRestPosition && pIn.size() > 0) ? In::getCPos(pIn[tetra[t][0]]) : In::getCPos(in[tetra[t][0]]);
+
+            const BaryElementInfo& baryTetraInfo = vBaryTetraInfo[t];
+            const sofa::defaulttype::Mat3x3d& restBase = baryTetraInfo.restBase;
+            const sofa::defaulttype::Vector3& restCenter = baryTetraInfo.restCenter;
+
+            sofa::defaulttype::Vec3d v = restBase * (pos - xTetra);
+            double d = std::max(std::max(-v[0], -v[1]), std::max(-v[2], v[0] + v[1] + v[2] - 1));
+            if (d > 0) d = (pos - restCenter).norm2();
+            if (d < distance) { coefs = v; distance = d; index = t; }
+        }
+
+        vBaryTetraInfo[index].vPointsIncluded.emplace_back(dirtyPoint);
+
+        assert(dirtyPoint < vectorData.size());
+        MappingData& mapData = vectorData[dirtyPoint];
+        mapData.in_index = index;
+        mapData.baryCoords[0] = (Real)coefs[0];
+        mapData.baryCoords[1] = (Real)coefs[1];
+        mapData.baryCoords[2] = (Real)coefs[2];
+    }
+
+    m_dirtyPoints.clear();
+}
 
 template <class In, class Out>
 void BarycentricMapperHexahedronSetTopology<In,Out>::clear ( int reserve )
@@ -1199,7 +1298,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
             if (t2 != NULL)
             {
                 typedef BarycentricMapperTetrahedronSetTopology<InDataTypes, OutDataTypes> TetrahedronSetMapper;
-                mapper = sofa::core::objectmodel::New<TetrahedronSetMapper>(t2, toTopoCont);
+                mapper = sofa::core::objectmodel::New<TetrahedronSetMapper>(t2, toTopoCont, this->fromModel, this->toModel);
             }
             else
             {
@@ -1586,6 +1685,11 @@ void BarycentricMapperQuadSetTopology<In,Out>::apply ( typename Out::VecCoord& o
 template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::apply ( typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
+    if (!m_dirtyPoints.empty())
+    {
+        projectDirtyPoints(out, in);
+    }
+
     out.resize ( map.getValue().size() );
     const sofa::helper::vector<topology::Tetrahedron>& tetrahedra = this->fromTopology->getTetrahedra();
     for ( unsigned int i=0; i<map.getValue().size(); i++ )

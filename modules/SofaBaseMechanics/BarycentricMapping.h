@@ -537,6 +537,28 @@ public:
 
 };
 
+struct BaryElementInfo
+{
+    using PointID = core::topology::Topology::PointID;
+
+    sofa::helper::vector<PointID> vPointsIncluded; // ID of the points that are projected on the element
+    sofa::defaulttype::Mat3x3d restBase;           // Base matrix used in the projection computation (in restPositions)
+    sofa::defaulttype::Vector3 restCenter;         // Center of the element (in restPositions)
+
+    inline friend std::ostream& operator<< (std::ostream& os, const BaryElementInfo& baryElementInfo)
+    {
+        os << " vPointsIncluded = " << baryElementInfo.vPointsIncluded
+            << " restBase = " << baryElementInfo.restBase
+            << " restCenter = " << baryElementInfo.restCenter
+            << "\n";
+        return os;
+    }
+    inline friend std::istream& operator >> (std::istream& in, BaryElementInfo&)
+    {
+        return in;
+    }
+};
+
 /// Class allowing barycentric mapping computation on a EdgeSetTopology
 template<class In, class Out>
 class BarycentricMapperEdgeSetTopology : public TopologyBarycentricMapper<In,Out>
@@ -647,31 +669,9 @@ public:
     typedef typename Inherit::MBloc MBloc;
     typedef typename Inherit::MatrixType MatrixType;
 
-    // topologyData mechanism to handle topology changes (public) 
-    struct BaryTriangleInfo
-    {
-        sofa::helper::vector<PointID> vPointsIncluded;  // ID of the points that are projected on the triangle
-        sofa::defaulttype::Mat3x3d restBase;                // base matrix used in the projection computation (in restPositions)
-        sofa::defaulttype::Vector3 restCenter;              // center of the triangle (in restPositions)
 
-        BaryTriangleInfo() {}
-        ~BaryTriangleInfo() {}
-
-        inline friend std::ostream& operator<< (std::ostream& os, const BaryTriangleInfo& baryTriangleInfo)
-        {
-            os << " vPointsIncluded = " << baryTriangleInfo.vPointsIncluded
-                << " restBase = " << baryTriangleInfo.restBase
-                << " restCenter = " << baryTriangleInfo.restCenter
-                << "\n";
-            return os;
-        }
-        inline friend std::istream& operator >> (std::istream& in, BaryTriangleInfo& baryTriangleInfo)
-        {
-            return in;
-        }
-    };
-
-    typedef typename sofa::helper::vector<BaryTriangleInfo> VecBaryTriangleInfo;
+    // topologyData mechanism to handle topology changes (public)
+    typedef typename sofa::helper::vector<BaryElementInfo> VecBaryTriangleInfo;
     sofa::component::topology::TriangleData<VecBaryTriangleInfo> d_vBaryTriangleInfo;
     // END topologyData mechanism (public)
 
@@ -700,12 +700,12 @@ protected:
         {}
 
         virtual void applyCreateFunction(unsigned int t,
-            BaryTriangleInfo& baryTriangleInfo,
+            BaryElementInfo& baryTriangleInfo,
             const Triangle & triangle,
             const sofa::helper::vector< unsigned int >& ancestors,
             const sofa::helper::vector< double >& coeffs) override;
 
-        virtual void applyDestroyFunction(unsigned int t, BaryTriangleInfo& baryTriangleInfo) override;
+        virtual void applyDestroyFunction(unsigned int t, BaryElementInfo& baryTriangleInfo) override;
         virtual void swap(unsigned int i1, unsigned int i2) override;
 
         //TODO
@@ -892,6 +892,7 @@ public:
     typedef typename Inherit::InDeriv  InDeriv;
     typedef typename Inherit::MappingData3D MappingData;
 
+    typedef core::topology::Topology::PointID PointID;
     typedef typename In::VecCoord VecCoord;
 
     enum { NIn = Inherit::NIn };
@@ -899,34 +900,79 @@ public:
     typedef typename Inherit::MBloc MBloc;
     typedef typename Inherit::MatrixType MatrixType;
 
+    typedef typename sofa::helper::vector<BaryElementInfo> VecBaryTetraInfo;
+    topology::TetrahedronData<VecBaryTetraInfo> d_vBaryTetraInfo;
+
 protected:
-    topology::PointData< sofa::helper::vector<MappingData > >  map;
+    topology::PointData<sofa::helper::vector<MappingData>> map;
 
     VecCoord actualTetraPosition;
 
-    topology::TetrahedronSetTopologyContainer*			_fromContainer;
-    topology::TetrahedronSetGeometryAlgorithms<In>*	_fromGeomAlgo;
+    topology::TetrahedronSetTopologyContainer* m_fromContainer;
+    topology::TetrahedronSetGeometryAlgorithms<In>*	m_fromGeomAlgo = nullptr;
+    core::State< In >* m_stateFrom;
+    core::State< Out >* m_stateTo;
 
-    MatrixType* matrixJ;
+    MatrixType* matrixJ = nullptr;
     bool updateJ;
+    bool m_useRestPosition;
 
-    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology)
+    BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
+                                            core::State< In >* stateFrom, core::State< Out >* stateTo,
+                                            bool useRestPosition = false)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
-          _fromContainer(fromTopology),
-          _fromGeomAlgo(NULL),
-          matrixJ(NULL),
-          updateJ(true)
-    {}
+          m_fromContainer(fromTopology),
+          m_stateFrom(stateFrom),
+          m_stateTo(stateTo),
+          m_useRestPosition(useRestPosition),
+          updateJ(true),
+          d_vBaryTetraInfo(initData(&d_vBaryTetraInfo, "vBaryTetraInfo", "Vector of tetra information dedicated to topological changes")),
+          m_tetraInfoHandler(this, &d_vBaryTetraInfo)
+    {
+    }
 
     virtual ~BarycentricMapperTetrahedronSetTopology() {}
+
+    // topologyData mechanism to handle topology changes
+    class TetraInfoHandler : public sofa::component::topology::TopologyDataHandler<core::topology::Topology::Tetra, VecBaryTetraInfo>
+    {
+    public:
+        using Tetra = core::topology::Topology::Tetra;
+
+        typedef typename sofa::component::topology::TopologyDataHandler<Tetra, VecBaryTetraInfo> TopologyDataHandler;
+
+        TetraInfoHandler(BarycentricMapperTetrahedronSetTopology* mapper, topology::TetrahedronData<VecBaryTetraInfo>* data)
+            : TopologyDataHandler(data), obj(mapper)
+        {}
+
+        virtual void applyCreateFunction(unsigned int t,
+            BaryElementInfo& baryElementInfo,
+            const Tetra & tetra,
+            const sofa::helper::vector< unsigned int >& ancestors,
+            const sofa::helper::vector< double >& coeffs) override;
+
+        virtual void applyDestroyFunction(unsigned int t, BaryElementInfo& baryTetraInfo) override;
+        virtual void swap(unsigned int i1, unsigned int i2) override;
+
+        //TODO
+        //virtual void move(const sofa::helper::vector<unsigned int> &indexList,
+        //    const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestors,
+        //    const sofa::helper::vector< sofa::helper::vector< double > >& coefs);
+
+    protected:
+        BarycentricMapperTetrahedronSetTopology* obj;
+    };
+
+    TetraInfoHandler m_tetraInfoHandler;
+    std::vector<PointID> m_dirtyPoints;
+    // END topologyData mechanism
 
 public:
     void clear(int reserve=0);
 
-    int addPointInTetra(const int index, const SReal* baryCoords);
-
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
+    void projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in);
     /// Called if the mapper should setup handling of topological changes
     void initTopologyChange();
 
