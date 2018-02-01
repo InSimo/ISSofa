@@ -928,7 +928,8 @@ protected:
           m_useRestPosition(useRestPosition),
           updateJ(true),
           d_vBaryTetraInfo(initData(&d_vBaryTetraInfo, "vBaryTetraInfo", "Vector of tetra information dedicated to topological changes")),
-          m_tetraInfoHandler(this, &d_vBaryTetraInfo)
+          m_tetraInfoHandler(this, &d_vBaryTetraInfo),
+          m_vertexInfoHandler(this, &map)
     {
     }
 
@@ -964,6 +965,30 @@ protected:
         BarycentricMapperTetrahedronSetTopology* obj;
     };
 
+    class VertexInfoHandler : public sofa::component::topology::TopologyDataHandler<core::topology::Topology::Point, sofa::helper::vector<MappingData>>
+    {
+    public:
+        using Point = core::topology::Topology::Point;
+
+        using TopologyDataHandler = sofa::component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>>;
+
+        VertexInfoHandler(BarycentricMapperTetrahedronSetTopology* mapper, topology::PointData<sofa::helper::vector<MappingData>>* data)
+            : TopologyDataHandler(data), obj(mapper)
+        {}
+
+        virtual void applyCreateFunction(unsigned int t,
+            MappingData& vertexInfo,
+            const Point& vertex,
+            const sofa::helper::vector<unsigned int>& ancestors,
+            const sofa::helper::vector<double>& coeffs) override;
+
+        virtual void applyDestroyFunction(unsigned int t, MappingData& vertexInfo) override;
+        virtual void swap(unsigned int i1, unsigned int i2) override;
+    protected:
+        BarycentricMapperTetrahedronSetTopology* obj;
+    };
+
+    VertexInfoHandler m_vertexInfoHandler;
     TetraInfoHandler m_tetraInfoHandler;
     std::vector<PointID> m_dirtyPoints;
     // END topologyData mechanism

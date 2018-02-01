@@ -995,20 +995,6 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::clear ( int reserve )
 
     m_dirtyPoints.clear();
 }
-/*
-template <class In, class Out>
-int BarycentricMapperTetrahedronSetTopology<In,Out>::addPointInTetra ( const int tetraIndex, const SReal* baryCoords )
-{
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
-    vectorData.resize ( map.getValue().size() +1 );
-    MappingData& data = *vectorData.rbegin();
-    map.endEdit();
-    data.in_index = tetraIndex;
-    data.baryCoords[0] = ( Real ) baryCoords[0];
-    data.baryCoords[1] = ( Real ) baryCoords[1];
-    data.baryCoords[2] = ( Real ) baryCoords[2];
-    return map.getValue().size()-1;
-}*/
 
 //template <class In, class Out>
 //int BarycentricMapperTetrahedronSetTopology<In,Out>::createPointInTetra(const typename Out::Coord& p, int index, const typename In::VecCoord* points)
@@ -1050,7 +1036,7 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::initTopologyChange()
 {
     if (this->toTopology)
     {
-        map.createTopologicalEngine(this->toTopology);
+        map.createTopologicalEngine(this->toTopology, &m_vertexInfoHandler);
         map.registerTopologicalData();
     }
     d_vBaryTetraInfo.createTopologicalEngine(m_fromContainer, &m_tetraInfoHandler);
@@ -1079,19 +1065,29 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyCre
     baryElementInfo.restCenter = (In::getCPos(pIn[tetra[0]]) + In::getCPos(pIn[tetra[1]]) + In::getCPos(pIn[tetra[2]]) + In::getCPos(pIn[tetra[3]])) * 0.25;
 
     helper::WriteAccessor<Data<VecBaryTetraInfo>> vBaryTetraInfo = obj->d_vBaryTetraInfo;
-
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData>>> vectorData = obj->map;
     for (unsigned int ancestor : ancestors)
     {
         assert(ancestor < vBaryTetraInfo.size());
         BaryElementInfo& baryTriangleInfoA = vBaryTetraInfo[ancestor];
         obj->m_dirtyPoints.insert(obj->m_dirtyPoints.end(), baryTriangleInfoA.vPointsIncluded.begin(), baryTriangleInfoA.vPointsIncluded.end());
         baryTriangleInfoA.vPointsIncluded.clear();
+
+        for (auto ptId : baryTriangleInfoA.vPointsIncluded)
+        {
+            vectorData[ptId].in_index = -1;
+        }
     }
 }
 
 template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyDestroyFunction(unsigned int t, BaryElementInfo& baryTetraInfo)
 {
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData>>> vectorData = obj->map;
+    for (auto ptId : baryTetraInfo.vPointsIncluded)
+    {
+        vectorData[ptId].in_index = -1;
+    }
     obj->m_dirtyPoints.insert(obj->m_dirtyPoints.end(), baryTetraInfo.vPointsIncluded.begin(), baryTetraInfo.vPointsIncluded.end());
     baryTetraInfo.vPointsIncluded.clear();
 }
@@ -1099,22 +1095,100 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyDes
 template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::swap(unsigned int i1, unsigned int i2)
 {
-    helper::ReadAccessor<Data<VecBaryTetraInfo> > vBaryTetraInfo = obj->d_vBaryTetraInfo;
-    helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = obj->map;
+    helper::WriteAccessor<Data<VecBaryTetraInfo>> vBaryTetraInfo = obj->d_vBaryTetraInfo;
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData>>> vectorData = obj->map;
 
-    const BaryElementInfo& baryTetraInfo1 = vBaryTetraInfo[i1];
-    const BaryElementInfo& baryTetraInfo2 = vBaryTetraInfo[i2];
+    BaryElementInfo& baryTetraInfo1 = vBaryTetraInfo[i1];
+    BaryElementInfo& baryTetraInfo2 = vBaryTetraInfo[i2];
     for (auto pointIncluded : baryTetraInfo1.vPointsIncluded)
     {
-        vectorData[pointIncluded].in_index = i2;
+        vectorData[pointIncluded].in_index = -1; // Not i2 because i2 might be deleted
+        obj->m_dirtyPoints.emplace_back(pointIncluded);
     }
+    baryTetraInfo1.vPointsIncluded.clear();
 
     for (auto pointIncluded : baryTetraInfo2.vPointsIncluded)
     {
-        vectorData[pointIncluded].in_index = i1;
+        vectorData[pointIncluded].in_index = -1; // Not i1 because i1 might be deleted
+        obj->m_dirtyPoints.emplace_back(pointIncluded);
     }
+    baryTetraInfo2.vPointsIncluded.clear();
 
     component::topology::TopologyDataHandler<Tetra, VecBaryTetraInfo >::swap(i1, i2);
+}
+
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::VertexInfoHandler::applyCreateFunction(unsigned int t,
+    MappingData& vertexInfo,
+    const Point& vertex,
+    const sofa::helper::vector<unsigned int>& ancestors,
+    const sofa::helper::vector<double>& coeffs)
+{
+    obj->m_dirtyPoints.push_back(t);
+    vertexInfo.in_index = -1;
+}
+
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::VertexInfoHandler::applyDestroyFunction(unsigned int t, MappingData& vertexInfo)
+{
+    if (vertexInfo.in_index != -1)
+    {
+        helper::WriteAccessor<Data<VecBaryTetraInfo> > vBaryTetraInfo = obj->d_vBaryTetraInfo;
+        auto it = std::find(vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.begin(), vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.end(), t);
+        if (it != vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.end())
+        {
+            vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.erase(it);
+        }
+        vertexInfo.in_index = -1;
+    }
+
+    auto it = std::find(obj->m_dirtyPoints.begin(), obj->m_dirtyPoints.end(), t);
+    if (it != obj->m_dirtyPoints.end())
+    {
+        obj->m_dirtyPoints.erase(it);
+    }
+}
+
+template <class In, class Out>
+void BarycentricMapperTetrahedronSetTopology<In,Out>::VertexInfoHandler::swap(unsigned int i1, unsigned int i2)
+{
+    helper::WriteAccessor<Data<VecBaryTetraInfo>> vBaryTetraInfo = obj->d_vBaryTetraInfo;
+    helper::WriteAccessor<Data<sofa::helper::vector<MappingData>>> vectorData = obj->map;
+
+    if (vectorData[i1].in_index != -1)
+    {
+        auto it = std::find(vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.begin(), vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.end(), i1);
+        if (it != vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.end())
+        {
+            vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.erase(it);
+        }
+        vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.push_back(i2);
+    }
+
+    if (vectorData[i2].in_index != -1)
+    {
+        auto it = std::find(vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.begin(), vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.end(), i2);
+        if (it != vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.end())
+        {
+            vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.erase(it);
+        }
+        vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.push_back(i1);
+    }
+
+    auto it = std::find(obj->m_dirtyPoints.begin(), obj->m_dirtyPoints.end(), i1);
+    if (it != obj->m_dirtyPoints.end())
+    {
+        obj->m_dirtyPoints.erase(it);
+        obj->m_dirtyPoints.push_back(i2);
+    }
+    it = std::find(obj->m_dirtyPoints.begin(), obj->m_dirtyPoints.end(), i2);
+    if (it != obj->m_dirtyPoints.end())
+    {
+        obj->m_dirtyPoints.erase(it);
+        obj->m_dirtyPoints.push_back(i1);
+    }
+
+    component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>>::swap(i1, i2);
 }
 
 template <class In, class Out>
