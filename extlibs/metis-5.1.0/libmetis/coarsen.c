@@ -275,7 +275,7 @@ idx_t Match_RM(ctrl_t *ctrl, graph_t *graph)
 /**************************************************************************/
 idx_t Match_SHEM(ctrl_t *ctrl, graph_t *graph)
 {
-  idx_t i, pi, j, jjinc, k, nvtxs, ncon, cnvtxs, maxidx, maxwgt, 
+  idx_t i, pi, j, k, nvtxs, ncon, cnvtxs, maxidx, maxwgt, 
         last_unmatched, avgdegree;
   idx_t *xadj, *vwgt, *adjncy, *adjwgt, *maxvwgt;
   idx_t *match, *cmap, *degrees, *perm, *tperm;

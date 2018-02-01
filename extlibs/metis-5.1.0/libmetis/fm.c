@@ -207,7 +207,7 @@ void FM_2WayCutRefine(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts, idx_t niter
 void FM_Mc2WayCutRefine(ctrl_t *ctrl, graph_t *graph, real_t *ntpwgts, idx_t niter)
 {
   idx_t i, ii, j, k, l, kwgt, nvtxs, ncon, nbnd, nswaps, from, to, pass, 
-        me, limit, tmp, cnum;
+        limit, tmp, cnum;
   idx_t *xadj, *adjncy, *vwgt, *adjwgt, *pwgts, *where, *id, *ed, 
         *bndptr, *bndind;
   idx_t *moved, *swaps, *perm, *qnum;
