@@ -2319,6 +2319,12 @@ void TetrahedronFEMForceField<DataTypes>::handleEvent(core::objectmodel::Event *
                 if (youngModulus[i]>maxYoung) maxYoung=youngModulus[i];
             }
 
+            if (needUpdateTopology)
+            {
+                reinit();
+                needUpdateTopology = false;
+            }
+
             unsigned int i;
             typename VecElement::const_iterator it;
             for(it = _indexedElements->begin(), i = 0 ; it != _indexedElements->end() ; ++it, ++i)
