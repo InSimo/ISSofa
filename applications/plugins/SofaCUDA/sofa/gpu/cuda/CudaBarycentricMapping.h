@@ -245,7 +245,7 @@ public:
 
 public:
     BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
-                                            core::State< In >* stateFrom, core::State< Out >* stateTo)
+                                            core::State< In >* stateFrom, core::State< Out >* stateTo, bool useRestPosition)
         : Inherit(fromTopology, _toTopology),
           internalMapper(fromTopology,_toTopology,_maskFrom,_maskTo)
     {}

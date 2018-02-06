@@ -1374,7 +1374,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
             if (t2 != NULL)
             {
                 typedef BarycentricMapperTetrahedronSetTopology<InDataTypes, OutDataTypes> TetrahedronSetMapper;
-                mapper = sofa::core::objectmodel::New<TetrahedronSetMapper>(t2, toTopoCont, this->fromModel, this->toModel);
+                mapper = sofa::core::objectmodel::New<TetrahedronSetMapper>(t2, toTopoCont, this->fromModel, this->toModel, useRestPosition.getValue());
             }
             else
             {
