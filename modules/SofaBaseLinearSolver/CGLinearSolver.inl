@@ -118,7 +118,8 @@ void CGLinearSolver<TMatrix,TVector>::solve(Matrix& M, Vector& x, Vector& b)
     if( verbose )
         sout<<"CGLinearSolver, b = "<< b <<sendl;
 
-    if( f_warmStart.getValue() )
+    double normb = b.norm();
+    if( f_warmStart.getValue() && normb != 0.0 )
     {
         r = M * x;
         r.eq( b, r, -1.0 );   //  initial residual r = b - Ax;
@@ -129,14 +130,13 @@ void CGLinearSolver<TMatrix,TVector>::solve(Matrix& M, Vector& x, Vector& b)
         r = b; // initial residual
     }
 
-    double normb = b.norm();
     std::map < std::string, sofa::helper::vector<double> >& graph = *f_graph.beginEdit();
     sofa::helper::vector<double>& graph_error = graph[(this->isMultiGroup()) ? this->currentNode->getName()+std::string("-Error") : std::string("Error")];
     graph_error.clear();
     sofa::helper::vector<double>& graph_den = graph[(this->isMultiGroup()) ? this->currentNode->getName()+std::string("-Denominator") : std::string("Denominator")];
     graph_den.clear();
     graph_error.push_back(1);
-    unsigned nb_iter;
+    unsigned nb_iter = 0;
     const char* endcond = "iterations";
 
 #ifdef DISPLAY_TIME
@@ -147,6 +147,7 @@ void CGLinearSolver<TMatrix,TVector>::solve(Matrix& M, Vector& x, Vector& b)
 #ifdef SOFA_DUMP_VISITOR_INFO
     simulation::Visitor::printCloseNode("VectorAllocation");
 #endif
+    if (normb != 0.0) // prevent entering the loop if there are no DOFs or no force applied
     for( nb_iter=1; nb_iter<=f_maxIter.getValue(); nb_iter++ )
     {
 #ifdef SOFA_DUMP_VISITOR_INFO
