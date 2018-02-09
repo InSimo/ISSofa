@@ -27,6 +27,10 @@
 
 #include <sofa/SofaFramework.h>
 
+#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+#include <signal.h>
+#endif
+
 namespace sofa
 {
 
@@ -47,8 +51,13 @@ public:
 
 protected:
 
-    /// Callback for signals
-    static void sig(int sig);
+#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+    /// Callback for Linux signals
+    static void sig(int sig, siginfo_t *siginfo, void *);
+
+    /// Print current floating point exceptions (only useful when SIGFPE is received on Linux)
+    static void printFPE(int si_code);
+#endif
 };
 
 } // namespace helper

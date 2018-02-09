@@ -24,9 +24,6 @@
 ******************************************************************************/
 #include <sofa/helper/BackTrace.h>
 
-#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
-#include <signal.h>
-#endif
 #if !defined(WIN32) && !defined(_XBOX) && !defined(__APPLE__) && !defined(PS3)
 #include <execinfo.h>
 #include <unistd.h>
@@ -113,26 +110,50 @@ void BackTrace::dump()
 void BackTrace::autodump()
 {
 #if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
-    signal(SIGSEGV, BackTrace::sig);
-    signal(SIGILL, BackTrace::sig);
-    signal(SIGFPE, BackTrace::sig);
-    signal(SIGPIPE, BackTrace::sig);
-    signal(SIGINT, BackTrace::sig);
-    signal(SIGTERM, BackTrace::sig);
+    struct sigaction action;
+    action.sa_sigaction = BackTrace::sig;
+    action.sa_flags = SA_SIGINFO;
+    sigfillset(&action.sa_mask);
+
+    sigaction(SIGSEGV, &action, NULL);
+    sigaction(SIGILL, &action, NULL);
+    sigaction(SIGFPE, &action, NULL);
+    sigaction(SIGPIPE, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
 #endif
 }
 
-void BackTrace::sig(int sig)
-{
 #if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
-    fprintf(stderr,"\n########## SIG %d ##########\n",sig);
+void BackTrace::sig(int sig, siginfo_t *siginfo, void *)
+{
+    fprintf(stderr,"\n########## SIG %d (%s) ##########\n", sig, strsignal(sig));
+    if (sig == SIGFPE)
+    {
+        printFPE(siginfo->si_code);
+    }
+
     dump();
-    signal(sig,SIG_DFL);
+    signal(sig, SIG_DFL);
     raise(sig);
-#else
-    fprintf(stderr,"\nERROR: BackTrace::sig(%d) not supported.\n",sig);
-#endif
 }
+
+void BackTrace::printFPE(int si_code)
+{
+    switch (si_code)
+    {
+    case FPE_INTDIV: fprintf(stderr, "Integer divide by zero"); break;
+    case FPE_INTOVF: fprintf(stderr, "Integer overflow"); break;
+    case FPE_FLTDIV: fprintf(stderr, "Floating-point divide by zero"); break;
+    case FPE_FLTOVF: fprintf(stderr, "Floating-point overflow"); break;
+    case FPE_FLTUND: fprintf(stderr, "Floating-point underflow"); break;
+    case FPE_FLTRES: fprintf(stderr, "Floating-point inexact result"); break;
+    case FPE_FLTINV: fprintf(stderr, "Floating-point invalid operation"); break;
+    case FPE_FLTSUB: fprintf(stderr, "Subscript out of range"); break;
+    }
+    fprintf(stderr, "\n");
+}
+#endif
 
 } // namespace helper
 
