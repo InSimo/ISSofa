@@ -32,8 +32,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CUR
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:${CSPARSE_INSTALL_INCLUDE_DIR}>")
 
 # The code must be relocatable if we want to link a shared library against it
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
-        OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
+        OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE "-fPIC")
 endif()
 
