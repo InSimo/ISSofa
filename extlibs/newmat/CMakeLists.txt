@@ -58,8 +58,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:${NEWMAT_
 target_compile_definitions(${PROJECT_NAME} PRIVATE "use_namespace")
 
 # The code must be relocatable if we want to link a shared library against it
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
-        OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
+        OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE "-fPIC")
 endif()
 
