@@ -158,6 +158,11 @@ public:
     virtual void addDForce(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv1& df1, DataVecDeriv2& df2, const DataVecDeriv1& dx1, const DataVecDeriv2& dx2);
     ///SOFA_DEPRECATED_ForceField <<<virtual void addDForce(VecDeriv1& df1, VecDeriv2& df2, const VecDeriv1& dx1, const VecDeriv2& dx2);
 
+    template<class MatrixWriter>
+    void addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter m);
+
+    virtual void addKToMatrix(const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* /* matrix */);
+
     virtual double getPotentialEnergy(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, const DataVecCoord1& x1, const DataVecCoord2& x2)const;
     ///SOFA_DEPRECATED_ForceField <<<virtual double getPotentialEnergy(const VecCoord1& x1, const VecCoord2& x2) const;
 
