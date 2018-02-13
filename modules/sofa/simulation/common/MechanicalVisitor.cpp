@@ -1217,6 +1217,12 @@ void MechanicalComputeDfVisitor::bwdMechanicalState(simulation::Node* , core::be
 {
 }
 
+Visitor::Result MechanicalComputeGeometricStiffness::fwdMechanicalMapping(simulation::Node* /*node*/, core::BaseMapping* map)
+{
+    map->updateK( mparams, childForce );
+    return RESULT_CONTINUE;
+}
+
 
 Visitor::Result MechanicalAddMBKdxVisitor::fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* /*mm*/)
 {
