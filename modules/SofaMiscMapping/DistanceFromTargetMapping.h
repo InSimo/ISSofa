@@ -114,10 +114,11 @@ public:
 
     virtual void applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST  = core::MechanicalParams::defaultInstance()*/, core::MultiVecDerivId parentForce, core::ConstMultiVecDerivId  childForce );
 
-    virtual const defaulttype::BaseMatrix* getK();
-
     virtual const sofa::defaulttype::BaseMatrix* getJ();
     virtual const vector<sofa::defaulttype::BaseMatrix*>* getJs();
+
+    virtual void updateK( const core::MechanicalParams* mparams, core::ConstMultiVecDerivId childForce );
+    virtual const defaulttype::BaseMatrix* getK();
 
     virtual void draw(const core::visual::VisualParams* vparams);
     float _arrowSize;
