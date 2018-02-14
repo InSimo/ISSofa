@@ -5,6 +5,7 @@ project(SofaFramework_test)
 set(SOURCE_FILES
     main.cpp
     defaulttype/MapMapSparseMatrix_test.cpp
+    defaulttype/MapMapSparseMatrixEigenUtils_test.cpp
     defaulttype/VecTypesTest.cpp
     #defaulttype/MatTypesTest.cpp
     defaulttype/RigidMass_test.cpp
