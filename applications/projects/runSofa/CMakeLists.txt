@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
+# Offer the user the choice of overriding the installation directories
+set(RUNSOFA_INSTALL_BIN_DIR     bin                      CACHE PATH "Installation directory for executables relative to CMAKE_INSTALL_PREFIX variable")
+
 find_package(SofaGeneral REQUIRED)
 find_package(SofaMisc    REQUIRED)
-#if( NOT TARGET SofaGuiCommon )
-#    find_package(SofaGui     REQUIRED)
-#endif()
 
 project(runSofa)
 
@@ -36,11 +36,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CUR
 set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
 
 install(TARGETS ${PROJECT_NAME}
-        COMPONENT SofaGui_applications
-        EXPORT  SofaGuiTargets
-        RUNTIME DESTINATION "${SOFAGUI_INSTALL_BIN_DIR}"
-        LIBRARY DESTINATION "${SOFAGUI_INSTALL_LIB_DIR}"
-        ARCHIVE DESTINATION "${SOFAGUI_INSTALL_LIB_DIR}"
+        COMPONENT SofaApplications
+        RUNTIME DESTINATION "${RUNSOFA_INSTALL_BIN_DIR}"
+        ARCHIVE DESTINATION "${RUNSOFA_INSTALL_BIN_DIR}"
         )
-        
-# note: pas de headers à installer ici
