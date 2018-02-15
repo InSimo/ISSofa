@@ -30,7 +30,51 @@
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/core/MechanicalParams.h>
+#include <sofa/core/dataparser/DataParserRegistry.h>
+#include <sofa/defaulttype/AbstractTypeInfo.h>
+#include <sofa/defaulttype/StructTypeInfo.h>
+#include <sofa/core/objectmodel/Data.h>
+namespace sofa
+{
 
+namespace component
+{
+
+namespace interactionforcefield
+{
+
+template<typename TDataTypes>
+class TContact
+{
+    typedef TDataTypes DataTypes1;
+    typedef typename DataTypes1::Deriv    Deriv1;
+    typedef typename DataTypes1::Real     Real1;
+    enum { N=DataTypes1::spatial_dimensions };
+    typedef defaulttype::Mat<N,N,Real1> Mat;
+public:
+    int index;
+    Deriv1 pos,force, posXform;
+    sofa::defaulttype::Vec<3,SReal> bras_levier;
+    Mat m;
+    TContact( int index=0, const Mat& m=Mat())
+        : index(index), m(m)
+    {
+    }
+
+SOFA_STRUCT_DECL(TContact, index, pos, force, posXform, m);
+SOFA_STRUCT_STREAM_METHODS(TContact);
+SOFA_STRUCT_COMPARE_METHOD(TContact);
+
+};
+
+}
+}
+}
+
+typedef sofa::component::interactionforcefield::TContact<sofa::defaulttype::Vec3dTypes> ContactVec3d;
+typedef sofa::component::interactionforcefield::TContact<sofa::defaulttype::Vec3fTypes> ContactVec3f;
+SOFA_STRUCT_DEFINE_TYPEINFO(ContactVec3d);
+SOFA_STRUCT_DEFINE_TYPEINFO(ContactVec3f);
 
 
 namespace sofa
@@ -69,6 +113,7 @@ public:
     typedef typename DataTypes2::Deriv    Deriv2;
     typedef typename DataTypes2::Real     Real2;
 
+    typedef TContact<DataTypes1>  Contact;
     typedef core::objectmodel::Data<VecCoord1>    DataVecCoord1;
     typedef core::objectmodel::Data<VecDeriv1>    DataVecDeriv1;
     typedef core::objectmodel::Data<VecCoord2>    DataVecCoord2;
@@ -79,31 +124,6 @@ public:
     enum { N=DataTypes1::spatial_dimensions };
     typedef defaulttype::Mat<N,N,Real1> Mat;
 protected:
-    class Contact
-    {
-    public:
-        int index;
-        Deriv1 pos,force;
-        sofa::defaulttype::Vec<3,SReal> bras_levier;
-        Mat m;
-        Contact( int index=0, const Mat& m=Mat())
-            : index(index), m(m)
-        {
-        }
-
-        inline friend std::istream& operator >> ( std::istream& in, Contact& c )
-        {
-            in>>c.index>>c.m;
-            return in;
-        }
-
-        inline friend std::ostream& operator << ( std::ostream& out, const Contact& c )
-        {
-            out << c.index << " " << c.m ;
-            return out;
-        }
-
-    };
 
     Data<sofa::helper::vector<Contact> > contacts;
 
