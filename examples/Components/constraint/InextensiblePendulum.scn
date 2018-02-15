@@ -5,7 +5,7 @@
 <Node   name="Root" gravity="0 -10 0" time="0" animate="0"  dt="0.01" >
     <VisualStyle displayFlags="hideVisualModels showBehaviorModels showMappings showForceFields" />
     <FreeMotionAnimationLoop solveVelocityConstraintFirst="true" />
-    <GenericConstraintSolver tolerance="1e-9" iterations="1000"/>
+    <GenericConstraintSolver tolerance="1e-9" maxIterations="1000"/>
     <!-- resolution = number of particles (including the fixed one) -->
     <!-- scale = total length of the pendulum -->
     <!-- 1m long wire -->
@@ -17,7 +17,7 @@
     
     <Node  name="withImplicitConstraintForce" >
         <TransformEngine name="translate" input_position="@../loader.position" translation="0 0 0" />
-        <EulerImplicitSolver />
+        <EulerImplicitSolver rayleighStiffness="0" rayleighMass="0" />
         <SparseCholeskySolver />
         <GenericConstraintCorrection />
 
@@ -25,8 +25,8 @@
         <MechanicalObject name="defoDOF" template="Vec3d"  />
         <EdgeSetGeometryAlgorithms drawEdges="true" />
         <FixedConstraint indices="0" />
-        <! -- 1 g for the total mass of the wire --> 
-        <DiagonalMass  name="mass" totalMass="1e-3"/>
+        <! -- 1 g for the total mass of the wire  -->
+        <UniformMass  name="mass" totalMass ="1"/>
         <MappingGeometricStiffnessForceField mapping="@./extensionsNode/distanceMapping" />
         <Node name="extensionsNode" >
             <MechanicalObject template="Vec1d"  name="extensionsDOF" />
@@ -37,7 +37,7 @@
     
     <Node  name="withoutImplicitConstraintForce" >
         <TransformEngine name="translate" input_position="@../loader.position" translation="0 0 -2" />
-        <EulerImplicitSolver />
+        <EulerImplicitSolver rayleighStiffness="0" rayleighMass="0" />
         <SparseCholeskySolver />
         <GenericConstraintCorrection />
         <!-- resolution = number of particles (including the fixed one) -->
@@ -46,8 +46,7 @@
         <MechanicalObject name="defoDOF" template="Vec3d"  />
         <EdgeSetGeometryAlgorithms drawEdges="true" />
         <FixedConstraint indices="0" />
-        <! -- 1 g for the total mass of the wire --> 
-        <DiagonalMass  name="mass" totalMass="1e-3"/>
+        <UniformMass  name="mass" totalMass ="1"/>
         <Node name="extensionsNode" >
             <MechanicalObject template="Vec1d"  name="extensionsDOF" />
             <DistanceMapping  name="distanceMapping" />
