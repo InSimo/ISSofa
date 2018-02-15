@@ -137,8 +137,8 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     cparams.setOrder(m_solveVelocityConstraintFirst.getValue() ? core::ConstraintParams::VEL : core::ConstraintParams::POS_AND_VEL);
 
     {
-        MultiVecDeriv dx(&vop, core::VecDerivId::dx() ); dx.realloc( &vop, true, true );
-        MultiVecDeriv df(&vop, core::VecDerivId::dforce() ); df.realloc( &vop, true, true );
+        MultiVecDeriv dx(&vop, cparams.dx() ); dx.realloc( &vop, true, true );
+        MultiVecDeriv lambda(&vop, cparams.lambda() ); lambda.realloc( &vop, true, true );
     }
 
     // This solver will work in freePosition and freeVelocity vectors.
