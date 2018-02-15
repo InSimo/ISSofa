@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(CpuFeatures VERSION 0.1.0)
+project(cpu_features VERSION 0.1.0)
 
-# Default Build Type to be Release
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
+set(CPU_FEATURES_BUILD_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CPU_FEATURES_BUILD_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set(CPU_FEATURES_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(CPU_FEATURES_BUILD_CMAKE_DIR ${CMAKE_BINARY_DIR}/cpu_features/)
+
+# Offer the user the choice of overriding the installation directories
+set(CPU_FEATURES_INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
+set(CPU_FEATURES_INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
+set(CPU_FEATURES_INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(CPU_FEATURES_INSTALL_CMAKE_DIR   ${CPU_FEATURES_INSTALL_LIB_DIR}/cmake/cpu_features)
 
 # BUILD_TESTING is a standard CMake variable, but we declare it here to make it
 # prominent in the GUI.
@@ -15,7 +19,6 @@ option(BUILD_TESTING "Enable test (depends on googletest)." OFF)
 # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to make
 # it prominent in the GUI.
 option(BUILD_SHARED_LIBS "Build library as shared." OFF)
-
 #
 # library : cpu_features
 #
@@ -27,7 +30,7 @@ set(_HDRS
   include/cpuinfo_x86.h
 )
 
-add_library(cpu_features
+set(HEADER_FILES
   ${_HDRS}
   include/internal/bit_utils.h
   include/internal/linux_features_aggregator.h
@@ -37,6 +40,9 @@ add_library(cpu_features
   include/internal/stack_line_reader.h
   include/internal/string_view.h
   include/cpu_features_macros.h
+)
+
+set(SOURCE_FILES
   src/linux_features_aggregator.c
   src/cpuid_x86_clang_gcc.c
   src/cpuid_x86_msvc.c
@@ -50,17 +56,20 @@ add_library(cpu_features
   src/string_view.c
 )
 
-target_include_directories(cpu_features
+add_library(${PROJECT_NAME} STATIC ${HEADER_FILES} ${SOURCE_FILES})
+
+
+target_include_directories(${PROJECT_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/cpu_features>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
   PRIVATE
   include/internal
 )
-set_target_properties(cpu_features PROPERTIES PUBLIC_HEADER "${_HDRS}")
-target_compile_definitions(cpu_features
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${_HDRS}")
+target_compile_definitions(${PROJECT_NAME}
   PUBLIC STACK_LINE_READER_BUFFER_SIZE=1024)
-target_link_libraries(cpu_features PUBLIC ${CMAKE_DL_LIBS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_DL_LIBS})
 
 # The use of shared libraries is discouraged.
 # For API / ABI compatibility reasons, it is recommended to build and use
@@ -70,13 +79,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 add_library(CpuFeature::cpu_features ALIAS cpu_features)
 
-#
-# program : list_cpu_features
-#
-
-add_executable(list_cpu_features src/list_cpu_features.c)
-target_link_libraries(list_cpu_features PRIVATE cpu_features)
-add_executable(CpuFeature::list_cpu_features ALIAS list_cpu_features)
+set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
 
 #
 # tests
@@ -84,79 +87,41 @@ add_executable(CpuFeature::list_cpu_features ALIAS list_cpu_features)
 
 include(CTest)
 if(BUILD_TESTING)
-  # Automatically incorporate googletest into the CMake Project if target not
-  # found.
-  if(NOT TARGET gtest OR NOT TARGET gmock_main)
-    # Download and unpack googletest at configure time.
-    configure_file(
-      cmake/googletest.CMakeLists.txt.in
-      googletest-download/CMakeLists.txt
-    )
-
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-      RESULT_VARIABLE result
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download)
-
-    if(result)
-      message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-    endif()
-
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} --build .
-      RESULT_VARIABLE result
-      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download)
-
-    if(result)
-      message(FATAL_ERROR "Build step for googletest failed: ${result}")
-    endif()
-
-    # Prevent overriding the parent project's compiler/linker settings on
-    # Windows.
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    # Add googletest directly to our build. This defines the gtest and
-    # gtest_main targets.
-    add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
-                     ${CMAKE_BINARY_DIR}/googletest-build
-                     EXCLUDE_FROM_ALL)
+  if(TARGET gtest OR TARGET gmock_main)
+    add_subdirectory(test)
   endif()
-
-  add_subdirectory(test)
 endif()
 
 #
 # Install
 #
 
-include(GNUInstallDirs)
-install(TARGETS cpu_features list_cpu_features
-  EXPORT CpuFeaturesTargets
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cpu_features
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-install(EXPORT CpuFeaturesTargets
-  NAMESPACE CpuFeatures::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CpuFeatures
-  COMPONENT Devel
-)
+install(TARGETS cpu_features
+        EXPORT  cpu_featuresTargets
+        RUNTIME DESTINATION "${CPU_FEATURES_INSTALL_BIN_DIR}" 
+        LIBRARY DESTINATION "${CPU_FEATURES_INSTALL_LIB_DIR}" 
+        ARCHIVE DESTINATION "${CPU_FEATURES_INSTALL_LIB_DIR}" 
+        PUBLIC_HEADER DESTINATION "${CPU_FEATURES_INSTALL_INCLUDE_DIR}/${PROJECT_NAME}" )
 include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/CpuFeaturesConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/CpuFeaturesConfig.cmake"
-  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CpuFeatures"
-  NO_SET_AND_CHECK_MACRO
-  NO_CHECK_REQUIRED_COMPONENTS_MACRO
-)
-write_basic_package_version_file(
-  "${PROJECT_BINARY_DIR}/CpuFeaturesConfigVersion.cmake"
-  COMPATIBILITY SameMajorVersion
-)
-install(
-  FILES
-  "${PROJECT_BINARY_DIR}/CpuFeaturesConfig.cmake"
-  "${PROJECT_BINARY_DIR}/CpuFeaturesConfigVersion.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/CpuFeatures"
-  COMPONENT Devel
-)
+
+# CpuFeaturesConfig.cmake (build tree)
+set(CPU_FEATURES_INCLUDE_DIR "${CPU_FEATURES_BUILD_INCLUDE_DIR}")
+configure_package_config_file(CpuFeaturesConfig.cmake.in 
+                              ${CPU_FEATURES_BUILD_CMAKE_DIR}/CpuFeaturesConfig.cmake
+                              INSTALL_DESTINATION ${CPU_FEATURES_BUILD_CMAKE_DIR}
+                              PATH_VARS CPU_FEATURES_INCLUDE_DIR)
+
+# CpuFeaturesConfig.cmake (installed)
+set(CPU_FEATURES_INCLUDE_DIR "${CPU_FEATURES_INSTALL_INCLUDE_DIR}")
+configure_package_config_file(CpuFeaturesConfig.cmake.in 
+                              ${CPU_FEATURES_BUILD_CMAKE_DIR}/CpuFeaturesConfigInstall.cmake
+                              INSTALL_DESTINATION ${CPU_FEATURES_INSTALL_CMAKE_DIR}
+                              PATH_VARS CPU_FEATURES_INCLUDE_DIR)
+
+install(FILES ${CPU_FEATURES_BUILD_CMAKE_DIR}/CpuFeaturesConfigInstall.cmake
+        DESTINATION ${CPU_FEATURES_INSTALL_CMAKE_DIR}
+        RENAME CpuFeaturesConfig.cmake)
+
+# CpuFeaturesTargets.cmake (installed)
+install(EXPORT cpu_featuresTargets
+        DESTINATION ${CPU_FEATURES_INSTALL_CMAKE_DIR})
