@@ -18,6 +18,9 @@ set(CPU_FEATURES_INSTALL_CMAKE_DIR   ${CPU_FEATURES_INSTALL_LIB_DIR}/cmake/cpu_f
 option(BUILD_TESTING "Enable test (depends on googletest)." OFF)
 # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to make
 # it prominent in the GUI.
+# The use of shared libraries is discouraged.
+# For API / ABI compatibility reasons, it is recommended to build and use
+# cpu_features in a subdirectory of your project or as an embedded dependency.
 option(BUILD_SHARED_LIBS "Build library as shared." OFF)
 #
 # library : cpu_features
@@ -71,12 +74,8 @@ target_compile_definitions(${PROJECT_NAME}
   PUBLIC STACK_LINE_READER_BUFFER_SIZE=1024)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_DL_LIBS})
 
-# The use of shared libraries is discouraged.
-# For API / ABI compatibility reasons, it is recommended to build and use
-# cpu_features in a subdirectory of your project or as an embedded dependency.
-if(BUILD_SHARED_LIBS)
-  set_property(TARGET cpu_features PROPERTY POSITION_INDEPENDENT_CODE ON)
-endif()
+# The code must be relocatable if we want to link a shared library against it
+set_property(TARGET cpu_features PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(CpuFeature::cpu_features ALIAS cpu_features)
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
