@@ -134,6 +134,8 @@ public:
     Data< Real > d_correctionPositionFactor;
 
     Data < bool > d_useOdeSolverIntegrationFactors;
+    Data < bool > d_computeConstraintWork;
+    Data < Real > d_work;
 
 private:
     // new :  for non building the constraint system during solving process //
