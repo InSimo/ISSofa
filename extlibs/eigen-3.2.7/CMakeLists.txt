@@ -4,7 +4,7 @@ project(Eigen)
 
 set(EIGEN_INSTALL_INCLUDE_DIR include    CACHE PATH "Installation directory for header files relative to CMAKE_INSTALL_PREFIX variable")
 set(EIGEN_ROOT ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Directory for find_package(Eigen3)")
-set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Directory for find_package(Eigen3)")
+set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Directory for find_package(Eigen3)")
 
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Eigen
