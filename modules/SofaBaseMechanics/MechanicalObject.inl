@@ -1529,7 +1529,7 @@ Data<typename MechanicalObject<DataTypes>::VecCoord>* MechanicalObject<DataTypes
             vectorsCoord[v.index]->beginEdit()->reserve(f_reserve.getValue());
             vectorsCoord[v.index]->endEdit();
         }
-        if( vectorsCoord[v.index]->getValue().size() != getSize() )
+        if( vectorsCoord[v.index]->getValue().size() != (unsigned int)getSize() )
         {
             vectorsCoord[v.index]->beginEdit()->resize( getSize() );
             vectorsCoord[v.index]->endEdit();
@@ -1593,7 +1593,7 @@ Data<typename MechanicalObject<DataTypes>::VecDeriv>* MechanicalObject<DataTypes
             vectorsDeriv[v.index]->beginEdit()->reserve(f_reserve.getValue());
             vectorsDeriv[v.index]->endEdit();
         }
-        if( vectorsDeriv[v.index]->getValue().size() != getSize() )
+        if( vectorsDeriv[v.index]->getValue().size() != (unsigned int)getSize() )
         {
             vectorsDeriv[v.index]->beginEdit()->resize( getSize() );
             vectorsDeriv[v.index]->endEdit();

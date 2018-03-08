@@ -227,7 +227,7 @@ void SubsetMapping<TIn, TOut>::apply ( const core::MechanicalParams* /*mparams*/
     
     if (f_resizeToModel.getValue() || this->toModel->getSize() < (int)indices.size())
     { 
-        if (this->toModel->getSize() != indices.size()) 
+        if ((unsigned int)this->toModel->getSize() != indices.size())
         { 
             this->toModel->resize(indices.size()); 
         } 
