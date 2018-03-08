@@ -49,8 +49,8 @@ TEST(UnitsTest, checkDataUnits)
     const defaulttype::AbstractMultiValueTypeInfo* typeMVInfo = typeInfo->MultiValueType();
     EXPECT_TRUE(typeMVInfo->FixedFinalSize());
     EXPECT_TRUE(typeMVInfo->getFinalValueType()->FixedFinalSize());
-    EXPECT_EQ(1, typeMVInfo->FinalSize());
-    EXPECT_EQ(1, typeMVInfo->finalSize(d_length.getValueVoidPtr()));
+    EXPECT_EQ(1u, typeMVInfo->FinalSize());
+    EXPECT_EQ(1u, typeMVInfo->finalSize(d_length.getValueVoidPtr()));
 
 
     //////////////////////////
@@ -113,7 +113,7 @@ TEST(UnitsTest, checkDataUnitsOnCoord)
     EXPECT_TRUE(typeInfo->IsContainer());
 
     const defaulttype::AbstractContainerTypeInfo* containerTypeInfo = typeInfo->ContainerType();
-    EXPECT_EQ(3, containerTypeInfo->containerSize(d_position.getValueVoidPtr()));
+    EXPECT_EQ(3u, containerTypeInfo->containerSize(d_position.getValueVoidPtr()));
 }
 
 

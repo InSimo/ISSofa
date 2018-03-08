@@ -21,10 +21,10 @@ TEST(ptr_stable_id, CheckPtrStableId)
     unsigned int id_d = stableId(&d);
 
 
-    EXPECT_EQ(0, id_a);
-    EXPECT_EQ(1, id_b);
-    EXPECT_EQ(2, id_c);
-    EXPECT_EQ(3, id_d);
+    EXPECT_EQ(0u, id_a);
+    EXPECT_EQ(1u, id_b);
+    EXPECT_EQ(2u, id_c);
+    EXPECT_EQ(3u, id_d);
 }
 
 
@@ -44,10 +44,10 @@ TEST(map_ptr_stable_compare, checkMapPtrStableCompareOrdering)
 
     IntegerStableId* idMap = map.key_comp().get_stable_id_map();
 
-    EXPECT_EQ(idMap->id(&b), 0);
-    EXPECT_EQ(idMap->id(&d), 1);
-    EXPECT_EQ(idMap->id(&a), 2);
-    EXPECT_EQ(idMap->id(&c), 3);
+    EXPECT_EQ(idMap->id(&b), 0u);
+    EXPECT_EQ(idMap->id(&d), 1u);
+    EXPECT_EQ(idMap->id(&a), 2u);
+    EXPECT_EQ(idMap->id(&c), 3u);
 
     typename IntegerMap::const_iterator it = map.begin();
 
@@ -82,10 +82,10 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableCompareOrdering)
 
     IntegerPairStableId* idMap = map.key_comp().get_stable_id_map();
 
-    EXPECT_EQ(idMap->id(std::make_pair(&a, &a)), 0);
-    EXPECT_EQ(idMap->id(std::make_pair(&a, &b)), 1);
-    EXPECT_EQ(idMap->id(std::make_pair(&b, &b)), 2);
-    EXPECT_EQ(idMap->id(std::make_pair(&b, &c)), 3);
+    EXPECT_EQ(idMap->id(std::make_pair(&a, &a)), 0u);
+    EXPECT_EQ(idMap->id(std::make_pair(&a, &b)), 1u);
+    EXPECT_EQ(idMap->id(std::make_pair(&b, &b)), 2u);
+    EXPECT_EQ(idMap->id(std::make_pair(&b, &c)), 3u);
 
     typename IntegerPairMap::const_iterator it = map.begin();
 
@@ -204,12 +204,12 @@ TEST(map_ptr_stable_compare, CheckIdMapDoesNotPersistsAfterClear)
 
     IntegerStableId* idMap = map.key_comp().get_stable_id_map();
 
-    EXPECT_EQ(map.size(), 4);
+    EXPECT_EQ(map.size(), 4u);
 
     map.clear();
 
-    EXPECT_EQ(map.size(), 0);
-    EXPECT_EQ(idMap->getMap().size(), 0);
+    EXPECT_EQ(map.size(), 0u);
+    EXPECT_EQ(idMap->getMap().size(), 0u);
 }
 
 
@@ -230,20 +230,20 @@ TEST(map_ptr_stable_compare, CheckIdMapPtrStableConsistencyAfterErase)
     const StableMapID& mapId = map.key_comp().get_stable_id_map()->getMap();
 
 
-    ASSERT_EQ(4, map.size());
-    ASSERT_EQ(4, mapId.size());
+    ASSERT_EQ(4u, map.size());
+    ASSERT_EQ(4u, mapId.size());
 
     // Size consistency after erase by key
     map.erase(&b);
-    ASSERT_EQ(3, map.size());
-    EXPECT_EQ(3, mapId.size());
+    ASSERT_EQ(3u, map.size());
+    EXPECT_EQ(3u, mapId.size());
     EXPECT_EQ(mapId.end(), mapId.find(&b));
 
     // Size consistency after erase by it
     typename IntegerMap::iterator itC = map.find(&c);
     map.erase(itC);
-    ASSERT_EQ(2, map.size());
-    EXPECT_EQ(2, mapId.size());
+    ASSERT_EQ(2u, map.size());
+    EXPECT_EQ(2u, mapId.size());
     EXPECT_EQ(mapId.end(), mapId.find(&c));
 
     typename IntegerMap::const_iterator it = map.begin();
@@ -275,20 +275,20 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
     const StableMapID& mapId = map.key_comp().get_stable_id_map()->getMap();
 
     // Size consistency after erase by key
-    ASSERT_EQ(7, map.size());
+    ASSERT_EQ(7u, map.size());
     map.erase(std::make_pair(&b, &b));
     
-    ASSERT_EQ(6, map.size());
+    ASSERT_EQ(6u, map.size());
 
     // Size consistency after erase by it
     typename IntegerPairMap::iterator itC  = map.find(std::make_pair(&c, &c));
     map.erase(itC);
-    ASSERT_EQ(5, map.size());
-    EXPECT_EQ(5, mapId.size());
+    ASSERT_EQ(5u, map.size());
+    EXPECT_EQ(5u, mapId.size());
     EXPECT_EQ(mapId.end(), mapId.find(std::make_pair(&c, &c)));
     map.erase(std::make_pair(&c, &c));
-    ASSERT_EQ(5, map.size());
-    EXPECT_EQ(5, mapId.size());    
+    ASSERT_EQ(5u, map.size());
+    EXPECT_EQ(5u, mapId.size());
 
     typename IntegerPairMap::const_iterator it = map.begin();
 
@@ -305,9 +305,9 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
 
     map.erase(itEraseBegin, map.end());
 
-    ASSERT_EQ(1, map.size());
+    ASSERT_EQ(1u, map.size());
     EXPECT_EQ(map.begin()->second, a);
-    EXPECT_EQ(1, mapId.size());
+    EXPECT_EQ(1u, mapId.size());
     EXPECT_EQ(mapId.begin(), mapId.find(std::make_pair(&a, &a)));
 }
 
@@ -471,12 +471,12 @@ TEST(map_ptr_stable_compare, checkMapPtrStableLookupFunctions)
 
     // Count 0
     size_t count0C = map.count(&c);
-    EXPECT_EQ(count0C, 0);
+    EXPECT_EQ(count0C, 0u);
 
     // Count 1
     map[&c] = c;
     size_t count1C = map.count(&c);
-    EXPECT_EQ(count1C, 1);
+    EXPECT_EQ(count1C, 1u);
 
     // Find
     typename IntegerMap::const_iterator itFindKey = map.find(&b);
@@ -497,13 +497,13 @@ TEST(map_ptr_stable_compare, checkMapPairPtrStableLookupFunctions)
 
     // Count 0
     size_t count0C = map.count(std::make_pair(&b, &c));
-    EXPECT_EQ(count0C, 0);
+    EXPECT_EQ(count0C, 0u);
     count0C = map.count(std::make_pair(&b, &c));
 
     // Count 1
     map[std::make_pair(&b, &c)] = c;
     size_t count1C = map.count(std::make_pair(&b, &c));
-    EXPECT_EQ(count1C, 1);
+    EXPECT_EQ(count1C, 1u);
 
     // Find
     typename IntegerPairMap::const_iterator itFindKey = map.find(std::make_pair(&a, &b));
@@ -534,7 +534,7 @@ TEST(map_ptr_stable_compare, checkEraseThenInsertGivesAnotherKey)
 
     map.erase(key);
 
-    ASSERT_EQ(2, map.size());
+    ASSERT_EQ(2u, map.size());
 
     it = idMap->getMap().find(key);
     EXPECT_EQ(idMap->getMap().end(), it);

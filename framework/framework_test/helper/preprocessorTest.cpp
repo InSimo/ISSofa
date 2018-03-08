@@ -13,7 +13,7 @@ TEST(SofaPreprocessorTest, VectorSize)
     std::vector<const char*> text_vector;
 
     SOFA_FOR_EACH(SOFA_PP_TEST_ADD_VECTOR, SOFA_EMPTY_DELIMITER, "I", "am", "afraid", "I", "can't", "do", "that", "Dave")
-    EXPECT_EQ(8, text_vector.size());
+    EXPECT_EQ(8u, text_vector.size());
 }
 
 TEST(SofaPreprocessorTest, ToString)
@@ -21,7 +21,7 @@ TEST(SofaPreprocessorTest, ToString)
     std::vector<const char*> text_vector;
     SOFA_FOR_EACH(SOFA_PP_TEST_ADD_VECTOR, SOFA_EMPTY_DELIMITER,
      SOFA_TO_STRING(Never, send, a, human, to, do, a, machine s, job))
-        EXPECT_EQ(9, text_vector.size());
+        EXPECT_EQ(9u, text_vector.size());
 }
 
 TEST(SofaPreprocessorTest, EmptyArgs)
@@ -31,12 +31,12 @@ TEST(SofaPreprocessorTest, EmptyArgs)
     std::vector<const char*> text_vector;
     SOFA_FOR_EACH(SOFA_PP_TEST_ADD_VECTOR, SOFA_EMPTY_DELIMITER, SOFA_EMPTY)
 
-    EXPECT_EQ(0, text_vector.size());
+    EXPECT_EQ(0u, text_vector.size());
 
     SOFA_FOR_EACH(SOFA_PP_TEST_ADD_VECTOR, SOFA_EMPTY_DELIMITER,
      SOFA_TO_STRING())
 
-    EXPECT_EQ(0, text_vector.size());
+    EXPECT_EQ(0u, text_vector.size());
 }
 
 }

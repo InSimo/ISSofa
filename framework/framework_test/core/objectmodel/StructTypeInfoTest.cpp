@@ -394,27 +394,27 @@ TEST(DataStructTypeInfoTest2, checkSimpleCopy)
     {
         Data<test_struct::EmptyStruct> data("EmptyStruct");
         EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
-        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 0);
+        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 0u);
     }
     {
         Data<test_struct::SimpleStruct> data("SimpleStruct");
         EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
-        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 12);
+        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 12u);
     }
     {
         Data<test_struct::NestedStruct> data("NestedStruct");
         EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
-        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 12);
+        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 12u);
     }
     {
         Data<test_struct::ContainerStruct> data("ContainerStruct");
         EXPECT_FALSE(data.getValueTypeInfo()->SimpleCopy());
-        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 0);
+        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 0u);
     }
     {
         Data<test_struct::TemplatedStruct<int, test_struct::SimpleStruct>> data("TemplatedStruct<int, SimpleStruct>");
         EXPECT_TRUE(data.getValueTypeInfo()->SimpleCopy());
-        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 16);
+        EXPECT_EQ(data.getValueTypeInfo()->byteSize(data.getValueVoidPtr()), 16u);
     }
 }
 

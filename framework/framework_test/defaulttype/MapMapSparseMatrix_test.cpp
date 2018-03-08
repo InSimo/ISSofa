@@ -111,7 +111,7 @@ namespace
 	//////////////////////////////////////////////////
 	TEST(SparseMatrixTest, CheckThatTheSizeOfASparseMatrixIsZeroAfterInstanciation)
 	{
-		EXPECT_EQ(0, Matrix().size());
+        EXPECT_EQ(0u, Matrix().size());
 	}
 
 	//////////////////////////////////////////////////
@@ -121,7 +121,7 @@ namespace
 
 		matrix.writeLine(42);
 
-		EXPECT_EQ(1, matrix.size());
+        EXPECT_EQ(1u, matrix.size());
 	}
 
 	//////////////////////////////////////////////////
@@ -134,7 +134,7 @@ namespace
 		    matrix.writeLine(456);
         }
 
-		EXPECT_EQ(2, matrix.size());
+        EXPECT_EQ(2u, matrix.size());
 	}
 
 	//////////////////////////////////////////////////
@@ -147,7 +147,7 @@ namespace
 		    matrix.writeLine(123);
         }
 
-		EXPECT_EQ(1, matrix.size());
+        EXPECT_EQ(1u, matrix.size());
 	}
 
 	//////////////////////////////////////////////////
@@ -176,9 +176,9 @@ namespace
             matrix.writeLine(789);
         }
 
-		EXPECT_EQ(123, matrix.readLine(123).index());
-		EXPECT_EQ(456, matrix.readLine(456).index());
-        EXPECT_EQ(789, matrix.readLine(789).index());
+        EXPECT_EQ(123u, matrix.readLine(123).index());
+        EXPECT_EQ(456u, matrix.readLine(456).index());
+        EXPECT_EQ(789u, matrix.readLine(789).index());
 	}
 
 	//////////////////////////////////////////////////
@@ -188,7 +188,7 @@ namespace
 
 		matrix.writeLine(42);
 
-		EXPECT_EQ(42, matrix.begin().index());
+        EXPECT_EQ(42u, matrix.begin().index());
 	}
 
     //////////////////////////////////////////////////
@@ -934,7 +934,7 @@ namespace
 
         Matrix::ColIterator itData = itRow.begin();
 
-        for (int i = 0; i < line.initialDataCount - 1; i++)  {
+        for (unsigned int i = 0; i < line.initialDataCount - 1; i++)  {
             ++itData;
         }
 
@@ -1064,7 +1064,7 @@ namespace
             row.erase(line.data3.index);
         }
 
-        EXPECT_EQ(0, itRow.row().size());
+        EXPECT_EQ(0u, itRow.row().size());
 	}
 
     //////////////////////////////////////////////////
@@ -1130,7 +1130,7 @@ namespace
 
 		Matrix::RowConstIterator itRow = matrix.readLine(rowIndex);
 		Matrix::ColConstIterator itData = itRow.begin();
-		EXPECT_EQ(123, itData.index());
+        EXPECT_EQ(123u, itData.index());
 	}
 
     //////////////////////////////////////////////////
@@ -1148,7 +1148,7 @@ namespace
 
         Matrix::RowIterator itRow = matrix.writeLine(rowIndex);
 		Matrix::ColIterator itData = itRow.begin();
-		EXPECT_EQ(123, itData.index());
+        EXPECT_EQ(123u, itData.index());
 	}
 
 	//////////////////////////////////////////////////
@@ -1489,7 +1489,7 @@ namespace
 
             ++itCol;
 
-            EXPECT_EQ(456, itCol.index());
+            EXPECT_EQ(456u, itCol.index());
             EXPECT_EQ(Matrix::Data(4, 5, 6), itCol.val());
         }
 
@@ -1501,7 +1501,7 @@ namespace
 
             ++itCol;
 
-            EXPECT_EQ(852, itCol.index());
+            EXPECT_EQ(852u, itCol.index());
             EXPECT_EQ(Matrix::Data(8, 5, 2), itCol.val());
         }
 	}
@@ -1536,7 +1536,7 @@ namespace
 
             ++itCol;
 
-            EXPECT_EQ(456, itCol.index());
+            EXPECT_EQ(456u, itCol.index());
             EXPECT_EQ(Matrix::Data(4, 5, 6), itCol.val());
         }
 
@@ -1548,7 +1548,7 @@ namespace
 
             ++itCol;
 
-            EXPECT_EQ(852, itCol.index());
+            EXPECT_EQ(852u, itCol.index());
             EXPECT_EQ(Matrix::Data(8, 5, 2), itCol.val());
         }
 	}
@@ -1584,7 +1584,7 @@ namespace
 
             ++itCol;
 
-            EXPECT_EQ(852, itCol.index());
+            EXPECT_EQ(852u, itCol.index());
             EXPECT_EQ(Matrix::Data(8, 5, 2), itCol.val());
         }
     }

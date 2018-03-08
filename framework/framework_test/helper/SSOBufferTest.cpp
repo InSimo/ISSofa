@@ -128,10 +128,10 @@ TEST(SSOBufferTest, smallBufferTest)
         auto& it = buffer_third.getOrCreate<VecConstIterator>()->get();
         EXPECT_EQ(4, std::distance(vecDouble.cbegin(), it));
     }
-    EXPECT_EQ(2, DefaultConstructionNumber);
-    EXPECT_EQ(1, MoveConstructionNumber);
-    EXPECT_EQ(1, CopyConstructionNumber);
-    EXPECT_EQ(3, DestructionNumber);
+    EXPECT_EQ(2u, DefaultConstructionNumber);
+    EXPECT_EQ(1u, MoveConstructionNumber);
+    EXPECT_EQ(1u, CopyConstructionNumber);
+    EXPECT_EQ(3u, DestructionNumber);
 }
 
 TEST(SSOBufferTest, largeBufferTest)
@@ -164,10 +164,10 @@ TEST(SSOBufferTest, largeBufferTest)
         auto& doubles = buffer_third.getOrCreate<Array>()->get(); 
         EXPECT_EQ(1.1, doubles[1]);
     }
-    EXPECT_EQ(2, DefaultConstructionNumber);
-    EXPECT_EQ(0, MoveConstructionNumber);
-    EXPECT_EQ(1, CopyConstructionNumber);
-    EXPECT_EQ(2, DestructionNumber);
+    EXPECT_EQ(2u, DefaultConstructionNumber);
+    EXPECT_EQ(0u, MoveConstructionNumber);
+    EXPECT_EQ(1u, CopyConstructionNumber);
+    EXPECT_EQ(2u, DestructionNumber);
 }
 
 TEST(SSOBufferTest, smallAndLargeMixedTest)
@@ -192,10 +192,10 @@ TEST(SSOBufferTest, smallAndLargeMixedTest)
         doubles = vecDouble.cbegin();
         EXPECT_EQ(1.0, *doubles.get());
     }
-    EXPECT_EQ(2, DefaultConstructionNumber);
-    EXPECT_EQ(0, MoveConstructionNumber);
-    EXPECT_EQ(0, CopyConstructionNumber);
-    EXPECT_EQ(1, DestructionNumber);
+    EXPECT_EQ(2u, DefaultConstructionNumber);
+    EXPECT_EQ(0u, MoveConstructionNumber);
+    EXPECT_EQ(0u, CopyConstructionNumber);
+    EXPECT_EQ(1u, DestructionNumber);
 }
 
 }

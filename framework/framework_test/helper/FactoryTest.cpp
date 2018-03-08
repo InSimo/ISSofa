@@ -63,7 +63,7 @@ TEST( FactoryTest, CheckIterators)
 
 TEST( FactoryTest, CheckSingleObject)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("h2g2"));
+    EXPECT_TRUE(MyFactory::HasKey("h2g2"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("h2g2",1337);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(42, p->getT());
@@ -72,14 +72,14 @@ TEST( FactoryTest, CheckSingleObject)
 
 TEST( FactoryTest, CheckMissingKey)
 {
-    EXPECT_EQ(false, MyFactory::HasKey("h2o"));
+    EXPECT_FALSE(MyFactory::HasKey("h2o"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("h2o",1);
     EXPECT_EQ(nullptr, p.get());
 }
 
 TEST( FactoryTest, CheckMultiObject)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("multi"));
+    EXPECT_TRUE(MyFactory::HasKey("multi"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("multi",2);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(111, p->getT());
@@ -88,7 +88,7 @@ TEST( FactoryTest, CheckMultiObject)
 
 TEST( FactoryTest, CheckCreatorFn)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("top2"));
+    EXPECT_TRUE(MyFactory::HasKey("top2"));
     std::unique_ptr<FactoryBaseObject> pEven = MyFactory::CreateObject("top2",666);
     EXPECT_EQ(nullptr, pEven.get());
     std::unique_ptr<FactoryBaseObject> pOdd = MyFactory::CreateObject("top2",667);
@@ -99,7 +99,7 @@ TEST( FactoryTest, CheckCreatorFn)
 
 TEST( FactoryTest, CheckAnyObject)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("top"));
+    EXPECT_TRUE(MyFactory::HasKey("top"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateAnyObject(666);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(1000, p->getT());
@@ -108,7 +108,7 @@ TEST( FactoryTest, CheckAnyObject)
 
 TEST( FactoryTest, CheckCreatorFnAny)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("top2"));
+    EXPECT_TRUE(MyFactory::HasKey("top2"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateAnyObject(667);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(2000, p->getT());
@@ -117,8 +117,8 @@ TEST( FactoryTest, CheckCreatorFnAny)
 
 TEST( FactoryTest, CheckAliases)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("-1"));
-    EXPECT_EQ(true, MyFactory::HasKey("m1"));
+    EXPECT_TRUE(MyFactory::HasKey("-1"));
+    EXPECT_TRUE(MyFactory::HasKey("m1"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("100",10);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(100, p->getT());
@@ -127,18 +127,18 @@ TEST( FactoryTest, CheckAliases)
 
 TEST( FactoryTest, CheckResetEntry)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("i2"));
+    EXPECT_TRUE(MyFactory::HasKey("i2"));
     MyFactory::ResetEntry("i2");
-    EXPECT_EQ(false, MyFactory::HasKey("i2"));
+    EXPECT_FALSE(MyFactory::HasKey("i2"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("i2",0);
     EXPECT_EQ(nullptr, p.get());
 }
 
 TEST( FactoryTest, CheckDuplicateEntry)
 {
-    EXPECT_EQ(false, MyFactory::HasKey("minus"));
+    EXPECT_FALSE(MyFactory::HasKey("minus"));
     MyFactory::DuplicateEntry("-1","minus");
-    EXPECT_EQ(true, MyFactory::HasKey("minus"));
+    EXPECT_TRUE(MyFactory::HasKey("minus"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("minus",-2);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(-1, p->getT());
@@ -147,18 +147,18 @@ TEST( FactoryTest, CheckDuplicateEntry)
 
 TEST( FactoryTest, CheckResetEntryMulti)
 {
-    EXPECT_EQ(true, MyFactory::HasKey("100"));
+    EXPECT_TRUE(MyFactory::HasKey("100"));
     MyFactory::ResetEntry("100");
-    EXPECT_EQ(false, MyFactory::HasKey("100"));
+    EXPECT_FALSE(MyFactory::HasKey("100"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("100",0);
     EXPECT_EQ(nullptr, p.get());
 }
 
 TEST( FactoryTest, CheckDuplicateEntryMulti)
 {
-    EXPECT_EQ(false, MyFactory::HasKey("plenty"));
+    EXPECT_FALSE(MyFactory::HasKey("plenty"));
     MyFactory::DuplicateEntry("multi","plenty");
-    EXPECT_EQ(true, MyFactory::HasKey("plenty"));
+    EXPECT_TRUE(MyFactory::HasKey("plenty"));
     std::unique_ptr<FactoryBaseObject> p = MyFactory::CreateObject("plenty",-2);
     ASSERT_NE(nullptr, p.get());
     EXPECT_EQ(111, p->getT());

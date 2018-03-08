@@ -106,7 +106,7 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
     
     //ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::name(), "");
 
-    ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::enumSize(), 3);
+    ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::enumSize(), 3u);
     ASSERT_EQ(std::string(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorName<0>()), std::string("un"));
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumeratorValue<1>(), 10u);
     ASSERT_EQ(defaulttype::DataTypeInfo<uIntEnum2>::getEnumerator<2>(), uIntEnum2::cent);
@@ -134,7 +134,7 @@ TEST(DataEnumTypeInfoTest2, checkcharEnum2)
     Data<charEnum2> dataTest("Enum");
     dataTest.setValue(charEnum2::bb);
 
-    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::enumSize(), 4);
+    ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::enumSize(), 4u);
     ASSERT_EQ(std::string(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorName<0>()), std::string("aa"));
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumeratorValue<1>(), 'b');
     ASSERT_EQ(defaulttype::DataTypeInfo<charEnum2>::getEnumerator<2>(), charEnum2::cc);
@@ -171,9 +171,9 @@ TEST(DataEnumTypeInfoTest2, checkunscopedEnum)
     typedef unscopedEnum unscopedEnum;
     Data<unscopedEnum> dataTest("Enum");
 
-    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::enumSize(), 3);
+    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::enumSize(), 3u);
     ASSERT_EQ(std::string(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorName<0>()), std::string("uns"));
-    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorValue<1>(), 1);
+    ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumeratorValue<1>(), 1u);
     ASSERT_EQ(defaulttype::DataTypeInfo<unscopedEnum>::getEnumerator<2>(), unscopedEnum::ped);
 
 }
@@ -223,7 +223,7 @@ TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
 
     std::vector<std::string > enumNames;
     einfo->getAvailableItems(dataTest.getValueVoidPtr(), enumNames);
-    ASSERT_EQ(enumNames.size(), 3);
+    ASSERT_EQ(enumNames.size(), 3u);
     ASSERT_EQ(enumNames[0], "cent");
 
     std::string value4;

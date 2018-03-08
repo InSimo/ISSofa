@@ -24,8 +24,8 @@ TEST( DataFundamentalTypeInfoTest, checkDataTypeInfoFundamentalIsOk)
     EXPECT_TRUE( typeMVInfo->FixedFinalSize() );
     EXPECT_TRUE( typeMVInfo->getFinalValueType()->FixedFinalSize() );
 
-    EXPECT_EQ( 1, typeMVInfo->FinalSize() );
-    EXPECT_EQ( 1, typeMVInfo->finalSize( d_int.getValueVoidPtr() ) );
+    EXPECT_EQ( 1u, typeMVInfo->FinalSize() );
+    EXPECT_EQ( 1u, typeMVInfo->finalSize( d_int.getValueVoidPtr() ) );
 }
 
 TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorSizeIsOk )
@@ -46,8 +46,8 @@ TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorSizeIsOk )
     const AbstractMultiValueTypeInfo* baseMVInfo = baseInfo->MultiValueType();
     EXPECT_TRUE( baseMVInfo->FixedFinalSize() );
 
-    EXPECT_EQ( baseMVInfo->FinalSize(), 3 );
-    EXPECT_EQ( typeCInfo->containerSize( d_x.getValueVoidPtr() ), 10 );
+    EXPECT_EQ( baseMVInfo->FinalSize(), 3u );
+    EXPECT_EQ( typeCInfo->containerSize( d_x.getValueVoidPtr() ), 10u );
     EXPECT_EQ( typeMVInfo->finalSize( d_x.getValueVoidPtr() ), baseMVInfo->FinalSize()*typeCInfo->containerSize( d_x.getValueVoidPtr() ) );
 }
 
@@ -70,7 +70,7 @@ TEST( DataContainerTypeInfoTest, checkDataTypeInfoVectorOfVectorSizeIsOk )
     EXPECT_TRUE( baseInfo->IsMultiValue() );
     const AbstractMultiValueTypeInfo* baseMVInfo = baseInfo->MultiValueType();
     EXPECT_FALSE( baseMVInfo->FixedFinalSize() );
-    EXPECT_EQ( baseMVInfo->FinalSize(), 3 );
+    EXPECT_EQ( baseMVInfo->FinalSize(), 3u );
 }
 
 TEST( DataTypeInfoMemcpyTest, checkDataTypeInfoVectorGetValuePtrIsOk )
