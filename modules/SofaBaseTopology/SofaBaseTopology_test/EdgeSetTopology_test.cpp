@@ -15,9 +15,9 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyIsEmptyWhenConstructed)
 {
     EdgeSetTopologyContainer::SPtr edgeContainer = sofa::core::objectmodel::New< EdgeSetTopologyContainer >();
     EXPECT_EQ(0, edgeContainer->getNbPoints());
-    EXPECT_EQ(0, edgeContainer->getPoints().size());
+    EXPECT_EQ(0u, edgeContainer->getPoints().size());
     EXPECT_EQ(0, edgeContainer->getNbEdges());
-    EXPECT_EQ(0, edgeContainer->getEdges().size());
+    EXPECT_EQ(0u, edgeContainer->getEdges().size());
 }
 
 
@@ -39,26 +39,26 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyInitializationOfNeighborhoodInfor
     {
         const EdgeSetTopologyContainer* constEdgeContainer = edgeContainer.get();
         const auto eavArray = constEdgeContainer->getEdgesAroundVertexArray();
-        ASSERT_EQ(5, eavArray.size());
+        ASSERT_EQ(5u, eavArray.size());
         
         
         const auto& eav0 = constEdgeContainer->getEdgesAroundVertex(PointID(0));
-        ASSERT_EQ(1, eav0.size());
+        ASSERT_EQ(1u, eav0.size());
         EXPECT_EQ(EdgeID(0), eav0[0]);
 
         const auto& eav1 = constEdgeContainer->getEdgesAroundVertex(PointID(1));
-        ASSERT_EQ(1, eav1.size());
+        ASSERT_EQ(1u, eav1.size());
         EXPECT_EQ(EdgeID(0), eav1[0]);
 
         const auto& eav2 = constEdgeContainer->getEdgesAroundVertex(PointID(2));
-        EXPECT_EQ(0, eav2.size());
+        EXPECT_EQ(0u, eav2.size());
 
         const auto& eav3 = constEdgeContainer->getEdgesAroundVertex(PointID(3));
-        ASSERT_EQ(1, eav3.size());
+        ASSERT_EQ(1u, eav3.size());
         EXPECT_EQ(EdgeID(1), eav3[0]);
 
         const auto& eav4 = constEdgeContainer->getEdgesAroundVertex(PointID(4));
-        ASSERT_EQ(1, eav4.size());
+        ASSERT_EQ(1u, eav4.size());
         EXPECT_EQ(EdgeID(1), eav4[0]);
 
         const auto eavArrayExpected = edgeContainer->getEdgesAroundVertexArray();
@@ -149,8 +149,8 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyAddPoint)
     //check adjacency information
     const EdgeSetTopologyContainer* constEdgeContainer = topology.edgeContainer.get();
     const auto eavArray = constEdgeContainer->getEdgesAroundVertexArray();
-    ASSERT_EQ(1, eavArray.size());
-    EXPECT_EQ(0, eavArray[0].size());
+    ASSERT_EQ(1u, eavArray.size());
+    EXPECT_EQ(0u, eavArray[0].size());
 
     const auto eavArrayExpected = topology.edgeContainer->getEdgesAroundVertexArray();
     EXPECT_EQ(eavArrayExpected.size(), eavArray.size());
@@ -168,7 +168,7 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyRemovePoint)
     //check adjacency information
     const EdgeSetTopologyContainer* constEdgeContainer = topology.edgeContainer.get();
     const auto eavArray = constEdgeContainer->getEdgesAroundVertexArray();
-    EXPECT_EQ(0, eavArray.size());
+    EXPECT_EQ(0u, eavArray.size());
 
     const auto eavArrayExpected = topology.edgeContainer->getEdgesAroundVertexArray();
     EXPECT_EQ(eavArrayExpected.size(), eavArray.size());
@@ -188,14 +188,14 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyAddEdge)
     {
         const EdgeSetTopologyContainer* constEdgeContainer = topology.edgeContainer.get();
         const auto eavArray = constEdgeContainer->getEdgesAroundVertexArray();
-        ASSERT_EQ(2, eavArray.size());
+        ASSERT_EQ(2u, eavArray.size());
         
         const auto& eav0 = constEdgeContainer->getEdgesAroundVertex(PointID(0));
-        ASSERT_EQ(1, eav0.size());
+        ASSERT_EQ(1u, eav0.size());
         EXPECT_EQ(EdgeID(0), eav0[0]);
 
         const auto& eav1 = constEdgeContainer->getEdgesAroundVertex(PointID(1));
-        ASSERT_EQ(1, eav1.size());
+        ASSERT_EQ(1u, eav1.size());
         EXPECT_EQ(EdgeID(0), eav1[0]);
 
         const auto eavArrayExpected = topology.edgeContainer->getEdgesAroundVertexArray();
@@ -220,21 +220,21 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyRemoveEdgeKeepPoints)
     {
         const EdgeSetTopologyContainer* constEdgeContainer = topology.edgeContainer.get();
         const auto eavArray = constEdgeContainer->getEdgesAroundVertexArray();
-        ASSERT_EQ(4, eavArray.size());
+        ASSERT_EQ(4u, eavArray.size());
 
         const auto& eav0 = constEdgeContainer->getEdgesAroundVertex(PointID(0));
-        ASSERT_EQ(1, eav0.size());
+        ASSERT_EQ(1u, eav0.size());
         EXPECT_EQ(EdgeID(0), eav0[0]);
 
         const auto& eav1 = constEdgeContainer->getEdgesAroundVertex(PointID(1));
-        ASSERT_EQ(1, eav1.size());
+        ASSERT_EQ(1u, eav1.size());
         EXPECT_EQ(EdgeID(0), eav1[0]);
 
         const auto& eav2 = constEdgeContainer->getEdgesAroundVertex(PointID(2));
-        EXPECT_EQ(0, eav2.size());
+        EXPECT_EQ(0u, eav2.size());
 
         const auto& eav3 = constEdgeContainer->getEdgesAroundVertex(PointID(3));
-        EXPECT_EQ(0, eav3.size());
+        EXPECT_EQ(0u, eav3.size());
 
         const auto eavArrayExpected = topology.edgeContainer->getEdgesAroundVertexArray();
         EXPECT_EQ(eavArrayExpected.size(), eavArray.size());
@@ -259,14 +259,14 @@ TEST(EdgeSetTopology_test, checkEdgeSetTopologyRemoveEdgeRemovePoints)
     {
         const EdgeSetTopologyContainer* constEdgeContainer = topology.edgeContainer.get();
         const auto eavArray = constEdgeContainer->getEdgesAroundVertexArray();
-        ASSERT_EQ(2, eavArray.size());
+        ASSERT_EQ(2u, eavArray.size());
 
         const auto& eav0 = constEdgeContainer->getEdgesAroundVertex(PointID(0));
-        ASSERT_EQ(1, eav0.size());
+        ASSERT_EQ(1u, eav0.size());
         EXPECT_EQ(EdgeID(0), eav0[0]);
 
         const auto& eav1 = constEdgeContainer->getEdgesAroundVertex(PointID(1));
-        ASSERT_EQ(1, eav1.size());
+        ASSERT_EQ(1u, eav1.size());
         EXPECT_EQ(EdgeID(0), eav1[0]);
 
         const auto eavArrayExpected = topology.edgeContainer->getEdgesAroundVertexArray();

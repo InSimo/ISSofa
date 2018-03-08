@@ -354,9 +354,9 @@ TEST_F(TopologyData_fixture, makeSureAfterTopologyChangeTheInfosAreTheSame)
 
     subdivideTriangles(stiv);
 
-    EXPECT_EQ(topology->getNbTriangles(), nbTriangles + 2);
-    EXPECT_EQ(topology->getNbPoints(), nbPoints + 1);
-    EXPECT_EQ(topology->getNbEdges(), nbEdges + 3);
+    EXPECT_EQ(u_int(topology->getNbTriangles()), nbTriangles + 2);
+    EXPECT_EQ(u_int(topology->getNbPoints()), nbPoints + 1);
+    EXPECT_EQ(u_int(topology->getNbEdges()), nbEdges + 3);
 
     //std::cout << " triangle data after TC : " << topoData->triangleInfo.getValue() << std::endl;
 
@@ -412,17 +412,17 @@ TEST_F(TopologyData_fixture, makeSureAfterAddingAndDeletingPointTheTopologyStays
 
     subdivideTriangles(stiv);
 
-    EXPECT_EQ(topology->getNbTriangles(), nbTriangles + 2);
-    EXPECT_EQ(topology->getNbPoints(), nbPoints + 1);
-    EXPECT_EQ(topology->getNbEdges(), nbEdges + 3);
+    EXPECT_EQ((unsigned int)topology->getNbTriangles(), nbTriangles + 2);
+    EXPECT_EQ((unsigned int)topology->getNbPoints(), nbPoints + 1);
+    EXPECT_EQ((unsigned int)topology->getNbEdges(), nbEdges + 3);
 
     std::vector<unsigned int> pointToRemove;
     pointToRemove.emplace_back(topology->getNbPoints()-1);
     removePoints(pointToRemove);
 
-    EXPECT_EQ(topology->getNbTriangles(), nbTriangles);
-    EXPECT_EQ(topology->getNbPoints(), nbPoints);
-    EXPECT_EQ(topology->getNbEdges(), nbEdges);
+    EXPECT_EQ((unsigned int)topology->getNbTriangles(), nbTriangles);
+    EXPECT_EQ((unsigned int)topology->getNbPoints(), nbPoints);
+    EXPECT_EQ((unsigned int)topology->getNbEdges(), nbEdges);
 
     //std::cout << " triangle data after TC : " << topoData->triangleInfo.getValue() << std::endl;
 
