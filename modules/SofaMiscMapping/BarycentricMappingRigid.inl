@@ -350,7 +350,7 @@ void BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::applyJ( typename Out:
 template<class In, class Out>
 const sofa::defaulttype::BaseMatrix* BarycentricMapperTetrahedronSetTopologyRigid<In,Out>::getJ(int outSize, int inSize)
 {    
-    //if (matrixJ && !updateJ && matrixJ->rowBSize() == (unsigned)outSize && matrixJ->colBSize() == (unsigned)inSize)
+    //if (matrixJ && !updateJ && matrixJ->rowBSize() == outSize && matrixJ->colBSize() == inSize)
     //    return matrixJ;
     if (outSize > 0 && map.getValue().size() == 0)
     {
@@ -362,7 +362,7 @@ const sofa::defaulttype::BaseMatrix* BarycentricMapperTetrahedronSetTopologyRigi
         matrixJ = new MatrixType;
     }
 
-    if (matrixJ->rowBSize() != (unsigned)outSize || matrixJ->colBSize() != (unsigned)inSize)
+    if (matrixJ->rowBSize() != outSize || matrixJ->colBSize() != inSize)
     {
         //std::cout << "Resizing to " << outSize*NOut  << " X " << inSize*NIn << std::endl;
         matrixJ->resize(outSize*NOut, inSize*NIn);

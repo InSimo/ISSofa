@@ -124,7 +124,7 @@ TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
 
     ASSERT_FALSE(    visualModel.m_edges.getFlag(core::objectmodel::BaseData::FLAG_AUTOLINK));
 
-    ASSERT_EQ(1, visualModel.xforms.size());
+    ASSERT_EQ(1u, visualModel.xforms.size());
 }
 
 } //sofa

@@ -450,7 +450,7 @@ void Mesh2PointMechanicalMapping<TIn, TOut>::applyJT(const core::ConstraintParam
                         bool err = true;
                         for(unsigned int i = 0; i < edgeMap[source.second].size(); ++i)
                         {
-                            if (edgeMap[source.second][i] == indexIn)
+                            if ((unsigned int)edgeMap[source.second][i] == indexIn)
                             {
                                 fx = topoMap->getEdgeBaryCoords()[i][0];
                                 err = false;
@@ -489,7 +489,7 @@ void Mesh2PointMechanicalMapping<TIn, TOut>::applyJT(const core::ConstraintParam
                         bool err = true;
                         for(unsigned int i = 0; i < triangleMap[source.second].size(); ++i)
                         {
-                            if (triangleMap[source.second][i] == indexIn)
+                            if ((unsigned int)triangleMap[source.second][i] == indexIn)
                             {
                                 fx = topoMap->getTriangleBaryCoords()[i][0];
                                 fy = topoMap->getTriangleBaryCoords()[i][1];
@@ -531,7 +531,7 @@ void Mesh2PointMechanicalMapping<TIn, TOut>::applyJT(const core::ConstraintParam
                         bool err = true;
                         for(unsigned int i = 0; i < quadMap[source.second].size(); ++i)
                         {
-                            if (quadMap[source.second][i] == indexIn)
+                            if ((unsigned int)quadMap[source.second][i] == indexIn)
                             {
                                 fx = topoMap->getQuadBaryCoords()[i][0];
                                 fy = topoMap->getQuadBaryCoords()[i][1];
@@ -575,7 +575,7 @@ void Mesh2PointMechanicalMapping<TIn, TOut>::applyJT(const core::ConstraintParam
                         bool err = true;
                         for(unsigned int i = 0; i < tetraMap[source.second].size(); ++i)
                         {
-                            if (tetraMap[source.second][i] == indexIn)
+                            if ((unsigned int)tetraMap[source.second][i] == indexIn)
                             {
                                 fx = topoMap->getTetraBaryCoords()[i][0];
                                 fy = topoMap->getTetraBaryCoords()[i][1];
@@ -620,7 +620,7 @@ void Mesh2PointMechanicalMapping<TIn, TOut>::applyJT(const core::ConstraintParam
                         bool err = true;
                         for(unsigned int i = 0; i < hexaMap[source.second].size(); ++i)
                         {
-                            if (hexaMap[source.second][i] == indexIn)
+                            if ((unsigned int)hexaMap[source.second][i] == indexIn)
                             {
                                 fx = topoMap->getHexaBaryCoords()[i][0];
                                 fy = topoMap->getHexaBaryCoords()[i][1];

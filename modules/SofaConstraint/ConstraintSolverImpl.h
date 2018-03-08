@@ -57,7 +57,7 @@ public:
     virtual void clear(int nbConstraints);
     int getDimension() const { return dimension; }
           double**              getW()       { return W.lptr(); }
-    const double* const * const getW() const { return W.lptr(); }
+    const double* const *       getW() const { return W.lptr(); }
           double* getDfree()       { return dFree.ptr(); }
     const double* getDfree() const { return dFree.ptr(); }
     double* getF()                 { return f.ptr();     }

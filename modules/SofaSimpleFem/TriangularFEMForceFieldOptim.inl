@@ -158,7 +158,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::init()
 
     if (f_youngModuli.isSet())
     {
-        if (f_youngModuli.getValue().size() != _topology->getNbTriangles())
+        if (f_youngModuli.getValue().size() != (unsigned int)_topology->getNbTriangles())
         {
             serr << "WARNING : the size of the YoungModuli vector does not match the number of triangles. YoungModulus will be used instead" << sendl;
         }
