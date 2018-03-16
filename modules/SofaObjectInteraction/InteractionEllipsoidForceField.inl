@@ -218,6 +218,7 @@ void InteractionEllipsoidForceField<DataTypes1, DataTypes2>::addForce(
 
             Contact c;
             c.pos = p1[i];
+            c.posXform = p1Xform;
             c.index = i;
             c.m = dfdx;
 

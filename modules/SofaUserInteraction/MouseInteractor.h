@@ -94,7 +94,7 @@ public:
     BodyPicked getBodyPicked() const {return lastPicked;}
     void setBodyPicked( BodyPicked picked) {lastPicked=picked;}
 
-    SReal getDistanceFromMouse() const {return distanceFromMouse;};
+    SReal getDistanceFromMouse() const {return distanceFromMouse;}
     void setDistanceFromMouse(SReal d) {distanceFromMouse=d;}
 
 protected:
@@ -106,6 +106,7 @@ protected:
     VecPerformer performers;
     core::CollisionModel *m_bodyHighlighted = nullptr;
     std::vector<core::CollisionModel*> m_taggedBodies;
+    std::vector<core::CollisionModel*> m_disabledBodies;
     float m_bodyHighlightedOriginalColor[4];
 };
 

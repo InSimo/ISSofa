@@ -118,8 +118,11 @@ UncoupledConstraintCorrection<DataTypes>::UncoupledConstraintCorrection(sofa::co
     , d_correctionVelocityFactor(initData(&d_correctionVelocityFactor, (Real)1.0, "correctionVelocityFactor", "Factor applied to the constraint forces when correcting the velocities"))
     , d_correctionPositionFactor(initData(&d_correctionPositionFactor, (Real)1.0, "correctionPositionFactor", "Factor applied to the constraint forces when correcting the positions"))
     , d_useOdeSolverIntegrationFactors(initData(&d_useOdeSolverIntegrationFactors, false, "useOdeSolverIntegrationFactors", "Use odeSolver integration factors instead of correctionVelocityFactor and correctionPositionFactor"))
+    , d_computeConstraintWork(initData(&d_computeConstraintWork, false, "computeConstraintWork", "compute constraint work (for monitoring only)"))
+    , d_work(initData(&d_work,Real(0),"work","constraint work of previous time step (read only)"))
     , m_pOdeSolver(NULL)
 {
+    d_work.setReadOnly( true );
 }
 
 template<class DataTypes>
@@ -513,7 +516,19 @@ void UncoupledConstraintCorrection<DataTypes>::computeAndApplyMotionCorrection(c
 
     x_d.endEdit();
     v_d.endEdit();
+
     this->mstate->write(core::VecDerivId::dx())->endEdit();
+    if (d_computeConstraintWork.getValue())
+    {
+        //Constraint work computation
+        const VecDeriv& f = f_d.getValue();
+        double work=0;
+        for(unsigned int i=0;i< dx.size(); ++i)
+        {
+            work += (f[i]*dx[i])/xFactor;
+        }
+        d_work.setValue(work);
+    }
 }
 
 
