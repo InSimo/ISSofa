@@ -160,6 +160,12 @@ public:
     typedef typename In::Coord InCoord;
     typedef typename In::VecCoord InVecCoord;
     typedef typename In::VecDeriv InVecDeriv;
+    typedef Data<InVecCoord> InDataVecCoord;
+    typedef Data<InVecDeriv> InDataVecDeriv;
+    typedef Data<InMatrixDeriv> InDataMatrixDeriv;
+    typedef Data<OutVecCoord> OutDataVecCoord;
+    typedef Data<OutVecDeriv> OutDataVecDeriv;
+    typedef Data<OutMatrixDeriv> OutDataMatrixDeriv;
     typedef linearsolver::EigenSparseMatrix<TIn,TOut>   SparseMatrixEigen;
     typedef linearsolver::EigenSparseMatrix<TIn,TIn>    SparseKMatrixEigen;
     enum {Nin = In::deriv_total_size, Nout = Out::deriv_total_size };

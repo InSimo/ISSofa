@@ -343,7 +343,7 @@ void DistanceMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
 
     if( d_showObjectScale.getValue() == 0 )
     {
-        vector< defaulttype::Vector3 > points;
+        vector< sofa::defaulttype::Vector3 > points;
         for(unsigned i=0; i<links.size(); i++ )
         {
             points.push_back( sofa::defaulttype::Vector3( TIn::getCPos(pos[links[i][0]]) ) );
@@ -418,8 +418,8 @@ void DistanceMultiMapping<TIn, TOut>::init()
         {
             for(unsigned i=0; i<links.size(); i++ )
             {
-                const Vec2f& pair0 = pairs[ links[i][0] ];
-                const Vec2f& pair1 = pairs[ links[i][1] ];
+                const sofa::defaulttype::Vec2f& pair0 = pairs[ links[i][0] ];
+                const sofa::defaulttype::Vec2f& pair1 = pairs[ links[i][1] ];
 
                 const InCoord& pos0 = this->getFromModels()[pair0[0]]->readPositions()[pair0[1]];
                 const InCoord& pos1 = this->getFromModels()[pair1[0]]->readPositions()[pair1[1]];
@@ -439,7 +439,7 @@ void DistanceMultiMapping<TIn, TOut>::init()
     else // manually set
         if( compliance ) // for warning message
         {
-            helper::ReadAccessor< Data<vector<Real> > > restLengths(f_restLengths);
+            helper::ReadAccessor< Data<sofa::helper::vector<Real> > > restLengths(f_restLengths);
             for(unsigned i=0; i<links.size(); i++ )
                 if( restLengths[i]<=s_null_distance_epsilon ) serr<<"Null rest Length cannot be used for stable compliant constraint, prefer to use a DifferenceMapping for this dof "<<i<<" if used with a compliance"<<sendl;
         }
@@ -482,8 +482,8 @@ void DistanceMultiMapping<TIn, TOut>::apply(const helper::vector<OutVecCoord*>& 
     {
         Direction& gap = directions[i];
 
-        const Vec2f& pair0 = pairs[ links[i][0] ];
-        const Vec2f& pair1 = pairs[ links[i][1] ];
+        const sofa::defaulttype::Vec2f& pair0 = pairs[ links[i][0] ];
+        const sofa::defaulttype::Vec2f& pair1 = pairs[ links[i][1] ];
 
         const InCoord& pos0 = (*inPos[pair0[0]])[pair0[1]];
         const InCoord& pos1 = (*inPos[pair1[0]])[pair1[1]];
@@ -727,21 +727,21 @@ void DistanceMultiMapping<TIn, TOut>::draw(const core::visual::VisualParams* vpa
 
     SeqEdges links = edgeContainer->getEdges();
 
-    const vector<defaulttype::Vec2i>& pairs = d_indexPairs.getValue();
+    const sofa::helper::vector<defaulttype::Vec2i>& pairs = d_indexPairs.getValue();
 
     if( d_showObjectScale.getValue() == 0 )
     {
-        vector< Vector3 > points;
+        sofa::helper::vector< sofa::defaulttype::Vector3 > points;
         for(unsigned i=0; i<links.size(); i++ )
         {
-            const Vec2f& pair0 = pairs[ links[i][0] ];
-            const Vec2f& pair1 = pairs[ links[i][1] ];
+            const sofa::defaulttype::Vec2f& pair0 = pairs[ links[i][0] ];
+            const sofa::defaulttype::Vec2f& pair1 = pairs[ links[i][1] ];
 
             const InCoord& pos0 = this->getFromModels()[pair0[0]]->readPositions()[pair0[1]];
             const InCoord& pos1 = this->getFromModels()[pair1[0]]->readPositions()[pair1[1]];
 
-            points.push_back( Vector3( TIn::getCPos(pos0) ) );
-            points.push_back( Vector3( TIn::getCPos(pos1) ) );
+            points.push_back(sofa::defaulttype::Vector3( TIn::getCPos(pos0) ) );
+            points.push_back(sofa::defaulttype::Vector3( TIn::getCPos(pos1) ) );
         }
         vparams->drawTool()->drawLines ( points, 1, d_color.getValue() );
     }
@@ -749,8 +749,8 @@ void DistanceMultiMapping<TIn, TOut>::draw(const core::visual::VisualParams* vpa
     {
         for(unsigned i=0; i<links.size(); i++ )
         {
-            const Vec2f& pair0 = pairs[ links[i][0] ];
-            const Vec2f& pair1 = pairs[ links[i][1] ];
+            const sofa::defaulttype::Vec2f& pair0 = pairs[ links[i][0] ];
+            const sofa::defaulttype::Vec2f& pair1 = pairs[ links[i][1] ];
 
             const InCoord& pos0 = this->getFromModels()[pair0[0]]->readPositions()[pair0[1]];
             const InCoord& pos1 = this->getFromModels()[pair1[0]]->readPositions()[pair1[1]];
