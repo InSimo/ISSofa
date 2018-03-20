@@ -391,6 +391,44 @@ void Simulation::draw ( sofa::core::visual::VisualParams* vparams, Node* root )
     }
 }
 
+double Simulation::getIdleFrequency ( Node* root )
+{
+    if ( !root ) {
+        return 0.0;
+    }
+    sofa::core::behavior::BaseAnimationLoop* aloop = root->getAnimationLoop();
+    if(aloop)
+    {
+        return aloop->getIdleFrequency();
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+void Simulation::idle ( Node* root )
+{
+    if ( !root ) {
+        serr<<"Simulation::idle, no root found"<<sendl;
+        return;
+    }
+    sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
+
+    sofa::core::behavior::BaseAnimationLoop* aloop = root->getAnimationLoop();
+    if(aloop)
+    {
+        aloop->idle(params);
+    }
+    else
+    {
+        serr<<"ERROR in Simulation::idle(): AnimationLoop expected at the root node"<<sendl;
+        return;
+    }
+
+}
+
+
 /// Export a scene to an OBJ 3D Scene
 void Simulation::exportOBJ ( Node* root, const char* filename, bool exportMTL )
 {

@@ -65,6 +65,14 @@ public:
     /// perform one animation step
     virtual void step(const core::ExecParams* params, double dt);
 
+    /// Returns the desired frequency of calls to idle() when the simulation is stopped/paused
+    ///
+    /// The default is 0, indicating no call is made
+    double getIdleFrequency() const override { return d_idleFrequency.getValue(); }
+
+    /// Method called with the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
+    void idle(const core::ExecParams* params) override;
+
 
     /// Construction method called by ObjectFactory.
     template<class T>
@@ -78,6 +86,8 @@ public:
     }
 
 protected :
+
+    Data<double> d_idleFrequency; ///< Desired frequency of calls to idle() when the simulation is stopped/paused
 
     simulation::Node* gnode;  ///< the node controlled by the loop
 
