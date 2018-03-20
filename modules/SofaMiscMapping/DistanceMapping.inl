@@ -755,8 +755,8 @@ void DistanceMultiMapping<TIn, TOut>::draw(const core::visual::VisualParams* vpa
             const InCoord& pos0 = this->getFromModels()[pair0[0]]->readPositions()[pair0[1]];
             const InCoord& pos1 = this->getFromModels()[pair1[0]]->readPositions()[pair1[1]];
 
-            Vector3 p0 = TIn::getCPos(pos0);
-            Vector3 p1 = TIn::getCPos(pos1);
+            sofa::defaulttype::Vector3 p0 = TIn::getCPos(pos0);
+            sofa::defaulttype::Vector3 p1 = TIn::getCPos(pos1);
             vparams->drawTool()->drawCylinder( p0, p1, d_showObjectScale.getValue(), d_color.getValue() );
         }
     }
