@@ -39,6 +39,7 @@
 #include <sofa/simulation/common/UpdateBoundingBoxVisitor.h>
 #include <sofa/simulation/common/UpdateContextVisitor.h>
 #include <sofa/simulation/common/BehaviorUpdatePositionVisitor.h>
+#include <sofa/core/objectmodel/IdleEvent.h>
 
 
 #include <stdlib.h>
@@ -55,6 +56,7 @@ namespace simulation
 
 CollisionAnimationLoop::CollisionAnimationLoop(simulation::Node* _gnode)
     : Inherit()
+    , d_idleFrequency(initData(&d_idleFrequency, 0.0, "idleFrequency", "If greater than 0: desired frequency of calls to idle() (sending IdleEvents) when the simulation is stopped/paused"))
     , gnode(_gnode)
 {}
 
@@ -108,6 +110,13 @@ const CollisionAnimationLoop::Solvers& CollisionAnimationLoop::getSolverSequence
     simulation::Node* gnode = simulation::Node::DynamicCast( getContext() );
     assert( gnode );
     return gnode->solver;
+}
+
+void CollisionAnimationLoop::idle(const core::ExecParams* params)
+{
+    sofa::core::objectmodel::IdleEvent ev;
+    PropagateEventVisitor act(params, &ev);
+    gnode->execute(act);
 }
 
 // CollisionAnimationLoop::Pipeline* CollisionAnimationLoop::getPipeline()
