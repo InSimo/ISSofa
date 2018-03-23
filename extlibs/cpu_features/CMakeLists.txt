@@ -86,7 +86,7 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
 
 include(CTest)
 if(BUILD_TESTING)
-  if(TARGET gtest OR TARGET gmock_main)
+  if(TARGET gtest OR TARGET gtest_main)
     add_subdirectory(test)
   endif()
 endif()

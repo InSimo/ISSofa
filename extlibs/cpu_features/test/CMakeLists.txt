@@ -31,7 +31,7 @@ target_link_libraries(all_libraries hwcaps_for_testing stack_line_reader string_
 #
 # tests
 #
-link_libraries(gtest gmock_main)
+link_libraries(gtest gtest_main)
 
 ## bit_utils_test
 add_executable(bit_utils_test bit_utils_test.cc)
