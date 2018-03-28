@@ -96,6 +96,30 @@ extern "C" int Base_SetAttr(PyObject *o, PyObject *attr_name, PyObject *v)
     return 0;
 }
 
+extern "C" PyObject * Base_getClassName(PyObject * self, PyObject * /*args*/)
+{
+    // BaseNode is not binded in SofaPython, so getPathName is binded in Node instead
+    Base* node = dynamic_cast<Base*>(((PySPtr<Base>*)self)->object.get());
+
+    return PyString_FromString(node->getClassName().c_str());
+}
+
+extern "C" PyObject * Base_getTemplateName(PyObject * self, PyObject * /*args*/)
+{
+    // BaseNode is not binded in SofaPython, so getPathName is binded in Node instead
+    Base* node = dynamic_cast<Base*>(((PySPtr<Base>*)self)->object.get());
+
+    return PyString_FromString(node->getTemplateName().c_str());
+}
+
+extern "C" PyObject * Base_getName(PyObject * self, PyObject * /*args*/)
+{
+    // BaseNode is not binded in SofaPython, so getPathName is binded in Node instead
+    Base* node = dynamic_cast<Base*>(((PySPtr<Base>*)self)->object.get());
+
+    return PyString_FromString(node->getName().c_str());
+}
+
 extern "C" PyObject * Base_getWarningLog(PyObject * o, PyObject * /*args*/)
 {
     Base* base = dynamic_cast<Base*>(((PySPtr<Base>*)o)->object.get());
@@ -131,6 +155,9 @@ extern "C" PyObject * Base_clearOutputLog(PyObject * o, PyObject * /*args*/)
 
 SP_CLASS_METHODS_BEGIN(Base)
 SP_CLASS_METHOD(Base,findData)
+SP_CLASS_METHOD(Base,getClassName)
+SP_CLASS_METHOD(Base,getTemplateName)
+SP_CLASS_METHOD(Base,getName)
 SP_CLASS_METHOD(Base,getDataFields)
 SP_CLASS_METHOD(Base,getWarningLog)
 SP_CLASS_METHOD(Base,getOutputLog)

@@ -461,30 +461,17 @@ public:
         m_values[DDGNode::currentAspect(params)].endEdit();
     }
 
-    /// If it is only to write the value set the bool writeOnly to true
-    inline void setValue(const T& value, const bool writeOnly = false)
+    /// @warning writeOnly (the Data is not updated before being set)
+    inline void setValue(const T& value)
     {
-        if(writeOnly)
-        {
-            *beginWriteOnly()=value;
-             endEdit();
-             return;
-        }
-    
-        *beginEdit() = value;
+        *beginWriteOnly()=value;
         endEdit();
     }
 
-    /// If it is only to write the value set the bool writeOnly to true
-    inline void setValue(const core::ExecParams* params, const T& value, const bool writeOnly = false)
+    /// @warning writeOnly (the Data is not updated before being set)
+    inline void setValue(const core::ExecParams* params, const T& value)
     {
-        if(writeOnly)
-        {
-            *beginWriteOnly(params)=value;
-            endEdit(params);
-            return;
-        }
-        *beginEdit(params) = value;
+        *beginWriteOnly(params)=value;
         endEdit(params);
     }
 
@@ -615,6 +602,12 @@ extern template class SOFA_CORE_API Data< bool >;
 
 #endif
 
+template< typename TData > 
+struct DataTraits
+{
+    typedef typename TData::value_type value_type;///<Wraps the type contained in the Data into an opaque type named value_type
+};
+
 } // namespace objectmodel
 
 } // namespace core
@@ -624,6 +617,8 @@ extern template class SOFA_CORE_API Data< bool >;
 namespace helper
 {
 
+
+/// @warning the Data is updated (if needed) only by the Accessor constructor
 template<class T>
 class ReadAccessor< core::objectmodel::Data<T> > : public ReadAccessor<T>
 {
@@ -632,22 +627,27 @@ public:
     typedef core::objectmodel::Data<T> data_container_type;
     typedef T container_type;
 
-protected:
-    const data_container_type* data;
+//protected:
+//    const data_container_type* data;
 public:
-    ReadAccessor(const data_container_type& d) : Inherit(d.getValue()), data(&d) {}
-    ReadAccessor(const data_container_type* d) : Inherit(d->getValue()), data(d) {}
-    ReadAccessor(const core::ExecParams* params, const data_container_type& d) : Inherit(d.getValue(params)), data(&d) {}
-    ReadAccessor(const core::ExecParams* params, const data_container_type* d) : Inherit(d->getValue(params)), data(d) {}
+    ReadAccessor(const data_container_type& d) : Inherit(d.getValue())/*, data(&d)*/ {}
+    ReadAccessor(const data_container_type* d) : Inherit(d->getValue())/*, data(d)*/ {}
+    ReadAccessor(const core::ExecParams* params, const data_container_type& d) : Inherit(d.getValue(params))/*, data(&d)*/ {}
+    ReadAccessor(const core::ExecParams* params, const data_container_type* d) : Inherit(d->getValue(params))/*, data(d)*/ {}
 };
 
+/// Read/Write Accessor.
+/// The Data is updated before being accessible.
+/// This means an expensive chain of Data link and Engine updates can be called
+/// For a pure write only Accessor, prefer WriteOnlyAccessor
+/// @warning the Data is updated (if needed) only by the Accessor constructor
 template<class T>
 class WriteAccessor< core::objectmodel::Data<T> > : public WriteAccessor<T>
 {
 public:
     typedef WriteAccessor<T> Inherit;
     typedef core::objectmodel::Data<T> data_container_type;
-    typedef T container_type;
+    typedef typename Inherit::container_type container_type;
 
 	// these are forbidden (until c++11 move semantics) as they break
 	// RAII encapsulation. the reference member 'data' prevents them
@@ -659,6 +659,9 @@ protected:
     data_container_type& data;
     const core::ExecParams* dparams;
 
+    /// @internal used by WriteOnlyAccessor
+    WriteAccessor( container_type* c, data_container_type& d, const core::ExecParams* params=NULL ) : Inherit(*c), data(d), dparams(params) {}
+
 public:
     WriteAccessor(data_container_type& d) : Inherit(*d.beginEdit()), data(d), dparams(NULL) {}
     WriteAccessor(data_container_type* d) : Inherit(*d->beginEdit()), data(*d), dparams(NULL) {}
@@ -667,34 +670,89 @@ public:
     ~WriteAccessor() { if (dparams) data.endEdit(dparams); else data.endEdit(); }
 };
 
-/// Easy syntax for getting write access to a Data using operator ->. Example: write(someFlagData)->setFlagValue(true);
+
+
+/** @brief The WriteOnlyAccessor provides an access to the Data without triggering an engine update.
+ * This should be the prefered writeAccessor for most of the cases as it avoids uncessary Data updates.
+ * @warning read access to the Data is NOT up-to-date
+ */
 template<class T>
-inline WriteAccessor<core::objectmodel::Data<T> > write(core::objectmodel::Data<T>& data, const core::ExecParams* params)
+class WriteOnlyAccessor< core::objectmodel::Data<T> > : public WriteAccessor< core::objectmodel::Data<T> >
 {
-    return WriteAccessor<core::objectmodel::Data<T> >(params,data);
+public:
+    typedef WriteAccessor< core::objectmodel::Data<T> > Inherit;
+    typedef typename Inherit::data_container_type data_container_type;
+    typedef typename Inherit::container_type container_type;
+
+    // these are forbidden (until c++11 move semantics) as they break
+    // RAII encapsulation. the reference member 'data' prevents them
+    // anyways, but the intent is more obvious like this.
+    WriteOnlyAccessor(const WriteOnlyAccessor& );
+    WriteOnlyAccessor& operator=(const WriteOnlyAccessor& );
+
+    WriteOnlyAccessor(data_container_type& d) : Inherit( d.beginWriteOnly(), d ) {}
+    WriteOnlyAccessor(data_container_type* d) : Inherit( d->beginWriteOnly(), *d ) {}
+    WriteOnlyAccessor(const core::ExecParams* params, data_container_type& d) : Inherit( d.beginWriteOnly(), d, params ) {}
+    WriteOnlyAccessor(const core::ExecParams* params, data_container_type* d) : Inherit( d->beginWriteOnly(), *d, params ) {}
+};
+
+
+template<class TData>
+using is_base_of_data = std::is_base_of< sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type >, TData >;
+
+template<class TData>
+using enable_if_is_base_of_data = std::enable_if< is_base_of_data<TData>::value >;
+
+
+/**
+* \defgroup Write/Read helper methods to construct accessor objects for Data types
+*           these methods work also for types that derive from Data like BaseTopologyData, or DataFileName.
+* @brief These methods allow to construct accessor objects using the following syntax
+*         auto data_read_access = read(d_data);
+*         auto data_write_access = write(d_data);
+* @param The data whose accessor is being constructed
+* @param An optional ExecParams instance
+* @retval An accessor object for the Data
+* @{
+*/
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline WriteAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+write(TData& data, const core::ExecParams* params)
+{
+    return WriteAccessor< sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> >(params,data);
 }
 
 
-template<class T>
-inline WriteAccessor<core::objectmodel::Data<T> > write(core::objectmodel::Data<T>& data) 
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline WriteAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+write(TData& data)
 { 
     return write(data,sofa::core::ExecParams::defaultInstance() ); 
 }
 
 
-template<class T>
-inline ReadAccessor<core::objectmodel::Data<T> > read(const core::objectmodel::Data<T>& data, const core::ExecParams* params)
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline ReadAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+read(const TData& data, const core::ExecParams* params)
 {
-    return ReadAccessor<core::objectmodel::Data<T> >(params, data);
+    return ReadAccessor< sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> >(params, data);
 }
 
 
-template<class T>
-inline ReadAccessor<core::objectmodel::Data<T> > read(core::objectmodel::Data<T>& data)
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline ReadAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+read(TData& data)
 {
     return read(data, sofa::core::ExecParams::defaultInstance());
 }
 
+template<class TData, typename enable_if_is_base_of_data<TData>::type* = nullptr >
+inline WriteOnlyAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> > 
+writeOnly(TData& data) 
+{ 
+    return WriteOnlyAccessor<sofa::core::objectmodel::Data< typename sofa::core::objectmodel::DataTraits<TData>::value_type> >(data);
+}
+/** @} */
 
 } // namespace helper
 

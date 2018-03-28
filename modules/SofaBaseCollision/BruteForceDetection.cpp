@@ -423,29 +423,9 @@ void BruteForceDetection::computeNarrowPhase(
     }
 }
 
-void BruteForceDetection::draw(const core::visual::VisualParams* )
+void BruteForceDetection::draw(const core::visual::VisualParams* vparams )
 {
-    if (!bDraw.getValue()) return;
-    /*
-        glDisable(GL_LIGHTING);
-        glColor3f(1.0, 0.0, 1.0);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glLineWidth(3);
-        glPointSize(5);
-
-        for (DetectionOutputMap::iterator it = outputsMap.begin(); it!=outputsMap.end(); it++)
-        {
-            core::collision::DetectionOutputVector& outputs = it->second;
-            for (core::collision::DetectionOutputVector::iterator it2 = outputs.begin(); it2!=outputs.end(); it2++)
-            {
-                it2->elem.first.draw(vparams);
-                it2->elem.second.draw(vparams);
-            }
-        }
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glLineWidth(1);
-        glPointSize(1);
-    */
+    core::collision::NarrowPhaseDetection::draw(vparams);
 }
 
 } // namespace collision

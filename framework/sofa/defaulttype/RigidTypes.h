@@ -99,6 +99,12 @@ public:
         : vCenter(Vec<3,real2>(v.data())), vOrientation(Vec<3,real2>(v.data()+3))
     {}
 
+    template<typename real2>
+    RigidDeriv(const real2* ptr)
+        :vCenter(ptr),vOrientation(ptr+3)
+    {
+    }
+
     void clear()
     {
         vCenter.clear();
@@ -345,6 +351,13 @@ template<typename T, typename R>
 Vec<3,T> velocityAtRotatedPoint(const RigidDeriv<3,R>& v, const Vec<3,T>& p)
 {
     return getLinear(v) + cross( getAngular(v),p );
+}
+
+
+template<int N, typename Real>
+Real dot(const RigidDeriv<N, Real>& a, const RigidDeriv<N, Real>& b)
+{
+    return a*b;
 }
 
 template<typename real>

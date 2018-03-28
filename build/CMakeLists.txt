@@ -10,7 +10,7 @@ set(SOFA_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 list(APPEND CMAKE_MODULE_PATH "${SOFA_CMAKE_DIR}")
 list(APPEND CMAKE_MODULE_PATH "${SOFA_CMAKE_DIR}/Modules")
 
-# Options 
+# Options
 option(SOFA_INSTALL_HEADERS_GENERATED_ONLY "" ON)
 option(SOFA_ENABLE_UNIT_TESTS  "Set to true to enable unit tests for sofa" ON)
 option(SOFA_ALLOW_UNITY_BUILDS "Set to true to build sofa using unity builds and get the option to toggle unity build on/off for each sofa project" OFF)
@@ -21,7 +21,7 @@ set(SOFAFRAMEWORK_CHECK_CONTAINER_ACCESS ON CACHE BOOL "Compile SofaHelper libra
 
 # Sofa extlibs
 set(SOFA_EXTLIBS_DIR ${SOFA_ACTUAL_SOURCE_DIR}/extlibs)
-set(SOFA_EXTLIBS_TARGETS_DEFAULT eigen-3.2.7;miniFlowVR;newmat;tinyxml;metis-5.1.0;csparse;qwt-6.0.1;gtest)
+set(SOFA_EXTLIBS_TARGETS_DEFAULT eigen-3.2.7;miniFlowVR;newmat;tinyxml;metis-5.1.0;csparse;qwt-6.0.1;gtest;cpu_features)
 set(SOFA_EXTLIBS_TARGETS ${SOFA_EXTLIBS_TARGETS_DEFAULT} CACHE STRING "An ordered list (semicolon separated) list of sofa extlibs to add to the build.")
 
 if(${SOFA_ENABLE_UNIT_TESTS})

@@ -35,6 +35,22 @@ namespace core
 namespace behavior
 {
 
+ConstraintResolution::ConstraintResolution(unsigned int nbLines, double tolerance)
+:m_nbLines(nbLines)
+,m_tolerance(tolerance)
+{
+}
+
+void ConstraintResolution::init(int /*line*/, double** /*w*/, double* /*force*/)
+{
+
+}
+
+void ConstraintResolution::initForce(int /*line*/, double* /*force*/)
+{
+
+}
+
 SOFA_ABSTRACT_CLASS_IMPL((BaseConstraintSet));
 SOFA_ABSTRACT_CLASS_IMPL((BaseConstraint));
 SOFA_ABSTRACT_CLASS_IMPL((BaseInteractionConstraint));

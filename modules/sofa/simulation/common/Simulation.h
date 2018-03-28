@@ -42,6 +42,10 @@ namespace simulation
 {
 
 
+SOFA_SIMULATION_COMMON_API void initializeGraph(sofa::simulation::Node* node);
+
+SOFA_SIMULATION_COMMON_API void cleanupGraph(sofa::simulation::Node* node);
+
 /** Main controller of the scene.
     Defines how the scene is inited at the beginning, and updated at each time step.
     Derives from Base in order to use smart pointers and model the parameters as Datas, which makes their edition easy in the GUI.

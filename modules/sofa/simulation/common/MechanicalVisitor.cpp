@@ -484,7 +484,7 @@ Visitor::Result MechanicalIntegrationVisitor::fwdOdeSolver(simulation::Node* nod
     {
         unsigned int constraintId=0;
         core::ConstraintParams cparams;
-        simulation::MechanicalAccumulateConstraint(&cparams /* PARAMS FIRST */, core::MatrixDerivId::holonomicC(), constraintId).execute(node);
+        simulation::MechanicalAccumulateConstraint(&cparams, core::MatrixDerivId::constraintJacobian(), constraintId).execute(node);
 
     }
 #endif
@@ -1217,6 +1217,12 @@ void MechanicalComputeDfVisitor::bwdMechanicalState(simulation::Node* , core::be
 {
 }
 
+Visitor::Result MechanicalComputeGeometricStiffness::fwdMechanicalMapping(simulation::Node* /*node*/, core::BaseMapping* map)
+{
+    map->updateK( mparams, childForce );
+    return RESULT_CONTINUE;
+}
+
 
 Visitor::Result MechanicalAddMBKdxVisitor::fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* /*mm*/)
 {
@@ -1263,14 +1269,14 @@ void MechanicalAddMBKdxVisitor::bwdMechanicalState(simulation::Node* , core::beh
 Visitor::Result MechanicalResetConstraintVisitor::fwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm)
 {
     // mm->setC(res);
-    mm->resetConstraint(this->params);
+    mm->resetConstraint(m_cparams);
     return RESULT_CONTINUE;
 }
 
 
 Visitor::Result MechanicalResetConstraintVisitor::fwdMappedMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm)
 {
-    mm->resetConstraint(this->params);
+    mm->resetConstraint(m_cparams);
     return RESULT_CONTINUE;
 }
 

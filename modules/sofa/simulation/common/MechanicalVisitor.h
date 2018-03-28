@@ -1246,7 +1246,7 @@ public:
     sofa::core::MultiMatrixDerivId cId;
     double t;
     MechanicalProjectJacobianMatrixVisitor(const sofa::core::MechanicalParams* mparams,
-                                           sofa::core::MultiMatrixDerivId c = sofa::core::MatrixDerivId::holonomicC(), double time = 0.0)
+                                           sofa::core::MultiMatrixDerivId c = sofa::core::MatrixDerivId::constraintJacobian(), SReal time = 0.0)
         : MechanicalVisitor(mparams), cId(c), t(time)
     {
 #ifdef SOFA_DUMP_VISITOR_INFO
@@ -1680,6 +1680,47 @@ public:
 };
 
 
+
+
+/** Compute the mapping geometric stiffness matrices.
+This action must be call before BaseMapping::getK()
+*/
+class SOFA_SIMULATION_COMMON_API MechanicalComputeGeometricStiffness : public MechanicalVisitor
+{
+public:
+    sofa::core::ConstMultiVecDerivId childForce;
+    MechanicalComputeGeometricStiffness(const sofa::core::MechanicalParams* mparams, sofa::core::ConstMultiVecDerivId childForce)
+        : MechanicalVisitor(mparams) , childForce(childForce)
+    {
+#ifdef SOFA_DUMP_VISITOR_INFO
+        setReadWriteVectors();
+#endif
+    }
+    virtual Result fwdMechanicalMapping(simulation::Node* /*node*/, core::BaseMapping* map);
+
+    /// Return a class name for this visitor
+    /// Only used for debugging / profiling purposes
+    virtual const char* getClassName() const {return "MechanicalComputeGeometricStiffness";}
+    virtual std::string getInfos() const
+    {
+        std::string name="["+childForce.getName()+"]";
+        return name;
+    }
+
+    /// Specify whether this action can be parallelized.
+    virtual bool isThreadSafe() const
+    {
+        return true;
+    }
+#ifdef SOFA_DUMP_VISITOR_INFO
+    void setReadWriteVectors()
+    {
+        addWriteVector(res);
+    }
+#endif
+};
+
+
 /** Accumulate the product of the system matrix by a given vector.
 Typically used in implicit integration solved by a Conjugate Gradient algorithm.
 The current value of the dx vector is used.
@@ -1742,8 +1783,9 @@ class SOFA_SIMULATION_COMMON_API MechanicalResetConstraintVisitor : public BaseM
 {
 public:
     //VecId res;
-    MechanicalResetConstraintVisitor(const sofa::core::ExecParams* params)
-        : BaseMechanicalVisitor(params)
+    MechanicalResetConstraintVisitor(const sofa::core::ConstraintParams* cparams)
+        : BaseMechanicalVisitor(cparams)
+        , m_cparams(cparams)
     {
 #ifdef SOFA_DUMP_VISITOR_INFO
         setReadWriteVectors();
@@ -1774,6 +1816,9 @@ public:
     {
     }
 #endif
+
+private:
+    const sofa::core::ConstraintParams* m_cparams;
 };
 
 //#ifdef SOFA_HAVE_EIGEN2

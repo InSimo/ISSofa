@@ -154,8 +154,9 @@ class TStandardVec<V_MATDERIV, vaccess>
 public:
     typedef TVecId<V_MATDERIV, vaccess> MyVecId;
 
-    static MyVecId holonomicC()    { return MyVecId(1);}
-    static MyVecId nonHolonomicC() { return MyVecId(2);}
+    static MyVecId constraintJacobian()    { return MyVecId(1);} // jacobian matrix of constraints
+    static MyVecId mappingJacobian() { return MyVecId(2);}         // accumulated matrix of the mappings
+    static MyVecId holonomicC()    { return MyVecId(1); } // to deprecate in favor of constraintJacobian()
     enum { V_FIRST_DYNAMIC_INDEX = 3 }; ///< This is the first index used for dynamically allocated vectors
 
     static std::string getName(const MyVecId& v)

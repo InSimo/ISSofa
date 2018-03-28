@@ -139,9 +139,9 @@ Visitor::Result AnimateVisitor::processNodeTopDown(simulation::Node* node)
 //          std::cerr << "AnimateVisitor::processNodeTopDown, ERROR: no BaseAnimationLoop found while searching down from node: " << node->getName() << std::endl;
 
 //        }
-        sofa::core::MechanicalParams mparams(*this->params);
-        mparams.setDt(dt);
-        MechanicalResetConstraintVisitor resetConstraint(&mparams);
+        
+        sofa::core::ConstraintParams cparams(*this->params);
+        MechanicalResetConstraintVisitor resetConstraint(&cparams);
         node->execute(&resetConstraint);
     }
 #endif
@@ -197,8 +197,8 @@ Visitor::Result AnimateVisitor::processNodeTopDown(simulation::Node* node)
         {
             unsigned int constraintId=0;
             core::ConstraintParams cparams;
-            //MechanicalAccumulateConstraint(&m_mparams /* PARAMS FIRST */, constraintId, VecCoordId::position()).execute(node);
-            simulation::MechanicalAccumulateConstraint(&cparams /* PARAMS FIRST */, core::MatrixDerivId::holonomicC(),constraintId).execute(node);
+            //MechanicalAccumulateConstraint(&m_mparams, constraintId, VecCoordId::position()).execute(node);
+            simulation::MechanicalAccumulateConstraint(&cparams, core::MatrixDerivId::constraintJacobian(),constraintId).execute(node);
         }
 #endif
 

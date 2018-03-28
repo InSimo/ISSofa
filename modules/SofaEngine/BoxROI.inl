@@ -365,12 +365,12 @@ void BoxROI<DataTypes>::update()
     SetIndex& quadIndices = *f_quadIndices.beginEdit();
 
     // Write accessor for toplogical element in BOX
-    helper::WriteAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
-    helper::WriteAccessor< Data<helper::vector<Edge> > > edgesInROI = f_edgesInROI;
-    helper::WriteAccessor< Data<helper::vector<Triangle> > > trianglesInROI = f_trianglesInROI;
-    helper::WriteAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
-    helper::WriteAccessor< Data<helper::vector<Hexa> > > hexahedraInROI = f_hexahedraInROI;
-    helper::WriteAccessor< Data<helper::vector<Quad> > > quadInROI = f_quadInROI;
+    helper::WriteOnlyAccessor< Data<VecCoord > > pointsInROI = f_pointsInROI;
+    helper::WriteOnlyAccessor< Data<helper::vector<Edge> > > edgesInROI = f_edgesInROI;
+    helper::WriteOnlyAccessor< Data<helper::vector<Triangle> > > trianglesInROI = f_trianglesInROI;
+    helper::WriteOnlyAccessor< Data<helper::vector<Tetra> > > tetrahedraInROI = f_tetrahedraInROI;
+    helper::WriteOnlyAccessor< Data<helper::vector<Hexa> > > hexahedraInROI = f_hexahedraInROI;
+    helper::WriteOnlyAccessor< Data<helper::vector<Quad> > > quadInROI = f_quadInROI;
 
     // Write accessor for toplogical element out of the BOX
     helper::WriteAccessor< Data<VecCoord > > pointsOutROI = f_pointsOutROI;
@@ -541,7 +541,7 @@ void BoxROI<DataTypes>::update()
     }
 
 
-	f_nbIndices.setValue(indices.size(),true);
+    f_nbIndices.setValue(indices.size());
 
     f_indices.endEdit();
     f_edgeIndices.endEdit();
@@ -829,7 +829,7 @@ void BoxROI<DataTypes>::computeBBox(const core::ExecParams*  params )
         if (b[4] > maxBBox[1]) maxBBox[1] = b[4];
         if (b[5] > maxBBox[2]) maxBBox[2] = b[5];
     }
-    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox),true);
+    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
 }
 
 } // namespace engine

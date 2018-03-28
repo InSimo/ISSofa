@@ -26,6 +26,7 @@
 #define SOFA_DEFAULTTYPE_MAPMAPSPARSEMATRIX_H
 
 #include <map>
+#include "BaseVector.h"
 
 namespace sofa
 {
@@ -33,13 +34,22 @@ namespace sofa
 namespace defaulttype
 {
 
-template<class MatrixRow, class VecDeriv>
-typename VecDeriv::Real SparseMatrixVecDerivMult(const MatrixRow& row, const VecDeriv& vec)
+template<class MatrixRow, class VecDeriv, typename Real>
+Real SparseMatrixVecDerivMult(const MatrixRow& row, const VecDeriv& vec)
 {
-    typename VecDeriv::Real r = 0;
+    Real r = 0;
     for (typename MatrixRow::const_iterator it = row.begin(), itend = row.end(); it != itend; ++it)
         r += it->second * vec[it->first];
     return r;
+}
+
+template<class MatrixRow, class VecDeriv>
+void convertSparseMatrixRowToVecDeriv(const MatrixRow& row, VecDeriv& out)
+{
+    for (typename MatrixRow::const_iterator it = row.begin(), itend = row.end(); it != itend; ++it)
+    {
+        out[it->first] += it->second;
+    }
 }
 
 template <class T>
@@ -114,6 +124,30 @@ public:
 
         return in;
     }
+
+    template< class VecDeriv>
+    void multTransposeBaseVector(VecDeriv& res, const sofa::defaulttype::BaseVector* lambda ) const
+    {
+        typedef typename VecDeriv::value_type Deriv;
+
+        static_assert(std::is_same<Deriv, T>::value, "res must be contain same type as MapMapSparseMatrix type");
+
+        for (auto rowIt = begin(), rowItEnd = end(); rowIt != rowItEnd; ++rowIt)
+        {
+            const SReal f = lambda->element(rowIt.index());
+            for (auto colIt = rowIt.begin(), colItEnd = rowIt.end(); colIt != colItEnd; ++colIt)
+            {
+                res[colIt.index()] += colIt.val() * f;
+            }
+        }
+    }
+
+    template<typename VecDeriv>
+    void fillVecDeriv(VecDeriv& v) const
+    {
+        convertSparseMatrixRowToVecDeriv(begin().row(),v);
+    }
+
 
 protected:
 
@@ -354,8 +388,8 @@ public:
             return m_internal > it2.m_internal;
         }
 
-        template <class VecDeriv>
-        typename VecDeriv::Real operator*(const VecDeriv& v) const
+        template <class VecDeriv, typename Real>
+        Real operator*(const VecDeriv& v) const
         {
             return SparseMatrixVecDerivMult(row(), v);
         }
@@ -605,7 +639,7 @@ public:
             return m_internal > it2.m_internal;
         }
 
-        void addCol(KeyT id, T value)
+        void addCol(KeyT id, const T& value)
         {
             RowType& row = m_internal->second;
             typename RowType::iterator it = row.find(id);
@@ -620,7 +654,7 @@ public:
             }
         }
 
-        void setCol(KeyT id, T value)
+        void setCol(KeyT id, const T& value)
         {
             RowType& row = m_internal->second;
             typename RowType::iterator it = row.find(id);

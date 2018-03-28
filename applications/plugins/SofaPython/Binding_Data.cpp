@@ -28,6 +28,7 @@
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/core/objectmodel/Data.h>
+#include <sofa/core/dataparser/JsonDataParser.h>
 #include "Binding_LinearSpring.h"
 #include <sofa/core/objectmodel/DataFileName.h>
 #include <SofaDeformable/SpringForceField.h>
@@ -166,6 +167,7 @@ PyObject *GetDataValuePython(BaseData* data)
     // fallback for unknown types, read the content of the data using the output stream operator
     return PyString_FromString(data->getValueString().c_str());
 }
+
 
 bool SetDataValuePython(BaseData* data, PyObject* args)
 {
@@ -587,6 +589,47 @@ bool SetDataValuePython(BaseData* data, PyObject* args)
 
 }
 
+PyObject* GetDataJsonPython(BaseData* data)
+{
+    // depending on the data type, we return the good python type (int, float, sting, array, ...)
+
+    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
+    const void* valueVoidPtr = data->getValueVoidPtr();
+    std::string output;
+    if(typeinfo->ValidInfo())
+    {
+        sofa::core::dataparser::JsonDataParser JsonParser(data->getName());
+        JsonParser.fromData(output, valueVoidPtr, typeinfo);
+    }
+    else
+    {
+        SP_MESSAGE_ERROR( "Invalide DataType can't be parse in JSON" )
+        PyErr_BadArgument();
+        output = "{}";
+    }
+    return PyString_FromString(output.c_str());
+}
+
+bool SetDataJsonPython(BaseData* data, PyObject* args)
+{
+    const AbstractTypeInfo *typeinfo = data->getValueTypeInfo();
+    const std::string input = PyString_AsString(args);
+    if(typeinfo->ValidInfo())
+    {
+        sofa::core::dataparser::JsonDataParser JsonParser(data->getName());
+        void* editVoidPtr = data->beginEditVoidPtr();
+        JsonParser.toData(input, editVoidPtr, typeinfo);
+        data->endEditVoidPtr();
+        return true;
+    }
+    else
+    {
+        SP_MESSAGE_ERROR( "Invalide DataType can't be parse in JSON" )
+        PyErr_BadArgument();
+        return false;
+    }
+
+}
 
 SP_CLASS_ATTR_GET(Data, fullPath)(PyObject *self, void*)
 {
@@ -615,10 +658,29 @@ SP_CLASS_ATTR_GET(Data,value)(PyObject *self, void*)
     return GetDataValuePython(data);
 }
 
+SP_CLASS_ATTR_GET(Data,json)(PyObject *self, void*)
+{
+    BaseData* data=((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
+    return GetDataJsonPython(data);
+}
+
+
 SP_CLASS_ATTR_SET(Data,value)(PyObject *self, PyObject * args, void*)
 {
     BaseData* data=((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
     if (SetDataValuePython(data,args))
+        return 0;   // OK
+
+
+    SP_MESSAGE_ERROR( "argument type not supported" )
+    PyErr_BadArgument();
+    return -1;
+}
+
+SP_CLASS_ATTR_SET(Data,json)(PyObject *self, PyObject * args, void*)
+{
+    BaseData* data=((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
+    if (SetDataJsonPython(data,args))
         return 0;   // OK
 
 
@@ -776,6 +838,7 @@ SP_CLASS_ATTRS_BEGIN(Data)
 SP_CLASS_ATTR(Data,name)
 //SP_CLASS_ATTR(BaseData,owner)
 SP_CLASS_ATTR(Data,value)
+SP_CLASS_ATTR(Data,json)
 SP_CLASS_ATTR(Data,fullPath)
 SP_CLASS_ATTRS_END
 

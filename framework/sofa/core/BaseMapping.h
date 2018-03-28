@@ -79,6 +79,8 @@ public:
 
     /// Accessor to the input model of this mapping
     virtual helper::vector<BaseState*> getFrom() = 0;
+    /// If the type is compatible set the input model and return true, otherwise do nothing and return false.
+    virtual bool setFrom( BaseState* from );
 
     /// Accessor to the output model of this mapping
     virtual helper::vector<BaseState*> getTo() = 0;
@@ -93,8 +95,6 @@ public:
     virtual void applyJT(const MechanicalParams* mparams, MultiVecDerivId inForce, ConstMultiVecDerivId outForce) = 0;
     /// Accumulate a change of parent force due to the change of the mapping, for a constant child force. Null for linear mappings.
     virtual void applyDJT(const MechanicalParams* mparams, MultiVecDerivId inForce, ConstMultiVecDerivId outForce) = 0;
-    /// Store data used to apply geometric stiffness. The child force can be read using mparams->readF(this->toModel). Default implementation does nothing, corresponding to a linear mapping.
-//    virtual void computeGeometricStiffness(const MechanicalParams* /*mparams*/) {}
     /// Propagate constraint Jacobians upward
     virtual void applyJT(const ConstraintParams* mparams, MultiMatrixDerivId inConst, ConstMultiMatrixDerivId outConst) = 0;
     virtual void computeAccFromMapping(const MechanicalParams* mparams, MultiVecDerivId outAcc, ConstMultiVecDerivId inVel, ConstMultiVecDerivId inAcc) = 0;
@@ -134,42 +134,41 @@ public:
     /// provided implementations for debugging.
     virtual const sofa::defaulttype::BaseMatrix* getJ(const MechanicalParams* /*mparams*/);
 
+    /// @deprecated
     virtual const sofa::defaulttype::BaseMatrix* getJ();
 
+
     typedef sofa::defaulttype::BaseMatrix* (*func_createMappedMatrix)(const behavior::BaseMechanicalState* , const behavior::BaseMechanicalState* );
-
-
-    //Create a matrix for mapped mechanical objects
-    //If the two mechanical objects is identical, create a new stiffness matrix for this mapped objects
-    //If the two mechanical objects is different, create a new interaction matrix
+    /// Create a matrix for mapped mechanical objects
+    /// If the two mechanical objects is identical, create a new stiffness matrix for this mapped objects
+    /// If the two mechanical objects is different, create a new interaction matrix
     virtual sofa::defaulttype::BaseMatrix* createMappedMatrix(const behavior::BaseMechanicalState* state1, const behavior::BaseMechanicalState* state2, func_createMappedMatrix);
 
-    ///<TO REMOVE>
-    ///Necessary ?
     /// Get the source (upper) mechanical state.
     virtual helper::vector<behavior::BaseMechanicalState*> getMechFrom() = 0;
     /// Get the destination (lower, mapped) mechanical state.
     virtual helper::vector<behavior::BaseMechanicalState*> getMechTo() = 0;
-    /// Return false if this mapping should only be used as a regular
 
     /// Disable the mapping to get the original coordinates of the mapped model.
     virtual void disable()=0;
 
-    /// @name Experimental API used in the Compliant solver to perform global matrix assembly (François Faure, 2012)
+    /// @name New API for global matrix assembly (used in the Compliant plugin)
     /// @{
 
     /// Returns pointers to Jacobian matrices associated with parent states, consistently with getFrom(). Most mappings have only one parent, however Multimappings have several parents.
-    virtual const helper::vector<sofa::defaulttype::BaseMatrix*>* getJs()  { serr<<"getJs not implemented"<<sendl; return 0; }
+    /// For efficiency concerns, please return pointers to defaulttype::EigenBaseSparseMatrix
+    virtual const helper::vector<sofa::defaulttype::BaseMatrix*>* getJs() { serr<<"getJs not implemented"<<sendl; return 0; }
 
-    /** Return pointers to the geometric stiffness matrices. 
-	This is the equivalent of applyDJT, for matrix assembly instead of matrix-vector product. 
-	These matrices are associated with the parent DOFs. 
-    @todo Are there cross-dependencies between the parents, resulting in off-diagonal geometric stiffness blocks? I do not think so but I am not totally sure (FF, June 2013)
-    Answer (M Nesme, oct. 2014): there can be off-diagonal blocks and only specific non-linear multimappings can be implemented. A workaround is to decompose the problematic
-        non-linear multimappings in a small graph including only linear multimappings + non-linear simple mappings (where geometric stiffness can be implemented).
-        e.g.: A DistanceMultimapping (non-linear) is not implementable with this API, but can be decomposed in a SubsetMultiMapping (linear) + a DistanceMapping (non-linear)
-    */
-    virtual const helper::vector<sofa::defaulttype::BaseMatrix*>* getKs() { return NULL; }
+    /// Compute the geometric stiffness matrix based on given child forces
+    /// K = dJ^T * outForce
+    /// Default implementation does nothing, corresponding to a linear mapping.
+    virtual void updateK( const MechanicalParams* /*mparams*/, ConstMultiVecDerivId /*outForce*/ ) {}
+
+    /// Returns a pointer to the geometric stiffness matrix.
+    /// This is the equivalent of applyDJT, for matrix assembly instead of matrix-vector product.
+    /// This matrix is associated with the parent DOFs. It is a square matrix with a size of the total number of parent DOFs.
+    /// For efficiency concerns, please return a pointer to a defaulttype::EigenBaseSparseMatrix
+    virtual const defaulttype::BaseMatrix* getK() { return NULL; }
 
     /// @}
 

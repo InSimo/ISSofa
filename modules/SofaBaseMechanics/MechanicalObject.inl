@@ -149,7 +149,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     setVecDeriv(core::VecDerivId::dx().index, &dx);
     setVecDeriv(core::VecDerivId::freeVelocity().index, &vfree);
     setVecDeriv(core::VecDerivId::resetVelocity().index, &reset_velocity);
-    setVecMatrixDeriv(core::MatrixDerivId::holonomicC().index, &c);
+    setVecMatrixDeriv(core::MatrixDerivId::constraintJacobian().index, &c);
 
     // These vectors are set as modified as they are mandatory in the MechanicalObject.
     x               .forceSet();
@@ -1524,14 +1524,17 @@ Data<typename MechanicalObject<DataTypes>::VecCoord>* MechanicalObject<DataTypes
     if (vectorsCoord[v.index] == NULL)
     {
         vectorsCoord[v.index] = new Data< VecCoord >("VecCoord temporary state vector");
+        vectorsCoord[v.index]->setName(v.getName());
+        vectorsCoord[v.index]->setGroup("Vector");
+        this->addData(vectorsCoord[v.index]);
         if (f_reserve.getValue() > 0)
         {
-            vectorsCoord[v.index]->beginEdit()->reserve(f_reserve.getValue());
+            vectorsCoord[v.index]->beginWriteOnly()->reserve(f_reserve.getValue());
             vectorsCoord[v.index]->endEdit();
         }
         if( vectorsCoord[v.index]->getValue().size() != (unsigned int)getSize() )
         {
-            vectorsCoord[v.index]->beginEdit()->resize( getSize() );
+            vectorsCoord[v.index]->beginWriteOnly()->resize( getSize() );
             vectorsCoord[v.index]->endEdit();
         }
     }
@@ -1545,6 +1548,8 @@ Data<typename MechanicalObject<DataTypes>::VecCoord>* MechanicalObject<DataTypes
 #endif
     return d;
 }
+
+
 
 template <class DataTypes>
 const Data<typename MechanicalObject<DataTypes>::VecCoord>* MechanicalObject<DataTypes>::read(core::ConstVecCoordId v) const
@@ -1588,6 +1593,9 @@ Data<typename MechanicalObject<DataTypes>::VecDeriv>* MechanicalObject<DataTypes
     if (vectorsDeriv[v.index] == NULL)
     {
         vectorsDeriv[v.index] = new Data< VecDeriv >("VecDeriv temporary state vector");
+        vectorsDeriv[v.index]->setName(v.getName());
+        vectorsDeriv[v.index]->setGroup("Vector");
+        this->addData(vectorsDeriv[v.index]);
         if (f_reserve.getValue() > 0)
         {
             vectorsDeriv[v.index]->beginEdit()->reserve(f_reserve.getValue());
@@ -1651,6 +1659,9 @@ Data<typename MechanicalObject<DataTypes>::MatrixDeriv>* MechanicalObject<DataTy
     if (vectorsMatrixDeriv[v.index] == NULL)
     {
         vectorsMatrixDeriv[v.index] = new Data< MatrixDeriv >("MatrixDeriv temporary state vector");
+        vectorsMatrixDeriv[v.index]->setName(v.getName());
+        vectorsMatrixDeriv[v.index]->setGroup("Vector");
+        this->addData(vectorsMatrixDeriv[v.index]);
     }
 
     return vectorsMatrixDeriv[v.index];
@@ -2609,20 +2620,20 @@ void MechanicalObject<DataTypes>::resetAcc(const core::ExecParams* params)
 }
 
 template <class DataTypes>
-void MechanicalObject<DataTypes>::resetConstraint(const core::ExecParams* params)
+void MechanicalObject<DataTypes>::resetConstraint(const core::ConstraintParams* cParams)
 {
-    Data<MatrixDeriv>& c_data = *this->write(core::MatrixDerivId::holonomicC());
-    MatrixDeriv *c = c_data.beginEdit(params);
+    Data<MatrixDeriv>& c_data = *this->write(cParams->j().getId(this));
+    MatrixDeriv *c = c_data.beginEdit(cParams);
     c->clear();
-    c_data.endEdit(params);
+    c_data.endEdit(cParams);
 }
 
 template <class DataTypes>
-void MechanicalObject<DataTypes>::getConstraintJacobian(const core::ExecParams* /*params*/, sofa::defaulttype::BaseMatrix* J,unsigned int & off)
+void MechanicalObject<DataTypes>::getConstraintJacobian(const core::ConstraintParams* cParams, sofa::defaulttype::BaseMatrix* J,unsigned int & off)
 {
     // Compute J
     const size_t N = Deriv::size();
-    const MatrixDeriv& c = this->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& c = cParams->readJ(this)->getValue(cParams);
 
     MatrixDerivRowConstIterator rowItEnd = c.end();
 

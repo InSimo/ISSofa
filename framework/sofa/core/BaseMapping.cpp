@@ -51,6 +51,14 @@ BaseMapping::~BaseMapping()
 //    serr<<"Mapping "<< getName() <<", BaseMapping::computeLocalCoordinates() is not implemented for this class. It may be still implemented in the init() method." << sendl;
 //}
 
+
+bool BaseMapping::setFrom(BaseState*  from)
+{
+    this->serr<<"BaseMapping::setFrom is not implemented for " << this->getName()<< sendl;
+    return false;
+}
+
+
 bool BaseMapping::setTo( BaseState*  )
 {
     this->serr<<"BaseMapping::setTo is not implemented for " << this->getName()<< sendl;
@@ -124,13 +132,14 @@ bool BaseMapping::isMechanical() const
 /// provided implementations for debugging.
 const sofa::defaulttype::BaseMatrix* BaseMapping::getJ(const MechanicalParams* /*mparams*/)
 {
-    serr << "Calling deprecated getJ() method in " << getClassName() << ". Use getJ(const MechanicalParams *) instead." << sendl;
+    serr << "BaseMapping::getJ() NOT IMPLEMENTED BY " << getClassName() << sendl;
+
     return getJ();
 }
 
 const sofa::defaulttype::BaseMatrix* BaseMapping::getJ()
 {
-    serr << "BaseMapping::getJ() NOT IMPLEMENTED BY " << getClassName() << sendl;
+    serr << "Calling deprecated getJ() method in " << getClassName() << ". Use getJ(const MechanicalParams *) instead." << sendl;
     return NULL;
 }
 

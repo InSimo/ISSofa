@@ -376,9 +376,9 @@ public:
 
     virtual void resetAcc(const core::ExecParams* params);
 
-    virtual void resetConstraint(const core::ExecParams* params);
+    virtual void resetConstraint(const core::ConstraintParams* cparams);
 
-    virtual void getConstraintJacobian(const core::ExecParams* params, sofa::defaulttype::BaseMatrix* J,unsigned int & off);
+    virtual void getConstraintJacobian(const core::ConstraintParams* cparams, sofa::defaulttype::BaseMatrix* J,unsigned int & off);
 
     /// @}
 

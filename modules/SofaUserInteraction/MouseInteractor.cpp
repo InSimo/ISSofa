@@ -119,6 +119,27 @@ void BaseMouseInteractor::handleEvent(core::objectmodel::Event *e)
                 m_taggedBodies.push_back(lastPicked.body);
             }
             break;
+        case 'E':
+            for (auto body : m_disabledBodies)
+            {
+                if (body)
+                {
+                    std::cout << "Enable model " << body->getName() << std::endl;
+                    body->setActive(true);
+                }
+            }
+            m_disabledBodies.clear();
+            break;
+        case 'D':
+            if (lastPicked.body)
+            {
+                std::cout << "Disable model " << lastPicked.body->getName() << std::endl;
+                lastPicked.body->setActive(false);
+                m_disabledBodies.push_back(lastPicked.body);
+            }
+            break;
+        default:
+            break;
         }
     }
 }

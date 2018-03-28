@@ -47,8 +47,10 @@ public:
     /// Test if 2 elements can collide. Note that this can be conservative (i.e. return true even when no collision is present)
     bool canIntersect(core::CollisionElementIterator elem1, core::CollisionElementIterator elem2)
     {
-        Elem1 e1(elem1);
-        Elem2 e2(elem2);
+        Model1* m1 = static_cast<Model1*>(elem1.getCollisionModel());
+        Model2* m2 = static_cast<Model2*>(elem2.getCollisionModel());
+        Elem1 e1(m1,elem1.getIndex());
+        Elem2 e2(m2,elem2.getIndex());
         return impl->testIntersection(e1, e2);
     }
 
@@ -68,8 +70,10 @@ public:
     /// Compute the intersection between 2 elements.
     int intersect(core::CollisionElementIterator elem1, core::CollisionElementIterator elem2,  DetectionOutputVector* contacts)
     {
-        Elem1 e1(elem1);
-        Elem2 e2(elem2);
+        Model1* m1 = static_cast<Model1*>(elem1.getCollisionModel());
+        Model2* m2 = static_cast<Model2*>(elem2.getCollisionModel());
+        Elem1 e1(m1, elem1.getIndex());
+        Elem2 e2(m2, elem2.getIndex());
         return impl->computeIntersection(e1, e2, getOutputVector<Model1,Model2>( contacts ) );
     }
 

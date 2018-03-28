@@ -86,13 +86,13 @@ public:
     /// @name Correction API
     /// @{
 
-    virtual void computeAndApplyMotionCorrection(const sofa::core::ConstraintParams *cparams, Data< VecCoord > &x, Data< VecDeriv > &v, Data< VecDeriv > &f, const sofa::defaulttype::BaseVector *lambda);
+    virtual void computeMotionCorrection(const core::ConstraintParams* cparams, core::MultiVecDerivId dx, core::MultiVecDerivId f) override;
 
-    virtual void computeAndApplyPositionCorrection(const sofa::core::ConstraintParams *cparams, Data< VecCoord > &x, Data< VecDeriv > &f, const sofa::defaulttype::BaseVector *lambda);
+    virtual void applyMotionCorrection(const sofa::core::ConstraintParams *cparams, Data< VecCoord > &x, Data< VecDeriv > &v, Data< VecDeriv > &dx, const Data< VecDeriv > &correction) override;
 
-    virtual void computeAndApplyVelocityCorrection(const sofa::core::ConstraintParams *cparams, Data< VecDeriv > &v, Data< VecDeriv > &f, const sofa::defaulttype::BaseVector *lambda);
+    virtual void applyPositionCorrection(const sofa::core::ConstraintParams *cparams, Data< VecCoord > &x, Data<VecDeriv>& dx, const Data< VecDeriv > & correction) override;
 
-    virtual void applyPredictiveConstraintForce(const sofa::core::ConstraintParams *cparams, Data< VecDeriv > &f, const sofa::defaulttype::BaseVector *lambda);
+    virtual void applyVelocityCorrection(const sofa::core::ConstraintParams *cparams, Data< VecDeriv > &v, Data<VecDeriv>& dv, const Data< VecDeriv > & correction) override;
 
     /// @}
 
@@ -134,6 +134,8 @@ public:
     Data< Real > d_correctionPositionFactor;
 
     Data < bool > d_useOdeSolverIntegrationFactors;
+    Data < bool > d_computeConstraintWork;
+    Data < Real > d_work;
 
 private:
     // new :  for non building the constraint system during solving process //
@@ -149,7 +151,7 @@ protected:
     /**
      * @brief Compute dx correction from motion space force vector.
      */
-    void computeDx(const Data< VecDeriv > &f);
+    void computeDx(const Data< VecDeriv > &f, VecDeriv& x);
 };
 
 template<>

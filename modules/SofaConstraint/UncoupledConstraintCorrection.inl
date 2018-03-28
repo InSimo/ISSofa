@@ -118,8 +118,11 @@ UncoupledConstraintCorrection<DataTypes>::UncoupledConstraintCorrection(sofa::co
     , d_correctionVelocityFactor(initData(&d_correctionVelocityFactor, (Real)1.0, "correctionVelocityFactor", "Factor applied to the constraint forces when correcting the velocities"))
     , d_correctionPositionFactor(initData(&d_correctionPositionFactor, (Real)1.0, "correctionPositionFactor", "Factor applied to the constraint forces when correcting the positions"))
     , d_useOdeSolverIntegrationFactors(initData(&d_useOdeSolverIntegrationFactors, false, "useOdeSolverIntegrationFactors", "Use odeSolver integration factors instead of correctionVelocityFactor and correctionPositionFactor"))
+    , d_computeConstraintWork(initData(&d_computeConstraintWork, false, "computeConstraintWork", "compute constraint work (for monitoring only)"))
+    , d_work(initData(&d_work,Real(0),"work","constraint work of previous time step (read only)"))
     , m_pOdeSolver(NULL)
 {
+    d_work.setReadOnly( true );
 }
 
 template<class DataTypes>
@@ -254,7 +257,7 @@ void UncoupledConstraintCorrection< DataTypes >::handleTopologyChange()
 template<class DataTypes>
 void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(defaulttype::BaseMatrix* Wmerged, std::vector<int> &constraint_merge)
 {
-    helper::WriteAccessor<Data<MatrixDeriv> > constraintsData = *this->mstate->write(core::MatrixDerivId::holonomicC());
+    helper::WriteAccessor<Data<MatrixDeriv> > constraintsData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
     MatrixDeriv& constraints = constraintsData.wref();
 
     MatrixDeriv constraintCopy;
@@ -324,7 +327,7 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(
 template<class DataTypes>
 void UncoupledConstraintCorrection<DataTypes>::addComplianceInConstraintSpace(const sofa::core::ConstraintParams * cparams, sofa::defaulttype::BaseMatrix *W)
 {
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = cparams->readJ(this->mstate)->getValue(cparams) ;
     VecReal comp = compliance.getValue();
     Real comp0   = defaultCompliance.getValue();
     const bool verbose = f_verbose.getValue();
@@ -461,12 +464,9 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceMatrix(defaulttype::
 
 
 template<class DataTypes>
-void UncoupledConstraintCorrection<DataTypes>::computeDx(const Data< VecDeriv > &f_d)
+void UncoupledConstraintCorrection<DataTypes>::computeDx(const Data< VecDeriv > &f_d, VecDeriv& dx)
 {
     const VecDeriv& f = f_d.getValue();
-
-    Data< VecDeriv > &dx_d = *this->mstate->write(core::VecDerivId::dx());
-    VecDeriv& dx = *dx_d.beginEdit();
 
     dx.resize(f.size());
     const VecReal& comp = compliance.getValue();
@@ -477,22 +477,26 @@ void UncoupledConstraintCorrection<DataTypes>::computeDx(const Data< VecDeriv > 
         //dx[i] = f[i] * (i < comp.size() ? comp[i] : comp0);
         dx[i] = UncoupledConstraintCorrection_computeDx(i, f[i], comp0, comp);
     }
+}
 
-    dx_d.endEdit();
+template<class DataTypes>
+void UncoupledConstraintCorrection<DataTypes>::computeMotionCorrection(const core::ConstraintParams* cparams, core::MultiVecDerivId dx, core::MultiVecDerivId f)
+{
+    auto writeDx = sofa::helper::write( *dx[this->getMState()].write(), cparams );
+    const Data<VecDeriv>& f_d = *f[this->getMState()].read();
+    computeDx(f_d, writeDx.wref());
 }
 
 
 template<class DataTypes>
-void UncoupledConstraintCorrection<DataTypes>::computeAndApplyMotionCorrection(const core::ConstraintParams *cparams, Data< VecCoord > &x_d, Data< VecDeriv > &v_d, Data< VecDeriv > &f_d, const defaulttype::BaseVector *lambda)
+void UncoupledConstraintCorrection<DataTypes>::applyMotionCorrection(const core::ConstraintParams *cparams, Data< VecCoord > &x_d, Data< VecDeriv > &v_d, Data<VecDeriv>& dx_d, const Data< VecDeriv > &correction_d)
 {
-    this->addConstraintForceInMotionSpace(f_d, lambda);
 
-    computeDx(f_d);
+    auto dx         = sofa::helper::write(dx_d, cparams);
+    auto correction = sofa::helper::read(correction_d, cparams);
 
     VecCoord& x = *x_d.beginEdit();
     VecDeriv& v = *v_d.beginEdit();
-
-    VecDeriv& dx = *(this->mstate->write(core::VecDerivId::dx())->beginEdit());
 
     const VecCoord& x_free = cparams->readX(this->mstate)->getValue();
     const VecDeriv& v_free = cparams->readV(this->mstate)->getValue();
@@ -504,8 +508,8 @@ void UncoupledConstraintCorrection<DataTypes>::computeAndApplyMotionCorrection(c
 
     for (unsigned int i = 0; i < dx.size(); i++)
     {
-        const Deriv dxi = dx[i] * xFactor;
-        const Deriv dvi = dx[i] * vFactor;
+        const Deriv dxi = correction[i] * xFactor;
+        const Deriv dvi = correction[i] * vFactor;
         x[i] = x_free[i] + dxi;
         v[i] = v_free[i] + dvi;
         dx[i] = dxi;
@@ -513,22 +517,33 @@ void UncoupledConstraintCorrection<DataTypes>::computeAndApplyMotionCorrection(c
 
     x_d.endEdit();
     v_d.endEdit();
-    this->mstate->write(core::VecDerivId::dx())->endEdit();
+    if (d_computeConstraintWork.getValue())
+    {
+        //Constraint work computation
+        const sofa::Data< VecDeriv >* d_f = cparams->lambda()[this->getMState()].read();
+        if (d_f)
+        {
+            auto f = sofa::helper::read(*d_f, cparams);
+            double work=0;
+            for (unsigned int i=0; i< dx.size(); ++i)
+            {
+                work += (f[i]*dx[i])/xFactor;
+            }
+            d_work.setValue(work);
+        }
+    }
 }
 
 
 template<class DataTypes>
-void UncoupledConstraintCorrection<DataTypes>::computeAndApplyPositionCorrection(const core::ConstraintParams *cparams, Data< VecCoord > &x_d, Data< VecDeriv > &f_d, const defaulttype::BaseVector *lambda)
+void UncoupledConstraintCorrection<DataTypes>::applyPositionCorrection(const core::ConstraintParams *cparams, Data< VecCoord > &x_d, Data< VecDeriv >& dx_d, const Data< VecDeriv > &correction_d)
 {
-    this->addConstraintForceInMotionSpace(f_d, lambda);
-
-    computeDx(f_d);
+    auto dx = sofa::helper::write(dx_d, cparams);
+    auto correction = sofa::helper::read(correction_d, cparams);
 
     VecCoord& x = *x_d.beginEdit();
 
     const VecCoord& x_free = cparams->readX(this->mstate)->getValue();
-
-    VecDeriv& dx = *(this->mstate->write(core::VecDerivId::dx())->beginEdit());
 
     const bool useOdeIntegrationFactors = d_useOdeSolverIntegrationFactors.getValue();
 
@@ -536,28 +551,24 @@ void UncoupledConstraintCorrection<DataTypes>::computeAndApplyPositionCorrection
 
     for (unsigned int i = 0; i < dx.size(); i++)
     {
-        const  Deriv dxi = dx[i] * xFactor;
+        const  Deriv dxi = correction[i] * xFactor;
         x[i] = x_free[i] + dxi;
         dx[i] = dxi;
     }
 
     x_d.endEdit();
-    this->mstate->write(core::VecDerivId::dx())->endEdit();
 }
 
 
 template<class DataTypes>
-void UncoupledConstraintCorrection<DataTypes>::computeAndApplyVelocityCorrection(const core::ConstraintParams *cparams, Data< VecDeriv > &v_d, Data< VecDeriv > &f_d, const defaulttype::BaseVector *lambda)
+void UncoupledConstraintCorrection<DataTypes>::applyVelocityCorrection(const core::ConstraintParams *cparams, Data< VecDeriv > &v_d, Data<VecDeriv>& dv_d, const Data< VecDeriv > &correction_d)
 {
-    this->addConstraintForceInMotionSpace(f_d, lambda);
-
-    computeDx(f_d);
+    auto dx = sofa::helper::write(dv_d, cparams);
+    auto correction = sofa::helper::read(correction_d, cparams);
 
     VecDeriv& v = *v_d.beginEdit();
 
     const VecDeriv& v_free = cparams->readV(this->mstate)->getValue();
-
-    VecDeriv& dx = *(this->mstate->write(core::VecDerivId::dx())->beginEdit());
 
     const bool useOdeIntegrationFactors = d_useOdeSolverIntegrationFactors.getValue();
 
@@ -565,13 +576,12 @@ void UncoupledConstraintCorrection<DataTypes>::computeAndApplyVelocityCorrection
     
     for (unsigned int i = 0; i < dx.size(); i++)
     {
-        const Deriv dvi = dx[i] * vFactor;
+        const Deriv dvi = correction[i] * vFactor;
         v[i] = v_free[i] + dvi;
         dx[i] = dvi;
     }
 
     v_d.endEdit();
-    this->mstate->write(core::VecDerivId::dx())->endEdit();
 }
 
 
@@ -580,7 +590,7 @@ void UncoupledConstraintCorrection<DataTypes>::applyContactForce(const defaultty
 {
     helper::WriteAccessor<Data<VecDeriv> > forceData = *this->mstate->write(core::VecDerivId::externalForce());
     VecDeriv& force = forceData.wref();
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
     const VecReal& comp = compliance.getValue();
     const Real comp0 = defaultCompliance.getValue();
 
@@ -638,14 +648,6 @@ void UncoupledConstraintCorrection<DataTypes>::applyContactForce(const defaultty
 
 
 template<class DataTypes>
-void UncoupledConstraintCorrection<DataTypes>::applyPredictiveConstraintForce(const core::ConstraintParams * /*cparams*/, Data< VecDeriv > &f_d, const defaulttype::BaseVector *lambda)
-{
-    this->setConstraintForceInMotionSpace(f_d, lambda);
-}
-
-
-
-template<class DataTypes>
 void UncoupledConstraintCorrection<DataTypes>::resetContactForce()
 {
     helper::WriteAccessor<Data<VecDeriv> > forceData = *this->mstate->write(core::VecDerivId::externalForce());
@@ -662,7 +664,7 @@ void UncoupledConstraintCorrection<DataTypes>::resetContactForce()
 template<class DataTypes>
 bool UncoupledConstraintCorrection<DataTypes>::hasConstraintNumber(int index)
 {
-    const MatrixDeriv &constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv &constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     return (constraints.readLine(index) != constraints.end());
 }
@@ -671,7 +673,7 @@ bool UncoupledConstraintCorrection<DataTypes>::hasConstraintNumber(int index)
 template<class DataTypes>
 void UncoupledConstraintCorrection<DataTypes>::resetForUnbuiltResolution(double * f, std::list<unsigned int>& /*renumbering*/)
 {
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     constraint_disp.clear();
     constraint_disp.resize(this->mstate->getSize());
@@ -715,7 +717,7 @@ void UncoupledConstraintCorrection<DataTypes>::addConstraintDisplacement(double 
 /// constraint_force contains the force applied on dof involved with the contact
 /// TODO : compute a constraint_disp that is updated each time a new force is provided !
 
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
 
     for (int id = begin; id <= end; id++)
     {
@@ -745,7 +747,7 @@ void UncoupledConstraintCorrection<DataTypes>::setConstraintDForce(double * df, 
     /// if update is true, it computes the displacements due to this delta of force.
     /// As the contact are uncoupled, a displacement is obtained only on dof involved with the constraints
 
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
     const VecReal& comp = compliance.getValue();
     const Real comp0 = defaultCompliance.getValue();
 
@@ -783,7 +785,7 @@ void UncoupledConstraintCorrection<DataTypes>::setConstraintDForce(double * df, 
 template<class DataTypes>
 void UncoupledConstraintCorrection<DataTypes>::getBlockDiagonalCompliance(defaulttype::BaseMatrix* W, int begin, int end)
 {
-    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+    const MatrixDeriv& constraints = this->mstate->read(core::ConstMatrixDerivId::constraintJacobian())->getValue();
     const VecReal& comp = compliance.getValue();
     const Real comp0 = defaultCompliance.getValue();
 

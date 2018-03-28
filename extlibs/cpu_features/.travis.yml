@@ -1,0 +1,16 @@
+sudo: required
+language: c
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - cmake --version
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -H. -Bcmake_build
+  - cmake --build cmake_build --target all
+  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build cmake_build --target test

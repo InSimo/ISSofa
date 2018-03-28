@@ -113,19 +113,19 @@ public:
     }
 
     /// v = a
-    void eq(MyMultiVecId a)
+    void eq(ConstMyMultiVecId a)
     {
         vop->v_eq(v, a);
     }
 
     /// v = a*f
-    void eq(MyMultiVecId a, double f)
+    void eq(ConstMyMultiVecId a, SReal f)
     {
         vop->v_eq(v, a, f);
     }
 
     /// v += a*f
-    void peq(AllMultiVecId a, double f=1.0)
+    void peq(ConstAllMultiVecId a, SReal f=1.0)
     {
         vop->v_peq(v, a, f);
     }
@@ -137,13 +137,13 @@ public:
     }
 
     /// v = a+b*f
-    void eq(AllMultiVecId a, AllMultiVecId b, double f=1.0)
+    void eq(ConstAllMultiVecId a, ConstAllMultiVecId b, SReal f=1.0)
     {
         vop->v_op(v, a, b, f);
     }
 
     /// \return v.a
-    double dot(MyMultiVecId a)
+    SReal dot(ConstAllMultiVecId a)
     {
         vop->v_dot(v, a);
         return vop->finish();
@@ -173,7 +173,7 @@ public:
     }
 
     /// v = a
-    void operator=(MyMultiVecId a)
+    void operator=(ConstMyMultiVecId a)
     {
         eq(a);
     }
@@ -185,13 +185,13 @@ public:
     }
 
     /// v += a
-    void operator+=(MyMultiVecId a)
+    void operator+=(ConstAllMultiVecId a)
     {
         peq(a);
     }
 
     /// v -= a
-    void operator-=(MyMultiVecId a)
+    void operator-=(ConstAllMultiVecId a)
     {
         peq(a,-1);
     }
@@ -209,7 +209,7 @@ public:
     }
 
     /// return the scalar product dot(v,a)
-    double operator*(MyMultiVecId a)
+    SReal operator*(ConstMyMultiVecId a)
     {
         return dot(a);
     }
