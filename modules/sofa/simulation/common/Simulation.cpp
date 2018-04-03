@@ -217,7 +217,7 @@ void Simulation::init ( Node* root )
                 <<"Default Animation Manager Loop will be used. Add DefaultAnimationLoop to the root node of scene file to remove this warning"
                         <<root->getContext()->sendl;
 
-        DefaultAnimationLoop::SPtr aloop = sofa::core::objectmodel::New<DefaultAnimationLoop>(root);
+        DefaultAnimationLoop::SPtr aloop = sofa::core::objectmodel::New<DefaultAnimationLoop>();
         aloop->setName(core::objectmodel::BaseObject::shortName(aloop.get()));
         root->addObject(aloop);
     }

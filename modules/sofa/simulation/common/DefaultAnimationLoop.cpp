@@ -76,12 +76,10 @@ int DefaultAnimationLoopClass = core::RegisterObject("The simplest animation loo
 
 
 
-DefaultAnimationLoop::DefaultAnimationLoop(simulation::Node* _gnode)
+DefaultAnimationLoop::DefaultAnimationLoop()
     : Inherit()
     , d_idleFrequency(initData(&d_idleFrequency,0.0,"idleFrequency","If greater than 0: desired frequency of calls to idle() (sending IdleEvents) when the simulation is stopped/paused"))
-    , gnode(_gnode)
 {
-    //assert(gnode);
 }
 
 DefaultAnimationLoop::~DefaultAnimationLoop()
