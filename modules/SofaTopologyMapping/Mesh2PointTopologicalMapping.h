@@ -147,6 +147,7 @@ protected:
 
     Data< bool > copyEdges; ///< Activate mapping of input edges into the output topology (requires at least one item in pointBaryCoords)
     Data< bool > copyTriangles; ///< Activate mapping of input triangles into the output topology (requires at least one item in pointBaryCoords)
+    Data< bool > copyTrianglesTwice; ///< Activate mapping of input triangles into the output topology were input triangles are duplicated twice (requires at least two item in pointBaryCoords)
 	Data< bool > copyTetrahedra; ///< Activate mapping of input tetrahedras into the output topology (requires at least one item in pointBaryCoords)
 
     helper::fixed_array< vector< vector<int> >, NB_ELEMENTS > pointsMappedFrom; ///< Points mapped from the differents elements (see the enum Element declared before)
@@ -167,6 +168,8 @@ protected:
     void swapOutputPoints(int i1, int i2, bool removeLast = false);
     void removeOutputPoints( const sofa::helper::vector<unsigned int>& tab );
 
+    void clear();
+
 protected:
     bool internalCheck(const char* step, const helper::fixed_array <int, NB_ELEMENTS >& nbInputRemoved);
     
@@ -176,6 +179,9 @@ protected:
         nbInputRemoved.assign(0);
         return internalCheck(step, nbInputRemoved);
     }
+
+    void computeDoubleSurfaceWithBorder();
+
     bool initDone;
 };
 
