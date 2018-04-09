@@ -78,6 +78,11 @@ public:
 #endif
     }
 
+    virtual ~BaseClassInfo()
+    {
+
+    }
+
 private:
     BaseClassInfo()
     {
