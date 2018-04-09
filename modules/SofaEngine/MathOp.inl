@@ -531,7 +531,7 @@ void MathOp<VecT>::handleEvent(core::objectmodel::Event* e)
 {
     if( simulation::AnimateBeginEvent::DynamicCast(e) )
     {
-        this->requestUpdate();
+        this->requestUpdateIfDirty();
     }
 }
 
