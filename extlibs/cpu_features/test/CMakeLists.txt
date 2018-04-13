@@ -10,22 +10,22 @@ include_directories(../include)
 add_definitions(-DCPU_FEATURES_TEST)
 
 ##------------------------------------------------------------------------------
-add_library(string_view ../src/string_view.c)
+add_library(string_view STATIC ../src/string_view.c)
 ##------------------------------------------------------------------------------
-add_library(filesystem_for_testing filesystem_for_testing.cc)
+add_library(filesystem_for_testing STATIC filesystem_for_testing.cc)
 ##------------------------------------------------------------------------------
-add_library(hwcaps_for_testing hwcaps_for_testing.cc)
+add_library(hwcaps_for_testing STATIC hwcaps_for_testing.cc)
 target_link_libraries(hwcaps_for_testing filesystem_for_testing)
 ##------------------------------------------------------------------------------
-add_library(stack_line_reader ../src/stack_line_reader.c)
+add_library(stack_line_reader STATIC ../src/stack_line_reader.c)
 target_compile_definitions(stack_line_reader PUBLIC STACK_LINE_READER_BUFFER_SIZE=1024)
 target_link_libraries(stack_line_reader string_view)
 ##------------------------------------------------------------------------------
-add_library(stack_line_reader_for_test ../src/stack_line_reader.c)
+add_library(stack_line_reader_for_test STATIC ../src/stack_line_reader.c)
 target_compile_definitions(stack_line_reader_for_test PUBLIC STACK_LINE_READER_BUFFER_SIZE=16)
 target_link_libraries(stack_line_reader_for_test string_view filesystem_for_testing)
 ##------------------------------------------------------------------------------
-add_library(all_libraries ../src/stack_line_reader.c ../src/linux_features_aggregator.c)
+add_library(all_libraries STATIC ../src/stack_line_reader.c ../src/linux_features_aggregator.c)
 target_link_libraries(all_libraries hwcaps_for_testing stack_line_reader string_view)
 
 #
