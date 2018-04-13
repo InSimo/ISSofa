@@ -21,7 +21,7 @@ set(SOFAFRAMEWORK_CHECK_CONTAINER_ACCESS ON CACHE BOOL "Compile SofaHelper libra
 
 # Sofa extlibs
 set(SOFA_EXTLIBS_DIR ${SOFA_ACTUAL_SOURCE_DIR}/extlibs)
-set(SOFA_EXTLIBS_TARGETS_DEFAULT eigen-3.2.7;miniFlowVR;newmat;tinyxml;metis-5.1.0;csparse;qwt-6.0.1;gtest;cpu_features)
+set(SOFA_EXTLIBS_TARGETS_DEFAULT glew-2.1.0;eigen-3.2.7;miniFlowVR;newmat;tinyxml;metis-5.1.0;csparse;qwt-6.0.1;gtest;cpu_features)
 set(SOFA_EXTLIBS_TARGETS ${SOFA_EXTLIBS_TARGETS_DEFAULT} CACHE STRING "An ordered list (semicolon separated) list of sofa extlibs to add to the build.")
 
 if(${SOFA_ENABLE_UNIT_TESTS})
@@ -55,6 +55,8 @@ foreach(TARGET ${SOFA_EXTLIBS_TARGETS} )
         add_subdirectory( ${SOFA_EXTLIBS_DIR}/${TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET} )
     elseif( EXISTS ${SOFA_EXTLIBS_DIR}/${TARGET}/src/CMakeLists.txt )
         add_subdirectory( ${SOFA_EXTLIBS_DIR}/${TARGET}/src ${CMAKE_CURRENT_BINARY_DIR}/${TARGET} )
+    elseif( EXISTS ${SOFA_EXTLIBS_DIR}/${TARGET}/build/cmake/CMakeLists.txt )
+        add_subdirectory( ${SOFA_EXTLIBS_DIR}/${TARGET}/build/cmake ${CMAKE_CURRENT_BINARY_DIR}/${TARGET} )
     endif()
 endforeach()
 
