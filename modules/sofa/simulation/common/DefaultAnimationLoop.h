@@ -52,7 +52,7 @@ public:
     typedef sofa::core::objectmodel::BaseObjectDescription BaseObjectDescription;
     SOFA_CLASS(DefaultAnimationLoop,sofa::core::behavior::BaseAnimationLoop);
 protected:
-    DefaultAnimationLoop(simulation::Node* gnode = NULL);
+    DefaultAnimationLoop();
 
     virtual ~DefaultAnimationLoop();
 public:
@@ -65,21 +65,27 @@ public:
     /// perform one animation step
     virtual void step(const core::ExecParams* params, double dt);
 
+    /// Returns the desired frequency of calls to idle() when the simulation is stopped/paused
+    ///
+    /// The default is 0, indicating no call is made
+    double getIdleFrequency() const override { return d_idleFrequency.getValue(); }
+
+    /// Method called with the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
+    void idle(const core::ExecParams* params) override;
+
 
     /// Construction method called by ObjectFactory.
     template<class T>
-    static typename T::SPtr create(T*, BaseContext* context, BaseObjectDescription* arg)
+    static typename T::SPtr create(T* t, sofa::core::objectmodel::BaseContext* context, sofa::core::objectmodel::BaseObjectDescription* arg)
     {
-        simulation::Node* gnode = simulation::Node::DynamicCast(context);
-        typename T::SPtr obj = sofa::core::objectmodel::New<T>(gnode);
-        if (context) context->addObject(obj);
-        if (arg) obj->parse(arg);
-        return obj;
+        return sofa::core::behavior::BaseAnimationLoop::create(t, context, arg);
     }
 
 protected :
 
-    simulation::Node* gnode;  ///< the node controlled by the loop
+    Data<double> d_idleFrequency; ///< Desired frequency of calls to idle() when the simulation is stopped/paused
+
+    simulation::Node* gnode = nullptr;  ///< the node controlled by the loop
 
 };
 

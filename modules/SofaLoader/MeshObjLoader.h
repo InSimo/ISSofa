@@ -87,6 +87,9 @@ public:
     /// If it is empty then each vertex correspond to one normal
     Data< helper::vector<int> > d_vertNormIdx;
 
+    /// List of points on discontinuity
+    Data< helper::vector<unsigned int> > d_pointsOnBorder;
+
     virtual std::string type() { return "The format of this mesh is OBJ."; }
 };
 

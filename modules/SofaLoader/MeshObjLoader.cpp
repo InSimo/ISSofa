@@ -51,6 +51,7 @@ MeshObjLoader::MeshObjLoader()
     : MeshLoader()
     , loadMaterial(initData(&loadMaterial, (bool) true, "loadMaterial", "Load the related MTL file or use a default one?"))
     , d_handleSeams(initData(&d_handleSeams, (bool) false, "handleSeams", "Preserve UV and normal seams information (vertices with multiple UV and/or normals)"))
+    , d_pointsOnBorder(initData(&d_pointsOnBorder, "pointsOnBorder", "List of points on borders in case we have disonctinuity"))
     , faceType(MeshObjLoader::TRIANGLE)
     , materials(initData(&materials,"materials","List of materials") )
     , faceList(initData(&faceList,"faceList","List of face definitions.") )
@@ -89,6 +90,7 @@ MeshObjLoader::MeshObjLoader()
     texCoords.setPersistent(false);
     d_vertPosIdx.setPersistent(false);
     d_vertNormIdx.setPersistent(false);
+    d_pointsOnBorder.setPersistent(false);
 }
 
 
@@ -372,6 +374,34 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
             groupF0[ft] = nbFaces[ft];
         }
 
+    int nbVIn = (int)my_positions.size();
+    // First we compute for each point how many pair of normal/texcoord indices are used
+    // The map store the final index of each combinaison
+    std::vector< std::map< std::pair<int,int>, int > > vertTexNormMap;
+    vertTexNormMap.resize(nbVIn);
+    for (size_t fi=0; fi<my_faceList.size(); ++fi)
+    {
+        const helper::SVector<int>& nodes = my_faceList[fi];
+        const helper::SVector<int>& nIndices = my_normalsList[fi];
+        const helper::SVector<int>& tIndices = my_texturesList[fi];
+        for (size_t i = 0; i < nodes.size(); ++i)
+        {
+            unsigned int pi = nodes[i];
+            unsigned int ni = nIndices[i];
+            unsigned int ti = tIndices[i];
+            vertTexNormMap[pi][std::make_pair(ti, ni)] = 0;
+        }
+    }
+
+    helper::WriteAccessor<Data<helper::vector<unsigned int>>> ptsOnBorder = d_pointsOnBorder;
+    for (unsigned int i = 0; i < nbVIn; i++)
+    {
+        if (vertTexNormMap[i].size() > 1)
+        {
+            ptsOnBorder.push_back(i);
+        }
+    }
+
     if (!d_handleSeams.getValue())
     { // default mode, vertices are never duplicated, only one texcoord and normal is used per vertex
         helper::vector<sofa::defaulttype::Vector2>& vTexCoords = *texCoords.beginEdit();
@@ -421,25 +451,6 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
     else
     { // handleSeam mode : vertices are duplicated in case they have different texcoords and/or normals
         // This code was initially in VisualModelImpl::setMesh()
-        
-        int nbVIn = (int)my_positions.size();
-        // First we compute for each point how many pair of normal/texcoord indices are used
-        // The map store the final index of each combinaison
-        std::vector< std::map< std::pair<int,int>, int > > vertTexNormMap;
-        vertTexNormMap.resize(nbVIn);
-        for (size_t fi=0; fi<my_faceList.size(); ++fi)
-        {
-            const helper::SVector<int>& nodes = my_faceList[fi];
-            const helper::SVector<int>& nIndices = my_normalsList[fi];
-            const helper::SVector<int>& tIndices = my_texturesList[fi];
-            for (size_t i = 0; i < nodes.size(); ++i)
-            {
-                unsigned int pi = nodes[i];
-                unsigned int ni = nIndices[i];
-                unsigned int ti = tIndices[i];
-                vertTexNormMap[pi][std::make_pair(ti, ni)] = 0;
-            }
-        }
 
         // Then we can compute how many vertices are created
         int nbVOut = 0;

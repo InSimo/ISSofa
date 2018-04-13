@@ -80,6 +80,14 @@ public:
 
     /// Returns starting time of the simulation
     double getResetTime() const;
+
+    /// Returns the desired frequency of calls to idle() when the simulation is stopped/paused
+    ///
+    /// The default is 0, indicating no call is made
+    virtual double getIdleFrequency() const { return 0.0; }
+
+    /// Method called when the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
+    virtual void idle(const core::ExecParams* params) {}
 };
 
 } // namespace behavior

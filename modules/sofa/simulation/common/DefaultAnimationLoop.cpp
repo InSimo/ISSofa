@@ -56,6 +56,7 @@
 #include <sofa/helper/AdvancedTimer.h>
 
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/objectmodel/IdleEvent.h>
 
 #include <stdlib.h>
 #include <math.h>
@@ -75,11 +76,10 @@ int DefaultAnimationLoopClass = core::RegisterObject("The simplest animation loo
 
 
 
-DefaultAnimationLoop::DefaultAnimationLoop(simulation::Node* _gnode)
+DefaultAnimationLoop::DefaultAnimationLoop()
     : Inherit()
-    , gnode(_gnode)
+    , d_idleFrequency(initData(&d_idleFrequency,0.0,"idleFrequency","If greater than 0: desired frequency of calls to idle() (sending IdleEvents) when the simulation is stopped/paused"))
 {
-    //assert(gnode);
 }
 
 DefaultAnimationLoop::~DefaultAnimationLoop()
@@ -162,6 +162,13 @@ void DefaultAnimationLoop::step(const core::ExecParams* params, double dt)
     sofa::helper::AdvancedTimer::stepEnd("AnimationStep");
 }
 
+
+void DefaultAnimationLoop::idle(const core::ExecParams* params)
+{
+    sofa::core::objectmodel::IdleEvent ev;
+    PropagateEventVisitor act ( params, &ev );
+    gnode->execute ( act );
+}
 
 } // namespace simulation
 

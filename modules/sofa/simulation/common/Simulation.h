@@ -109,6 +109,12 @@ public:
     /// Render the scene
     virtual void draw(sofa::core::visual::VisualParams* vparams, Node* root);
 
+    /// Returns the desired frequency of calls to idle() when the simulation is stopped/paused
+    virtual double getIdleFrequency(Node* root);
+
+    /// Method to be called when the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
+    virtual void idle(Node* root);
+
     /// Export a scene to an OBJ 3D Scene
     virtual void exportOBJ(Node* root, const char* filename, bool exportMTL = true);
 

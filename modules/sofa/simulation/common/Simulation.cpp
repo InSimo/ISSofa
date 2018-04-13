@@ -217,7 +217,7 @@ void Simulation::init ( Node* root )
                 <<"Default Animation Manager Loop will be used. Add DefaultAnimationLoop to the root node of scene file to remove this warning"
                         <<root->getContext()->sendl;
 
-        DefaultAnimationLoop::SPtr aloop = sofa::core::objectmodel::New<DefaultAnimationLoop>(root);
+        DefaultAnimationLoop::SPtr aloop = sofa::core::objectmodel::New<DefaultAnimationLoop>();
         aloop->setName(core::objectmodel::BaseObject::shortName(aloop.get()));
         root->addObject(aloop);
     }
@@ -417,6 +417,44 @@ void Simulation::draw ( sofa::core::visual::VisualParams* vparams, Node* root )
         return;
     }
 }
+
+double Simulation::getIdleFrequency ( Node* root )
+{
+    if ( !root ) {
+        return 0.0;
+    }
+    sofa::core::behavior::BaseAnimationLoop* aloop = root->getAnimationLoop();
+    if(aloop)
+    {
+        return aloop->getIdleFrequency();
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+void Simulation::idle ( Node* root )
+{
+    if ( !root ) {
+        serr<<"Simulation::idle, no root found"<<sendl;
+        return;
+    }
+    sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
+
+    sofa::core::behavior::BaseAnimationLoop* aloop = root->getAnimationLoop();
+    if(aloop)
+    {
+        aloop->idle(params);
+    }
+    else
+    {
+        serr<<"ERROR in Simulation::idle(): AnimationLoop expected at the root node"<<sendl;
+        return;
+    }
+
+}
+
 
 /// Export a scene to an OBJ 3D Scene
 void Simulation::exportOBJ ( Node* root, const char* filename, bool exportMTL )

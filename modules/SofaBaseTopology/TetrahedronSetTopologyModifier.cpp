@@ -123,7 +123,7 @@ void TetrahedronSetTopologyModifier::addTetrahedronProcess(Tetrahedron t)
     helper::WriteAccessor< Data< sofa::helper::vector<Tetrahedron> > > m_tetrahedron = m_container->d_tetrahedron;
     const unsigned int tetrahedronIndex = m_tetrahedron.size();
 
-    if (m_container->hasTrianglesInTetrahedron())
+    //if (m_container->hasTrianglesInTetrahedron())
     {
         for (unsigned int j=0; j<4; ++j)
         {
@@ -151,7 +151,7 @@ void TetrahedronSetTopologyModifier::addTetrahedronProcess(Tetrahedron t)
         }
     }
 
-    if (m_container->hasEdgesInTetrahedron())
+    //if (m_container->hasEdgesInTetrahedron())
     {
         for (unsigned int j=0; j<6; ++j)
         {
@@ -193,7 +193,7 @@ void TetrahedronSetTopologyModifier::addTetrahedronProcess(Tetrahedron t)
         }
     }
 
-    if (m_container->hasTetrahedraAroundVertex())
+    //if (m_container->hasTetrahedraAroundVertex())
     {
         for (unsigned int j=0; j<4; ++j)
         {
@@ -202,7 +202,7 @@ void TetrahedronSetTopologyModifier::addTetrahedronProcess(Tetrahedron t)
         }
     }
 
-    if (m_container->hasTetrahedraAroundEdge())
+    //if (m_container->hasTetrahedraAroundEdge())
     {
         for (unsigned int j=0; j<6; ++j)
         {
@@ -211,7 +211,7 @@ void TetrahedronSetTopologyModifier::addTetrahedronProcess(Tetrahedron t)
         }
     }
 
-    if (m_container->hasTetrahedraAroundTriangle())
+    //if (m_container->hasTetrahedraAroundTriangle())
     {
         for (unsigned int j=0; j<4; ++j)
         {
@@ -278,6 +278,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
     bool removeIsolatedEdges = removeIsolatedItems && m_container->hasEdges();
     bool removeIsolatedTriangles = removeIsolatedItems && m_container->hasTriangles();
 
+    /*
     if(removeIsolatedVertices)
     {
         if(!m_container->hasTetrahedraAroundVertex())
@@ -295,6 +296,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
         if(!m_container->hasTetrahedraAroundTriangle())
             m_container->createTetrahedraAroundTriangleArray();
     }
+    */
 
     sofa::helper::vector<unsigned int> triangleToBeRemoved;
     sofa::helper::vector<unsigned int> edgeToBeRemoved;
@@ -308,7 +310,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
         const Tetrahedron &t = m_tetrahedron[ indices[i] ];
         const Tetrahedron &h = m_tetrahedron[ lastTetrahedron ];
 
-        if (m_container->hasTetrahedraAroundVertex())
+        //if (m_container->hasTetrahedraAroundVertex())
         {
             for(unsigned int j=0; j<4; ++j)
             {
@@ -321,7 +323,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
             }
         }
 
-        if(m_container->hasTetrahedraAroundEdge())
+        //if(m_container->hasTetrahedraAroundEdge())
         {
             for(unsigned int j=0; j<6; ++j)
             {
@@ -332,7 +334,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
             }
         }
 
-        if(m_container->hasTetrahedraAroundTriangle())
+        //if(m_container->hasTetrahedraAroundTriangle())
         {
             for(unsigned int j=0; j<4; ++j)
             {
@@ -346,7 +348,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
         // now updates the shell information of the edge formely at the end of the array
         if ( indices[i] < lastTetrahedron )
         {
-            if (m_container->hasTetrahedraAroundVertex())
+            //if (m_container->hasTetrahedraAroundVertex())
             {
                 for(unsigned int j=0; j<4; ++j)
                 {
@@ -355,7 +357,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
                 }
             }
 
-            if (m_container->hasTetrahedraAroundEdge())
+            //if (m_container->hasTetrahedraAroundEdge())
             {
                 for(unsigned int j=0; j<6; ++j)
                 {
@@ -364,7 +366,7 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
                 }
             }
 
-            if (m_container->hasTetrahedraAroundTriangle())
+            //if (m_container->hasTetrahedraAroundTriangle())
             {
                 for(unsigned int j=0; j<4; ++j)
                 {
@@ -374,14 +376,14 @@ void TetrahedronSetTopologyModifier::removeTetrahedraProcess( const sofa::helper
             }
         }
 
-        if (m_container->hasTrianglesInTetrahedron())
+        //if (m_container->hasTrianglesInTetrahedron())
         {
             // removes the trianglesInTetrahedrons from the trianglesInTetrahedronArray
             m_container->m_trianglesInTetrahedron[ indices[i] ] = m_container->m_trianglesInTetrahedron[ lastTetrahedron ]; // overwriting with last valid value.
             m_container->m_trianglesInTetrahedron.resize( lastTetrahedron ); // resizing to erase multiple occurence of the tetrahedron.
         }
 
-        if (m_container->hasEdgesInTetrahedron())
+        //if (m_container->hasEdgesInTetrahedron())
         {
             // removes the edgesInTetrahedrons from the edgesInTetrahedronArray
             m_container->m_edgesInTetrahedron[ indices[i] ] = m_container->m_edgesInTetrahedron[ lastTetrahedron ]; // overwriting with last valid value.
@@ -436,7 +438,7 @@ void TetrahedronSetTopologyModifier::addPointsProcess(const unsigned int nPoints
     // start by calling the parent's method.
     TriangleSetTopologyModifier::addPointsProcess( nPoints );
 
-    if(m_container->hasTetrahedraAroundVertex())
+    //if(m_container->hasTetrahedraAroundVertex())
         m_container->m_tetrahedraAroundVertex.resize( m_container->getNbPoints() );
 }
 
@@ -445,7 +447,7 @@ void TetrahedronSetTopologyModifier::addEdgesProcess(const sofa::helper::vector<
     // start by calling the parent's method.
     TriangleSetTopologyModifier::addEdgesProcess( edges );
 
-    if(m_container->hasTetrahedraAroundEdge())
+    //if(m_container->hasTetrahedraAroundEdge())
         m_container->m_tetrahedraAroundEdge.resize( m_container->getNumberOfEdges() );
 }
 
@@ -453,7 +455,7 @@ void TetrahedronSetTopologyModifier::addTrianglesProcess(const sofa::helper::vec
 {
     // start by calling the parent's method.
     TriangleSetTopologyModifier::addTrianglesProcess( triangles );
-    if(m_container->hasTetrahedraAroundTriangle())
+    //if(m_container->hasTetrahedraAroundTriangle())
         m_container->m_tetrahedraAroundTriangle.resize( m_container->getNumberOfTriangles() );
 }
 
@@ -462,10 +464,12 @@ void TetrahedronSetTopologyModifier::removePointsProcess(const sofa::helper::vec
 {
     if(m_container->hasTetrahedra())
     {
+        /*
         if(!m_container->hasTetrahedraAroundVertex())
         {
             m_container->createTetrahedraAroundVertexArray();
         }
+        */
 
         helper::WriteAccessor< Data< sofa::helper::vector<Tetrahedron> > > m_tetrahedron = m_container->d_tetrahedron;
         unsigned int lastPoint = m_container->getNbPoints() - 1;
@@ -498,10 +502,10 @@ void TetrahedronSetTopologyModifier::removeEdgesProcess( const sofa::helper::vec
     if(!m_container->hasEdges()) // this method should only be called when edges exist
         return;
 
-    if (m_container->hasEdgesInTetrahedron())
+    //if (m_container->hasEdgesInTetrahedron())
     {
-        if(!m_container->hasTetrahedraAroundEdge())
-            m_container->createTetrahedraAroundEdgeArray();
+        //if(!m_container->hasTetrahedraAroundEdge())
+        //    m_container->createTetrahedraAroundEdgeArray();
 
         unsigned int lastEdge = m_container->getNumberOfEdges() - 1;
         for (unsigned int i=0; i<indices.size(); ++i, --lastEdge)
@@ -531,10 +535,10 @@ void TetrahedronSetTopologyModifier::removeTrianglesProcess( const sofa::helper:
     if(!m_container->hasTriangles()) // this method should only be called when triangles exist
         return;
 
-    if (m_container->hasTrianglesInTetrahedron())
+    //if (m_container->hasTrianglesInTetrahedron())
     {
-        if(!m_container->hasTetrahedraAroundTriangle())
-            m_container->createTetrahedraAroundTriangleArray();
+        //if(!m_container->hasTetrahedraAroundTriangle())
+        //    m_container->createTetrahedraAroundTriangleArray();
 
         unsigned int lastTriangle = m_container->m_tetrahedraAroundTriangle.size() - 1;
         for (unsigned int i = 0; i < indices.size(); ++i, --lastTriangle)
@@ -563,7 +567,7 @@ void TetrahedronSetTopologyModifier::renumberPointsProcess( const sofa::helper::
     if(m_container->hasTetrahedra())
     {
         helper::WriteAccessor< Data< sofa::helper::vector<Tetrahedron> > > m_tetrahedron = m_container->d_tetrahedron;
-        if(m_container->hasTetrahedraAroundVertex())
+        //if(m_container->hasTetrahedraAroundVertex())
         {
             sofa::helper::vector< sofa::helper::vector< unsigned int > > tetrahedraAroundVertex_cp = m_container->m_tetrahedraAroundVertex;
             for (unsigned int i = 0; i < index.size(); ++i)

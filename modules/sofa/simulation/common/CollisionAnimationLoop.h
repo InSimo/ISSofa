@@ -79,6 +79,14 @@ public:
         return obj;
     }
 
+    /// Returns the desired frequency of calls to idle() when the simulation is stopped/paused
+    ///
+    /// The default is 0, indicating no call is made
+    double getIdleFrequency() const override { return d_idleFrequency.getValue(); }
+
+    /// Method called with the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
+    void idle(const core::ExecParams* params) override;
+
 protected:
 
     /// @name Visitors
@@ -96,6 +104,8 @@ protected:
     typedef simulation::Node::Sequence<core::behavior::OdeSolver> Solvers;
     typedef core::collision::Pipeline Pipeline;
     const Solvers& getSolverSequence();
+
+    Data<double> d_idleFrequency; ///< Desired frequency of calls to idle() when the simulation is stopped/paused
 
     // the parent Node of CollisionAnimationLoop its self (usually, this parent node is the root node of the simulation graph)
     // This pointer is initialized one time at the construction, avoiding Node::DynamicCast(context) every time step
