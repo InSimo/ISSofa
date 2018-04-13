@@ -96,8 +96,10 @@ add_library (glew SHARED ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
 set_target_properties (glew PROPERTIES COMPILE_DEFINITIONS "GLEW_BUILD" OUTPUT_NAME "${GLEW_LIB_NAME}" PREFIX "${DLL_PREFIX}"
                                        VERSION ${GLEW_VERSION}
                                        SOVERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR})
+target_include_directories(glew PUBLIC "$<BUILD_INTERFACE:${GLEW_DIR}/include>")
 add_library (glew_s STATIC ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
 set_target_properties (glew_s PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC" OUTPUT_NAME "${GLEW_LIB_NAME}" PREFIX lib)
+target_include_directories(glew_s PUBLIC "$<BUILD_INTERFACE:${GLEW_DIR}/include>")
 
 if (MSVC)
   # add options from visual studio project
@@ -238,4 +240,12 @@ if(NOT TARGET uninstall)
   add_custom_target(uninstall
       COMMAND ${CMAKE_COMMAND} -P
       ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
+# set variables such that FindGLEW.cmake finds the above targets
+set(GLEW_INCLUDE_DIR "${GLEW_DIR}/include" CACHE STRING "" FORCE)
+if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
+  set(GLEW_LIBRARY "glew" CACHE STRING "" FORCE)
+else()
+  set(GLEW_LIBRARY "glew_s" CACHE STRING "" FORCE)
 endif()
