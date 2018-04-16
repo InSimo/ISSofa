@@ -120,6 +120,7 @@ VisualModelImpl::VisualModelImpl() //const std::string &name, std::string filena
     , m_initRestPositions(initData  (&m_initRestPositions, false, "initRestPositions", "True if rest positions must be initialized with initial positions"))
     , m_useNormals		(initData	(&m_useNormals, true, "useNormals", "True if normal smoothing groups should be read from file"))
     , m_updateNormals   (initData   (&m_updateNormals, true, "updateNormals", "True if normals should be updated at each iteration"))
+    , m_inverseNormals  (initData   (&m_inverseNormals, false, "inverseNormals", "True if normals should be inverted at each iteration"))
     , m_computeTangents (initData   (&m_computeTangents, false, "computeTangents", "True if tangents should be computed at startup"))
     , m_updateTangents  (initData   (&m_updateTangents, true, "updateTangents", "True if tangents should be updated at each iteration"))
     , m_handleDynamicTopology (initData   (&m_handleDynamicTopology, true, "handleDynamicTopology", "True if topological changes should be handled"))
@@ -892,7 +893,13 @@ void VisualModelImpl::computeNormals()
         }
 
         for (unsigned int i = 0; i < normals.size(); i++)
+        {
             normals[i].normalize();
+            if (m_inverseNormals.getValue())
+            {
+                normals[i] = -normals[i];
+            }
+        }
 
         m_vnormals.endEdit();
     }
@@ -943,6 +950,10 @@ void VisualModelImpl::computeNormals()
         for (unsigned int i = 0; i < normals.size(); i++)
         {
             normals[i].normalize();
+            if (m_inverseNormals.getValue())
+            {
+                normals[i] = -normals[i];
+            }
         }
 
         ResizableExtVector<Deriv>& vnormals = *(m_vnormals.beginEdit());
