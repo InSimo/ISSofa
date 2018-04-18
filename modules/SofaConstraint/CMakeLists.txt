@@ -50,7 +50,6 @@ set(HEADER_FILES
 set(SOURCE_FILES
 
     initConstraint.cpp
-    ContactIdentifier.cpp
     LocalMinDistance.cpp
     LMDNewProximityIntersection.cpp
     FrictionContact.cpp
