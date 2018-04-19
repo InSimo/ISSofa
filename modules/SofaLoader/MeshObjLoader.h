@@ -196,6 +196,7 @@ public:
     Data <helper::vector<sofa::defaulttype::Vector3> > normalsList;
     Data< helper::vector<sofa::defaulttype::Vector2> > texCoords;
     Data< helper::vector<MapFaceTexCoord> > texCoordsInFace; // texCoordsInFace[PointID][FaceId] should give you the texCoord of the point indexed by PointID in the Face indexed by FaceID
+    Data<helper::vector<unsigned int>> d_trianglesIndices;
     Data< bool > computeMaterialFaces;
     helper::vector< Data <helper::vector <unsigned int> >* > subsets_indices;
 
@@ -208,8 +209,9 @@ public:
     /// If it is empty then each vertex correspond to one normal
     Data< helper::vector<int> > d_vertNormIdx;
 
-    /// List of points on discontinuity
+    /// List of elements on discontinuity
     Data< helper::vector<unsigned int> > d_pointsOnBorder;
+    Data<helper::vector<unsigned int>> d_trianglesOnBorder;
 
     virtual std::string type() { return "The format of this mesh is OBJ."; }
 };

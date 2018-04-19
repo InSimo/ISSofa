@@ -26,6 +26,7 @@
 #include <SofaLoader/MeshObjLoader.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/system/SetDirectory.h>
+#include <numeric>
 
 namespace sofa
 {
@@ -51,6 +52,8 @@ MeshObjLoader::MeshObjLoader()
     : MeshLoader()
     , d_handleSeams(initData(&d_handleSeams, (bool) false, "handleSeams", "Preserve UV and normal seams information (vertices with multiple UV and/or normals)"))
     , loadMaterial(initData(&loadMaterial, (bool) true, "loadMaterial", "Load the related MTL file or use a default one?"))
+    , d_trianglesOnBorder(initData(&d_trianglesOnBorder, "trianglesOnBorder", "List of triangles on borders in case we have disonctinuity"))
+    , d_trianglesIndices(initData(&d_trianglesIndices, "trianglesIndices", "List of triangles indices"))
     , faceType(MeshObjLoader::TRIANGLE)
     , materials(initData(&materials,"materials","List of materials") )
     , faceList(initData(&faceList,"faceList","List of face definitions.") )
@@ -92,6 +95,8 @@ MeshObjLoader::MeshObjLoader()
     d_vertPosIdx.setPersistent(false);
     d_vertNormIdx.setPersistent(false);
     d_pointsOnBorder.setPersistent(false);
+    d_trianglesOnBorder.setPersistent(false);
+    d_trianglesIndices.setPersistent(false);
 }
 
 
@@ -394,15 +399,6 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
         }
     }
 
-    helper::WriteAccessor<Data<helper::vector<unsigned int>>> ptsOnBorder = d_pointsOnBorder;
-    for (int i = 0; i < nbVIn; i++)
-    {
-        if (vertTexNormMap[i].size() > 1)
-        {
-            ptsOnBorder.push_back(i);
-        }
-    }
-
     if (!d_handleSeams.getValue())
     { // default mode, vertices are never duplicated, only one texcoord and normal is used per vertex
         helper::vector<sofa::defaulttype::Vector2>& vTexCoords = *texCoords.beginEdit();
@@ -616,6 +612,43 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
             }
         }
     }
+
+    // compute list of point which are along an uv discontinuity
+    helper::ReadAccessor< Data < sofa::helper::vector< MapFaceTexCoord > > > vTexCoordsInFace = texCoordsInFace;
+    helper::WriteAccessor< Data < sofa::helper::vector< unsigned int > > > ptsOnBorder = d_pointsOnBorder;
+    for (unsigned int i = 0; i < (unsigned int)nbVIn; i++)
+    {
+        if (vTexCoordsInFace[i].isDuplicated())
+        {
+            ptsOnBorder.push_back(i);
+        }
+    }
+
+    // compute list of triangles which are along an uv discontinuity
+    helper::WriteAccessor<Data<helper::vector<unsigned int>>> trianglesOnBorder = d_trianglesOnBorder;
+    trianglesOnBorder.clear();
+    if (!ptsOnBorder.empty())
+    {
+        for (std::size_t tid = 0; tid < my_triangles.size(); ++tid)
+        {
+            bool onBorder = false;
+            for (std::size_t i = 0; i < 3; ++i)
+            {
+                if (std::find(ptsOnBorder.begin(), ptsOnBorder.end(), my_triangles[tid][i]) != ptsOnBorder.end())
+                {
+                    onBorder = true;
+                }
+            }
+            if (onBorder)
+            {
+                trianglesOnBorder.push_back(tid);
+            }
+        }
+    }
+
+    helper::WriteAccessor<Data<helper::vector<unsigned int>>> trianglesIndices = d_trianglesIndices;
+    trianglesIndices.resize(my_triangles.size());
+    std::iota(trianglesIndices.begin(), trianglesIndices.end(), 0);
 
     edgesGroups.endEdit();
     trianglesGroups.endEdit();
