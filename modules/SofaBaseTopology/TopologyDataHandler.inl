@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_TOPOLOGY_TOPOLOGYDATAHANDLER_INL
 
 #include <SofaBaseTopology/TopologyDataHandler.h>
+#include <sofa/core/topology/BaseMeshTopology.h>
 
 namespace sofa
 {

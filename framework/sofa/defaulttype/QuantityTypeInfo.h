@@ -263,7 +263,7 @@ template<class T, int kg, int m, int s, int A, int K, int mol, int cd>
 struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public QuantityTypeInfo<T, kg, m, s, A, K, mol, cd>
 {
     typedef std::tuple<meta::Units> MetaTuple;
-    static constexpr MetaTuple Metadata = MetaTuple{ meta::Units(std::array<int, 7>{kg, m, s, A, K, mol, cd} ) };
+    static constexpr MetaTuple Metadata = MetaTuple{ meta::Units(std::array<int, 7>{{kg, m, s, A, K, mol, cd}} ) };
 
     class AddMetaI
     {
@@ -271,7 +271,7 @@ struct DataTypeInfo<units::Quantity<T, kg, m, s, A, K, mol, cd> > : public Quant
         AddMetaI(std::map<int, defaulttype::AbstractMetadata*>& value) : m_map(value) {}
 
         template <typename T1, typename T2>
-        void operator()(T1&& MemberTypeI, T2&& MemberTypeI2) const
+        void operator()(T1&&, T2&& MemberTypeI2) const
         {
             auto abstractMetadata = new defaulttype::VirtualMetadata<T1>(MemberTypeI2);
             int id = abstractMetadata->getId();
