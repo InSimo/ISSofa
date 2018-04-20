@@ -124,7 +124,7 @@ struct StructTypeInfo
     static constexpr size_t ByteSize = SimpleCopy && StructSize > 0 ? sizeof(DataType) : 0; // Force 0 for empty struct as the standard mandates that any object must be at least of size 1 so different objects have different addresses
     
     ///< name of the structure
-    static constexpr std::string name()
+    static std::string name()
     {
         return DataTypeName<TDataType>::name();
     }
@@ -352,7 +352,7 @@ protected:
 
     // Required for empty structs
     template <class Tuple>
-    class TupleForEach<Tuple, 0, -1>
+    class TupleForEach<Tuple, 0, std::size_t(-1)>
     {
     public:
         template <typename F, typename LastF>
