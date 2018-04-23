@@ -674,6 +674,7 @@ void DiagonalMass<DataTypes, MassType>::initTopologyHandlers()
     // add the functions to handle topology changes.
     pointHandler = new DMassPointHandler(this, &f_mass);
     f_mass.createTopologicalEngine(_topology, pointHandler);
+
     if (edgeGeo)
         f_mass.linkToEdgeDataArray();
     if (triangleGeo)
@@ -684,6 +685,7 @@ void DiagonalMass<DataTypes, MassType>::initTopologyHandlers()
         f_mass.linkToTetrahedronDataArray();
     if (hexaGeo)
         f_mass.linkToHexahedronDataArray();
+
     f_mass.registerTopologicalData();
 }
 
@@ -702,6 +704,7 @@ void DiagonalMass<DataTypes, MassType>::init()
     this->getContext()->get(hexaGeo);
 
     Inherited::init();
+
     initTopologyHandlers();
 
     if (this->mstate && f_mass.getValue().size() > 0 && f_mass.getValue().size() < (unsigned)this->mstate->getSize())
@@ -715,10 +718,26 @@ void DiagonalMass<DataTypes, MassType>::init()
         f_mass.endEdit();
     }
 
-    if ((f_mass.getValue().size()==0) && (_topology!=0))
-    {
-        reinit();
-    }
+	if (_topology != 0)
+	{
+		if (f_mass.getValue().size() == 0)
+		{
+			reinit();
+		}
+		else
+		{
+			const MassVector &masses = *f_mass.beginEdit();
+			for (unsigned int i = 0; i < masses.size(); ++i)
+			{
+				if (masses[i] == 0)
+				{
+					reinit();
+					break;
+				}
+			}
+			f_mass.endEdit();
+		}
+	}
 }
 
 template <class DataTypes, class MassType>
