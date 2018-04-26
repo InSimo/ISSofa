@@ -237,8 +237,15 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_), GUIShareRenderingContext(shareRend
     vparams = sofa::core::visual::VisualParams::defaultInstance();
     vparams->drawTool() = &drawTool;
 
-    m_Simulation = new sofa::simulation::tree::TreeSimulation();
-    sofa::simulation::setSimulation(m_Simulation);
+    if( !sofa::simulation::getSimulation() )
+    {
+        m_Simulation = new sofa::simulation::tree::TreeSimulation();
+        sofa::simulation::setSimulation( m_Simulation );
+    }
+    else
+    {
+        m_Simulation = sofa::simulation::getSimulation();
+    }
 
     sofa::core::ObjectFactory::AddAlias("VisualModel", "OglModel", true,
             &classVisualModel);
@@ -276,7 +283,15 @@ bool SofaPhysicsSimulation::Impl::load(const char* cfilename)
     //bool wasAnimated = isAnimated();
     bool success = true;
     sofa::helper::system::DataRepository.findFile(filename);
-    m_RootNode = m_Simulation->load(filename.c_str());
+
+    if( !m_Simulation->GetRoot() )
+    {
+        m_RootNode = m_Simulation->load( filename.c_str() );
+    }
+    else
+    {
+        m_RootNode = m_Simulation->GetRoot();
+    }
 
     if (m_RootNode.get())
     {
