@@ -29,6 +29,7 @@
 #include <sofa/defaulttype/MapMapSparseMatrix.h>
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Quat.h>
+#include <sofa/defaulttype/StructTypeInfo.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/rmath.h>
 #include <sofa/helper/RandomGenerator.h>
@@ -721,6 +722,11 @@ public:
     Mat3x3 invInertiaMatrix;	  // inverse of inertiaMatrix
     Mat3x3 invInertiaMassMatrix; // inverse of inertiaMassMatrix
     
+    using RigidMass_t = RigidMass<3, real>;
+
+    SOFA_STRUCT_DECL(RigidMass_t, mass, volume, inertiaMatrix, 
+        inertiaMassMatrix, invInertiaMatrix, invInertiaMassMatrix);
+
     RigidMass()
     :mass(1)
     ,volume(1)
@@ -1656,6 +1662,13 @@ public:
     Real inertiaMassMatrix;    // Inertia matrix of the object * mass of the object
     Real invInertiaMatrix;	  // inverse of inertiaMatrix
     Real invInertiaMassMatrix; // inverse of inertiaMassMatrix
+
+
+    using RigidMass_t = RigidMass<2, real>;
+
+    SOFA_STRUCT_DECL(RigidMass_t, mass, volume, inertiaMatrix,
+        inertiaMassMatrix, invInertiaMatrix, invInertiaMassMatrix);
+
     RigidMass(Real m=1)
     {
         mass = m;
@@ -2037,6 +2050,15 @@ static void rigidTransform ( V1& points, V2& velocities, SReal tx, SReal ty, SRe
 }
 
 } // namespace sofa
+
+#ifndef SOFA_FLOAT
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid2dMass);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid3dMass);
+#endif
+#ifndef SOFA_DOUBLE
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid2fMass);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid3fMass);
+#endif
 
 
 #endif
