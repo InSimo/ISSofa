@@ -26,7 +26,7 @@
 #define SOFA_CORE_BEHAVIOR_BASECONSTRAINTCORRECTION_H
 
 #include <sofa/core/objectmodel/BaseObject.h>
-
+#include <sofa/core/behavior/ConstraintSolver.h>
 #include <sofa/core/ConstraintParams.h>
 
 namespace sofa
@@ -46,8 +46,6 @@ namespace core
 
 namespace behavior
 {
-
-class ConstraintSolver;
 
 /// @todo All methods in this class need to be commented
 
@@ -168,7 +166,7 @@ public:
     /// @}
 
 protected:
-    ConstraintSolver* m_constraintSolverPtr;
+    ConstraintSolver::SPtr m_constraintSolverPtr;
 };
 
 } // namespace behavior

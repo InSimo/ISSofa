@@ -27,7 +27,6 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/core/behavior/BaseConstraintSet.h>
-#include <sofa/core/behavior/BaseConstraintCorrection.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
 #include <sofa/core/MechanicalParams.h>
 
@@ -39,6 +38,8 @@ namespace core
 
 namespace behavior
 {
+
+class BaseConstraintCorrection;
 
 /**
  *  \brief Component responsible for the expression and solution of system of equations related to constraints.

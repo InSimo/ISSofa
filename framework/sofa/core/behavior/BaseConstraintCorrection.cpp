@@ -36,8 +36,7 @@ namespace core
 namespace behavior
 {
 
-BaseConstraintCorrection::BaseConstraintCorrection() :
-    m_constraintSolverPtr(nullptr)
+BaseConstraintCorrection::BaseConstraintCorrection()
 {
 
 }
@@ -48,7 +47,7 @@ BaseConstraintCorrection::~BaseConstraintCorrection()
     {
         m_constraintSolverPtr->unregisterConstraintCorrection(this);
     }
-}
+} 
 
 void BaseConstraintCorrection::init()
 {
