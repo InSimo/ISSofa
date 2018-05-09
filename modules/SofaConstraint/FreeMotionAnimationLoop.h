@@ -69,8 +69,8 @@ public:
 
 
     Data<bool> displayTime;
-
     Data<bool> m_solveVelocityConstraintFirst;
+    Data<bool> d_postStabilize;
 
 protected :
 
