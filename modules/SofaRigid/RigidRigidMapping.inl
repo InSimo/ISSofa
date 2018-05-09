@@ -131,7 +131,7 @@ void RigidRigidMapping<TIn, TOut>::init()
                 for (i = 0; i < x.size(); i++)
                 {
                     // pts[i] = x[i] - xfrom[0];
-                    pts[i].getCenter() = xfrom[index.getValue()].getOrientation().inverse().rotate( x[i].getCenter() - xfrom[index.getValue()].getCenter() ) ;
+                    pts[i].getCenter() = xfrom[index.getValue()].unprojectPoint(x[i].getCenter());
                     pts[i].getOrientation() = xfrom[index.getValue()].getOrientation().inverse() * x[i].getOrientation() ;
                 }
                 break;
@@ -222,10 +222,9 @@ void RigidRigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparam
     case 0 : //no value specified : simple rigid mapping
         if (!indexFromEnd.getValue())
         {
-            in[index.getValue()].writeRotationMatrix(rotation);
             for(unsigned int i=0; i<points.getValue().size(); i++)
             {
-                pointsR0[i].getCenter() = rotation*(points.getValue()[i]).getCenter();
+                pointsR0[i].getCenter() = in[index.getValue()].projectVector( points.getValue()[i].getCenter() );
                 out[i] = in[index.getValue()].mult(points.getValue()[i]);
             }
         }
