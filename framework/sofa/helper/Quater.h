@@ -263,25 +263,17 @@ public:
     static Quater set(T a0, T a1, T a2) { return createFromRotationVector(a0,a1,a2); }
 
     /// Return the quaternion resulting of the movement between 2 quaternions
-    static Quater quatDiff( Quater a, const Quater& b)
+    static Quater quatDiff( const Quater& a, const Quater& b)
     {
-        // If the axes are not oriented in the same direction, flip the axis and angle of a to get the same convention than b
-        if (a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3]<0)
-        {
-            a[0] = -a[0];
-            a[1] = -a[1];
-            a[2] = -a[2];
-            a[3] = -a[3];
-        }
-
-        Quater q = b.inverse() * a;
-        return q;
+        return  b.inverse() * a;
     }
 
     /// Return the eulerian vector resulting of the movement between 2 quaternions
-    static defaulttype::Vec<3,Real> angularDisplacement( Quater a, const Quater& b)
+    static defaulttype::Vec<3,Real> angularDisplacement( const Quater& a, const Quater& b)
     {
-        return quatDiff(a,b).getLog();
+        Quater qDiff = quatDiff(a, b);
+        qDiff.normalize();
+        return qDiff.getLog();
     }
 
 
