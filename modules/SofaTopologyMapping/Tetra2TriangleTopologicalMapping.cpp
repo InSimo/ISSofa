@@ -106,7 +106,7 @@ void Tetra2TriangleTopologicalMapping::init()
             /// only initialize with border triangles if necessary
             if (noInitialTriangles.getValue()==false)
             {
-
+                std::set<unsigned int> pointsOnSurface;
                 sofa::helper::vector <unsigned int>& Loc2GlobVec = *(Loc2GlobDataVec.beginEdit());
 
                 Loc2GlobVec.clear();
@@ -135,15 +135,27 @@ void Tetra2TriangleTopologicalMapping::init()
 
                         Loc2GlobVec.push_back(i);
                         Glob2LocMap[i]=Loc2GlobVec.size()-1;
+
+                        pointsOnSurface.insert(triangleArray[i][0]);
+                        pointsOnSurface.insert(triangleArray[i][1]);
+                        pointsOnSurface.insert(triangleArray[i][2]);
                     }
                 }
 
                 to_tstm->addTrianglesProcess(trianglesToAdd);
 
-                //to_tstm->propagateTopologicalChanges();
                 to_tstm->notifyEndingEvent();
-                //to_tstm->propagateTopologicalChanges();
+
                 Loc2GlobDataVec.endEdit();
+
+                for (unsigned int i = 0; i < static_cast<unsigned int>(fromModel->getNbPoints()); i++)
+                {
+                    auto search = pointsOnSurface.find(i);
+                    if(search != pointsOnSurface.end())
+                    {
+                        to_tstc->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
+                    }
+                }
             }
         }
     }
