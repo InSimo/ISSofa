@@ -233,7 +233,7 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::add(const sofa::h
 
     if (nbElemsTopo != index[0])
     {
-        std::cerr << "TODO\n";
+        std::cerr << __FUNCTION__ << " TODO\n";
         nbElemsTopo = index[0];
     }
 
