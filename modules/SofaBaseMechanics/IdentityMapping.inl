@@ -173,6 +173,8 @@ void IdentityMapping<TIn, TOut>::init()
 {
     stateFrom = core::behavior::BaseMechanicalState::DynamicCast(this->fromModel.get());
     stateTo = core::behavior::BaseMechanicalState::DynamicCast(this->toModel.get());
+
+    this->toModel->resize(this->fromModel->getSize());
     Inherit::init();
 }
 
