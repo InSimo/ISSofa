@@ -676,6 +676,19 @@ int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int
 }
 
 template <class In, class Out>
+int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int pointIndex, const int triangleIndex, const SReal* baryCoords )
+{
+    helper::vector<MappingData>& vectorData = *(map.beginEdit());
+    vectorData.resize ( map.getValue().size() );
+    MappingData& data = vectorData[pointIndex];
+    map.endEdit();
+    data.in_index = triangleIndex;
+    data.baryCoords[0] = ( Real ) baryCoords[0];
+    data.baryCoords[1] = ( Real ) baryCoords[1];
+    return pointIndex;
+}
+
+template <class In, class Out>
 int BarycentricMapperTriangleSetTopology<In,Out>::createPointInTriangle ( const typename Out::Coord& p, int triangleIndex, const typename In::VecCoord* points )
 {
     SReal baryCoords[2];
