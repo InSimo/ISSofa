@@ -316,6 +316,8 @@ protected:
         template<class MWriter>
         void addStiffness( MWriter& mwriter, SReal scale) const
         {
+            if( !is_activated ) return;
+
             const SReal flambda = -lambda*scale;
             for( unsigned j=0; j<4; j++ )
             {
