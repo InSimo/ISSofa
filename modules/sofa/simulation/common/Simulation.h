@@ -84,6 +84,8 @@ public:
     /// Reset to initial state
     virtual void reset(Node* root);
 
+    void resetTime(Node* root);
+
     /// Initialize the textures
     virtual void initTextures(Node* root);
 
