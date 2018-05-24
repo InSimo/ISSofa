@@ -603,15 +603,16 @@ std::pair<int,double> GenericConstraintProblem::solveTimed(double tol, int maxIt
     return res;
 }
 
-void GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver)
+void GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver, ConstraintResolutionFunctor&& functor )
 {
-    std::pair<int,double> res = gaussSeidel(solver, tolerance, maxIterations, 0, getDfree(), _d.ptr(), getF());
+    std::pair<int,double> res = gaussSeidel(solver, tolerance, maxIterations, 0, getDfree(), _d.ptr(), getF(), std::move(functor) );
     currentIterations = res.first;
     currentError = res.second;
 }
 
 // Debug is only available when called directly by the solver (not in haptic thread)
-std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* dfree, double* d, double* force) const
+std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* dfree, double* d, double* force,
+    ConstraintResolutionFunctor&& functor) const
 {
 	if(!dimension)
     {
@@ -721,7 +722,7 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 					d[j+l] += w[j+l][k] * force[k];
 
 			//3. the specific resolution of the constraint(s) is called
-			constraintsResolutions[j]->resolution(j, const_cast<double**>(w), d, force, const_cast<double*>(dfree));
+            functor( constraintsResolutions[j], j, const_cast<double**>(w), d, force, const_cast<double*>(dfree) );
 
 			//4. the error is measured (displacement due to the new resolution (i.e. due to the new force))
 			double contraintError = 0.0;
@@ -867,6 +868,41 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 	}
 
     return result;
+}
+
+
+void GenericConstraintSolver::postStabilize(const core::ConstraintParams* cParams, MultiVecCoordId xId, MultiVecDerivId /*vId*/)
+{
+    using sofa::helper::AdvancedTimer;
+    using core::behavior::BaseConstraintCorrection;
+
+    AdvancedTimer::stepBegin("PostStabilize");
+
+    // gather the positional error
+    {
+        core::ConstraintParams stabilizationParams(*cParams);
+        stabilizationParams.setOrder(core::ConstraintParams::POS);
+        MechanicalGetConstraintViolationVisitor(&stabilizationParams, &current_cp->dFree).execute(context);
+    }
+
+    if (cParams->constOrder() == core::ConstraintParams::VEL)
+    {
+        const double invDt = 1. / this->getContext()->getDt();
+        current_cp->dFree *= invDt;
+    }
+
+    current_cp->f.clear();
+    current_cp->gaussSeidel(this, std::mem_fn(&core::behavior::ConstraintResolution::postStabilize));
+
+    for (unsigned int i = 0; i < constraintCorrections.size(); i++)
+    {
+        BaseConstraintCorrection* cc = constraintCorrections[i];
+        if (!cc->isActive()) continue;
+        cc->computeMotionCorrectionFromLambda(cParams, this->getDx(), &current_cp->f);
+        cc->applyPositionCorrection(cParams, xId, cParams->dx(), this->getDx());
+    }
+
+    AdvancedTimer::stepEnd("PostStabilize");
 }
 
 
