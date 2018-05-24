@@ -87,6 +87,12 @@ void ConstraintSolver::solveConstraint(const ConstraintParams * cParams, MultiVe
     AdvancedTimer::stepEnd(className + "SolveConstraints ");
 }
 
+void ConstraintSolver::postStabilize(const core::ConstraintParams*, MultiVecCoordId x, MultiVecDerivId v) 
+{
+
+}
+
+
 } // namespace behavior
 
 } // namespace core
