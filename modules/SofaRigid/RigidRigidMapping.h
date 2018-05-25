@@ -28,10 +28,9 @@
 #include <sofa/SofaCommon.h>
 
 #include <sofa/core/Mapping.h>
-#include <sofa/core/objectmodel/DataFileName.h>
 
+#include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
-#include <sofa/defaulttype/Vec.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <vector>
 
@@ -71,32 +70,22 @@ public:
 
 protected:
     Data < OutVecCoord > points;
-    OutVecCoord pointsR0;
-    Mat rotation;
-    class Loader;
-    void load(const char* filename);
-    Data< sofa::helper::vector<unsigned int> >  repartition;
+    sofa::helper::vector< typename TIn::CPos > pointsR0;
 
 public:
     Data<unsigned> index;
-    sofa::core::objectmodel::DataFileName fileRigidRigidMapping;
     //axis length for display
     Data<double> axisLength;
-    Data< bool > indexFromEnd;
     Data< bool > globalToLocalCoords;
 
 protected:
     RigidRigidMapping()
         : Inherit(),
           points(initData(&points, "initialPoints", "Initial position of the points")),
-          repartition(initData(&repartition,"repartition","number of child frames per parent frame. If empty, all the children are attached to the parent with index given in the \"index\" attribute. If one value, each parent frame drives the given number of children frames. Otherwise, the values are the number of child frames driven by each parent frame. ")),
           index(initData(&index,(unsigned)0,"index","input frame index")),
-          fileRigidRigidMapping(initData(&fileRigidRigidMapping,"fileRigidRigidMapping","Filename")),
           axisLength(initData( &axisLength, 0.7, "axisLength", "axis length for display")),
-          indexFromEnd( initData ( &indexFromEnd,false,"indexFromEnd","input DOF index starts from the end of input DOFs vector") ),
           globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) )
     {
-        this->addAlias(&fileRigidRigidMapping,"filename");
 
     }
 
@@ -126,11 +115,6 @@ public:
     void draw(const core::visual::VisualParams* vparams);
 
     void clear();
-
-    sofa::helper::vector<unsigned int> getRepartition() {return repartition.getValue(); }
-
-    void setRepartition(unsigned int value);
-    void setRepartition(sofa::helper::vector<unsigned int> values);
 
 protected:
 
