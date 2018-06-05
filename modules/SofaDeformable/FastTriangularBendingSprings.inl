@@ -335,7 +335,7 @@ void FastTriangularBendingSprings<DataTypes>::createBendingSprings(unsigned int 
     epsilonSq *= epsilonSq;
     VecEdgeSpring& ei = edgeData[edgeIndex]; // edge spring
     ei.springs.resize(1);
-
+    ei.springs[0].resetCache();
 
     if (shell.size() == 2)   // there is another triangle attached to this edge, so a spring is needed
     {
@@ -439,12 +439,13 @@ template<class MatrixWriter>
 void FastTriangularBendingSprings<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
 {
     const Real kFactor = (Real)mparams->kFactor();
-    const helper::vector<VecEdgeSpring>& Vecsprings = edgeSprings.getValue();
-    for(unsigned i=0; i< Vecsprings.size() ; i++)
+    const helper::vector<VecEdgeSpring>& vecsprings = edgeSprings.getValue();
+
+    for (unsigned i=0; i< vecsprings.size() ; i++)
     {
-        for (unsigned int j = 0; j < Vecsprings[i].springs.size(); j++)
+        for (unsigned int j = 0; j < vecsprings[i].springs.size(); j++)
         {
-            Vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
+            vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
         }
     }
 }
