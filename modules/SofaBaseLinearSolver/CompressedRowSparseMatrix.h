@@ -752,6 +752,54 @@ public:
         return NULL;
     }
 
+    Bloc* wbloc(Index i, Index j, Index& rowId, Index& colId, bool create = false)
+    {
+#ifdef SPARSEMATRIX_CHECK
+        if (i >= rowBSize() || j >= colBSize())
+        {
+            std::cerr << "ERROR: invalid write access to bloc ("<<i<<","<<j<<") in "<< this->Name() <<" of bloc size ("<<rowBSize()<<","<<colBSize()<<")"<<std::endl;
+            return NULL;
+        }
+#endif
+        bool rowFound = true;
+        if (rowId < 0 || rowId >= rowIndex.size() || rowIndex[rowId] != i)
+        {
+            rowId = i * rowIndex.size() / nBlocRow;
+            rowFound = sortedFind(rowIndex, i, rowId);
+        }
+        if (rowFound)
+        {
+            bool colFound = true;
+            Range rowRange(rowBegin[rowId], rowBegin[rowId+1]);
+            if (colId < rowRange.begin() || colId >= rowRange.end() || colsIndex[colId] != j)
+            {
+                colId = rowRange.begin() + j * rowRange.size() / nBlocCol;
+                colFound = sortedFind(colsIndex, rowRange, j, colId);
+            }
+            if (colFound)
+            {
+#ifdef SPARSEMATRIX_VERBOSE
+                std::cout << this->Name()  << "("<<rowBSize()<<"*"<<NL<<","<<colBSize()<<"*"<<NC<<"): bloc("<<i<<","<<j<<") found at "<<colId<<" (line "<<rowId<<")."<<std::endl;
+#endif
+                return &colsValue[colId];
+            }
+        }
+        if (create)
+        {
+            if (btemp.empty() || btemp.back().l != i || btemp.back().c != j)
+            {
+#ifdef SPARSEMATRIX_VERBOSE
+                std::cout << this->Name()  << "("<<rowSize()<<","<<colSize()<<"): new temp bloc ("<<i<<","<<j<<")"<<std::endl;
+#endif
+                btemp.push_back(IndexedBloc(i,j));
+                traits::clear(btemp.back().value);
+            }
+            return &btemp.back().value;
+        }
+        return NULL;
+    }
+
+
     ///< Mathematical size of the matrix
     Index rowSize() const
     {
