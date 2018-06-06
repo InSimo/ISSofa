@@ -815,7 +815,7 @@ void VisualModelImpl::init()
             //addTopoHandler(&m_positions);
             //addTopoHandler(&m_restPositions);
             //addTopoHandler(&m_vnormals);
-            addTopoHandler(&m_vtexcoords,(m_fixMergedUVSeams.getValue()?1:0));
+            //addTopoHandler(&m_vtexcoords,(m_fixMergedUVSeams.getValue()?1:0));
             //addTopoHandler(&m_vtangents);
             //addTopoHandler(&m_vbitangents);
         }
@@ -1269,7 +1269,7 @@ void VisualModelImpl::updateVisual()
     m_positions.updateIfDirty();
     m_vertices2.updateIfDirty();
     m_vnormals.updateIfDirty();
-    //m_vtexcoords.updateIfDirty();
+    m_vtexcoords.updateIfDirty();
     m_vtangents.updateIfDirty();
     m_vbitangents.updateIfDirty();
     m_edges.updateIfDirty();
@@ -1447,7 +1447,6 @@ void VisualModelImpl::handleTopologyChange()
     ResizableExtVector<Quad>& quads = *(m_quads.beginEdit());
     //VecCoord& positions = *
     m_positions.beginEdit();
-
 
     std::list<const TopologyChange *>::const_iterator itBegin=m_topology->beginChange();
     std::list<const TopologyChange *>::const_iterator itEnd=m_topology->endChange();
