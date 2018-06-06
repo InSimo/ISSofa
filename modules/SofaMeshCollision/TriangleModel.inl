@@ -55,6 +55,10 @@ template<class DataTypes>
 TTriangleModel<DataTypes>::TTriangleModel()
     : mstate(NULL)
     , computeNormals(initData(&computeNormals, true, "computeNormals", "set to false to disable computation of triangles normal"))
+    , d_triangleFlags(initData(&d_triangleFlags,"triangleFlags","Flags used to uniquely identify the points and edges during topology traversal"))
+    , d_triangleFlagBorderAngleThreshold(initData(&d_triangleFlagBorderAngleThreshold,Real(180),"triangleFlagBorderAngleThreshold","Angle threshold (in degrees) above which an edge is qualified as border.\
+                                                                                                            0    -> All edges are flagged as border. \
+                                                                                                            180  -> Only edges with a single adjacent triangle are marked as border"))
     , meshRevision(-1)
     , m_lmdFilter(NULL)
 {
@@ -105,15 +109,32 @@ void TTriangleModel<DataTypes>::init()
     triangles = &_topology->getTriangles();
     resize(_topology->getNbTriangles());
 
-    updateFromTopology();
-    updateNormals();
+    d_triangleFlags.createTopologicalEngine(_topology);
+    d_triangleFlags.registerTopologicalData();
 
-    for(int i=0; i<this->getSize();++i)
-    {
-        getTriangleFlags(i);
-    }
+    reinit();
 
 }
+
+template<class DataTypes>
+void TTriangleModel<DataTypes>::reinit()
+{
+
+    updateFlags();
+
+}
+
+
+template< class DataTypes> 
+inline typename DataTypes::Deriv computeTriangleNormal(const typename DataTypes::Coord& p0,
+    const typename DataTypes::Coord& p1,
+    const typename DataTypes::Coord& p2)
+{
+    typename DataTypes::Deriv n = cross(p1-p0, p2-p0);
+    n.normalize();
+    return n;
+}
+
 
 template<class DataTypes>
 void TTriangleModel<DataTypes>::updateNormals()
@@ -125,8 +146,8 @@ void TTriangleModel<DataTypes>::updateNormals()
         const defaulttype::Vector3& pt2 = t.p2();
         const defaulttype::Vector3& pt3 = t.p3();
 
-        t.n() = cross(pt2-pt1,pt3-pt1);
-        t.n().normalize();
+        t.n() = computeTriangleNormal<DataTypes>(pt1, pt2, pt3);
+
         //sout << i << " " << t.n() << sendl;
     }
 }
@@ -193,8 +214,8 @@ void TTriangleModel<DataTypes>::updateFromTopology()
             ++index;
         }
     }
-    updateFlags();
     updateNormals();
+    updateFlags();
 }
 
 template<class DataTypes>
@@ -240,6 +261,71 @@ void TTriangleModel<DataTypes>::updateFlags(int /*ntri*/)
         elems[i].flags = f;
     }
 #endif
+    auto x0 = this->mstate->readRestPositions();
+    auto x  = this->mstate->readPositions();
+
+    // if the topology of the triangle mesh used for the collision is modified 
+    // and the rest position is not updated, we cannot update the edge border
+    // flags value based on the angle made by the normal between adjacent triangles. 
+    const bool computeAngleAtEdge = x0.size() == x.size();
+
+    auto triangleFlags =  sofa::helper::write(d_triangleFlags);
+    Real angleThreshold = d_triangleFlagBorderAngleThreshold.getValue();
+    angleThreshold *= M_PI / Real(180);
+    const Real cosAngleThreshold = std::cos(angleThreshold);
+
+    for (sofa::core::topology::BaseMeshTopology::TriangleID tid=0; tid< triangles->size(); ++tid)
+    {
+        sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[tid];
+        int f = 0;
+        for (unsigned int j=0; j<3; ++j)
+        {
+            const sofa::core::topology::BaseMeshTopology::TrianglesAroundVertex& tav = _topology->getTrianglesAroundVertex(t[j]);
+            if (tav[0] == tid)
+                f |= (FLAG_P1 << j);
+        }
+
+        const sofa::core::topology::BaseMeshTopology::EdgesInTriangle& e = _topology->getEdgesInTriangle(tid);
+
+        for (unsigned int j=0; j<3; ++j)
+        {
+            const sofa::core::topology::BaseMeshTopology::TrianglesAroundEdge& tae = _topology->getTrianglesAroundEdge(e[j]);
+            if (tae[0] == tid)
+            {
+                f |= (FLAG_E23 << j);
+
+                if (computeAngleAtEdge)
+                {
+                    const sofa::core::topology::Topology::Triangle& tri_0 = (*triangles)[tae[0]];
+                    const Deriv& n_0 = computeTriangleNormal<DataTypes>(x0[tri_0[0]],
+                        x0[tri_0[1]],
+                        x0[tri_0[2]]);
+                    for (std::size_t k=1; k<tae.size(); ++k)
+                    {
+                        const sofa::core::topology::Topology::Triangle& tri_k = (*triangles)[tae[k]];
+                        const Deriv& n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]],
+                            x0[tri_k[1]],
+                            x0[tri_k[2]]);
+                        const Real cos = dot(n_0, n_k);
+                        const bool isAngleAboveThreshold = cos < cosAngleThreshold;
+                        if (isAngleAboveThreshold)
+                        {
+                            f |= (FLAG_BE23 << j);
+                        }
+                    }
+                }
+
+            }
+            if (tae.size() == 1)
+            {
+                f |= (FLAG_BE23 << j);
+            }
+
+
+            
+        }
+        triangleFlags[tid] = f;
+    }
 }
 
 template<class DataTypes>
@@ -773,8 +859,7 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
                 if (calcNormals)
                 {
                     // Also recompute normal vector
-                    t.n() = cross(pt2-pt1,pt3-pt1);
-                    t.n().normalize();
+                    t.n() = computeTriangleNormal<DataTypes>(pt1,pt2,pt3);
                 }
                 cubeModel->setParentOf(i, minElem, maxElem); // define the bounding box of the current triangle
             }
@@ -860,32 +945,8 @@ template<class DataTypes>
 int TTriangleModel<DataTypes>::getTriangleFlags(int i)
 {
     int f = 0;
-    sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[i];
-
-    if (i < _topology->getNbTriangles())
-    {
-        for (unsigned int j=0; j<3; ++j)
-        {
-            const sofa::core::topology::BaseMeshTopology::TrianglesAroundVertex& tav = _topology->getTrianglesAroundVertex(t[j]);
-            if (tav[0] == (sofa::core::topology::BaseMeshTopology::TriangleID)i)
-                f |= (FLAG_P1 << j);
-        }
-
-        const sofa::core::topology::BaseMeshTopology::EdgesInTriangle& e = _topology->getEdgesInTriangle(i);
-
-        for (unsigned int j=0; j<3; ++j)
-        {
-            const sofa::core::topology::BaseMeshTopology::TrianglesAroundEdge& tae = _topology->getTrianglesAroundEdge(e[j]);
-            if (tae[0] == (sofa::core::topology::BaseMeshTopology::TriangleID)i)
-                f |= (FLAG_E23 << j);
-            if (tae.size() == 1)
-                f |= (FLAG_BE23 << j);
-        }
-    }
-    else
-    {
-        /// \todo flags for quads
-    }
+    auto triangleFlags = sofa::helper::read(d_triangleFlags);
+    f = triangleFlags[i];
     return f;
 }
 
