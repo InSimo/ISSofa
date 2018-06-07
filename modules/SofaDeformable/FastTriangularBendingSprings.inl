@@ -252,8 +252,8 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_useCorotational(initData(&d_useCorotational, false, "useCorotational","Use a rotation to make rest curvature invariant to rotation"))
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
-, d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSprigEnergy","Maximum value of spring bending enrgy to draw"))
-, d_drawSpringSize(initData(&d_drawSpringSize,(Real) 1.0,"drawSpringSize","Size of drawed lines"))
+, d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSpringEnergy","Maximum value of spring bending energy to draw"))
+, d_drawSpringSize(initData(&d_drawSpringSize, 1.0f,"drawSpringSize","Size of drawed lines"))
 , edgeHandler(NULL)
 {
     // Create specific handler for EdgeData

@@ -113,7 +113,7 @@ public:
     Data<bool>   d_quadraticBendingModel; /// Use quadratic bending model method for Inextensible Surfaces
 
     Data<Real> d_drawMaxSpringEnergy;
-    Data<Real> d_drawSpringSize;
+    Data<float> d_drawSpringSize;
 
     /// Searches triangle topology and creates the bending springs
     virtual void init();
@@ -143,7 +143,7 @@ protected:
         enum {VA=QC,VB=QD,VC=QB,VD=QA};                    ///< vertex names as in Volino's paper
         sofa::defaulttype::Vec<4,unsigned> vid;  ///< vertex indices, in circular order
         sofa::defaulttype::Vec<4,Real> alpha;    ///< weight of each vertex in the bending vector
-        Real lambda;                             ///< bending stiffness
+        Real lambda = Real(0.0);                             ///< bending stiffness
         Deriv R0;                                ///< rest curvature
         bool is_activated = false;
         bool is_initialized = false;
