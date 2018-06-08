@@ -301,33 +301,21 @@ void SkinningMapping<TIn, TOut>::apply( const sofa::core::MechanicalParams* mpar
     else
 #endif
     {
-        _J.clear();
         for ( unsigned int i = 0 ; i < out.size(); i++ )
         {
-            out[i] = OutCoord ();
+            out[i] = OutCoord();
 
             if(nbRef.getValue().size() == m_weights.size())
+            {
                 nbref = nbRef.getValue()[i];
+            }
 
-            _J.beginBlockRow(i);
             for ( unsigned int j=0; j<nbref && m_weights[i][j]>0.; j++ )
             {
                 f_rotatedPos[i][j]=in[index[i][j]].rotate(f_localPos[i][j]);
                 out[i] += in[index[i][j]].getCenter() * m_weights[i][j] + f_rotatedPos[i][j];
-
-                // update the Jacobian Matrix
-//                Real w=m_weights[i][j];
-                matblock[0][0] = (Real) m_weights[i][j];        ;    matblock[1][0] = (Real) 0                      ;    matblock[2][0] = (Real) 0                      ;
-                matblock[0][1] = (Real) 0                       ;    matblock[1][1] = (Real) m_weights[i][j]        ;    matblock[2][1] = (Real) 0                      ;
-                matblock[0][2] = (Real) 0                       ;    matblock[1][2] = (Real) 0                      ;    matblock[2][2] = (Real) m_weights[i][j];       ;
-                matblock[0][3] = (Real) 0                       ;    matblock[1][3] = (Real)-f_rotatedPos[i][j][2]  ;    matblock[2][3] = (Real) f_rotatedPos[i][j][1]  ;
-                matblock[0][4] = (Real) f_rotatedPos[i][j][2]   ;    matblock[1][4] = (Real) 0                      ;    matblock[2][4] = (Real)-f_rotatedPos[i][j][0]  ;
-                matblock[0][5] = (Real)-f_rotatedPos[i][j][1]   ;    matblock[1][5] = (Real) f_rotatedPos[i][j][0]  ;    matblock[2][5] = (Real) 0                      ;
-                _J.createBlock(index[i][j],matblock);
             }
-            _J.endBlockRow();
         }
-         _J.compress();
     }
     outData.endEdit(mparams);
 }
@@ -491,8 +479,40 @@ const sofa::helper::vector<sofa::defaulttype::BaseMatrix*>* SkinningMapping<TIn,
 }
 
 template <class TIn, class TOut>
-const  sofa::defaulttype::BaseMatrix* SkinningMapping<TIn, TOut>::getJ()
+const sofa::defaulttype::BaseMatrix* SkinningMapping<TIn, TOut>::getJ()
 {
+    const unsigned int outStateSize = this->toModel->read(core::ConstVecCoordId::position())->getValue().size();
+
+    unsigned int nbref = nbRef.getValue()[0];
+    sofa::helper::ReadAccessor<Data<vector<sofa::helper::SVector<InReal> > > > weights(this->weight);
+    sofa::helper::ReadAccessor<Data<vector<sofa::helper::SVector<unsigned int> > > > index(f_index);
+    MatBlock matblock;
+
+    _J.clear();
+    for (unsigned int i = 0 ; i < outStateSize; i++)
+    {
+        if (nbRef.getValue().size() == weights.size())
+        {
+            nbref = nbRef.getValue()[i];
+        }
+
+        _J.beginBlockRow(i);
+        for (unsigned int j = 0; j < nbref && weights[i][j] > 0.; j++)
+        {
+            Real w = weights[i][j];
+            const OutCoord& p = f_rotatedPos[i][j];
+            matblock[0][0] = (Real) w;      ;    matblock[1][0] = (Real) 0      ;    matblock[2][0] = (Real) 0     ;
+            matblock[0][1] = (Real) 0       ;    matblock[1][1] = (Real) w      ;    matblock[2][1] = (Real) 0     ;
+            matblock[0][2] = (Real) 0       ;    matblock[1][2] = (Real) 0      ;    matblock[2][2] = (Real) w     ;
+            matblock[0][3] = (Real) 0       ;    matblock[1][3] = (Real)-p[2]   ;    matblock[2][3] = (Real) p[1]  ;
+            matblock[0][4] = (Real) p[2]    ;    matblock[1][4] = (Real) 0      ;    matblock[2][4] = (Real)-p[0]  ;
+            matblock[0][5] = (Real)-p[1]    ;    matblock[1][5] = (Real) p[0]   ;    matblock[2][5] = (Real) 0     ;
+            _J.createBlock(index[i][j], matblock);
+        }
+        _J.endBlockRow();
+    }
+    _J.compress();
+
     return (sofa::defaulttype::BaseMatrix*)&_J;
 }
 
