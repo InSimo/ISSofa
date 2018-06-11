@@ -280,7 +280,7 @@ endif()
 
 # make the name of debug libraries end in _d.
 set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
-set_property(SOURCE system/PluginManager.cpp PROPERTY COMPILE_DEFINITIONS_DEBUG "SOFA_LIBSUFFIX=_d" )
+target_compile_definitions( ${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SOFA_LIBSUFFIX=_d> )
 set_target_properties( ${PROJECT_NAME}  PROPERTIES VERSION ${SOFAFRAMEWORK_VERSION} )
 
 set( SOFAHELPER_COMPILER_FLAGS "-DSOFA_BUILD_HELPER -DUNICODE")
