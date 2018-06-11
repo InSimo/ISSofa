@@ -280,7 +280,8 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     this->gnode->execute(&endVisitor);
 
     mop.projectPositionAndVelocity(pos, vel);
-    mop.propagateXAndV(pos, vel);
+    mop.propagateDx(vel,true);
+    mop.propagateX(pos);
 
     this->gnode->setTime ( startTime + dt );
     this->gnode->execute<UpdateSimulationContextVisitor>(params);  // propagate time
