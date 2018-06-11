@@ -424,26 +424,17 @@ public:
     //    center = c.getCenter();
     //    orientation = c.getOrientation();
     //}
-
-    void operator +=(const Deriv& a)
+    
+    void operator +=(const Deriv& dg)
     {
-        center += a.getVCenter();
-        orientation.normalize();
-        Quat qDot = orientation.vectQuatMult(a.getVOrientation());
-        for (int i = 0; i < 4; i++)
-            orientation[i] += qDot[i] * 0.5f;
-        orientation.normalize();
+        center += dg.getVCenter();
+        orientation.integrateExponentialMap(dg.getVOrientation());
     }
 
-    RigidCoord<3,real> operator+(const Deriv& a) const
+    RigidCoord<3, real> operator+(const Deriv& dg) const
     {
         RigidCoord c = *this;
-        c.center += a.getVCenter();
-        c.orientation.normalize();
-        Quat qDot = c.orientation.vectQuatMult(a.getVOrientation());
-        for (int i = 0; i < 4; i++)
-            c.orientation[i] += qDot[i] * 0.5f;
-        c.orientation.normalize();
+        c += dg;
         return c;
     }
 
@@ -462,25 +453,28 @@ public:
         return RigidCoord<3,real>( -this->center, this->orientation.inverse() );
     }
 
-    void operator +=(const RigidCoord<3,real>& a)
+    RigidCoord<3, real>& operator +=(const RigidCoord<3,real>& a)
     {
         center += a.getCenter();
         orientation *= a.getOrientation();
+        return *this;
     }
 
     template<typename real2>
-    void operator*=(real2 a)
+    RigidCoord<3, real>& operator*=(real2 a)
     {
         //std::cout << "*="<<std::endl;
         center *= a;
+        return *this;
         //orientation *= a;
     }
 
     template<typename real2>
-    void operator/=(real2 a)
+    RigidCoord<3, real>& operator/=(real2 a)
     {
         //std::cout << "/="<<std::endl;
         center /= a;
+        return *this;
         //orientation /= a;
     }
 
@@ -696,16 +690,15 @@ public:
 
     bool operator==(const RigidCoord<3,real>& b) const
     {
-        return center == b.center && orientation == b.orientation;
+        return center == b.center && orientation.isEqual(b.orientation);
     }
 
     bool operator!=(const RigidCoord<3,real>& b) const
     {
-        return center != b.center || orientation != b.orientation;
+        return center != b.center || orientation.isDifferent(b.orientation);
     }
 
     /// @}
-
     typedef real* iterator;
     typedef const real* const_iterator;
     iterator begin() { return ptr(); }
