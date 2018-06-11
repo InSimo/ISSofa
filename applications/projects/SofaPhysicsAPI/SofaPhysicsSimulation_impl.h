@@ -24,7 +24,7 @@ public:
     bool load(const char* filename);
     void start();
     void stop();
-    void step();
+    bool step();
     void reset();
     void resetView();
     void sendValue(const char* name, double value);
