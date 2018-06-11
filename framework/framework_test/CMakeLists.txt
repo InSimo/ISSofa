@@ -25,6 +25,7 @@ set(SOURCE_FILES
     core/objectmodel/PairTypeInfoTest.cpp
     core/objectmodel/StructTypeInfoTest.cpp
     core/objectmodel/EnumTypeInfoTest.cpp
+    defaulttype/QuatTest.cpp
     defaulttype/UnitsTest.cpp
     defaulttype/DataMetadataTest.cpp
     #plugin-system/PluginSystemTest.cpp
