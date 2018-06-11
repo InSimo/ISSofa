@@ -97,18 +97,18 @@ set_target_properties (glew PROPERTIES COMPILE_DEFINITIONS "GLEW_BUILD" OUTPUT_N
                                        VERSION ${GLEW_VERSION}
                                        SOVERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR})
 target_include_directories(glew PUBLIC "$<BUILD_INTERFACE:${GLEW_DIR}/include>")
-add_library (glew_s STATIC ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
-set_target_properties (glew_s PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC" OUTPUT_NAME "${GLEW_LIB_NAME}" PREFIX lib)
-target_include_directories(glew_s PUBLIC "$<BUILD_INTERFACE:${GLEW_DIR}/include>")
+#add_library (glew_s STATIC ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
+#set_target_properties (glew_s PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC" OUTPUT_NAME "${GLEW_LIB_NAME}" PREFIX lib)
+#target_include_directories(glew_s PUBLIC "$<BUILD_INTERFACE:${GLEW_DIR}/include>")
 
 if (MSVC)
   # add options from visual studio project
   target_compile_definitions (glew PRIVATE "GLEW_BUILD;VC_EXTRALEAN")
-  target_compile_definitions (glew_s PRIVATE "GLEW_STATIC;VC_EXTRALEAN")
+  #target_compile_definitions (glew_s PRIVATE "GLEW_STATIC;VC_EXTRALEAN")
   target_link_libraries (glew LINK_PRIVATE -BASE:0x62AA0000)
   # kill security checks which are dependent on stdlib
   target_compile_options (glew PRIVATE -GS-)
-  target_compile_options (glew_s PRIVATE -GS-)
+  #target_compile_options (glew_s PRIVATE -GS-)
   # remove stdlib dependency
   target_link_libraries (glew LINK_PRIVATE -nodefaultlib -noentry)
   string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
@@ -116,7 +116,7 @@ elseif (WIN32 AND ((CMAKE_C_COMPILER_ID MATCHES "GNU") OR (CMAKE_C_COMPILER_ID M
   # remove stdlib dependency on windows with GCC and Clang (for similar reasons
   # as to MSVC - to allow it to be used with any Windows compiler)
   target_compile_options (glew PRIVATE -fno-builtin -fno-stack-protector)
-  target_compile_options (glew_s PRIVATE -fno-builtin -fno-stack-protector)
+  #target_compile_options (glew_s PRIVATE -fno-builtin -fno-stack-protector)
   target_link_libraries (glew LINK_PRIVATE -nostdlib)
 endif ()
 
@@ -134,26 +134,27 @@ if (BUILD_FRAMEWORK)
 endif()
 
 target_link_libraries (glew LINK_PUBLIC ${GLEW_LIBRARIES})
-target_link_libraries (glew_s ${GLEW_LIBRARIES})
+#target_link_libraries (glew_s ${GLEW_LIBRARIES})
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
   set(MAYBE_EXPORT "")
 else()
-  target_compile_definitions(glew_s INTERFACE "GLEW_STATIC")
-  foreach(t glew glew_s)
+  #target_compile_definitions(glew_s INTERFACE "GLEW_STATIC")
+  foreach(t glew #glew_s
+      )
     target_include_directories(${t} PUBLIC $<INSTALL_INTERFACE:include>)
   endforeach()
   set(MAYBE_EXPORT EXPORT glew-targets)
 endif()
 
 set(targets_to_install "")
-if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
+#if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
   list(APPEND targets_to_install glew)
-endif()
-
-if(NOT DEFINED BUILD_SHARED_LIBS OR NOT BUILD_SHARED_LIBS)
-  list(APPEND targets_to_install glew_s)
-endif()
+#endif()
+#
+#if(NOT DEFINED BUILD_SHARED_LIBS OR NOT BUILD_SHARED_LIBS)
+#  list(APPEND targets_to_install glew_s)
+#endif()
 
 install ( TARGETS ${targets_to_install}
           ${MAYBE_EXPORT}
@@ -244,8 +245,8 @@ endif()
 
 # set variables such that FindGLEW.cmake finds the above targets
 set(GLEW_INCLUDE_DIR "${GLEW_DIR}/include" CACHE STRING "" FORCE)
-if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
+#if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
   set(GLEW_LIBRARY "glew" CACHE STRING "" FORCE)
-else()
-  set(GLEW_LIBRARY "glew_s" CACHE STRING "" FORCE)
-endif()
+#else()
+#  set(GLEW_LIBRARY "glew_s" CACHE STRING "" FORCE)
+#endif()
