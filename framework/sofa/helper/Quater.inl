@@ -76,11 +76,8 @@ Quater<Real>::~Quater()
 ///   NOTE: This routine is written so that q1 or q2 may be the same
 ///  	   as dest (or each other).
 template<class Real>
-//Quater<Real> operator+(Quater<Real> q1, Quater<Real> q2) const
 Quater<Real> Quater<Real>::operator+(const Quater<Real> &q1) const
 {
-//    static int	count	= 0;
-
     Real		t1[4], t2[4], t3[4];
     Real		tf[4];
     Quater<Real>	ret;
@@ -148,7 +145,7 @@ Quater<Real> Quater<Real>::operator*(const Quater<Real>& q1) const
 }
 
 template<class Real>
-Quater<Real> Quater<Real>::operator*(const Real& r) const
+Quater<Real> Quater<Real>::operator*(Real r) const
 {
     Quater<Real>  ret;
     ret[0] = _q[0] * r;
@@ -160,7 +157,7 @@ Quater<Real> Quater<Real>::operator*(const Real& r) const
 
 
 template<class Real>
-Quater<Real> Quater<Real>::operator/(const Real& r) const
+Quater<Real> Quater<Real>::operator/(Real r) const
 {
     Quater<Real>  ret;
     ret[0] = _q[0] / r;
@@ -171,24 +168,26 @@ Quater<Real> Quater<Real>::operator/(const Real& r) const
 }
 
 template<class Real>
-void Quater<Real>::operator*=(const Real& r)
+Quater<Real>& Quater<Real>::operator*=(Real r)
 {
-    Quater<Real>  ret;
     _q[0] *= r;
     _q[1] *= r;
     _q[2] *= r;
     _q[3] *= r;
+
+    return *this;
 }
 
 
 template<class Real>
-void Quater<Real>::operator/=(const Real& r)
+Quater<Real>& Quater<Real>::operator/=(Real r)
 {
-    Quater<Real>  ret;
     _q[0] /= r;
     _q[1] /= r;
     _q[2] /= r;
     _q[3] /= r;
+
+    return *this;
 }
 
 
@@ -221,16 +220,15 @@ Quater<Real> Quater<Real>::vectQuatMult(const defaulttype::Vec<3,Real>& vect)
 template<class Real>
 Quater<Real> Quater<Real>::inverse() const
 {
-    Quater<Real>	ret;
+    Quater<Real>    ret;
+    Real  norm = std::sqrt(_q[0] * _q[0] +
+                                _q[1] * _q[1] +
+                                _q[2] * _q[2] +
+                                _q[3] * _q[3]);
 
-    Real		norm	= sqrt(_q[0] * _q[0] +
-            _q[1] * _q[1] +
-            _q[2] * _q[2] +
-            _q[3] * _q[3]);
-
-    if (norm != 0.0f)
+    if (norm != Real(0.0))
     {
-        norm = 1.0f / norm;
+        norm = Real(1.0) / norm;
         ret._q[3] = _q[3] * norm;
         for (int i = 0; i < 3; i++)
         {
@@ -248,33 +246,96 @@ Quater<Real> Quater<Real>::inverse() const
     return ret;
 }
 
+
+template< class Real >
+Real Quater<Real>::dot(const Quater<Real>& b) const
+{
+    return _q[0] * b[0] + _q[1]*b[1] + _q[2]*b[2] + _q[3]*b[3];
+}
+
+template< class Real >
+Real Quater<Real>::norm2() const
+{
+    return dot(*this);
+}
+
+template< class Real >
+Real Quater<Real>::norm() const
+{
+    return std::sqrt(norm2());
+}
+
 /// Quater<Real>s always obey:  a^2 + b^2 + c^2 + d^2 = 1.0
 /// If they don't add up to 1.0, dividing by their magnitude will
 /// renormalize them.
 template<class Real>
 void Quater<Real>::normalize()
 {
-    Real	mag;
+    const Real _norm =  norm();
+    Quater<Real>& q  = *this;
 
-    mag = (_q[0] * _q[0] + _q[1] * _q[1] + _q[2] * _q[2] + _q[3] * _q[3]);
-    if( mag != 0)
+    if (_norm  != Real(0.0) )
     {
-        for (int i = 0; i < 4; i++)
-        {
-            _q[i] /= sqrt(mag);
-        }
+        q /= _norm;
     }
+}
+
+
+/// integrate quaternion using exponential map parametrisation
+/// omega = u * theta
+/// exp( u * theta ) = [ cos(theta / 2 ), 0.5 * sinc(  theta / 2) * u ]
+template<class Real>
+void Quater<Real>::integrateExponentialMap(const Vec3& omega, Real epsilon)
+{
+    // R3 x SO(3) exponential integration
+    const Real theta = omega.norm();
+    Quater<Real>& qThis = *this;
+
+    if (theta < epsilon)
+    {
+        // taylor expansion of the sinc function around zero
+        const Real sinc = Real(0.5) + std::pow(theta, Real(2)) / Real(48)
+                                    - std::pow(theta, Real(4)) / (std::pow(Real(2), Real(5)) * Real(120));
+
+        const Quater<Real> exp_omega( sinc * omega[0],
+                                      sinc * omega[1],
+                                      sinc * omega[2],
+                                      std::cos(theta / Real(2)) );
+
+        qThis = exp_omega * qThis;
+    }
+    else
+    {
+        const Real sinc = std::sin(theta * Real(0.5) ) / theta;
+        const Quater<Real> exp_omega(sinc * omega[0],
+                                     sinc * omega[1],
+                                     sinc * omega[2],
+                                     std::cos(theta / Real(2)));
+        
+        qThis = exp_omega * qThis;
+    }
+
+    assert(std::abs(norm() -1) < 1e-6); 
+}
+
+template<class Real>
+void Quater<Real>::integrate(const Vec3& omega)
+{
+    (*this).normalize();
+    Quater<Real> qDot = (*this).vectQuatMult(omega);
+    for (int i = 0; i < 4; i++)
+    {
+        (*this)[i] += qDot[i] * 0.5f;
+    }
+    (*this).normalize();
 }
 
 template<class Real>
 void Quater<Real>::fromFrame(defaulttype::Vec<3,Real>& x, defaulttype::Vec<3,Real>&y, defaulttype::Vec<3,Real>&z)
 {
-
     defaulttype::Matrix3 R(x,y,z);
     R.transpose();
     this->fromMatrix(R);
-
-
 }
 
 template<class Real>
@@ -455,76 +516,104 @@ void Quater<Real>::writeOpenGlMatrix(float *m) const
 
 /// Given an axis and angle, compute quaternion.
 template<class Real>
-Quater<Real> Quater<Real>::axisToQuat(defaulttype::Vec<3,Real> a, Real phi)
+Quater<Real> Quater<Real>::axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon)
 {
-    if( a.norm() < std::numeric_limits<Real>::epsilon() )
+    defaulttype::Vec<3, Real> axis = a;
+
+    const Real axis_norm = axis.norm();
+
+    if(axis_norm < epsilon )
     {
-//		std::cout << "zero norm quaternion" << std::endl;
         _q[0] = _q[1] = _q[2] = (Real)0.0f;
         _q[3] = (Real)1.0f;
-
-        return Quater();
+        return *this;
     }
 
-    a = a / a.norm();
-    _q[0] = (Real)a.x();
-    _q[1] = (Real)a.y();
-    _q[2] = (Real)a.z();
+    axis = axis / axis_norm;
+    _q[0] = (Real)axis.x();
+    _q[1] = (Real)axis.y();
+    _q[2] = (Real)axis.z();
 
-    _q[0] = _q[0] * (Real)sin(phi / 2.0);
-    _q[1] = _q[1] * (Real)sin(phi / 2.0);
-    _q[2] = _q[2] * (Real)sin(phi / 2.0);
+    const Real sin_half_phi = std::sin(phi / Real(2.0));
 
-    _q[3] = (Real)cos(phi / 2.0);
+    _q[0] = _q[0] * sin_half_phi;
+    _q[1] = _q[1] * sin_half_phi;
+    _q[2] = _q[2] * sin_half_phi;
+
+    const Real cos_half_phi = std::cos(phi / Real(2.0));
+
+    _q[3] = cos_half_phi;
 
     return *this;
 }
 
 /// Given a quaternion, compute an axis and angle
 template<class Real>
-void Quater<Real>::quatToAxis(defaulttype::Vec<3,Real> & axis, Real &angle)
+void Quater<Real>::quatToAxis(defaulttype::Vec<3,Real> & axis, Real &angle, bool normalizeQuaternion, Real epsilon ) const
 {
-    double  sine  = sin( acos(_q[3]) );
-    if(sine == 0) {
-        sine = sqrt(_q[0]*_q[0]+_q[1]*_q[1]+_q[2]*_q[2]);
-        angle = (Real)(2.0*asin(sine));
-    }
-    else angle = (Real)(2.0*acos(_q[3]));
+    axis = getLog( normalizeQuaternion, epsilon);
+    
+    angle = axis.norm();
 
-    if (sine==0)
-        axis = defaulttype::Vec<3,Real>(0.0f,1.0f,0.0f);
-    else
-        axis = defaulttype::Vec<3,Real>(_q[0],_q[1],_q[2])/ sine;
+    if (angle >= epsilon)
+    {
+        axis /= angle;
+    }
 }
 
 
-/// Returns the log of the quaternion
+/// Returns the log of a unit quaternion
+/// A unit quaternion represents a rotation of angle phi around an axis u
+/// q = cos ( phi/2 ) + u . sin( phi / 2 )
+///
+/// we note theta = phi / 2 to simplify the notation ( conversely phi = 2 * theta )
+///
+/// log( q ) = log( cos_theta + u sin_theta ) = log( exp( u.theta ) = u.theta = [ 0 , u.theta ]
+/// u = q_v / || q_v || where q_v is the vectorial part of the quaternion
+/// theta = arctan ( || q_v || / q_w ) or theta = arccos( q_w ) 
+/// 
+/// log( q ) = q_v * arctan( || q_v || / q_w ) / ||q_v||  
+/// using the Taylor series of arctan it can be proven that 
+/// log( q ) ~ q_v  when theta is small
+/// 
+/// @param normalize If set to true a normalization step is performed to work on a unit quaterion
+/// @param epsilon  A small value used to evaluate if we are dealing with a small angle.
+
 template<class Real>
-defaulttype::Vec<3,Real> Quater<Real>::getLog() const
+defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) const
 {
     Quater< Real > q = *this;
-    q.normalize();
+
+    if(normalize)
+    {
+        q.normalize();
+    }
+
+    assert(std::abs(q.norm() - 1) < epsilon); // make sure we are dealing with a unit quaternion.
 
     defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
 
-    double norm = sqrt( (double) (v.x() * v.x() + v.y() * v.y() + v.z() * v.z()) );
- 
-    if (norm < 0.000001)
-        return v;
+    const Real norm = v.norm(); // sin(theta) = sin( phi / 2 )
+    const Real q_w  = q[3] < 0 ? -q[3] : q[3]; // q[3] = cos_theta : flip to get angle between 0 and pi 
 
-    if (q[3] > 0.999)
+    assert(q_w >= Real(0) );
+    assert(q_w <= Real(1) );
+
+    assert(norm <= Real(1) );
+
+    if (norm < epsilon)
     {
-         v *= 2.0;
+        return v * Real(2.0);
     }
-    else if (q[3] < -0.999)
-    {
-        v *= -2.0;
-    }
-    else
-    {
-        double angle = q[3] > 0 ? acos(q[3]) * 2 : acos(-q[3]) * -2;
-        v *= angle / norm;
-    }
+    
+    // avoid numerical instabilities of arccos when below 5 degrees
+    // q[3] > 0.999 => cos( theta ) > 0.999 => theta < 5 degrees
+
+    const Real angle = q_w > 0.999 ? Real(2.0) * std::asin(norm) :
+                                     Real(2.0) * std::acos(q_w);
+
+    v *= angle / norm;
+  
 
     return v;
 }
@@ -551,7 +640,7 @@ void Quater<Real>::slerp(const Quater& a, const Quater& b, Real t, bool allowFli
 
     Real c1, c2;
     // Linear interpolation for close orientations
-    if ((1.0 - fabs(cosAngle)) < 0.01)
+    if ((1.0 - std::fabs(cosAngle)) < 0.01)
     {
         c1 = 1.0f - t;
         c2 = t;
@@ -559,10 +648,10 @@ void Quater<Real>::slerp(const Quater& a, const Quater& b, Real t, bool allowFli
     else
     {
         // Spherical interpolation
-        Real angle    = (Real)acos((Real)fabs((Real)cosAngle));
-        Real sinAngle = (Real)sin((Real)angle);
-        c1 = (Real)sin(angle * (1.0f - t)) / sinAngle;
-        c2 = (Real)sin(angle * t) / sinAngle;
+        Real angle    = (Real)std::acos((Real)std::fabs((Real)cosAngle));
+        Real sinAngle = (Real)std::sin((Real)angle);
+        c1 = (Real)std::sin(angle * (1.0f - t)) / sinAngle;
+        c2 = (Real)std::sin(angle * t) / sinAngle;
     }
 
     // Use the shortest path
@@ -618,7 +707,7 @@ Quater<Real> Quater<Real>::slerp2(Quater<Real> &q1, Real t)
     // Calculate angle between them.
     double cosHalfTheta = _q[3] * q1[3] + _q[0] * q1[0] + _q[1] * q1[1] + _q[2] * q1[2];
     // if qa=qb or qa=-qb then theta = 0 and we can return qa
-    if (fabs(cosHalfTheta) >= 1.0)
+    if (std::fabs(cosHalfTheta) >= 1.0)
     {
         qm[3] = _q[3]; qm[0] = _q[0]; qm[1] = _q[1]; qm[2] = _q[2];
         return qm;
@@ -628,7 +717,7 @@ Quater<Real> Quater<Real>::slerp2(Quater<Real> &q1, Real t)
     double sinHalfTheta = sqrt(1.0 - cosHalfTheta*cosHalfTheta);
     // if theta = 180 degrees then result is not fully defined
     // we could rotate around any axis normal to qa or qb
-    if (fabs(sinHalfTheta) < 0.001)  // fabs is floating point absolute
+    if (std::fabs(sinHalfTheta) < 0.001)  // fabs is floating point absolute
     {
         qm[3] = (Real)(_q[3] * 0.5 + q1[3] * 0.5);
         qm[0] = (Real)(_q[0] * 0.5 + q1[0] * 0.5);
@@ -636,8 +725,8 @@ Quater<Real> Quater<Real>::slerp2(Quater<Real> &q1, Real t)
         qm[2] = (Real)(_q[2] * 0.5 + q1[2] * 0.5);
         return qm;
     }
-    double ratioA = sin((1 - t) * halfTheta) / sinHalfTheta;
-    double ratioB = sin(t * halfTheta) / sinHalfTheta;
+    double ratioA = std::sin((1 - t) * halfTheta) / sinHalfTheta;
+    double ratioB = std::sin(t * halfTheta) / sinHalfTheta;
     //calculate Quaternion.
     qm[3] = (Real)(_q[3] * ratioA + q1[3] * ratioB);
     qm[0] = (Real)(_q[0] * ratioA + q1[0] * ratioB);
@@ -671,9 +760,8 @@ void Quater<Real>::print()
 }
 
 template<class Real>
-void Quater<Real>::operator+=(const Quater<Real>& q2)
+Quater<Real>& Quater<Real>::operator+=(const Quater<Real>& q2)
 {
-//    static int	count	= 0;
 
     Real t1[4], t2[4], t3[4];
     Quater<Real> q1 = (*this);
@@ -697,17 +785,13 @@ void Quater<Real>::operator+=(const Quater<Real>& q2)
     _q[3] = q1._q[3] * q2._q[3] -
             (q1._q[0] * q2._q[0] + q1._q[1] * q2._q[1] + q1._q[2] * q2._q[2]);
 
-/*    if (++count > RENORMCOUNT)
-    {
-        count = 0;
-        normalize();
-    } */
-
 	normalize();
+
+    return *this;
 }
 
 template<class Real>
-void Quater<Real>::operator*=(const Quater<Real>& q1)
+Quater<Real>& Quater<Real>::operator*=(const Quater<Real>& q1)
 {
     Quater<Real> q2 = *this;
     _q[3] = q2._q[3] * q1._q[3] -
@@ -726,7 +810,10 @@ void Quater<Real>::operator*=(const Quater<Real>& q1)
             q2._q[2] * q1._q[3] +
             q2._q[0] * q1._q[1] -
             q2._q[1] * q1._q[0];
+
+    return *this;
 }
+
 
 } // namespace helper
 
