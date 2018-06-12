@@ -593,13 +593,17 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
 
     defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
 
-    const Real norm = v.norm(); // sin(theta) = sin( phi / 2 )
-    const Real q_w  = q[3] < 0 ? -q[3] : q[3]; // q[3] = cos_theta : flip to get angle between 0 and pi 
+    Real norm = v.norm(); // sin(theta) = sin( phi / 2 )
+    Real q_w  = q[3] < 0 ? -q[3] : q[3]; // q[3] = cos_theta : flip to get angle between 0 and pi 
 
-    assert(q_w >= Real(0) );
-    assert(q_w <= Real(1) );
+    // even if we are dealing with the unit quaternion
+    // these values can be slightly "off" from one
+    // just make sure they are still very close
+    assert(q_w-Real(1.0) < epsilon ); 
+    assert(norm-Real(1.0) < epsilon);
 
-    assert(norm <= Real(1) );
+    q_w = std::min(q_w, Real(1.0) ); 
+    norm = std::min(norm, Real(1.0) );
 
     if (norm < epsilon)
     {
