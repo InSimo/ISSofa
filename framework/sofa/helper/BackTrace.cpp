@@ -31,6 +31,12 @@
 #if defined(__GNUC__) && !defined(PS3)
 #include <cxxabi.h>
 #endif
+#if defined(WIN32)
+#include <windows.h>
+#include <DbgHelp.h>
+#pragma comment(lib, "Dbghelp.lib")
+#include <iostream>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,11 +47,10 @@ namespace sofa
 namespace helper
 {
 
-/// Dump current backtrace to stderr.
-/// Currently only works on Linux. NOOP on other architectures.
 void BackTrace::dump()
 {
 #if defined(__GNUC__) && !defined(__APPLE__) && !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+
     void *array[128];
     int size = backtrace(array, sizeof(array) / sizeof(array[0]));
     if (size > 0)
@@ -101,15 +106,39 @@ void BackTrace::dump()
             backtrace_symbols_fd(array, size, STDERR_FILENO);
         }
     }
+
+#elif !defined(__GNUC__) && !defined(__APPLE__) && defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+
+    unsigned int   i;
+    void           *stack[100];
+    unsigned short frames;
+    SYMBOL_INFO    *symbol;
+    HANDLE         process;
+
+    process = GetCurrentProcess();
+
+    SymInitialize(process, NULL, TRUE);
+
+    frames = CaptureStackBackTrace(0, 100, stack, NULL);
+    symbol = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
+    symbol->MaxNameLen = 255;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+    for (i = 0; i < frames; i++)
+    {
+        SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol);
+        std::cerr << (frames - i - 1) << ": " << symbol->Name << " - 0x" << std::hex << symbol->Address << std::dec << std::endl;
+    }
+
+    free(symbol);
+
 #endif
 }
 
-/// Enable dump of backtrace when a signal is received.
-/// Useful to have information about crashes without starting a debugger (as it is not always easy to do, i.e. for parallel/distributed applications).
-/// Currently only works on Linux. NOOP on other architectures
 void BackTrace::autodump()
 {
-#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+#if !defined(_XBOX) && !defined(PS3)
+#if !defined(WIN32)
     struct sigaction action;
     action.sa_sigaction = BackTrace::sig;
     action.sa_flags = SA_SIGINFO;
@@ -121,10 +150,18 @@ void BackTrace::autodump()
     sigaction(SIGPIPE, &action, NULL);
     sigaction(SIGINT, &action, NULL);
     sigaction(SIGTERM, &action, NULL);
+#else
+    signal(SIGSEGV, BackTrace::sig);
+    signal(SIGILL, BackTrace::sig);
+    signal(SIGFPE, BackTrace::sig);
+    signal(SIGINT, BackTrace::sig);
+    signal(SIGTERM, BackTrace::sig);
 #endif
+#endif   
 }
 
 #if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+
 void BackTrace::sig(int sig, siginfo_t *siginfo, void *)
 {
     fprintf(stderr,"\n########## SIG %d (%s) ##########\n", sig, strsignal(sig));
@@ -153,6 +190,18 @@ void BackTrace::printFPE(int si_code)
     }
     fprintf(stderr, "\n");
 }
+
+#elif defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+
+void BackTrace::sig(int sig)
+{
+    fprintf(stderr, "\n########## SIG %d ##########\n", sig);
+
+    dump();
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+
 #endif
 
 } // namespace helper

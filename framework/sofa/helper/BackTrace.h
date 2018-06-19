@@ -27,7 +27,7 @@
 
 #include <sofa/SofaFramework.h>
 
-#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+#if !defined(_XBOX) && !defined(PS3)
 #include <signal.h>
 #endif
 
@@ -41,22 +41,24 @@ class SOFA_HELPER_API BackTrace
 {
 public:
     /// Dump current backtrace to stderr.
-    /// Currently only works on Linux. NOOP on other architectures.
     static void dump();
 
     /// Enable dump of backtrace when a signal is received.
     /// Useful to have information about crashes without starting a debugger (as it is not always easy to do, i.e. for parallel/distributed applications).
-    /// Currently only works on Linux. NOOP on other architectures
     static void autodump();
 
 protected:
 
 #if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
-    /// Callback for Linux signals
+    /// Callback for Linux (POSIX) signals
     static void sig(int sig, siginfo_t *siginfo, void *);
 
     /// Print current floating point exceptions (only useful when SIGFPE is received on Linux)
     static void printFPE(int si_code);
+
+#elif defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+    /// Callback for Windows (non POSIX) signals
+    static void sig(int sig);
 #endif
 };
 
