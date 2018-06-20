@@ -120,8 +120,8 @@ void BackTrace::dump()
     SymInitialize(process, NULL, TRUE);
 
     frames = CaptureStackBackTrace(0, 100, stack, NULL);
-    symbol = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
-    symbol->MaxNameLen = 255;
+    symbol = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + (MAX_SYM_NAME-1) * sizeof(char), 1);
+    symbol->MaxNameLen = MAX_SYM_NAME;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
     for (i = 0; i < frames; i++)
