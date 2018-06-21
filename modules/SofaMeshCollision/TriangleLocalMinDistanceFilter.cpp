@@ -309,11 +309,6 @@ bool TriangleLocalMinDistanceFilter::validPoint(const int pointIndex, const defa
     // AdvancedTimer::StepVar("Filters");
     sofa::helper::WriteAccessor<Data<sofa::helper::vector<PointInfo> > > pointInfoVec = m_pointInfo;
     PointInfo & Pi = pointInfoVec[pointIndex];
-    if(&Pi==NULL)
-    {
-        serr<<"Pi == NULL"<<sendl;
-        return true;
-    }
 
     if(this->isRigid())
     {
@@ -333,11 +328,6 @@ bool TriangleLocalMinDistanceFilter::validLine(const int lineIndex, const defaul
     //AdvancedTimer::StepVar("Filters");
     sofa::helper::WriteAccessor<Data<sofa::helper::vector<LineInfo> > > lineInfoVec = m_lineInfo;
     LineInfo &Li = lineInfoVec[lineIndex];  // filter is precomputed
-    if(&Li==NULL)
-    {
-        serr<<"Li == NULL"<<sendl;
-        return true;
-    }
 
     if(this->isRigid())
     {
@@ -357,12 +347,6 @@ bool TriangleLocalMinDistanceFilter::validTriangle(const int triangleIndex, cons
     //std::cout<<"validTriangle "<<triangleIndex<<" is called with PQ="<<PQ<<std::endl;
     sofa::helper::WriteAccessor<Data<sofa::helper::vector<TriangleInfo> > > triangleInfoVec = m_triangleInfo;
     TriangleInfo &Ti = triangleInfoVec[triangleIndex];
-
-    if(&Ti==NULL)
-    {
-        serr<<"Ti == NULL"<<sendl;
-        return true;
-    }
 
     if(this->isRigid())
     {

@@ -204,7 +204,7 @@ public:
     constexpr Units(const std::array<int, 7>& units) : units(units) {}
     Units() {}
 
-    SOFA_STRUCT_DECL(Units, units);
+    SOFA_STRUCT_DECL(Units, SOFA_EMPTY);
     inline friend std::ostream& operator<<(std::ostream& os, const Units& s) { return os; }
     inline friend std::istream& operator>> (std::istream& in, Units& s) { return in; }
 };
@@ -240,17 +240,6 @@ namespace sofa
 {
 namespace defaulttype
 {
-
-inline std::ostream& operator<<(std::ostream& os, const std::array<int, 7>& s)
-{
-    std::cout << "DataMetadata.h : the operator<< you are trying to use is not correctly implemented" << std::endl;
-    return os;
-}
-inline std::istream& operator >> (std::istream& in, std::array<int, 7>& s)
-{
-    std::cout << "DataMetadata.h : the operator>> you are trying to use is not correctly implemented" << std::endl;
-    return in;
-}
 
 template<typename T>
 struct DataTypeInfo<sofa::meta::Range<T> > : public StructTypeInfo<sofa::meta::Range<T> > {};
