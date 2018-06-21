@@ -25,7 +25,7 @@
 #ifndef SOFA_HELPER_BACKTRACE_H
 #define SOFA_HELPER_BACKTRACE_H
 
-#include <sofa/SofaFramework.h>
+#include <sofa/helper/system/config.h>
 
 #if !defined(_XBOX) && !defined(PS3)
 #include <signal.h>
