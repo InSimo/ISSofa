@@ -1586,10 +1586,12 @@ public:
     sofa::core::MultiVecDerivId res;
     bool accumulate; ///< Accumulate everything back to the DOFs through the mappings
     bool neglectingCompliance; /// neglect Compliance?
+    bool reverseOrder;
 
     MechanicalComputeForceVisitor(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST  = sofa::core::MechanicalParams::defaultInstance()*/,
-                                  sofa::core::MultiVecDerivId res, bool accumulate = true,  bool neglectingCompliance = true )
+                                  sofa::core::MultiVecDerivId res, bool accumulate = true,  bool neglectingCompliance = true, bool _reverseOrder = false)
         : MechanicalVisitor(mparams) , res(res), accumulate(accumulate), neglectingCompliance(neglectingCompliance)
+                                     , reverseOrder(_reverseOrder)
     {
 #ifdef SOFA_DUMP_VISITOR_INFO
         setReadWriteVectors();
@@ -1600,6 +1602,11 @@ public:
     virtual Result fwdForceField(simulation::Node* /*node*/, core::behavior::BaseForceField* ff);
     virtual void bwdMechanicalMapping(simulation::Node* /*node*/, core::BaseMapping* map);
     virtual void bwdMechanicalState(simulation::Node* /*node*/, core::behavior::BaseMechanicalState* mm);
+                               /// Return true to reverse the order of traversal of child nodes
+    virtual bool childOrderReversed(simulation::Node* /*node*/)
+    {
+        return reverseOrder; 
+    }
 
 
     /// Return a class name for this visitor

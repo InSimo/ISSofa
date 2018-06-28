@@ -57,7 +57,7 @@ EulerImplicitSolver::EulerImplicitSolver()
     , f_verbose( initData(&f_verbose,false,"verbose","Dump system state at each iteration") )
     , f_projectForce( initData(&f_projectForce,false,"projectForce","Apply projection constraints to force vector (by default, projections are only applied once aggregated with other components of the right hand term)") )
     , f_solveConstraint( initData(&f_solveConstraint,false,"solveConstraint","Apply ConstraintSolver (requires a ConstraintSolver in the same node as this solver, disabled by by default for now)") )
-
+    , d_reverseAccumulateOrder(initData(&d_reverseAccumulateOrder, false, "reverseAccumulateOrder", "True to accumulate forces from nodes in reversed order (can be necessary when using multi-mappings or interaction constraints not following the node hierarchy)"))
 {
 }
 
@@ -114,7 +114,7 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
     sofa::helper::AdvancedTimer::stepBegin("ComputeForce");
 
     // compute the net forces at the beginning of the time step
-    mop.computeForce(f);
+    mop.computeForce(f,true,true,true, d_reverseAccumulateOrder.getValue());
     if( verbose )
         serr<<this->getContext()->getTime() << ": f = "<< f <<sendl;
 

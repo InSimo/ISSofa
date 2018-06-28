@@ -100,6 +100,8 @@ public:
     Data<bool> f_verbose;
     Data<bool> f_projectForce;
     Data<bool> f_solveConstraint;
+    Data<bool> d_reverseAccumulateOrder;
+
 protected:
     EulerImplicitSolver();
 public:

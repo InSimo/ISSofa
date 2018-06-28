@@ -212,7 +212,7 @@ void MechanicalOperations::accFromF(core::MultiVecDerivId a, core::ConstMultiVec
 }
 
 /// Compute the current force (given the latest propagated position and velocity)
-void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear, bool accumulate, bool neglectingCompliance)
+void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear, bool accumulate, bool neglectingCompliance, bool _reverseOrder)
 {
     setF(result);
     if (clear)
@@ -220,7 +220,7 @@ void MechanicalOperations::computeForce(core::MultiVecDerivId result, bool clear
         executeVisitor( MechanicalResetForceVisitor(&mparams /* PARAMS FIRST */, result, false) );
         //finish();
     }
-    executeVisitor( MechanicalComputeForceVisitor(&mparams /* PARAMS FIRST */, result, accumulate,neglectingCompliance) );
+    executeVisitor( MechanicalComputeForceVisitor(&mparams /* PARAMS FIRST */, result, accumulate,neglectingCompliance, _reverseOrder) );
 }
 
 /// Compute the current force delta (given the latest propagated displacement)
