@@ -645,6 +645,7 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 				dim = i;
 				break;
 			}
+            constraintsResolutions[i]->addLocalCompliance(i, const_cast<double**>(w));
 			constraintsResolutions[i]->init(i, const_cast<double**>(w), force);
 			i += constraintsResolutions[i]->getNbLines();
 		}
