@@ -71,6 +71,9 @@ public:
     /// the unilateral part of the problem, and leave the frictional forces to zero.
     virtual void postStabilize(int line, double** w, double* d, double* force, double* dfree);
 
+    /// Optional addLocalCompliance method.
+    virtual void addLocalCompliance(int line, double** w) {}
+
     inline void setNbLines(unsigned int nbLines)
     {
         m_nbLines = nbLines;
