@@ -407,7 +407,7 @@ void MeshROI<DataTypes>::update()
 {
     if(first.getValue() || p_doUpdate.getValue() )
     {
-        first.setValue(false, true);
+        first.setValue(false);
 
         cleanDirty();
 
