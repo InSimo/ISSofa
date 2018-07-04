@@ -105,8 +105,8 @@ public:
 
 
     /// Add/remove a given constraint correction to the list of constraint problems handled by this constraint solver
-    virtual void registerConstraintCorrection(BaseConstraintCorrection* cc) { serr << "Register method is not implemented for this ConstraintSolver " << sendl; }
-    virtual void unregisterConstraintCorrection(BaseConstraintCorrection* cc) { serr << "Unregister method is not implemented for this ConstraintSolver " << sendl; }
+    virtual void registerConstraintCorrection(BaseConstraintCorrection*) { serr << "Register method is not implemented for this ConstraintSolver " << sendl; }
+    virtual void unregisterConstraintCorrection(BaseConstraintCorrection*) { serr << "Unregister method is not implemented for this ConstraintSolver " << sendl; }
 
     /// @name Resolution DOFs vectors API
     /// @{

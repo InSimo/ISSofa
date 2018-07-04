@@ -64,7 +64,7 @@ protected:
     double m_resetTime;
 
     /// Save the initial state for later uses in reset()
-    virtual void storeResetState();
+    virtual void storeResetState() override;
 	
 	
 private:
@@ -87,7 +87,7 @@ public:
     virtual double getIdleFrequency() const { return 0.0; }
 
     /// Method called when the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
-    virtual void idle(const core::ExecParams* params) {}
+    virtual void idle(const core::ExecParams* /*params*/) {}
 };
 
 } // namespace behavior

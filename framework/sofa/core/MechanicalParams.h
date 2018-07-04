@@ -67,9 +67,9 @@ public:
     /// @{
 
     /// \returns kfactor +  bfactor*rayleighStiffness (Deprecated : this operation is now done directly in base ForceField components)
-    SReal kFactorIncludingRayleighDamping(SReal rayleighStiffness) const { return kFactor() /*+ bFactor()*rayleighStiffness;*/; }
+    SReal kFactorIncludingRayleighDamping(SReal /*rayleighStiffness*/) const { return kFactor() /*+ bFactor()*rayleighStiffness;*/; }
     /// \returns mfactor +  bfactor*rayleighMass (Deprecated : this operation is now done directly in base Mass components)
-    SReal mFactorIncludingRayleighDamping(SReal rayleighMass) const { return mFactor() /*- bFactor()*rayleighMass; */; }
+    SReal mFactorIncludingRayleighDamping(SReal /*rayleighMass*/) const { return mFactor() /*- bFactor()*rayleighMass; */; }
 
     /// @}
 
