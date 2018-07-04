@@ -139,7 +139,7 @@ public:
     virtual ~ExtVectorAllocator() {}
     virtual void resize(value_type*& data, size_type size, size_type& maxsize, size_type& cursize)=0;
     virtual void close(value_type*& data)=0;
-    virtual std::auto_ptr<ExtVectorAllocator> clone() = 0;
+    virtual std::unique_ptr<ExtVectorAllocator> clone() = 0;
 };
 
 /// Custom vector class.
@@ -160,7 +160,7 @@ protected:
     value_type* data;
     size_type   maxsize;
     size_type   cursize;
-    std::auto_ptr<ExtVectorAllocator<T> > allocator;
+    std::unique_ptr<ExtVectorAllocator<T> > allocator;
 
 public:
     explicit ExtVector(ExtVectorAllocator<T>* alloc = NULL) : data(NULL),  maxsize(0), cursize(0), allocator(alloc) {}
@@ -323,9 +323,9 @@ public:
         }
         cursize = size;
     }
-    virtual std::auto_ptr<ExtVectorAllocator<T> > clone()
+    virtual std::unique_ptr<ExtVectorAllocator<T> > clone()
     {
-        return std::auto_ptr<ExtVectorAllocator<T> >(new DefaultAllocator<T>);
+        return std::unique_ptr<ExtVectorAllocator<T> >(new DefaultAllocator<T>);
     }
 };
 

@@ -53,7 +53,7 @@ public:
     const char* name() const noexcept override { return "sofa_data_parser"; }
     std::string message(int value) const override;
 
-    std::error_condition default_error_condition(int value) const noexcept override { return std::errc::io_error; }
+    std::error_condition default_error_condition(int /*value*/) const noexcept override { return std::errc::io_error; }
 };
 
 SOFA_CORE_API const std::error_category& getDataParserErrorCategory();

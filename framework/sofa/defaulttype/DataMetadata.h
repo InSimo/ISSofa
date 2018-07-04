@@ -134,7 +134,7 @@ public:
 
     SOFA_STRUCT_DECL(Displayed, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(Displayed);
-    bool operator==(const Displayed& rhs) const
+    bool operator==(const Displayed&) const
     {
         return true;
     }
@@ -147,7 +147,7 @@ public:
 
     SOFA_STRUCT_DECL(ReadOnly, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(ReadOnly);
-    bool operator==(const ReadOnly& rhs) const
+    bool operator==(const ReadOnly&) const
     {
         return true;
     }
@@ -160,7 +160,7 @@ public:
 
     SOFA_STRUCT_DECL(ForDebug, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(ForDebug);
-    bool operator==(const ForDebug& rhs) const
+    bool operator==(const ForDebug&) const
     {
         return true;
     }
@@ -205,8 +205,8 @@ public:
     Units() {}
 
     SOFA_STRUCT_DECL(Units, SOFA_EMPTY);
-    inline friend std::ostream& operator<<(std::ostream& os, const Units& s) { return os; }
-    inline friend std::istream& operator>> (std::istream& in, Units& s) { return in; }
+    inline friend std::ostream& operator<<(std::ostream& os, const Units&) { return os; }
+    inline friend std::istream& operator>> (std::istream& in, Units&) { return in; }
 };
 
 

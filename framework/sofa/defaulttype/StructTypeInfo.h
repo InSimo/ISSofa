@@ -155,7 +155,7 @@ struct StructTypeInfo
     }
 
     template<size_t Index>
-    static KeyType getMemberName(const DataType& data)
+    static KeyType getMemberName(const DataType& /*data*/)
     {
         return MemberType<Index>::name();
     }
@@ -396,7 +396,6 @@ protected:
         template <typename MemberType>
         void operator()(MemberType&&, const typename MemberType::type& lhs, const typename MemberType::type& rhs)
         {
-            using DataType = typename MemberType::type;
             m_areEqual &= (lhs == rhs);
         }
     private:
@@ -410,7 +409,6 @@ protected:
         template <typename MemberType>
         void operator()(MemberType&&, const typename MemberType::type& data)
         {
-            using DataType = typename MemberType::type;
             m_stream << data << "; ";
         }
     private:
@@ -423,7 +421,6 @@ protected:
         template <typename MemberType>
         void operator()(MemberType&&, const typename MemberType::type& data)
         {
-            using DataType = typename MemberType::type;
             m_stream << data << " ";
         }
     private:
