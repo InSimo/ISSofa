@@ -593,6 +593,11 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
 
     defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
 
+    if (q[3] < 0)
+    { 
+        v = -v; // flip v to get result between 0 and pi
+    }
+
     Real norm = v.norm(); // sin(theta) = sin( phi / 2 )
     Real q_w  = q[3] < 0 ? -q[3] : q[3]; // q[3] = cos_theta : flip to get angle between 0 and pi 
 
@@ -604,20 +609,28 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
 
     q_w = std::min(q_w, Real(1.0) ); 
     norm = std::min(norm, Real(1.0) );
-
-    if (norm < epsilon)
-    {
-        return v * Real(2.0);
-    }
     
     // avoid numerical instabilities of arccos when below 5 degrees
     // q[3] > 0.999 => cos( theta ) > 0.999 => theta < 5 degrees
-
-    const Real angle = q_w > 0.999 ? Real(2.0) * std::asin(norm) :
-                                     Real(2.0) * std::acos(q_w);
-
-    v *= angle / norm;
-  
+    if (q_w > Real(0.9999))
+    {
+        const Real sin_half_angle = norm;
+        const Real angle = Real(2.0) * std::asin(norm);
+        if (sin_half_angle > epsilon)
+        {
+            v *= (angle/sin_half_angle);
+        }
+    }
+    else
+    {
+        const Real half_angle = std::acos(q_w);
+        const Real sin_half_angle = std::sin(half_angle);
+        const Real angle = Real(2)*half_angle;
+        if (sin_half_angle > epsilon)
+        {
+            v *= (angle/sin_half_angle);
+        }
+    }
 
     return v;
 }
