@@ -7,7 +7,7 @@
 
 AUTHOR :
  - C.Duriez
-
+ - G.Peiffert (ISSofa main update)
 
 
 

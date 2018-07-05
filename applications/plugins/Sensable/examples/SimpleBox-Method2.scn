@@ -19,8 +19,8 @@
 
     <Node name="OmniObject">
         <Node name="RigidLayer">
-            <MechanicalObject name="ToolRealPosition" tags="Omni" template="Rigid" />
-            <NewOmniDriver name="omniDriver1" tags="Omni" scale="300" permanent="true" listening="true" alignOmniWithCamera="true"/>
+            <MechanicalObject name="ToolRealPosition"  tags="DefaultDevice" template="Rigid" />
+            <OmniDriver name="omniDriver1"  deviceName="DefaultDevice" tags="DefaultDevice" scale="300" permanent="true" listening="true" alignOmniWithCamera="true"/>
             <Node name="Tool1">
                 <MechanicalObject template="Rigid" name="RealPosition"/>
                 <SubsetMapping indices="0"/>
@@ -34,7 +34,7 @@
 
         <MechanicalObject name="ms" template="Rigid"/>
         <UniformMass totalmass="0.1" />
-        <LCPForceFeedback activate="true" tags="Omni" forceCoef="0.001" />
+        <LCPForceFeedback activate="true"  tags="DefaultDevice" coef="0.001" />
 
         <Node name="ToolCollision">
             <MechanicalObject name="CM" position="0 0 0"/>

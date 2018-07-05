@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, version 1.0 beta 4      *
-*                (c) 2006-2009 MGH, INRIA, USTL, UJF, CNRS                    *
+*       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
+*                (c) 2006-2011 MGH, INRIA, USTL, UJF, CNRS                    *
 *                                                                             *
 * This library is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -16,14 +16,14 @@
 * along with this library; if not, write to the Free Software Foundation,     *
 * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.          *
 *******************************************************************************
-*                               SOFA :: Modules                               *
+*                               SOFA :: Plugins                               *
 *                                                                             *
 * Authors: The SOFA Team and external contributors (see Authors.txt)          *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_ODESOLVER_OMNISOLVER_H
-#define SOFA_COMPONENT_ODESOLVER_OMNISOLVER_H
+#ifndef SOFA_COMPONENT_OMNIDRIVER_H
+#define SOFA_COMPONENT_OMNIDRIVER_H
 
 //Sensable include
 #include <HD/hd.h>
@@ -32,139 +32,157 @@
 #include <HDU/hduVector.h>
 #include <sofa/helper/LCPcalc.h>
 #include <sofa/defaulttype/SolidTypes.h>
+#include <sofa/defaulttype/RigidTypes.h>
 
 #include <sofa/core/behavior/BaseController.h>
-#include <SofaOpenglVisual/OglModel.h>
 #include <SofaUserInteraction/Controller.h>
-#include <sofa/core/behavior/MechanicalState.h>
-#include <sofa/core/visual/VisualParams.h>
+
+//force feedback
+#include <SofaHaptics/ForceFeedback.h>
+#include <SofaHaptics/MechanicalStateForceFeedback.h>
+#include <SofaHaptics/LCPForceFeedback.h>
+#include <SofaHaptics/NullForceFeedbackT.h>
+#include <SofaBaseMechanics/MechanicalObject.h>
+#include <boost/thread/thread.hpp>
+#include <SofaBaseVisual/InteractiveCamera.h>
 
 namespace sofa
 {
-namespace simulation { class Node; }
 
-namespace component
-{
-namespace visualModel { class OglModel; }
+    namespace component
+    {
 
-namespace controller
-{
+        namespace controller
+        {
 
-class ForceFeedback;
+            class ForceFeedback;
+
+            using namespace sofa::defaulttype;
+            using core::objectmodel::Data;
+
+            /** Holds data retrieved from HDAPI. */
+            struct NewDeviceData
+            {
+                HHD m_id;
+                int m_nupdates;
+                int m_buttonState;					/* Has the device button has been pressed. */
+                hduVector3Dd m_devicePosition;	/* Current device coordinates. */
+                HDErrorInfo m_error;
+                Vec3d m_pos;
+                Quat m_quat;
+                bool m_ready;
+                bool m_stop;
+            };
+
+            struct NewOmniData
+            {
+                ForceFeedback::SPtr     m_forceFeedback;
+                simulation::Node::SPtr  m_pContext;
+
+                sofa::defaulttype::SolidTypes<double>::Transform m_endOmni_H_virtualTool;
+                sofa::defaulttype::SolidTypes<double>::Transform m_world_H_baseOmni;
+                double  m_forceScale;
+                double  m_scale;
+                bool    m_permanent_feedback;
+
+                // API OMNI //
+                NewDeviceData m_servoDeviceData;  // for the haptic loop
+                NewDeviceData m_deviceData;		 // for the simulation loop
+
+                double m_currentForce[3];
+
+            };
+
+            /**
+            * OmniDriver driver
+            */
+            class OmniDriver : public Controller
+            {
+            public:
+                SOFA_CLASS(OmniDriver, Controller);
+                typedef RigidTypes::Coord Coord;
+                typedef RigidTypes::VecCoord VecCoord;
+
+                enum
+                {
+                    VN_stylus = 0,
+                    VN_joint2 = 1,
+                    VN_joint1 = 2,
+                    VN_arm2 = 3,
+                    VN_arm1 = 4,
+                    VN_joint0 = 5,
+                    VN_base = 6,
+                    VN_X = 7,
+                    VN_Y = 8,
+                    VN_Z = 9,
+                    NVISUALNODE = 10
+                };
+
+                OmniDriver();
+                ~OmniDriver();
+
+                Data<double>        d_forceScale;
+                Data<double>        d_scale;
+                Data<Vec3d>         d_positionBase;
+                Data<Quat>          d_orientationBase;
+                Data<Vec3d>         d_positionTool;
+                Data<Quat>          d_orientationTool;
+                Data<bool>          d_permanent;
+                Data< VecCoord >    d_posDevice;
+                Data< VecCoord >    d_posStylus;
+                Data< std::string > d_locDOF;
+                Data< std::string > d_deviceName;
+                Data< int >         d_deviceIndex;
+                Data<Vec1d>         d_openTool;
+                Data<double>        d_maxTool;
+                Data<double>        d_minTool;
+                Data<double>        d_openSpeedTool;
+                Data<double>        d_closeSpeedTool;
+                Data<bool>          d_useScheduler;
+                Data<bool>          d_setRestShape;
+                Data<bool>          d_applyMappings;
+                Data<bool>          d_alignOmniWithCamera;
+
+                // Following are readOnly data to get information about
+                Data<HHD>            d_id;
+                Data<int>            d_nupdates;
+                Data<int>            d_buttonState; /* Has the device button has been pressed. */
+                Data<hduVector3Dd>   d_devicePosition;	/* Current device coordinates. */
+                Data<Vec3d>          d_pos;
+                Data<Quat>           d_quat;
+                Data<bool>           d_ready;
+                Data<bool>           d_stop;
 
 
-using namespace sofa::defaulttype;
-using core::objectmodel::Data;
+                NewOmniData data;
+                HDfloat angle1[3];
+                HDfloat angle2[3];
+                bool m_initialized;
+                bool m_isFirstDevice;
+                bool m_noDeviceDetected;
+                sofa::component::container::MechanicalObject<sofa::defaulttype::Rigid3dTypes> *DOFs;
+                sofa::component::visualmodel::BaseCamera::SPtr m_camera;
 
-/** Holds data retrieved from HDAPI. */
-struct DeviceData
-{
-    HHD id;
-    int nupdates;
-    int m_buttonState;					/* Has the device button has been pressed. */
-    hduVector3Dd m_devicePosition;	/* Current device coordinates. */
-    HDErrorInfo m_error;
-    Vec3d pos;
-    Quat quat;
-    bool ready;
-    bool stop;
+                static void printError(const HDErrorInfo *error, const char *message);
 
-    DeviceData()
-    : id(0)
-    , nupdates(0)
-    , m_buttonState(0)
-    , m_devicePosition(0,0,0)
-    , pos(0,0,0)
-    , ready(false)
-    , stop(false)
-    {}
-};
+                int initDevice();
+                void init();
+                virtual void bwdInit();
+                void setForceFeedback(ForceFeedback* ff);
+                void cleanup();
+                void setDataValue();
+                void reset();
+                void reinit();
+                void onAnimateBeginEvent();
+                void handleEvent(core::objectmodel::Event *event);
+            protected:
+                void updateDataValueVizualisation();
+            };
 
-struct OmniData
-{
-    vector<ForceFeedback*> forceFeedbacks;
-    int forceFeedbackIndice;
-    simulation::Node *context;
+        } // namespace controller
 
-    sofa::defaulttype::SolidTypes<double>::Transform endOmni_H_virtualTool;
-    //Transform baseOmni_H_endOmni;
-    sofa::defaulttype::SolidTypes<double>::Transform world_H_baseOmni;
-    double forceScale;
-    double scale;
-    bool permanent_feedback;
-
-    // API OMNI //
-    DeviceData servoDeviceData;  // for the haptic loop
-    DeviceData deviceData;		 // for the simulation loop
-
-    OmniData()
-        : forceFeedbackIndice(0)
-        , context(NULL)
-        , forceScale(1)
-        , scale(1)
-        , permanent_feedback(false)
-    {}
-};
-
-/**
-* Omni driver
-*/
-class OmniDriver : public Controller
-{
-
-public:
-    SOFA_CLASS(OmniDriver, Controller);
-    Data<double> scale;
-    Data<double> forceScale;
-    Data<Vec3d> positionBase;
-    Data<Quat> orientationBase;
-    Data<Vec3d> positionTool;
-    Data<Quat> orientationTool;
-    Data<bool> permanent;
-    Data<bool> omniVisu;
-    Data<bool> toolSelector;
-    Data<int> toolCount;
-
-    OmniData	data;
-
-    OmniDriver();
-    virtual ~OmniDriver();
-
-    virtual void init();
-    virtual void bwdInit();
-    virtual void reset();
-    void reinit();
-
-    int initDevice(OmniData& data);
-
-    void cleanup();
-    virtual void draw();
-
-    void setForceFeedbacks(vector<ForceFeedback*> ffs);
-
-    void onKeyPressedEvent(core::objectmodel::KeypressedEvent *);
-    void onKeyReleasedEvent(core::objectmodel::KeyreleasedEvent *);
-
-    void setDataValue();
-    void reinitVisual();
-
-private:
-    void handleEvent(core::objectmodel::Event *);
-    sofa::component::visualmodel::OglModel::SPtr visu_base, visu_end;
-    bool noDevice;
-
-    bool moveOmniBase;
-    Vec3d positionBase_buf;
-    core::behavior::MechanicalState<Rigid3dTypes> *mState; ///< Controlled MechanicalState.
-
-    int currentToolIndex;
-    bool isToolControlled;
-};
-
-} // namespace controller
-
-} // namespace component
+    } // namespace component
 
 } // namespace sofa
 
-#endif // SOFA_COMPONENT_ODESOLVER_OMNISOLVER_H
+#endif // SOFA_COMPONENT_OMNIDRIVER_H

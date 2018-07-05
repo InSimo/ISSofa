@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, version 1.0 beta 4      *
-*                (c) 2006-2009 MGH, INRIA, USTL, UJF, CNRS                    *
+*       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
+*                (c) 2006-2011 MGH, INRIA, USTL, UJF, CNRS                    *
 *                                                                             *
 * This library is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -16,670 +16,661 @@
 * along with this library; if not, write to the Free Software Foundation,     *
 * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.          *
 *******************************************************************************
-*                               SOFA :: Modules                               *
+*                               SOFA :: Plugins                               *
 *                                                                             *
 * Authors: The SOFA Team and external contributors (see Authors.txt)          *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
+
 #include "OmniDriver.h"
-
-#include <sofa/core/ObjectFactory.h>
 #include <sofa/core/objectmodel/HapticDeviceEvent.h>
-//
-////force feedback
-#include <SofaHaptics/ForceFeedback.h>
-#include <SofaHaptics/NullForceFeedback.h>
-//
 #include <sofa/simulation/common/AnimateBeginEvent.h>
-#include <sofa/simulation/common/AnimateEndEvent.h>
-//
-#include <sofa/simulation/common/Node.h>
-#include <cstring>
-
-#include <SofaOpenglVisual/OglModel.h>
-#include <sofa/core/objectmodel/KeypressedEvent.h>
-#include <sofa/core/objectmodel/KeyreleasedEvent.h>
-#include <sofa/core/objectmodel/MouseEvent.h>
-//sensable namespace
-#include <sofa/helper/AdvancedTimer.h>
-
-#include <sofa/simulation/common/UpdateMappingVisitor.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
-#include <sofa/helper/system/thread/CTime.h>
-#ifdef SOFA_HAVE_BOOST
-#include <boost/thread.hpp>
-#endif
+#include <sofa/simulation/common/UpdateMappingVisitor.h>
+#include <sofa/core/ObjectFactory.h>
+
+using namespace sofa::defaulttype;
 
 namespace sofa
 {
 
-namespace component
-{
-
-namespace controller
-{
-
-using namespace sofa::defaulttype;
-using namespace core::behavior;
-using namespace sofa::defaulttype;
-
-//static DeviceData gServoDeviceData;
-//static DeviceData deviceData;
-//static DeviceData previousData;
-static HHD hHD = HD_INVALID_HANDLE ;
-static bool isInitialized = false;
-static HDSchedulerHandle hStateHandle = HD_INVALID_HANDLE;
-
-static sofa::helper::system::atomic<int> doUpdate;
-
-void printError(FILE *stream, const HDErrorInfo *error,
-        const char *message)
-{
-    fprintf(stream, "%s\n", hdGetErrorString(error->errorCode));
-    fprintf(stream, "HHD: %X\n", error->hHD);
-    fprintf(stream, "Error Code: %X\n", error->errorCode);
-    fprintf(stream, "Internal Error Code: %d\n", error->internalErrorCode);
-    fprintf(stream, "Message: %s\n", message);
-}
-
-bool isSchedulerError(const HDErrorInfo *error)
-{
-    switch (error->errorCode)
+    namespace component
     {
-    case HD_COMM_ERROR:
-    case HD_COMM_CONFIG_ERROR:
-    case HD_TIMER_ERROR:
-    case HD_INVALID_PRIORITY:
-    case HD_SCHEDULER_FULL:
-        return true;
 
-    default:
-        return false;
-    }
-}
-
-HDCallbackCode HDCALLBACK copyDeviceDataCallbackOmni(void *userData);
-
-HDCallbackCode HDCALLBACK stateCallbackOmni(void *userData)
-{
-
-
-    if(doUpdate)
-    {
-        copyDeviceDataCallbackOmni(userData);
-        doUpdate.dec(); // set to 0
-    }
-
-
-    //cout << "OmniDriver::stateCallback BEGIN" << endl;
-    OmniData* data = static_cast<OmniData*>(userData);
-    //FIXME : Apparenlty, this callback is run before the mechanical state initialisation. I've found no way to know whether the mechcanical state is initialized or not, so i wait ...
-    //static int wait = 0;
-
-    if (data->servoDeviceData.stop)
-    {
-        //cout << ""
-        return HD_CALLBACK_DONE;
-    }
-
-    if (!data->servoDeviceData.ready)
-    {
-        return HD_CALLBACK_CONTINUE;
-    }
-
-    HHD hapticHD = hdGetCurrentDevice();
-    hdBeginFrame(hapticHD);
-
-    data->servoDeviceData.id = hapticHD;
-
-    //static int renderForce = true;
-
-    // Retrieve the current button(s).
-    hdGetIntegerv(HD_CURRENT_BUTTONS, &data->servoDeviceData.m_buttonState);
-
-    hdGetDoublev(HD_CURRENT_POSITION, data->servoDeviceData.m_devicePosition);
-    // Get the column major transform
-    HDdouble transform[16];
-    hdGetDoublev(HD_CURRENT_TRANSFORM, transform);
-
-    // get Position and Rotation from transform => put in servoDeviceData
-    Mat3x3d mrot;
-    Quat rot;
-    for (int i=0; i<3; i++)
-        for (int j=0; j<3; j++)
-            mrot[i][j] = transform[j*4+i];
-
-    rot.fromMatrix(mrot);
-    rot.normalize();
-
-    double factor = 0.001;
-    Vec3d pos(transform[12+0]*factor, transform[12+1]*factor, transform[12+2]*factor); // omni pos is in mm => sofa simulation are in meters by default
-    data->servoDeviceData.pos=pos;
-
-    // verify that the quaternion does not flip:
-    if ((rot[0]*data->servoDeviceData.quat[0]+rot[1]*data->servoDeviceData.quat[1]+rot[2]*data->servoDeviceData.quat[2]+rot[3]*data->servoDeviceData.quat[3]) < 0)
-        for (int i=0; i<4; i++)
-            rot[i] *= -1;
-
-    data->servoDeviceData.quat[0] = rot[0];
-    data->servoDeviceData.quat[1] = rot[1];
-    data->servoDeviceData.quat[2] = rot[2];
-    data->servoDeviceData.quat[3] = rot[3];
-
-
-    /// COMPUTATION OF THE vituralTool 6D POSITION IN THE World COORDINATES
-    SolidTypes<double>::Transform baseOmni_H_endOmni(pos* data->scale, rot);
-    SolidTypes<double>::Transform world_H_virtualTool = data->world_H_baseOmni * baseOmni_H_endOmni * data->endOmni_H_virtualTool;
-
-    Vec3d world_pos_tool = world_H_virtualTool.getOrigin();
-    Quat world_quat_tool = world_H_virtualTool.getOrientation();
-
-    ///////////////// 3D rendering ////////////////
-    //double fx=0.0, fy=0.0, fz=0.0;
-    //if (data->forceFeedback != NULL)
-    //	(data->forceFeedback)->computeForce(world_pos_tool[0], world_pos_tool[1], world_pos_tool[2], world_quat_tool[0], world_quat_tool[1], world_quat_tool[2], world_quat_tool[3], fx, fy, fz);
-    //// generic computation with a 6D haptic feedback : the forceFeedback provide a force and a torque applied at point Tool but computed in the World frame
-    //SolidTypes<double>::SpatialVector Wrench_tool_inWorld(Vec3d(fx,fy,fz), Vec3d(0.0,0.0,0.0));
-
-
-    ///////////////// 6D rendering ////////////////
-    SolidTypes<double>::SpatialVector Twist_tool_inWorld(Vec3d(0.0,0.0,0.0), Vec3d(0.0,0.0,0.0)); // Todo: compute a velocity !!
-    SolidTypes<double>::SpatialVector Wrench_tool_inWorld(Vec3d(0.0,0.0,0.0), Vec3d(0.0,0.0,0.0));
-
-    // which forcefeedback ?
-    ForceFeedback* ff = 0;
-    for (int i=0; i<data->forceFeedbacks.size() && !ff; i++)
-        if (data->forceFeedbacks[i]->indice==data->forceFeedbackIndice)
-            ff = data->forceFeedbacks[i];
-
-    if (ff != NULL)
-        ff->computeWrench(world_H_virtualTool,Twist_tool_inWorld,Wrench_tool_inWorld );
-
-    // we compute its value in the current Tool frame:
-    SolidTypes<double>::SpatialVector Wrench_tool_inTool(world_quat_tool.inverseRotate(Wrench_tool_inWorld.getForce()),  world_quat_tool.inverseRotate(Wrench_tool_inWorld.getTorque())  );
-    // we transport (change of application point) its value to the endOmni frame
-    SolidTypes<double>::SpatialVector Wrench_endOmni_inEndOmni = data->endOmni_H_virtualTool * Wrench_tool_inTool;
-    // we compute its value in the baseOmni frame
-    SolidTypes<double>::SpatialVector Wrench_endOmni_inBaseOmni( baseOmni_H_endOmni.projectVector(Wrench_endOmni_inEndOmni.getForce()), baseOmni_H_endOmni.projectVector(Wrench_endOmni_inEndOmni.getTorque()) );
-
-    double currentForce[3];
-    currentForce[0] = Wrench_endOmni_inBaseOmni.getForce()[0] * data->forceScale;
-    currentForce[1] = Wrench_endOmni_inBaseOmni.getForce()[1] * data->forceScale;
-    currentForce[2] = Wrench_endOmni_inBaseOmni.getForce()[2] * data->forceScale;
-
-//    if (Wrench_endOmni_inBaseOmni.getForce().norm() > 0.1)
-//        printf("wrench = %f\n",Wrench_endOmni_inBaseOmni.getForce().norm());
-
-    //cout << "OMNIDATA " << world_H_virtualTool.getOrigin() << " " << Wrench_tool_inWorld.getForce() << endl; // << currentForce[0] << " " << currentForce[1] << " " << currentForce[2] << endl;
-    if((data->servoDeviceData.m_buttonState & HD_DEVICE_BUTTON_1) || data->permanent_feedback)
-        hdSetDoublev(HD_CURRENT_FORCE, currentForce);
-    else
-    {
-        // reset force feedback
-        currentForce[0] = 0.0;
-        currentForce[1] = 0.0;
-        currentForce[2] = 0.0;
-        hdSetDoublev(HD_CURRENT_FORCE, currentForce);
-    }
-
-
-
-
-    ++data->servoDeviceData.nupdates;
-    hdEndFrame(hapticHD);
-
-    /* HDErrorInfo error;
-    if (HD_DEVICE_ERROR(error = hdGetError()))
-    {
-    	printError(stderr, &error, "Error during scheduler callback");
-    	if (isSchedulerError(&error))
-    	{
-    		return HD_CALLBACK_DONE;
-    	}
-           }*/
-    /*
-     	OmniX = data->servoDeviceData.transform[12+0]*0.1;
-    	OmniY =	data->servoDeviceData.transform[12+1]*0.1;
-    	OmniZ =	data->servoDeviceData.transform[12+2]*0.1;
-    */
-
-    //cout << "OmniDriver::stateCallback END" << endl;
-    return HD_CALLBACK_CONTINUE;
-}
-
-void exitHandlerOmni()
-{
-    hdStopScheduler();
-    hdUnschedule(hStateHandle);
-    /*
-        if (hHD != HD_INVALID_HANDLE)
+        namespace controller
         {
-            hdDisableDevice(hHD);
-            hHD = HD_INVALID_HANDLE;
-        }
-    */
-}
 
+            // Haptics
+            HHD hHD = HD_INVALID_HANDLE;
+            vector< HHD > hHDVector;
+            HDSchedulerHandle hStateHandle = HD_INVALID_HANDLE;
 
-HDCallbackCode HDCALLBACK copyDeviceDataCallbackOmni(void *pUserData)
-{
-    OmniData *data = static_cast<OmniData*>(pUserData);
-    memcpy(&data->deviceData, &data->servoDeviceData, sizeof(DeviceData));
-    data->servoDeviceData.nupdates = 0;
-    data->servoDeviceData.ready = true;
-
-
-    return HD_CALLBACK_DONE;
-}
-
-HDCallbackCode HDCALLBACK stopCallbackOmni(void *pUserData)
-{
-    OmniData *data = static_cast<OmniData*>(pUserData);
-    data->servoDeviceData.stop = true;
-    return HD_CALLBACK_DONE;
-}
-
-/**
- * Sets up the device,
- */
-int OmniDriver::initDevice(OmniData& data)
-{
-    if (isInitialized) return 0;
-    isInitialized = true;
-
-    data.deviceData.quat[0] = 0;
-    data.deviceData.quat[1] = 0;
-    data.deviceData.quat[2] = 0;
-    data.deviceData.quat[3] = 1;
-
-    data.servoDeviceData.quat[0] = 0;
-    data.servoDeviceData.quat[1] = 0;
-    data.servoDeviceData.quat[2] = 0;
-    data.servoDeviceData.quat[3] = 1;
-
-    HDErrorInfo error;
-    // Initialize the device, must be done before attempting to call any hd functions.
-    if (hHD == HD_INVALID_HANDLE)
-    {
-        hHD = hdInitDevice(HD_DEFAULT_DEVICE);
-        if (HD_DEVICE_ERROR(error = hdGetError()))
-        {
-            printError(stderr, &error, "[Omni] Failed to initialize the device");
-            return -1;
-        }
-        printf("[Omni] Found device %s\n",hdGetString(HD_DEVICE_MODEL_TYPE));
-
-        hdEnable(HD_FORCE_OUTPUT);
-        hdEnable(HD_MAX_FORCE_CLAMPING);
-
-        // Start the servo loop scheduler.
-        doUpdate = 0;
-        hdStartScheduler();
-        if (HD_DEVICE_ERROR(error = hdGetError()))
-        {
-            printError(stderr, &error, "[Omni] Failed to start the scheduler");
-            return -1;
-        }
-    }
-
-    data.servoDeviceData.ready = false;
-    data.servoDeviceData.stop = false;
-    hStateHandle = hdScheduleAsynchronous( stateCallbackOmni, (void*) &data, HD_MIN_SCHEDULER_PRIORITY);
-
-    if (HD_DEVICE_ERROR(error = hdGetError()))
-    {
-        printError(stderr, &error, "Failed to initialize haptic device");
-        fprintf(stderr, "\nPress any key to quit.\n");
-        getchar();
-        exit(-1);
-    }
-
-    return 0;
-}
-
-OmniDriver::OmniDriver()
-    : scale(initData(&scale, 1.0, "scale","Default scale applied to the Phantom Coordinates. "))
-    , forceScale(initData(&forceScale, 1.0, "forceScale","Default forceScale applied to the force feedback. "))
-    , positionBase(initData(&positionBase, Vec3d(0,0,0), "positionBase","Position of the interface base in the scene world coordinates"))
-    , orientationBase(initData(&orientationBase, Quat(0,0,0,1), "orientationBase","Orientation of the interface base in the scene world coordinates"))
-    , positionTool(initData(&positionTool, Vec3d(0,0,0), "positionTool","Position of the tool in the omni end effector frame"))
-    , orientationTool(initData(&orientationTool, Quat(0,0,0,1), "orientationTool","Orientation of the tool in the omni end effector frame"))
-    , permanent(initData(&permanent, false, "permanent" , "Apply the force feedback permanently"))
-    , omniVisu(initData(&omniVisu, false, "omniVisu", "Visualize the position of the interface in the virtual scene"))
-    , toolSelector(initData(&toolSelector, false, "toolSelector", "Switch tools with 2nd button"))
-    , toolCount(initData(&toolCount, 1, "toolCount", "Number of tools to switch between"))
-    , visu_base(NULL)
-    , visu_end(NULL)
-    , currentToolIndex(0)
-    , isToolControlled(true)
-    , mState(NULL)
-{
-    this->f_listening.setValue(true);
-    //data.forceFeedback = new NullForceFeedback();
-    noDevice = false;
-    moveOmniBase = false;
-}
-
-OmniDriver::~OmniDriver() {}
-
-void OmniDriver::cleanup()
-{
-    sout << "OmniDriver::cleanup()" << sendl;
-    hdScheduleSynchronous(stopCallbackOmni, (void*) &data, HD_MAX_SCHEDULER_PRIORITY);
-    isInitialized = false;
-}
-
-void OmniDriver::setForceFeedbacks(vector<ForceFeedback*> ffs)
-{
-    data.forceFeedbacks.clear();
-    for (int i=0; i<ffs.size(); i++)
-        data.forceFeedbacks.push_back(ffs[i]);
-    data.forceFeedbackIndice = 0;
-}
-
-void OmniDriver::init()
-{
-    using core::behavior::MechanicalState;
-    mState = dynamic_cast<MechanicalState<Rigid3dTypes> *> (this->getContext()->getMechanicalState());
-    if (!mState) serr << "OmniDriver has no binding MechanicalState" << sendl;
-    else sout << "[Omni] init" << sendl;
-
-    if(mState->getSize()<toolCount.getValue())
-        mState->resize(toolCount.getValue());
-}
-
-void OmniDriver::bwdInit()
-{
-    sout<<"OmniDriver::bwdInit()"<<sendl;
-    simulation::Node *context = dynamic_cast<simulation::Node *>(this->getContext()); // access to current node
-
-    // depending on toolCount, search either the first force feedback, or the feedback with indice "0"
-    simulation::Node *groot = dynamic_cast<simulation::Node *>(context->getRootContext()); // access to current node
-
-    vector<ForceFeedback*> ffs;
-    groot->getTreeObjects<ForceFeedback>(&ffs);
-    sout << ffs.size()<<" ForceFeedback objects found"<<sendl;
-    setForceFeedbacks(ffs);
-    setDataValue();
-    if(initDevice(data)==-1)
-    {
-        noDevice=true;
-        serr<<"NO DEVICE"<<sendl;
-    }
-}
-
-void OmniDriver::setDataValue()
-{
-    data.forceFeedbackIndice=0;
-    data.scale = scale.getValue();
-    data.forceScale = forceScale.getValue();
-    Quat q = orientationBase.getValue();
-    q.normalize();
-    orientationBase.setValue(q);
-    data.world_H_baseOmni.set( positionBase.getValue(), q);
-    q=orientationTool.getValue();
-    q.normalize();
-    data.endOmni_H_virtualTool.set(positionTool.getValue(), q);
-    data.permanent_feedback = permanent.getValue();
-}
-
-void OmniDriver::reset()
-{
-    sout<<"OmniDriver::reset()" <<sendl;
-    this->reinit();
-}
-
-void OmniDriver::reinitVisual() {}
-
-void OmniDriver::reinit()
-{
-    this->bwdInit();
-    this->reinitVisual();
-}
-
-void OmniDriver::draw()
-{
-    if(omniVisu.getValue())
-    {
-        // compute position of the endOmni in worldframe
-        SolidTypes<double>::Transform baseOmni_H_endOmni(data.deviceData.pos*data.scale, data.deviceData.quat);
-        SolidTypes<double>::Transform world_H_endOmni = data.world_H_baseOmni * baseOmni_H_endOmni ;
-
-        visu_base = sofa::core::objectmodel::New<sofa::component::visualmodel::OglModel>();
-        visu_base->fileMesh.setValue("mesh/omni_test2.obj");
-        visu_base->m_scale.setValue(defaulttype::Vector3(scale.getValue(),scale.getValue(),scale.getValue()));
-        visu_base->setColor(1.0f,1.0f,1.0f,1.0f);
-        visu_base->init();
-        visu_base->initVisual();
-        visu_base->updateVisual();
-        visu_base->applyRotation(orientationBase.getValue());
-        visu_base->applyTranslation( positionBase.getValue()[0],positionBase.getValue()[1], positionBase.getValue()[2]);
-
-        visu_end = sofa::core::objectmodel::New<sofa::component::visualmodel::OglModel>();
-        visu_end->fileMesh.setValue("mesh/stylus.obj");
-        visu_end->m_scale.setValue(defaulttype::Vector3(scale.getValue(),scale.getValue(),scale.getValue()));
-        visu_end->setColor(1.0f,0.3f,0.0f,1.0f);
-        visu_end->init();
-        visu_end->initVisual();
-        visu_end->updateVisual();
-        visu_end->applyRotation(world_H_endOmni.getOrientation());
-        visu_end->applyTranslation(world_H_endOmni.getOrigin()[0],world_H_endOmni.getOrigin()[1],world_H_endOmni.getOrigin()[2]);
-
-        // draw the 2 visual models
-        visu_base->drawVisual(sofa::core::visual::VisualParams::defaultInstance());
-        visu_end->drawVisual(sofa::core::visual::VisualParams::defaultInstance());
-    }
-}
-
-void OmniDriver::onKeyPressedEvent(core::objectmodel::KeypressedEvent * /*kpe*/) {}
-
-void OmniDriver::onKeyReleasedEvent(core::objectmodel::KeyreleasedEvent * /*kre*/) {}
-
-void OmniDriver::handleEvent(core::objectmodel::Event *event)
-{
-
-    if (dynamic_cast<sofa::simulation::AnimateBeginEvent *>(event))
-    {
-        sofa::helper::AdvancedTimer::stepBegin("OmniDriver::1");
-        //hdScheduleSynchronous(copyDeviceDataCallbackOmni, (void *) &data, HD_MAX_SCHEDULER_PRIORITY);
-
-        doUpdate.inc(); // set to 1
-        while(doUpdate)
-        {
-#ifdef SOFA_HAVE_BOOST
-            boost::thread::yield();
-#else
-            sofa::helper::system::thread::CTime::sleep(0);
-#endif
-        }
-
-        sofa::helper::AdvancedTimer::stepEnd("OmniDriver::1");
-        if (data.deviceData.ready)
-        {
-            sofa::helper::AdvancedTimer::stepBegin("OmniDriver::2");
-            data.deviceData.quat.normalize();
-
-            /// COMPUTATION OF THE vituralTool 6D POSITION IN THE World COORDINATES
-
-            if (isToolControlled) // ignore haptic device if tool is unselected
+            void OmniDriver::printError(const HDErrorInfo *error, const char *message)
             {
-                SolidTypes<double>::Transform baseOmni_H_endOmni(data.deviceData.pos*data.scale, data.deviceData.quat);
-                SolidTypes<double>::Transform world_H_virtualTool = data.world_H_baseOmni * baseOmni_H_endOmni * data.endOmni_H_virtualTool;
-                sofa::helper::AdvancedTimer::stepEnd("OmniDriver::2");
+                std::cout << "[OmniDriver] Device error :" << std::endl;
+                std::cout << hdGetErrorString(error->errorCode) << std::endl;
+                std::cout << "HHD: " << error->hHD << std::endl;
+                std::cout << "Error Code: " << error->hHD << std::endl;
+                std::cout << "Internal Error Code: " << error->internalErrorCode << std::endl;
+                std::cout << "Message: " << message << std::endl;
+            }
 
-                sofa::helper::AdvancedTimer::stepBegin("OmniDriver::3");
-                // store actual position of interface for the forcefeedback (as it will be used as soon as new LCP will be computed)
-                data.forceFeedbackIndice=currentToolIndex;
-                // which forcefeedback ?
-                for (int i=0; i<data.forceFeedbacks.size(); i++)
-                    if (data.forceFeedbacks[i]->indice==data.forceFeedbackIndice)
-                        data.forceFeedbacks[i]->setReferencePosition(world_H_virtualTool);
 
-                /// TODO : SHOULD INCLUDE VELOCITY !!
+            HDCallbackCode HDCALLBACK copyDeviceDataCallback(void * userData);
 
-                helper::WriteAccessor<Data<helper::vector<RigidCoord<3,double> > > > x = *this->mState->write(core::VecCoordId::position());
-                helper::WriteAccessor<Data<helper::vector<RigidCoord<3,double> > > > xfree = *this->mState->write(core::VecCoordId::freePosition());
-                sofa::helper::AdvancedTimer::stepEnd("OmniDriver::3");
+            static sofa::helper::system::atomic<int> doUpdate;
+            vector<OmniDriver*> otherOmniDriver;
 
-                sofa::helper::AdvancedTimer::stepBegin("OmniDriver::4");
-                xfree[currentToolIndex].getCenter() = world_H_virtualTool.getOrigin();
-                x[currentToolIndex].getCenter() = world_H_virtualTool.getOrigin();
-
-                //      std::cout << world_H_virtualTool << std::endl;
-
-                xfree[currentToolIndex].getOrientation() = world_H_virtualTool.getOrientation();
-                x[currentToolIndex].getOrientation() = world_H_virtualTool.getOrientation();
-
-                sofa::simulation::Node *node = dynamic_cast<sofa::simulation::Node*> (this->getContext());
-                if (node)
+            //boucle qui recupere les info sur l'interface et les copie sur data->servoDeviceData
+            HDCallbackCode HDCALLBACK stateCallback(void * userData)
+            {
+                if (doUpdate)
                 {
-                    sofa::simulation::MechanicalPropagatePositionAndVelocityVisitor mechaVisitor(sofa::core::MechanicalParams::defaultInstance()); mechaVisitor.execute(node);
-                    sofa::simulation::UpdateMappingVisitor updateVisitor(sofa::core::ExecParams::defaultInstance()); updateVisitor.execute(node);
+                    copyDeviceDataCallback(userData);
+                    doUpdate.dec(); // set to 0
                 }
 
+                //vector<OmniDriver*> otherOmniDriver = static_cast<vector<OmniDriver*>>(userData);
+                //NewOmniData* data = static_cast<NewOmniData*>(userData);
+                //FIXME : Apparenlty, this callback is run before the mechanical state initialisation. I've found no way to know whether the mechcanical state is initialized or not, so i wait ...
+
+                RigidTypes::VecCoord positionDevs;
+                RigidTypes::VecDeriv forceDevs;
+                forceDevs.clear();
+                positionDevs.resize(otherOmniDriver.size());
+                forceDevs.resize(otherOmniDriver.size());
+
+                for (unsigned int i = 0; i<otherOmniDriver.size(); i++)
+                {
+                    if (otherOmniDriver[i]->data.m_servoDeviceData.m_stop)
+                    {
+                        return HD_CALLBACK_DONE;
+                    }
+                    if (!otherOmniDriver[i]->data.m_servoDeviceData.m_ready)
+                    {
+                        return HD_CALLBACK_CONTINUE;
+                    }
+                    HHD hapticHD = hHDVector[i];
+                    hdMakeCurrentDevice(hapticHD);
+                    hdBeginFrame(hapticHD);
+
+                    if ((otherOmniDriver[i]->data.m_servoDeviceData.m_buttonState & HD_DEVICE_BUTTON_1) || otherOmniDriver[i]->data.m_permanent_feedback)
+                        hdSetDoublev(HD_CURRENT_FORCE, otherOmniDriver[i]->data.m_currentForce);
+
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_id = hapticHD;
+
+                    // Retrieve the current button(s).
+                    hdGetIntegerv(HD_CURRENT_BUTTONS, &otherOmniDriver[i]->data.m_servoDeviceData.m_buttonState);
+
+                    //get the position
+                    hdGetDoublev(HD_CURRENT_POSITION, otherOmniDriver[i]->data.m_servoDeviceData.m_devicePosition);
+
+                    // Get the column major transform
+                    HDdouble transform[16];
+                    hdGetDoublev(HD_CURRENT_TRANSFORM, transform);
+
+                    // get Position and Rotation from transform => put in servoDeviceData
+                    Mat3x3d mrot;
+                    Quat rot;
+                    for (int u = 0; u<3; u++)
+                        for (int j = 0; j<3; j++)
+                            mrot[u][j] = transform[j * 4 + u];
+
+                    rot.fromMatrix(mrot);
+                    rot.normalize();
+
+                    double factor = 0.001;
+                    Vec3d pos(transform[12 + 0] * factor, transform[12 + 1] * factor, transform[12 + 2] * factor); // omni pos is in mm => sofa simulation are in meters by default
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_pos = pos;
+
+
+                    // verify that the quaternion does not flip:
+                    if ((rot[0] * otherOmniDriver[i]->data.m_servoDeviceData.m_quat[0]
+                        + rot[1] * otherOmniDriver[i]->data.m_servoDeviceData.m_quat[1]
+                        + rot[2] * otherOmniDriver[i]->data.m_servoDeviceData.m_quat[2]
+                        + rot[3] * otherOmniDriver[i]->data.m_servoDeviceData.m_quat[3]) < 0)
+                        for (int u = 0; u<4; u++)
+                            rot[u] *= -1;
+
+                    for (int u = 0; u<4; u++)
+                        otherOmniDriver[i]->data.m_servoDeviceData.m_quat[u] = rot[u];
+
+                    SolidTypes<double>::Transform baseOmni_H_endOmni(pos* otherOmniDriver[i]->data.m_scale, rot);
+                    SolidTypes<double>::Transform world_H_virtualTool = otherOmniDriver[i]->data.m_world_H_baseOmni * baseOmni_H_endOmni * otherOmniDriver[i]->data.m_endOmni_H_virtualTool;
+
+                    positionDevs[i].getCenter() = world_H_virtualTool.getOrigin();
+                    positionDevs[i].getOrientation() = world_H_virtualTool.getOrientation();
+
+                    //angles
+                    hdGetFloatv(HD_CURRENT_JOINT_ANGLES, otherOmniDriver[i]->angle1);
+                    hdGetFloatv(HD_CURRENT_GIMBAL_ANGLES, otherOmniDriver[i]->angle2);
+
+                    hdEndFrame(hapticHD);
+
+                }
+
+                for (unsigned int i = 0; i<otherOmniDriver.size(); i++)
+                {
+
+                    for (unsigned int j = 0; j< positionDevs.size(); j++)
+                    {
+                        SReal fx, fy, fz;
+                        (otherOmniDriver[i]->data.m_forceFeedback)->computeForce(positionDevs[j].getCenter().x(), positionDevs[j].getCenter().y(), positionDevs[j].getCenter().z(), 0, 0, 0, 0, fx, fy, fz);
+                        forceDevs[j] = RigidTypes::Deriv(Vec3d(fx, fy, fz), Vec3d());
+                    }
+
+                    /// COMPUTATION OF THE virtualTool 6D POSITION IN THE World COORDINATES
+                    SolidTypes<double>::Transform baseOmni_H_endOmni((otherOmniDriver[i]->data.m_servoDeviceData.m_pos)* otherOmniDriver[i]->data.m_scale, otherOmniDriver[i]->data.m_servoDeviceData.m_quat);
+
+                    Vec3d world_pos_tool = positionDevs[i].getCenter();
+                    Quat world_quat_tool = positionDevs[i].getOrientation();
+
+                    // we compute its value in the current Tool frame:
+                    SolidTypes<double>::SpatialVector Wrench_tool_inTool(world_quat_tool.inverseRotate(forceDevs[i].getVCenter()), world_quat_tool.inverseRotate(forceDevs[i].getVOrientation()));
+                    // we transport (change of application point) its value to the endOmni frame
+                    SolidTypes<double>::SpatialVector Wrench_endOmni_inEndOmni = otherOmniDriver[i]->data.m_endOmni_H_virtualTool * Wrench_tool_inTool;
+                    // we compute its value in the baseOmni frame
+                    SolidTypes<double>::SpatialVector Wrench_endOmni_inBaseOmni(baseOmni_H_endOmni.projectVector(Wrench_endOmni_inEndOmni.getForce()), baseOmni_H_endOmni.projectVector(Wrench_endOmni_inEndOmni.getTorque()));
+
+                    otherOmniDriver[i]->data.m_currentForce[0] = Wrench_endOmni_inBaseOmni.getForce()[0] * otherOmniDriver[i]->data.m_forceScale;
+                    otherOmniDriver[i]->data.m_currentForce[1] = Wrench_endOmni_inBaseOmni.getForce()[1] * otherOmniDriver[i]->data.m_forceScale;
+                    otherOmniDriver[i]->data.m_currentForce[2] = Wrench_endOmni_inBaseOmni.getForce()[2] * otherOmniDriver[i]->data.m_forceScale;
+
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_nupdates++;
+                }
+                return HD_CALLBACK_CONTINUE;
             }
-            else
+
+            // copy info on the device from data->servoDeviceData to data->deviceData
+            //TODO: fill PosD  here and remove data->deviceData becoming useless
+            HDCallbackCode HDCALLBACK copyDeviceDataCallback(void * /*pUserData*/)
             {
-                data.forceFeedbackIndice = -1;
+                for (unsigned int i = 0; i< otherOmniDriver.size(); i++)
+                {
+                    memcpy(&otherOmniDriver[i]->data.m_deviceData, &otherOmniDriver[i]->data.m_servoDeviceData, sizeof(NewDeviceData));
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_nupdates = 0;
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_ready = true;
+                }
+                return HD_CALLBACK_DONE;
+            }
+
+            //stop callback > what's the difference with exithandler??
+            HDCallbackCode HDCALLBACK stopCallback(void * /*pUserData*/)
+            {
+                for (unsigned int i = 0; i<otherOmniDriver.size(); i++)
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_stop = true;
+                return HD_CALLBACK_DONE;
+            }
+
+            int OmniDriver::initDevice()
+            {
+                sout << "[OmniDriver] InitDevice called" << sendl;
+                HDErrorInfo error;
+                for (unsigned int i = 0; i<otherOmniDriver.size(); i++)
+                {
+                    while (otherOmniDriver[i]->m_initialized && i<otherOmniDriver.size())
+                    {
+                        i++;
+                        if (i == otherOmniDriver.size())
+                            return 0;
+                    }
+
+                    otherOmniDriver[i]->m_initialized = true;
+                    otherOmniDriver[i]->data.m_deviceData.m_quat.clear();
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_quat.clear();
+
+                    if (hHDVector[i] == HD_INVALID_HANDLE)
+                    {
+                        if (otherOmniDriver[i]->d_deviceName.getValue().c_str() == HD_DEFAULT_DEVICE)
+                        {
+                            serr << "[OmniDriver] Failed to initialize, default name isn't supported ; change the name of your new omni device using its configuration manager." << sendl;
+                            return -1;
+                        }
+                        hHDVector[i] = hdInitDevice(otherOmniDriver[i]->d_deviceName.getValue().c_str());
+
+                        if (HD_DEVICE_ERROR(error = hdGetError()))
+                        {
+                            serr << "[OmniDriver] Failed to initialize the device " << otherOmniDriver[i]->d_deviceName.getValue() << sendl;
+                        }
+                        else
+                        {
+                            sout << d_deviceName.getValue() << "[OmniDriver] Found device " << otherOmniDriver[i]->d_deviceName.getValue() << sendl;
+
+                            hdEnable(HD_FORCE_OUTPUT);
+                            hdEnable(HD_MAX_FORCE_CLAMPING);
+                        }
+                    }
+                }
+
+                doUpdate = 0;
+                //Start the servo loop scheduler.
+                hdStartScheduler();
+                if (HD_DEVICE_ERROR(error = hdGetError()))
+                {
+                    serr << "[OmniDriver] Failed to start the scheduler" << sendl;
+                }
+
+                for (unsigned int i = 0; i<otherOmniDriver.size(); i++)
+                {
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_ready = false;
+                    otherOmniDriver[i]->data.m_servoDeviceData.m_stop = false;
+                }
+
+                hStateHandle = hdScheduleAsynchronous(stateCallback, (void*)&otherOmniDriver, HD_DEFAULT_SCHEDULER_PRIORITY);
+
+                if (HD_DEVICE_ERROR(error = hdGetError()))
+                {
+                    OmniDriver::printError(&error, "Error with the omni");
+                    serr << d_deviceName.getValue() << sendl;
+                }
+                return 0;
+            }
+
+            //constructeur
+            OmniDriver::OmniDriver()
+                : d_forceScale(initData(&d_forceScale, 1.0, "forceScale", "Default forceScale applied to the force feedback. "))
+                , d_scale(initData(&d_scale, 100.0, "scale", "Default scale applied to the Phantom Coordinates. "))
+                , d_positionBase(initData(&d_positionBase, Vec3d(0, 0, 0), "positionBase", "Position of the interface base in the scene world coordinates"))
+                , d_orientationBase(initData(&d_orientationBase, Quat(0, 0, 0, 1), "orientationBase", "Orientation of the interface base in the scene world coordinates"))
+                , d_positionTool(initData(&d_positionTool, Vec3d(0, 0, 0), "positionTool", "Position of the tool in the omni end effector frame"))
+                , d_orientationTool(initData(&d_orientationTool, Quat(0, 0, 0, 1), "orientationTool", "Orientation of the tool in the omni end effector frame"))
+                , d_permanent(initData(&d_permanent, false, "permanent", "Apply the force feedback permanently"))
+                , d_posDevice(initData(&d_posDevice, "posDevice", "position of the base of the part of the device"))
+                , d_posStylus(initData(&d_posStylus, "posStylus", "position of the base of the stylus"))
+                , d_locDOF(initData(&d_locDOF, "locDOF", "localisation of the DOFs MechanicalObject"))
+                , d_deviceName(initData(&d_deviceName, std::string("DefaultDevice"), "deviceName", "name of the device"))
+                , d_deviceIndex(initData(&d_deviceIndex, 1, "deviceIndex", "index of the device"))
+                , d_openTool(initData(&d_openTool, "openTool", "opening of the tool"))
+                , d_maxTool(initData(&d_maxTool, 1.0, "maxTool", "maxTool value"))
+                , d_minTool(initData(&d_minTool, 0.0, "minTool", "minTool value"))
+                , d_openSpeedTool(initData(&d_openSpeedTool, 0.1, "openSpeedTool", "openSpeedTool value"))
+                , d_closeSpeedTool(initData(&d_closeSpeedTool, 0.1, "closeSpeedTool", "closeSpeedTool value"))
+                , d_useScheduler(initData(&d_useScheduler, false, "useScheduler", "Enable use of OpenHaptics Scheduler methods to synchronize haptics thread"))
+                , d_setRestShape(initData(&d_setRestShape, false, "setRestShape", "True to control the rest position instead of the current position directly"))
+                , d_applyMappings(initData(&d_applyMappings, true, "applyMappings", "True to enable applying the mappings after setting the position"))
+                , d_alignOmniWithCamera(initData(&d_alignOmniWithCamera, true, "alignOmniWithCamera", "True to keep the Omni's movements in the same reference frame as the m_camera"))
+                , d_id(initData(&d_id, "id", "id"))
+                , d_nupdates(initData(&d_nupdates, "nupdates", "nupdates"))
+                , d_buttonState(initData(&d_buttonState, "buttonState", "buttonState"))
+                , d_devicePosition(initData(&d_devicePosition, "devicePosition", "d_devicePosition"))
+                , d_pos(initData(&d_pos, "pos", "pos"))
+                , d_quat(initData(&d_quat, "quat", "quat"))
+                , d_ready(initData(&d_ready, "ready", "ready"))
+                , d_stop(initData(&d_stop, "stop", "stop"))
+                , m_noDeviceDetected(false)
+                , m_isFirstDevice(true)
+            {
+                this->f_listening.setValue(true);
+                data.m_forceFeedback = NULL;
+
+                d_id.setGroup("OmniState");
+                d_nupdates.setGroup("OmniState");
+                d_buttonState.setGroup("OmniState");
+                d_devicePosition.setGroup("OmniState");
+                d_pos.setGroup("OmniState");
+                d_quat.setGroup("OmniState");
+                d_ready.setGroup("OmniState");
+                d_stop.setGroup("OmniState");
+
+                d_id.setReadOnly(true);
+                d_nupdates.setReadOnly(true);
+                d_buttonState.setReadOnly(true);
+                d_devicePosition.setReadOnly(true);
+                d_pos.setReadOnly(true);
+                d_quat.setReadOnly(true);
+                d_ready.setReadOnly(true);
+                d_stop.setReadOnly(true);
+            }
+
+            // Destructor
+            OmniDriver::~OmniDriver()
+            {
+
+            }
+
+            // Stop call back TODO: To launch only from the first interface
+            void OmniDriver::cleanup()
+            {
+                sout << "[OmniDriver] Cleanup()" << std::endl;
+                if (m_isFirstDevice)
+                {
+                    hdScheduleSynchronous(stopCallback, (void*)&otherOmniDriver, HD_MAX_SCHEDULER_PRIORITY);
+                }
+                m_initialized = false;
+            }
+
+            // Configure feedback
+            //void OmniDriver::setForceFeedback(LCPForceFeedback<Rigid3dTypes>* ff)
+            void OmniDriver::setForceFeedback(ForceFeedback* ff)
+            {
+                // the forcefeedback is already set
+                if (data.m_forceFeedback == ff)
+                {
+                    return;
+                }
+
+                data.m_forceFeedback = ff;
+            }
+
+            void OmniDriver::init()
+            {
+                if (m_isFirstDevice)
+                {
+                    simulation::Node *context = dynamic_cast<simulation::Node*>(this->getContext()->getRootContext());
+                    context->getTreeObjects<OmniDriver>(&otherOmniDriver);
+                    sout << " [OmniDriver] Detected OmniDriver : " << sendl;
+                    for (unsigned int i = 0; i < otherOmniDriver.size(); i++)
+                    {
+                        sout << "  device " << i << " = " << otherOmniDriver[i]->getName() << otherOmniDriver[i]->d_deviceName.getValue() << sendl;
+                        otherOmniDriver[i]->d_deviceIndex.setValue(i);
+                        hHDVector.push_back(HD_INVALID_HANDLE);
+                        otherOmniDriver[i]->m_isFirstDevice = false;
+                        otherOmniDriver[i]->data.m_currentForce[0] = 0;
+                        otherOmniDriver[i]->data.m_currentForce[1] = 0;
+                        otherOmniDriver[i]->data.m_currentForce[2] = 0;
+                    }
+                    m_isFirstDevice = true;
+                }
+
+                sout << d_deviceName.getValue() + " init" << sendl;
+
+                if (d_alignOmniWithCamera.getValue())
+                {
+                    m_camera = this->getContext()->get<component::visualmodel::InteractiveCamera>(this->getTags(), sofa::core::objectmodel::BaseContext::SearchRoot);
+                    if (!m_camera)
+                    {
+                        m_camera = this->getContext()->get<component::visualmodel::InteractiveCamera>();
+                    }
+                    if (!m_camera)
+                    {
+                        sofa::simulation::Node::SPtr groot = dynamic_cast<simulation::Node*>(this->getContext());
+                        m_camera = sofa::core::objectmodel::New<component::visualmodel::InteractiveCamera>();
+                        m_camera->setName(core::objectmodel::Base::shortName(m_camera.get()));
+                        groot->addObject(m_camera);
+                        m_camera->bwdInit();
+                    }
+                    if (!m_camera)
+                    {
+                        serr << "Cannot find or create m_camera." << sendl;
+                    }
+                }
+
+                VecCoord& posD = (*d_posDevice.beginEdit());
+                posD.resize(NVISUALNODE + 1);
+                d_posDevice.endEdit();
+                m_initialized = false;
             }
 
 
-
-            sofa::helper::AdvancedTimer::stepEnd("OmniDriver::4");
-            sofa::helper::AdvancedTimer::stepBegin("OmniDriver::5");
-
-            // launch events on buttons changes
-            static bool btn1 = false;
-            static bool btn2 = false;
-            bool newBtn1 = 0!=(data.deviceData.m_buttonState & HD_DEVICE_BUTTON_1);
-            bool newBtn2 = 0!=(data.deviceData.m_buttonState & HD_DEVICE_BUTTON_2);
-            sofa::helper::AdvancedTimer::stepEnd("OmniDriver::5");
-
-            // special case: btn2 is mapped to tool selection if "toolSelector" is used
-            if (toolSelector.getValue() && btn2!=newBtn2)
+            void OmniDriver::bwdInit()
             {
-                btn2 = newBtn2;
-                isToolControlled = !btn2;
-                if (isToolControlled)
-                    currentToolIndex = (currentToolIndex+1)%toolCount.getValue();
+                sout << "[OmniDriver] bwdInit()" << sendl;
+
+                simulation::Node *context = dynamic_cast<simulation::Node *>(this->getContext()); // access to current node
+
+                                                                                                  // Added by Valerian : use tag to find which ff is associated to the OmniDriver otherwise all omnis will hace the same ff
+                sofa::core::objectmodel::Tag tag(d_deviceName.getValue());
+                ForceFeedback* ff = context->get<ForceFeedback>(tag, sofa::core::objectmodel::BaseContext::SearchRoot);
+                if (ff)
+                {
+                    setForceFeedback(ff);
+                }
+                else
+                {
+                    serr << "[OmniDriver] No ForceFeedback found" << sendl;
+                }
+
+                setDataValue();
+
+                if (m_isFirstDevice && initDevice() == -1)
+                {
+                    m_noDeviceDetected = true;
+                    serr << "[OmniDriver] No device detected" << sendl;
+                }
+
+                DOFs = context->get<sofa::component::container::MechanicalObject<sofa::defaulttype::Rigid3dTypes> >(this->getTags(), sofa::core::objectmodel::BaseContext::SearchDown);
+
+                if (DOFs == NULL)
+                {
+                    serr << "[OmniDriver] No MechanicalObject with a Rigid template found" << sendl;
+                }
+                else
+                {
+                    otherOmniDriver[this->d_deviceIndex.getValue()]->DOFs = DOFs;
+                }
             }
 
-            if (btn1!=newBtn1 || (!toolSelector.getValue() && btn2!=newBtn2))
+            void OmniDriver::setDataValue()
             {
-                sofa::helper::AdvancedTimer::stepBegin("OmniDriver::6");
-                btn1 = newBtn1;
-                btn2 = newBtn2;
-                unsigned char buttonState = 0;
-                if(btn1) buttonState |= sofa::core::objectmodel::HapticDeviceEvent::Button1StateMask;
-                if(!toolSelector.getValue() && btn2) buttonState |= sofa::core::objectmodel::HapticDeviceEvent::Button2StateMask;
-                Vector3 dummyVector;
-                Quat dummyQuat;
-                sofa::core::objectmodel::HapticDeviceEvent event(currentToolIndex,dummyVector,dummyQuat,buttonState);
-                simulation::Node *groot = dynamic_cast<simulation::Node *>(getContext()->getRootContext()); // access to current node
-                groot->propagateEvent(core::ExecParams::defaultInstance(), &event);
-                sofa::helper::AdvancedTimer::stepEnd("OmniDriver::6");
+                data.m_scale = d_scale.getValue();
+                data.m_forceScale = d_forceScale.getValue();
+
+                Quat q = d_orientationBase.getValue();
+                q.normalize();
+                d_orientationBase.setValue(q);
+                data.m_world_H_baseOmni.set(d_positionBase.getValue(), q);
+                q = d_orientationTool.getValue();
+                q.normalize();
+                data.m_endOmni_H_virtualTool.set(d_positionTool.getValue(), q);
+                data.m_permanent_feedback = d_permanent.getValue();
             }
 
 
-        }
-        else sout<<"data not ready"<<sendl;
-
-
-    }
-
-    if (dynamic_cast<core::objectmodel::KeypressedEvent *>(event))
-    {
-        core::objectmodel::KeypressedEvent *kpe = dynamic_cast<core::objectmodel::KeypressedEvent *>(event);
-        if (kpe->getKey()=='Z' ||kpe->getKey()=='z' )
-        {
-            moveOmniBase = !moveOmniBase;
-            sout<<"key z detected "<<sendl;
-            omniVisu.setValue(moveOmniBase);
-
-            if(moveOmniBase)
+            // Run everything but reset
+            void OmniDriver::reset()
             {
-                this->cleanup();
-                positionBase_buf = positionBase.getValue();
-            }
-            else
-            {
+                sout << "[OmniDriver] Reset() called" << sofa::core::objectmodel::Base::sendl;
                 this->reinit();
             }
-        }
 
-        if(kpe->getKey()=='K' || kpe->getKey()=='k')
-        {
-            positionBase_buf.x()=0.0;
-            positionBase_buf.y()=0.5;
-            positionBase_buf.z()=2.6;
-        }
+            // Run everything but reset
+            void OmniDriver::reinit()
+            {
+                sout << "[OmniDriver] Reinit() called" << sofa::core::objectmodel::Base::sendl;
 
-        if(kpe->getKey()=='L' || kpe->getKey()=='l')
-        {
-            positionBase_buf.x()=-0.15;
-            positionBase_buf.y()=1.5;
-            positionBase_buf.z()=2.6;
-        }
+                this->cleanup();
+                this->bwdInit();
 
-        if(kpe->getKey()=='M' || kpe->getKey()=='m')
-        {
-            positionBase_buf.x()=0.0;
-            positionBase_buf.y()=2.5;
-            positionBase_buf.z()=2.6;
-        }
+                sout << "[OmniDriver] Reinit() done" << sofa::core::objectmodel::Base::sendl;
+            }
 
+            void OmniDriver::updateDataValueVizualisation()
+            {
+                d_id.setValue(data.m_deviceData.m_id);
+                d_nupdates.setValue(data.m_deviceData.m_nupdates);
+                d_buttonState.setValue(data.m_deviceData.m_buttonState);
+                d_devicePosition.setValue(data.m_deviceData.m_devicePosition);
+                d_pos.setValue(data.m_deviceData.m_pos);
+                d_quat.setValue(data.m_deviceData.m_quat);
+                d_ready.setValue(data.m_deviceData.m_ready);
+                d_stop.setValue(data.m_deviceData.m_stop);
+            }
 
-        // emulated haptic buttons B=btn1, N=btn2
-        if (kpe->getKey()=='H' || kpe->getKey()=='h')
-        {
-            sout << "emulated button 1 pressed" << sendl;
-            Vector3 dummyVector;
-            Quat dummyQuat;
-            sofa::core::objectmodel::HapticDeviceEvent event(currentToolIndex,dummyVector,dummyQuat,
-                    sofa::core::objectmodel::HapticDeviceEvent::Button1StateMask);
-            simulation::Node *groot = dynamic_cast<simulation::Node *>(getContext()->getRootContext()); // access to current node
-            groot->propagateEvent(core::ExecParams::defaultInstance(), &event);
-        }
-        if (kpe->getKey()=='J' || kpe->getKey()=='j')
-        {
-            sout << "emulated button 2 pressed" << sendl;
-            Vector3 dummyVector;
-            Quat dummyQuat;
-            sofa::core::objectmodel::HapticDeviceEvent event(currentToolIndex,dummyVector,dummyQuat,
-                    sofa::core::objectmodel::HapticDeviceEvent::Button2StateMask);
-            simulation::Node *groot = dynamic_cast<simulation::Node *>(getContext()->getRootContext()); // access to current node
-            groot->propagateEvent(core::ExecParams::defaultInstance(), &event);
-        }
+            void OmniDriver::onAnimateBeginEvent()
+            {
+                updateDataValueVizualisation();
 
-    }
+                //Propagate Button Event
+                int currentToolIndex = data.m_deviceData.m_id;
+                unsigned char buttonState = data.m_deviceData.m_buttonState;
 
-    if (dynamic_cast<core::objectmodel::KeyreleasedEvent *>(event))
-    {
-        core::objectmodel::KeyreleasedEvent *kre = dynamic_cast<core::objectmodel::KeyreleasedEvent *>(event);
-        // emulated haptic buttons B=btn1, N=btn2
-        if (kre->getKey()=='H' || kre->getKey()=='h'
-            || kre->getKey()=='J' || kre->getKey()=='j')
-        {
-            sout << "emulated button released" << sendl;
-            Vector3 dummyVector;
-            Quat dummyQuat;
-            sofa::core::objectmodel::HapticDeviceEvent event(currentToolIndex,dummyVector,dummyQuat,0);
-            simulation::Node *groot = dynamic_cast<simulation::Node *>(getContext()->getRootContext()); // access to current node
-            groot->propagateEvent(core::ExecParams::defaultInstance(), &event);
-        }
-    }
-}
+                Vector3 dummyVector;
+                Quat dummyQuat;
+                sofa::core::objectmodel::HapticDeviceEvent event(currentToolIndex, dummyVector, dummyQuat, buttonState);
+                simulation::Node *groot = dynamic_cast<simulation::Node *>(getContext()->getRootContext());
+                groot->propagateEvent(core::ExecParams::defaultInstance(), &event);
 
-int OmniDriverClass = core::RegisterObject("Solver to test compliance computation for new articulated system objects")
-        .add< OmniDriver >();
+                // copy data->servoDeviceData to gDeviceData
+                if (d_useScheduler.getValue())
+                {
+                    hdScheduleSynchronous(copyDeviceDataCallback, (void*)&otherOmniDriver, HD_MAX_SCHEDULER_PRIORITY);
+                }
+                else
+                {
+                    doUpdate.inc(); // set to 1
+                    while (doUpdate)
+                    {
+#ifdef SOFA_HAVE_BOOST
+                        boost::thread::yield();
+#else
+                        sofa::helper::system::thread::CTime::sleep(0);
+#endif
+                    }
+                }
+                if (data.m_deviceData.m_ready)
+                {
+                    data.m_deviceData.m_quat.normalize();
 
-SOFA_DECL_CLASS(OmniDriver)
+                    // COMPUTATION OF THE virtualTool 6D POSITION IN THE World COORDINATES
+                    SolidTypes<double>::Transform baseOmni_H_endOmni(data.m_deviceData.m_pos*data.m_scale, data.m_deviceData.m_quat);
 
 
-} // namespace controller
+                    Quat& orientB = (*d_orientationBase.beginEdit());
+                    Vec3d& posB = (*d_positionBase.beginEdit());
+                    if (d_alignOmniWithCamera.getValue())
+                    {
+                        Quat m_cameraRotation = m_camera->getOrientation();
+                        orientB = m_cameraRotation;
+                    }
+                    orientB.normalize();
+                    data.m_world_H_baseOmni.set(posB, orientB);
+                    d_orientationBase.endEdit();
+                    d_positionBase.endEdit();
 
-} // namespace component
+                    VecCoord& posD = (*d_posDevice.beginEdit());
+
+                    SolidTypes<double>::Transform world_H_virtualTool = data.m_world_H_baseOmni * baseOmni_H_endOmni * data.m_endOmni_H_virtualTool;
+                    SolidTypes<double>::Transform tampon = data.m_world_H_baseOmni;
+
+                    sofa::helper::Quater<double> q;
+
+                    //get position base
+                    posD[0].getCenter() = tampon.getOrigin();
+                    posD[0].getOrientation() = tampon.getOrientation();
+
+                    //get position stylus
+                    tampon *= baseOmni_H_endOmni;
+                    posD[1 + VN_stylus] = Coord(tampon.getOrigin(), tampon.getOrientation());
+
+                    //get pos joint 2
+                    sofa::helper::Quater<double> quarter2(Vec3d(0.0, 0.0, 1.0), angle2[2]);
+                    SolidTypes<double>::Transform transform_segr2(Vec3d(0.0, 0.0, 0.0), quarter2);
+                    tampon *= transform_segr2;
+                    posD[1 + VN_joint2] = Coord(tampon.getOrigin(), tampon.getOrientation());
+
+                    //get pos joint 1
+                    sofa::helper::Quater<double> quarter3(Vec3d(1.0, 0.0, 0.0), angle2[1]);
+                    SolidTypes<double>::Transform transform_segr3(Vec3d(0.0, 0.0, 0.0), quarter3);
+                    tampon *= transform_segr3;
+                    posD[1 + VN_joint1] = Coord(tampon.getOrigin(), tampon.getOrientation());
+
+                    //get pos arm 2
+                    sofa::helper::Quater<double> quarter4(Vec3d(0.0, 1.0, 0.0), -angle2[0]);
+                    SolidTypes<double>::Transform transform_segr4(Vec3d(0.0, 0.0, 0.0), quarter4);
+                    tampon *= transform_segr4;
+                    posD[1 + VN_arm2] = Coord(tampon.getOrigin(), tampon.getOrientation());
+                    //get pos arm 1
+                    sofa::helper::Quater<double> quarter5(Vec3d(1.0, 0.0, 0.0), -(M_PI / 2) + angle1[2] - angle1[1]);
+                    SolidTypes<double>::Transform transform_segr5(Vec3d(0.0, 13.33*data.m_scale / 100, 0.0), quarter5);
+                    tampon *= transform_segr5;
+                    posD[1 + VN_arm1] = Coord(tampon.getOrigin(), tampon.getOrientation());
+
+                    //get pos joint 0
+                    sofa::helper::Quater<double> quarter6(Vec3d(1.0, 0.0, 0.0), angle1[1]);
+                    SolidTypes<double>::Transform transform_segr6(Vec3d(0.0, 13.33*data.m_scale / 100, 0.0), quarter6);
+                    tampon *= transform_segr6;
+                    posD[1 + VN_joint0] = Coord(tampon.getOrigin(), tampon.getOrientation());
+
+                    //get pos base
+                    sofa::helper::Quater<double> quarter7(Vec3d(0.0, 0.0, 1.0), angle1[0]);
+                    SolidTypes<double>::Transform transform_segr7(Vec3d(0.0, 0.0, 0.0), quarter7);
+                    tampon *= transform_segr7;
+                    posD[1 + VN_base] = Coord(tampon.getOrigin(), tampon.getOrientation());
+
+                    //get pos of axes
+
+                    posD[1 + VN_X].getCenter() = data.m_world_H_baseOmni.getOrigin();
+                    posD[1 + VN_Y].getCenter() = data.m_world_H_baseOmni.getOrigin();
+                    posD[1 + VN_Z].getCenter() = data.m_world_H_baseOmni.getOrigin();
+                    posD[1 + VN_X].getOrientation() = (data.m_world_H_baseOmni).getOrientation()*q.axisToQuat(Vec3d(0.0, 0.0, 1.0), -M_PI / 2);
+                    posD[1 + VN_Y].getOrientation() = (data.m_world_H_baseOmni).getOrientation()*q.axisToQuat(Vec3d(1.0, 0.0, 0.0), 0);
+                    posD[1 + VN_Z].getOrientation() = (data.m_world_H_baseOmni).getOrientation()*q.axisToQuat(Vec3d(1.0, 0.0, 0.0), -M_PI / 2);
+
+                    d_posDevice.endEdit();
+
+                    if (DOFs != NULL)
+                    {
+                        sofa::helper::WriteAccessor<sofa::core::objectmodel::Data<VecCoord> > x = *DOFs->write(d_setRestShape.getValue() ? sofa::core::VecCoordId::restPosition() : sofa::core::VecCoordId::position());
+                        sofa::helper::WriteAccessor<sofa::core::objectmodel::Data<VecCoord> > xfree = *DOFs->write(d_setRestShape.getValue() ? sofa::core::VecCoordId::restPosition() : sofa::core::VecCoordId::freePosition());
+
+                        x[0].getCenter() = world_H_virtualTool.getOrigin();
+                        xfree[0].getCenter() = world_H_virtualTool.getOrigin();
+                        x[0].getOrientation() = world_H_virtualTool.getOrientation();
+                        xfree[0].getOrientation() = world_H_virtualTool.getOrientation();
+                    }
+                    if (d_applyMappings.getValue())
+                    {
+                        sofa::simulation::Node *node = dynamic_cast<sofa::simulation::Node*> (this->getContext());
+                        if (node)
+                        {
+                            sofa::simulation::MechanicalPropagatePositionAndVelocityVisitor mechaVisitor(sofa::core::MechanicalParams::defaultInstance()); mechaVisitor.execute(node);
+                            sofa::simulation::UpdateMappingVisitor updateVisitor(sofa::core::ExecParams::defaultInstance()); updateVisitor.execute(node);
+                        }
+                    }
+                    //button state
+                    Vec1d& openT = (*d_openTool.beginEdit());
+                    if (data.m_deviceData.m_buttonState & HD_DEVICE_BUTTON_1)
+                    {
+                        if (openT[0] > d_minTool.getValue())
+                        {
+                            openT[0] -= d_closeSpeedTool.getValue();
+                        }
+                        else
+                        {
+                            openT[0] = d_minTool.getValue();
+                        }
+                    }
+                    else
+                    {
+                        if (openT[0] < d_maxTool.getValue())
+                            openT[0] += d_openSpeedTool.getValue();
+                        else
+                            openT[0] = d_maxTool.getValue();
+                    }
+                    d_openTool.endEdit();
+
+                    if (data.m_forceFeedback)
+                    {
+                        // store actual position of interface for the forcefeedback (as it will be used as soon as new LCP will be computed)
+                        data.m_forceFeedback->setReferencePosition(world_H_virtualTool);
+                    }
+                    /// TODO : SHOULD INCLUDE VELOCITY !!
+                }
+                else
+                {
+                    sout << "data not ready \n" << sofa::core::objectmodel::Base::sendl;
+                }
+            }
+
+            void OmniDriver::handleEvent(core::objectmodel::Event *event)
+            {
+                if (dynamic_cast<sofa::simulation::AnimateBeginEvent *>(event))
+                {
+                    onAnimateBeginEvent();
+                }
+            }
+
+            int OmniDriverClass = core::RegisterObject("Solver to test compliance computation for new articulated system objects")
+                .add< OmniDriver >()
+                .addAlias("DefaultHapticsDevice")
+                ;
+
+            SOFA_DECL_CLASS(OmniDriver)
+
+        } // namespace controller
+
+    } // namespace component
 
 } // namespace sofa
