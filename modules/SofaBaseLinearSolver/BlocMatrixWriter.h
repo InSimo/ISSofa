@@ -26,7 +26,7 @@
 #define SOFA_COMPONENT_LINEARSOLVER_BLOCMATRIXWRITER_H
 
 #include <sofa/SofaBase.h>
-#include <sofa/defaulttype/VecTypes.h>
+#include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Mat.h>
 #include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
 
@@ -69,6 +69,10 @@ public:
                 for (unsigned int j=0; j<NC; ++j)
                     m->add(i0+i,j0+j,b[i][j]);
         }
+        void add(unsigned int bi, unsigned int bj, int&, int&, const MatBloc& b)
+        {
+            add(bi, bj, b);
+        }
         void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
             unsigned int i0 = offsetL + bi*NL;
@@ -87,11 +91,19 @@ public:
         {
             add(bi, bi, b);
         }
+        void addDiag(unsigned int bi, int&, int&, const MatBloc &b)
+        {
+            add(bi, bi, b);
+        }
         void addDiagDBloc(unsigned int bi, const DBloc& b)
         {
             addDBloc(bi, bi, b);
         }
         void addDiagDValue(unsigned int bi, const Real b)
+        {
+            addDValue(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, int&, int&, const Real b)
         {
             addDValue(bi, bi, b);
         }
@@ -105,6 +117,10 @@ public:
                     m->add(i0+i,j0+j,b[i][j]);
                     m->add(j0+j,i0+i,b[i][j]);
                 }
+        }
+        void addSym(unsigned int bi, unsigned int bj, int&, int&, int&, int&, const MatBloc &b)
+        {
+            addSym(bi, bj, b);
         }
         void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
@@ -126,6 +142,10 @@ public:
                 m->add(j0+i,i0+i,b);
             }
         }
+        void addSymDValue(unsigned int bi, unsigned int bj, int&, int&, int&, int&, Real b)
+        {
+            addSymDValue(bi, bj, b);
+        }
     };
 
     class BlocBaseMatrixWriter
@@ -139,6 +159,10 @@ public:
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
             m->blocAdd(i0,j0,b.ptr());
+        }
+        void add(unsigned int bi, unsigned int bj, int&, int&, const MatBloc& b)
+        {
+            add(bi, bj, b);
         }
         void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
@@ -162,11 +186,19 @@ public:
         {
             add(bi, bi, b);
         }
+        void addDiag(unsigned int bi, int&, int&, const MatBloc &b)
+        {
+            add(bi, bi, b);
+        }
         void addDiagDBloc(unsigned int bi, const DBloc& b)
         {
             addDBloc(bi, bi, b);
         }
         void addDiagDValue(unsigned int bi, const Real b)
+        {
+            addDValue(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, int&, int&, const Real b)
         {
             addDValue(bi, bi, b);
         }
@@ -177,6 +209,10 @@ public:
             m->blocAdd(i0,j0,b.ptr());
             MatBloc bt = b.transposed();
             m->blocAdd(j0,i0,bt.ptr());
+        }
+        void addSym(unsigned int bi, unsigned int bj, int&, int&, int&, int&, const MatBloc &b)
+        {
+            addSym(bi, bj, b);
         }
         void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
@@ -204,6 +240,10 @@ public:
             for (unsigned int i=0; i<NL; ++i)
                 mb2.add(i,i,b);
         }
+        void addSymDValue(unsigned int bi, unsigned int bj, int&, int&, int&, int&, Real b)
+        {
+            addSymDValue(bi, bj, b);
+        }
     };
 
     template<class MReal>
@@ -217,8 +257,13 @@ public:
         {
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
-            //defaulttype::Mat<NL,NC,MReal> bconv = b;
             *m->wbloc(i0,j0,true) += b;
+        }
+        void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const MatBloc& b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            *m->wbloc(i0,j0,rowId,colId,true) += b;
         }
         void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
@@ -238,9 +283,22 @@ public:
             for (unsigned int i=0; i<NL; ++i)
                 mb[i][i] += (MReal)b;
         }
+         void addDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Real b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            defaulttype::Mat<NL,NC,MReal>& mb = *m->wbloc(i0,j0,rowId,colId,true);
+
+            for (unsigned int i=0; i<NL; ++i)
+                mb[i][i] += (MReal)b;
+        }
         void addDiag(unsigned int bi, const MatBloc& b)
         {
             add(bi, bi, b);
+        }
+        void addDiag(unsigned int bi, int& rowId, int& colId, const MatBloc &b)
+        {
+            add(bi, bi, rowId, colId, b);
         }
         void addDiagDBloc(unsigned int bi, const DBloc& b)
         {
@@ -250,13 +308,23 @@ public:
         {
             addDValue(bi, bi, b);
         }
+        void addDiagDValue(unsigned int bi, int& rowId, int& colId, const Real b)
+        {
+            addDValue(bi, bi, rowId, colId, b);
+        }
         void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i0 = boffsetL + bi;
             unsigned int j0 = boffsetC + bj;
-            //defaulttype::Mat<NL,NC,MReal> bconv = b;
             *m->wbloc(i0,j0,true) += b;
             *m->wbloc(j0,i0,true) += b.transposed();
+        }
+        void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, const MatBloc &b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+            *m->wbloc(i0,j0,rowId,colId,true) += b;
+            *m->wbloc(j0,i0,rowIdT,colIdT,true) += b.transposed();
         }
         void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
@@ -284,6 +352,19 @@ public:
             for (unsigned int i=0; i<NL; ++i)
                 mb2[i][i] += (MReal)b;
         }
+        void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, Real b)
+        {
+            unsigned int i0 = boffsetL + bi;
+            unsigned int j0 = boffsetC + bj;
+
+            defaulttype::Mat<NL,NC,MReal>& mb1 = *m->wbloc(i0,j0,rowId,colId,true);
+            for (unsigned int i=0; i<NL; ++i)
+                mb1[i][i] += (MReal)b;
+
+            defaulttype::Mat<NL,NC,MReal>& mb2 = *m->wbloc(j0,i0,rowIdT,colIdT,true);
+            for (unsigned int i=0; i<NL; ++i)
+                mb2[i][i] += (MReal)b;
+        }
     };
 
     template<class MReal>
@@ -301,6 +382,14 @@ public:
                 for (unsigned int j=0; j<NC; ++j)
                     *m->wbloc(i0+i,j0+j,true) += (MReal)b[i][j];
         }
+        void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const MatBloc& b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                for (unsigned int j=0; j<NC; ++j)
+                    *m->wbloc(i0+i,j0+j,rowId,colId,true) += (MReal)b[i][j];
+        }
         void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
             unsigned int i0 = offsetL + bi*NL;
@@ -315,9 +404,20 @@ public:
             for (unsigned int i=0; i<NL; ++i)
                 *m->wbloc(i0+i,j0+i,true) += (MReal)b;
         }
+        void addDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Real b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                *m->wbloc(i0+i,j0+i,rowId,colId,true) += (MReal)b;
+        }
         void addDiag(unsigned int bi, const MatBloc& b)
         {
             add(bi, bi, b);
+        }
+        void addDiag(unsigned int bi, int& rowId, int& colId, const MatBloc &b)
+        {
+            add(bi, bi, rowId, colId, b);
         }
         void addDiagDBloc(unsigned int bi, const DBloc& b)
         {
@@ -326,6 +426,10 @@ public:
         void addDiagDValue(unsigned int bi, const Real b)
         {
             addDValue(bi, bi, b);
+        }
+        void addDiagDValue(unsigned int bi, int& rowId, int& colId, const Real b)
+        {
+            addDValue(bi, bi, rowId, colId, b);
         }
         void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
@@ -336,6 +440,17 @@ public:
                 {
                     *m->wbloc(i0+i,j0+j,true) += (MReal)b[i][j];
                     *m->wbloc(j0+j,i0+i,true) += (MReal)b[i][j];
+                }
+        }
+        void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, const MatBloc &b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+                for (unsigned int j=0; j<NC; ++j)
+                {
+                    *m->wbloc(i0+i,j0+j,rowId,colId,true) += (MReal)b[i][j];
+                    *m->wbloc(j0+j,i0+i,rowIdT,colIdT,true) += (MReal)b[i][j];
                 }
         }
         void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
@@ -356,6 +471,16 @@ public:
             {
                 *m->wbloc(i0+i,j0+i,true) += (MReal)b;
                 *m->wbloc(j0+i,i0+i,true) += (MReal)b;
+            }
+        }
+        void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, Real b)
+        {
+            unsigned int i0 = offsetL + bi*NL;
+            unsigned int j0 = offsetC + bj*NC;
+            for (unsigned int i=0; i<NL; ++i)
+            {
+                *m->wbloc(i0+i,j0+i,rowId,colId,true) += (MReal)b;
+                *m->wbloc(j0+i,i0+i,rowIdT,colIdT,true) += (MReal)b;
             }
         }
     };

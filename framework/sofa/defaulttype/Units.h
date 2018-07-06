@@ -215,10 +215,10 @@ public:
     }
 
     // Get Units (/dimensions)
-    constexpr helper::fixed_array<int, 7>
+    constexpr std::array<int, 7>
         units() const
     {
-        return { kg, m, s, A, K, mol, cd };
+        return { {kg, m, s, A, K, mol, cd} };
     }
 
     // Get Units as text (e.g. returns "kg.m.s-2" for a force)

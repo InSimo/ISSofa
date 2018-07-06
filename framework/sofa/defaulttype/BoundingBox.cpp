@@ -39,7 +39,7 @@ BoundingBox::bbox_t make_neutralBBox()
     const Real max_real = std::numeric_limits<Real>::max();
     sofa::defaulttype::Vector3 minBBox(max_real,max_real,max_real);
     sofa::defaulttype::Vector3 maxBBox(-max_real,-max_real,-max_real);
-    return std::make_pair(minBBox,maxBBox);
+    return {minBBox,maxBBox};
 }
 }
 
@@ -54,23 +54,23 @@ BoundingBox::BoundingBox(const bbox_t& bbox)
 }
 
 BoundingBox::BoundingBox(const Vector3& minBBox, const Vector3& maxBBox)
-    :bbox(std::make_pair(minBBox,maxBBox))
+    :bbox(minBBox,maxBBox)
 {
 }
 
 BoundingBox::BoundingBox(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax )
-    :bbox(std::make_pair(Vector3((SReal)xmin, (SReal)ymin, (SReal)zmin),Vector3( (SReal)xmax, (SReal)ymax, (SReal)zmax)))
+    :bbox(Vector3((SReal)xmin, (SReal)ymin, (SReal)zmin),Vector3( (SReal)xmax, (SReal)ymax, (SReal)zmax))
 {
 }
 
 
 BoundingBox::BoundingBox(const Vec6f& v )
-    :bbox(std::make_pair(Vector3(v[0],v[2],v[4]),Vector3(v[1],v[3],v[5])))
+    :bbox(Vector3(v[0],v[2],v[4]),Vector3(v[1],v[3],v[5]))
 {
 }
 
 BoundingBox::BoundingBox(const Vec6d& v )
-    :bbox(std::make_pair(Vector3((SReal)v[0],(SReal)v[2],(SReal)v[4]),Vector3((SReal)v[1],(SReal)v[3],(SReal)v[5])))
+    :bbox(Vector3((SReal)v[0],(SReal)v[2],(SReal)v[4]),Vector3((SReal)v[1],(SReal)v[3],(SReal)v[5]))
 {
 }
 
@@ -289,7 +289,7 @@ BoundingBox2D::bbox_t make_neutralBBox2D()
     const Real max_real = std::numeric_limits<Real>::max();
     sofa::defaulttype::Vector2 minBBox(max_real,max_real);
     sofa::defaulttype::Vector2 maxBBox(-max_real,-max_real);
-    return std::make_pair(minBBox,maxBBox);
+    return {minBBox,maxBBox};
 }
 }
 
@@ -304,23 +304,23 @@ BoundingBox2D::BoundingBox2D(const bbox_t& bbox)
 }
 
 BoundingBox2D::BoundingBox2D(const Vector2& minBBox, const Vector2& maxBBox)
-    :bbox(std::make_pair(minBBox,maxBBox))
+    :bbox(minBBox,maxBBox)
 {
 }
 
 BoundingBox2D::BoundingBox2D(double xmin, double xmax, double ymin, double ymax )
-    :bbox(std::make_pair(Vector2((SReal)xmin, (SReal)ymin),Vector2((SReal)xmax,(SReal)ymax)))
+    :bbox(Vector2((SReal)xmin, (SReal)ymin),Vector2((SReal)xmax,(SReal)ymax))
 {
 }
 
 
 BoundingBox2D::BoundingBox2D(const Vec4f& v )
-    :bbox(std::make_pair(Vector2(v[0],v[2]),Vector2(v[1],v[3])))
+    :bbox(Vector2(v[0],v[2]),Vector2(v[1],v[3]))
 {
 }
 
 BoundingBox2D::BoundingBox2D(const Vec4d& v )
-    :bbox(std::make_pair(Vector2((SReal)v[0],(SReal)v[2]),Vector2((SReal)v[1],(SReal)v[3])))
+    :bbox(Vector2((SReal)v[0],(SReal)v[2]),Vector2((SReal)v[1],(SReal)v[3]))
 {
 }
 
@@ -515,7 +515,7 @@ namespace
 BoundingBox1D::bbox_t make_neutralBBox1D()
 {
     const SReal max_real = std::numeric_limits<SReal>::max();
-    return std::make_pair(max_real,-max_real);
+    return {max_real,-max_real};
 }
 }
 
@@ -530,18 +530,18 @@ BoundingBox1D::BoundingBox1D(const bbox_t& bbox)
 }
 
 BoundingBox1D::BoundingBox1D(SReal minBBox, SReal maxBBox)
-    :bbox(std::make_pair(minBBox,maxBBox))
+    :bbox(minBBox,maxBBox)
 {
 }
 
 
 BoundingBox1D::BoundingBox1D(const Vec2f& v )
-    :bbox(std::make_pair((SReal)v[0],(SReal)v[1]))
+    :bbox((SReal)v[0],(SReal)v[1])
 {
 }
 
 BoundingBox1D::BoundingBox1D(const Vec2d& v )
-     :bbox(std::make_pair((SReal)v[0],(SReal)v[1]))
+     :bbox((SReal)v[0],(SReal)v[1])
 {
 }
 

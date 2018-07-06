@@ -558,7 +558,7 @@ void LCPConstraintSolver::MultigridConstraintsMerge_Spatial()
         newConstraintDirections.clear();
         newConstraintAreas.clear();
 
-        std::map<ConstCoord, int> coord2coarseId;
+        std::map<ConstICoord, int> coord2coarseId;
 
         for (unsigned cb = 0; cb < constraintBlockInfo.size(); ++cb)
         {
@@ -597,12 +597,12 @@ void LCPConstraintSolver::MultigridConstraintsMerge_Spatial()
                     serr << "MultigridConstraintsMerge_Spatial level " << level << ": constraint " << idFine << " from " << (info.parent ? info.parent->getName() : std::string("NULL")) << " has invalid position index" << sendl;
                     break;
                 }
-                ConstCoord posFine = constraintPositions[info.offsetPosition + c];
+                ConstICoord posFine = constraintPositions[info.offsetPosition + c];
                 ConstDeriv dirFineN  = constraintDirections[info.offsetDirection + 3*c + 0];
                 ConstDeriv dirFineT1 = constraintDirections[info.offsetDirection + 3*c + 1];
                 ConstDeriv dirFineT2 = constraintDirections[info.offsetDirection + 3*c + 2];
                 ConstArea area = (info.hasArea) ? constraintAreas[info.offsetArea + c] : (ConstArea)1.0;
-                ConstCoord posCoarse;
+                ConstICoord posCoarse;
                 for (int i=0; i<3; ++i)
                 {
                     int p = posFine[i]+merge_spatial_shift;
@@ -611,7 +611,7 @@ void LCPConstraintSolver::MultigridConstraintsMerge_Spatial()
                     p = p / merge_spatial_step;
                     posCoarse[i] = p;
                 }
-                std::pair< std::map<ConstCoord,int>::iterator, bool > res = coord2coarseId.insert(std::map<ConstCoord,int>::value_type(posCoarse, (int)num_group));
+                auto res = coord2coarseId.emplace(posCoarse, (int)num_group);
                 int idCoarse = res.first->second * 3;
                 if (res.second)
                 {
@@ -1499,7 +1499,7 @@ void LCPConstraintSolver::draw(const core::visual::VisualParams* vparams)
                     serr << "Level " << level << ": constraint " << idFine << " from " << (info.parent ? info.parent->getName() : std::string("NULL")) << " has invalid direction index" << sendl;
                     break;
                 }
-                ConstCoord posFine = constraintPositions[info.offsetPosition + c];
+                ConstICoord posFine = constraintPositions[info.offsetPosition + c];
                 ConstDeriv dirFineN  = constraintDirections[info.offsetDirection + 3*c + 0];
                 ConstDeriv dirFineT1 = constraintDirections[info.offsetDirection + 3*c + 1];
                 ConstDeriv dirFineT2 = constraintDirections[info.offsetDirection + 3*c + 2];

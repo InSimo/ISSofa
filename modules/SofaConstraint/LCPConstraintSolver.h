@@ -232,6 +232,7 @@ private:
     typedef core::behavior::BaseConstraint::ConstraintBlockInfo ConstraintBlockInfo;
     typedef core::behavior::BaseConstraint::PersistentID PersistentID;
     typedef core::behavior::BaseConstraint::ConstCoord ConstCoord;
+    typedef sofa::defaulttype::Vec3i ConstICoord;
     typedef core::behavior::BaseConstraint::ConstDeriv ConstDeriv;
     typedef core::behavior::BaseConstraint::ConstArea ConstArea;
 

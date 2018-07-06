@@ -252,8 +252,8 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_useCorotational(initData(&d_useCorotational, false, "useCorotational","Use a rotation to make rest curvature invariant to rotation"))
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
-, d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSprigEnergy","Maximum value of spring bending enrgy to draw"))
-, d_drawSpringSize(initData(&d_drawSpringSize,(Real) 1.0,"drawSpringSize","Size of drawed lines"))
+, d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSpringEnergy","Maximum value of spring bending energy to draw"))
+, d_drawSpringSize(initData(&d_drawSpringSize, 1.0f,"drawSpringSize","Size of drawed lines"))
 , edgeHandler(NULL)
 {
     // Create specific handler for EdgeData
@@ -335,7 +335,7 @@ void FastTriangularBendingSprings<DataTypes>::createBendingSprings(unsigned int 
     epsilonSq *= epsilonSq;
     VecEdgeSpring& ei = edgeData[edgeIndex]; // edge spring
     ei.springs.resize(1);
-
+    ei.springs[0].resetCache();
 
     if (shell.size() == 2)   // there is another triangle attached to this edge, so a spring is needed
     {
@@ -439,12 +439,13 @@ template<class MatrixWriter>
 void FastTriangularBendingSprings<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
 {
     const Real kFactor = (Real)mparams->kFactor();
-    const helper::vector<VecEdgeSpring>& Vecsprings = edgeSprings.getValue();
-    for(unsigned i=0; i< Vecsprings.size() ; i++)
+    const helper::vector<VecEdgeSpring>& vecsprings = edgeSprings.getValue();
+
+    for (unsigned i=0; i< vecsprings.size() ; i++)
     {
-        for (unsigned int j = 0; j < Vecsprings[i].springs.size(); j++)
+        for (unsigned int j = 0; j < vecsprings[i].springs.size(); j++)
         {
-            Vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
+            vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
         }
     }
 }

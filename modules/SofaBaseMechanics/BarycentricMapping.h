@@ -746,6 +746,7 @@ public:
     void clear(int reserve=0);
 
     virtual int addPointInTriangle(const int triangleIndex, const SReal* baryCoords);
+    virtual int setPointInTriangle(const int pointIndex, const int triangleIndex, const SReal* baryCoords);
     int createPointInTriangle(const typename Out::Coord& p, int triangleIndex, const typename In::VecCoord* points);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);

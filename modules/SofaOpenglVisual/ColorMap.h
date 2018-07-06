@@ -95,12 +95,14 @@ public:
     GLuint texture;
     double min, max;
 
+    bool m_updateLegend; ///< a flag to trigger prepareLegend()
+
     void initOld(const std::string &data);
 
     void init();
     void reinit();
 
-    //void initVisual() { initTextures(); }
+    void initVisual();
     //void clearVisual() { }
     //void initTextures() {}
     void drawVisual(const core::visual::VisualParams* vparams);

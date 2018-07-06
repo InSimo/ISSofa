@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/defaulttype/StructTypeInfo.h>
+#include <sofa/defaulttype/PairTypeInfo.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/set.h>
 #include <iostream>
@@ -52,6 +53,13 @@ namespace sofa
 {
 namespace test_struct
 {
+struct PairStruct
+{
+    sofa::helper::pair<int, int> myIntPair = {1, 2};
+    SOFA_STRUCT_DECL(PairStruct, myIntPair);
+    SOFA_STRUCT_STREAM_METHODS(PairStruct);
+    SOFA_STRUCT_COMPARE_METHOD(PairStruct);
+};
 struct NestedStruct
 {
     SimpleStruct mySimpleStruct;
@@ -109,6 +117,7 @@ struct NoDefaultConstrStruct
 } // namespace sofa
 
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::EmptyStruct);
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::PairStruct);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::NestedStruct);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::InheritingStruct);
 SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::ContainerStruct);
@@ -123,6 +132,7 @@ namespace test_struct_2
 using StructTypes = testing::Types<
     test_struct::EmptyStruct,
     test_struct::SimpleStruct,
+    test_struct::PairStruct,
     test_struct::NestedStruct,
     test_struct::InheritingStruct,
     test_struct::ContainerStruct,

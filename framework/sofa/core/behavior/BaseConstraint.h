@@ -128,7 +128,7 @@ public:
 
     typedef long long PersistentID;
     typedef helper::vector<PersistentID> VecPersistentID;
-    typedef defaulttype::Vec<3,int> ConstCoord;
+    typedef defaulttype::Vec<3,double> ConstCoord;
     typedef helper::vector<ConstCoord> VecConstCoord;
     typedef defaulttype::Vec<3,double> ConstDeriv;
     typedef helper::vector<ConstDeriv> VecConstDeriv;
@@ -142,10 +142,10 @@ public:
         int const0; ///< index of first constraint
         int nbLines; ///< how many dofs (i.e. lines in the matrix) are used by each constraint
         int nbGroups; ///< how many groups of constraints are active
-        bool hasId; ///< true if this constraint has persistent ID information
-        bool hasPosition; ///< true if this constraint has coordinates information
-        bool hasDirection; ///< true if this constraint has direction information
-        bool hasArea; ///< true if this constraint has area information
+        bool hasId; ///< true if this constraint has persistent ID information (one per group)
+        bool hasPosition; ///< true if this constraint has coordinates information (one per group)
+        bool hasDirection; ///< true if this constraint has direction information (one per line)
+        bool hasArea; ///< true if this constraint has area information (one per group)
         int offsetId; ///< index of first constraint group info in vector of persistent ids and coordinates
         int offsetPosition; ///< index of first constraint group info in vector of coordinates
         int offsetDirection; ///< index of first constraint info in vector of directions

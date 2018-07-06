@@ -52,6 +52,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <array>
 
 #ifdef SOFA_HAVE_EIGEN2
 #include <SofaEigen2Solver/EigenSparseMatrix.h>
@@ -112,7 +113,7 @@ public:
     Data<bool>   d_quadraticBendingModel; /// Use quadratic bending model method for Inextensible Surfaces
 
     Data<Real> d_drawMaxSpringEnergy;
-    Data<Real> d_drawSpringSize;
+    Data<float> d_drawSpringSize;
 
     /// Searches triangle topology and creates the bending springs
     virtual void init();
@@ -136,14 +137,31 @@ protected:
     class EdgeSpring
     {
     public:
+        EdgeSpring() { resetCache(); }
+
         enum {QA=0,QB,QC,QD};          ///< vertex names as in Bergou paper
         enum {VA=QC,VB=QD,VC=QB,VD=QA};                    ///< vertex names as in Volino's paper
         sofa::defaulttype::Vec<4,unsigned> vid;  ///< vertex indices, in circular order
         sofa::defaulttype::Vec<4,Real> alpha;    ///< weight of each vertex in the bending vector
-        Real lambda;                             ///< bending stiffness
+        Real lambda = Real(0.0);                             ///< bending stiffness
         Deriv R0;                                ///< rest curvature
         bool is_activated = false;
         bool is_initialized = false;
+
+        mutable std::array<std::array<int, 2>, 4> mwriterCacheD;
+        mutable std::array<std::array<int, 4>, 6> mwriterCacheS;
+        void resetCache()
+        {
+            for (std::array<int, 2>& a : mwriterCacheD)
+            {
+                a.fill(-1);
+            }
+            for (std::array<int, 4>& a : mwriterCacheS)
+            {
+                a.fill(-1);
+            }
+        }
+
         typedef defaulttype::Mat<12,12,Real> StiffnessMatrix;
 
         /// Store the vertex indices and perform all the precomputations
@@ -316,15 +334,19 @@ protected:
         template<class MWriter>
         void addStiffness( MWriter& mwriter, SReal scale) const
         {
+            if( !is_activated ) return;
+
             const SReal flambda = -lambda*scale;
             for( unsigned j=0; j<4; j++ )
             {
                 const Real flambda_aj = (Real)(flambda*alpha[j]);
-                mwriter.addDiagDValue(vid[j],flambda_aj*alpha[j]);
+                std::array<int, 2>& cache = mwriterCacheD[j];
+                mwriter.addDiagDValue(vid[j], cache[0], cache[1], flambda_aj*alpha[j]);
 
                 for( unsigned k=j+1; k<4; k++ )
                 {
-                    mwriter.addSymDValue(vid[j],vid[k],flambda_aj*alpha[k]);
+                    std::array<int, 4>& cache = mwriterCacheS[((k-1)*k)/2 + j];
+                    mwriter.addSymDValue(vid[j], vid[k], cache[0], cache[1], cache[2], cache[3], flambda_aj*alpha[k]);
                 }
             }
         }

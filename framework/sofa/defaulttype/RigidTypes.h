@@ -165,16 +165,14 @@ public:
         vOrientation /= a;
     }
 
-    template<typename real2>
-    RigidDeriv<3,real> operator*(real2 a) const
+    RigidDeriv<3,real> operator*(real a) const
     {
         RigidDeriv r = *this;
         r*=a;
         return r;
     }
 
-    template<typename real2>
-    RigidDeriv<3,real> operator/(real2 a) const
+    RigidDeriv<3,real> operator/(real a) const
     {
         RigidDeriv r = *this;
         r/=a;
@@ -1190,16 +1188,14 @@ public:
         vOrientation /= (Real)a;
     }
 
-    template<typename real2>
-    RigidDeriv<2,real> operator*(real2 a) const
+    RigidDeriv<2,real> operator*(real a) const
     {
         RigidDeriv<2,real> r = *this;
         r *= a;
         return r;
     }
 
-    template<typename real2>
-    RigidDeriv<2,real> operator/(real2 a) const
+    RigidDeriv<2,real> operator/(real a) const
     {
         RigidDeriv<2,real> r = *this;
         r /= a;

@@ -33,6 +33,8 @@
 #include <cstdio>		// fopen and friends
 #endif
 
+#include <cmath>
+
 namespace sofa
 {
 
@@ -126,7 +128,7 @@ bool LCPSolver<dim>::solve(const double *q, const Matrix &M, double *res)
         pivot = mat[ligPiv][colPiv];
 
         // si le pivot est nul, le LCP echoue
-        if (fabs(pivot) < EPSP)
+        if (std::fabs(pivot) < EPSP)
         {
             printf("  + No solution to LCP + \n");
             boucles = MAX_BOU;

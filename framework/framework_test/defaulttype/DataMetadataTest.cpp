@@ -32,7 +32,7 @@ public:
     {
         d_test.addMeta(meta::ReadOnly());
         d_test.addMeta(meta::Range<double>(helper::pair<double, double>{0, 10}));
-        d_test.addMeta(meta::Units(std::array<int, 7>{1, 1, -2, 0, 0, 0, 0}));
+        d_test.addMeta(meta::Units(std::array<int, 7>{{1, 1, -2, 0, 0, 0, 0}}));
         
         meta::Range<double>* dTestRange;
         if (d_test.getMeta(dTestRange))

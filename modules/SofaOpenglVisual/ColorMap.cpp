@@ -120,6 +120,7 @@ ColorMap::ColorMap()
 , f_colorScheme(initData(&f_colorScheme, "colorScheme", "Color scheme to use"))
 , f_showLegend(initData(&f_showLegend, false, "showLegend", "Activate rendering of color scale legend on the side"))
 , texture(0)
+, m_updateLegend(false)
 {
     f_colorScheme.beginEdit()->setNames(6,
         "Red to Blue",  // HSV space
@@ -160,17 +161,8 @@ void ColorMap::initOld(const std::string &data)
 
 void ColorMap::init()
 {
-    // Prepare texture for legend
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_1D, texture);
-    //glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
     reinit();
 }
-
 
 void ColorMap::reinit()
 {
@@ -280,7 +272,18 @@ void ColorMap::reinit()
         }
     }
 
-    prepareLegend();
+    m_updateLegend = true;
+}
+
+void ColorMap::initVisual()
+{
+    // Prepare texture for legend
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_1D, texture);
+    //glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 ColorMap* ColorMap::getDefault()
@@ -317,6 +320,12 @@ void ColorMap::prepareLegend()
 void ColorMap::drawVisual(const core::visual::VisualParams* vparams)
 {
     if (!f_showLegend.getValue()) return;
+
+    if (m_updateLegend)
+    {
+        prepareLegend();
+        m_updateLegend = false;
+    }
 
     //
     // Draw legend

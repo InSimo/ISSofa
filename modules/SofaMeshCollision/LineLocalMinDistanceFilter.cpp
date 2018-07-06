@@ -300,11 +300,6 @@ bool LineLocalMinDistanceFilter::validPoint(const int pointIndex, const defaultt
 {
     sofa::helper::WriteAccessor<Data<sofa::helper::vector<PointInfo> > > pointInfoVec = m_pointInfo;
     PointInfo & Pi = pointInfoVec[pointIndex];
-    if(&Pi==NULL)
-    {
-        serr<<"Pi == NULL"<<sendl;
-        return true;
-    }
 
     if(this->isRigid())
     {
