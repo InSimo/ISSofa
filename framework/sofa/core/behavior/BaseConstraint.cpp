@@ -51,6 +51,14 @@ void ConstraintResolution::initForce(int /*line*/, double* /*force*/)
 
 }
 
+void ConstraintResolution::postStabilize(int line, double** /*w*/, double* /*d*/, double* force, double* /*dfree*/)
+{
+    for (std::size_t i=0; i<getNbLines(); ++i)
+    {
+        force[line+i] = 0;
+    }
+}
+
 SOFA_ABSTRACT_CLASS_IMPL((BaseConstraintSet));
 SOFA_ABSTRACT_CLASS_IMPL((BaseConstraint));
 SOFA_ABSTRACT_CLASS_IMPL((BaseInteractionConstraint));

@@ -66,6 +66,14 @@ public:
     /// Called after Gauss-Seidel last iteration, in order to store last computed forces for the initial guess
     virtual void store(int /*line*/, double* /*force*/, bool /*convergence*/) {}
 
+    /// Optional postStabilize method. Concrete implemntations should only solve here the linear part of the 
+    /// constraint problem this constraint resolution. For example frictionnal laws should only care about solving
+    /// the unilateral part of the problem, and leave the frictional forces to zero.
+    virtual void postStabilize(int line, double** w, double* d, double* force, double* dfree);
+
+    /// Optional addLocalCompliance method.
+    virtual void addLocalCompliance(int line, double** w) {}
+
     inline void setNbLines(unsigned int nbLines)
     {
         m_nbLines = nbLines;

@@ -197,7 +197,7 @@ bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog, bo
 
     if (hasPlugin(pluginPath, true))
     {
-        (*errlog) << "Plugin " << pluginPath << " already in PluginManager" << std::endl;
+        if(errlog) (*errlog) << "Plugin " << pluginPath << " already in PluginManager" << std::endl;
         return false;
     }
 

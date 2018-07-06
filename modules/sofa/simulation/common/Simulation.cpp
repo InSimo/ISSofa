@@ -303,14 +303,11 @@ void Simulation::updateVisual ( Node* root)
 void Simulation::reset ( Node* root )
 {
     if ( !root ) return;
+    
+    resetTime(root);
+
     sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
 
-    // start by resetting the time
-    const core::behavior::BaseAnimationLoop *animLoop = root->getAnimationLoop();
-    if (animLoop)
-        root->setTime(animLoop->getResetTime());
-    else
-        root->setTime(0.);
     UpdateSimulationContextVisitor(sofa::core::ExecParams::defaultInstance()).execute(root);
 
     root->execute<CleanupVisitor>(params);
@@ -319,6 +316,19 @@ void Simulation::reset ( Node* root )
     root->execute<MechanicalPropagatePositionAndVelocityVisitor>(&mparams);
     root->execute<UpdateMappingVisitor>(params);
     root->execute<VisualUpdateVisitor>(params);
+}
+
+void Simulation::resetTime(Node* root)
+{
+    if (!root) return;
+
+    // start by resetting the time
+    const core::behavior::BaseAnimationLoop *animLoop = root->getAnimationLoop();
+    if (animLoop)
+        root->setTime(animLoop->getResetTime());
+    else
+        root->setTime(0.);
+
 }
 
 /// Initialize the textures

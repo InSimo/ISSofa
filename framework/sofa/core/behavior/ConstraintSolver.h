@@ -61,7 +61,6 @@ private:
 	ConstraintSolver(const ConstraintSolver& n) ;
 	ConstraintSolver& operator=(const ConstraintSolver& n) ;
 
-	
 public:
     /**
      * Launch the sequence of operations in order to solve the constraints
@@ -77,6 +76,9 @@ public:
      * Create the system corresponding to the constraints
      */
     virtual bool buildSystem(const ConstraintParams *, MultiVecId res1, MultiVecId res2=MultiVecId::null())=0;
+
+
+    virtual void postStabilize(const ConstraintParams*, MultiVecCoordId x, MultiVecDerivId v);
 
     /**
      * Rebuild the system using a mass and force factor.

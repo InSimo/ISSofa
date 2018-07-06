@@ -63,6 +63,7 @@ FreeMotionAnimationLoop::FreeMotionAnimationLoop(simulation::Node* gnode)
     : Inherit(gnode)
     , displayTime(initData(&displayTime,false,"displayTime","Dump the computation times"))
     , m_solveVelocityConstraintFirst(initData(&m_solveVelocityConstraintFirst , false, "solveVelocityConstraintFirst", "solve separately velocity constraint violations before position constraint violations"))
+    , d_postStabilize(initData(&d_postStabilize,false,"postStabilize","If true perform a post stabilization step."))
     , constraintSolver(NULL)
     , defaultSolver(NULL)
 {
@@ -126,6 +127,8 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
 
     MultiVecCoord pos(&vop, core::VecCoordId::position() );
     MultiVecDeriv vel(&vop, core::VecDerivId::velocity() );
+    MultiVecDeriv dx(&vop, constraintSolver->getDx());
+
     MultiVecCoord freePos(&vop, core::VecCoordId::freePosition() );
     MultiVecDeriv freeVel(&vop, core::VecDerivId::freeVelocity() );
 
@@ -263,10 +266,6 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
             constraintSolver->solveConstraint(&cparams, pos, vel);
         }
 
-        MultiVecDeriv dx(&vop, constraintSolver->getDx());
-        mop.projectResponse(dx);
-        mop.propagateDx(dx, true);
-
         AdvancedTimer::stepEnd("ConstraintSolver");
 
     }
@@ -281,7 +280,8 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
     this->gnode->execute(&endVisitor);
 
     mop.projectPositionAndVelocity(pos, vel);
-    mop.propagateXAndV(pos, vel);
+    mop.propagateDx(vel,true);
+    mop.propagateX(pos);
 
     this->gnode->setTime ( startTime + dt );
     this->gnode->execute<UpdateSimulationContextVisitor>(params);  // propagate time
@@ -303,6 +303,15 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
         this->gnode->execute ( act );
     }
     sofa::helper::AdvancedTimer::stepEnd("UpdateMapping");
+
+    if (d_postStabilize.getValue())
+    {
+        cparams.setX(pos);
+        cparams.setV(vel);
+        constraintSolver->postStabilize(&cparams, pos, vel);
+        // linearize everything again against the post stabilized positions
+        mop.propagateX(pos);
+    }
 
 #ifndef SOFA_NO_UPDATE_BBOX
     sofa::helper::AdvancedTimer::stepBegin("UpdateBBox");

@@ -69,7 +69,11 @@ public:
     virtual ~BaseGUI();
 
     virtual void initialize() = 0;
-    virtual void stepMainLoop() {}
+
+    /// Advance the main loop by one step
+    /// \return True if the GUI is still open or false if it has been closed
+    virtual bool stepMainLoop() { return true; }
+
     virtual int mainLoop() = 0;
     virtual void setViewerResolution(int  width, int  height) {};
     virtual void setScene(sofa::simulation::Node::SPtr groot, const char* filename = nullptr, bool temporaryFile = false) = 0;

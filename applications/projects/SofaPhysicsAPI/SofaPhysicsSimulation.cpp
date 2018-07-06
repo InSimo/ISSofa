@@ -55,9 +55,9 @@ void SofaPhysicsSimulation::stop()
     impl->stop();
 }
 
-void SofaPhysicsSimulation::step()
+bool SofaPhysicsSimulation::step()
 {
-    impl->step();
+    return impl->step();
 }
 
 void SofaPhysicsSimulation::reset()
@@ -438,16 +438,17 @@ void SofaPhysicsSimulation::Impl::update()
 {
 }
 
-void SofaPhysicsSimulation::Impl::step()
+bool SofaPhysicsSimulation::Impl::step()
 {
+    bool sofa_gui_open = false;
     sofa::simulation::Node* groot = getScene();
-    if (!groot) return;
+    if (!groot) return sofa_gui_open;
     beginStep();
     getSimulation()->animate(groot);
     getSimulation()->updateVisual(groot);
     if (useGUI) {
         auto* gui = sofa::simulation::gui::getCurrentGUI();
-        gui->stepMainLoop();
+        sofa_gui_open = gui->stepMainLoop();
         if (GUIFramerate)
         {
             sofa::helper::system::thread::ctime_t curtime = sofa::helper::system::thread::CTime::getRefTime();
@@ -459,6 +460,8 @@ void SofaPhysicsSimulation::Impl::step()
         }
     }
     endStep();
+
+    return sofa_gui_open;
 }
 
 void SofaPhysicsSimulation::Impl::beginStep()

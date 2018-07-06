@@ -130,6 +130,7 @@ public:
 	void testOutput(Vector3 pos, Quat quat = Quat())
 	{
 		Coord output = this->f_outputX.getValue()[0];
+        quat.normalize();
 		Coord referenceCoord = createCoord<DataTypes>(pos, quat);
 
 		const Real diff			= (referenceCoord - output).norm();

@@ -173,6 +173,8 @@ protected:
 
     core::behavior::MechanicalState<DataTypes>* mstate;
     Data<bool> computeNormals;
+    sofa::component::topology::TriangleData< sofa::helper::vector< int > > d_triangleFlags;
+    Data<Real> d_triangleFlagBorderAngleThreshold;
     int meshRevision;
 
     sofa::core::topology::BaseMeshTopology* _topology;
@@ -181,11 +183,16 @@ protected:
 
     TriangleLocalMinDistanceFilter *m_lmdFilter;
 
+
+
+
 protected:
 
     TTriangleModel();
 public:
     virtual void init();
+
+    void reinit() override;
 
     // -- CollisionModel interface
 

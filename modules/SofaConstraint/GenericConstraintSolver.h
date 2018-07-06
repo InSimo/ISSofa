@@ -54,6 +54,10 @@ class GenericConstraintSolver;
 class SOFA_CONSTRAINT_API GenericConstraintProblem : public ConstraintProblem
 {
 public:
+
+    typedef core::behavior::ConstraintResolution ConstraintResolution;
+    typedef std::function<void(ConstraintResolution*, int, double**, double*, double*, double *)> ConstraintResolutionFunctor;
+
     sofa::component::linearsolver::FullVector<double> _d;
 	std::vector<core::behavior::ConstraintResolution*> constraintsResolutions;
 	bool scaleTolerance, allVerified, unbuilt;
@@ -83,8 +87,9 @@ public:
 	void solveTimed(double tol, int maxIt, double timeout) override;
     std::pair<int,double> solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const override;
 
-	void gaussSeidel(GenericConstraintSolver* solver);
-	std::pair<int,double> gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const;
+	void gaussSeidel(GenericConstraintSolver* solver, ConstraintResolutionFunctor&& functor = std::mem_fn(&core::behavior::ConstraintResolution::resolution));
+    std::pair<int, double> gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* localDFree, double* localD, double* localF,
+        ConstraintResolutionFunctor&& functor = std::mem_fn(&core::behavior::ConstraintResolution::resolution) ) const;
 	void unbuiltGaussSeidel(GenericConstraintSolver* solver = NULL, double timeout=0);
 
     int getNumConstraints();
@@ -96,6 +101,8 @@ class SOFA_CONSTRAINT_API GenericConstraintSolver : public ConstraintSolverImpl
 	typedef std::vector<core::behavior::BaseConstraintCorrection*> list_cc;
 	typedef std::vector<list_cc> VecListcc;
 	typedef sofa::core::MultiVecId MultiVecId;
+    typedef sofa::core::MultiVecCoordId MultiVecCoordId;
+    typedef sofa::core::MultiVecDerivId MultiVecDerivId;
 
 public:
 	SOFA_CLASS(GenericConstraintSolver, ConstraintSolverImpl);
@@ -113,6 +120,9 @@ public:
     bool solveSystem(const core::ConstraintParams * /*cParams*/, MultiVecId res1, MultiVecId res2=MultiVecId::null());
 	bool applyCorrection(const core::ConstraintParams * /*cParams*/, MultiVecId res1, MultiVecId res2=MultiVecId::null());
     void computeResidual(const core::ExecParams* /*params*/);
+
+    void postStabilize(const core::ConstraintParams*, MultiVecCoordId x, MultiVecDerivId v) override;
+
     ConstraintProblem* getConstraintProblem();
     void lockConstraintProblem(sofa::core::objectmodel::BaseObject* from, ConstraintProblem* p1, ConstraintProblem* p2 = 0);
     virtual void removeConstraintCorrection(core::behavior::BaseConstraintCorrection *s);

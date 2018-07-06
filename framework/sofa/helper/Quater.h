@@ -40,7 +40,7 @@ namespace helper
 {
 
 template<class Real>
-class SOFA_HELPER_API Quater
+class Quater
 {
 private:
     Real _q[4];
@@ -49,6 +49,7 @@ public:
 
     typedef Real value_type;
     typedef int size_type;
+    typedef defaulttype::Vec<3, Real> Vec3;
 
     Quater();
     ~Quater();
@@ -77,6 +78,12 @@ public:
         return this->_q;
     }
 
+    Real dot(const Quater& b) const;
+
+    Real norm2() const;
+
+    Real norm() const;
+    
     /// Normalize a quaternion
     void normalize();
 
@@ -142,10 +149,31 @@ public:
 
     Quater<Real> operator*(const Quater<Real> &q1) const;
 
-    Quater<Real> operator*(const Real &r) const;
-    Quater<Real> operator/(const Real &r) const;
-    void operator*=(const Real &r);
-    void operator/=(const Real &r);
+    Quater<Real> operator*(Real r) const;
+    Quater<Real> operator/(Real r) const;
+    Quater<Real>& operator*=(Real r);
+    Quater<Real>& operator/=(Real r);
+
+
+
+    /// @return quaternion containing b minus a, element wise
+    template<class Real2>
+    static Quater<Real> elementWiseDifference(const Quater<Real>& a, const Quater<Real2>& b)
+    {
+        Quater<Real> q(b);
+        for (std::size_t i=0; i<4; ++i)
+        {
+            q[i] -= a[i];
+        }
+
+        return q;
+    }
+
+    // integrate using exponential map parametrization
+    void integrateExponentialMap(const Vec3& omega, Real epsilon = Real(1e-6) );
+
+    // euler integration using quaternion derivative
+    void integrate(const Vec3& omega);
 
     /// Given two Quaters, multiply them together to get a third quaternion.
     //template <class T>
@@ -173,7 +201,7 @@ public:
     defaulttype::Vec<3,Real> toEulerVector() const;
 
     ///< Returns the logarithm of the input quaternion
-    defaulttype::Vec<3,Real> getLog() const;
+    defaulttype::Vec<3,Real> getLog(bool normalize=false, Real epsilon = Real(1e-6) ) const;
 
 
     /*! Returns the slerp interpolation of Quaternions \p a and \p b, at time \p t.
@@ -199,8 +227,8 @@ public:
     // This function computes a quaternion based on an axis (defined by
     // the given vector) and an angle about which to rotate.  The angle is
     // expressed in radians.
-    Quater axisToQuat(defaulttype::Vec<3,Real> a, Real phi);
-    void quatToAxis(defaulttype::Vec<3,Real> & a, Real &phi);
+    Quater axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon = Real(1e-6));
+    void   quatToAxis(defaulttype::Vec<3,Real> & a, Real &phi, bool normalizeQuaternion = false, Real epsilon = Real(1e-6) ) const;
 
 
     static Quater createQuaterFromFrame(const defaulttype::Vec<3, Real> &lox, const defaulttype::Vec<3, Real> &loy,const defaulttype::Vec<3, Real> &loz);
@@ -263,49 +291,49 @@ public:
     static Quater set(T a0, T a1, T a2) { return createFromRotationVector(a0,a1,a2); }
 
     /// Return the quaternion resulting of the movement between 2 quaternions
-    static Quater quatDiff( Quater a, const Quater& b)
+    static Quater quatDiff( const Quater& a, const Quater& b)
     {
-        // If the axes are not oriented in the same direction, flip the axis and angle of a to get the same convention than b
-        if (a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3]<0)
-        {
-            a[0] = -a[0];
-            a[1] = -a[1];
-            a[2] = -a[2];
-            a[3] = -a[3];
-        }
-
-        Quater q = b.inverse() * a;
-        return q;
+        return  b.inverse() * a;
     }
 
     /// Return the eulerian vector resulting of the movement between 2 quaternions
-    static defaulttype::Vec<3,Real> angularDisplacement( Quater a, const Quater& b)
+    static defaulttype::Vec<3,Real> angularDisplacement( const Quater& a, const Quater& b)
     {
-        return quatDiff(a,b).getLog();
+        Quater qDiff = quatDiff(a, b);
+        return qDiff.getLog();
     }
-
 
     // Print the quaternion (C style)
     void print();
     Quater<Real> slerp(Quater<Real> &q1, Real t);
     Quater<Real> slerp2(Quater<Real> &q1, Real t);
 
-    void operator+=(const Quater& q2);
-    void operator*=(const Quater& q2);
+    Quater<Real>& operator+=(const Quater& q2);
+    Quater<Real>& operator*=(const Quater& q2);
+
+
+    bool isEqual(const Quater& q, Real epsilon = Real(EQUALITY_THRESHOLD)) const
+    {
+        for (int i=0; i<4; ++i)
+            if (std::abs( _q[i] - q[i] ) > epsilon) return false;
+        return true;
+    }
+
+    bool isDifferent(const Quater& q, Real epsilon = Real(EQUALITY_THRESHOLD)) const
+    {
+        return !isEqual(q, epsilon);
+    }
 
     bool operator==(const Quater& q) const
     {
-        for (int i=0; i<4; i++)
-            if ( fabs( _q[i] - q._q[i] ) > EQUALITY_THRESHOLD ) return false;
-        return true;
+        return isEqual(q);
     }
 
     bool operator!=(const Quater& q) const
     {
-        for (int i=0; i<4; i++)
-            if ( fabs( _q[i] - q._q[i] ) > EQUALITY_THRESHOLD ) return true;
-        return false;
+        return isDifferent(q);
     }
+
 
     /// write to an output stream
     inline friend std::ostream& operator << ( std::ostream& out, const Quater& v )
@@ -342,9 +370,17 @@ public:
 //typedef Quater<float> Quatf; ///< alias
 //typedef Quater<double> Quaternion; ///< alias
 
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_HELPER) 
+
+extern template class SOFA_HELPER_API Quater<double>;
+extern template class SOFA_HELPER_API Quater<float>;
+
+#endif
+
+
 } // namespace helper
 
 } // namespace sofa
 
-#endif
-
+#endif 
