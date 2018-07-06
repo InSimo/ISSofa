@@ -75,18 +75,18 @@ public:
     virtual bool stepMainLoop() { return true; }
 
     virtual int mainLoop() = 0;
-    virtual void setViewerResolution(int  width, int  height) {};
+    virtual void setViewerResolution(int  /*width*/, int  /*height*/) {};
     virtual void setScene(sofa::simulation::Node::SPtr groot, const char* filename = nullptr, bool temporaryFile = false) = 0;
     virtual void redraw() = 0;
-    virtual void showFPS(double fps) {};
-    virtual bool getCopyScreenRequest(CopyScreenInfo& copyScreenInfo) { return false; }
-    virtual void useCopyScreen(CopyScreenInfo& copyScreenInfo) { }
+    virtual void showFPS(double /*fps*/) {};
+    virtual bool getCopyScreenRequest(CopyScreenInfo& /*copyScreenInfo*/) { return false; }
+    virtual void useCopyScreen(CopyScreenInfo& /*copyScreenInfo*/) { }
     virtual sofa::simulation::Node* getCurrentSimulation() = 0;
 
     virtual bool saveScreenshot(const std::string& filename, int compression_level = -1) = 0;
-    virtual void sendMessage(const std::string& msgType, const std::string& msgValue) {}
-    virtual void setMaxFPS(double fpsMaxRate) {}
-    virtual void setBackgroundColor(const defaulttype::Vector3& color) {}
+    virtual void sendMessage(const std::string& /*msgType*/, const std::string& /*msgValue*/) {}
+    virtual void setMaxFPS(double /*fpsMaxRate*/) {}
+    virtual void setBackgroundColor(const defaulttype::Vector3& /*color*/) {}
 
     virtual void getViewerView(sofa::defaulttype::Vec3d& pos, sofa::defaulttype::Quat& ori) = 0;
     virtual void setViewerView(const sofa::defaulttype::Vec3d& pos, const sofa::defaulttype::Quat &ori) = 0;
