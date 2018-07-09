@@ -101,7 +101,8 @@ void ResetCounter()
 TEST(SSOBufferTest, smallBufferTest)
 {
     ResetCounter();
-    SSOBuffer<16> buffer_first;
+    constexpr int bsize = std::max(16,(int)sizeof(std::vector<double>::const_iterator));
+    SSOBuffer<bsize> buffer_first;
 
     std::vector<double> vecDouble{ 1.0, 2.5, 5.1, 3.0 };
     using VecConstIterator = ConstrDestrCounter<std::vector<double>::const_iterator>;
@@ -111,7 +112,7 @@ TEST(SSOBufferTest, smallBufferTest)
         VecConstIterator& it_begin = *buffer_first.getOrCreate<VecConstIterator>();
         it_begin = vecDouble.cbegin();
 
-        ASSERT_TRUE(16 > sizeof(VecConstIterator));
+        ASSERT_TRUE(bsize >= sizeof(VecConstIterator));
         EXPECT_EQ(1.0, *it_begin.get());
     }
 
@@ -122,8 +123,8 @@ TEST(SSOBufferTest, smallBufferTest)
             it_end = vecDouble.cend();
         }
 
-        SSOBuffer<16> buffer_second(buffer_first); // Test copy construction
-        SSOBuffer<16> buffer_third(std::move(buffer_second)); // Test move construction
+        SSOBuffer<bsize> buffer_second(buffer_first); // Test copy construction
+        SSOBuffer<bsize> buffer_third(std::move(buffer_second)); // Test move construction
 
         auto& it = buffer_third.getOrCreate<VecConstIterator>()->get();
         EXPECT_EQ(4, std::distance(vecDouble.cbegin(), it));
