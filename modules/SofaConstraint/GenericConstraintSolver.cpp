@@ -940,6 +940,8 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
 
 	if(solver)
 	{
+        memset(force, 0, dimension * sizeof(double));	// Erase previous forces for the time being
+
 		for(i=0; i<dimension; )
 		{
 			if(!constraintsResolutions[i])
@@ -951,7 +953,6 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
 			constraintsResolutions[i]->init(i, w, force);
 			i += constraintsResolutions[i]->getNbLines();
 		}
-		memset(force, 0, dimension * sizeof(double));	// Erase previous forces for the time being
 	}
 	
 	bool showGraphs = false;
