@@ -58,7 +58,7 @@ void TopologyDataImpl <TopologyElementType, ContainerType>::createTopologicalEng
         this->m_topologyHandler = _topologyHandler;
         this->m_deleteTopologyHandler = deleteHandler;
         this->m_topologicalEngine = sofa::core::objectmodel::New<TopologyEngineImpl>((sofa::component::topology::TopologyDataImpl<TopologyElementType, ContainerType>*)this, _topology, _topologyHandler);
-        this->m_topologicalEngine->setNamePrefix(std::string(sofa::core::topology::TopologyElementInfo<TopologyElementType>::name()) + std::string("Engine_"));
+        this->m_topologicalEngine->setNamePrefix(std::string(sofa::core::topology::TopologyElementTypeInfo<TopologyElementType>::name()) + std::string("Engine_"));
         if (this->getOwner() && sofa::core::objectmodel::BaseObject::DynamicCast(this->getOwner())) sofa::core::objectmodel::BaseObject::DynamicCast(this->getOwner())->addSlave(this->m_topologicalEngine.get());
         this->m_topologicalEngine->init();
         if (this->m_topologyHandler)

@@ -56,7 +56,7 @@ void TopologySparseDataImpl <TopologyElementType, VecT>::createTopologicalEngine
     if (_topology && sofa::core::topology::TopologyContainer::DynamicCast(_topology))
     {
         this->m_topologicalEngine = sofa::core::objectmodel::New< TopologyEngineImpl >((sofa::component::topology::TopologySparseDataImpl<TopologyElementType, VecT>*)this, _topology, _topologyHandler);
-        this->m_topologicalEngine->setNamePrefix(std::string(sofa::core::topology::TopologyElementInfo<TopologyElementType>::name()) + std::string("SparseEngine_"));
+        this->m_topologicalEngine->setNamePrefix(std::string(sofa::core::topology::TopologyElementTypeInfo<TopologyElementType>::name()) + std::string("SparseEngine_"));
         if (this->getOwner() && sofa::core::objectmodel::BaseObject::DynamicCast(this->getOwner())) sofa::core::objectmodel::BaseObject::DynamicCast(this->getOwner())->addSlave(this->m_topologicalEngine.get());
         this->m_topologicalEngine->init();
         this->linkToElementDataArray((TopologyElementType*)NULL);

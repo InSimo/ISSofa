@@ -50,7 +50,7 @@ class SOFA_CORE_API TopologyElementHandler : public sofa::core::topology::Topolo
 {
 public:
 
-    typedef core::topology::TopologyElementInfo<TopologyElementType> ElementInfo;
+    typedef core::topology::TopologyElementTypeInfo<TopologyElementType> ElementTypeInfo;
     typedef core::topology::TopologyChangeElementInfo<TopologyElementType> ChangeElementInfo;
 
     // Event types (EMoved* are not used for all element types, i.e. Point vs others)

@@ -83,7 +83,7 @@ TopologyDataHandler <TopologyElementType, ContainerType>::~TopologyDataHandler()
 template <typename TopologyElementType, typename ContainerType>
 void TopologyDataHandler <TopologyElementType, ContainerType>::init()
 {
-    this->setLastTopoSize(TopologyDataHandler_GetTopologySize(m_topologyData->getTopology(), TopologyElementInfoT::type()));
+    this->setLastTopoSize(TopologyDataHandler_GetTopologySize(m_topologyData->getTopology(), TopologyElementTypeInfo::type()));
     auto containerWriteAccess = sofa::helper::write(*m_topologyData);
     DataTypeInfo::setContainerSize(containerWriteAccess.wref(), this->getLastTopoSize());
 }
@@ -237,7 +237,7 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::add(const sofa::h
     {
         this->m_topologyData->getOwner()->serr << "TopologyDataHandler SIZE MISMATCH in Data "
                 << this->m_topologyData->getName() << ": " << nbElements << " "
-                << core::topology::TopologyElementInfo<TopologyElementType>::name()
+                << core::topology::TopologyElementTypeInfo<TopologyElementType>::name()
                 << " ADDED starting from index " << index[0]
                 << " while vector size is " << nbElemsTopo << this->m_topologyData->getOwner()->sendl;
         nbElemsTopo = index[0];
