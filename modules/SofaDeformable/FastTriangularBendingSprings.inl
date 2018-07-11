@@ -276,7 +276,7 @@ void FastTriangularBendingSprings<DataTypes>::init()
 
     _topology = this->getContext()->getMeshTopology();
 
-    if (_topology->getNbTriangles()==0)
+    if (!_topology)
     {
         serr << "ERROR(FastTriangularBendingSprings): object must have a Triangular Set Topology."<<sendl;
         return;
