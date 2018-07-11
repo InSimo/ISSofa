@@ -445,7 +445,10 @@ void FastTriangularBendingSprings<DataTypes>::addKToMatrixT(const core::Mechanic
     {
         for (unsigned int j = 0; j < vecsprings[i].springs.size(); j++)
         {
-            vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
+            if (vecsprings[i].springs[j].is_activated)
+            {
+                vecsprings[i].springs[j].addStiffness(mwriter, kFactor);
+            }
         }
     }
 }
