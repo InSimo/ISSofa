@@ -61,6 +61,7 @@ MeshObjLoader::MeshObjLoader()
     , normalsIndexList(initData(&normalsIndexList,"normalsIndex","List of normals of elements of the mesh loaded."))
     , normalsList(initData(&normalsList,"normalsDefinition","Normals definition"))
     , texCoords(initData(&texCoords,"texcoords","Texture coordinates of all faces, to be used as the parent data of a VisualModel texcoords data"))
+    , texCoordsInFace(initData(&texCoordsInFace, "texCoordsInFace", "Texture coordinates sorted for each face, used mainly to detect discontinuities in the texture coordinates"))
     , computeMaterialFaces(initData(&computeMaterialFaces, false, "computeMaterialFaces", "True to activate export of Data instances containing list of face indices for each material"))
     , d_vertPosIdx      (initData   (&d_vertPosIdx, "vertPosIdx", "If vertices have multiple normals/texcoords stores vertices position indices"))
     , d_vertNormIdx     (initData   (&d_vertNormIdx, "vertNormIdx", "If vertices have multiple normals/texcoords stores vertices normal indices"))
@@ -79,6 +80,7 @@ MeshObjLoader::MeshObjLoader()
     normalsList.setPersistent(false);
     positionsList.setPersistent(false);
     texCoords.setPersistent(false);
+    texCoordsInFace.setPersistent(false);
     positions.setPersistent(false);
     normals.setPersistent(false);
     edges.setPersistent(false);
@@ -87,7 +89,6 @@ MeshObjLoader::MeshObjLoader()
     edgesGroups.setPersistent(false);
     trianglesGroups.setPersistent(false);
     quadsGroups.setPersistent(false);
-    texCoords.setPersistent(false);
     d_vertPosIdx.setPersistent(false);
     d_vertNormIdx.setPersistent(false);
     d_pointsOnBorder.setPersistent(false);
@@ -405,6 +406,7 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
     if (!d_handleSeams.getValue())
     { // default mode, vertices are never duplicated, only one texcoord and normal is used per vertex
         helper::vector<sofa::defaulttype::Vector2>& vTexCoords = *texCoords.beginEdit();
+        helper::vector<MapFaceTexCoord >& vTexCoordsInFace = *texCoordsInFace.beginEdit();
         helper::vector<sofa::defaulttype::Vector3>& vNormals   = *normals.beginEdit();
         helper::vector<sofa::defaulttype::Vector3>& vVertices  = *positions.beginEdit();
         vVertices = my_positions;
@@ -412,10 +414,12 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
         if( my_texCoords.size() > 0 )
         {
             vTexCoords.resize(vertexCount);
+            vTexCoordsInFace.resize(vertexCount);
         }
         else
         {
             vTexCoords.resize(0);
+            vTexCoordsInFace.resize(vertexCount);
         }
         if( my_normals.size() > 0 )
         {
@@ -430,6 +434,12 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
             const helper::SVector<int>& nodes = my_faceList[fi];
             const helper::SVector<int>& nIndices = my_normalsList[fi];
             const helper::SVector<int>& tIndices = my_texturesList[fi];
+
+            for (size_t i = 0; i < tIndices.size(); ++i)
+            {
+                vTexCoordsInFace[nodes[i]].setTexCoord(fi, my_texCoords[tIndices[i]]);
+            }
+
             for (size_t i = 0; i < nodes.size(); ++i)
             {
                 unsigned int pi = nodes[i];
@@ -438,7 +448,9 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
                 if (pi >= vertexCount) continue;
                 if (ti < my_texCoords.size() && (vTexCoords[pi] == sofa::defaulttype::Vector2() ||
                                                  (my_texCoords[ti]-vTexCoords[pi])*sofa::defaulttype::Vector2(-1,1) > 0))
+                {
                     vTexCoords[pi] = my_texCoords[ti];
+                }
                 if (ni < my_normals.size())
                     vNormals[pi] += my_normals[ni];
             }

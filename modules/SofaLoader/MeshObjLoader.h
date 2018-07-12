@@ -37,10 +37,14 @@ namespace component
 namespace loader
 {
 
+class MapFaceTexCoord;
+
 class SOFA_LOADER_API MeshObjLoader : public sofa::core::loader::MeshLoader
 {
 public:
     enum FaceType { EDGE, TRIANGLE, QUAD, NBFACETYPE };
+
+    typedef unsigned int FaceId;
 
     SOFA_CLASS(MeshObjLoader,sofa::core::loader::MeshLoader);
 protected:
@@ -75,6 +79,7 @@ public:
     Data <helper::SVector<helper::SVector<int> > > normalsIndexList;
     Data <helper::vector<sofa::defaulttype::Vector3> > normalsList;
     Data< helper::vector<sofa::defaulttype::Vector2> > texCoords;
+    Data< helper::vector<MapFaceTexCoord> > texCoordsInFace; // texCoordsInFace[PointID][FaceId] should give you the texCoord of the point indexed by PointID in the Face indexed by FaceID
     Data< bool > computeMaterialFaces;
     helper::vector< Data <helper::vector <unsigned int> >* > subsets_indices;
 
@@ -94,6 +99,109 @@ public:
 };
 
 
+class MapFaceTexCoord
+{
+    typedef unsigned int FaceId;
+    typedef std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > PairTexFace;
+    helper::vector< PairTexFace > m_mapTexFaces;
+
+    typedef helper::vector< std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > >::const_iterator ConstItPair;
+    typedef helper::vector< std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > >::iterator       ItPair;
+
+public:
+    const sofa::defaulttype::Vector2& getTexCoord(FaceId faceId) const
+    {
+        if (m_mapTexFaces.empty())
+        {
+            std::cerr << " TexCoord container empty " << std::endl;
+            return sofa::defaulttype::Vector2();
+        }
+
+        // An optimized implementation (credit to Thomas Jund)
+        // the trade-off is you don't check the sanity of the structure
+        if (m_mapTexFaces.size() == 1)
+        {
+            return m_mapTexFaces[0].first;
+        }
+        // -------------------------------
+
+        ConstItPair it = std::find_if(m_mapTexFaces.cbegin(), m_mapTexFaces.cend(), [&](const PairTexFace& pairTF)
+        {
+            return (pairTF.second.find(faceId) != pairTF.second.end());
+        });
+
+        if (it == m_mapTexFaces.cend())
+        {
+            std::cerr << " Non existent texCoord on face Id : " << faceId << " in map : "  << *this <<  std::endl;
+            return sofa::defaulttype::Vector2();
+        }
+        else
+        {
+            return it->first;
+        }
+    }
+
+    const sofa::defaulttype::Vector2& operator[] (FaceId faceId) const
+    {
+        return getTexCoord(faceId);
+    }
+
+    helper::vector<sofa::defaulttype::Vector2> getAllTexCoord() const
+    {
+        helper::vector<sofa::defaulttype::Vector2> result;
+        for (const auto it : m_mapTexFaces)
+        {
+            result.emplace_back(it.first);
+        }
+        return result;
+    }
+
+    void setTexCoord(const FaceId& faceId, const sofa::defaulttype::Vector2& newTexCoord)
+    {
+        ItPair it = std::find_if(m_mapTexFaces.begin(), m_mapTexFaces.end(), [&](const PairTexFace& oldPairTF)
+        {
+            const sofa::defaulttype::Vector2& oldTexCoord = oldPairTF.first;
+            return (newTexCoord[0] == oldTexCoord[0] && newTexCoord[1] == oldTexCoord[1]);
+        });
+
+        if (it == m_mapTexFaces.end())
+        {
+            m_mapTexFaces.resize(m_mapTexFaces.size() + 1);
+            m_mapTexFaces.back().first = newTexCoord;
+            m_mapTexFaces.back().second.insert(faceId);
+        }
+        else
+        {
+            it->second.insert(faceId);
+        }
+    }
+
+    bool isDuplicated() const
+    {
+        return (m_mapTexFaces.size() != 1);
+    }
+
+    /// write to an output stream
+    inline friend std::ostream& operator << (std::ostream& out, const MapFaceTexCoord& map)
+    {
+        for (auto pair : map.m_mapTexFaces)
+        {
+            out << "TexCoord : " << pair.first << "  Faces : ";
+            for (auto faceId : pair.second)
+            {
+                out << faceId << " ";
+            }
+            out << " / ";
+        }
+        out << std::endl;
+        return out;
+    }
+    /// read from an input stream
+    inline friend std::istream& operator >> (std::istream& in, MapFaceTexCoord& map)
+    {
+        return in;
+    }
+};
 
 
 } // namespace loader
