@@ -31,7 +31,15 @@
 
 #include "gtest/gtest.h"
 
-GTEST_API_ int main(int argc, char **argv) {
+#ifdef _MSC_VER
+// force dllexport, never dllimport
+# if GTEST_CREATE_SHARED_LIBRARY
+__declspec(dllexport)
+# endif
+#else
+GTEST_API_
+#endif // _MSC_VER
+int main(int argc, char **argv) {
   printf("Running main() from gtest_main.cc\n");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

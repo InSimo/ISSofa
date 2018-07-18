@@ -7,14 +7,14 @@
 
 # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
 # make it prominent in the GUI.
-option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
+#option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 
 # When other libraries are using a shared version of runtime libraries,
 # Google Test also has to use one.
 option(
   gtest_force_shared_crt
   "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-  OFF)
+  ON)
 
 option(gtest_build_tests "Build all of gtest's own tests." OFF)
 
@@ -89,6 +89,8 @@ endif()
 # aggressive about warnings.
 cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
 cxx_library(gtest_main "${cxx_strict}" src/gtest_main.cc)
+#target_compile_definitions(gtest PRIVATE GTEST_CREATE_SHARED_LIBRARY=1)
+target_compile_definitions(gtest INTERFACE GTEST_LINKED_AS_SHARED_LIBRARY=1)
 target_link_libraries(gtest_main gtest)
 
 # If the CMake version supports it, attach header directory information
