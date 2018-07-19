@@ -787,24 +787,14 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCr
     {
         assert(ancestor < vBaryTriangleInfo.size());
         BaryElementInfo& baryTriangleInfoA = vBaryTriangleInfo[ancestor];
-        for (auto pointIncluded : baryTriangleInfoA.vPointsIncluded)
-        {
-            obj->m_dirtyPoints.emplace(pointIncluded);
-        }
-
         baryTriangleInfoA.vPointsIncluded.clear();
     }
 }
 
 
 template <class In, class Out>
-void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDestroyFunction(unsigned int t, BaryElementInfo& baryTriangleInfo)
+void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDestroyFunction(unsigned int /*t*/, BaryElementInfo& baryTriangleInfo)
 {
-    for (auto pointIncluded : baryTriangleInfo.vPointsIncluded)
-    {
-        obj->m_dirtyPoints.emplace(pointIncluded);
-    }
-
     baryTriangleInfo.vPointsIncluded.clear();
 }
 
@@ -1739,12 +1729,6 @@ void BarycentricMapperEdgeSetTopology<In,Out>::apply ( typename Out::VecCoord& o
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::apply ( typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    if (!m_dirtyPoints.empty())
-    {
-        projectDirtyPoints(out, in);
-    }
-
-
     out.resize ( map.getValue().size() );
     const sofa::helper::vector<topology::Triangle>& triangles = this->fromTopology->getTriangles();
     for ( unsigned int i=0; i<map.getValue().size(); i++ )
