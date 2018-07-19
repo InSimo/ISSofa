@@ -767,6 +767,13 @@ public:
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
+    helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > > readPoint2TriangleMap(){ return helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
+    helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > > writePoint2TriangleMap() { return helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
+
+    helper::ReadAccessor< Data< VecBaryTriangleInfo > > readTriangle2PointsMap(){ return helper::ReadAccessor< Data< VecBaryTriangleInfo > >(d_vBaryTriangleInfo);}
+    helper::WriteAccessor< Data< VecBaryTriangleInfo > > writeTriangle2PointsMap() { return helper::WriteAccessor< Data< VecBaryTriangleInfo > >(d_vBaryTriangleInfo);}
+
+
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperTriangleSetTopology<In, Out> &b )
     {
         unsigned int size_vec;
