@@ -679,14 +679,17 @@ protected:
     topology::PointData< sofa::helper::vector<MappingData> > map;
     topology::TriangleSetTopologyContainer*	        m_fromContainer;
     topology::PointSetTopologyContainer*            m_toContainer;
-    topology::TriangleSetGeometryAlgorithms<In>*	_fromGeomAlgo;
+
+    bool m_useRestPosition;
+
     core::State< In >* m_stateFrom = nullptr;
     core::State< Out >* m_stateTo = nullptr;
+
+    topology::TriangleSetGeometryAlgorithms<In>*    _fromGeomAlgo;
 
     MatrixType* matrixJ;
     bool updateJ;
 
-    bool m_useRestPosition;
 
     // topologyData mechanism to handle topology changes (protected) 
     class TriangleInfoHandler : public sofa::component::topology::TopologyDataHandler<Triangle, VecBaryTriangleInfo>
@@ -726,6 +729,7 @@ protected:
     BarycentricMapperTriangleSetTopology(topology::TriangleSetTopologyContainer* fromTopology,
             topology::PointSetTopologyContainer* toTopology, core::State< In >* stateFrom = nullptr, core::State< Out >* stateTo = nullptr, bool useRestPosition = false)
         : TopologyBarycentricMapper<In,Out>(fromTopology, toTopology),
+          d_vBaryTriangleInfo(initData(&d_vBaryTriangleInfo, "vBaryTriangleInfo", "Vector of triangle information dedicated to topological changes")),
           map(initData(&map,"map", "mapper data")),
           m_fromContainer(fromTopology),
           m_toContainer(toTopology),
@@ -734,8 +738,7 @@ protected:
           m_stateTo(stateTo),
           _fromGeomAlgo(NULL),
           matrixJ(NULL),
-          updateJ(true),
-          d_vBaryTriangleInfo(initData(&d_vBaryTriangleInfo, "vBaryTriangleInfo", "Vector of triangle information dedicated to topological changes"))
+          updateJ(true)
     {
         m_vBTInfoHandler = std::unique_ptr<TriangleInfoHandler>(new TriangleInfoHandler(this, &d_vBaryTriangleInfo));
     }
