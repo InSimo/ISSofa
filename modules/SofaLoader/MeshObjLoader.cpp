@@ -395,7 +395,7 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
     }
 
     helper::WriteAccessor<Data<helper::vector<unsigned int>>> ptsOnBorder = d_pointsOnBorder;
-    for (unsigned int i = 0; i < nbVIn; i++)
+    for (int i = 0; i < nbVIn; i++)
     {
         if (vertTexNormMap[i].size() > 1)
         {

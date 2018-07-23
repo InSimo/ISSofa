@@ -104,6 +104,7 @@ class MapFaceTexCoord
     typedef unsigned int FaceId;
     typedef std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > PairTexFace;
     helper::vector< PairTexFace > m_mapTexFaces;
+    sofa::defaulttype::Vector2 m_defaultTexCoord = sofa::defaulttype::Vector2();
 
     typedef helper::vector< std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > >::const_iterator ConstItPair;
     typedef helper::vector< std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > >::iterator       ItPair;
@@ -114,7 +115,7 @@ public:
         if (m_mapTexFaces.empty())
         {
             std::cerr << " TexCoord container empty " << std::endl;
-            return sofa::defaulttype::Vector2();
+            return m_defaultTexCoord;
         }
 
         // An optimized implementation (credit to Thomas Jund)
@@ -133,7 +134,7 @@ public:
         if (it == m_mapTexFaces.cend())
         {
             std::cerr << " Non existent texCoord on face Id : " << faceId << " in map : "  << *this <<  std::endl;
-            return sofa::defaulttype::Vector2();
+            return m_defaultTexCoord;
         }
         else
         {
