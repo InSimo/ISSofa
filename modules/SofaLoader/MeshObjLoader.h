@@ -177,9 +177,14 @@ public:
         }
     }
 
-    bool isDuplicated() const
+    inline bool isDuplicated() const
     {
         return (m_mapTexFaces.size() != 1);
+    }
+
+    inline std::size_t size() const
+    {
+        return m_mapTexFaces.size();
     }
 
     /// write to an output stream
