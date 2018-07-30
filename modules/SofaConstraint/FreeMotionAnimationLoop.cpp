@@ -311,6 +311,12 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
         constraintSolver->postStabilize(&cparams, pos, vel);
         // linearize everything again against the post stabilized positions
         mop.propagateX(pos);
+
+        // re update mapppings
+        this->gnode->execute<UpdateMappingVisitor>(params);
+        UpdateMappingEndEvent ev(dt);
+        PropagateEventVisitor act(params, &ev);
+        this->gnode->execute(act);
     }
 
 #ifndef SOFA_NO_UPDATE_BBOX
