@@ -203,6 +203,8 @@ public:
     ///< Returns the logarithm of the input quaternion
     defaulttype::Vec<3,Real> getLog(bool normalize=false, Real epsilon = Real(1e-6) ) const;
 
+    ///< Returns Euler angles of the input quaternion for large angles
+    defaulttype::Vec<3, Real> getEuler(bool normalize = false, Real epsilon = Real(1e-6)) const;
 
     /*! Returns the slerp interpolation of Quaternions \p a and \p b, at time \p t.
 

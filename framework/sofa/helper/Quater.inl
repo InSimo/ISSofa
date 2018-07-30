@@ -221,18 +221,14 @@ template<class Real>
 Quater<Real> Quater<Real>::inverse() const
 {
     Quater<Real>    ret;
-    Real  norm = std::sqrt(_q[0] * _q[0] +
-                                _q[1] * _q[1] +
-                                _q[2] * _q[2] +
-                                _q[3] * _q[3]);
+    const Real _norm = norm();
 
-    if (norm != Real(0.0))
+    if (_norm != Real(0.0))
     {
-        norm = Real(1.0) / norm;
-        ret._q[3] = _q[3] * norm;
+        ret._q[3] = _q[3] / _norm;
         for (int i = 0; i < 3; i++)
         {
-            ret._q[i] = -_q[i] * norm;
+            ret._q[i] = -_q[i] / _norm;
         }
     }
     else
@@ -633,6 +629,34 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
     }
 
     return v;
+}
+
+// return euler angles with roll and yaw between -pi and +pi
+//      and pitch between -pi/2 and pi/2
+template<class Real>
+defaulttype::Vec<3, Real> Quater<Real>::getEuler(bool normalize, Real epsilon) const
+{
+    defaulttype::Vec<3, Real> v;
+    
+    // roll (x-axis rotation)
+    double sinr = +2.0 * (_q[3] * _q[0] + _q[1] * _q[2]);
+    double cosr = +1.0 - 2.0 * (_q[0] * _q[0] + _q[1] * _q[1]);
+    v[0] = atan2(sinr, cosr);
+
+    // pitch (y-axis rotation)
+    double sinp = +2.0 * (_q[3] * _q[1] - _q[2] * _q[0]);
+    if (fabs(sinp) >= 1)
+        v[1] = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+    else
+        v[1] = asin(sinp);
+
+    // yaw (z-axis rotation)
+    double siny = +2.0 * (_q[3] * _q[2] + _q[0] * _q[1]);
+    double cosy = +1.0 - 2.0 * (_q[1] * _q[1] + _q[2] * _q[2]);
+    v[2] = atan2(siny, cosy);
+
+    return v;
+
 }
 
 
