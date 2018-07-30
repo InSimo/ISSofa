@@ -439,7 +439,7 @@ public:
 
     RigidCoord<3,real> operator-(const RigidCoord<3,real>& a) const
     {
-        return RigidCoord<3,real>(this->center - a.getCenter(), a.orientation.inverse() * this->orientation);
+        return RigidCoord<3,real>(this->center - a.getCenter(), Quat::quatDiff(this->orientation, a.orientation));
     }
 
     RigidCoord<3,real> operator+(const RigidCoord<3,real>& a) const

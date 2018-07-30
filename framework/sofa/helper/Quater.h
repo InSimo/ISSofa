@@ -295,7 +295,7 @@ public:
     /// Return the quaternion resulting of the movement between 2 quaternions
     static Quater quatDiff( const Quater& a, const Quater& b)
     {
-        return  b.inverse() * a;
+        return  a * b.inverse();
     }
 
     /// Return the eulerian vector resulting of the movement between 2 quaternions
