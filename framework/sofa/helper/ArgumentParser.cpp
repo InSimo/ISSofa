@@ -61,15 +61,15 @@ void ArgumentBase::print () const
 //========================================================================
 /// Constructor using a global help string
 ArgumentParser::ArgumentParser( const string& helpstr, char hlpShrt, const string& hlpLng )
-    : files(NULL)
+    : args(NULL)
     , globalHelp( helpstr )
     , helpShortName(hlpShrt)
     , helpLongName(hlpLng)
 {}
 
-/// Constructor using a global help string and a list of filenames
-ArgumentParser::ArgumentParser( std::vector<std::string>* files, const string& helpstr, char hlpShrt, const string& hlpLng )
-    : files(files)
+/// Constructor using a global help string and a list of scene filenames / arguments
+ArgumentParser::ArgumentParser( std::vector<std::string>* args, const string& helpstr, char hlpShrt, const string& hlpLng )
+    : args(args)
     , globalHelp( helpstr )
     , helpShortName(hlpShrt)
     , helpLongName(hlpLng)
@@ -116,22 +116,21 @@ void ArgumentParser::operator () ( std::list<std::string> str )
             for( ArgVec::const_iterator a=commands.begin(), aend=commands.end(); a!=aend; ++a )
                 (*a)->print();
             std::cout << std::noboolalpha;
-            if( files )
+            if( args )
                 std::cout << "others: file names" << std::endl;
             exit(1);
         }
 
         // not an option
-        else if( files && name[0]!='-' )
+        else if( args && name[0]!='-' )
         {
-            files->push_back(name);
+            args->push_back(name);
         }
 
-        // indicating the next argument is not an option
-        else if( files && name=="--" )
+        // indicating the remaining arguments are not options
+        else if( args && name=="--" )
         {
-            files->push_back(str.front());
-            str.pop_front();
+            break;
         }
 
         // long name
@@ -169,6 +168,13 @@ void ArgumentParser::operator () ( std::list<std::string> str )
 
         //
         else std::cerr << "Unknown option " << name << std::endl;
+    }
+
+    // Parse remaining arguments
+    while (!str.empty())
+    {
+        args->push_back(str.front());
+        str.pop_front();
     }
 
     // Unset mandatory arguments ?

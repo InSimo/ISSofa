@@ -153,14 +153,14 @@ int main(int argc, char** argv)
     std::string simulationType = "tree";
 #endif
     std::vector<std::string> plugins;
-    std::vector<std::string> files;
+    std::vector<std::string> args;
 #ifdef SOFA_SMP
     std::string nProcs="";
     bool        disableStealing = false;
     bool        affinity = false;
 #endif
 
-    sofa::helper::parse(&files, "This is a SOFA application. Here are the command line arguments")
+    sofa::helper::parse(&args, "This is a SOFA application. Here are the command line arguments")
     // alphabetical order on short name
     .option(&startAnim,'a',"start","start the animation loop")
     .option(&computationTimeSampling,'c',"computationTimeSampling","Frequency of display of the computation time statistics, in number of animation steps. 0 means never.")
@@ -236,8 +236,8 @@ int main(int argc, char** argv)
 
     sofa::simulation::xml::initXml();
 
-    if (!files.empty())
-        fileName = files[0];
+    if (!args.empty())
+        fileName = args[0];
 
     for (unsigned int i=0; i<plugins.size(); i++)
         sofa::helper::system::PluginManager::getInstance().loadPlugin(plugins[i]);

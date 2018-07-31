@@ -251,7 +251,7 @@ class SOFA_HELPER_API ArgumentParser
     ArgVec commands;
 
     /// Set of remaining file
-    std::vector<std::string>* files;
+    std::vector<std::string>* args;
 
     // help stuff
     string globalHelp;    ///< Overall presentation
@@ -264,7 +264,7 @@ public:
     ArgumentParser( const string& helpstr="", char hlpShrt='h', const string& hlpLng="help" );
 
     /// Constructor using a global help string and a list of filenames
-    ArgumentParser( std::vector<std::string>* files, const string& helpstr="", char hlpShrt='h', const string& hlpLng="help" );
+    ArgumentParser( std::vector<std::string>* args, const string& helpstr="", char hlpShrt='h', const string& hlpLng="help" );
 
     /// Constructor using a global help string
     ~ArgumentParser();
@@ -372,9 +372,9 @@ inline ArgumentParser parse( const std::string& helpstr="", char hs='h', const s
     return ArgumentParser(helpstr,hs,hl);
 }
 
-inline ArgumentParser parse( std::vector<std::string>* files, const std::string& helpstr="", char hs='h', const std::string& hl="help" )
+inline ArgumentParser parse( std::vector<std::string>* args, const std::string& helpstr="", char hs='h', const std::string& hl="help" )
 {
-    return ArgumentParser(files,helpstr,hs,hl);
+    return ArgumentParser(args,helpstr,hs,hl);
 }
 
 } // namespace helper
