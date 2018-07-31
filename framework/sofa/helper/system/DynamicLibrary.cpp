@@ -67,7 +67,7 @@ const std::string& DynamicLibrary::Handle::filename() const
 }
 
 
-DynamicLibrary::Handle DynamicLibrary::load(const std::string& filename)
+DynamicLibrary::Handle DynamicLibrary::load(const std::string& filename, bool global)
 {
 #if defined(_XBOX) || defined(PS3)
     // not supported
@@ -76,7 +76,15 @@ DynamicLibrary::Handle DynamicLibrary::load(const std::string& filename)
 # if defined(WIN32)
     void *handle = ::LoadLibraryA(filename.c_str());
 # else
-    void *handle = ::dlopen(filename.c_str(), RTLD_NOW);
+    void *handle;
+    if (global)
+    {
+        handle = ::dlopen(filename.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    }
+    else
+    {
+        handle = ::dlopen(filename.c_str(), RTLD_NOW);
+    }
 # endif
     if (handle == NULL)
         fetchLastError();

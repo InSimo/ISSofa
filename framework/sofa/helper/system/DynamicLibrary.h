@@ -68,7 +68,7 @@ public:
     /// @param filename The library to load.
     /// @return A handle, that must be unloaded with unload().
     /// Use Handle::isValid() to know if the loading was successful.
-    static Handle load(const std::string& filename);
+    static Handle load(const std::string& filename, bool global = false);
 
     /// @brief Unload a dynamic library loaded with load().
     ///
