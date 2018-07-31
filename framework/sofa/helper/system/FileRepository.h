@@ -31,6 +31,7 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include <map>
 
 namespace sofa
 {
@@ -65,6 +66,9 @@ public:
 
     ~FileRepository();
 
+    /// Return vector of strings result of spliting path with delimiter of OS.
+    std::vector<std::string> splitPath(const std::string& path);
+
     /// Adds a path to the front of the set of paths.
     void addFirstPath(const std::string& path);
 
@@ -86,6 +90,11 @@ public:
     static std::string relativeToPath(std::string path, std::string refPath);
 
     const std::vector< std::string > &getPaths() const {return vpath;};
+    const std::vector< std::string > getEnvPaths(std::string env) const
+    {
+        std::map<std::string,std::vector<std::string>>::const_iterator mapIt = envpath.find(env);
+        return mapIt->second;
+    }
 
     /// Find file using the stored set of paths, refering to the m_findFileFn method
     /// @param basedir override current directory (optional)
@@ -160,6 +169,7 @@ protected:
 
     /// Vector of paths.
     std::vector<std::string> vpath;
+    std::map<std::string,std::vector<std::string>> envpath;
 
     /// method used to get files
     std::function < bool(const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog) > m_getFileContentFn;

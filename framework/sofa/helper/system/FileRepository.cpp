@@ -41,6 +41,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <streambuf>
 
 namespace sofa
@@ -69,61 +70,104 @@ std::string cleanPath( const std::string& path )
 }
 
 #if defined (WIN32) || defined (_XBOX)
+FileRepository EnvRepository("SOFA_ENV_PATH", "./sofa.env;../sofa.env;../../sofa.env";
+FileRepository DataRepository("SOFA_DATA_PATH", "../share;../examples;../share/sofa;../share/sofa/examples");
 FileRepository PluginRepository("SOFA_PLUGIN_PATH","./");
 #else
+FileRepository EnvRepository("SOFA_ENV_PATH", "sofa.env:../sofa.env:../../sofa.env");
+FileRepository DataRepository("SOFA_DATA_PATH", "../share:../examples:../share/sofa:../share/sofa/examples");
 FileRepository PluginRepository("SOFA_PLUGIN_PATH","../lib");
-#endif
-#if defined (WIN32) || defined (_XBOX) || defined(PS3)
-FileRepository DataRepository("SOFA_DATA_PATH", "../share;../examples");
-#elif defined (__APPLE__)
-FileRepository DataRepository("SOFA_DATA_PATH", "../share:../examples:../Resources/examples:../Resources:../../../../examples:../../../../share");
-#else
-FileRepository DataRepository("SOFA_DATA_PATH", "../share:../examples:../../Verification/data:../../Verification/simulation:../share/sofa:../share/sofa/examples:/usr/share/sofa/examples:/usr/share/sofa");
-#endif
-
-
-#if defined (_XBOX) || defined(PS3)
-char* getenv(const char* varname) { return NULL; } // NOT IMPLEMENTED
 #endif
 
 FileRepository::FileRepository(const char* envVar, const char* relativePath)
 {
-    if (envVar != NULL && envVar[0]!='\0')
+    if (envVar == "SOFA_ENV_PATH")
     {
-        const char* envpath = getenv(envVar);
-        if (envpath != NULL && envpath[0]!='\0')
-            addFirstPath(envpath);
-    }
-    if (relativePath != NULL && relativePath[0]!='\0')
-    {
-        std::string path = relativePath;
-        size_t p0 = 0;
-        while ( p0 < path.size() )
+        std::vector<std::string> file_env_paths = splitPath(relativePath);
+
+        for (unsigned int i = 0; i < file_env_paths.size(); i++)
         {
-            size_t p1 = path.find(entrySeparator(),p0);
-            if (p1 == std::string::npos) p1 = path.size();
-            if (p1>p0+1)
+            std::string base;
+            base = SetDirectory::GetProcessFullPath(base.c_str());
+            std::size_t found = base.find_last_of("/\\");
+            base = base.substr(0,found);
+            if (findFileIn(file_env_paths[i], base))
             {
-                std::string p = path.substr(p0,p1-p0);
-                addLastPath(SetDirectory::GetRelativeFromProcess(p.c_str()));
+                std::string newfname = SetDirectory::GetRelativeFromDir(file_env_paths[i].c_str(), base.c_str());
+                std::ifstream infile(newfname);
+                std::string line;
+                while (std::getline(infile, line))
+                {
+                    std::size_t pos = line.find("=");
+                    std::string env = line.substr(0, pos);
+                    std::string value = line.substr(pos + 1);
+
+                    std::map<std::string,std::vector<std::string>>::iterator mapIt = envpath.find(env);
+                    if ( mapIt == envpath.end() )
+                    {
+                        std::vector<std::string> toInsert{value};
+                        envpath.insert ( std::pair<std::string,std::vector<std::string>>(env,toInsert) );
+                    }
+                    else
+                    {
+                        mapIt->second.push_back(value);
+                    }
+                }
             }
-            p0 = p1+1;
         }
     }
-    //print();
+    else
+    {
+        if (envVar != NULL && envVar[0]!='\0')
+        {
+            const char* envpath = getenv(envVar);
+            if (envpath != NULL && envpath[0]!='\0')
+                addFirstPath(envpath);
+        }
+        if (relativePath != NULL && relativePath[0]!='\0')
+        {
+            std::vector<std::string> paths = splitPath(relativePath);
+            for (const auto& p : paths)
+            {
+                addLastPath(SetDirectory::GetRelativeFromProcess(p.c_str()));
+            }
+        }
+        std::vector<std::string> env = EnvRepository.getEnvPaths(envVar);
+        for (const auto& e : env)
+        {
+            addLastPath(SetDirectory::GetRelativeFromProcess(e.c_str()));
+        }
 
-    m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog)
-    {
-        return this->getFileContentDefault(filename, filecontent, isBinary, errlog);
-    };
-    m_findFileFn = [this](std::string& filename, const std::string basedir, std::ostream* errlog)
-    {
-        return this->findFileDefault(filename, basedir, errlog);
-    };
+        m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog)
+        {
+            return this->getFileContentDefault(filename, filecontent, isBinary, errlog);
+        };
+        m_findFileFn = [this](std::string& filename, const std::string basedir, std::ostream* errlog)
+        {
+            return this->findFileDefault(filename, basedir, errlog);
+        };
+    }
 }
 
 FileRepository::~FileRepository()
 {
+}
+
+std::vector<std::string> FileRepository::splitPath(const std::string& path)
+{
+    std::vector<std::string> result;
+    size_t p0 = 0;
+    while ( p0 < path.size() )
+    {
+        size_t p1 = path.find(entrySeparator(),p0);
+        if (p1 == std::string::npos) p1 = path.size();
+        if (p1>p0+1)
+        {
+            result.push_back(path.substr(p0,p1-p0));
+        }
+        p0 = p1+1;
+    }
+    return result;
 }
 
 std::string FileRepository::cleanPath( const std::string& path )
