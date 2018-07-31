@@ -298,8 +298,8 @@ int main(int argc, char** argv)
         }
     }
 
-    sofa::simulation::Node::SPtr groot = sofa::core::objectmodel::SPtr_dynamic_cast<sofa::simulation::Node>( sofa::simulation::getSimulation()->load(fileName.c_str()));
-    if (groot==NULL)
+    sofa::simulation::Node::SPtr groot = sofa::simulation::getSimulation()->load(fileName.c_str(), args);
+    if (!groot)
     {
         groot = sofa::simulation::getSimulation()->createNewGraph("");
     }

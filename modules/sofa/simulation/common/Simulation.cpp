@@ -56,24 +56,9 @@
 
 
 #include <fstream>
-#include <string.h>
-
-
-
-
-// #include <sofa/simulation/common/FindByTypeVisitor.h>
-
-
-
-// #include <sofa/helper/system/FileRepository.h>
-
-// #include <fstream>
-// #include <string.h>
-// #ifndef WIN32
-// #include <locale.h>
-// #endif
-
-
+//#include <string.h>
+#include <vector>
+#include <string>
 
 namespace sofa
 {
@@ -205,11 +190,7 @@ void Simulation::exportGraph ( Node* root, const char* filename )
 /// Initialize the scene.
 void Simulation::init ( Node* root )
 {
-    //cerr<<"Simulation::init"<<endl;
     if ( !root ) return;
-    /*sofa::core::ExecParams* params =*/ sofa::core::ExecParams::defaultInstance();
-
-    //setContext( root->getContext());
 
     if (!root->getAnimationLoop())
     {
@@ -513,13 +494,13 @@ void Simulation::dumpState ( Node* root, std::ofstream& out )
 
 
 /// Load a scene
-Node::SPtr Simulation::load ( const char *filename )
+Node::SPtr Simulation::load(const char *filename, const std::vector<std::string>& sceneArguments)
 {
     SceneLoader *loader = SceneLoaderFactory::getInstance()->getEntryFileName(filename);
 
     if (loader)
     {
-        sRoot = loader->load(filename);
+        sRoot = loader->load(filename, sceneArguments);
         return sRoot;
     }
 

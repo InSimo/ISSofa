@@ -68,8 +68,8 @@ public:
 
     virtual bool canWriteFileExtension(const char * /*extension*/) { return false; }
 
-    /// load the file
-    virtual sofa::simulation::Node::SPtr load(const char *filename) = 0;
+    /// load the file with the given arguments
+    virtual sofa::simulation::Node::SPtr load(const char *filename, const std::vector<std::string>& sceneArguments) = 0;
 
     /// write scene graph in the file
     virtual void write(sofa::simulation::Node* /*node*/, const char * /*filename*/) {}

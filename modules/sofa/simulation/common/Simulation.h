@@ -129,8 +129,8 @@ public:
     /// Dump the current state in the given stream
     virtual void dumpState( Node* root, std::ofstream& out );
 
-    /// Load a scene from a file.
-    virtual Node::SPtr load(const char* /* filename */);
+    /// Load a scene from a file with the given arguments
+    virtual Node::SPtr load(const char *filename, const std::vector<std::string>& sceneArguments = {});
 
     /// Unload a scene from a Node.
     virtual void unload(Node::SPtr root);

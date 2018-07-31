@@ -62,7 +62,7 @@ void SceneLoaderPHP::getExtensionList(ExtensionList* list)
 }
 
 
-sofa::simulation::Node::SPtr SceneLoaderPHP::load(const char *filename)
+sofa::simulation::Node::SPtr SceneLoaderPHP::load(const char *filename, const std::vector<std::string>& /*sceneArguments*/)
 {
     sofa::simulation::Node::SPtr root;
 

@@ -37,16 +37,16 @@ class SOFA_SIMULATION_COMMON_API SceneLoaderXML : public SceneLoader
 {
 public:
     /// Pre-loading check
-    virtual bool canLoadFileExtension(const char *extension);
+    virtual bool canLoadFileExtension(const char *extension) override;
 
     /// Pre-saving check
-    virtual bool canWriteFileExtension(const char *extension);
+    virtual bool canWriteFileExtension(const char *extension) override;
 
     /// load the file
-    virtual sofa::simulation::Node::SPtr load(const char *filename);
+    virtual sofa::simulation::Node::SPtr load(const char *filename, const std::vector<std::string>& sceneArguments) override;
 
     /// write the file
-    virtual void write(sofa::simulation::Node* node, const char *filename);
+    virtual void write(sofa::simulation::Node* node, const char *filename) override;
 
     /// generic function to process xml tree (after loading the xml structure)
     static Node::SPtr processXML(xml::BaseElement* xml, const char *filename);
@@ -55,10 +55,10 @@ public:
     static Node::SPtr loadFromMemory ( const char *filename, const char *data, unsigned int size );
 
     /// get the file type description
-    virtual std::string getFileTypeDesc();
+    virtual std::string getFileTypeDesc() override;
 
     /// get the list of file extensions
-    virtual void getExtensionList(ExtensionList* list);
+    virtual void getExtensionList(ExtensionList* list) override;
 
     // Test if load succeed
     static bool loadSucceed;
