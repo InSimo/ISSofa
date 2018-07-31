@@ -70,11 +70,14 @@ public:
     void setFilename(std::string f) {filename.setValue(f);}
 
     vector<ArticulationCenter*> getArticulationCenters() { return articulationCenters; }
-    ArticulationCenter* getArticulationCenterAsChild(int index);
-    vector<ArticulationCenter*> getAcendantList(int index);
+    ArticulationCenter* getArticulationCenterAsChild(int index, vector<ArticulationCenter*> acs);
+    vector<ArticulationCenter*> getAscendantList(int index, vector<ArticulationCenter*> acs);
+    vector<ArticulationCenter*> getArticulationCenterAsParent(int index, vector<ArticulationCenter*> acs);
+    vector<ArticulationCenter*> getDescendantList(int index, vector<ArticulationCenter*> acs);
 
     vector<ArticulationCenter*> articulationCenters;
-    vector<ArticulationCenter*> acendantList;
+    vector<ArticulationCenter*> ascendantList;
+    vector<ArticulationCenter*> descendantList;
 
     bool chargedFromFile;
     int numOfFrames;

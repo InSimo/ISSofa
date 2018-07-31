@@ -59,29 +59,71 @@ ArticulationCenter::ArticulationCenter():
 {
 }
 
-ArticulationCenter* ArticulatedHierarchyContainer::getArticulationCenterAsChild(int index)
+ArticulationCenter* ArticulatedHierarchyContainer::getArticulationCenterAsChild(int index, vector<ArticulationCenter*> acs)
 {
-    vector<ArticulationCenter*>::const_iterator ac = articulationCenters.begin();
-    vector<ArticulationCenter*>::const_iterator acEnd = articulationCenters.end();
-    for (; ac != acEnd; ac++)
+    for (ArticulationCenter* ac : acs)
     {
-        if ((*ac)->childIndex.getValue() == index)
-            return (*ac);
+        if (ac->childIndex.getValue() == index)
+            return ac;
     }
-    return (*ac);
+    return NULL;
 }
 
-vector<ArticulationCenter*> ArticulatedHierarchyContainer::getAcendantList(int index)
+vector<ArticulationCenter*> ArticulatedHierarchyContainer::getAscendantList(int index, vector<ArticulationCenter*> acs)
 {
-    unsigned int i=0;
-    acendantList.clear();
-    while (index !=0)
+    // We consider that bifurcation IS NOT possible in the ascendant list
+    unsigned int maxSize = acs.size();
+    ascendantList.clear();
+    for (unsigned int i = 0; i < maxSize; i++)
     {
-        acendantList.push_back(getArticulationCenterAsChild(index));
-        index = acendantList[i]->parentIndex.getValue();
-        i++;
+        ArticulationCenter* ac_parent = getArticulationCenterAsChild(index, acs);
+        if (ac_parent != NULL)
+        {
+            ascendantList.push_back(ac_parent);
+            index = ac_parent->parentIndex.getValue();
+        }
+        else
+        {
+            return ascendantList;
+        }
     }
-    return acendantList;
+    return ascendantList;
+}
+
+vector<ArticulationCenter*> ArticulatedHierarchyContainer::getArticulationCenterAsParent(int index, vector<ArticulationCenter*> acs)
+{
+    vector<ArticulationCenter*> list;
+    for (ArticulationCenter* ac : acs)
+    {
+        if (ac->parentIndex.getValue() == index)
+        {
+            list.push_back(ac);
+        }
+    }
+    return list;
+}
+
+vector<ArticulationCenter*> ArticulatedHierarchyContainer::getDescendantList(int index, vector<ArticulationCenter*> acs)
+{
+    // We consider that bifurcation IS possible in the descendant list
+    unsigned int maxSize = acs.size();
+    vector<int> indices;
+    indices.push_back(index);
+    descendantList.clear();
+    for (unsigned int i = 0; i < maxSize; i++)
+    {
+        vector<ArticulationCenter*> ac_childs = getArticulationCenterAsParent(indices[i], acs);
+        if (ac_childs.size() > 0)
+        {
+            for (ArticulationCenter* ac_child : ac_childs)
+            {
+                descendantList.push_back(ac_child);
+                int childIndex = ac_child->childIndex.getValue();
+                indices.push_back(childIndex); 
+            }
+        }
+    }
+    return descendantList;
 }
 
 ArticulatedHierarchyContainer::ArticulatedHierarchyContainer():
@@ -236,7 +278,40 @@ void ArticulatedHierarchyContainer::init ()
     }
     else
     {
-        context->getTreeObjects<ArticulationCenter>(&articulationCenters);
+        vector<ArticulationCenter*> unclassifiedArticulationCenters, classifiedArticulationCenters;
+        context->getTreeObjects<ArticulationCenter>(&unclassifiedArticulationCenters);
+        
+        vector<ArticulationCenter*>::const_iterator uac = unclassifiedArticulationCenters.begin();
+        vector<ArticulationCenter*>::const_iterator uacEnd = unclassifiedArticulationCenters.end();
+
+        //Find root parent
+        int rootParent = 0;
+        for (; uac != uacEnd; uac++)
+        {
+            int parent = (*uac)->parentIndex.getValue();
+            if (getAscendantList(parent, unclassifiedArticulationCenters).size() == 0)
+            {
+                rootParent = parent;
+                break;
+            }
+        }
+
+        //Starting from root parent, get the descendant articulation centers
+        if (uac != uacEnd)
+        {
+            classifiedArticulationCenters = getDescendantList(rootParent, unclassifiedArticulationCenters);
+        }
+        
+        if (classifiedArticulationCenters.size() == unclassifiedArticulationCenters.size())
+        {
+            articulationCenters = classifiedArticulationCenters;
+        }
+        else
+        {
+            articulationCenters = unclassifiedArticulationCenters;
+            this->serr << "Articulations Centers are not well classified." << this->sendl;
+        }
+
         vector<ArticulationCenter*>::const_iterator ac = articulationCenters.begin();
         vector<ArticulationCenter*>::const_iterator acEnd = articulationCenters.end();
         for (; ac != acEnd; ac++)

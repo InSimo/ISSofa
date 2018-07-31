@@ -562,7 +562,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJT( InMatrixDeriv& out, 
                 const OutDeriv valueConst = colIt.val();
 
                 sofa::defaulttype::Vec<3,OutReal> C = xto[childIndex].getCenter();
-                vector< sofa::component::container::ArticulationCenter* > ACList = ahc->getAcendantList(childIndex);
+                vector< sofa::component::container::ArticulationCenter* > ACList = ahc->getAscendantList(childIndex, articulationCenters);
 
                 vector< sofa::component::container::ArticulationCenter* >::const_iterator ac = ACList.begin();
                 vector< sofa::component::container::ArticulationCenter* >::const_iterator acEnd = ACList.end();
