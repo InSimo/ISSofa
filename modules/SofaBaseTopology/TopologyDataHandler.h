@@ -135,9 +135,9 @@ protected:
 
     /// Add some values. Values are added at the end of the vector.
     /// This (new) version gives more information for element indices and ancestry
-    virtual void add( const sofa::helper::vector<unsigned int> & index,
+    virtual void add( const sofa::helper::vector<unsigned int>& index,
             const sofa::helper::vector< TopologyElementType >& elems,
-            const sofa::helper::vector< sofa::helper::vector< unsigned int > > &ancestors,
+            const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestors,
             const sofa::helper::vector< sofa::helper::vector< double > >& coefs,
             const sofa::helper::vector< AncestorElem >& ancestorElems);
 
@@ -145,21 +145,21 @@ protected:
     virtual void remove( const sofa::helper::vector<unsigned int> &index );
 
     template<class T>
-    inline void removeHelper(const sofa::helper::vector<unsigned int> &index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
+    inline void removeHelper(const sofa::helper::vector<unsigned int>& index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
     template<class T>
-    inline void removeHelper(const sofa::helper::vector<unsigned int> &index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
+    inline void removeHelper(const sofa::helper::vector<unsigned int>& index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
     template<class T>
-    inline void removeHelper(const sofa::helper::vector<unsigned int> &index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
+    inline void removeHelper(const sofa::helper::vector<unsigned int>& index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
 
     /// Reorder the values.
-    virtual void renumber( const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index);
+    virtual void renumber( const sofa::helper::vector<unsigned int>& index, const sofa::helper::vector<unsigned int>& inv_index);
 
     template<class T>
-    inline void renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
+    inline void renumberHelper(const sofa::helper::vector<unsigned int>& index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>);
     template<class T>
-    inline void renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
+    inline void renumberHelper(const sofa::helper::vector<unsigned int>& index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>);
     template<class T>
-    inline void renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
+    inline void renumberHelper(const sofa::helper::vector<unsigned int>& index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>);
 
     /// Move a list of points
     virtual void move( const sofa::helper::vector<unsigned int> &indexList,
