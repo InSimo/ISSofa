@@ -269,12 +269,12 @@ void TTriangleModel<DataTypes>::updateFlags(int /*ntri*/)
     // flags value based on the angle made by the normal between adjacent triangles. 
     const bool computeAngleAtEdge = x0.size() == x.size();
 
-    auto triangleFlags =  sofa::helper::write(d_triangleFlags);
+    sofa::helper::WriteAccessor< sofa::Data < sofa::helper::vector< int >  > > triangleFlags =  d_triangleFlags;
     Real angleThreshold = d_triangleFlagBorderAngleThreshold.getValue();
     angleThreshold *= M_PI / Real(180);
     const Real cosAngleThreshold = std::cos(angleThreshold);
 
-    for (sofa::core::topology::BaseMeshTopology::TriangleID tid=0; tid< triangles->size(); ++tid)
+    for (sofa::core::topology::BaseMeshTopology::TriangleID tid=0; tid< triangleFlags.size(); ++tid)
     {
         sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[tid];
         int f = 0;
