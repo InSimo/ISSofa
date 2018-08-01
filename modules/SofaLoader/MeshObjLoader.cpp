@@ -437,14 +437,16 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
 
             for (size_t i = 0; i < tIndices.size(); ++i)
             {
-                vTexCoordsInFace[nodes[i]].setTexCoord(fi, my_texCoords[tIndices[i]]);
+                unsigned int ti = (unsigned int)tIndices[i];
+                if (ti < my_texCoords.size())
+                    vTexCoordsInFace[nodes[i]].setTexCoord(fi, my_texCoords[ti]);
             }
 
             for (size_t i = 0; i < nodes.size(); ++i)
             {
-                unsigned int pi = nodes[i];
-                unsigned int ni = nIndices[i];
-                unsigned int ti = tIndices[i];
+                unsigned int pi = (unsigned int)nodes[i];
+                unsigned int ni = (unsigned int)nIndices[i];
+                unsigned int ti = (unsigned int)tIndices[i];
                 if (pi >= vertexCount) continue;
                 if (ti < my_texCoords.size() && (vTexCoords[pi] == sofa::defaulttype::Vector2() ||
                                                  (my_texCoords[ti]-vTexCoords[pi])*sofa::defaulttype::Vector2(-1,1) > 0))
