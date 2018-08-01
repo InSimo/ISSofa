@@ -50,13 +50,13 @@ namespace system
 /// If the filename does not start with "/", "./", or "../" :
 /// 2: In the directory path specified using addFirstPath method.
 /// 3: In the directory path specified using an environment variable (default to SOFA_DATA_PATH).
-/// 4: In the default directories relative to the main executable (default to ../share).
-/// 5: In the directory path specified using addLastPath method.
+/// 4: In the directory path specified in a sofa.env file.
+/// 5: In the default directories relative to the main executable (default to ../share).
+/// 6: In the directory path specified using addLastPath method.
 ///
 /// For file name starting with '/', './' or '../' only the first step is used.
 ///
 /// A path is considered as a concatenation of directories separated by : on linux / mac and ; on windows
-// A small utility class to temporarly set the current directory to the same as a specified file
 class SOFA_HELPER_API FileRepository
 {
 public:
@@ -67,13 +67,13 @@ public:
     ~FileRepository();
 
     /// Return vector of strings result of spliting path with delimiter of OS.
-    std::vector<std::string> splitPath(const std::string& path);
+    static std::vector<std::string> splitPath(const std::string& path);
+
+	/// Replaces every occurrences of "//" by "/"
+	static std::string cleanPath( const std::string& path );
 
     /// Adds a path to the front of the set of paths.
     void addFirstPath(const std::string& path);
-
-	/// Replaces every occurrences of "//" by "/"
-	std::string cleanPath( const std::string& path );
 
     /// Adds a path to the back of the set of paths.
     void addLastPath(const std::string& path);
@@ -89,12 +89,21 @@ public:
     /// Under WIN32 the method returns a lower cased unix formatted path.
     static std::string relativeToPath(std::string path, std::string refPath);
 
-    const std::vector< std::string > &getPaths() const {return vpath;};
-    const std::vector< std::string > getEnvPaths(std::string env) const
-    {
-        std::map<std::string,std::vector<std::string>>::const_iterator mapIt = envpath.find(env);
-        return mapIt->second;
-    }
+    /// Return concatenation of paths from:
+    ///
+    /// 1. given environment variable from execution environment (interpreted as relative to current directory)
+    /// 2. entries with the same name as the environment variable from sofa.env in EnvRepository (interpreted as relative to each file) (DISABLED if envVar is SOFA_ENV_PATH)
+    /// 3. default paths given in relativePaths (relative to the current executable)
+    static std::vector< std::string > GetEnvPaths(const char* envVar, const char* relativePaths = 0);
+
+    /// Return concatenation of items from:
+    ///
+    /// 1. given environment variable from execution environment
+    /// 2. entries with the same name as the environment variable from sofa.env in EnvRepository (DISABLED if envVar is SOFA_ENV_PATH)
+    /// 3. default items given in defaultItems
+    static std::vector< std::string > GetEnvItems(const char* envVar, const char* defaultItems = 0);
+
+    const std::vector< std::string > &getPaths() const {return vpath;}
 
     /// Find file using the stored set of paths, refering to the m_findFileFn method
     /// @param basedir override current directory (optional)
@@ -127,7 +136,7 @@ public:
 
 
     /// OS-dependant character separing entries in list of paths.
-    static char entrySeparator()
+    static constexpr char entrySeparator()
     {
 #ifdef WIN32
         return ';';
@@ -169,7 +178,6 @@ protected:
 
     /// Vector of paths.
     std::vector<std::string> vpath;
-    std::map<std::string,std::vector<std::string>> envpath;
 
     /// method used to get files
     std::function < bool(const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog) > m_getFileContentFn;
@@ -181,8 +189,9 @@ protected:
     static bool findFileIn(std::string& filename, const std::string& path);
 };
 
-extern SOFA_HELPER_API FileRepository DataRepository; ///< Default repository
-extern SOFA_HELPER_API FileRepository PluginRepository; ///< Default repository
+extern SOFA_HELPER_API FileRepository DataRepository; ///< Data search repository
+extern SOFA_HELPER_API FileRepository PluginRepository; ///< Plugin search repository
+extern SOFA_HELPER_API FileRepository EnvRepository; ///< Env files repository
 
 } // namespace system
 

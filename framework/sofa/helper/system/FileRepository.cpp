@@ -43,6 +43,7 @@
 #include <fstream>
 #include <sstream>
 #include <streambuf>
+#include <set>
 
 namespace sofa
 {
@@ -70,7 +71,7 @@ std::string cleanPath( const std::string& path )
 }
 
 #if defined (WIN32) || defined (_XBOX)
-FileRepository EnvRepository("SOFA_ENV_PATH", "./sofa.env;../sofa.env;../../sofa.env";
+FileRepository EnvRepository("SOFA_ENV_PATH", "./sofa.env;../sofa.env;../../sofa.env");
 FileRepository DataRepository("SOFA_DATA_PATH", "../share;../examples;../share/sofa;../share/sofa/examples");
 FileRepository PluginRepository("SOFA_PLUGIN_PATH","./");
 #else
@@ -79,74 +80,131 @@ FileRepository DataRepository("SOFA_DATA_PATH", "../share:../examples:../share/s
 FileRepository PluginRepository("SOFA_PLUGIN_PATH","../lib");
 #endif
 
-FileRepository::FileRepository(const char* envVar, const char* relativePath)
+std::vector< std::string > FileRepository::GetEnvPaths(const char* envVar, const char* relativePaths)
 {
-    if (envVar == "SOFA_ENV_PATH")
+    std::vector< std::string > results;
+    std::set< std::string > rset; // quick way to remove duplicates
+    /// 1. given environment variable from execution environment (interpreted as relative to current directory)
+    if (envVar != nullptr && envVar[0]!='\0')
     {
-        std::vector<std::string> file_env_paths = splitPath(relativePath);
-
-        for (unsigned int i = 0; i < file_env_paths.size(); i++)
+        const char* envpath = getenv(envVar);
+        if (envpath != nullptr && envpath[0]!='\0')
         {
-            std::string base;
-            base = SetDirectory::GetProcessFullPath(base.c_str());
-            std::size_t found = base.find_last_of("/\\");
-            base = base.substr(0,found);
-            if (findFileIn(file_env_paths[i], base))
+            // replacing every occurences of "//" by "/"
+            std::string path = cleanPath( envpath );
+            for( const std::string& item : splitPath(path) )
             {
-                std::string newfname = SetDirectory::GetRelativeFromDir(file_env_paths[i].c_str(), base.c_str());
-                std::ifstream infile(newfname);
-                std::string line;
-                while (std::getline(infile, line))
+                if (rset.insert(item).second)
+                    results.push_back(item);
+            }
+        }
+    }
+    /// 2. entries with the same name as the environment variable from sofa.env in EnvRepository (interpreted as relative to each file) (DISABLED if envVar is SOFA_ENV_PATH)
+    if (envVar != nullptr && envVar[0] != '\0' && envVar != std::string("SOFA_ENV_PATH"))
+    {
+        for (const std::string& sofaEnvPath : EnvRepository.getPaths())
+        {
+            std::ifstream infile(sofaEnvPath);
+            std::string line;
+            while (std::getline(infile, line))
+            {
+                if (line[0]=='#') continue; // skip comments
+                std::size_t pos = line.find("=");
+                std::string env = line.substr(0, pos);
+                std::string path = line.substr(pos + 1);
+                if (env == envVar && !path.empty())
                 {
-                    std::size_t pos = line.find("=");
-                    std::string env = line.substr(0, pos);
-                    std::string value = line.substr(pos + 1);
-
-                    std::map<std::string,std::vector<std::string>>::iterator mapIt = envpath.find(env);
-                    if ( mapIt == envpath.end() )
+                    // replacing every occurences of "//" by "/"
+                    path = cleanPath( path );
+                    for( const std::string& relitem : splitPath(path) )
                     {
-                        std::vector<std::string> toInsert{value};
-                        envpath.insert ( std::pair<std::string,std::vector<std::string>>(env,toInsert) );
-                    }
-                    else
-                    {
-                        mapIt->second.push_back(value);
+                        std::string item = SetDirectory::GetRelativeFromFile(relitem.c_str(), sofaEnvPath.c_str());
+                        if (rset.insert(item).second)
+                            results.push_back(item);
                     }
                 }
             }
         }
     }
-    else
+    /// 3. default paths given in relativePaths (relative to the current executable)
+    if (relativePaths != nullptr && relativePaths[0] != '\0')
     {
-        if (envVar != NULL && envVar[0]!='\0')
+        for( const std::string& relitem : splitPath(relativePaths) )
         {
-            const char* envpath = getenv(envVar);
-            if (envpath != NULL && envpath[0]!='\0')
-                addFirstPath(envpath);
+            std::string item = SetDirectory::GetRelativeFromProcess(relitem.c_str());
+            if (rset.insert(item).second)
+                results.push_back(item);
         }
-        if (relativePath != NULL && relativePath[0]!='\0')
+    }
+    return results;
+}
+
+std::vector< std::string > FileRepository::GetEnvItems(const char* envVar, const char* defaultItems)
+{
+    std::vector< std::string > results;
+    std::set< std::string > rset; // quick way to remove duplicates
+    /// 1. given environment variable from execution environment
+    if (envVar != nullptr && envVar[0]!='\0')
+    {
+        const char* envpath = getenv(envVar);
+        if (envpath != nullptr && envpath[0]!='\0')
         {
-            std::vector<std::string> paths = splitPath(relativePath);
-            for (const auto& p : paths)
+            std::string path = envpath;
+            for( const std::string& item : splitPath(path) )
             {
-                addLastPath(SetDirectory::GetRelativeFromProcess(p.c_str()));
+                if (rset.insert(item).second)
+                    results.push_back(item);
             }
         }
-        std::vector<std::string> env = EnvRepository.getEnvPaths(envVar);
-        for (const auto& e : env)
-        {
-            addLastPath(SetDirectory::GetRelativeFromProcess(e.c_str()));
-        }
-
-        m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog)
-        {
-            return this->getFileContentDefault(filename, filecontent, isBinary, errlog);
-        };
-        m_findFileFn = [this](std::string& filename, const std::string basedir, std::ostream* errlog)
-        {
-            return this->findFileDefault(filename, basedir, errlog);
-        };
     }
+    /// 2. entries with the same name as the environment variable from sofa.env in EnvRepository (DISABLED if envVar is SOFA_ENV_PATH)
+    if (envVar != nullptr && envVar[0] != '\0' && envVar != std::string("SOFA_ENV_PATH"))
+    {
+        for (const std::string& sofaEnvPath : EnvRepository.getPaths())
+        {
+            std::ifstream infile(sofaEnvPath);
+            std::string line;
+            while (std::getline(infile, line))
+            {
+                if (line[0]=='#') continue; // skip comments
+                std::size_t pos = line.find("=");
+                std::string env = line.substr(0, pos);
+                std::string path = line.substr(pos + 1);
+                if (env == envVar && !path.empty())
+                {
+                    for( const std::string& item : splitPath(path) )
+                    {
+                        if (rset.insert(item).second)
+                            results.push_back(item);
+                    }
+                }
+            }
+        }
+    }
+    /// 3. default items given in defaultItems
+    if (defaultItems != nullptr && defaultItems[0] != '\0')
+    {
+        for( const std::string& item : splitPath(defaultItems) )
+        {
+            if (rset.insert(item).second)
+                results.push_back(item);
+        }
+    }
+    return results;
+}
+
+FileRepository::FileRepository(const char* envVar, const char* relativePath)
+{
+    vpath = GetEnvPaths(envVar, relativePath);
+
+    m_getFileContentFn = [this](const std::string& filename, std::string& filecontent, bool isBinary, std::ostream* errlog)
+    {
+        return this->getFileContentDefault(filename, filecontent, isBinary, errlog);
+    };
+    m_findFileFn = [this](std::string& filename, const std::string basedir, std::ostream* errlog)
+    {
+        return this->findFileDefault(filename, basedir, errlog);
+    };
 }
 
 FileRepository::~FileRepository()
@@ -314,7 +372,7 @@ bool FileRepository::findFileFromFile(std::string& filename, const std::string& 
     return findFile(filename, SetDirectory::GetParentDir(basefile.c_str()), errlog);
 }
 
-bool FileRepository::getFileContentDefault(const std::string& filename, std::string& filecontent, bool isBinaryFile, std::ostream* errlog)
+bool FileRepository::getFileContentDefault(const std::string& filename, std::string& filecontent, bool isBinaryFile, std::ostream* /*errlog*/)
 {
     filecontent.clear();
     std::ifstream file(filename.c_str(), isBinaryFile ? std::ifstream::in | std::ifstream::binary : std::ifstream::in);

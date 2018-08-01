@@ -280,6 +280,14 @@ std::ostream& PluginManager::writeToStream(std::ostream & os) const
 
 void PluginManager::init()
 {
+    std::vector<std::string> preloadPlugins = sofa::helper::system::FileRepository::GetEnvItems("SOFA_PRELOAD");
+    for (std::string name : preloadPlugins)
+    {
+        if (!loadPlugin(name))
+        {
+            std::cerr << "SOFA_PRELOAD: FAILED to load " << name << std::endl;
+        }
+    }
     PluginMap::iterator iter;
     for( iter = m_pluginMap.begin(); iter!= m_pluginMap.end(); ++iter)
     {
