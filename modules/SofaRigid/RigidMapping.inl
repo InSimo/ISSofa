@@ -341,6 +341,12 @@ void RigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*/ /
     rotatedPoints.resize(pts.size());
     out.resize(pts.size());
 
+    // NOTE: this case is maybe fixed in https://github.com/sofa-framework/sofa/commit/521c86d0f06d0af8395fcfd63adc23090b2380ce
+    if (in.empty())
+    {
+        return;
+    }
+
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
     if (repartitionCount > 1 && repartitionCount != in.size())
@@ -415,6 +421,11 @@ void RigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mparams*/ 
     const VecCoord& pts = this->getPoints();
     out.resize(pts.size());
 
+    if (in.empty())
+    {
+        return;
+    }
+
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
     if (repartitionCount > 1 && repartitionCount != in.size())
@@ -474,6 +485,11 @@ void RigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparams*/
     helper::ReadAccessor< Data<VecDeriv> > in = dIn;
 
     const VecCoord& pts = this->getPoints();
+
+    if (in.empty())
+    {
+        return;
+    }
 
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
@@ -576,6 +592,11 @@ void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* 
     //    cerr<<"RigidMapping<TIn, TOut>::applyDJT, kfactor = "<< kfactor << endl;
 
     const VecCoord& pts = this->getPoints();
+
+    if (parentForces.empty())
+    {
+        return;
+    }
 
     unsigned repartitionCount = pointsPerFrame.getValue().size();
 
