@@ -471,7 +471,7 @@ public:
             for (; j<=oldRowIndex[i]; ++j)
                 rowBegin[j] = b;
         }
-        b = oldRowBegin[oldRowBegin.size()-1];
+        b = !oldRowBegin.empty() ? oldRowBegin[oldRowBegin.size()-1] : Index(0);
         for (; j<=nBlocRow; ++j)
             rowBegin[j] = b;
     }
