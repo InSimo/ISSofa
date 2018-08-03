@@ -79,6 +79,7 @@ FixedConstraint<DataTypes>::FixedConstraint()
     , f_indices( initData(&f_indices,"indices","Indices of the fixed points") )
     , f_fixAll( initData(&f_fixAll,false,"fixAll","filter all the DOF to implement a fixed object") )
     , f_drawSize( initData(&f_drawSize,0.0,"drawSize","0 -> point based rendering, >0 -> radius of spheres") )
+    , d_projectVelocity(initData(&d_projectVelocity,false,"projectVelocity","if true, project velocity") )
     , data(new FixedConstraintInternalData<DataTypes>())
 {
     // default to indice 0
@@ -252,26 +253,29 @@ void FixedConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalPar
 // When a new fixed point is added while its velocity vector is already null, projectVelocity is not usefull.
 // But when a new fixed point is added while its velocity vector is not null, it's necessary to fix it to null. If not, the fixed point is going to drift.
 template <class DataTypes>
-void FixedConstraint<DataTypes>::projectVelocity(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataVecDeriv& /*vData*/)
+void FixedConstraint<DataTypes>::projectVelocity(const core::MechanicalParams* mparams , DataVecDeriv& vData)
 {
-#if 0 /// @todo ADD A FLAG FOR THIS
-    const SetIndexArray & indices = f_indices.getValue();
-    //serr<<"FixedConstraint<DataTypes>::projectVelocity, res.size()="<<res.size()<<sendl;
-    if( f_fixAll.getValue()==true )    // fix everyting
+    if (d_projectVelocity.getValue())
     {
-        for( unsigned i=0; i<res.size(); i++ )
-            res[i] = Deriv();
-    }
-    else
-    {
-        for (SetIndexArray::const_iterator it = indices.begin();
-                it != indices.end();
-                ++it)
+        helper::WriteAccessor<DataVecDeriv> res ( mparams, vData );
+        const SetIndexArray & indices = f_indices.getValue();
+        //serr<<"FixedConstraint<DataTypes>::projectVelocity, res.size()="<<res.size()<<sendl;
+        if( f_fixAll.getValue()==true )    // fix everyting
         {
-            res[*it] = Deriv();
+            for( unsigned i=0; i<res.size(); i++ )
+                res[i] = Deriv();
+        }
+        else
+        {
+            for (SetIndexArray::const_iterator it = indices.begin();
+                    it != indices.end();
+                    ++it)
+            {
+                res[*it] = Deriv();
+            }
         }
     }
-#endif
+
 }
 
 template <class DataTypes>

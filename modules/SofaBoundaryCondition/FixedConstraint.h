@@ -88,6 +88,8 @@ public:
     SetIndex f_indices;
     Data<bool> f_fixAll;
     Data<double> f_drawSize;
+    Data<bool> d_projectVelocity;
+
 
 
 protected:
