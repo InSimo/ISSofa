@@ -126,8 +126,29 @@ vector<ArticulationCenter*> ArticulatedHierarchyContainer::getDescendantList(int
     return descendantList;
 }
 
-ArticulatedHierarchyContainer::ArticulatedHierarchyContainer():
-    filename(initData(&filename, "filename", "BVH File to load the articulation", false))
+void ArticulatedHierarchyContainer::swapArticulations(vector<ArticulationCenter*> acs)
+{
+    for (ArticulationCenter* ascendant : acs)
+    {
+        //swap index
+        const int childIndex = ascendant->childIndex.getValue();
+        const int parentIndex = ascendant->parentIndex.getValue();
+
+        ascendant->childIndex.setValue(parentIndex);
+        ascendant->parentIndex.setValue(childIndex);
+
+        //swap local position
+        const defaulttype::Vector3 posOnChild = ascendant->posOnChild.getValue();
+        const defaulttype::Vector3 posOnParent = ascendant->posOnParent.getValue();
+
+        ascendant->posOnChild.setValue(posOnParent);
+        ascendant->posOnParent.setValue(posOnChild);
+    }
+}
+
+ArticulatedHierarchyContainer::ArticulatedHierarchyContainer()
+    : filename(initData(&filename, "filename", "BVH File to load the articulation", false))
+    , d_rootOutIndex(initData(&d_rootOutIndex, int(-1), "rootOutIndex", "(Optional) Define the out index on which the m_fromRootModel is attached in ArticulatedSystemMapping."))
 {
     joint = NULL;
     id = 0;
@@ -283,6 +304,15 @@ void ArticulatedHierarchyContainer::init ()
         
         vector<ArticulationCenter*>::const_iterator uac = unclassifiedArticulationCenters.begin();
         vector<ArticulationCenter*>::const_iterator uacEnd = unclassifiedArticulationCenters.end();
+
+        const int rootOutIndex = d_rootOutIndex.getValue();
+        if (rootOutIndex >= 0)
+        {
+            // re-organize articulations according to (optional) "m_fromRootModel" defined in ArticulatedSystemMapping
+            // swap articulations (child <-> parent) of ascendants
+            vector<ArticulationCenter*> ascendantList = getAscendantList(rootOutIndex, unclassifiedArticulationCenters);
+            swapArticulations(ascendantList);
+        }
 
         //Find root parent
         int rootParent = 0;

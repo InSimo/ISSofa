@@ -78,6 +78,12 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::init()
     context->getNodeObject(ahc);
     articulationCenters = ahc->getArticulationCenters();
 
+    const int rootOutIndex = ahc->d_rootOutIndex.getValue();
+    if (rootOutIndex >= 0)
+    {
+        m_rootOutIndex = rootOutIndex;
+    }
+
     const InVecCoord& xfrom = m_fromModel->read(core::ConstVecCoordId::position())->getValue();
 
     ArticulationPos.clear();
@@ -147,7 +153,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::apply( typename Out::VecCoord
     // Copy the root position if a rigid root model is present
     if (m_fromRootModel && inroot)
     {
-        out[0] = (*inroot)[m_fromRootModel->getSize()-1];
+        out[m_rootOutIndex] = (*inroot)[m_fromRootModel->getSize()-1];
     }
 
     vector< sofa::component::container::ArticulationCenter* >::const_iterator ac = articulationCenters.begin();
@@ -369,7 +375,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJ( typename Out::VecDeri
     if (m_fromRootModel && inroot)
     {
         // sout << "Root Model Name = " << rootModel->getName() << sendl;
-        out[0] = (*inroot)[m_fromRootModel->getSize()-1];
+        out[m_rootOutIndex] = (*inroot)[m_fromRootModel->getSize()-1];
     }
     else
         out[0] = OutDeriv();
@@ -499,7 +505,7 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJT( typename In::VecDeri
 
     if (outroot && m_fromRootModel)
     {
-        (*outroot)[m_fromRootModel->getSize()-1] += fObjects6DBuf[0];
+        (*outroot)[m_fromRootModel->getSize()-1] += fObjects6DBuf[m_rootOutIndex];
     }
 
     //if( this->f_printLog.getValue())
@@ -602,17 +608,17 @@ void ArticulatedSystemMapping<TIn, TInRoot, TOut>::applyJT( InMatrixDeriv& out, 
 
                 if(m_fromRootModel && outRoot)
                 {
-                    unsigned int indexT = m_fromRootModel->getSize() - 1; // On applique sur le dernier noeud
-                    sofa::defaulttype::Vec<3,OutReal> posRoot = xto[indexT].getCenter();
+                    sofa::defaulttype::Vec<3,OutReal> posRoot = xto[m_rootOutIndex].getCenter();
 
                     OutDeriv T;
                     getVCenter(T) = getVCenter(valueConst);
                     getVOrientation(T) = getVOrientation(valueConst) + cross(C - posRoot, getVCenter(valueConst));
 
                     if (rootRowIt == rootRowItEnd)
+                    {
                         rootRowIt = (*outRoot).writeLine(rowIt.index());
-
-                    rootRowIt.addCol(indexT, T);
+                    }
+                    rootRowIt.addCol(m_fromRootModel->getSize() - 1, T);
                 }
 
                 ++colIt;

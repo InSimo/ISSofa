@@ -74,6 +74,7 @@ public:
     vector<ArticulationCenter*> getAscendantList(int index, vector<ArticulationCenter*> acs);
     vector<ArticulationCenter*> getArticulationCenterAsParent(int index, vector<ArticulationCenter*> acs);
     vector<ArticulationCenter*> getDescendantList(int index, vector<ArticulationCenter*> acs);
+    void swapArticulations(vector<ArticulationCenter*> acs);
 
     vector<ArticulationCenter*> articulationCenters;
     vector<ArticulationCenter*> ascendantList;
@@ -82,6 +83,8 @@ public:
     bool chargedFromFile;
     int numOfFrames;
     double dtbvh;
+
+    Data<int> d_rootOutIndex;
 
 protected:
     sofa::core::objectmodel::DataFileName filename;
