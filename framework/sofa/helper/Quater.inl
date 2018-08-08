@@ -667,6 +667,77 @@ defaulttype::Vec<3,Real> Quater<Real>::toEulerVector() const
     return getLog();
 }
 
+// get rotation around an axis (alternative to getLog()) which might have issues handling large rotations
+template<class Real>
+Real Quater<Real>::getRotationAroundAxis(const defaulttype::Vec<3, Real>& axis) const
+{
+    if (axis.norm() < 1e-6)
+    {
+        return 0.0;
+    }
+
+    Vec3 r = axis;
+    r.normalize();
+    Vec3 p;
+
+    //get p perpendicular to r
+    if (r[2] != 0.0)
+    {
+        p[0] = Real(1);
+        p[1] = Real(1);
+        p[2] = (-r[0] * p[0] - r[1] * p[1]) / r[2];
+    }
+    else
+    {
+        p[0] = -r[1];
+        p[1] = r[0];
+        p[2] = Real(0);
+    }
+    p.normalize();
+
+    // eval rotation of p by q
+    Vec3 p_r = (*this).rotate(p);
+    p_r.normalize();
+
+
+    // project p_r on plane of normal vector r
+    Vec3 p_r_proj = p_r - sofa::defaulttype::dot(p_r, r) * r;
+    p_r_proj.normalize();
+
+
+    // get angle between p and p_r_proj
+    Real theta = std::acos(sofa::defaulttype::dot(p, p_r_proj));
+
+    if (sofa::defaulttype::dot(r, cross(p, p_r_proj)) < 0)
+    {
+        theta = -theta;
+    }
+    return theta;
+}
+
+
+// cancel rotation around an axis
+template<class Real>
+void Quater<Real>::cancelRotationAroundAxis(const defaulttype::Vec<3, Real>& axis)
+{
+    if (axis.norm() < 1e-6)
+    {
+        return;
+    }
+
+    Real theta = getRotationAroundAxis(axis);
+
+    // get quaternion encoding rotation theta around axis
+    Vec3 r = axis;
+    r.normalize();
+    Quater<Real> q_theta;
+    q_theta = q_theta.axisToQuat(r, theta);
+
+    // cancel rotation
+    *this = q_theta.inverse() * (*this);
+}
+
+
 /*! Returns the slerp interpolation of Quaternions \p a and \p b, at time \p t.
 
  \p t should range in [0,1]. Result is \p a when \p t=0 and \p b when \p t=1.

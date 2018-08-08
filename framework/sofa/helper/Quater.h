@@ -206,6 +206,12 @@ public:
     ///< Returns Euler angles of the input quaternion for large angles
     defaulttype::Vec<3, Real> getEuler(bool normalize = false, Real epsilon = Real(1e-6)) const;
 
+    // get rotation around an axis (alternative to getLog()) which might have issues handling large rotations
+    Real getRotationAroundAxis(const defaulttype::Vec<3, Real>& axis) const;
+
+    // cancel rotation around an axis
+    void cancelRotationAroundAxis(const defaulttype::Vec<3, Real>& axis);
+
     /*! Returns the slerp interpolation of Quaternions \p a and \p b, at time \p t.
 
      \p t should range in [0,1]. Result is \p a when \p t=0 and \p b when \p t=1.
