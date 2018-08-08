@@ -37,79 +37,23 @@ namespace component
 namespace loader
 {
 
-class MapFaceTexCoord;
-
-class SOFA_LOADER_API MeshObjLoader : public sofa::core::loader::MeshLoader
-{
-public:
-    enum FaceType { EDGE, TRIANGLE, QUAD, NBFACETYPE };
-
-    typedef unsigned int FaceId;
-
-    SOFA_CLASS(MeshObjLoader,sofa::core::loader::MeshLoader);
-protected:
-    MeshObjLoader();
-    virtual ~MeshObjLoader();
-public:
-    virtual bool load();
-
-    template <class T>
-    static bool canCreate ( T*& obj, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg )
-    {
-        return BaseLoader::canCreate (obj, context, arg);
-    }
-
-protected:
-    bool readOBJ (std::istringstream& filestream, const char* filename);
-    bool readMTL (const char* filename, helper::vector <sofa::core::loader::Material>& materials);
-    void addGroup (const sofa::core::loader::PrimitiveGroup& g);
-
-    sofa::core::loader::Material material;
-    Data<bool> d_handleSeams;
-    Data<bool> loadMaterial;
-    std::string textureName;
-    FaceType faceType;
-
-public:
-    Data <helper::vector <sofa::core::loader::Material> > materials;
-    Data <helper::SVector <helper::SVector <int> > > faceList;
-    Data <helper::SVector <helper::SVector <int> > > texIndexList;
-    Data <helper::vector<sofa::defaulttype::Vector3> > positionsList;
-    Data< helper::vector<sofa::defaulttype::Vector2> > texCoordsList;
-    Data <helper::SVector<helper::SVector<int> > > normalsIndexList;
-    Data <helper::vector<sofa::defaulttype::Vector3> > normalsList;
-    Data< helper::vector<sofa::defaulttype::Vector2> > texCoords;
-    Data< helper::vector<MapFaceTexCoord> > texCoordsInFace; // texCoordsInFace[PointID][FaceId] should give you the texCoord of the point indexed by PointID in the Face indexed by FaceID
-    Data< bool > computeMaterialFaces;
-    helper::vector< Data <helper::vector <unsigned int> >* > subsets_indices;
-
-    /// If vertices have multiple normals/texcoords, then we need to separate them
-    /// This vector store which input position is used for each vertex
-    /// If it is empty then each vertex correspond to one position
-    Data< helper::vector<int> > d_vertPosIdx;
-
-    /// Similarly this vector store which input normal is used for each vertex
-    /// If it is empty then each vertex correspond to one normal
-    Data< helper::vector<int> > d_vertNormIdx;
-
-    /// List of points on discontinuity
-    Data< helper::vector<unsigned int> > d_pointsOnBorder;
-
-    virtual std::string type() { return "The format of this mesh is OBJ."; }
-};
-
-
 class MapFaceTexCoord
 {
     typedef unsigned int FaceId;
-    typedef std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > PairTexFace;
+    typedef sofa::helper::pair<sofa::defaulttype::Vector2, sofa::helper::set<FaceId> > PairTexFace;
+
+    typedef helper::vector< PairTexFace >::const_iterator ConstItPair;
+    typedef helper::vector< PairTexFace >::iterator       ItPair;
+
+public:
+    MapFaceTexCoord()
+    {
+        m_mapTexFaces.clear();
+        m_defaultTexCoord = sofa::defaulttype::Vector2();
+    }
     helper::vector< PairTexFace > m_mapTexFaces;
     sofa::defaulttype::Vector2 m_defaultTexCoord = sofa::defaulttype::Vector2();
 
-    typedef helper::vector< std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > >::const_iterator ConstItPair;
-    typedef helper::vector< std::pair<sofa::defaulttype::Vector2, std::set<FaceId> > >::iterator       ItPair;
-
-public:
     const sofa::defaulttype::Vector2& getTexCoord(FaceId faceId) const
     {
         if (m_mapTexFaces.empty())
@@ -187,26 +131,87 @@ public:
         return m_mapTexFaces.size();
     }
 
-    /// write to an output stream
-    inline friend std::ostream& operator << (std::ostream& out, const MapFaceTexCoord& map)
+
+    SOFA_STRUCT_DECL(MapFaceTexCoord, m_mapTexFaces);
+    SOFA_STRUCT_STREAM_METHODS(MapFaceTexCoord);
+    SOFA_STRUCT_COMPARE_METHOD(MapFaceTexCoord);
+};
+
+} // namespace loader
+
+} // namespace component
+
+} // namespace sofa
+
+SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::loader::MapFaceTexCoord);
+
+
+namespace sofa
+{
+
+namespace component
+{
+
+namespace loader
+{
+
+class SOFA_LOADER_API MeshObjLoader : public sofa::core::loader::MeshLoader
+{
+public:
+    enum FaceType { EDGE, TRIANGLE, QUAD, NBFACETYPE };
+
+    typedef unsigned int FaceId;
+
+    SOFA_CLASS(MeshObjLoader,sofa::core::loader::MeshLoader);
+protected:
+    MeshObjLoader();
+    virtual ~MeshObjLoader();
+public:
+    virtual bool load();
+
+    template <class T>
+    static bool canCreate ( T*& obj, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg )
     {
-        for (auto pair : map.m_mapTexFaces)
-        {
-            out << "TexCoord : " << pair.first << "  Faces : ";
-            for (auto faceId : pair.second)
-            {
-                out << faceId << " ";
-            }
-            out << " / ";
-        }
-        out << std::endl;
-        return out;
+        return BaseLoader::canCreate (obj, context, arg);
     }
-    /// read from an input stream
-    inline friend std::istream& operator >> (std::istream& in, MapFaceTexCoord& map)
-    {
-        return in;
-    }
+
+protected:
+    bool readOBJ (std::istringstream& filestream, const char* filename);
+    bool readMTL (const char* filename, helper::vector <sofa::core::loader::Material>& materials);
+    void addGroup (const sofa::core::loader::PrimitiveGroup& g);
+
+    sofa::core::loader::Material material;
+    Data<bool> d_handleSeams;
+    Data<bool> loadMaterial;
+    std::string textureName;
+    FaceType faceType;
+
+public:
+    Data <helper::vector <sofa::core::loader::Material> > materials;
+    Data <helper::SVector <helper::SVector <int> > > faceList;
+    Data <helper::SVector <helper::SVector <int> > > texIndexList;
+    Data <helper::vector<sofa::defaulttype::Vector3> > positionsList;
+    Data< helper::vector<sofa::defaulttype::Vector2> > texCoordsList;
+    Data <helper::SVector<helper::SVector<int> > > normalsIndexList;
+    Data <helper::vector<sofa::defaulttype::Vector3> > normalsList;
+    Data< helper::vector<sofa::defaulttype::Vector2> > texCoords;
+    Data< helper::vector<MapFaceTexCoord> > texCoordsInFace; // texCoordsInFace[PointID][FaceId] should give you the texCoord of the point indexed by PointID in the Face indexed by FaceID
+    Data< bool > computeMaterialFaces;
+    helper::vector< Data <helper::vector <unsigned int> >* > subsets_indices;
+
+    /// If vertices have multiple normals/texcoords, then we need to separate them
+    /// This vector store which input position is used for each vertex
+    /// If it is empty then each vertex correspond to one position
+    Data< helper::vector<int> > d_vertPosIdx;
+
+    /// Similarly this vector store which input normal is used for each vertex
+    /// If it is empty then each vertex correspond to one normal
+    Data< helper::vector<int> > d_vertNormIdx;
+
+    /// List of points on discontinuity
+    Data< helper::vector<unsigned int> > d_pointsOnBorder;
+
+    virtual std::string type() { return "The format of this mesh is OBJ."; }
 };
 
 
