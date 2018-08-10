@@ -130,8 +130,8 @@ inline typename DataTypes::Deriv computeTriangleNormal(const typename DataTypes:
     const typename DataTypes::Coord& p1,
     const typename DataTypes::Coord& p2)
 {
-    typename DataTypes::Deriv n = cross(p1-p0, p2-p0);
-    n.normalize();
+    typename DataTypes::Deriv n;
+    DataTypes::setDPos(n,cross(DataTypes::getCPos(p1-p0), DataTypes::getCPos(p2-p0)).normalized());
     return n;
 }
 
@@ -142,13 +142,7 @@ void TTriangleModel<DataTypes>::updateNormals()
     for (int i=0; i<size; i++)
     {
         Element t(this,i);
-        const defaulttype::Vector3& pt1 = t.p1();
-        const defaulttype::Vector3& pt2 = t.p2();
-        const defaulttype::Vector3& pt3 = t.p3();
-
-        t.n() = computeTriangleNormal<DataTypes>(pt1, pt2, pt3);
-
-        //sout << i << " " << t.n() << sendl;
+        t.n() = computeTriangleNormal<DataTypes>(t.p1(), t.p1(), t.p1());
     }
 }
 
@@ -306,7 +300,7 @@ void TTriangleModel<DataTypes>::updateFlags(int /*ntri*/)
                         const Deriv& n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]],
                             x0[tri_k[1]],
                             x0[tri_k[2]]);
-                        const Real cos = dot(n_0, n_k);
+                        const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
                         const bool isAngleAboveThreshold = cos < cosAngleThreshold;
                         if (isAngleAboveThreshold)
                         {
@@ -646,7 +640,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams ,
 
     vparams->drawTool()->setPolygonMode(0,vparams->displayFlags().getShowWireFrame());
     vparams->drawTool()->setLightingEnabled(true);
-    vparams->drawTool()->drawTriangle( t.p1(), t.p2(), t.p3(), t.n() );
+    vparams->drawTool()->drawTriangle( DataTypes::getCPos(t.p1()), DataTypes::getCPos(t.p2()), DataTypes::getCPos(t.p3()), DataTypes::getDPos(t.n()) );
     vparams->drawTool()->setLightingEnabled(false);
 
 }
@@ -675,10 +669,10 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         for (int i=0; i<size; i++)
         {
             Element t(this,i);
-            normals.push_back(t.n());
-            points.push_back(t.p1());
-            points.push_back(t.p2());
-            points.push_back(t.p3());
+            normals.push_back(DataTypes::getDPos(t.n()));
+            points.push_back(DataTypes::getCPos(t.p1()));
+            points.push_back(DataTypes::getCPos(t.p2()));
+            points.push_back(DataTypes::getCPos(t.p3()));
             indices.push_back(defaulttype::Vec<3,int>(index,index+1,index+2));
             index+=3;
         }
@@ -695,8 +689,8 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             for (int i=0; i<size; i++)
             {
                 Element t(this,i);
-                points.push_back((t.p1()+t.p2()+t.p3())/3.0);
-                points.push_back(points.back()+t.n());
+                points.push_back(DataTypes::getCPos((t.p1()+t.p2()+t.p3()))/3.0);
+                points.push_back(points.back() + DataTypes::getDPos(t.n()));
             }
 
             vparams->drawTool()->drawLines(points, 1, defaulttype::Vec<4,float>(1,1,1,1));
@@ -841,9 +835,9 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
             for (int i=0; i<size; i++)
             {
                 Element t(this,i);
-                const defaulttype::Vector3& pt1 = x[t.p1Index()];
-                const defaulttype::Vector3& pt2 = x[t.p2Index()];
-                const defaulttype::Vector3& pt3 = x[t.p3Index()];
+                const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
+                const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
+                const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
 
                 for (int c = 0; c < 3; c++)
                 {
@@ -859,7 +853,7 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
                 if (calcNormals)
                 {
                     // Also recompute normal vector
-                    t.n() = computeTriangleNormal<DataTypes>(pt1,pt2,pt3);
+                    t.n() = computeTriangleNormal<DataTypes>(x[t.p1Index()], x[t.p2Index()], x[t.p3Index()]);
                 }
                 cubeModel->setParentOf(i, minElem, maxElem); // define the bounding box of the current triangle
             }
@@ -891,12 +885,12 @@ void TTriangleModel<DataTypes>::computeContinuousBoundingTree(double dt, int max
         for (int i=0; i<size; i++)
         {
             Element t(this,i);
-            const defaulttype::Vector3& pt1 = t.p1();
-            const defaulttype::Vector3& pt2 = t.p2();
-            const defaulttype::Vector3& pt3 = t.p3();
-            const defaulttype::Vector3 pt1v = pt1 + t.v1()*dt;
-            const defaulttype::Vector3 pt2v = pt2 + t.v2()*dt;
-            const defaulttype::Vector3 pt3v = pt3 + t.v3()*dt;
+            const defaulttype::Vector3& pt1 = DataTypes::getCPos(t.p1());
+            const defaulttype::Vector3& pt2 = DataTypes::getCPos(t.p2());
+            const defaulttype::Vector3& pt3 = DataTypes::getCPos(t.p3());
+            const defaulttype::Vector3 pt1v = pt1 + DataTypes::getDPos(t.v1())*dt;
+            const defaulttype::Vector3 pt2v = pt2 + DataTypes::getDPos(t.v2())*dt;
+            const defaulttype::Vector3 pt3v = pt3 + DataTypes::getDPos(t.v3())*dt;
 
             for (int c = 0; c < 3; c++)
             {
@@ -919,8 +913,7 @@ void TTriangleModel<DataTypes>::computeContinuousBoundingTree(double dt, int max
             }
 
             // Also recompute normal vector
-            t.n() = cross(pt2-pt1,pt3-pt1);
-            t.n().normalize();
+            DataTypes::setDPos(t.n(), cross(pt2-pt1,pt3-pt1).normalized());
 
             cubeModel->setParentOf(i, minElem, maxElem);
         }
