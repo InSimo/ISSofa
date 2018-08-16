@@ -291,7 +291,6 @@ void Simulation::reset ( Node* root )
 
     UpdateSimulationContextVisitor(sofa::core::ExecParams::defaultInstance()).execute(root);
 
-    root->execute<CleanupVisitor>(params);
     root->execute<ResetVisitor>(params);
     sofa::core::MechanicalParams mparams(*params);
     root->execute<MechanicalPropagatePositionAndVelocityVisitor>(&mparams);

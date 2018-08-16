@@ -85,8 +85,15 @@ void DefaultContactManager::init()
     }
 }
 
+void DefaultContactManager::reset()
+{
+    // Remove all previously created contacts and responses (same as cleanup)
+    cleanup();
+}
+
 void DefaultContactManager::cleanup()
 {
+    // Remove all previously created contacts and responses
     for (sofa::helper::vector<core::collision::Contact::SPtr>::iterator it=contacts.begin(); it!=contacts.end(); ++it)
     {
         (*it)->removeResponse();
