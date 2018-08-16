@@ -42,6 +42,10 @@ class SSOBuffer
 public:
     typedef SSOBuffer<TSmallSize> buffer;
     static constexpr std::size_t SmallSize = TSmallSize;
+    template<class T>
+    using is_small = typename std::enable_if< (sizeof(T)<=SmallSize), int>;
+    template<class T>
+    using is_large = typename std::enable_if<!(sizeof(T)<=SmallSize), int>;
     union
     {
         void* largePointer;
@@ -85,20 +89,56 @@ public:
             deleteOrMoveOrCloneFn(this, &from, nullptr);
         return *this;
     }
-    
+
     template<class T>
-    T* create()
+    T* create(typename is_small<T>::type=0)
     {
         if (deleteOrMoveOrCloneFn)
         {
             (*deleteOrMoveOrCloneFn)(this, nullptr, nullptr);
             deleteOrMoveOrCloneFn = nullptr;
         }
+        T* ptr = new(&smallArray) T;
+        deleteOrMoveOrCloneFn = deleteOrMoveOrCloneFnSmall<T>;
+        return ptr;
+    }
+
+    template<class T>
+    T* create(typename is_large<T>::type=0)
+    {
+        if (deleteOrMoveOrCloneFn)
+        {
+            (*deleteOrMoveOrCloneFn)(this, nullptr, nullptr);
+            deleteOrMoveOrCloneFn = nullptr;
+        }
+        T* ptr = new T;
+        largePointer = ptr;
+        deleteOrMoveOrCloneFn = deleteOrMoveOrCloneFnLarge<T>;
+        return ptr;
+    }
+
+    template<class T>
+    T* getOrCreate(typename is_small<T>::type=0)
+    {
         T* ptr;
-        if (sizeof(T) <= SmallSize)
+        if (deleteOrMoveOrCloneFn)
+        {
+            ptr = reinterpret_cast<T*>(&smallArray);
+        }
+        else
         {
             ptr = new(&smallArray) T;
             deleteOrMoveOrCloneFn = deleteOrMoveOrCloneFnSmall<T>;
+        }
+        return ptr;
+    }
+    template<class T>
+    T* getOrCreate(typename is_large<T>::type=0)
+    {
+        T* ptr;
+        if (deleteOrMoveOrCloneFn)
+        {
+            ptr = reinterpret_cast<T*>(largePointer);
         }
         else
         {
@@ -110,55 +150,23 @@ public:
     }
 
     template<class T>
-    T* getOrCreate()
+    const T* get(typename is_small<T>::type=0) const
     {
-        T* ptr;
-        if (sizeof(T) <= SmallSize)
+        const T* ptr = nullptr;
+        if (deleteOrMoveOrCloneFn)
         {
-            if (deleteOrMoveOrCloneFn)
-            {
-                ptr = reinterpret_cast<T*>(&smallArray);
-            }
-            else
-            {
-                ptr = new(&smallArray) T;
-                deleteOrMoveOrCloneFn = deleteOrMoveOrCloneFnSmall<T>;
-            }
-        }
-        else
-        {
-            if (deleteOrMoveOrCloneFn)
-            {
-                ptr = reinterpret_cast<T*>(largePointer);
-            }
-            else
-            {
-                ptr = new T;
-                largePointer = ptr;
-                deleteOrMoveOrCloneFn = deleteOrMoveOrCloneFnLarge<T>;
-            }
+            ptr = reinterpret_cast<const T*>(&smallArray);
         }
         return ptr;
     }
 
-
     template<class T>
-    const T* get() const
+    const T* get(typename is_large<T>::type=0) const
     {
         const T* ptr = nullptr;
-        if (sizeof(T) <= SmallSize)
+        if (deleteOrMoveOrCloneFn)
         {
-            if (deleteOrMoveOrCloneFn)
-            {
-                ptr = reinterpret_cast<const T*>(&smallArray);
-            }
-        }
-        else
-        {
-            if (deleteOrMoveOrCloneFn)
-            {
-                ptr = reinterpret_cast<const T*>(largePointer);
-            }
+            ptr = reinterpret_cast<const T*>(largePointer);
         }
         return ptr;
     }
