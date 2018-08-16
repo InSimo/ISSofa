@@ -104,6 +104,7 @@ public:
     PointData< VecDeriv > f;
     Data< VecDeriv > externalForces;
     Data< VecDeriv > dx;
+    Data< VecDeriv > dforce;
     Data< VecCoord > xfree;
     Data< VecDeriv > vfree;
     PointData< VecCoord > x0;
@@ -143,6 +144,7 @@ public:
     Data< VecDeriv > f;
     Data< VecDeriv > externalForces;
     Data< VecDeriv > dx;
+    Data< VecDeriv > dforce;
     Data< VecCoord > xfree;
     Data< VecDeriv > vfree;
     Data< VecCoord > x0;

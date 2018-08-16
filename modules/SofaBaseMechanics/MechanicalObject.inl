@@ -87,6 +87,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     , f(initData(&f, "force", "force vector of the degrees of freedom"))
     , externalForces(initData(&externalForces, "externalForce", "externalForces vector of the degrees of freedom"))
     , dx(initData(&dx, "derivX", "dx vector of the degrees of freedom"))
+    , dforce(initData(&dforce, "dforce", "dforce vector of the degrees of freedom"))
     , xfree(initData(&xfree, "free_position", "free position coordinates of the degrees of freedom"))
     , vfree(initData(&vfree, "free_velocity", "free velocity coordinates of the degrees of freedom"))
     , x0(initData(&x0, "rest_position", "rest position coordinates of the degrees of freedom"))
@@ -126,6 +127,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     f               .setGroup("Vector");
     externalForces  .setGroup("Vector");
     dx              .setGroup("Vector");
+    dforce          .setGroup("Vector");
     xfree           .setGroup("Vector");
     vfree           .setGroup("Vector");
     x0              .setGroup("Vector");
@@ -147,6 +149,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     setVecDeriv(core::VecDerivId::force().index, &f);
     setVecDeriv(core::VecDerivId::externalForce().index, &externalForces);
     setVecDeriv(core::VecDerivId::dx().index, &dx);
+    setVecDeriv(core::VecDerivId::dforce().index, &dforce);
     setVecDeriv(core::VecDerivId::freeVelocity().index, &vfree);
     setVecDeriv(core::VecDerivId::resetVelocity().index, &reset_velocity);
     setVecMatrixDeriv(core::MatrixDerivId::constraintJacobian().index, &c);
@@ -155,7 +158,8 @@ MechanicalObject<DataTypes>::MechanicalObject()
     x               .forceSet();
     //  x0              .forceSet();
     v               .forceSet();
-//    dx              .forceSet();
+    dx              .forceSet();
+    dforce          .forceSet();
     f               .forceSet();
     externalForces  .forceSet();
 
@@ -169,7 +173,6 @@ MechanicalObject<DataTypes>::MechanicalObject()
     // not to allocate plenty of 0 everywhere...
     write(core::VecCoordId::null())->forceSet();
     write(core::VecDerivId::null())->forceSet();
-    write(core::VecDerivId::dforce())->forceSet();
 
     // default size is 1
     resize(1);
@@ -194,8 +197,6 @@ MechanicalObject<DataTypes>::~MechanicalObject()
         if( vectorsDeriv[i] != NULL )  { delete vectorsDeriv[i]; vectorsDeriv[i]=NULL; }
     if( vectorsDeriv[core::VecDerivId::null().getIndex()] != NULL )
         { delete vectorsDeriv[core::VecDerivId::null().getIndex()]; vectorsDeriv[core::VecDerivId::null().getIndex()] = NULL; }
-    if( core::VecDerivId::dforce().getIndex()<vectorsDeriv.size() && vectorsDeriv[core::VecDerivId::dforce().getIndex()] != NULL )
-        { delete vectorsDeriv[core::VecDerivId::dforce().getIndex()]; vectorsDeriv[core::VecDerivId::dforce().getIndex()] = NULL; }
 
     for(unsigned i=core::MatrixDerivId::V_FIRST_DYNAMIC_INDEX; i<vectorsMatrixDeriv.size(); i++)
         if( vectorsMatrixDeriv[i] != NULL )  { delete vectorsMatrixDeriv[i]; vectorsMatrixDeriv[i]=NULL; }
@@ -1050,7 +1051,7 @@ void MechanicalObject<DataTypes>::init()
     {
         sout << "Initialization with topology " << l_topology->getTypeName() << " " << l_topology->getName() 
              << " ( " << l_topology->getNbPoints() << " points " << (l_topology->hasPos() ? "WITH" : "WITHOUT") << " positions)" << sendl;
-    }    
+    }
     
     // Make sure the sizes of the vectors and the arguments of the scene matches
     const std::vector<std::pair<const std::string, const size_t>> vector_sizes = 
@@ -1060,19 +1061,26 @@ void MechanicalObject<DataTypes>::init()
             {f.getName(),                f.getValue().size()},
             {externalForces.getName(),   externalForces.getValue().size()},
             {dx.getName(),               dx.getValue().size()},
+            {dforce.getName(),           dforce.getValue().size()},
             {xfree.getName(),            xfree.getValue().size()},
             {vfree.getName(),            vfree.getValue().size()},
             {x0.getName(),               x0.getValue().size()},
             {reset_position.getName(),   reset_position.getValue().size()},
             {reset_velocity.getName(),   reset_velocity.getValue().size()}
     };
-
     // Get the maximum size of all argument's vectors
-    const auto minmaxElement = std::minmax_element(vector_sizes.begin(), vector_sizes.end(),
-       [] (const std::pair<const std::string, const size_t> &a, const std::pair<const std::string, const size_t> &b) 
+    size_t minSize = 0, maxSize = 0;
+    for (const auto& item : vector_sizes)
     {
-            return a.second < b.second;
-    });
+        if (item.second == 0)
+            continue; // ignore empty vectors
+        else if (!minSize)
+            minSize = maxSize = item.second; // first non-empty vector
+        else if (minSize > item.second)
+            minSize = item.second; // new minSize
+        else if (maxSize < item.second)
+            maxSize = item.second; // new maxSize
+    }
 
     bool copyX0ToX = false;
     //copyXToX0 is not really used for copy, as this is done implicitely afterward.
@@ -1082,10 +1090,8 @@ void MechanicalObject<DataTypes>::init()
     size_t sizePosition = vectorsCoord[core::ConstVecCoordId::position().index]->getValue().size();
     size_t sizeRestPosition = vectorsCoord[core::ConstVecCoordId::restPosition().index]->getValue().size();
 
-    if (minmaxElement.first != minmaxElement.second)
+    if (minSize != maxSize)
     {
-        size_t maxSize = (*minmaxElement.second).second;
-
         // Resize the mechanical object size to match the maximum size of argument's vectors
         if ((size_t)getSize() < maxSize)
         {
@@ -1125,10 +1131,11 @@ void MechanicalObject<DataTypes>::init()
                 const std::string & name = vector_size.first;
                 const size_t & size = vector_size.second;
                 //skip size<=1 due to forceSet in constructor
-                if (size <= 1) 
-                    continue;
+                //if (size <= 1) 
+                //    continue;
                 message_warning += name + "(size " + std::to_string(size) + ") ";
             }
+            message_warning += "max size " + std::to_string(maxSize);
             serr << message_warning << sendl;
         }
     }
@@ -1241,6 +1248,12 @@ void MechanicalObject<DataTypes>::init()
     if (f_reserve.getValue() > 0)
         reserve(f_reserve.getValue());
 
+    if (l_topology && getSize() < l_topology->getNbPoints())
+    {
+        serr << "Resizing to " << l_topology->getNbPoints() << " to match topology points" << sendl;
+        resize(l_topology->getNbPoints());
+    }
+
     if(isToPrint.getValue()==true) 
     {
         x.setPersistent(false);
@@ -1248,6 +1261,7 @@ void MechanicalObject<DataTypes>::init()
         f.setPersistent(false);
         externalForces.setPersistent(false);
         dx.setPersistent(false);
+        dforce.setPersistent(false);
         xfree.setPersistent(false);
         vfree.setPersistent(false);
         x0.setPersistent(false);
