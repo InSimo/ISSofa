@@ -265,7 +265,14 @@ void JointSpringForceField<DataTypes>::addSpringForce( double& /*potentialEnergy
         // update lawfull torsion
         projectTorsion(spring);
         Vector extraTorsion=spring.torsion-spring.lawfulTorsion;
-        Real psi=extraTorsion.norm(); extraTorsion/=psi;		while(psi<-pi) psi+=pi2; while(psi>pi) psi-=pi2; 		extraTorsion*=psi;
+        Real psi = extraTorsion.norm();
+        if (std::abs(psi) > pi)
+        {
+            extraTorsion /= psi;
+            while(psi<-pi) psi += pi2;
+            while(psi>pi) psi -= pi2;
+            extraTorsion *= psi;
+        }
 
         for (unsigned int i=0; i<3; i++)
             if(spring.freeMovements[3+i] && spring.torsion[i]!=spring.lawfulTorsion[i]) // outside limits
