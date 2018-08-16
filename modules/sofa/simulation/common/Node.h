@@ -334,10 +334,7 @@ public:
     /// Generic object access, possibly searching up or down from the current context
     ///
     /// Note that the template wrapper method should generally be used to have the correct return type,
-    void* getObject(const sofa::core::objectmodel::BaseClass* class_info, SearchDirection dir = SearchUp) const
-    {
-        return getObject(class_info, sofa::core::objectmodel::TagSet(), dir);
-    }
+    void* getObject(const sofa::core::objectmodel::BaseClass* class_info, SearchDirection dir = SearchUp) const;
 
     /// Generic object access, given a path from the current context
     ///

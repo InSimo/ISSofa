@@ -55,6 +55,7 @@
 
 //#define DEBUG_VISITOR
 //#define DEBUG_LINK
+#define DEBUG_TOPOLOGY
 
 namespace sofa
 {
@@ -645,7 +646,20 @@ core::topology::Topology* Node::getTopology() const
     if (this->topology)
         return this->topology;
     else
-        return get<core::topology::Topology>(SearchParents);
+    {
+        core::topology::Topology* result = get<core::topology::Topology>(SearchParents);
+#ifdef DEBUG_TOPOLOGY
+        if (result && this->getActiveMeshTopology() == nullptr)
+        {
+            core::objectmodel::BaseNode* rnode = core::objectmodel::BaseNode::DynamicCast(result->getContext());
+            serr << "getTopology() called from " << getPathName()
+                 <<", returning topology " << rnode->getPathName() << "/" << result->getName()
+                 << " which is NOT ACTIVE (a Mapping that does not preserve topologies is in-between)" << sendl;
+            result = nullptr;
+        }
+#endif
+        return result;
+    }
 }
 
 /// Mesh Topology (unified interface for both static and dynamic topologies)
@@ -654,7 +668,46 @@ core::topology::BaseMeshTopology* Node::getMeshTopology() const
     if (this->meshTopology)
         return this->meshTopology;
     else
-        return get<core::topology::BaseMeshTopology>(SearchParents);
+    {
+        core::topology::BaseMeshTopology* result = get<core::topology::BaseMeshTopology>(SearchParents);
+#ifdef DEBUG_TOPOLOGY
+        if (result && this->getActiveMeshTopology() == nullptr)
+        {
+            core::objectmodel::BaseNode* rnode = core::objectmodel::BaseNode::DynamicCast(result->getContext());
+            serr << "getMeshTopology() called from " << getPathName()
+                 <<", returning topology " << rnode->getPathName() << "/" << result->getName()
+                 << " which is NOT ACTIVE (a Mapping that does not preserve topologies is in-between)" << sendl;
+            result = nullptr;
+        }
+#endif
+        return result;
+    }
+}
+
+/// Generic object access, possibly searching up or down from the current context
+///
+/// Note that the template wrapper method should generally be used to have the correct return type,
+void* Node::getObject(const sofa::core::objectmodel::BaseClass* class_info, SearchDirection dir) const
+{
+    void* result = getObject(class_info, sofa::core::objectmodel::TagSet(), dir);
+#ifdef DEBUG_TOPOLOGY
+    if (result && dir == SearchUp && class_info->hasParent(core::topology::BaseMeshTopology::GetClass()))
+    {
+        sofa::core::objectmodel::BaseClass::StaticCastFunction* pCastFn = class_info->getStaticCast(core::topology::BaseMeshTopology::GetClassId());
+        assert(pCastFn);
+        core::topology::BaseMeshTopology* rmesh = static_cast<core::topology::BaseMeshTopology*>((*pCastFn)(result));
+        assert(result);
+        if (rmesh->getContext() != this && this->getActiveMeshTopology() != rmesh)
+        {
+            core::objectmodel::BaseNode* rnode = core::objectmodel::BaseNode::DynamicCast(rmesh->getContext());
+            serr << "get<"<<class_info->className<<">() called from " << getPathName()
+                 <<", returning topology " << rnode->getPathName() << "/" << rmesh->getName()
+                 << " which is NOT ACTIVE (a Mapping that does not preserve topologies is in-between)" << sendl;
+            result = nullptr;
+        }
+    }
+#endif
+    return result;
 }
 
 /// Mesh Topology that is local to this context (i.e. not within parent contexts)
