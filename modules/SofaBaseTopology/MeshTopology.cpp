@@ -41,138 +41,27 @@ namespace component
 namespace topology
 {
 
-
-
-MeshTopology::EdgeUpdate::EdgeUpdate(MeshTopology* t)
-    :PrimitiveUpdate(t)
+void MeshTopology::updateEdges()
 {
-    if( topology->hasVolume() )
-    {
-        addInput(&topology->seqHexahedra);
-        addInput(&topology->seqTetrahedra);
-        addOutput(&topology->seqEdges);
-        setDirtyValue();
-    }
-    else if( topology->hasSurface() )
-    {
-        addInput(&topology->seqTriangles);
-        addInput(&topology->seqQuads);
-        addOutput(&topology->seqEdges);
-        setDirtyValue();
-    }
+    const SeqTriangles& triangles = this->getTriangles(); // do not use seqTriangles directly as it might not be up-to-date
+    const SeqQuads& quads = this->getQuads(); // do not use seqQuads directly as it might not be up-to-date
+    if (triangles.empty() && quads.empty()) return;
 
-}
-
-void MeshTopology::EdgeUpdate::update()
-{
-    if(topology->hasVolume() ) updateFromVolume();
-    else if(topology->hasSurface()) updateFromSurface();
-}
-
-void MeshTopology::EdgeUpdate::updateFromVolume()
-{
-    typedef MeshTopology::SeqTetrahedra SeqTetrahedra;
-    typedef MeshTopology::SeqHexahedra  SeqHexahedra;
-    typedef MeshTopology::SeqEdges     SeqEdges;
-    typedef MeshTopology::Tetra Tetra;
-    typedef MeshTopology::Hexa Hexa;
-
-    SeqEdges& seqEdges = *topology->seqEdges.beginEdit();
-    seqEdges.clear();
+    SeqEdges& seqEdges = *this->seqEdges.beginEdit();
+    //seqEdges.clear();
     std::map<Edge,unsigned int> edgeMap;
     int edgeIndex;
-
-    const SeqTetrahedra& tetrahedra = topology->getTetrahedra(); // do not use seqTetrahedra directly as it might not be up-to-date
-    const unsigned int edgesInTetrahedronArray[6][2]= {{0,1},{0,2},{0,3},{1,2},{1,3},{2,3}};
-    for (unsigned int i = 0; i < tetrahedra.size(); ++i)
+    for (unsigned int i = 0; i < seqEdges.size(); ++i)
     {
-        const Tetra &t=tetrahedra[i];
-        std::map<Edge,unsigned int>::iterator ite;
-        Edge e;
-        for (unsigned int j=0; j<6; ++j)
-        {
-            unsigned int v1=t[edgesInTetrahedronArray[j][0]];
-            unsigned int v2=t[edgesInTetrahedronArray[j][1]];
-            // sort vertices in lexicographics order
-            if (v1<v2)
-                e=Edge(v1,v2);
-            else
-                e=Edge(v2,v1);
-
-            ite=edgeMap.find(e);
-            if (ite==edgeMap.end())
-            {
-                // edge not in edgeMap so create a new one
-                edgeIndex=seqEdges.size();
-                edgeMap[e]=edgeIndex;
-                seqEdges.push_back(e);
-            }
-            else
-            {
-                edgeIndex=(*ite).second;
-            }
-            //m_edgesInTetrahedron[i][j]=edgeIndex;
-        }
+        Edge e = seqEdges[i];
+        // sort vertices in lexicographics order
+        if (e[0]>e[1])
+            e=Edge(e[1],e[0]);
+        edgeMap[e] = i;
     }
-
-    // fjourdes :
-    // should the edgeMap be cleared here ? Sounds strange but it seems that is what was done in previous method.
-
-    const SeqHexahedra& hexahedra = topology->getHexahedra(); // do not use seqHexahedra directly as it might not be up-to-date
-    const unsigned int edgeHexahedronDescriptionArray[12][2]= {{0,1},{0,3},{0,4},{1,2},{1,5},{2,3},{2,6},{3,7},{4,5},{4,7},{5,6},{6,7}};
-    // create a temporary map to find redundant edges
-
-    /// create the m_edge array at the same time than it fills the m_edgesInHexahedron array
-    for (unsigned int i = 0; i < hexahedra.size(); ++i)
-    {
-        const Hexa &h=hexahedra[i];
-        std::map<Edge,unsigned int>::iterator ite;
-        Edge e;
-        for (unsigned int j=0; j<12; ++j)
-        {
-            unsigned int v1=h[edgeHexahedronDescriptionArray[j][0]];
-            unsigned int v2=h[edgeHexahedronDescriptionArray[j][1]];
-            // sort vertices in lexicographics order
-            if (v1<v2)
-                e=Edge(v1,v2);
-            else
-                e=Edge(v2,v1);
-
-            ite=edgeMap.find(e);
-            if (ite==edgeMap.end())
-            {
-                // edge not in edgeMap so create a new one
-                edgeIndex=seqEdges.size();
-                edgeMap[e]=edgeIndex;
-                seqEdges.push_back(e);
-
-            }
-            else
-            {
-                edgeIndex=(*ite).second;
-            }
-            //m_edgesInHexahedron[i][j]=edgeIndex;
-        }
-    }
-    topology->seqEdges.endEdit();
-}
-
-void MeshTopology::EdgeUpdate::updateFromSurface()
-{
-    typedef MeshTopology::SeqTriangles SeqTriangles;
-    typedef MeshTopology::SeqQuads     SeqQuads;
-    typedef MeshTopology::SeqEdges     SeqEdges;
-    typedef MeshTopology::Triangle     Triangle;
-    typedef MeshTopology::Quad         Quad;
-
-    std::map<Edge,unsigned int> edgeMap;
-    int edgeIndex;
-    SeqEdges& seqEdges = *topology->seqEdges.beginEdit();
-    seqEdges.clear();
-    const SeqTriangles& triangles = topology->getTriangles(); // do not use seqTriangles directly as it might not be up-to-date
     for (unsigned int i = 0; i < triangles.size(); ++i)
     {
-        const Triangle &t=triangles[i];
+        const Triangle t=triangles[i];
         std::map<Edge,unsigned int>::iterator ite;
         Edge e;
         for (unsigned int j=0; j<3; ++j)
@@ -190,7 +79,7 @@ void MeshTopology::EdgeUpdate::updateFromSurface()
                 // edge not in edgeMap so create a new one
                 edgeIndex=seqEdges.size();
                 edgeMap[e]=edgeIndex;
-                seqEdges.push_back(e);
+                seqEdges.push_back(Edge(v1,v2));
             }
             else
             {
@@ -200,7 +89,6 @@ void MeshTopology::EdgeUpdate::updateFromSurface()
         }
     }
 
-    const SeqQuads& quads = topology->getQuads(); // do not use seqQuads directly as it might not be up-to-date
     for (unsigned int i = 0; i < quads.size(); ++i)
     {
         const Quad &t=quads[i];
@@ -221,7 +109,7 @@ void MeshTopology::EdgeUpdate::updateFromSurface()
                 // edge not in edgeMap so create a new one
                 edgeIndex=seqEdges.size();
                 edgeMap[e]=edgeIndex;
-                seqEdges.push_back(e);
+                seqEdges.push_back(Edge(v1,v2));
             }
             else
             {
@@ -231,28 +119,28 @@ void MeshTopology::EdgeUpdate::updateFromSurface()
         }
     }
 
-    topology->seqEdges.endEdit();
+    this->seqEdges.endEdit();
 }
 
 
-MeshTopology::TriangleUpdate::TriangleUpdate(MeshTopology *t)
-    :PrimitiveUpdate(t)
+void MeshTopology::updateTriangles()
 {
-    addInput(&topology->seqTetrahedra);
-    addOutput(&topology->seqTriangles);
-    setDirtyValue();
-}
-
-
-void MeshTopology::TriangleUpdate::update()
-{
-    typedef MeshTopology::SeqTetrahedra SeqTetrahedra;
-    typedef MeshTopology::SeqTriangles SeqTriangles;
-    const SeqTetrahedra& tetrahedra = topology->getTetrahedra();
-    SeqTriangles& seqTriangles = *topology->seqTriangles.beginEdit();
-    seqTriangles.clear();
+    const SeqTetrahedra& tetrahedra = this->getTetrahedra();
+    if (tetrahedra.empty()) return;
+    SeqTriangles& seqTriangles = *this->seqTriangles.beginEdit();
+    //seqTriangles.clear();
     // create a temporary map to find redundant triangles
     std::map<Triangle,unsigned int> triangleMap;
+    for (unsigned int i = 0; i < seqTriangles.size(); ++i)
+    {
+        Triangle v=seqTriangles[i];
+        // sort v such that v[0] is the smallest one
+        while ((v[0]>v[1]) || (v[0]>v[2]))
+        {
+            unsigned int val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=val;
+        }
+        triangleMap[v] = i;
+    }
     std::map<Triangle,unsigned int>::iterator itt;
     Triangle tr;
     int triangleIndex;
@@ -260,7 +148,7 @@ void MeshTopology::TriangleUpdate::update()
     /// create the m_edge array at the same time than it fills the m_trianglesInTetrahedron array
     for (unsigned int i = 0; i < tetrahedra.size(); ++i)
     {
-        const Tetra &t=topology->seqTetrahedra.getValue()[i];
+        const Tetra t=tetrahedra[i];
         for (unsigned int j=0; j<4; ++j)
         {
             if (j%2)
@@ -277,14 +165,17 @@ void MeshTopology::TriangleUpdate::update()
             {
                 val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=val;
             }
-            // check if a triangle with an opposite orientation already exists
-            tr=Triangle(v[0],v[2],v[1]);
+            tr=Triangle(v[0],v[1],v[2]);
             itt=triangleMap.find(tr);
             if (itt==triangleMap.end())
             {
-                // edge not in edgeMap so create a new one
+                // check if a triangle with an opposite orientation already exists
+                itt = triangleMap.find(Triangle(v[0],v[2],v[1]));
+            }
+            if (itt==triangleMap.end())
+            {
+                // triangle not in triangleMap so create a new one
                 triangleIndex=seqTriangles.size();
-                tr=Triangle(v[0],v[1],v[2]);
                 triangleMap[tr]=triangleIndex;
                 seqTriangles.push_back(tr);
             }
@@ -296,213 +187,77 @@ void MeshTopology::TriangleUpdate::update()
         }
     }
 
-    topology->seqTriangles.endEdit();
+    this->seqTriangles.endEdit();
 
 }
 
-MeshTopology::QuadUpdate::QuadUpdate(MeshTopology *t)
-    :PrimitiveUpdate(t)
+void MeshTopology::updateQuads()
 {
-    addInput(&topology->seqHexahedra);
-    addOutput(&topology->seqQuads);
-    setDirtyValue();
-}
+    const SeqHexahedra& hexahedra = this->getHexahedra(); // do not use seqQuads directly as it might not be up-to-date
+    if (hexahedra.empty()) return; // no hexahedra to extract quads from
 
-void MeshTopology::QuadUpdate::update()
-{
-    typedef MeshTopology::SeqHexahedra SeqHexahedra;
-    typedef MeshTopology::SeqQuads SeqQuads;
-
-    SeqQuads& seqQuads = *topology->seqQuads.beginEdit();
-    seqQuads.clear();
-
-    if (topology->getNbHexahedra()==0) return; // no hexahedra to extract edges from
-
-    const SeqHexahedra& hexahedra = topology->getHexahedra(); // do not use seqQuads directly as it might not be up-to-date
+    SeqQuads& seqQuads = *this->seqQuads.beginEdit();
+    //seqQuads.clear();
 
     // create a temporary map to find redundant quads
     std::map<Quad,unsigned int> quadMap;
+    for (unsigned int i = 0; i < seqQuads.size(); ++i)
+    {
+        Quad v=seqQuads[i];
+        // sort v such that v[0] is the smallest one
+        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
+        {
+            unsigned int val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
+        }
+        quadMap[v] = i;
+    }
+
     std::map<Quad,unsigned int>::iterator itt;
-    Quad qu;
-    unsigned int v[4],val;
+    Quad v,qt[6];
+    unsigned int val;
     int quadIndex;
     /// create the m_edge array at the same time than it fills the m_edgesInHexahedron array
     for (unsigned int i = 0; i < hexahedra.size(); ++i)
     {
-        const Hexa &h=hexahedra[i];
+        const Hexa h=hexahedra[i];
 
-        // Quad 0 :
-        v[0]=h[0]; v[1]=h[3]; v[2]=h[2]; v[3]=h[1];
-        // sort v such that v[0] is the smallest one
-        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
-        {
-            val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
-        }
-        //std::sort(v,v+1); std::sort(v,v+2); std::sort(v,v+3);
-        //std::sort(v+1,v+2); std::sort(v+1,v+3);
-        //std::sort(v+2,v+3);
-        // sort vertices in lexicographics order
-        qu=Quad(v[0],v[3],v[2],v[1]);
-        itt=quadMap.find(qu);
-        if (itt==quadMap.end())
-        {
-            // quad not in edgeMap so create a new one
-            quadIndex=seqQuads.size();
-            quadMap[qu]=quadIndex;
-            qu=Quad(v[0],v[1],v[2],v[3]);
-            quadMap[qu]=quadIndex;
+        qt[0][0]=h[0]; qt[0][1]=h[3]; qt[0][2]=h[2]; qt[0][3]=h[1];
+        qt[1][0]=h[4]; qt[1][1]=h[5]; qt[1][2]=h[6]; qt[1][3]=h[7];
+        qt[2][0]=h[0]; qt[2][1]=h[1]; qt[2][2]=h[5]; qt[2][3]=h[4];
+        qt[3][0]=h[1]; qt[3][1]=h[2]; qt[3][2]=h[6]; qt[3][3]=h[5];
+        qt[4][0]=h[2]; qt[4][1]=h[3]; qt[4][2]=h[7]; qt[4][3]=h[6];
+        qt[5][0]=h[3]; qt[5][1]=h[0]; qt[5][2]=h[4]; qt[5][3]=h[7];
 
-            seqQuads.push_back(qu);
-        }
-        else
+        for (unsigned int j = 0; j < 6; ++j)
         {
-            quadIndex=(*itt).second;
+            v = qt[j];
+            // sort v such that v[0] is the smallest one
+            while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
+            {
+                val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
+            }
+            itt=quadMap.find(v);
+            if (itt==quadMap.end())
+            {
+                // check if a quad with an opposite orientation already exists
+                itt=quadMap.find(Quad(v[0],v[3],v[2],v[1]));
+            }
+            if (itt==quadMap.end())
+            {
+                // quad not in quadMap so create a new one
+                quadIndex=seqQuads.size();
+                quadMap[v]=quadIndex;
+                seqQuads.push_back(v);
+            }
+            else
+            {
+                quadIndex=(*itt).second;
+            }
+            //m_quadsInHexahedron[i][0]=quadIndex;
         }
-        //m_quadsInHexahedron[i][0]=quadIndex;
-
-        // Quad 1 :
-        v[0]=h[4]; v[1]=h[5]; v[2]=h[6]; v[3]=h[7];
-        // sort v such that v[0] is the smallest one
-        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
-        {
-            val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
-        }
-        //std::sort(v,v+1); std::sort(v,v+2); std::sort(v,v+3);
-        //std::sort(v+1,v+2); std::sort(v+1,v+3);
-        //std::sort(v+2,v+3);
-        // sort vertices in lexicographics order
-        qu=Quad(v[0],v[3],v[2],v[1]);
-        itt=quadMap.find(qu);
-        if (itt==quadMap.end())
-        {
-            // quad not in edgeMap so create a new one
-            quadIndex=seqQuads.size();
-            quadMap[qu]=quadIndex;
-            qu=Quad(v[0],v[1],v[2],v[3]);
-            quadMap[qu]=quadIndex;
-            seqQuads.push_back(qu);
-
-        }
-        else
-        {
-            quadIndex=(*itt).second;
-        }
-        //m_quadsInHexahedron[i][1]=quadIndex;
-
-        // Quad 2 :
-        v[0]=h[0]; v[1]=h[1]; v[2]=h[5]; v[3]=h[4];
-        // sort v such that v[0] is the smallest one
-        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
-        {
-            val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
-        }
-        //std::sort(v,v+1); std::sort(v,v+2); std::sort(v,v+3);
-        //std::sort(v+1,v+2); std::sort(v+1,v+3);
-        //std::sort(v+2,v+3);
-        // sort vertices in lexicographics order
-        qu=Quad(v[0],v[3],v[2],v[1]);
-        itt=quadMap.find(qu);
-        if (itt==quadMap.end())
-        {
-            // quad not in edgeMap so create a new one
-            quadIndex=seqQuads.size();
-            quadMap[qu]=quadIndex;
-            qu=Quad(v[0],v[1],v[2],v[3]);
-            quadMap[qu]=quadIndex;
-            seqQuads.push_back(qu);
-        }
-        else
-        {
-            quadIndex=(*itt).second;
-        }
-        //m_quadsInHexahedron[i][2]=quadIndex;
-
-        // Quad 3 :
-        v[0]=h[1]; v[1]=h[2]; v[2]=h[6]; v[3]=h[5];
-        // sort v such that v[0] is the smallest one
-        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
-        {
-            val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
-        }
-        //std::sort(v,v+1); std::sort(v,v+2); std::sort(v,v+3);
-        //std::sort(v+1,v+2); std::sort(v+1,v+3);
-        //std::sort(v+2,v+3);
-        // sort vertices in lexicographics order
-        qu=Quad(v[0],v[3],v[2],v[1]);
-        itt=quadMap.find(qu);
-        if (itt==quadMap.end())
-        {
-            // quad not in edgeMap so create a new one
-            quadIndex=topology->seqQuads.getValue().size();
-            quadMap[qu]=quadIndex;
-            qu=Quad(v[0],v[1],v[2],v[3]);
-            quadMap[qu]=quadIndex;
-            seqQuads.push_back(qu);
-        }
-        else
-        {
-            quadIndex=(*itt).second;
-        }
-        //m_quadsInHexahedron[i][3]=quadIndex;
-
-        // Quad 4 :
-        v[0]=h[2]; v[1]=h[3]; v[2]=h[7]; v[3]=h[6];
-        // sort v such that v[0] is the smallest one
-        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
-        {
-            val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
-        }
-        //std::sort(v,v+1); std::sort(v,v+2); std::sort(v,v+3);
-        //std::sort(v+1,v+2); std::sort(v+1,v+3);
-        //std::sort(v+2,v+3);
-        // sort vertices in lexicographics order
-        qu=Quad(v[0],v[3],v[2],v[1]);
-        itt=quadMap.find(qu);
-        if (itt==quadMap.end())
-        {
-            // quad not in edgeMap so create a new one
-            quadIndex=seqQuads.size();
-            quadMap[qu]=quadIndex;
-            qu=Quad(v[0],v[1],v[2],v[3]);
-            quadMap[qu]=quadIndex;
-            seqQuads.push_back(qu);
-        }
-        else
-        {
-            quadIndex=(*itt).second;
-        }
-        //m_quadsInHexahedron[i][4]=quadIndex;
-
-        // Quad 5 :
-        v[0]=h[3]; v[1]=h[0]; v[2]=h[4]; v[3]=h[7];
-        // sort v such that v[0] is the smallest one
-        while ((v[0]>v[1]) || (v[0]>v[2]) || (v[0]>v[3]))
-        {
-            val=v[0]; v[0]=v[1]; v[1]=v[2]; v[2]=v[3]; v[3]=val;
-        }
-        //std::sort(v,v+1); std::sort(v,v+2); std::sort(v,v+3);
-        //std::sort(v+1,v+2); std::sort(v+1,v+3);
-        //std::sort(v+2,v+3);
-        // sort vertices in lexicographics order
-        qu=Quad(v[0],v[3],v[2],v[1]);
-        itt=quadMap.find(qu);
-        if (itt==quadMap.end())
-        {
-            // quad not in edgeMap so create a new one
-            quadIndex=seqQuads.size();
-            quadMap[qu]=quadIndex;
-            qu=Quad(v[0],v[1],v[2],v[3]);
-            quadMap[qu]=quadIndex;
-            seqQuads.push_back(qu);
-        }
-        else
-        {
-            quadIndex=(*itt).second;
-        }
-        //m_quadsInHexahedron[i][5]=quadIndex;
     }
 
-    topology->seqQuads.endEdit();
+    this->seqQuads.endEdit();
 }
 
 using namespace sofa::defaulttype;
@@ -614,37 +369,9 @@ void MeshTopology::init()
         nbPoints = n;
     }
 
-    if(seqEdges.getValue().empty() )
-    {
-        if(seqEdges.getParent() != NULL )
-        {
-            seqEdges.delInput(seqEdges.getParent());
-        }
-        EdgeUpdate::SPtr edgeUpdate = sofa::core::objectmodel::New<EdgeUpdate>(this);
-        edgeUpdate->setName("edgeUpdate");
-        this->addSlave(edgeUpdate);
-    }
-    if(seqTriangles.getValue().empty() )
-    {
-        if(seqTriangles.getParent() != NULL)
-        {
-            seqTriangles.delInput(seqTriangles.getParent());
-        }
-        TriangleUpdate::SPtr triangleUpdate = sofa::core::objectmodel::New<TriangleUpdate>(this);
-        triangleUpdate->setName("triangleUpdate");
-        this->addSlave(triangleUpdate);
-    }
-    if(seqQuads.getValue().empty() )
-    {
-        if(seqQuads.getParent() != NULL )
-        {
-            seqQuads.delInput(seqQuads.getParent());
-        }
-        QuadUpdate::SPtr quadUpdate = sofa::core::objectmodel::New<QuadUpdate>(this);
-        quadUpdate->setName("quadUpdate");
-        this->addSlave(quadUpdate);
-    }
-
+    updateQuads();
+    updateTriangles();
+    updateEdges();
 
     for(PointID pid=0;pid<(std::size_t)this->getNbPoints();++pid)
     {
@@ -1161,15 +888,15 @@ void MeshTopology::createOrientedTrianglesAroundVertexArray()
             currentEdge = nextEdge;
             nextEdge = InvalidID;
             // FIX: check is currentEdge is not already in orientedEdgesAroundVertex to avoid infinite loops in case of non manifold topology
-            for (unsigned int j = 0; i < m_orientedEdgesAroundVertex[i].size(); ++i)
+            for (unsigned int j = 0; j < m_orientedEdgesAroundVertex[i].size(); ++j)
             {
                 if (m_orientedEdgesAroundVertex[i][j] == currentEdge)
                 {
                     currentEdge = InvalidID; // go out of the while loop
                     break;
+                }
+            }
         }
-    }
-}
     }
 }
 

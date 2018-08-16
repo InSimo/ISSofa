@@ -67,50 +67,10 @@ public:
     SOFA_CLASS(MeshTopology,core::topology::BaseMeshTopology);
 protected:
 
-    class PrimitiveUpdate : public sofa::core::DataEngine
-    {
-    public:
-        typedef Topology::Edge Edge;
-        typedef Topology::Quad Quad;
-        typedef Topology::Triangle Triangle;
-        typedef Topology::Hexa Hexa;
-        typedef Topology::Tetra Tetra;
-        SOFA_ABSTRACT_CLASS(PrimitiveUpdate,sofa::core::DataEngine);
-        PrimitiveUpdate(MeshTopology* t):topology(t) {}
-    protected:
-        MeshTopology* topology;
-    };
-private:
+    void updateEdges();
+    void updateTriangles();
+    void updateQuads();
 
-    class EdgeUpdate : public PrimitiveUpdate
-    {
-    public:
-        SOFA_CLASS(EdgeUpdate,PrimitiveUpdate);
-        EdgeUpdate(MeshTopology* t);
-        void update();
-    protected:
-        void updateFromVolume();
-        void updateFromSurface();
-    };
-
-
-    class TriangleUpdate : public PrimitiveUpdate
-    {
-    public:
-
-        SOFA_CLASS(TriangleUpdate,PrimitiveUpdate);
-        TriangleUpdate(MeshTopology* t);
-        void update();
-    };
-
-    class QuadUpdate : public PrimitiveUpdate
-    {
-    public:
-        SOFA_CLASS(QuadUpdate,PrimitiveUpdate);
-        QuadUpdate(MeshTopology* t);
-        void update();
-    };
-protected:
     MeshTopology();
 public:
     virtual void init();
