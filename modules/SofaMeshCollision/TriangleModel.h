@@ -137,51 +137,30 @@ public:
 	enum { NBARY = 2 };
 
 protected:
-#if 0
-    struct TriangleInfo
-    {
-        //int i1,i2,i3;
-        //int flags;
-        Deriv normal;
 
-        /// Output stream
-        inline friend std::ostream& operator<< ( std::ostream& os, const TriangleInfo& ti )
-        {
-            return os << ti.normal;
-        }
-
-        /// Input stream
-        inline friend std::istream& operator>> ( std::istream& in, TriangleInfo& ti )
-        {
-            return in >> ti.normal;
-        }
-    };
-#endif
-
-    //topology::TriangleData<TriangleInfo> elems;
     VecDeriv normals;
 
-    const sofa::core::topology::BaseMeshTopology::SeqTriangles* triangles;
+    const sofa::core::topology::BaseMeshTopology::SeqTriangles* triangles = nullptr;
 
     sofa::core::topology::BaseMeshTopology::SeqTriangles mytriangles;
 
-    bool needsUpdate;
+    bool needsUpdate = false;
     virtual void updateFromTopology();
-    virtual void updateFlags(int ntri=-1);
     virtual void updateNormals();
-    int getTriangleFlags(int i);
+    virtual void updateFlags();
+    int getTriangleFlags(int i) const;
 
-    core::behavior::MechanicalState<DataTypes>* mstate;
+    core::behavior::MechanicalState<DataTypes>* mstate = nullptr;
     Data<bool> computeNormals;
-    sofa::component::topology::TriangleData< sofa::helper::vector< int > > d_triangleFlags;
     Data<Real> d_triangleFlagBorderAngleThreshold;
-    int meshRevision;
+    int meshRevision = -1;
+    sofa::helper::vector<int> triangleFlags;
 
-    sofa::core::topology::BaseMeshTopology* _topology;
+    sofa::core::topology::BaseMeshTopology* _topology = nullptr;
 
-    PointModel* mpoints;
+    PointModel* mpoints = nullptr;
 
-    TriangleLocalMinDistanceFilter *m_lmdFilter;
+    TriangleLocalMinDistanceFilter *m_lmdFilter = nullptr;
 
 
 
@@ -190,25 +169,23 @@ protected:
 
     TTriangleModel();
 public:
-    virtual void init();
-
-    void reinit() override;
+    virtual void init() override;
 
     // -- CollisionModel interface
 
     virtual void resize(int size);
 
-    virtual void computeBoundingTree(int maxDepth=0);
+    virtual void computeBoundingTree(int maxDepth=0) override;
 
-    virtual void computeContinuousBoundingTree(double dt, int maxDepth=0);
+    virtual void computeContinuousBoundingTree(double dt, int maxDepth=0) override;
 
     void draw(const core::visual::VisualParams*,int index);
 
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams* vparams) override;
 
-    virtual bool canCollideWithElement(int index, CollisionModel* model2, int index2);
+    virtual bool canCollideWithElement(int index, CollisionModel* model2, int index2) override;
 
-    virtual void handleTopologyChange();
+    virtual void handleTopologyChange() override;
 
     core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return mstate; }
     const core::behavior::MechanicalState<DataTypes>* getMechanicalState() const { return mstate; }
