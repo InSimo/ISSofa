@@ -1354,8 +1354,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
 
     mapper = NULL;
 
-    topology::PointSetTopologyContainer* toTopoCont;
-    this->toModel->getContext()->get(toTopoCont);
+    topology::PointSetTopologyContainer* toTopoCont = topology::PointSetTopologyContainer::DynamicCast(this->toModel->getContext()->getActiveMeshTopology());
 
     core::topology::TopologyContainer* fromTopoCont = 0;
 //	this->fromModel->getContext()->get(fromTopoCont);
@@ -1456,8 +1455,8 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
 template <class TIn, class TOut>
 void BarycentricMapping<TIn, TOut>::init()
 {
-    topology_from = this->fromModel->getContext()->getMeshTopology();
-    topology_to = this->toModel->getContext()->getMeshTopology();
+    topology_from = this->fromModel->getContext()->getActiveMeshTopology();
+    topology_to = this->toModel->getContext()->getActiveMeshTopology();
 
     //IPB
     //core::objectmodel::BaseContext* context = this->fromModel->getContext();

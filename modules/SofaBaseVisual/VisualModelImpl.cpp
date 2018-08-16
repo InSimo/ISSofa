@@ -770,7 +770,7 @@ void VisualModelImpl::addTopoHandler(topology::PointData<VecType>* data, int alg
 
 void VisualModelImpl::init()
 {
-    m_topology = getContext()->getMeshTopology();
+    m_topology = getContext()->getActiveMeshTopology();
     if (m_vertPosIdx.getValue().size() > 0 && m_vertices2.getValue().empty())
     { // handle case where vertPosIdx was initialized through a loader
         m_vertices2.setValue(m_positions.getValue());

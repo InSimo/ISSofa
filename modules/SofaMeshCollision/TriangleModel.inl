@@ -79,12 +79,11 @@ void TTriangleModel<DataTypes>::resize(int size)
 template<class DataTypes>
 void TTriangleModel<DataTypes>::init()
 {
-    _topology = this->getContext()->getMeshTopology();
-
-    this->CollisionModel::init();
+    _topology = this->getContext()->getActiveMeshTopology();
     mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
-
     this->getContext()->get(mpoints);
+
+    Inherit1::init();
 
     if (mstate==NULL)
     {
