@@ -85,15 +85,13 @@ void Triangle2EdgeTopologicalMapping::init()
 
             sout << "INFO_print : Triangle2EdgeTopologicalMapping - to = edge" << sendl;
 
-            EdgeSetTopologyContainer *to_tstc;
-            toModel->getContext()->get(to_tstc);
+            EdgeSetTopologyContainer *to_tstc = EdgeSetTopologyContainer::DynamicCast(toModel.get());
             to_tstc->clear();
 
-            toModel->setNbPoints(fromModel->getNbPoints());
-
-
             EdgeSetTopologyModifier *to_tstm;
-            toModel->getContext()->get(to_tstm);
+            toModel->getContext()->get(to_tstm, sofa::core::objectmodel::BaseContext::Local);
+
+            to_tstm->addPointsProcess(fromModel->getNbPoints());
 
             const sofa::helper::vector<Edge> &edgeArray=fromModel->getEdges();
 

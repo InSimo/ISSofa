@@ -89,14 +89,13 @@ void Hexa2QuadTopologicalMapping::init()
 
             sout << "INFO_print : Hexa2QuadTopologicalMapping - to = quad" << sendl;
 
-            QuadSetTopologyContainer *to_tstc;
-            toModel->getContext()->get(to_tstc);
+            QuadSetTopologyContainer *to_tstc = QuadSetTopologyContainer::DynamicCast(toModel.get());
             to_tstc->clear();
 
-            toModel->setNbPoints(fromModel->getNbPoints());
-
             QuadSetTopologyModifier *to_tstm;
-            toModel->getContext()->get(to_tstm);
+            toModel->getContext()->get(to_tstm, sofa::core::objectmodel::BaseContext::Local);
+
+            to_tstm->addPointsProcess(fromModel->getNbPoints());
 
             const sofa::helper::vector<Quad> &quadArray=fromModel->getQuads();
 

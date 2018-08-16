@@ -130,7 +130,7 @@ void Edge2QuadTopologicalMapping::init()
 
             to_tstc->clear();
 
-            toModel->setNbPoints(fromModel->getNbPoints() * N);
+            to_tstm->addPointsProcess(fromModel->getNbPoints() * N);
 
             if (to_mstate)
             {

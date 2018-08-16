@@ -90,14 +90,14 @@ void Hexa2TetraTopologicalMapping::init()
 
             sout << "INFO_print : Hexa2TetraTopologicalMapping - to = tetra" << sendl;
 
-            TetrahedronSetTopologyContainer *to_tstc;
-            toModel->getContext()->get(to_tstc);
+            TetrahedronSetTopologyContainer *to_tstc = TetrahedronSetTopologyContainer::DynamicCast(toModel.get());
             to_tstc->clear();
 
-            toModel->setNbPoints(fromModel->getNbPoints());
-
             TetrahedronSetTopologyModifier *to_tstm;
-            toModel->getContext()->get(to_tstm);
+            toModel->getContext()->get(to_tstm, sofa::core::objectmodel::BaseContext::Local);
+
+            const unsigned int nbpoints = (unsigned)fromModel->getNbPoints();
+            to_tstm->addPointsProcess(nbpoints);
 
             sofa::helper::vector <unsigned int>& Loc2GlobVec = *(Loc2GlobDataVec.beginEdit());
 
@@ -128,6 +128,12 @@ void Hexa2TetraTopologicalMapping::init()
             {
 #ifdef SOFA_NEW_HEXA
                 core::topology::BaseMeshTopology::Hexa c = fromModel->getHexahedron(i);
+                if (c[0] >= nbpoints || c[1] >= nbpoints || c[2] >= nbpoints || c[3] >= nbpoints || 
+                    c[4] >= nbpoints || c[5] >= nbpoints || c[6] >= nbpoints || c[7] >= nbpoints )
+                {
+                    serr << "Invalid input hexahedron: " << c << " (topology has " << nbpoints << " vertices)." << sendl;
+                    continue;
+                }
 #define swap(a,b) { int t = a; a = b; b = t; }
                 // TODO : swap indexes where needed (currently crash in TriangleSetContainer)
                 bool swapped = false;

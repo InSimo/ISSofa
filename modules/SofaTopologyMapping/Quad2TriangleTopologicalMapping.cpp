@@ -95,21 +95,18 @@ void Quad2TriangleTopologicalMapping::init()
 
             sout << "INFO_print : Quad2TriangleTopologicalMapping - to = triangle" << sendl;
 
-            TriangleSetTopologyContainer *to_tstc;
-            toModel->getContext()->get(to_tstc);
+            TriangleSetTopologyContainer *to_tstc = TriangleSetTopologyContainer::DynamicCast(toModel.get());
             to_tstc->clear();
 
-            toModel->setNbPoints(fromModel->getNbPoints());
-
+            TriangleSetTopologyModifier *to_tstm;
+            toModel->getContext()->get(to_tstm, sofa::core::objectmodel::BaseContext::Local);
 
             for (int i=0; i<fromModel->getNbPoints(); i++)
             {
-                toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
+                to_tstc->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
             }
-
-
-            TriangleSetTopologyModifier *to_tstm;
-            toModel->getContext()->get(to_tstm);
+            // necessary to make sure all shell info are resized, as toModel is already initialized at this point.
+            to_tstm->addPointsProcess(0);
 
             const sofa::helper::vector<Quad> &quadArray=fromModel->getQuads();
 

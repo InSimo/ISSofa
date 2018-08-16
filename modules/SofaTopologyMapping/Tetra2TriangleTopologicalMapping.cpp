@@ -91,14 +91,14 @@ void Tetra2TriangleTopologicalMapping::init()
 
             sout << "INFO_print : Tetra2TriangleTopologicalMapping - to = triangle" << sendl;
 
-            TriangleSetTopologyContainer *to_tstc;
-            toModel->getContext()->get(to_tstc);
+            TriangleSetTopologyContainer *to_tstc = TriangleSetTopologyContainer::DynamicCast(toModel.get());
             to_tstc->clear();
 
-            toModel->setNbPoints(fromModel->getNbPoints());
-
             TriangleSetTopologyModifier *to_tstm;
-            toModel->getContext()->get(to_tstm);
+            toModel->getContext()->get(to_tstm, sofa::core::objectmodel::BaseContext::Local);
+
+            const unsigned int nbpoints = fromModel->getNbPoints();
+            to_tstm->addPointsProcess(nbpoints);
 
             const sofa::helper::vector<Triangle> &triangleArray=fromModel->getTriangles();
             const bool flipN = flipNormals.getValue();
@@ -119,15 +119,19 @@ void Tetra2TriangleTopologicalMapping::init()
 
                     if (fromModel->getTetrahedraAroundTriangle(i).size()==1)
                     {
+                        Triangle t = triangleArray[i];
+                        if (t[0] >= nbpoints || t[1] >= nbpoints || t[2] >= nbpoints)
+                        {
+                            serr << "Invalid input triangle: " << t << " (topology has " << nbpoints << " vertices)." << sendl;
+                            continue;
+                        }
                         if(flipN)
                         {
-                            Triangle t = triangleArray[i];
                             unsigned int tmp = t[2];
                             t[2] = t[1];
                             t[1] = tmp;
-                            trianglesToAdd.push_back(t);
                         }
-                        else	trianglesToAdd.push_back(triangleArray[i]);
+                        trianglesToAdd.push_back(t);
 
                         Loc2GlobVec.push_back(i);
                         Glob2LocMap[i]=Loc2GlobVec.size()-1;
