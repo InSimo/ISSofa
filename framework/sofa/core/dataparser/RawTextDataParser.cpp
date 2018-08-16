@@ -39,7 +39,7 @@ bool resultRawText = DataParserRegistry::addParser(std::unique_ptr<DataParser>(n
 RawTextDataParser::RawTextDataParser(std::string name) : DataParser(std::move(name))
 {}
 
-std::error_code RawTextDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+std::error_code RawTextDataParser::toData(std::istream& /*is*/, void* /*data*/, const defaulttype::AbstractTypeInfo* /*typeInfo*/) const
 {
     return make_error_code(DataParserError::unsupported_operation);
     // doing the following would consume the entire istream, so better return an error until there is a proper implementation of the parser

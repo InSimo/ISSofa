@@ -400,7 +400,7 @@ void Texture::init()
             return;
         }
         /* Pass through (no break!) */
-
+        /* FALLTHROUGH */
     case io::Image::FLOAT:
         if (image->getChannelFormat() <= io::Image::LA)
         {

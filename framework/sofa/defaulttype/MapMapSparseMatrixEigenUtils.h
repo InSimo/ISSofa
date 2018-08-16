@@ -103,7 +103,7 @@ struct EigenSparseToMapMapSparseMatrixVec
 
                 int i = 0;
                 const int*  colPtr = innerIndexPtr + offset;
-                const Real* valPtr = valuePtr + offset;
+                //const Real* valPtr = valuePtr + offset;
                 int   blockIndex   = *colPtr / TVec::size();
                 int   blockOffset  = *colPtr - (blockIndex * TVec::size());
 
@@ -112,13 +112,13 @@ struct EigenSparseToMapMapSparseMatrixVec
                 {
                     TVec val;
                     int currentBlockIndex = blockIndex;
-                    int currentCol   = *colPtr;
+                    //int currentCol   = *colPtr;
                     while (currentBlockIndex == blockIndex && i != rowNonZeros)
                     {
-                        val[blockOffset] = *valuePtr;
+                        val[blockOffset] = *valuePtr; // TODO: valPtr ?
                         ++i;
                         ++colPtr;
-                        ++valuePtr;
+                        ++valuePtr; // TODO: valPtr ?
                         blockIndex = *colPtr / TVec::size();
                         blockOffset = *colPtr - (blockIndex * TVec::size());
                     }

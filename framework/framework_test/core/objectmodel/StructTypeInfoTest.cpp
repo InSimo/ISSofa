@@ -29,7 +29,7 @@ struct EmptyStruct
     SOFA_STRUCT_DECL(EmptyStruct, SOFA_EMPTY);
     SOFA_STRUCT_STREAM_METHODS(EmptyStruct);
 
-    bool operator==(const EmptyStruct& rhs) const
+    bool operator==(const EmptyStruct&) const
     {
         return true;
     }
@@ -151,7 +151,7 @@ TYPED_TEST_CASE(DataStructTypeInfoTest, StructTypes);
 struct PrintName
 {
     template <typename MemberType>
-    void operator()(MemberType&& mt) const
+    void operator()(MemberType&&) const
     {
         using DataType = typename MemberType::type;
         std::cout << DataTypeName<DataType>::name() << " " << MemberType::name() << ", ";
@@ -160,7 +160,7 @@ struct PrintName
 struct PrintLastName
 {
     template <typename MemberType>
-    void operator()(MemberType&& mt) const
+    void operator()(MemberType&&) const
     {
         using DataType = typename MemberType::type;
         std::cout << DataTypeName<DataType>::name() << " " << MemberType::name();
@@ -169,7 +169,7 @@ struct PrintLastName
 struct PrintValue
 {
     template <typename MemberType>
-    void operator()(MemberType&& mt, const typename MemberType::type& t) const
+    void operator()(MemberType&&, const typename MemberType::type& t) const
     { 
         std::cout << t << ", ";
     }
@@ -177,7 +177,7 @@ struct PrintValue
 struct PrintLastValue
 {
     template <typename MemberType>
-    void operator()(MemberType&& mt, const typename MemberType::type& t) const
+    void operator()(MemberType&&, const typename MemberType::type& t) const
     {
         std::cout << t;
     }
@@ -248,7 +248,7 @@ TYPED_TEST(DataStructTypeInfoTest, checkStructTypeInfoResetValueIsOk)
 struct ExpectReset
 {
     template <typename MemberType>
-    void operator()(MemberType&& mt, const typename MemberType::type& t) const
+    void operator()(MemberType&&, const typename MemberType::type& t) const
     {
         typename MemberType::type memberCompare;
         DataTypeInfo<typename MemberType::type>::resetValue(memberCompare);

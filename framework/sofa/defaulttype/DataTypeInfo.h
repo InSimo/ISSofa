@@ -1328,6 +1328,13 @@ struct DataTypeInfo< sofa::helper::fixed_array<T,N> > : public ContainerTypeInfo
 template<class T, std::size_t N>
 struct DataTypeName< sofa::helper::fixed_array<T,N> > { static std::string name() { std::ostringstream o; o << "fixed_array<" << DataTypeName<T>::name() << "," << N << ">"; return o.str(); } };
 
+template<class T, std::size_t N>
+extern inline void DataTypeInfo_Clear(sofa::helper::fixed_array<T,N>& data)
+{
+    // fixed_array default constructor does not initialize elements, use assign instead
+    data.assign(T());
+}
+
 template<class T, class Alloc>
 struct DataTypeInfo< std::vector<T,Alloc> > : public ContainerTypeInfo<std::vector<T,Alloc>, ContainerKindEnum::Array, 0> {};
 template<class T, class Alloc>

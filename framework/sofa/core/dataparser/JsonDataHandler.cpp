@@ -43,7 +43,7 @@ DataHandler::DataHandler(void* data, const defaulttype::AbstractTypeInfo* typeIn
 
 // RapidJson handler API
 bool DataHandler::Null() { m_error_code = make_error_code(DataParserError::incorrect_type_info); return false; }
-bool DataHandler::Bool(bool b) { m_error_code = make_error_code(DataParserError::incorrect_type_info); return false; }
+bool DataHandler::Bool(bool /*b*/) { m_error_code = make_error_code(DataParserError::incorrect_type_info); return false; }
 
 template <typename T>
 bool DataHandler::AllInteger(T i)
@@ -104,9 +104,9 @@ bool DataHandler::Double(double d)
     return false;
 }
 
-bool DataHandler::RawNumber(const char* str, SizeType length, bool copy) { m_error_code = make_error_code(DataParserError::incorrect_type_info); return false; }
+bool DataHandler::RawNumber(const char* /*str*/, SizeType /*length*/, bool /*copy*/) { m_error_code = make_error_code(DataParserError::incorrect_type_info); return false; }
 
-bool DataHandler::String(const char* str, SizeType length, bool copy)
+bool DataHandler::String(const char* str, SizeType length, bool /*copy*/)
 {
     BeginIteration();
     auto& state = m_stack.top();
@@ -125,7 +125,7 @@ bool DataHandler::String(const char* str, SizeType length, bool copy)
     return false;
 }
 
-bool DataHandler::Key(const char* str, SizeType length, bool copy)
+bool DataHandler::Key(const char* str, SizeType length, bool /*copy*/)
 {
     auto& state = m_stack.top();
     switch (state.type) {
@@ -188,7 +188,7 @@ bool DataHandler::StartObject()
     }
     return true;
 }
-bool DataHandler::EndObject(SizeType memberCount)
+bool DataHandler::EndObject(SizeType /*memberCount*/)
 {
     EndIteration();
     return true;
@@ -219,7 +219,7 @@ bool DataHandler::StartArray()
 
     return true;
 }
-bool DataHandler::EndArray(SizeType elementCount)
+bool DataHandler::EndArray(SizeType /*elementCount*/)
 {
     EndIteration();
     return true;

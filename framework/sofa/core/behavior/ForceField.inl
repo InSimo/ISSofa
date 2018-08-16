@@ -45,10 +45,6 @@ namespace behavior
 template<class DataTypes>
 ForceField<DataTypes>::ForceField(MechanicalState<DataTypes> *mm)
     : BaseForceField()
-    , mstate(initLink("mstate", "MechanicalState used by this ForceField"), mm)
-    , d_drawStatsArrowWidth(initData(&d_drawStatsArrowWidth, 0.03f, "drawStatsArrowWidth", "Arrow width"))
-    , d_drawStatsArrowScaleLength(initData(&d_drawStatsArrowScaleLength, 0.0008f, "drawStatsArrowScaleLength", "Arrow length"))
-    , d_drawStatsSpheresRadius(initData(&d_drawStatsSpheresRadius, 0.03f, "drawStatsSpheresRadius", "Scale for spheres radius"))
     , d_computeStatsOnAddForce(initData(&d_computeStatsOnAddForce, false, "computeStatsOnAddForce", "Compute statistics if implemented (beware, might be costy !)"))
     , d_statsNumberOfActiveDofs(initData(&d_statsNumberOfActiveDofs, 0u, "statsNumberOfActiveDofs", "Number of dofs that the forcefield applies upon"))
     , d_statsMaxAddForce(initData(&d_statsMaxAddForce, Real(0.0), "statsMaxAddForce", "Maximum norm of the force value applied by the forcefield"))
@@ -59,7 +55,11 @@ ForceField<DataTypes>::ForceField(MechanicalState<DataTypes> *mm)
     , d_drawStatsForcesColor(initData(&d_drawStatsForcesColor, "drawStatsForcesColor", "Color for the debug draw of the computed addForce increment"))
     , d_drawStatsActiveDofs(initData(&d_drawStatsActiveDofs, false, "drawStatsActiveDofs", "Draw the mechanical dofs on which the forcefield is applied"))
     , d_drawStatsActiveDofsColor(initData(&d_drawStatsActiveDofsColor, "drawStatsActiveDofsColor", "Color for the debug draw of the mechanical dofs on which the forcefield is applied"))
+    , d_drawStatsArrowWidth(initData(&d_drawStatsArrowWidth, 0.03f, "drawStatsArrowWidth", "Arrow width"))
+    , d_drawStatsArrowScaleLength(initData(&d_drawStatsArrowScaleLength, 0.0008f, "drawStatsArrowScaleLength", "Arrow length"))
+    , d_drawStatsSpheresRadius(initData(&d_drawStatsSpheresRadius, 0.03f, "drawStatsSpheresRadius", "Scale for spheres radius"))
     , d_statsAddForces(initData(&d_statsAddForces, "statsAddForces", "Vector of the increment of force computed by the addForce() method"))
+    , mstate(initLink("mstate", "MechanicalState used by this ForceField"), mm)
 {
     d_computeStatsOnAddForce.setGroup("Stats_");
     d_statsNumberOfActiveDofs.setGroup("Stats_");

@@ -884,6 +884,16 @@ namespace sofa
 namespace defaulttype
 {
 
+
+template<int N, typename real>
+extern inline void DataTypeInfo_Clear(sofa::defaulttype::VecNoInit<N,real>& data)
+{
+    // VecNoInit is not initialized, so the statement below is a no-op (but produces warnings with gcc)
+    //data = TDataType();
+    (void)data;
+}
+
+
 template<int N, typename real>
 struct DataTypeInfo< sofa::defaulttype::Vec<N,real> > : public ContainerTypeInfo<sofa::defaulttype::Vec<N,real>, ContainerKindEnum::Array, N> {};
 template<int N, typename real>

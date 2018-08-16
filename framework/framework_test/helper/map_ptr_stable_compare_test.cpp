@@ -314,7 +314,7 @@ TEST(map_ptr_stable_compare, CheckIdMapPairPtrStableConsistencyAfterErase)
 TEST(map_ptr_stable_compare, checkMapPtrStableConsistencyAfterSwap)
 {
     typedef sofa::helper::map_ptr_stable_compare<int*, int> IntegerMap;
-    typedef sofa::helper::ptr_stable_id< int* > IntegerStableId;
+    //typedef sofa::helper::ptr_stable_id< int* > IntegerStableId;
 
     int a = 0, b = 1, c = 2, d = 3, e = 4;
     
@@ -352,7 +352,7 @@ TEST(map_ptr_stable_compare, checkMapPtrStableConsistencyAfterSwap)
 TEST(map_ptr_stable_compare, checkMapPairPtrStableConsistencyAfterSwap)
 {
     typedef sofa::helper::map_ptr_stable_compare < std::pair<int*, int*>, int > IntegerPairMap;
-    typedef sofa::helper::ptr_stable_id< std::pair<int*, int*> > IntegerPairStableId;
+    //typedef sofa::helper::ptr_stable_id< std::pair<int*, int*> > IntegerPairStableId;
 
     int a = 0, b = 1, c = 2, d = 3;
 

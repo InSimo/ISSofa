@@ -280,8 +280,8 @@ public:
     }
 
 private:
-    /// auto_ptr for memory ownership
-    std::auto_ptr<stable_id_map_type> m_stable_id_map;
+    /// unique_ptr for memory ownership
+    std::unique_ptr<stable_id_map_type> m_stable_id_map;
 };
 
 } // namespace helper

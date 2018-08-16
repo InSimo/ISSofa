@@ -56,7 +56,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkEigenSparseMatrixLowLeveAPI)
     EXPECT_EQ(2,*(innerIndexPtr + 7));
     EXPECT_EQ(4,*(innerIndexPtr + 8));
 
-    EXPECT_EQ(matEntries.size(), mat.nonZeros());
+    EXPECT_EQ((int)matEntries.size(), (int)mat.nonZeros());
     
     for (int i = 0; i < mat.nonZeros(); ++i)
     {
@@ -99,7 +99,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkConversionEigenSparseMapMapSparseVec
         }
     }
 
-    EXPECT_EQ(matEntries.size(), indexEntry);
+    EXPECT_EQ((int)matEntries.size(), indexEntry);
 }
 
 
@@ -134,7 +134,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkConversionEigenSparseMapMapSparseVec
         }
     }
 
-    EXPECT_EQ(matEntries.size(), indexEntry);
+    EXPECT_EQ((int)matEntries.size(), indexEntry);
 }
 
 
@@ -185,7 +185,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkConversionMapMapSparseVec1dEigenSpar
         }
     }
 
-    EXPECT_EQ(matEntries.size(), eigenMat.nonZeros());
+    EXPECT_EQ(matEntries.size(), (std::size_t)eigenMat.nonZeros());
 }
 
 
@@ -234,7 +234,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkConversionMapMapSparseVec3dEigenSpar
         }
     }
 
-    EXPECT_EQ(matEntries.size(), eigenMat.nonZeros());
+    EXPECT_EQ(matEntries.size(), (std::size_t)eigenMat.nonZeros());
 }
 
 

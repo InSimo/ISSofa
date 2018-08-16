@@ -928,7 +928,7 @@ namespace
 
         {
             Matrix::RowType& row = itRow.row();
-            const Matrix::KeyType expectedSize = itRow.row().size() - 1;
+            //const Matrix::KeyType expectedSize = itRow.row().size() - 1;
             row.erase(line.data3.index);
         }
 
@@ -952,7 +952,7 @@ namespace
 
         {
             Matrix::RowType row = itRow.row();
-            const Matrix::KeyType expectedSize = itRow.row().size() - 1;
+            //const Matrix::KeyType expectedSize = itRow.row().size() - 1;
             row.erase(line.data2.index);
         }
 
@@ -973,7 +973,7 @@ namespace
 
         {
             Matrix::RowType& row = itRow.row();
-            const Matrix::KeyType expectedSize = itRow.row().size() - 1;
+            //const Matrix::KeyType expectedSize = itRow.row().size() - 1;
             row.erase(line.data2.index);
         }
 
@@ -1015,7 +1015,7 @@ namespace
 
         {
             Matrix::RowType row = itRow.row();
-            const Matrix::KeyType expectedSize = itRow.row().size() - 1;
+            //const Matrix::KeyType expectedSize = itRow.row().size() - 1;
             row.erase(line.data3.index + 1);
         }
 
@@ -1055,7 +1055,7 @@ namespace
         Matrix::RowIterator itRow = matrix.writeLine(line.rowIndex);
 
         Matrix::RowType& row = itRow.row();
-        const Matrix::KeyType expectedSize = itRow.row().size() - 1;
+        //const Matrix::KeyType expectedSize = itRow.row().size() - 1;
 
         {
             SOFA_ASSERT(line.initialDataCount == 3);

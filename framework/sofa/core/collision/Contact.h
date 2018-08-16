@@ -82,7 +82,7 @@ public:
     virtual void computeResponse() {}
 
     /// Finalize the response (multi-threaded API, third step, after parallel tasks, graph changes allowed)
-    virtual void finalizeResponse(objectmodel::BaseContext* group) {}
+    virtual void finalizeResponse(objectmodel::BaseContext* /*group*/) {}
 
     /// Remove the response from the graph
     virtual void removeResponse() = 0;

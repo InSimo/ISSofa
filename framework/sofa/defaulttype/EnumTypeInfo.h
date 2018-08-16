@@ -149,7 +149,7 @@ struct EnumTypeInfo
         SetDataFromString(const char* value) : m_string(value) {}
 
         template <typename T>
-        void operator()(T&& MemberTypeI, DataType& data) const
+        void operator()(T&& /*MemberTypeI*/, DataType& data) const
         {
             if (!std::strcmp(T::enumeratorName(), m_string))
             {
@@ -167,7 +167,7 @@ struct EnumTypeInfo
         GetDataEnumeratorName(const char*& value) : m_string(value) {}
 
         template <typename T>
-        void operator()(T&& MemberTypeI, const DataType& data)
+        void operator()(T&& /*MemberTypeI*/, const DataType& data)
         {
             if (T::getEnumerator() == data)
             {
@@ -185,7 +185,7 @@ struct EnumTypeInfo
         GetDataEnumeratorsNames(std::vector<std::string>& enumNames) : m_enumNames(enumNames) {}
 
         template <typename T>
-        void operator()(T&& MemberTypeI, const DataType& data)
+        void operator()(T&& /*MemberTypeI*/, const DataType& /*data*/)
         {
             m_enumNames.push_back(T::enumeratorName());
         }
@@ -201,7 +201,7 @@ struct EnumTypeInfo
         }
 
         template <typename T>
-        void operator()(T&& MemberTypeI, DataType& data) const
+        void operator()(T&& /*MemberTypeI*/, DataType& data) const
         {
             if (T::enumeratorValue() == m_val)
             {

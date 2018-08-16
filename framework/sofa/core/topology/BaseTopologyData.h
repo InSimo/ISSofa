@@ -62,16 +62,16 @@ public:
     /** \copydoc Data(const BaseData::BaseInitData&) */
     explicit BaseTopologyData(const sofa::core::objectmodel::BaseData::BaseInitData& init)
         : Data<ContainerType>(init),
-        m_topologicalEngine(NULL),
-        m_topology(NULL)
+        m_topology(NULL),
+        m_topologicalEngine(NULL)
     {
     }
 
     /** \copydoc Data(const InitData&) */
     explicit BaseTopologyData(const InitData& init)
         : Data<ContainerType>(init),
-        m_topologicalEngine(NULL),
-        m_topology(NULL)
+        m_topology(NULL),
+        m_topologicalEngine(NULL)
     {
     }
 
@@ -79,8 +79,8 @@ public:
     /** \copydoc Data(const char*, bool, bool) */
     BaseTopologyData( const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
         : Data<ContainerType>(helpMsg, isDisplayed, isReadOnly),
-        m_topologicalEngine(NULL),
-        m_topology(NULL)
+        m_topology(NULL),
+        m_topologicalEngine(NULL)
     {
 
     }
@@ -88,8 +88,8 @@ public:
     /** \copydoc Data(const ContainerType&, const char*, bool, bool) */
     BaseTopologyData( const ContainerType& value, const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
         : Data<ContainerType>(helpMsg, isDisplayed, isReadOnly),
-        m_topologicalEngine(NULL),
-        m_topology(NULL)
+        m_topology(NULL),
+        m_topologicalEngine(NULL)
     {
     }
 

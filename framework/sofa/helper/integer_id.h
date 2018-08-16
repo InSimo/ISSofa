@@ -476,7 +476,7 @@ struct DataTypeInfo_ContainerTypes<helper::vector_id<TValue,TIndex,CheckIndices,
     static auto valueAtIndex(const TDataType& data, size_t index) -> decltype(data[KeyType(index)]) { return data[KeyType(index)]; }
     static auto valueAtIndex(      TDataType& data, size_t index) -> decltype(data[KeyType(index)]) { return data[KeyType(index)]; }
     static KeyType keyAtIndex(const TDataType& data, size_t index) { return KeyType(index); }
-    static const KeyType& keyAtIndex(const TDataType& data, size_t index, TypeInfoKeyBuffer& keyBuffer)
+    static const KeyType& keyAtIndex(const TDataType& /*data*/, size_t index, TypeInfoKeyBuffer& keyBuffer)
     {
         KeyType& key = *keyBuffer.getOrCreate<KeyType>();
         key = KeyType(index);
@@ -504,7 +504,7 @@ struct DataTypeInfo_ContainerTypes<helper::vector_id<TValue,TIndex,CheckIndices,
             return NULL;
         }
     }
-    static bool erase(TDataType& data, KeyType k)
+    static bool erase(TDataType& /*data*/, KeyType /*k*/)
     {
         return false;
     }

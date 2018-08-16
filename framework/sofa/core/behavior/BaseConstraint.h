@@ -72,7 +72,7 @@ public:
     virtual void postStabilize(int line, double** w, double* d, double* force, double* dfree);
 
     /// Optional addLocalCompliance method.
-    virtual void addLocalCompliance(int line, double** w) {}
+    virtual void addLocalCompliance(int /*line*/, double** /*w*/) {}
 
     inline void setNbLines(unsigned int nbLines)
     {

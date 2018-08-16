@@ -103,13 +103,13 @@ public:
     }
 
     template <typename DataTypeRef, typename T>
-    static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
+    static void getFinalValue(const DataTypeRef& data, size_t /*index*/, T& value)
     {
         value = data.value();
     }
 
     template<typename DataTypeRef, typename T>
-    static void setFinalValue(DataTypeRef&& data, size_t index, const T& value)
+    static void setFinalValue(DataTypeRef&& data, size_t /*index*/, const T& value)
     {
         data = value;
     }
