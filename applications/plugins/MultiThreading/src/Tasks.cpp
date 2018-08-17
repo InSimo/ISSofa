@@ -45,8 +45,8 @@ namespace simulation
 {
 
 Task::Task() 
-: m_Status(NULL)
-, execTime(ctime_t(),ctime_t()), execThreadIndex(-1)
+: execTime(ctime_t(),ctime_t()), execThreadIndex(-1)
+, m_Status(NULL)
 {
 }
 
