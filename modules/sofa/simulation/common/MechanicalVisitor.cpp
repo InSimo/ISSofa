@@ -595,7 +595,7 @@ Visitor::Result MechanicalVReallocVisitor<vtype>::fwdMappedMechanicalState(simul
 }
 
 template< VecType vtype>
-Visitor::Result MechanicalVReallocVisitor<vtype>::fwdInteractionForceField(simulation::Node* /*node*/, core::behavior::BaseInteractionForceField* ff)
+Visitor::Result MechanicalVReallocVisitor<vtype>::fwdInteractionForceField(simulation::Node* /*node*/, core::behavior::BaseInteractionForceField* /*ff*/)
 {/*
     if (m_interactionForceField)
     {
@@ -644,7 +644,7 @@ Visitor::Result MechanicalVFreeVisitor<vtype>::fwdMappedMechanicalState(simulati
 }
 
 template< VecType vtype>
-Visitor::Result MechanicalVFreeVisitor<vtype>::fwdInteractionForceField(simulation::Node* /*node*/, core::behavior::BaseInteractionForceField* ff)
+Visitor::Result MechanicalVFreeVisitor<vtype>::fwdInteractionForceField(simulation::Node* /*node*/, core::behavior::BaseInteractionForceField* /*ff*/)
 {
     /*
     if( interactionForceField )
@@ -786,7 +786,7 @@ Visitor::Result MechanicalPropagateDxVisitor::fwdMechanicalMapping(simulation::N
 }
 
 
-void MechanicalPropagateDxVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* mm)
+void MechanicalPropagateDxVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* /*mm*/)
 {
 }
 
@@ -808,7 +808,7 @@ Visitor::Result MechanicalPropagateDxAndResetForceVisitor::fwdMechanicalMapping(
 }
 
 
-void MechanicalPropagateDxAndResetForceVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* mm)
+void MechanicalPropagateDxAndResetForceVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* /*mm*/)
 {
 }
 
@@ -1174,7 +1174,7 @@ void MechanicalComputeForceVisitor::bwdMechanicalMapping(simulation::Node* /*nod
 }
 
 
-void MechanicalComputeForceVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* mm)
+void MechanicalComputeForceVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* /*mm*/)
 {
 }
 
@@ -1213,7 +1213,7 @@ void MechanicalComputeDfVisitor::bwdMechanicalMapping(simulation::Node* /*node*/
 }
 
 
-void MechanicalComputeDfVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* mm)
+void MechanicalComputeDfVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* /*mm*/)
 {
 }
 
@@ -1261,7 +1261,7 @@ void MechanicalAddMBKdxVisitor::bwdMechanicalMapping(simulation::Node* /*node*/,
 }
 
 
-void MechanicalAddMBKdxVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* mm)
+void MechanicalAddMBKdxVisitor::bwdMechanicalState(simulation::Node* , core::behavior::BaseMechanicalState* /*mm*/)
 {
 }
 

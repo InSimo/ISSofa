@@ -338,6 +338,7 @@ void DAGNode::getObjects(const sofa::core::objectmodel::BaseClass* class_info, G
         case SearchUp:
             this->getLocalObjects( class_info, container, tags ); // add locals then SearchParents
             // no break here, we want to execute the SearchParents code.
+            /* FALLTHRU */
         case SearchParents:
         {
             // a visitor executed from top but only run for this' parents will enforce the selected object unicity due even with diamond graph setups

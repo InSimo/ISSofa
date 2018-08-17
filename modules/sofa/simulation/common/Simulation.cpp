@@ -207,7 +207,7 @@ void Simulation::init ( Node* root )
 {
     //cerr<<"Simulation::init"<<endl;
     if ( !root ) return;
-    sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
+    /*sofa::core::ExecParams* params =*/ sofa::core::ExecParams::defaultInstance();
 
     //setContext( root->getContext());
 
