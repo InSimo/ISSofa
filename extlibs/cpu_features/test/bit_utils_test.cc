@@ -40,13 +40,13 @@ TEST(UtilsTest, IsBitSet) {
 
 TEST(UtilsTest, ExtractBitRange) {
   // Extracting all bits gives the same number.
-  EXPECT_EQ(ExtractBitRange(123, 31, 0), 123);
+  EXPECT_EQ(ExtractBitRange(123, 31, 0), 123U);
   // Extracting 1 bit gives parity.
-  EXPECT_EQ(ExtractBitRange(123, 0, 0), 1);
-  EXPECT_EQ(ExtractBitRange(122, 0, 0), 0);
+  EXPECT_EQ(ExtractBitRange(123, 0, 0), 1U);
+  EXPECT_EQ(ExtractBitRange(122, 0, 0), 0U);
 
-  EXPECT_EQ(ExtractBitRange(0xF0, 7, 4), 0xF);
-  EXPECT_EQ(ExtractBitRange(0x42 << 2, 10, 2), 0x42);
+  EXPECT_EQ(ExtractBitRange(0xF0, 7, 4), 0xFU);
+  EXPECT_EQ(ExtractBitRange(0x42 << 2, 10, 2), 0x42U);
 }
 
 }  // namespace

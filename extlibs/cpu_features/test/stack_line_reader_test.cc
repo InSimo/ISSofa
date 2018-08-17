@@ -25,7 +25,7 @@ bool operator==(const StringView& a, const StringView& b) {
 
 namespace {
 
-std::string ToString(StringView view) { return {view.ptr, view.size}; }
+//std::string ToString(StringView view) { return {view.ptr, view.size}; }
 
 TEST(StackLineReaderTest, Empty) {
   auto& fs = GetEmptyFilesystem();

@@ -26,13 +26,13 @@ namespace {
 
 TEST(StringViewTest, Empty) {
   EXPECT_EQ(kEmptyStringView.ptr, nullptr);
-  EXPECT_EQ(kEmptyStringView.size, 0);
+  EXPECT_EQ(kEmptyStringView.size, 0U);
 }
 
 TEST(StringViewTest, Build) {
   const auto view = str("test");
   EXPECT_EQ(view.ptr[0], 't');
-  EXPECT_EQ(view.size, 4);
+  EXPECT_EQ(view.size, 4U);
 }
 
 TEST(StringViewTest, IndexOfChar) {
