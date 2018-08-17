@@ -1889,7 +1889,7 @@ bool TriangleSetGeometryAlgorithms<DataTypes>::computeIntersectedObjectsList (co
 }
 
 
-
+#if 0
 template <typename DataTypes>
 bool TriangleSetGeometryAlgorithms<DataTypes>::getGeodesicPath(const TriangleID tidFrom, const defaulttype::Vec<2, double>& baryCoordFrom, 
                                                                const TriangleID tidTo  , const defaulttype::Vec<2, double>& baryCoordTo,
@@ -1932,7 +1932,7 @@ bool TriangleSetGeometryAlgorithms<DataTypes>::getGeodesicPath(const TriangleID 
         //if ()
     }
 }
-
+#endif
 
 
 /// Get the triangle in a given direction from a point.
