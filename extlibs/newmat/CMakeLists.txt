@@ -63,6 +63,21 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
     target_compile_options(${PROJECT_NAME} PRIVATE "-fPIC")
 endif()
 
+# disable annoying warnings from gcc
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_ARG1)
+        # in the case of CXX="ccache g++"
+        string(STRIP ${CMAKE_CXX_COMPILER_ARG1} CMAKE_CXX_COMPILER_ARG1_stripped)
+        execute_process(COMMAND ${CMAKE_CXX_COMPILER_ARG1_stripped} -dumpversion -dumpfullversion OUTPUT_VARIABLE GCXX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    else()
+        execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion -dumpfullversion OUTPUT_VARIABLE GCXX_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    endif()
+    message("g++ version: ${GCXX_VERSION}")
+    if(GCXX_VERSION VERSION_EQUAL 7 OR GCXX_VERSION VERSION_GREATER 7)
+        target_compile_options(${PROJECT_NAME} PRIVATE "-Wno-misleading-indentation" "-Wno-terminate")
+    endif()
+endif()
+
 set_target_properties( ${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
 if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
