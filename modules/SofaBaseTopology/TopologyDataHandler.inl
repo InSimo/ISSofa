@@ -235,7 +235,11 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::add(const sofa::h
 
     if (nbElemsTopo != index[0])
     {
-        std::cerr << __FUNCTION__ << " TODO\n";
+        this->m_topologyData->getOwner()->serr << "TopologyDataHandler SIZE MISMATCH in Data "
+                << this->m_topologyData->getName() << ": " << nbElements << " "
+                << core::topology::TopologyElementInfo<TopologyElementType>::name()
+                << " ADDED starting from index " << index[0]
+                << " while vector size is " << nbElemsTopo << this->m_topologyData->getOwner()->sendl;
         nbElemsTopo = index[0];
     }
 
