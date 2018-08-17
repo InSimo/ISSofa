@@ -158,6 +158,9 @@ public:
     /// specified, in which case the default suffix will be added)
     /// On return the full path of the plugin is written into the path parameter
     ///
+    /// CHANGE: it is no longer an error to call loadPlugin() on an already-loaded plugin
+    /// this was creating annoying error messages and complex logic to avoid it
+    ///
     bool loadPlugin(std::string& path, std::ostream* errlog=&std::cerr, bool finalPath = false);
 
     /// Unload a plugin given a path or a name (if no path or extension specified, in which case

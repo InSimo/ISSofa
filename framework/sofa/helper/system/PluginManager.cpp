@@ -181,9 +181,12 @@ bool PluginManager::hasPlugin(std::string& pluginPath, bool finalPath)
     return (m_pluginMap.find(pluginPath) != m_pluginMap.end() );
 }
 
-/// Load a plugin given a path or a name (if no path or extension specified, in which case
-/// the default suffix will be added)
+/// Load a plugin given a path or a name (if finalPath is false and no path or extension is
+/// specified, in which case the default suffix will be added)
 /// On return the full path of the plugin is written into the path parameter
+///
+/// CHANGE: it is no longer an error to call loadPlugin() on an already-loaded plugin
+/// this was creating annoying error messages and complex logic to avoid it
 ///
 bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog, bool finalPath)
 {
@@ -197,8 +200,8 @@ bool PluginManager::loadPlugin(std::string& pluginPath, std::ostream* errlog, bo
 
     if (hasPlugin(pluginPath, true))
     {
-        if(errlog) (*errlog) << "Plugin " << pluginPath << " already in PluginManager" << std::endl;
-        return false;
+        //if(errlog) (*errlog) << "Plugin " << pluginPath << " already in PluginManager" << std::endl;
+        return true;
     }
 
     DynamicLibrary::Handle d  = DynamicLibrary::load(pluginPath);
