@@ -57,10 +57,10 @@ void TopologyData_test::init()
 
 ///////////////////////////////// Handler Methods //////////////////////////////////////
 
-void TopologyData_test::TriangleInfoHandler::applyCreateFunction(unsigned int triangleIndex, TestStruct& ts,
-    const Triangle & t,
+void TopologyData_test::TriangleInfoHandler::applyCreateFunction(unsigned int /*triangleIndex*/, TestStruct& ts,
+    const Triangle & /*t*/,
     const sofa::helper::vector< unsigned int >& ancestors,
-    const sofa::helper::vector< double >& coeffs)
+    const sofa::helper::vector< double >& /*coeffs*/)
 {
     if (!ancestors.empty())
     {
@@ -76,10 +76,10 @@ void TopologyData_test::TriangleInfoHandler::applyCreateFunction(unsigned int tr
     }
 }
 
-void TopologyData_test::EdgeInfoHandler::applyCreateFunction(unsigned int triangleIndex, TestStruct& ts,
-    const Edge & e,
+void TopologyData_test::EdgeInfoHandler::applyCreateFunction(unsigned int /*triangleIndex*/, TestStruct& ts,
+    const Edge & /*e*/,
     const sofa::helper::vector< unsigned int >& ancestors,
-    const sofa::helper::vector< double >& coeffs)
+    const sofa::helper::vector< double >& /*coeffs*/)
 {
     if (!ancestors.empty())
     {
@@ -95,10 +95,10 @@ void TopologyData_test::EdgeInfoHandler::applyCreateFunction(unsigned int triang
     }
 }
 
-void TopologyData_test::PointInfoHandler::applyCreateFunction(unsigned int triangleIndex, TestStruct& ts,
-    const Point & p,
+void TopologyData_test::PointInfoHandler::applyCreateFunction(unsigned int /*triangleIndex*/, TestStruct& ts,
+    const Point & /*p*/,
     const sofa::helper::vector< unsigned int >& ancestors,
-    const sofa::helper::vector< double >& coeffs)
+    const sofa::helper::vector< double >& /*coeffs*/)
 {
     if (!ancestors.empty())
     {

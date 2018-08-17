@@ -66,13 +66,13 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField()
     , _radius(initData(&_radius,VecReal(1, Real(0.1)),"radius","radius of the section"))
     , _radiusInner(initData(&_radiusInner,VecReal(1, Real(0.0)),"radiusInner","inner radius of the section for hollow beams"))
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
+    , _partial_list_segment(false)
     , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
     , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),defaulttype::Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
     , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
-    , _partial_list_segment(false)
-    , edgeHandler(NULL)
     , m_rigidTsf(Coord())
+    , edgeHandler(NULL)
 {
     edgeHandler = new BeamFFEdgeHandler(this, &beamsData);
 
@@ -89,13 +89,13 @@ BeamFEMForceField<DataTypes>::BeamFEMForceField(Real poissonRatio, Real youngMod
     , _radius(initData(&_radius,VecReal(1, radius),"radius","radius of the section"))
     , _radiusInner(initData(&_radiusInner,VecReal(1, radiusInner),"radiusInner","inner radius of the section for hollow beams"))
     , _list_segment(initData(&_list_segment,"listSegment", "apply the forcefield to a subset list of beam segments. If no segment defined, forcefield applies to the whole topology"))
+    , _partial_list_segment(false)
     , _applyRigidTransFirstBeam(initData(&_applyRigidTransFirstBeam,false,"applyRigidTransFirstBeam","apply rigid transformation (translation + rotation) on First Beam"))
     , _rigidTransFirstBeam(initData(&_rigidTransFirstBeam,Coord(Vec3(0.0,0.0,0.0),defaulttype::Quat(0.0,0.0,0.0,1.0)),"rigidTransFirstBeam","Rigid transformation applied on first beam"))
     , _rigidY(initData(&_rigidY,(Real)1.0,"rigidY","Increase/Decrease stiffness on Y-axis"))
     , _rigidZ(initData(&_rigidZ,(Real)1.0,"rigidZ","Increase/Decrease stiffness on Z-axis"))
-    , _partial_list_segment(false)
-    , edgeHandler(NULL)
     , m_rigidTsf(Coord())
+    , edgeHandler(NULL)
 {
     edgeHandler = new BeamFFEdgeHandler(this, &beamsData);  
 

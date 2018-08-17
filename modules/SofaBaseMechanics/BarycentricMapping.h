@@ -932,15 +932,15 @@ protected:
                                             core::State< In >* stateFrom, core::State< Out >* stateTo,
                                             bool useRestPosition = false)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
+          d_vBaryTetraInfo(initData(&d_vBaryTetraInfo, "vBaryTetraInfo", "Vector of tetra information dedicated to topological changes")),
           map(initData(&map,"map", "mapper data")),
           m_fromContainer(fromTopology),
           m_stateFrom(stateFrom),
           m_stateTo(stateTo),
-          m_useRestPosition(useRestPosition),
           updateJ(true),
-          d_vBaryTetraInfo(initData(&d_vBaryTetraInfo, "vBaryTetraInfo", "Vector of tetra information dedicated to topological changes")),
-          m_tetraInfoHandler(this, &d_vBaryTetraInfo),
-          m_vertexInfoHandler(this, &map)
+          m_useRestPosition(useRestPosition),
+          m_vertexInfoHandler(this, &map),
+          m_tetraInfoHandler(this, &d_vBaryTetraInfo)
     {
     }
 

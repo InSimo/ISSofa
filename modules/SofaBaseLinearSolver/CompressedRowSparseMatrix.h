@@ -762,7 +762,7 @@ public:
         }
 #endif
         bool rowFound = true;
-        if (rowId < 0 || rowId >= rowIndex.size() || rowIndex[rowId] != i)
+        if (rowId < 0 || rowId >= (Index)rowIndex.size() || rowIndex[rowId] != i)
         {
             rowId = i * rowIndex.size() / nBlocRow;
             rowFound = sortedFind(rowIndex, i, rowId);

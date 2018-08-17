@@ -85,7 +85,7 @@ void UniformConstraint<DataTypes>::getConstraintResolution(const sofa::core::Con
    
     if (d_iterative.getValue(cParams))
     {
-        for (std::size_t i = 0; i < this->getMState()->getSize(); ++i)
+        for (std::size_t i = 0; i < (std::size_t)this->getMState()->getSize(); ++i)
         {
             for (std::size_t j = 0; j < Deriv::size(); ++j)
             {
@@ -96,7 +96,7 @@ void UniformConstraint<DataTypes>::getConstraintResolution(const sofa::core::Con
     }
     else
     {
-        const std::size_t nbLines = this->getMState()->getSize() * Deriv::size();
+        const std::size_t nbLines = (std::size_t)this->getMState()->getSize() * Deriv::size();
         sofa::component::constraintset::BilateralConstraintResolutionNDof* cr = new sofa::component::constraintset::BilateralConstraintResolutionNDof(nbLines);
         crVector[offset] = cr;
         offset += nbLines;

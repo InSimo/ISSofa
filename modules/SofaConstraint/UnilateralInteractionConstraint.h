@@ -51,7 +51,7 @@ public:
 
     }
 
-    virtual void resolution(int line, double** w, double* d, double* force, double *dfree)
+    virtual void resolution(int line, double** w, double* d, double* force, double */*dfree*/)
     {
 //		std::cout<< "UnilateralConstraintResolution (without friction): verify resolution ! "<<std::endl;
         force[line] -= d[line] / w[line][line];

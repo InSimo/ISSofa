@@ -181,7 +181,7 @@ void TopologySparseDataHandler <TopologyElementType, VecT>::remove( const sofa::
 
 
 template <typename TopologyElementType, typename VecT>
-void TopologySparseDataHandler <TopologyElementType, VecT>::renumber( const sofa::helper::vector<unsigned int>&, const sofa::helper::vector<unsigned int> &index)
+void TopologySparseDataHandler <TopologyElementType, VecT>::renumber( const sofa::helper::vector<unsigned int>&, const sofa::helper::vector<unsigned int> &/*index*/)
 {
     std::cerr << "WARNING: renumber event on topology SparseData is not yet handled" << std::endl;
 }

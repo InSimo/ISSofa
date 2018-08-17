@@ -127,7 +127,7 @@ void DefaultPipeline::doCollisionDetection(const sofa::helper::vector<core::Coll
             else
                 (*it)->computeBoundingTree(used_depth);
 
-                vectBoundingVolume.push_back ((*it)->getFirst());
+            vectBoundingVolume.push_back ((*it)->getFirst());
             ++nActive;
         }
         sofa::helper::AdvancedTimer::stepEnd("BBox");

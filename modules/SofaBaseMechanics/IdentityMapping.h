@@ -131,7 +131,7 @@ public:
     virtual void handleTopologyChange();
 
 protected:
-    std::auto_ptr<MatrixType> matrixJ;
+    std::unique_ptr<MatrixType> matrixJ;
     bool updateJ;
 
 #ifdef SOFA_HAVE_EIGEN2

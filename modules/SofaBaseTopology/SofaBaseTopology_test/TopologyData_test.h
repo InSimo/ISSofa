@@ -52,7 +52,7 @@ public:
                 << " baryCoord = " << ts.baryCoord[0] << ts.baryCoord[1];
             return os;
         }
-        inline friend std::istream& operator >> (std::istream& in, TestStruct& ts)
+        inline friend std::istream& operator >> (std::istream& in, TestStruct& /*ts*/)
         {
             return in;
         }

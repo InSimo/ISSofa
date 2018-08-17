@@ -149,8 +149,8 @@ VisualModelImpl::VisualModelImpl() //const std::string &name, std::string filena
     , srgbTexturing		(initData	(&srgbTexturing, (bool) false, "srgbTexturing", "When sRGB rendering is enabled, is the texture in sRGB colorspace?"))
     , materials			(initData	(&materials, "materials", "List of materials"))
     , groups			(initData	(&groups, "groups", "Groups of triangles and quads using a given material"))
-    , xformsModified(false)
     , m_needUpdateBuffers(false)
+    , xformsModified(false)
 {
 #ifdef SOFA_SMP
     originalMaterial = material.getValue();
@@ -222,7 +222,7 @@ bool VisualModelImpl::hasOpaque()
     return false;
 }
 
-void VisualModelImpl::fwdDraw(core::visual::VisualParams* vparams)
+void VisualModelImpl::fwdDraw(core::visual::VisualParams* /*vparams*/)
 {
     if (m_needUpdateBuffers)
     {
@@ -514,7 +514,7 @@ bool VisualModelImpl::load(const std::string& filename, const std::string& loade
         if (sofa::helper::system::DataRepository.findFile(meshFilename))
         {
             //name = filename;
-            std::auto_ptr<Mesh> objLoader;
+            std::unique_ptr<Mesh> objLoader;
             if (loader.empty())
             {
                 objLoader.reset(Mesh::Create(filename));

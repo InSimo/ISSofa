@@ -108,8 +108,8 @@ protected:
 
     const LocalMinDistanceFilter	*m_lmdFilters; ///< The LocalMinDistanceFilters object that contains this InfoFilter.
 
-    core::topology::BaseMeshTopology* base_mesh_topology;
-    const sofa::helper::vector< sofa::defaulttype::Vector3 > *position_filtering;
+    core::topology::BaseMeshTopology* base_mesh_topology = nullptr;
+    const sofa::helper::vector< sofa::defaulttype::Vector3 > *position_filtering = nullptr;
 };
 
 

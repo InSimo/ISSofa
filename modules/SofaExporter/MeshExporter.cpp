@@ -186,7 +186,7 @@ std::string MeshExporter::getMeshFilename(const char* ext)
             case 'p' : oss << nbp; break;
             case 'E' : oss << nbce; break;
             case 'e' : oss << nbe; break;
-            case '%' : oss << '%';
+            case '%' : oss << '%'; break;
             default:
                 serr << "Invalid special character %" << c << " in filename" << sendl;
             }

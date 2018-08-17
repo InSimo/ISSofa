@@ -851,9 +851,6 @@ template<class Matrix, class Vector>
 template<class RMatrix, class JMatrix>
 void BTDLinearSolver<Matrix,Vector>::logMatrices(const RMatrix& result, const JMatrix &J)
 {
-    typedef typename JMatrix::LineConstIterator LineConstIterator;
-    typedef typename JMatrix::LElementConstIterator LElementConstIterator;
-
     sout << "C = [" << sendl;
     for  (Index mr = 0; mr < Minv.rowSize(); mr++)
     {

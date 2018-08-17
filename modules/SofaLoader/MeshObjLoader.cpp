@@ -49,9 +49,8 @@ int MeshObjLoaderClass = core::RegisterObject("Specific mesh loader for Obj file
 
 MeshObjLoader::MeshObjLoader()
     : MeshLoader()
-    , loadMaterial(initData(&loadMaterial, (bool) true, "loadMaterial", "Load the related MTL file or use a default one?"))
     , d_handleSeams(initData(&d_handleSeams, (bool) false, "handleSeams", "Preserve UV and normal seams information (vertices with multiple UV and/or normals)"))
-    , d_pointsOnBorder(initData(&d_pointsOnBorder, "pointsOnBorder", "List of points on borders in case we have disonctinuity"))
+    , loadMaterial(initData(&loadMaterial, (bool) true, "loadMaterial", "Load the related MTL file or use a default one?"))
     , faceType(MeshObjLoader::TRIANGLE)
     , materials(initData(&materials,"materials","List of materials") )
     , faceList(initData(&faceList,"faceList","List of face definitions.") )
@@ -65,6 +64,7 @@ MeshObjLoader::MeshObjLoader()
     , computeMaterialFaces(initData(&computeMaterialFaces, false, "computeMaterialFaces", "True to activate export of Data instances containing list of face indices for each material"))
     , d_vertPosIdx      (initData   (&d_vertPosIdx, "vertPosIdx", "If vertices have multiple normals/texcoords stores vertices position indices"))
     , d_vertNormIdx     (initData   (&d_vertNormIdx, "vertNormIdx", "If vertices have multiple normals/texcoords stores vertices normal indices"))
+    , d_pointsOnBorder(initData(&d_pointsOnBorder, "pointsOnBorder", "List of points on borders in case we have disonctinuity"))
 {
     faceList.setGroup("OBJ");
     texIndexList.setGroup("OBJ");

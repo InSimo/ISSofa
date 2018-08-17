@@ -50,7 +50,7 @@ void RigidRigidMapping<TIn, TOut>::init()
         OutVecCoord& pts = *points.beginEdit();
 
         pts.resize(x.size());
-        unsigned int i=0, cpt=0;
+        unsigned int i=0;
 
         if(globalToLocalCoords.getValue() == true)
         {

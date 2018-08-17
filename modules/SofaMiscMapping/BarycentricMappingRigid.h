@@ -122,7 +122,7 @@ public:
     typedef BarycentricMapperTetrahedronSetTopologyRigid<In,Out> Inherit;
 
     BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
-                                            core::State<In>* stateFrom, core::State<Out>* stateTo, bool useRestPosition)
+                                            core::State<In>* /*stateFrom*/, core::State<Out>* /*stateTo*/, bool /*useRestPosition*/)
         : Inherit(fromTopology, _toTopology)
     {}
 

@@ -57,12 +57,12 @@ public:
     //template<class MatrixWriter>
     //void addMToMatrixT(const core::MechanicalParams* mparams, MatrixWriter m);
 
-    virtual SReal getKineticEnergy( const sofa::core::MechanicalParams* mparams, const DataVecDeriv& v) const
+    virtual SReal getKineticEnergy( const sofa::core::MechanicalParams* /*mparams*/, const DataVecDeriv& /*v*/) const
     {
         return SReal(0);
     }
 
-    virtual SReal getPotentialEnergy( const sofa::core::MechanicalParams* mparams, const DataVecCoord& x ) const
+    virtual SReal getPotentialEnergy( const sofa::core::MechanicalParams* /*mparams*/, const DataVecCoord& /*x*/ ) const
     {
         return SReal(0);
     }

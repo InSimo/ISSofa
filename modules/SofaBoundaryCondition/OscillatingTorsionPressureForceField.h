@@ -62,7 +62,7 @@ protected:
     public:
         Real area;
 
-        TrianglePressureInformation() {}
+        TrianglePressureInformation() : area(0) {}
         TrianglePressureInformation(const TrianglePressureInformation &e)
             : area(e.area)
         { }

@@ -3542,9 +3542,7 @@ bool MechanicalObject<DataTypes>::addBBox(double* minBBox, double* maxBBox)
         defaulttype::Vec<3,Real> p;
         DataTypes::get( p[0], p[1], p[2], x[i] );
 
-        assert( DataTypes::spatial_dimensions <= 3 );
-
-        for( unsigned int j=0 ; j<DataTypes::spatial_dimensions; ++j )
+        for( unsigned int j=0 ; j<DataTypes::spatial_dimensions && j<3; ++j )
         {
             if(p[j]<minBBox[j]) minBBox[j]=p[j];
             if(p[j]>maxBBox[j]) maxBBox[j]=p[j];

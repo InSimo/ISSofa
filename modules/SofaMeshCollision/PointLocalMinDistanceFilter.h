@@ -103,7 +103,7 @@ public:
 protected:
 
 
-    bool m_noLineModel; ///< Flag indicating if the Point CollisionModel is not associated to a Line CollisionModel.
+    bool m_noLineModel = false; ///< Flag indicating if the Point CollisionModel is not associated to a Line CollisionModel.
     TDataContainer m_computedData; ///< Cone stored data.
 };
 

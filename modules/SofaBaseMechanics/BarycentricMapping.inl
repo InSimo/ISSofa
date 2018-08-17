@@ -761,11 +761,11 @@ void BarycentricMapperTriangleSetTopology<In,Out>::init(const typename Out::VecC
 }
 
 template <class In, class Out>
-void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCreateFunction(unsigned int t,
+void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCreateFunction(unsigned int /*t*/,
     BaryElementInfo& baryTriangleInfo,
     const Triangle & triangle,
     const sofa::helper::vector< unsigned int >& ancestors,
-    const sofa::helper::vector< double >& coeffs)
+    const sofa::helper::vector< double >& /*coeffs*/)
 {
     // get restPositions
     helper::ReadAccessor< Data<typename core::State< In >::VecCoord > >  pIn = obj->m_useRestPosition ?
@@ -1053,11 +1053,11 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::initTopologyChange()
 }
 
 template <class In, class Out>
-void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyCreateFunction(unsigned int t,
+void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyCreateFunction(unsigned int /*t*/,
     BaryElementInfo& baryElementInfo,
     const Tetra& tetra,
     const sofa::helper::vector<unsigned int>& ancestors,
-    const sofa::helper::vector<double>& coeffs)
+    const sofa::helper::vector<double>& /*coeffs*/)
 {
     // Get restPositions
     helper::ReadAccessor<Data<typename core::State<In>::VecCoord>> pIn = obj->m_useRestPosition ?
@@ -1090,7 +1090,7 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyCre
 }
 
 template <class In, class Out>
-void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyDestroyFunction(unsigned int t, BaryElementInfo& baryTetraInfo)
+void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::applyDestroyFunction(unsigned int /*t*/, BaryElementInfo& baryTetraInfo)
 {
     helper::WriteAccessor<Data<sofa::helper::vector<MappingData>>> vectorData = obj->map;
     for (auto ptId : baryTetraInfo.vPointsIncluded)
@@ -1129,9 +1129,9 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::TetraInfoHandler::swap(uns
 template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::VertexInfoHandler::applyCreateFunction(unsigned int t,
     MappingData& vertexInfo,
-    const Point& vertex,
-    const sofa::helper::vector<unsigned int>& ancestors,
-    const sofa::helper::vector<double>& coeffs)
+    const Point& /*vertex*/,
+    const sofa::helper::vector<unsigned int>& /*ancestors*/,
+    const sofa::helper::vector<double>& /*coeffs*/)
 {
     obj->m_dirtyPoints.push_back(t);
     vertexInfo.in_index = -1;

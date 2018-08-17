@@ -403,7 +403,7 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::remove(const sofa
 
 
 template <typename TopologyElementType, typename ContainerType> template<class T>
-void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>)
+void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& /*inv_index*/, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Array>)
 {
     ContainerType& containerData = *(m_topologyData->beginEdit());
     if (!containerData.empty())
@@ -418,7 +418,7 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(co
 }
 
 template <typename TopologyElementType, typename ContainerType> template<class T>
-void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>)
+void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &/*index*/, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Map>)
 {
     ContainerType& containerData = *(m_topologyData->beginEdit());
     if (!containerData.empty())
@@ -437,7 +437,7 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(co
 }
 
 template <typename TopologyElementType, typename ContainerType> template<class T>
-void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &index, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>)
+void TopologyDataHandler <TopologyElementType, ContainerType>::renumberHelper(const sofa::helper::vector<unsigned int> &/*index*/, const sofa::helper::vector<unsigned int>& inv_index, std::integral_constant<defaulttype::ContainerKindEnum, defaulttype::ContainerKindEnum::Set>)
 {
     ContainerType& containerData = *(m_topologyData->beginEdit());
     if (!containerData.empty())
