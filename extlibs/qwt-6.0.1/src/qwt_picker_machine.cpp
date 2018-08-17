@@ -243,6 +243,7 @@ QList<QwtPickerMachine::Command> QwtPickerClickRectMachine::transition(
                 }
             }
         }
+        /* FALLTHROUGH */
         case QEvent::MouseMove:
         case QEvent::Wheel:
         {
