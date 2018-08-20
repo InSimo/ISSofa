@@ -359,9 +359,6 @@ void RegularGridTopology::createTexCoords()
         return;
     }
 
-#ifndef NDEBUG
-    std::cout << "nbP: " << nPts << std::endl;
-#endif
     helper::WriteAccessor< Data< TextCoords2D > > _texCoords = m_texCoords;
     _texCoords.resize(nPts);
 
@@ -384,10 +381,7 @@ void RegularGridTopology::createTexCoords()
         {
             unsigned int pt1 = n0 + _n[ axes[0] ] * n1;
             unsigned int pt2 = n0 + _n[ axes[0] ] * (n1 + _n[ axes[1] ] * (_n[ axes[2] ]-1));
-#ifndef NDEBUG
-            std::cout << "pt1: " << pt1 << std::endl;
-            std::cout << "pt2: " << pt2 << std::endl;
-#endif
+
             _texCoords[pt1] = Vector2(n0*Uscale, n1*Vscale);
             _texCoords[pt2] = Vector2(1- n0*Uscale, 1 - n1*Vscale);
         }
