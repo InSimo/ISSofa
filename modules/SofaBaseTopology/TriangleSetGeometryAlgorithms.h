@@ -258,13 +258,6 @@ public:
             sofa::helper::vector<unsigned int>& indices_list,
             sofa::helper::vector< sofa::defaulttype::Vec<3, double> >& coords_list) const;
 
-#if 0
-    bool getGeodesicPath(const TriangleID tidFrom, const defaulttype::Vec<2, double>& baryCoordFrom,
-                        const TriangleID tidTo, const defaulttype::Vec<2, double>& baryCoordTo,
-                        helper::vector<TriangleID>& trianglesIds,
-                        helper::vector< sofa::defaulttype::Vec<3, double> >& baryCoords) const;
-#endif
-
     /** \brief Get the triangle in a given direction from a point.
      */
     int getTriangleInDirection(PointID p, const sofa::defaulttype::Vec<3,double>& dir) const;

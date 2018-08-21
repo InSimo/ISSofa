@@ -1888,53 +1888,6 @@ bool TriangleSetGeometryAlgorithms<DataTypes>::computeIntersectedObjectsList (co
     return pathOK;
 }
 
-
-#if 0
-template <typename DataTypes>
-bool TriangleSetGeometryAlgorithms<DataTypes>::getGeodesicPath(const TriangleID tidFrom, const defaulttype::Vec<2, double>& baryCoordFrom, 
-                                                               const TriangleID tidTo  , const defaulttype::Vec<2, double>& baryCoordTo,
-                                                               helper::vector<TriangleID>& trianglesIds,
-                                                               helper::vector< sofa::defaulttype::Vec<3, double> >& baryCoords) const
-{
-    trianglesIds.clear();
-    baryCoords.clear();
-
-    trianglesIds.emplace_back(tidFrom);
-    baryCoords.emplace_back(baryCoordFrom);
-
-    if (tidFrom == tidTo)
-    {
-        trianglesIds.emplace_back(tidTo);
-        baryCoords.emplace_back(baryCoordTo);
-        return true;
-    }
-
-    const typename DataTypes::VecCoord& x0 = (this->object->read(core::ConstVecCoordId::restPosition())->getValue());
-    const Triangle& tFrom = this->m_topology->getTriangle(tidFrom);
-    const Triangle& tTo   = this->m_topology->getTriangle(tidTo);
-
-    const Coord pFrom = (1 - baryCoordFrom[0] - baryCoordFrom[1]) * x0[tFrom[0]] + baryCoordFrom[0] * x0[tFrom[1]] + baryCoordFrom[1] * x0[tFrom[2]];
-    const Coord pTo = (1 - baryCoordTo[0] - baryCoordTo[1]) * x0[tTo[0]] + baryCoordTo[0] * x0[tTo[1]] + baryCoordTo[1] * x0[tTo[2]];
-
-    TriangleID tidCurrent = tidFrom;
-    Coord pCurrent = pFrom;
-
-    bool isPreviousOnPoint = false;
-    bool isPreviousOnEdge = false;
-    bool isPreviousOnTriangle = false;
-
-    while (tidCurrent != tidTo)
-    {
-        // tools 
-        //sofa::defaulttype::Vec<N,Real> projectVectorOnTrianglePlane(const sofa::defaulttype::Vec<N,Real>& v, const sofa::defaulttype::Vec<N,Real>& p0, const sofa::defaulttype::Vec<N, Real>& p1, const sofa::defaulttype::Vec<3, Real>& p2 )
-        //barycentricCoordinatesOnTriangle(const sofa::defaulttype::Vec<N,Real>& p, const sofa::defaulttype::Vec<N,Real>& p0, const sofa::defaulttype::Vec<N, Real>& p1, const sofa::defaulttype::Vec<N, Real>& p2, bool clamp = false)
-        //coordinatesOnTriangleFromBary(const TBary& bary, const TCoord& t0, const TCoord& t1, const TCoord& t2)
-        //if ()
-    }
-}
-#endif
-
-
 /// Get the triangle in a given direction from a point.
 template <typename DataTypes>
 int TriangleSetGeometryAlgorithms<DataTypes>::getTriangleInDirection(PointID p, const sofa::defaulttype::Vec<3,double>& dir) const
