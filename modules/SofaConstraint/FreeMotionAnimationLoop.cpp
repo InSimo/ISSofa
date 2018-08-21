@@ -292,18 +292,6 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
         this->gnode->execute ( act );
     }
 
-
-    sofa::helper::AdvancedTimer::stepBegin("UpdateMapping");
-    //Visual Information update: Ray Pick add a MechanicalMapping used as VisualMapping
-    this->gnode->execute<UpdateMappingVisitor>(params);
-//	sofa::helper::AdvancedTimer::step("UpdateMappingEndEvent");
-    {
-        UpdateMappingEndEvent ev ( dt );
-        PropagateEventVisitor act ( params , &ev );
-        this->gnode->execute ( act );
-    }
-    sofa::helper::AdvancedTimer::stepEnd("UpdateMapping");
-
     if (d_postStabilize.getValue())
     {
         cparams.setX(pos);
@@ -311,13 +299,18 @@ void FreeMotionAnimationLoop::step(const sofa::core::ExecParams* params /* PARAM
         constraintSolver->postStabilize(&cparams, pos, vel);
         // linearize everything again against the post stabilized positions
         mop.propagateX(pos);
+    }
 
-        // re update mapppings
-        this->gnode->execute<UpdateMappingVisitor>(params);
+    sofa::helper::AdvancedTimer::stepBegin("UpdateMapping");
+    //Visual Information update: Ray Pick add a MechanicalMapping used as VisualMapping
+    this->gnode->execute<UpdateMappingVisitor>(params);
+    //	sofa::helper::AdvancedTimer::step("UpdateMappingEndEvent");
+    {
         UpdateMappingEndEvent ev(dt);
         PropagateEventVisitor act(params, &ev);
         this->gnode->execute(act);
     }
+    sofa::helper::AdvancedTimer::stepEnd("UpdateMapping");
 
 #ifndef SOFA_NO_UPDATE_BBOX
     sofa::helper::AdvancedTimer::stepBegin("UpdateBBox");
