@@ -28,7 +28,6 @@
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/core/objectmodel/BaseContext.h>
 #include <sofa/core/objectmodel/BaseNode.h>
-#include <sofa/helper/BackTrace.h>
 
 #include <sstream>
 
@@ -41,15 +40,78 @@ namespace core
 namespace objectmodel
 {
 
+//#define CHECK_LINKS_ON_EXIT
+
+#ifdef CHECK_LINKS_ON_EXIT
+
+struct LinkChecker
+{
+    ~LinkChecker()
+    {
+        std::cerr << "================ LINK CHECKER ================" << std::endl;
+        std::map<const Base*, std::set<const Base*>> dst2src;
+        std::map<const Base*, std::set<const Base*>> src2dst;
+        std::cerr << "Remaining links : " << links.size() << std::endl;
+        for (const BaseLink* l : links)
+        {
+            for (unsigned int i = 0u; i < l->getSize(); ++i)
+            {
+                if (l->getLinkedBase(i))
+                {
+                    dst2src[l->getLinkedBase(i)].insert(l->getOwnerBase());
+                    src2dst[l->getOwnerBase()].insert(l->getLinkedBase(i));
+                }
+            }
+        }
+
+        // Find Bases which own remaining links because something else than a BaseLink keeps their refcount > 0
+        for (const auto& p : src2dst)
+        {
+            const Base* src = p.first;
+            auto it = dst2src.find(src);
+            if (it == dst2src.end())
+            {
+                std::cerr << "Source-only link [" << src->getClassName() << "]" << src->getName() << " to: ";
+                for (const Base* dst : p.second)
+                {
+                    std::cerr << "[" << dst->getClassName() << "]" << dst->getName() << "  ";
+                }
+                std::cerr << std::endl;
+            }
+        }
+
+        // TODO: detect circular dependencies between links (which indicates either an error or a missing FLAG_DUPLICATE)
+
+        std::cerr << "================ LINK CHECKER ================" << std::endl;
+    }
+
+    std::set<const BaseLink*> links;
+};
+
+/// This static struct will be destroyed when the program exits.
+/// Its destructor will check all remaining links and try to find the source(s) of their non-deletion
+static LinkChecker checker;
+#endif
+
 BaseLink::BaseLink(const BaseInitLink& init, LinkFlags flags)
     : m_flags(flags), m_name(init.name), m_help(init.help)
 {
     m_counters.assign(0);
     //m_isSets.assign(false);
+
+#ifdef CHECK_LINKS_ON_EXIT
+    if (this->isStrongLink())
+    {
+        checker.links.insert(this);
+    }
+#endif
 }
 
 BaseLink::~BaseLink()
 {
+#ifdef CHECK_LINKS_ON_EXIT
+    checker.links.erase(this);
+#endif
 }
 
 /// Print the value of the associated variable
