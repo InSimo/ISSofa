@@ -37,10 +37,14 @@
 #include <sofa/helper/AdvancedTimer.h>
 #include <sofa/helper/system/thread/CTime.h>
 #include <math.h>
+#include <numeric>
 
 #include <sofa/core/ObjectFactory.h>
 
 #include "ConstraintStoreLambdaVisitor.h"
+
+
+//#define GENERIC_CONSTRAINT_SOLVER_USE_BLOCKDIAGONAL_RESIDUAL
 
 namespace sofa
 {
@@ -67,10 +71,20 @@ void clearMultiVecId(sofa::core::objectmodel::BaseContext* ctx, const sofa::core
 GenericConstraintSolver::GenericConstraintSolver()
 : displayTime(initData(&displayTime, false, "displayTime","Display time for each important step of GenericConstraintSolver."))
 , maxIt( initData(&maxIt, 1000, "maxIterations", "maximal number of iterations of the Gauss-Seidel algorithm"))
-, tolerance( initData(&tolerance, 0.001, "tolerance", "residual error threshold for termination of the Gauss-Seidel algorithm"))
+, tolerance( initData(&tolerance, 0.001, "tolerance", "residual error threshold for termination of the Gauss-Seidel algorithm.\
+                                                       Same unit as the constraint system right hand side. \
+                                                       If the constraint rhs is not homogeneous, for example if it mixes distance constraints and volumetric constraints, \
+                                                       a specific tolerance value can be set by each constraint resolution to give a consistent \
+                                                       tolerancing threshold when the residual vector is evaluated at each iteration."))
+, useInfiniteNorm( initData(&useInfiniteNorm, false, "useInfiniteNorm", "If true, the infinite norm of the residual vector is used to evaluate convergence. \
+                                                                         The infinite norm is computed per block, to take into account the possible differences \
+                                                                         taken by the tolerance value between blocks.\
+                                                                         Otherwise, it is the per block average of the residual vector that must be below the specified tolerance \
+                                                                         to grant convergence. Note that using a per block average prevents the error of a given block be compensated \
+                                                                         by other blocks.\
+                                                                         Also note that if the system is only composed of blocks of size one, the infinite norm over \
+                                                                         the whole residual vector will give the same result as the block averaged residual norm."))
 , sor( initData(&sor, 1.0, "sor", "Successive Over Relaxation parameter (0-2)"))
-, scaleTolerance( initData(&scaleTolerance, true, "scaleTolerance", "Scale the error tolerance with the number of constraints"))
-, allVerified( initData(&allVerified, false, "allVerified", "All contraints must be verified (each constraint's error < tolerance)"))
 , schemeCorrection( initData(&schemeCorrection, false, "schemeCorrection", "Apply new scheme where compliance is progressively corrected"))
 , unbuilt(initData(&unbuilt, false, "unbuilt", "Compliance is not fully built"))
 , computeGraphs(initData(&computeGraphs, false, "computeGraphs", "Compute graphs of errors and forces during resolution"))
@@ -361,9 +375,14 @@ void afficheLCP(std::ostream& file, double *q, double **M, double *f, int dim, b
 bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cParams*/, MultiVecId /*res1*/, MultiVecId /*res2*/)
 {
 	current_cp->tolerance = tolerance.getValue();
+    
+    if (cParams->constOrder() == core::ConstraintParams::VEL)
+    {
+        current_cp->tolerance /= this->getContext()->getDt();
+    }
+
 	current_cp->maxIterations = maxIt.getValue();
-	current_cp->scaleTolerance = scaleTolerance.getValue();
-	current_cp->allVerified = allVerified.getValue();
+    current_cp->useInfiniteNorm = useInfiniteNorm.getValue();
 	current_cp->sor = sor.getValue();
 	current_cp->unbuilt = unbuilt.getValue();
 
@@ -386,7 +405,11 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
 		sofa::helper::AdvancedTimer::stepEnd("ConstraintsGaussSeidel");
 	}
 
-    this->currentError.setValue(current_cp->currentError);
+    // need to multiply by the time step size if in velocity mode to get the error 
+    // expressed in the same unit as the tolerance
+    const double currentError = cParams->constOrder() == core::ConstraintParams::VEL ?
+        current_cp->currentError * this->getContext()->getDt() : current_cp->currentError;
+    this->currentError.setValue(currentError);
     this->currentIterations.setValue(current_cp->currentIterations);
     this->currentNumConstraints.setValue(current_cp->getNumConstraints());
     this->currentNumConstraintGroups.setValue(current_cp->getNumConstraintGroups());
@@ -610,6 +633,22 @@ void GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver, Cons
     currentError = res.second;
 }
 
+/// Block gauss seidel method
+/// We are looking for \f$ f \f$ which solves \f$ W f = \delta^{free} \f$ 
+/// the equality case here is for bilateral constraints, inequalities (unilateral) constraints are also supported
+/// If we consider only blocks of size one, we end up writing at iteration \f$ k \$
+/// \f[
+///    f_{i}^{k} = \frac{1}{w_{ii}} \left [  \delta^{free}_i - \sum_{j=0}^{i-1}w_{ij}f_j^k - \sum_{j=i+1}^{n}w_{ij}f_j^{k-1} \right ]
+/// \f]
+/// If the system only contains equality constraints The residual vector \f$ r^k \f$ can be defined as 
+/// \f[
+///     r^k = \delta^{free} - W f^k
+/// \f]
+/// However since we are dealing also with inequalities we use instead 
+/// \f[
+///     r^k = W ( f^k - f^{k-1} )
+/// \f]
+/// From there different norm can be used to evaluate the residual vector.
 // Debug is only available when called directly by the solver (not in haptic thread)
 std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSolver* solver, double tol, int maxIt, double timeout, const double* dfree, double* d, double* force,
     ConstraintResolutionFunctor&& functor) const
@@ -624,20 +663,12 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 
 	const double * const * const w = getW();
     int dim = dimension;
-	int i, j, k, l, nb;
 
-	double error=0.0;
-
-	bool convergence = false;
-    sofa::helper::vector<double> tempForces;
-	if(sor != 1.0) tempForces.resize(dim);
-
-	if(scaleTolerance && !allVerified)
-		tol *= dim;
+	bool convergence = true;
 
 	if(solver)
 	{
-		for(i=0; i<dim; )
+		for(int i=0; i<dim; )
 		{
 			if(!constraintsResolutions[i])
 			{
@@ -675,99 +706,118 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 		tabErrors.resize(dim);
 	}
 
- /*   if(schemeCorrection)
-    {
-        std::cout<<"shemeCorrection => LCP before step 1"<<std::endl;
-        helper::afficheLCP(dfree, w, force,  dim);
-         ///////// scheme correction : step 1 => modification of dfree
-        for(j=0; j<dim; j++)
-        {
-            for(k=0; k<dim; k++)
-                dfree[j] -= w[j][k] * force[k];
-        }
+    // used for SOR scheme, and for residual evaluation.
+    std::vector<double> force_previous(dim);
+    std::copy(&force[0], &force[dim], force_previous.begin());
 
-        ///////// scheme correction : step 2 => storage of force value
-        for(j=0; j<dim; j++)
-            df[j] = -force[j];
-    }
-*/
+    std::vector<double> dforce(dim,0);
+    std::vector<double> residual(dim, 0);
 
-	for(i=0; i<maxIt; i++)
-	{
-		bool constraintsAreVerified = true;
-        if(sor != 1.0)
+    int i=0;
+    double error= 0.0;
+    for(; i<maxIt; ++i)
+	{		
+        for(int j=0; j<dim; )
 		{
-			for(j=0; j<dim; j++)
-				tempForces[j] = force[j];
-		}
+			//nbLines provides the dimension of the constraint block
+			const unsigned blockSize = constraintsResolutions[j]->getNbLines();
 
-		error=0.0;
-		for(j=0; j<dim; ) // increment of j realized at the end of the loop
-		{
-			//1. nbLines provide the dimension of the constraint
-			nb = constraintsResolutions[j]->getNbLines();
-
-			//2. for each line we compute the actual value of d
-			//   (a)d is set to dfree
-            
-            std::vector<double> errF(nb, 0);
-
-			for(l=0; l<nb; l++)
+			// update d entries for the constraint block, ( ie the constraint rhs to use for the block), 
+            // given the value of the constraint force
+            // Note that this loop also contains the contribution coming from the force of the current constraint block
+            // which will need to be cancelled in the constraint resolution functor ( see remark below ) ...
+            for(unsigned l=0; l<blockSize; ++l)
 			{
-				errF[l] = force[j+l];
-				d[j+l] = dfree[j+l];
+                d[j+l] = dfree[j+l];
+                for (int c=0; c<dim; ++c)
+                {
+                    d[j+l] += w[j+l][c] * force[c];
+                }
 			}
-            //   (b) contribution of forces are added to d     => TODO => optimization (no computation when force= 0 !!)
-			for(k=0; k<dim; k++)
-				for(l=0; l<nb; l++)
-					d[j+l] += w[j+l][k] * force[k];
 
-			//3. the specific resolution of the constraint(s) is called
+			// the functor updates the constraint force from d, the current constraint rhs
+            // internally this method must cancel the contribution of the displacement that arised from the constraint 
+            // force from the previous iteration. 
+            // ie compute at iterate \f$ k \f$
+            /// \f[
+            ///  d_{offset} = w_{block} f_{block}^{k-1} //
+            ///  d = d - d_{offset}
+            /// \f]
             functor( constraintsResolutions[j], j, const_cast<double**>(w), d, force, const_cast<double*>(dfree) );
 
-			//4. the error is measured (displacement due to the new resolution (i.e. due to the new force))
-			double contraintError = 0.0;
-			if(nb > 1)
-			{
-				for(l=0; l<nb; l++)
-				{
-					double lineError = 0.0;
-					for (int m=0; m<nb; m++)
-					{
-						double dofError = w[j+l][j+m] * (force[j+m] - errF[m]);
-						lineError += dofError * dofError;
-					}
-					lineError = sqrt(lineError);
-					if(lineError > tol)
-						constraintsAreVerified = false;
-
-					contraintError += lineError;
-				}
-			}
-			else
-			{
-				contraintError = fabs(w[j][j] * (force[j] - errF[0]));
-				if(contraintError > tol)
-					constraintsAreVerified = false;
-			}
-
-			if(constraintsResolutions[j]->getTolerance())
-			{
-				if(contraintError > constraintsResolutions[j]->getTolerance())
-					constraintsAreVerified = false;
-				contraintError *= tol / constraintsResolutions[j]->getTolerance();
-			}
-
-			error += contraintError;
-			if(solver)
-				tabErrors[j] = contraintError;
-
-			j += nb;
+			j += blockSize;
 		}
+
+        for (int line =0; line < dim; ++line)
+        {
+            dforce[line] = force[line] - force_previous[line];
+        }
+
+#ifdef GENERIC_CONSTRAINT_SOLVER_USE_BLOCKDIAGONAL_RESIDUAL
+        // old residual computation
+        for (int line =0; line < dim; )
+        {
+            const ConstraintResolution* cr = constraintsResolutions[line];
+            const std::size_t blockSize    = cr->getNbLines();
+
+            for (int l = 0; l<blockSize; ++l)
+            {
+                residual[line + l] = 0;
+
+                for (int c = 0; c<blockSize; ++c)
+                {
+                    residual[line+l] += w[line+l][line+c] * dforce[line+c];
+                }
+                residual[line+l] *=  residual[line+l];
+            }
+            line += blockSize;
+        }
+#else
+        // Compute the residual vector as \f$ W ( f^k - f^{k-1} ) \f$
+        for (int line=0; line<dim; ++line)
+        {
+            residual[line] = 0;
+            for (int col=0; col<dim; ++col)
+            {
+                residual[line] += w[line][col] * dforce[col];
+            }
+            residual[line] *= residual[line];
+        }
+#endif
+        // Due to the fact that each constraint block can define its own tolerance value, 
+        // we need to iterate over the blocks to evaluate the convergence criteria.
+        error = 0.0;
+        convergence = true;
+        for (int line =0; line<dim; )
+        {
+            const ConstraintResolution* cr = constraintsResolutions[line];
+            const std::size_t blockSize    = cr->getNbLines();
+            
+            const double tolerance = cr->getTolerance() != 0 ? cr->getTolerance() : tol;
+            const double tolerance2 = tolerance * tolerance;
+            const auto residualBegin = residual.begin()+line;
+            const auto residualEnd   = residualBegin + blockSize;
+            const double res = useInfiniteNorm ? *std::max_element(residualBegin, residualEnd) :
+                                                  std::accumulate(residualBegin, residualEnd, double(0)) / double(blockSize);
+
+            if (res > tolerance2)
+            {
+                convergence = false;
+            }
+
+            if (res > error)
+            {
+                error = res;
+            }
+
+            line += blockSize;
+        }
+
+        error = std::sqrt(error);
 
 		if(showGraphs)
 		{
-			for(j=0; j<dim; j++)
+			for(int j=0; j<dim; ++j)
 			{
 				std::ostringstream oss;
 				oss << "f" << j;
@@ -784,9 +834,11 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 
 		if(sor != 1.0)
 		{
-			for(j=0; j<dim; j++)
-				force[j] = sor * force[j] + (1-sor) * tempForces[j];
+			for(int j=0; j<dim; ++j)
+				force[j] = sor * force[j] + (1-sor) * force_previous[j];
 		}
+
+        std::copy(&force[0], &force[dim], force_previous.begin());
 
         double t1 = (double)sofa::helper::system::thread::CTime::getTime();
 		double dt = (t1 - t0)*timeScale;
@@ -798,19 +850,10 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
             
 			return std::make_pair(i+1, error);
 		}
-		else if(allVerified)
-		{
-			if(constraintsAreVerified)
-			{
-				convergence = true;
-				break;
-			}
-		}
-		else if(error < tol/* && i>0*/) // do not stop at the first iteration (that is used for initial guess computation)
-		{
-			convergence = true;
-			break;
-		}
+
+        if (convergence) {
+            break;
+        }
 	}
 
     std::pair<int,double> result(i+1, error);
@@ -822,9 +865,9 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 		if(!convergence)
 		{
 			if(solver->f_printLog.getValue())
-				solver->serr << "No convergence : error = " << error << solver->sendl;
+				solver->serr << "No convergence : error = " << std::sqrt(error) << solver->sendl;
 			else
-				solver->sout << "No convergence : error = " << error << solver->sendl;
+				solver->sout << "No convergence : error = " << std::sqrt(error) << solver->sendl;
 		}
 		else if(solver->displayTime.getValue())
 			solver->sout<<" Convergence after " << i+1 << " iterations " << solver->sendl;
@@ -850,7 +893,7 @@ std::pair<int,double> GenericConstraintProblem::gaussSeidel(GenericConstraintSol
 		sofa::helper::vector<double>& graph_constraints = (*solver->graphConstraints.beginEdit())["Constraints"];
 		graph_constraints.clear();
 
-		for(j=0; j<dim; )
+		for(int j=0; j<dim; )
 		{
 			const unsigned int nb = constraintsResolutions[j]->getNbLines();
 
@@ -935,8 +978,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
     sofa::helper::vector<double> tempForces;
 	if(sor != 1.0) tempForces.resize(dimension);
 
-	if(scaleTolerance && !allVerified)
-		tol *= dimension;
+    tol *= dimension;
 
 	if(solver)
 	{
@@ -1110,15 +1152,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
                 return;
             }
         }
-		else if(allVerified)
-		{
-			if(constraintsAreVerified)
-			{
-				convergence = true;
-				break;
-			}
-		}
-		else if(error < tol/* && i>0*/) // do not stop at the first iteration (that is used for initial guess computation)
+        else if (error < tol/* && i>0*/) // do not stop at the first iteration (that is used for initial guess computation)
 		{
 			convergence = true;
 			break;

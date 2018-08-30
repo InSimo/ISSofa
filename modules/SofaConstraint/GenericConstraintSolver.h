@@ -60,11 +60,12 @@ public:
 
     sofa::component::linearsolver::FullVector<double> _d;
 	std::vector<core::behavior::ConstraintResolution*> constraintsResolutions;
-	bool scaleTolerance, allVerified, unbuilt;
+    bool   useInfiniteNorm; 
+    bool   unbuilt;
 	double sor;
 	double sceneTime;
     double currentError;
-    int currentIterations;
+    int    currentIterations;
 
 	// For unbuilt version :
     sofa::component::linearsolver::SparseMatrix<double> Wdiag;
@@ -77,7 +78,7 @@ public:
 	std::vector< ConstraintCorrections > cclist_elems;
 	
 
-	GenericConstraintProblem() : scaleTolerance(true), allVerified(false), sor(1.0)
+	GenericConstraintProblem() : useInfiniteNorm(false), sor(1.0)
         , sceneTime(0.0), currentError(0.0), currentIterations(0)
 		, change_sequence(false) {}
 	~GenericConstraintProblem() { freeConstraintResolutions(); }
@@ -129,8 +130,10 @@ public:
 
 	Data<bool> displayTime;
 	Data<int> maxIt;
-	Data<double> tolerance, sor;
-	Data<bool> scaleTolerance, allVerified, schemeCorrection;
+    Data<double> tolerance;
+    Data<bool>  useInfiniteNorm;
+    Data<double> sor;
+    Data<bool> schemeCorrection;
 	Data<bool> unbuilt;
 	Data<bool> computeGraphs;
 	Data<std::map < std::string, sofa::helper::vector<double> > > graphErrors, graphConstraints, graphForces, graphViolations;
