@@ -51,6 +51,7 @@
 #include <sofa/helper/system/FileRepository.h>
 #include <sofa/helper/system/SetDirectory.h>
 #include <sofa/simulation/common/GUIFactory.h>
+#include <sofa/simulation/common/SceneLoaderFactory.h>
 #include <sofa/helper/system/gl.h>
 #include <sofa/helper/system/glut.h>
 #include <sofa/helper/system/atomic.h>
@@ -153,7 +154,7 @@ int main(int argc, char** argv)
     std::string simulationType = "tree";
 #endif
     std::vector<std::string> plugins;
-    std::vector<std::string> args;
+    sofa::simulation::SceneLoader::SceneArguments args;
 #ifdef SOFA_SMP
     std::string nProcs="";
     bool        disableStealing = false;

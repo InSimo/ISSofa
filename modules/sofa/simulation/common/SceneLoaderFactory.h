@@ -50,6 +50,8 @@ class SOFA_SIMULATION_COMMON_API SceneLoader
 public:
     typedef std::vector<std::string> ExtensionList;
 
+    using SceneArguments = std::vector<std::string>;
+
     /// Pre-loading check
     virtual bool canLoadFileName(const char *filename)
     {
@@ -69,7 +71,7 @@ public:
     virtual bool canWriteFileExtension(const char * /*extension*/) { return false; }
 
     /// load the file with the given arguments
-    virtual sofa::simulation::Node::SPtr load(const char *filename, const std::vector<std::string>& sceneArguments) = 0;
+    virtual sofa::simulation::Node::SPtr load(const char *filename, const SceneArguments& sceneArguments) = 0;
 
     /// write scene graph in the file
     virtual void write(sofa::simulation::Node* /*node*/, const char * /*filename*/) {}

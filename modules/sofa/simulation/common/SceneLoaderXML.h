@@ -43,7 +43,7 @@ public:
     virtual bool canWriteFileExtension(const char *extension) override;
 
     /// load the file
-    virtual sofa::simulation::Node::SPtr load(const char *filename, const std::vector<std::string>& sceneArguments) override;
+    virtual sofa::simulation::Node::SPtr load(const char *filename, const SceneArguments& sceneArguments) override;
 
     /// write the file
     virtual void write(sofa::simulation::Node* node, const char *filename) override;
