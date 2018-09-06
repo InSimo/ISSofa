@@ -57,6 +57,7 @@
 //#include "Binding_MultiMapping.h"
 #include "Binding_SubsetMultiMapping.h"
 #include "Binding_VisualModel.h"
+#include "Binding_BaseLink.h"
 
 PyObject *SofaPythonModule = 0;
 
@@ -69,6 +70,7 @@ void bindSofaPythonModule()
 
     SofaPythonModule = SP_INIT_MODULE(Sofa)
     SP_ADD_CLASS(SofaPythonModule,Data)
+    SP_ADD_CLASS(SofaPythonModule,Link)
         SP_ADD_CLASS(SofaPythonModule,DisplayFlagsData)
 
     SP_ADD_CLASS(SofaPythonModule,Vector3)

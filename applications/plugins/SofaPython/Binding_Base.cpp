@@ -24,10 +24,12 @@
 ******************************************************************************/
 #include "Binding_Base.h"
 #include "Binding_Data.h"
+#include "Binding_BaseLink.h"
 #include "Binding_DisplayFlagsData.h"
 
 #include <sofa/core/objectmodel/Base.h>
 #include <sofa/core/objectmodel/BaseData.h>
+#include <sofa/core/objectmodel/BaseLink.h>
 using namespace sofa::core::objectmodel;
 #include <sofa/core/visual/DisplayFlags.h>
 using namespace sofa::core::visual;
@@ -48,6 +50,21 @@ extern "C" PyObject * Base_findData(PyObject *self, PyObject * args)
     if (dynamic_cast<Data<DisplayFlags>*>(data))
         return SP_BUILD_PYPTR(DisplayFlagsData,BaseData,data,false);
     return SP_BUILD_PYPTR(Data,BaseData,data,false);
+}
+
+extern "C" PyObject * Base_findLink(PyObject *self, PyObject * args)
+{
+    Base* obj=(((PySPtr<Base>*)self)->object.get());
+    char *linkName;
+    if (!PyArg_ParseTuple(args, "s",&linkName))
+        Py_RETURN_NONE;
+    BaseLink * link = obj->findLink(linkName);
+    if (!link)
+    {
+        PyErr_BadArgument();
+        Py_RETURN_NONE;
+    }
+    return SP_BUILD_PYPTR(Link,BaseLink,link,false);
 }
 
 extern "C" PyObject * Base_getDataFields(PyObject *self, PyObject * /*args*/)
@@ -155,6 +172,7 @@ extern "C" PyObject * Base_clearOutputLog(PyObject * o, PyObject * /*args*/)
 
 SP_CLASS_METHODS_BEGIN(Base)
 SP_CLASS_METHOD(Base,findData)
+SP_CLASS_METHOD(Base,findLink)
 SP_CLASS_METHOD(Base,getClassName)
 SP_CLASS_METHOD(Base,getTemplateName)
 SP_CLASS_METHOD(Base,getName)

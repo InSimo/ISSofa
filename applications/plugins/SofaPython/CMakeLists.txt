@@ -61,6 +61,7 @@ set(HEADER_FILES
     Binding_Context.h
     Binding_BaseContext.h
     Binding_Data.h
+    Binding_BaseLink.h
     Binding_BaseObject.h
     Binding_BaseState.h
     PythonVisitor.h
@@ -105,6 +106,7 @@ set(SOURCE_FILES
     Binding_BaseContext.cpp
     Binding_Node.cpp
     Binding_Data.cpp
+    Binding_BaseLink.cpp
     Binding_BaseObject.cpp
     Binding_BaseState.cpp
     PythonMacros.cpp
