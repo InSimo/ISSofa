@@ -71,9 +71,9 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {
 
     int n = M.colSize();
 
-    int * M_colptr = (int *) &Mfiltered.getRowBegin()[0];
-    int * M_rowind = (int *) &Mfiltered.getColsIndex()[0];
-    Real * M_values = (Real *) &Mfiltered.getColsValue()[0];
+    int * M_colptr = (int *) Mfiltered.getRowBegin().data();
+    int * M_rowind = (int *) Mfiltered.getColsIndex().data();
+    Real * M_values = (Real *) Mfiltered.getColsValue().data();
 
     InvertData * data = (InvertData *) this->getMatrixInvertData(&M);
     Inherit::factorize(n,M_colptr,M_rowind,M_values,data);
