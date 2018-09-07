@@ -64,7 +64,7 @@ DistanceMapping<TIn, TOut>::~DistanceMapping()
 template <class TIn, class TOut>
 void DistanceMapping<TIn, TOut>::init()
 {
-    edgeContainer = topology::EdgeSetTopologyContainer::DynamicCast( this->getContext()->getMeshTopology() );
+    edgeContainer = topology::EdgeSetTopologyContainer::DynamicCast( this->getFromModel()->getContext()->getMeshTopology() );
     if( !edgeContainer ) serr<<"No EdgeSetTopologyContainer found ! "<<sendl;
 
     SeqEdges links = edgeContainer->getEdges();
