@@ -33,6 +33,12 @@ namespace sofa
 namespace simulation
 {
 
+sofa::simulation::Node::SPtr SceneLoader::load(const char *filename)
+{
+    SceneArguments args;
+    return load(filename, args);
+}
+
 SceneLoaderFactory* SceneLoaderFactory::getInstance()
 {
     static SceneLoaderFactory instance;

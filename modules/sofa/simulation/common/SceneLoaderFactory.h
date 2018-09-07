@@ -73,6 +73,8 @@ public:
     /// load the file with the given arguments
     virtual sofa::simulation::Node::SPtr load(const char *filename, const SceneArguments& sceneArguments) = 0;
 
+    sofa::simulation::Node::SPtr load(const char *filename);
+
     /// write scene graph in the file
     virtual void write(sofa::simulation::Node* /*node*/, const char * /*filename*/) {}
 
