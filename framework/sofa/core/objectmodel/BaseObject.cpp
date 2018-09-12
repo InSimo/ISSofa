@@ -27,6 +27,7 @@
 #include <sofa/core/objectmodel/Event.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/topology/Topology.h>
+#include <sofa/core/topology/BaseMeshTopology.h>
 #include <sofa/helper/TagFactory.h>
 #include <iostream>
 
@@ -363,7 +364,7 @@ void BaseObject::handleEvent( Event* /*e*/ )
 /// Handle topological Changes from a given Topology
 void BaseObject::handleTopologyChange(core::topology::Topology* t)
 {
-    if (t == this->getContext()->getTopology())
+    if (t == this->getContext()->getActiveMeshTopology())
     {
         //	sout << getClassName() << " " << getName() << " processing topology changes from " << t->getName() << sendl;
         handleTopologyChange();
