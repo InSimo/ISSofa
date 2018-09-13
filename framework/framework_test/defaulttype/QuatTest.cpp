@@ -61,16 +61,21 @@ TEST(QuaternionTest, integrateLargeAngularDisplacementTest)
     const double angle = 2.0*M_PI / 3.0;
     Vec3d rotation(angle, 0 , 0);
     
-    Quat x0( 0,0,0,1 );
+    Quat x0 = Quat::identity();
     x0.integrateExponentialMap(rotation);
 
-    Quat x1( 0,0,0,1 );
+    Quat x1 = Quat::identity();
     x1.integrate(rotation);
 
     Quat result(0.8660254,0,0,0.5);
 
-    EXPECT_TRUE(std::fabs(x0[0] - result[0]) < epsilon);
+    for(std::size_t i=0;i<Quat::size(); ++i)
+    {
+        EXPECT_TRUE(std::fabs(x0[i] - result[i]) < epsilon);
+    }
+
     EXPECT_FALSE(std::fabs(x1[0] - result[0]) < epsilon);
+
 }
 
 
