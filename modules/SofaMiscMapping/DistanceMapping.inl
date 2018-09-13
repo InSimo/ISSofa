@@ -68,7 +68,7 @@ void DistanceMapping<TIn, TOut>::init()
     if( !edgeContainer ) serr<<"No EdgeSetTopologyContainer found ! "<<sendl;
 
     SeqEdges links = edgeContainer->getEdges();
-    typename core::behavior::MechanicalState<In>::ReadVecCoord pos = this->getFromModel()->readPositions();
+    typename core::behavior::MechanicalState<In>::ReadVecCoord pos = this->getFromModel()->readRestPositions();
 
     this->getToModel()->resize( links.size() );
     jacobian.resizeBlocks(links.size(),pos.size());
