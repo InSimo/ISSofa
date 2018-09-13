@@ -89,14 +89,10 @@ public:
 
     void clear()
     {
-        _q[0]=0.0;
-        _q[1]=0.0;
-        _q[2]=0.0;
-        _q[3]=1.0;
+        *this = identity();
     }
 
     void fromFrame(defaulttype::Vec<3,Real>& x, defaulttype::Vec<3,Real>&y, defaulttype::Vec<3,Real>&z);
-
 
     void fromMatrix(const defaulttype::Matrix3 &m);
 
@@ -200,6 +196,9 @@ public:
     /// @deprecated
     defaulttype::Vec<3,Real> toEulerVector() const;
 
+    ///< exponential map which converts an axis angle parametrisation of a rotation into its quaternion counterpart.
+    static Quater exponentialMap(const defaulttype::Vec<3, Real>& axisAngle, Real epsilon = Real(1e-6));
+
     ///< Returns the logarithm of the input quaternion
     defaulttype::Vec<3,Real> getLog(bool normalize=false, Real epsilon = Real(1e-6) ) const;
 
@@ -235,8 +234,8 @@ public:
     // This function computes a quaternion based on an axis (defined by
     // the given vector) and an angle about which to rotate.  The angle is
     // expressed in radians.
-    Quater axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon = Real(1e-6));
-    void   quatToAxis(defaulttype::Vec<3,Real> & a, Real &phi, bool normalizeQuaternion = false, Real epsilon = Real(1e-6) ) const;
+    Quater& axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon = Real(1e-6));
+    void    quatToAxis(defaulttype::Vec<3,Real> & a, Real &phi, bool normalizeQuaternion = false, Real epsilon = Real(1e-6) ) const;
 
 
     static Quater createQuaterFromFrame(const defaulttype::Vec<3, Real> &lox, const defaulttype::Vec<3, Real> &loy,const defaulttype::Vec<3, Real> &loz);
@@ -245,10 +244,12 @@ public:
     template<class V>
     static Quater createFromRotationVector(const V& a)
     {
-        Real phi = (Real)sqrt(a*a);
-        if( phi < 1.0e-5 )
-            return Quater(0,0,0,1);
-        else
+        return Quater::exponentialMap(a);
+    }
+
+    /// Create using the entries of a rotation vector (axis*angle) given in parent coordinates
+    template<class T>
+    static Quater createFromRotationVector(T a0, T a1, T a2)
         {
             Real nor = 1/phi;
             Real s = (Real)sin(phi/2);

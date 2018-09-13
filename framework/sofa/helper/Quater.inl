@@ -278,40 +278,13 @@ void Quater<Real>::normalize()
 
 
 /// integrate quaternion using exponential map parametrisation
-/// omega = u * theta
-/// exp( u * theta ) = [ cos(theta / 2 ), 0.5 * sinc(  theta / 2) * u ]
 template<class Real>
 void Quater<Real>::integrateExponentialMap(const Vec3& omega, Real epsilon)
 {
-    // R3 x SO(3) exponential integration
-    const Real theta = omega.norm();
-    Quater<Real>& qThis = *this;
-
-    if (theta < epsilon)
-    {
-        // taylor expansion of the sinc function around zero
-        const Real sinc = Real(0.5) + std::pow(theta, Real(2)) / Real(48)
-                                    - std::pow(theta, Real(4)) / (std::pow(Real(2), Real(5)) * Real(120));
-
-        const Quater<Real> exp_omega( sinc * omega[0],
-                                      sinc * omega[1],
-                                      sinc * omega[2],
-                                      std::cos(theta / Real(2)) );
-
-        qThis = exp_omega * qThis;
-    }
-    else
-    {
-        const Real sinc = std::sin(theta * Real(0.5) ) / theta;
-        const Quater<Real> exp_omega(sinc * omega[0],
-                                     sinc * omega[1],
-                                     sinc * omega[2],
-                                     std::cos(theta / Real(2)));
-        
-        qThis = exp_omega * qThis;
-    }
-
-    assert(std::abs(norm() -1) < 1e-6); 
+    Quater<Real>& qThis       = *this;
+    Quater<Real> exp_omega    = exponentialMap(omega, epsilon);
+    qThis = exp_omega * qThis;
+    assert(std::abs(norm() -1) < epsilon); 
 }
 
 template<class Real>
@@ -510,35 +483,52 @@ void Quater<Real>::writeOpenGlMatrix(float *m) const
     m[3*4+3] = 1.0f;
 }
 
+
+/// Taken from
+/// @ARTICLE{Grassia98practicalparameterization,
+/// author ={ F.Sebastian Grassia },
+/// title ={ Practical parameterization of rotations using the exponential map },
+/// journal ={ Journal of Graphics Tools },
+/// year ={ 1998 },
+/// volume ={ 3 },
+/// pages ={ 29--48 }
+template<class Real>
+Quater<Real> Quater<Real>::exponentialMap(const defaulttype::Vec<3, Real>& axisAngle, Real epsilon)
+{
+    const Real theta = axisAngle.norm();
+    
+    if (theta < epsilon)
+    {
+        // taylor expansion of the sinc function around zero, maybe overkill to go that far in the expansion
+        const Real sinc = Real(0.5) + std::pow(theta, Real(2)) / Real(48)
+            - std::pow(theta, Real(4)) / (std::pow(Real(2), Real(5)) * Real(120));
+
+        const Quater<Real> exp(sinc * axisAngle[0],
+            sinc * axisAngle[1],
+            sinc * axisAngle[2],
+            std::cos(theta / Real(2)));
+
+        return exp;
+    }
+    else
+    {
+        const Real sinc = std::sin(theta * Real(0.5)) / theta;
+        const Quater<Real> exp(sinc * axisAngle[0],
+            sinc * axisAngle[1],
+            sinc * axisAngle[2],
+            std::cos(theta / Real(2)));
+        return exp;
+    }
+}
+
 /// Given an axis and angle, compute quaternion.
 template<class Real>
-Quater<Real> Quater<Real>::axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon)
+Quater<Real>& Quater<Real>::axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon)
 {
     defaulttype::Vec<3, Real> axis = a;
+    axis *= phi;
 
-    const Real axis_norm = axis.norm();
-
-    if(axis_norm < epsilon )
-    {
-        _q[0] = _q[1] = _q[2] = (Real)0.0f;
-        _q[3] = (Real)1.0f;
-        return *this;
-    }
-
-    axis = axis / axis_norm;
-    _q[0] = (Real)axis.x();
-    _q[1] = (Real)axis.y();
-    _q[2] = (Real)axis.z();
-
-    const Real sin_half_phi = std::sin(phi / Real(2.0));
-
-    _q[0] = _q[0] * sin_half_phi;
-    _q[1] = _q[1] * sin_half_phi;
-    _q[2] = _q[2] * sin_half_phi;
-
-    const Real cos_half_phi = std::cos(phi / Real(2.0));
-
-    _q[3] = cos_half_phi;
+    *this = exponentialMap(axis,epsilon);
 
     return *this;
 }
@@ -574,7 +564,7 @@ void Quater<Real>::quatToAxis(defaulttype::Vec<3,Real> & axis, Real &angle, bool
 /// 
 /// @param normalize If set to true a normalization step is performed to work on a unit quaterion
 /// @param epsilon  A small value used to evaluate if we are dealing with a small angle.
-
+/// @return The logarithm of the quaternion.
 template<class Real>
 defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) const
 {
@@ -608,7 +598,7 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
     
     // avoid numerical instabilities of arccos when below 5 degrees
     // q[3] > 0.999 => cos( theta ) > 0.999 => theta < 5 degrees
-    if (q_w > Real(0.9999))
+    if (q_w > Real(0.999))
     {
         const Real sin_half_angle = norm;
         const Real angle = Real(2.0) * std::asin(norm);
