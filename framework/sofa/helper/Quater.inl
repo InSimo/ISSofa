@@ -300,7 +300,7 @@ void Quater<Real>::integrate(const Vec3& omega)
 }
 
 template<class Real>
-void Quater<Real>::fromFrame(defaulttype::Vec<3,Real>& x, defaulttype::Vec<3,Real>&y, defaulttype::Vec<3,Real>&z)
+void Quater<Real>::fromFrame(const defaulttype::Vec<3,Real>& x, const defaulttype::Vec<3,Real>&y, const defaulttype::Vec<3,Real>&z)
 {
     defaulttype::Matrix3 R(x,y,z);
     R.transpose();

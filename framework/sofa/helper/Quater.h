@@ -92,7 +92,7 @@ public:
         *this = identity();
     }
 
-    void fromFrame(defaulttype::Vec<3,Real>& x, defaulttype::Vec<3,Real>&y, defaulttype::Vec<3,Real>&z);
+    void fromFrame(const defaulttype::Vec<3,Real>& x, const defaulttype::Vec<3,Real>&y, const defaulttype::Vec<3,Real>&z);
 
     void fromMatrix(const defaulttype::Matrix3 &m);
 
@@ -250,11 +250,9 @@ public:
     /// Create using the entries of a rotation vector (axis*angle) given in parent coordinates
     template<class T>
     static Quater createFromRotationVector(T a0, T a1, T a2)
-        {
-            Real nor = 1/phi;
-            Real s = (Real)sin(phi/2);
-            return Quater( a[0]*s*nor, a[1]*s*nor,a[2]*s*nor, (Real)cos(phi/2) );
-        }
+    {
+        sofa::defaulttype::Vec<3, T> v(a0, a1, a2);
+        return createFromRotationVector(v);
     }
 
     /// Create a quaternion from Euler angles
@@ -277,20 +275,7 @@ public:
         return createQuaterFromEuler( defaulttype::Vec<3,Real>(alpha, beta, gamma) );
     }
 
-    /// Create using the entries of a rotation vector (axis*angle) given in parent coordinates
-    template<class T>
-    static Quater createFromRotationVector(T a0, T a1, T a2 )
-    {
-        Real phi = (Real)sqrt((Real)(a0*a0+a1*a1+a2*a2));
-        if( phi < 1.0e-5 )
-            return Quater(0,0,0,1);
-        else
-        {
-            Real nor = 1/phi;
-            Real s = (Real)sin(phi/2.0);
-            return Quater( a0*s*nor, a1*s*nor,a2*s*nor, (Real)cos(phi/2.0) );
-        }
-    }
+
     /// Create using rotation vector (axis*angle) given in parent coordinates
     template<class V>
     static Quater set(const V& a) { return createFromRotationVector(a); }
