@@ -37,6 +37,8 @@
 #include <math.h>
 #include <sofa/helper/system/thread/CTime.h>
 #include <SofaBaseLinearSolver/CompressedRowSparseMatrix.inl>
+#include <SofaConstraint/ConstraintSolverImpl.h>
+#include <sofa/helper/AdvancedTimer.h>
 
 namespace sofa {
 
@@ -54,6 +56,134 @@ template<class TMatrix, class TVector, class TThreadManager>
 void SparseLDLSolver<TMatrix,TVector,TThreadManager>::solve (Matrix& M, Vector& z, Vector& r) {
     Inherit::solve_cpu(&z[0],&r[0],(InvertData *) this->getMatrixInvertData(&M));
 }
+
+template<class TMatrix, class TVector, class TThreadManager>
+void SparseLDLSolver<TMatrix,TVector,TThreadManager>::solveSystem()
+{
+    core::ConstraintParams cparams = core::ConstraintParams();
+    cparams.setAssembleConstitutiveConstraints(true);
+    cparams.setOrder(core::ConstraintParams::ConstOrder::VEL);
+
+    std::size_t numConstraints = 0;
+
+    core::objectmodel::BaseContext* context = this->getContext();
+
+    // ////////////////////////////////////////////////////////////////////
+    // get the constraint matrices at the independant mechanical states
+
+    sofa::helper::AdvancedTimer::stepBegin("Reset constitutive constraints");
+
+    // mechanical action executed from root node to propagate the constraints
+    simulation::MechanicalResetConstraintVisitor(&cparams).execute(context);
+
+    sofa::helper::AdvancedTimer::stepNext("Reset constitutive constraints", "Build constitutive constraints");
+
+    // execute "constraint::buildConstraintMatrix() for all the constraints selected for factorization
+    simulation::MechanicalBuildConstraintMatrix(&cparams, cparams.j(), numConstraints).execute(context);
+
+    if(numConstraints == std::size_t(0))
+    {
+        Inherit::solveSystem();
+        return;
+    }
+
+    sofa::helper::AdvancedTimer::stepNext("Build constitutive constraints", "Accumulate matrix of constitutive constraints");
+
+    // execute "mapping::applyJT()" for all the mappings
+    const bool reverseAccumulateOrder = false;
+    simulation::MechanicalAccumulateMatrixDeriv(&cparams, cparams.j(), reverseAccumulateOrder).execute(context);
+
+    sofa::helper::AdvancedTimer::stepNext("Accumulate matrix of constitutive constraints", "Project Jacobian of constitutive constraints");
+
+    //// suppress the constraints that are on DOFS currently concerned by projective constraint
+    core::MechanicalParams mparams = core::MechanicalParams(cparams);
+    simulation::MechanicalProjectJacobianMatrixVisitor(&mparams).execute(context);
+
+    sofa::helper::AdvancedTimer::stepEnd("Project Jacobian of constitutive constraints");
+        
+    // ////////////////////////////////////////////////////////////////////
+    // accumulate matrix
+
+    buildConstitutiveConstraintsJMatrix(&cparams, numConstraints);
+    
+    buildConstitutiveConstraintsSystemMatrix(&cparams);
+    
+    buildConstitutiveConstraintsHVectors(&cparams);
+    
+    Inherit::solveSystem();
+}
+
+
+template<class TMatrix, class TVector, class TThreadManager>
+void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsJMatrix(const sofa::core::ConstraintParams* cparams, std::size_t numConstitutiveConstraints)
+{
+    JMatrixType * j_local = internalData.getLocalJ();
+    j_local->clear();
+    j_local->resize(numConstitutiveConstraints, currentGroup->systemMatrix->colSize());
+
+    if (numConstitutiveConstraints == 0)
+    {
+        return;
+    }
+
+    executeVisitor(simulation::MechanicalGetConstraintJacobianVisitor(cparams, j_local));
+
+}
+
+
+template<class TMatrix, class TVector, class TThreadManager>
+void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsSystemMatrix(const sofa::core::ConstraintParams* cparams)
+{
+    const JMatrixType * j_local = internalData.getLocalJ();
+
+    std::size_t mechanicalSystemSize = currentGroup->systemMatrix->colSize();
+    std::size_t constitutiveConstraintsSystemSize = j_local->rowSize() + mechanicalSystemSize;
+
+    currentGroup->systemSize = constitutiveConstraintsSystemSize;
+
+    currentGroup->systemMatrix->extend(constitutiveConstraintsSystemSize,constitutiveConstraintsSystemSize);
+
+    for(auto& line : *j_local)
+    {    
+        std::size_t rowIndex = line.first;
+        for(auto& elem : line.second)
+        {
+            std::size_t colIndex = elem.first;
+            const double& value = elem.second;
+
+            if(value == double(0))
+            {
+                continue;
+            }
+            currentGroup->systemMatrix->add(rowIndex + mechanicalSystemSize, colIndex, value);
+            currentGroup->systemMatrix->add(colIndex, rowIndex + mechanicalSystemSize, value);
+        }
+    }
+
+    currentGroup->needInvert = true;
+}
+
+template<class TMatrix, class TVector, class TThreadManager>
+void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsHVectors(const core::ConstraintParams* cparams)
+{ 
+    currentGroup->systemRHVector->extend(currentGroup->systemSize);
+    currentGroup->systemLHVector->extend(currentGroup->systemSize);
+
+    const JMatrixType * j_local = internalData.getLocalJ();
+    std::size_t nbConstraints = j_local->rowSize();
+    TVector violation;
+    violation.resize(nbConstraints);
+    component::constraintset::MechanicalGetConstraintViolationVisitor(cparams, &violation).execute(this->getContext());
+
+    for (std::size_t i = 0; i < nbConstraints; ++i)
+    {
+        double value = violation.element(i);
+        currentGroup->systemRHVector->set(currentGroup->systemSize - nbConstraints + i, -value);
+    }
+}
+
+
+
 
 template<class TMatrix, class TVector, class TThreadManager>
 void SparseLDLSolver<TMatrix,TVector,TThreadManager>::invert(Matrix& M) {

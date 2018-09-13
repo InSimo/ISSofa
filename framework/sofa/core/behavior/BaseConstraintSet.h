@@ -51,6 +51,7 @@ protected:
     BaseConstraintSet()
         : group(initData(&group, 0, "group", "ID of the group containing this constraint. This ID is used to specify which constraints are solved by which solver, by specifying in each solver which groups of constraints it should handle."))
         , m_constraintIndex(initData(&m_constraintIndex, (unsigned int)0, "constraintIndex", "Constraint index (first index in the right hand term resolution vector)"))
+        , d_isConstitutiveConstraint(initData(&d_isConstitutiveConstraint, false, "isConstitutiveConstraint", "Constitutive constraints are factored in the same system as the dynamic matrix ( M,B,K )"))
     {
     }
 
@@ -81,6 +82,7 @@ protected:
     Data< int > group;
 public:
     Data< unsigned int > m_constraintIndex; /// Constraint index (first index in the right hand term resolution vector)
+    Data< bool >         d_isConstitutiveConstraint;/// Constitutive constraints are factored in the same system as the dynamic matrix ( M,B,K )
 };
 
 } // namespace behavior

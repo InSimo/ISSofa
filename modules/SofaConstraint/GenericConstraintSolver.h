@@ -197,6 +197,13 @@ public:
     {
       if (core::behavior::BaseConstraint *c=core::behavior::BaseConstraint::DynamicCast(cSet))
       {
+         const bool applyConstraint = (c->d_isConstitutiveConstraint.getValue(cparams) == cparams->isAssemblingConstitutiveConstraints());
+        
+        if (!applyConstraint)
+        {
+            return RESULT_CONTINUE;
+        }
+
         ctime_t t0 = begin(node, c);
         c->getConstraintResolution(cparams, _res, _offset);
         end(node, c, t0);

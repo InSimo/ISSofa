@@ -26,8 +26,6 @@
 #define SOFA_COMPONENT_CONSTRAINTSET_CONSTRAINTSOLVERIMPL_H
 
 #include <sofa/SofaGeneral.h>
-
-#include <sofa/SofaGeneral.h>
 #include <sofa/core/behavior/ConstraintSolver.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
@@ -111,6 +109,12 @@ public:
     {
         if (core::behavior::BaseConstraintSet *c=core::behavior::BaseConstraintSet::DynamicCast(cSet))
         {
+            const bool applyConstraint = (c->d_isConstitutiveConstraint.getValue(cparams) == cparams->isAssemblingConstitutiveConstraints() );
+            if (!applyConstraint)
+            {
+                return RESULT_CONTINUE;
+            }
+
             ctime_t t0 = begin(node, c);
             c->getConstraintViolation(cparams /* PARAMS FIRST */, m_v);
             end(node, c, t0);

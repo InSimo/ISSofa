@@ -71,6 +71,20 @@ public :
         return new InvertData();
     }
 
+    // /////////////////////////////////////////////////////////////
+    //  API for the factorization of the bilateral constraints along with the mechanics
+
+    virtual void solveSystem() override;
+    
+    virtual void buildConstitutiveConstraintsJMatrix(const sofa::core::ConstraintParams* cparams, std::size_t numConstitutiveConstraints);
+
+    virtual void buildConstitutiveConstraintsSystemMatrix(const sofa::core::ConstraintParams* cparams);
+
+    virtual void buildConstitutiveConstraintsHVectors(const core::ConstraintParams* cparams);
+
+    //  end of the API for the factorization of the bilateral constraints along with the mechanics
+    // /////////////////////////////////////////////////////////////
+
 protected :
     SparseLDLSolver();
 

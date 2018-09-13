@@ -1350,6 +1350,13 @@ void MechanicalAccumulateConstraint::bwdMechanicalMapping(simulation::Node* node
 
 Visitor::Result MechanicalBuildConstraintMatrix::fwdConstraintSet(simulation::Node* node, core::behavior::BaseConstraintSet* c)
 {
+    const bool applyConstraint = (c->d_isConstitutiveConstraint.getValue(cparams) == 
+                                  cparams->isAssemblingConstitutiveConstraints() );
+    if (!applyConstraint)
+    {
+        return RESULT_CONTINUE;
+    }
+
     ctime_t t0 = begin(node, c);
     c->buildConstraintMatrix(cparams, res, contactId);
     end(node, c, t0);

@@ -86,6 +86,11 @@ public:
         return result;
     }
 
+    const bool isAssemblingConstitutiveConstraints() const
+    { 
+        return m_assembleConstitutiveConstraints;
+    }
+
     /// @name Access to vectors from a given state container (i.e. State or MechanicalState)
     /// @{
 
@@ -214,6 +219,11 @@ public:
     template<class StateSet>
     ConstraintParams& setLambda(const StateSet& g, MultiVecDerivId lambda) { m_lambda.setId(g, lambda); return *this; }
 
+    void setAssembleConstitutiveConstraints(const bool assembleConstitutive)
+    { 
+        m_assembleConstitutiveConstraints = assembleConstitutive;
+    }
+
     /// @}
 
 
@@ -227,6 +237,7 @@ public:
         , m_lambda(VecDerivId::externalForce())
         , m_constOrder (POS_AND_VEL)
 		, m_smoothFactor (1)
+        , m_assembleConstitutiveConstraints(false)
     {
     }
 
@@ -260,6 +271,10 @@ protected:
 
 	/// Smooth contribution factor (for smooth constraints resolution)
     double m_smoothFactor;
+
+    /// Boolean flag to tell if this ConstraintParams deal with constituive constraints
+    bool m_assembleConstitutiveConstraints;
+
 };
 
 } // namespace core
