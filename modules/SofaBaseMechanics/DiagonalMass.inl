@@ -687,6 +687,8 @@ void DiagonalMass<DataTypes, MassType>::initTopologyHandlers()
         f_mass.linkToHexahedronDataArray();
 
     f_mass.registerTopologicalData();
+
+    reinit(); // this is where the per dof mass values are actually set
 }
 
 template <class DataTypes, class MassType>
@@ -717,27 +719,6 @@ void DiagonalMass<DataTypes, MassType>::init()
             masses.push_back(masses[i]);
         f_mass.endEdit();
     }
-
-	if (_topology != 0)
-	{
-		if (f_mass.getValue().size() == 0)
-		{
-			reinit();
-		}
-		else
-		{
-			const MassVector &masses = *f_mass.beginEdit();
-			for (unsigned int i = 0; i < masses.size(); ++i)
-			{
-				if (masses[i] == 0)
-				{
-					reinit();
-					break;
-				}
-			}
-			f_mass.endEdit();
-		}
-	}
 }
 
 template <class DataTypes, class MassType>
