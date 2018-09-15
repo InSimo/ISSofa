@@ -138,7 +138,7 @@ void TTriangleModel<DataTypes>::updateNormals()
     for (int i=0; i<size; i++)
     {
         Element t(this,i);
-        t.n() = computeTriangleNormal<DataTypes>(t.p1(), t.p1(), t.p1());
+        t.n() = computeTriangleNormal<DataTypes>(t.p1(), t.p2(), t.p3());
     }
 }
 
