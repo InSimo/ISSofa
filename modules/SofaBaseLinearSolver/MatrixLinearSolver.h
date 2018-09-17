@@ -184,6 +184,7 @@ public:
     typedef typename MatrixLinearSolverInternalData<Vector>::ResMatrixType ResMatrixType;
 
     Data<bool> multiGroup;
+    Data<bool> d_dumpSystem;
 
     MatrixLinearSolver();
     virtual ~MatrixLinearSolver();
@@ -389,6 +390,15 @@ protected:
             if (systemRHVector) deletePersistentVector(systemRHVector);
             if (systemLHVector) deletePersistentVector(systemLHVector);
         }
+
+        friend std::ostream& operator<<(std::ostream& out, const  GroupData& g)
+        {
+            out << "- system size : " << g.systemSize;
+            out << "\n- system matrix : " << *g.systemMatrix;
+            out << "\n- RHVector : " << *g.systemRHVector;
+            out << "\n- solution : " << *g.systemLHVector;
+            return out;
+        }
     };
 
     typedef std::map<simulation::Node*,GroupData> GroupDataMap;
@@ -398,7 +408,7 @@ protected:
     std::vector<simulation::Node*> groups;
     GroupDataMap gData;
     GroupData defaultGroup;
-
+    
     double currentMFactor, currentBFactor, currentKFactor;
 
 };

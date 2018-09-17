@@ -107,6 +107,11 @@ public:
 
     //void papply(GraphScatteredVector& res, GraphScatteredVector& x);
 
+    friend std::ostream& operator<<(std::ostream& out, const  GraphScatteredMatrix& gM)
+    {
+        return out;
+    }
+
     static const char* Name() { return "GraphScattered"; }
 };
 

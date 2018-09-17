@@ -95,6 +95,15 @@ public:
 
     int getNumConstraints();
     int getNumConstraintGroups();
+
+    friend std::ostream& operator<<(std::ostream& out, const  GenericConstraintProblem& gcp)
+    {
+        out << "- number of constraints : " << gcp.W.colSize();
+        out << "\n- systemMatrix W : " << gcp.W;
+        out << "\n- RHVector dFree : " << gcp.dFree;
+        out << "\n- solution lamda : " << gcp.f;
+        return out;
+    }
 };
 
 class SOFA_CONSTRAINT_API GenericConstraintSolver : public ConstraintSolverImpl
@@ -143,6 +152,7 @@ public:
 	Data<int> currentIterations;
 	Data<double> currentError;
     Data<bool> reverseAccumulateOrder;
+    Data<bool> d_dumpSystem;
 
     virtual sofa::core::MultiVecDerivId getLambda() const override
     {

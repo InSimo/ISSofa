@@ -99,6 +99,7 @@ GenericConstraintSolver::GenericConstraintSolver()
 , reverseAccumulateOrder(initData(&reverseAccumulateOrder, false, "reverseAccumulateOrder", "True to accumulate constraints from nodes in reversed order (can be necessary when using multi-mappings or interaction constraints not following the node hierarchy)"))
 , current_cp(&m_cpBuffer[0])
 , last_cp(NULL)
+, d_dumpSystem(initData(&d_dumpSystem, false, "dumpSystem", "Dump linear systems to terminal (debug purpose, to use with small systems)"))
 {
 	addAlias(&maxIt, "maxIt");
 
@@ -426,6 +427,11 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams* cParams,
         afficheLCP(std::cout, current_cp->_d.ptr(), current_cp->getW(), current_cp->getF(), current_cp->getDimension(), false);
     }
 
+    if (d_dumpSystem.getValue())
+    {
+        std::cout << "\n[ step " << this->getContext()->getTime() / this->getContext()->getDt() << " ] ====  Constraint problem solved : ==== "  << std::endl;
+        std::cout << *current_cp << std::endl;
+    }
 	
 	return true;
 }

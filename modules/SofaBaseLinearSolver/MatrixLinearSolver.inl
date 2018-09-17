@@ -37,6 +37,7 @@ namespace linearsolver {
 template<class Matrix, class Vector>
 MatrixLinearSolver<Matrix,Vector>::MatrixLinearSolver()
     : multiGroup( initData( &multiGroup, false, "multiGroup", "activate multiple system solve, one for each child node" ) )
+    , d_dumpSystem(initData(&d_dumpSystem, false, "dumpSystem", "Dump linear systems to console for debug purposes"))
 //, needInvert(true), systemMatrix(NULL), systemRHVector(NULL), systemLHVector(NULL)
     , currentGroup(&defaultGroup)
 {
@@ -248,6 +249,12 @@ void MatrixLinearSolver<Matrix,Vector>::solveSystem()
             //v_clear(currentGroup->solutionVecId);
             //multiVectorPeqBaseVector(currentGroup->solutionVecId, currentGroup->systemLHVector, &(currentGroup->matrixAccessor));
             executeVisitor( simulation::MechanicalMultiVectorFromBaseVectorVisitor(core::ExecParams::defaultInstance(), currentGroup->solutionVecId, currentGroup->systemLHVector, &(currentGroup->matrixAccessor)) );
+
+                if (d_dumpSystem.getValue())
+                {
+                    std::cout << "\n[ step " << this->getContext()->getTime() / this->getContext()->getDt() << " ] ====  Mechanical system : ==== "  << std::endl;
+                    std::cout << *currentGroup << std::endl;
+                }
         }
     }
 }
