@@ -152,6 +152,36 @@ public:
         cursize = dim;
     }
 
+    void extend(Index dim)
+    {
+        assert(dim >= cursize);
+        if (dim == cursize) return;
+        if (allocsize >= 0)
+        {
+            if (dim > allocsize)
+            {
+                // realloc
+                T* temp = new T[dim];
+                if (allocsize > 0)
+                {
+                    std::copy(data, data + cursize, temp);
+                    delete [] data;
+                }
+                allocsize = dim;
+                data = temp;
+            }
+        }
+        else
+        {
+            if (dim > -allocsize)
+            {
+                std::cerr << "ERROR: cannot extend preallocated vector to size "<<dim<<std::endl;
+                return;
+            }
+        }
+        cursize = dim;
+    }
+
     void resize(Index dim)
     {
         fastResize(dim);
