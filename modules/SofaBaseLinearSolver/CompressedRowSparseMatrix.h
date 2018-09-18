@@ -823,6 +823,15 @@ public:
         nCol = nbCol;
     }
 
+    void extend(Index nbRow, Index nbCol)
+    {
+        assert(nbRow >= nCol && nbCol >= nCol);
+        nRow = nbRow;
+        nCol = nbCol;
+        nBlocRow = nbRow;
+        nBlocCol = nbCol;
+    }
+
     SReal element(Index i, Index j) const
     {
 #ifdef SPARSEMATRIX_CHECK
