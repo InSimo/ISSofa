@@ -54,9 +54,9 @@ OglLabel::OglLabel(): stepCounter(0)
   ,prefix(initData(&prefix, std::string(""), "prefix", "The prefix of the text to display"))
   ,label(initData(&label, std::string(""), "label", "The text to display"))
   ,suffix(initData(&suffix, std::string(""), "suffix", "The suffix of the text to display"))
-  ,x(initData(&x, (unsigned int)10, "x", "The x position of the text on the screen"))
-  ,y(initData(&y, (unsigned int)10, "y", "The y position of the text on the screen"))
-  ,fontsize(initData(&fontsize, (unsigned int)14, "fontsize", "The size of the font used to display the text on the screen"))
+  ,x(initData(&x, (float)10, "x", "The x position of the text on the screen (<1 : fraction of view width, >1 : pixels)"))
+  ,y(initData(&y, (float)10, "y", "The y position of the text on the screen (<1 : fraction of view height, >1 : pixels)"))
+  ,fontsize(initData(&fontsize, (unsigned int)14, "fontsize", "The size of the font used to display the text on the screen "))
   ,color(initData(&color, std::string("contrast"), "color", "The color of the text to display"))
   ,updateLabelEveryNbSteps(initData(&updateLabelEveryNbSteps, (unsigned int)0, "updateLabelEveryNbSteps", "Update the display of the label every nb of time steps"))
   ,f_visible(initData(&f_visible,true,"visible","Is label displayed"))
@@ -115,6 +115,12 @@ void OglLabel::drawVisual(const core::visual::VisualParams* vparams)
 
     if (!f_visible.getValue() ) return;
 
+    const core::visual::VisualParams::Viewport& viewport = vparams->viewport();
+    if (viewport[0] != 0 || viewport[1] != 0)
+    {
+        return; // do not display in viewports other that the main view
+    }
+
     // Save state and disable clipping plane
     glPushAttrib(GL_ENABLE_BIT);
 	for(int i = 0; i < GL_MAX_CLIP_PLANES; ++i)
@@ -140,8 +146,12 @@ void OglLabel::drawVisual(const core::visual::VisualParams* vparams)
 
     std::string text = prefix.getValue() + internalLabel.c_str() + suffix.getValue();
 
+
+    int w = x.getValue() > 1 ? int (x.getValue()) : int (x.getValue()*viewport[2]);
+    int h = y.getValue() > 1 ? int (y.getValue()) : int (y.getValue()*viewport[3]);
+
     vparams->drawTool()->writeOverlayText(
-        x.getValue(), y.getValue(), fontsize.getValue(),  // x, y, size
+        w, h, fontsize.getValue(),  // x, y, size
         color,
         text.c_str());
 

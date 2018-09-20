@@ -62,8 +62,8 @@ public:
     Data<std::string> prefix;
     Data<std::string> label;
     Data<std::string> suffix;
-    Data<unsigned int> x;
-    Data<unsigned int> y;
+    Data<float> x;
+    Data<float> y;
     Data<unsigned int> fontsize;
     Data<std::string> color;
     Data<unsigned int> updateLabelEveryNbSteps;
