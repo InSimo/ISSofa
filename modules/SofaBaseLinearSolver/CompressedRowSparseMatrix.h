@@ -203,7 +203,7 @@ public:
             // just clear the matrix
             for (Index i=0; i < (Index)colsValue.size(); ++i)
                 traits::clear(colsValue[i]);
-            compressed = colsValue.empty();
+            compressed = true;
             btemp.clear();
         }
         else
@@ -224,17 +224,12 @@ public:
         }
     }
 
-    virtual void compress()
+    virtual void compress() override
     {
-        if (compressed && btemp.empty()) return;
-        if (!btemp.empty())
-        {
-            compressBtemp();
-        }
-        else
-        {
-            compressCSR();
-        }
+        if (compressed) return;
+        assert(!btemp.empty());
+
+        compressBtemp();
         compressed = true;
     }
 protected:
@@ -280,19 +275,9 @@ protected:
                 rowIndex.push_back(inRowIndex);
                 rowBegin.push_back(outValId);
                 Range inRow( oldRowBegin[inRowId], oldRowBegin[inRowId+1] );
-                while (!inRow.empty())
-                {
-                    if (!traits::empty(oldColsValue[inRow.begin()]))
-                    {
-                        colsIndex.push_back(oldColsIndex[inRow.begin()]);
-                        colsValue.push_back(oldColsValue[inRow.begin()]);
-                        ++outValId;
-                    }
-                    ++inRow;
-                }
-                //colsIndex.insert(colsIndex.end(), inRow.begin(oldColsIndex), inRow.end(oldColsIndex));
-                //colsValue.insert(colsValue.end(), inRow.begin(oldColsValue), inRow.end(oldColsValue));
-                //outValId += inRow.size();
+                colsIndex.insert(colsIndex.end(), inRow.begin(oldColsIndex), inRow.end(oldColsIndex));
+                colsValue.insert(colsValue.end(), inRow.begin(oldColsValue), inRow.end(oldColsValue));
+                outValId += inRow.size();
                 ++inRowId;
                 inRowIndex = (inRowId < oldNRow ) ? oldRowIndex[inRowId] : EndRow;
             }
@@ -304,19 +289,16 @@ protected:
                 while (itbtemp != endbtemp && itbtemp->l == bRowIndex)
                 {
                     Index bColIndex = itbtemp->c;
-                    Bloc value = itbtemp->value;
+                    colsIndex.push_back(bColIndex);
+                    colsValue.push_back(itbtemp->value);
+                    Bloc& value = colsValue.back();
                     ++itbtemp;
                     while (itbtemp != endbtemp && itbtemp->c == bColIndex && itbtemp->l == bRowIndex)
                     {
                         value += itbtemp->value;
                         ++itbtemp;
                     }
-                    if (!traits::empty(value))
-                    {
-                        colsIndex.push_back(bColIndex);
-                        colsValue.push_back(value);
-                        ++outValId;
-                    }
+                    ++outValId;
                 }
                 bRowIndex = (itbtemp != endbtemp) ? itbtemp->l : EndRow;
             }
@@ -332,47 +314,38 @@ protected:
                 {
                     if (inColIndex < bColIndex)
                     {
-                        if (!traits::empty(oldColsValue[inRow.begin()]))
-                        {
-                            colsIndex.push_back(inColIndex);
-                            colsValue.push_back(oldColsValue[inRow.begin()]);
-                            ++outValId;
-                        }
+                        colsIndex.push_back(inColIndex);
+                        colsValue.push_back(oldColsValue[inRow.begin()]);
+                        ++outValId;
                         ++inRow;
                         inColIndex = (!inRow.empty()) ? oldColsIndex[inRow.begin()] : EndCol;
                     }
                     else if (inColIndex > bColIndex)
                     {
-                        Bloc value = itbtemp->value;
+                        colsIndex.push_back(bColIndex);
+                        colsValue.push_back(itbtemp->value);
+                        Bloc& value = colsValue.back();
                         ++itbtemp;
                         while (itbtemp != endbtemp && itbtemp->c == bColIndex && itbtemp->l == bRowIndex)
                         {
                             value += itbtemp->value;
                             ++itbtemp;
                         }
-                        if (!traits::empty(value))
-                        {
-                            colsIndex.push_back(bColIndex);
-                            colsValue.push_back(value);
-                            ++outValId;
-                        }
+                        ++outValId;
                         bColIndex = (itbtemp != endbtemp && itbtemp->l == bRowIndex) ? itbtemp->c : EndCol;
                     }
                     else
                     {
-                        Bloc value = oldColsValue[inRow.begin()];
+                        colsIndex.push_back(inColIndex);
+                        colsValue.push_back(oldColsValue[inRow.begin()]);
+                        Bloc& value = colsValue.back();
                         ++inRow;
                         while (itbtemp != endbtemp && itbtemp->c == bColIndex && itbtemp->l == bRowIndex)
                         {
                             value += itbtemp->value;
                             ++itbtemp;
                         }
-                        if (!traits::empty(value))
-                        {
-                            colsIndex.push_back(inColIndex);
-                            colsValue.push_back(value);
-                            ++outValId;
-                        }
+                        ++outValId;
                         inColIndex = (!inRow.empty()) ? oldColsIndex[inRow.begin()] : EndCol;
                         bColIndex = (itbtemp != endbtemp && itbtemp->l == bRowIndex) ? itbtemp->c : EndCol;
                     }
@@ -746,6 +719,7 @@ public:
 #endif
                 btemp.push_back(IndexedBloc(i,j));
                 traits::clear(btemp.back().value);
+                compressed = false;
             }
             return &btemp.back().value;
         }
@@ -793,6 +767,7 @@ public:
 #endif
                 btemp.push_back(IndexedBloc(i,j));
                 traits::clear(btemp.back().value);
+                compressed = false;
             }
             return &btemp.back().value;
         }
@@ -1010,12 +985,14 @@ public:
         }
     }
 
-    void clear()
+    void clear() override
     {
         for (Index i=0; i < (Index)colsValue.size(); ++i)
+        {
             traits::clear(colsValue[i]);
-        compressed = colsValue.empty();
+        }
         btemp.clear();
+        compressed = true;
     }
 
     /// @name Get information about the content and structure of this matrix (diagonal, band, sparse, full, block size, ...)
@@ -1205,6 +1182,7 @@ public:
 #endif
                 btemp.push_back(IndexedBloc(i,j));
                 traits::clear(btemp.back().value);
+                compressed = false;
             }
             return createBlockAccessor(i, j, -(Index)btemp.size());
         }
