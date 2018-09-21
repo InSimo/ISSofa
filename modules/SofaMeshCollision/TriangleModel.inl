@@ -54,12 +54,21 @@ namespace collision
 template<class DataTypes>
 TTriangleModel<DataTypes>::TTriangleModel()
     : computeNormals(initData(&computeNormals, true, "computeNormals", "set to false to disable computation of triangles normal"))
-    , d_triangleFlagBorderAngleThreshold(initData(&d_triangleFlagBorderAngleThreshold,Real(180),"triangleFlagBorderAngleThreshold","Angle threshold (in degrees) above which an edge is qualified as border.\
-                                                                                                            0    -> All edges are flagged as border. \
-                                                                                                            180  -> Only edges with a single adjacent triangle are marked as border"))
+    , d_boundaryAngleThreshold(initData(&d_boundaryAngleThreshold,Real(180),"boundaryAngleThreshold","Angle threshold (in degrees) above which an edge or a point is qualified as boundary.\
+                                                                                                          0    -> All edges/points are flagged as boundary. \
+                                                                                                          180  -> Only edges with a single adjacent triangle are marked as boundary \
+                                                                                                                  and only points attached to these boundary edges are marked as boundary."))
+    , d_intersectOnlyBoundaryPoints(initData(&d_intersectOnlyBoundaryPoints, false, "intersectOnlyBoundaryPoints", "If true, compute intersection only with boundary points (see triangleFlags)."))
+    , d_intersectOnlyBoundaryEdges(initData(&d_intersectOnlyBoundaryEdges, false, "intersectOnlyBoundaryEdges", "If true, compute intersection only with boundary edges (see triangleFlags)."))
+    , drawBoundaryPoints(initData(&drawBoundaryPoints, false, "drawBoundaryPoints", "Draw triangle points that are classified as boundary."))
+    , drawBoundaryEdges(initData(&drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
 {
     triangles = &mytriangles;
     enum_type = TRIANGLE_TYPE;
+
+    d_boundaryAngleThreshold.setGroup("TriangleFlags_");
+    d_intersectOnlyBoundaryPoints.setGroup("TriangleFlags_");
+    d_intersectOnlyBoundaryEdges.setGroup("TriangleFlags_");
 }
 
 template<class DataTypes>
@@ -216,9 +225,10 @@ void TTriangleModel<DataTypes>::updateFlags()
     // flags value based on the angle made by the normal between adjacent triangles. 
     const bool computeAngleAtEdge = x0.size() == x.size();
 
-    Real angleThreshold = d_triangleFlagBorderAngleThreshold.getValue();
+    Real angleThreshold = d_boundaryAngleThreshold.getValue();
     angleThreshold *= M_PI / Real(180);
     const Real cosAngleThreshold = std::cos(angleThreshold);
+    sofa::helper::vector<sofa::core::topology::BaseMeshTopology::EdgeID> boundaryEdges;
 
     // support for quads split as two triangles
     const unsigned int ntris = _topology->getNbTriangles();
@@ -233,6 +243,8 @@ void TTriangleModel<DataTypes>::updateFlags()
             const sofa::core::topology::BaseMeshTopology::TrianglesAroundVertex& tav = _topology->getTrianglesAroundVertex(t[j]);
             if (tav[0] == tid)
                 f |= (FLAG_P1 << j);
+            if (tav.size() == 1)
+                f |= (FLAG_BP1 << j);
         }
 
         const sofa::core::topology::BaseMeshTopology::EdgesInTriangle& e = _topology->getEdgesInTriangle(tid);
@@ -265,8 +277,35 @@ void TTriangleModel<DataTypes>::updateFlags()
                         if (isAngleAboveThreshold)
                         {
                             f |= (FLAG_BE23 << j);
+                            boundaryEdges.push_back(e[j]);
                         }
                     }
+                }
+            }
+                boundaryEdges.push_back(e[j]);
+        }
+        triangleFlags[tid] = f;
+    }
+
+    // 2nd pass to set up boundary points according to boundary edges
+    for (sofa::core::topology::BaseMeshTopology::TriangleID tid = 0; tid < triangles->size(); ++tid)
+    {
+        sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[tid];
+        int f = triangleFlags[tid];
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+            if (!(f&FLAG_P1 << i)) continue; // this point is not attached to the triangle
+            if (f&FLAG_BP1 << i) continue; // already classified as a boundary point
+
+            const sofa::core::topology::BaseMeshTopology::EdgesAroundVertex& eav = _topology->getEdgesAroundVertex(t[i]);
+
+            // a point is a boundary if at least one adjacent edge is a boundary
+            for (auto eid : eav)
+            {
+                if (std::find(boundaryEdges.begin(), boundaryEdges.end(), eid) != boundaryEdges.end())
+                {
+                    f |= (FLAG_BP1 << i);
+                    break;
                 }
             }
         }
@@ -400,6 +439,9 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         //if( size != _topology->getNbTriangles())
         //  updateFromTopology();
 
+        const bool drawBPoints = drawBoundaryPoints.getValue();
+        const bool drawBEdges = drawBoundaryEdges.getValue();
+
         if (bBothSide.getValue() || vparams->displayFlags().getShowWireFrame())
             vparams->drawTool()->setPolygonMode(0,vparams->displayFlags().getShowWireFrame());
         else
@@ -408,7 +450,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             vparams->drawTool()->setPolygonMode(1,false);
         }
 
-        sofa::helper::vector< defaulttype::Vector3 > points;
+        sofa::helper::vector< defaulttype::Vector3 > points, pointsBP, pointsBE;
         sofa::helper::vector< defaulttype::Vec<3,int> > indices;
         sofa::helper::vector< defaulttype::Vector3 > normals;
         int index=0;
@@ -421,6 +463,51 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             points.push_back(DataTypes::getCPos(t.p3()));
             indices.push_back(defaulttype::Vec<3,int>(index,index+1,index+2));
             index+=3;
+
+            if (drawBPoints)
+            {
+                const int f = t.flags();
+                sofa::helper::fixed_array< sofa::defaulttype::Vector3, 3> tpv;
+                tpv[0] = DataTypes::getCPos(t.p1());
+                tpv[1] = DataTypes::getCPos(t.p2());
+                tpv[2] = DataTypes::getCPos(t.p3());
+                for (unsigned int j = 0; j < 3; ++j)
+                {
+                    if (f&FLAG_BP1 << j)
+                    {
+                        pointsBP.push_back(tpv[j]);
+        }
+                }
+            }
+
+            if (drawBEdges)
+            {
+                const int f = t.flags();
+                sofa::core::topology::BaseMeshTopology* topo = t.getCollisionModel()->getMeshTopology();
+                const sofa::core::topology::BaseMeshTopology::EdgesInTriangle& eit = topo->getEdgesInTriangle(t.getIndex());
+                sofa::helper::fixed_array< sofa::defaulttype::Vector3, 3> tpv;
+                tpv[0] = DataTypes::getCPos(t.p1());
+                tpv[1] = DataTypes::getCPos(t.p2());
+                tpv[2] = DataTypes::getCPos(t.p3());
+                sofa::helper::fixed_array<unsigned int,3> tiv;
+                tiv[0] = t.p1Index();
+                tiv[1] = t.p2Index();
+                tiv[2] = t.p3Index();
+                for (unsigned int j = 0; j < eit.size(); ++j)
+                {
+                    if (f&FLAG_BE23 << j)
+                    {
+                        sofa::core::topology::BaseMeshTopology::Edge E = topo->getEdge(eit[j]);
+                        const unsigned int piv[2] = { (E[0] == tiv[0] ) ? 0U : (E[0] == tiv[1] ) ? 1U : 2U,
+                                                      (E[1] == tiv[0] ) ? 0U : (E[1] == tiv[1] ) ? 1U : 2U };
+                        const unsigned int i1 = piv[0];
+                        const unsigned int i2 = piv[1];
+                        pointsBE.push_back(tpv[i1]);
+                        pointsBE.push_back(tpv[i2]);
+                    }
+                }
+            }
+            
         }
 
         vparams->drawTool()->setLightingEnabled(true);
@@ -428,18 +515,20 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         vparams->drawTool()->setLightingEnabled(false);
         vparams->drawTool()->setPolygonMode(0,false);
 
+        if (drawBPoints) vparams->drawTool()->drawPoints(pointsBP, 10.0, defaulttype::Vec<4,float>(1,0,0,1));
+        if (drawBEdges) vparams->drawTool()->drawLines(pointsBE, 1.0, defaulttype::Vec<4,float>(1,0,0,1));
 
         if (vparams->displayFlags().getShowNormals())
         {
-            sofa::helper::vector< defaulttype::Vector3 > points;
+            sofa::helper::vector< defaulttype::Vector3 > pointsEdges;
             for (int i=0; i<size; i++)
             {
                 Element t(this,i);
-                points.push_back(DataTypes::getCPos((t.p1()+t.p2()+t.p3()))/3.0);
-                points.push_back(points.back() + DataTypes::getDPos(t.n()));
+                pointsEdges.push_back(DataTypes::getCPos((t.p1()+t.p2()+t.p3()))/3.0);
+                pointsEdges.push_back(pointsEdges.back()+DataTypes::getDPos(t.n()));
             }
 
-            vparams->drawTool()->drawLines(points, 1, defaulttype::Vec<4,float>(1,1,1,1));
+            vparams->drawTool()->drawLines(pointsEdges, 1, defaulttype::Vec<4,float>(1,1,1,1));
 
         }
     }

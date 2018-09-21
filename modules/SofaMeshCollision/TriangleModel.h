@@ -93,6 +93,8 @@ public:
     bool hasFreePosition() const;
 
     int flags() const;
+    bool intersectOnlyBoundaryPoints() const;
+    bool intersectOnlyBoundaryEdges() const;
 
 	TTriangle& shape() { return *this; }
     const TTriangle& shape() const { return *this; }
@@ -120,24 +122,43 @@ public:
 
     enum TriangleFlag
     {
-        FLAG_P1  = 1<<0, ///< Point 1  is attached to this triangle
-        FLAG_P2  = 1<<1, ///< Point 2  is attached to this triangle
-        FLAG_P3  = 1<<2, ///< Point 3  is attached to this triangle
-        FLAG_E23 = 1<<3, ///< Edge 2-3 is attached to this triangle
-        FLAG_E31 = 1<<4, ///< Edge 3-1 is attached to this triangle
-        FLAG_E12 = 1<<5, ///< Edge 1-2 is attached to this triangle
-        FLAG_BE23 = 1<<6, ///< Edge 2-3 is attached to this triangle and is a boundary
-        FLAG_BE31 = 1<<7, ///< Edge 3-1 is attached to this triangle and is a boundary
-        FLAG_BE12 = 1<<8, ///< Edge 1-2 is attached to this triangle and is a boundary
-        FLAG_POINTS  = FLAG_P1|FLAG_P2|FLAG_P3,
-        FLAG_EDGES   = FLAG_E12|FLAG_E23|FLAG_E31,
-        FLAG_BEDGES  = FLAG_BE12|FLAG_BE23|FLAG_BE31,
+        FLAG_P1 = 1 << 0,  ///< Point 1  is attached to this triangle
+        FLAG_P2 = 1 << 1,  ///< Point 2  is attached to this triangle
+        FLAG_P3 = 1 << 2,  ///< Point 3  is attached to this triangle
+        FLAG_BP1 = 1 << 3,  ///< Point 1  is attached to this triangle and is a boundary
+        FLAG_BP2 = 1 << 4,  ///< Point 2  is attached to this triangle and is a boundary
+        FLAG_BP3 = 1 << 5,  ///< Point 3  is attached to this triangle and is a boundary
+        FLAG_E23 = 1 << 6,  ///< Edge 2-3 is attached to this triangle
+        FLAG_E31 = 1 << 7,  ///< Edge 3-1 is attached to this triangle
+        FLAG_E12 = 1 << 8,  ///< Edge 1-2 is attached to this triangle
+        FLAG_BE23 = 1 << 9,  ///< Edge 2-3 is attached to this triangle and is a boundary
+        FLAG_BE31 = 1 << 10, ///< Edge 3-1 is attached to this triangle and is a boundary
+        FLAG_BE12 = 1 << 11, ///< Edge 1-2 is attached to this triangle and is a boundary
+        FLAG_POINTS = FLAG_P1 | FLAG_P2 | FLAG_P3,
+        FLAG_EDGES = FLAG_E12 | FLAG_E23 | FLAG_E31,
+        FLAG_BPOINTS = FLAG_BP1 | FLAG_BP2 | FLAG_BP3,
+        FLAG_BEDGES = FLAG_BE12 | FLAG_BE23 | FLAG_BE31,
     };
 
 	enum { NBARY = 2 };
 
 protected:
+#if 0
+        /// Output stream
+        inline friend std::ostream& operator<< (std::ostream& os, const TriangleInfo& ti)
+        {
+            return os << ti.normal;
+        }
 
+        /// Input stream
+        inline friend std::istream& operator >> (std::istream& in, TriangleInfo& ti)
+        {
+            return in >> ti.normal;
+        }
+    };
+#endif
+
+    //topology::TriangleData<TriangleInfo> elems;
     VecDeriv normals;
 
     const sofa::core::topology::BaseMeshTopology::SeqTriangles* triangles = nullptr;
@@ -149,10 +170,16 @@ protected:
     virtual void updateNormals();
     virtual void updateFlags();
     int getTriangleFlags(int i) const;
+    bool intersectOnlyBoundaryPoints() const { return d_intersectOnlyBoundaryPoints.getValue(); }
+    bool intersectOnlyBoundaryEdges() const { return d_intersectOnlyBoundaryEdges.getValue(); }
 
     core::behavior::MechanicalState<DataTypes>* mstate = nullptr;
     Data<bool> computeNormals;
-    Data<Real> d_triangleFlagBorderAngleThreshold;
+    Data<Real> d_boundaryAngleThreshold;
+    Data<bool> d_intersectOnlyBoundaryPoints;
+    Data<bool> d_intersectOnlyBoundaryEdges;
+    Data<bool> drawBoundaryPoints;
+    Data<bool> drawBoundaryEdges;
     int meshRevision = -1;
     sofa::helper::vector<int> triangleFlags;
 
@@ -179,10 +206,10 @@ public:
 
     virtual void computeContinuousBoundingTree(double dt, int maxDepth=0) override;
 
-    void draw(const core::visual::VisualParams*,int index);
+    void draw(const core::visual::VisualParams*, int index);
 
     void draw(const core::visual::VisualParams* vparams) override;
-
+     
     virtual bool canCollideWithElement(int index, CollisionModel* model2, int index2) override;
 
     virtual void handleTopologyChange() override;
@@ -296,6 +323,12 @@ inline       typename DataTypes::Deriv& TTriangle<DataTypes>::n()       { return
 
 template<class DataTypes>
 inline int TTriangle<DataTypes>::flags() const { return this->model->getTriangleFlags(this->index); }
+
+template<class DataTypes>
+inline bool TTriangle<DataTypes>::intersectOnlyBoundaryPoints() const { return this->model->intersectOnlyBoundaryPoints(); }
+
+template<class DataTypes>
+inline bool TTriangle<DataTypes>::intersectOnlyBoundaryEdges() const { return this->model->intersectOnlyBoundaryEdges(); }
 
 template<class DataTypes>
 inline bool TTriangle<DataTypes>::hasFreePosition() const { return this->model->mstate->read(core::ConstVecCoordId::freePosition())->isSet(); }
