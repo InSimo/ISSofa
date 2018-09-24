@@ -64,7 +64,7 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::solveSystem()
     cparams.setAssembleConstitutiveConstraints(true);
     cparams.setOrder(core::ConstraintParams::ConstOrder::VEL);
 
-    std::size_t numConstraints = 0;
+    unsigned int numConstraints = 0;
 
     core::objectmodel::BaseContext* context = this->getContext();
 
@@ -81,7 +81,7 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::solveSystem()
     // execute "constraint::buildConstraintMatrix() for all the constraints selected for factorization
     simulation::MechanicalBuildConstraintMatrix(&cparams, cparams.j(), numConstraints).execute(context);
 
-    if(numConstraints == std::size_t(0))
+    if(numConstraints == 0U)
     {
         Inherit::solveSystem();
         return;
@@ -117,16 +117,16 @@ void SparseLDLSolver<TMatrix,TVector,TThreadManager>::solveSystem()
 template<class TMatrix, class TVector, class TThreadManager>
 void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsJMatrix(const sofa::core::ConstraintParams* cparams, std::size_t numConstitutiveConstraints)
 {
-    JMatrixType * j_local = internalData.getLocalJ();
+    JMatrixType * j_local = this->internalData.getLocalJ();
     j_local->clear();
-    j_local->resize(numConstitutiveConstraints, currentGroup->systemMatrix->colSize());
+    j_local->resize(numConstitutiveConstraints, this->currentGroup->systemMatrix->colSize());
 
     if (numConstitutiveConstraints == 0)
     {
         return;
     }
 
-    executeVisitor(simulation::MechanicalGetConstraintJacobianVisitor(cparams, j_local));
+    this->executeVisitor(simulation::MechanicalGetConstraintJacobianVisitor(cparams, j_local));
 
 }
 
@@ -134,14 +134,14 @@ void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstra
 template<class TMatrix, class TVector, class TThreadManager>
 void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsSystemMatrix(const sofa::core::ConstraintParams* cparams)
 {
-    const JMatrixType * j_local = internalData.getLocalJ();
+    const JMatrixType * j_local = this->internalData.getLocalJ();
 
-    std::size_t mechanicalSystemSize = currentGroup->systemMatrix->colSize();
+    std::size_t mechanicalSystemSize = this->currentGroup->systemMatrix->colSize();
     std::size_t constitutiveConstraintsSystemSize = j_local->rowSize() + mechanicalSystemSize;
 
-    currentGroup->systemSize = constitutiveConstraintsSystemSize;
+    this->currentGroup->systemSize = constitutiveConstraintsSystemSize;
 
-    currentGroup->systemMatrix->extend(constitutiveConstraintsSystemSize,constitutiveConstraintsSystemSize);
+    this->currentGroup->systemMatrix->extend(constitutiveConstraintsSystemSize,constitutiveConstraintsSystemSize);
 
     for(auto& line : *j_local)
     {    
@@ -155,21 +155,21 @@ void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstra
             {
                 continue;
             }
-            currentGroup->systemMatrix->add(rowIndex + mechanicalSystemSize, colIndex, value);
-            currentGroup->systemMatrix->add(colIndex, rowIndex + mechanicalSystemSize, value);
+            this->currentGroup->systemMatrix->add(rowIndex + mechanicalSystemSize, colIndex, value);
+            this->currentGroup->systemMatrix->add(colIndex, rowIndex + mechanicalSystemSize, value);
         }
     }
 
-    currentGroup->needInvert = true;
+    this->currentGroup->needInvert = true;
 }
 
 template<class TMatrix, class TVector, class TThreadManager>
 void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsHVectors(const core::ConstraintParams* cparams)
 { 
-    currentGroup->systemRHVector->extend(currentGroup->systemSize);
-    currentGroup->systemLHVector->extend(currentGroup->systemSize);
+    this->currentGroup->systemRHVector->extend(this->currentGroup->systemSize);
+    this->currentGroup->systemLHVector->extend(this->currentGroup->systemSize);
 
-    const JMatrixType * j_local = internalData.getLocalJ();
+    const JMatrixType * j_local = this->internalData.getLocalJ();
     std::size_t nbConstraints = j_local->rowSize();
     TVector violation;
     violation.resize(nbConstraints);
@@ -178,7 +178,7 @@ void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstra
     for (std::size_t i = 0; i < nbConstraints; ++i)
     {
         double value = violation.element(i);
-        currentGroup->systemRHVector->set(currentGroup->systemSize - nbConstraints + i, -value);
+        this->currentGroup->systemRHVector->set(this->currentGroup->systemSize - nbConstraints + i, -value);
     }
 }
 
