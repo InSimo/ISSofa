@@ -113,13 +113,13 @@ public:
         bool empty() const { return begin() == end(); }
         Index size() const { return end()-begin(); }
         typename VecBloc::iterator begin(VecBloc& b) const { return b.begin() + begin(); }
-        typename VecBloc::iterator end  (VecBloc& b) const { return b.end  () + end  (); }
+        typename VecBloc::iterator end  (VecBloc& b) const { return b.begin() + end  (); }
         typename VecBloc::const_iterator begin(const VecBloc& b) const { return b.begin() + begin(); }
-        typename VecBloc::const_iterator end  (const VecBloc& b) const { return b.end  () + end  (); }
+        typename VecBloc::const_iterator end  (const VecBloc& b) const { return b.begin() + end  (); }
         typename VecIndex::iterator begin(VecIndex& b) const { return b.begin() + begin(); }
-        typename VecIndex::iterator end  (VecIndex& b) const { return b.end  () + end  (); }
+        typename VecIndex::iterator end  (VecIndex& b) const { return b.begin() + end  (); }
         typename VecIndex::const_iterator begin(const VecIndex& b) const { return b.begin() + begin(); }
-        typename VecIndex::const_iterator end  (const VecIndex& b) const { return b.end  () + end  (); }
+        typename VecIndex::const_iterator end  (const VecIndex& b) const { return b.begin() + end  (); }
         void operator++() { ++first; }
         void operator++(int) { ++first; }
     };
