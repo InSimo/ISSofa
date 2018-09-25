@@ -48,7 +48,7 @@ int CylinderGridTopologyClass = core::RegisterObject("Cylinder grid in 3D")
         ;
 
 CylinderGridTopology::CylinderGridTopology(int nx, int ny, int nz)
-    : GridTopology(nx, ny, nz),
+    : CubeTopology(nx, ny, nz),
       center(initData(&center,Vector3(0.0f,0.0f,0.0f),"center", "Center of the cylinder")),
       axis(initData(&axis,Vector3(0.0f,0.0f,1.0f),"axis", "Main direction of the cylinder")),
       radius(initData(&radius,(SReal)1.0,"radius", "Radius of the cylinder")),
@@ -62,19 +62,6 @@ CylinderGridTopology::CylinderGridTopology()
       radius(initData(&radius,(SReal)1.0,"radius", "Radius of the cylinder")),
       length(initData(&length,(SReal)1.0,"length", "Length of the cylinder along its axis"))
 {
-}
-
-unsigned CylinderGridTopology::getIndex( int i, int j, int k ) const
-{
-    return n.getValue()[0]* ( n.getValue()[1]*k + j ) + i;
-}
-
-Vector3 CylinderGridTopology::getPoint(int i) const
-{
-    int x = i%n.getValue()[0]; i/=n.getValue()[0];
-    int y = i%n.getValue()[1]; i/=n.getValue()[1];
-    int z = i;
-    return getPoint(x,y,z);
 }
 
 Vector3 CylinderGridTopology::getPoint(int x, int y, int z) const

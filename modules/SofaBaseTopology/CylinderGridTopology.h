@@ -25,7 +25,7 @@
 #ifndef SOFA_COMPONENT_TOPOLOGY_CYLINDERGRIDTOPOLOGY_H
 #define SOFA_COMPONENT_TOPOLOGY_CYLINDERGRIDTOPOLOGY_H
 
-#include <SofaBaseTopology/GridTopology.h>
+#include <SofaBaseTopology/CubeTopology.h>
 #include <sofa/defaulttype/Vec.h>
 
 namespace sofa
@@ -37,22 +37,16 @@ namespace component
 namespace topology
 {
 
-class SOFA_BASE_TOPOLOGY_API CylinderGridTopology : public GridTopology
+class SOFA_BASE_TOPOLOGY_API CylinderGridTopology : public CubeTopology
 {
 public:
-    SOFA_CLASS(CylinderGridTopology,GridTopology);
+    SOFA_CLASS(CylinderGridTopology,CubeTopology);
     typedef sofa::defaulttype::Vector3 Vector3;
 protected:
     CylinderGridTopology(int nx, int ny, int nz);
     CylinderGridTopology();
 public:
-    unsigned getIndex( int i, int j, int k ) const; ///< one-dimensional index of a grid point
-    Vector3 getPoint(int i) const;
     Vector3 getPoint(int x, int y, int z) const;
-    bool hasPos()  const { return true; }
-    double getPX(int i)  const { return getPoint(i)[0]; }
-    double getPY(int i) const { return getPoint(i)[1]; }
-    double getPZ(int i) const { return getPoint(i)[2]; }
 
 protected:
     Data< Vector3 > center;
