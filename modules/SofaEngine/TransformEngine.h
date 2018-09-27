@@ -88,6 +88,8 @@ protected:
     Data<defaulttype::Vector3> rotation; // rotation
     Data<defaulttype::Quaternion> quaternion; // quaternion rotation
     Data<defaulttype::Vector3> scale; // scale
+    Data<defaulttype::Vector3> rotationAxis; // axis for rotation around axis
+    Data<Real> rotationAngle; // angle for rotation around axis
     Data<bool> inverse;
 };
 

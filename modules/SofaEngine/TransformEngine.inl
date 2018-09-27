@@ -50,6 +50,8 @@ TransformEngine<DataTypes>::TransformEngine()
     , quaternion(initData(&quaternion, defaulttype::Quaternion(0,0,0,1), "quaternion", "rotation quaternion ") )
     , scale(initData(&scale, defaulttype::Vector3(1,1,1),"scale", "scale factor") )
     , inverse(initData(&inverse, false, "inverse", "true to apply inverse transformation"))
+    , rotationAxis(initData(&rotationAxis, defaulttype::Vector3(0,0,0), "rotationAxis", "Axis vector used in 'rotation around axis' operation"))
+    , rotationAngle(initData(&rotationAngle, Real(0), "rotationAngle", "Angle (radians) used in 'rotation around axis' operation"))
 {
 }
 
@@ -141,6 +143,13 @@ struct RotationSpecialized : public TransformOperation<DataTypes>
             q = q.inverse();
     }
 
+    void configure(const defaulttype::Vector3 &rAxis, const Real &rAngle, bool inverse)
+    {
+        q.axisToQuat(rAxis, rAngle);
+        if (inverse)
+            q = q.inverse();
+    }
+
 private:
     defaulttype::Quaternion q;
 };
@@ -175,6 +184,11 @@ struct RotationSpecialized<DataTypes, 2, false> : public TransformOperation<Data
         assert(false && "This method should not be called without been implemented");
     }
 
+    void configure(const defaulttype::Vector3 &rAxis, const Real &rAngle, bool inverse)
+    {
+        assert(false && "Call to a method not implemented for the considered template");
+    }
+
 private:
     Real rotZ;
 	defaulttype::Quaternion q;
@@ -204,6 +218,14 @@ struct RotationSpecialized<DataTypes, 3, false> : public TransformOperation<Data
         if (inverse)
             q = q.inverse();
     }
+
+    void configure(const defaulttype::Vector3 &rAxis, const Real &rAngle, bool inverse)
+    {
+        q.axisToQuat(rAxis, rAngle);
+        if (inverse)
+            q = q.inverse();
+    }
+
 private:
 	defaulttype::Quaternion q;
 };
@@ -282,6 +304,8 @@ void TransformEngine<DataTypes>::update()
     const defaulttype::Vector3 &r=rotation.getValue();
     const defaulttype::Vector3 &t=translation.getValue();
     const defaulttype::Quaternion &q=quaternion.getValue();
+    const defaulttype::Vector3 &rAxis=rotationAxis.getValue();
+    const Real &rAngle=rotationAngle.getValue();
 
     //Create the object responsible for the transformations
     Transform<DataTypes> transformation;
@@ -297,6 +321,9 @@ void TransformEngine<DataTypes>::update()
 
     if (t != defaulttype::Vector3(0,0,0))
         transformation.add(new Translation<DataTypes>, inv)->configure(t, inv);
+        
+    if (rAxis != defaulttype::Vector3(0,0,0) && rAngle != double(0))
+        transformation.add(new Rotation<DataTypes>, inv)->configure(rAxis, rAngle, inv);
 
     //Get input
     const VecCoord& in = f_inputX.getValue();
