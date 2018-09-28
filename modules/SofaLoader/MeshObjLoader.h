@@ -54,11 +54,17 @@ public:
     helper::vector< PairTexFace > m_mapTexFaces;
     sofa::defaulttype::Vector2 m_defaultTexCoord = sofa::defaulttype::Vector2();
 
+    //TEMP HACK: setDefaultTexCoord to be able to add points before triangles around (e.g AdaptativeTriangles)
+    void setDefaultTexCoord(const sofa::defaulttype::Vector2& texCoord)
+    {
+        m_defaultTexCoord = texCoord;
+    }
+
     const sofa::defaulttype::Vector2& getTexCoord(FaceId faceId) const
     {
         if (m_mapTexFaces.empty())
         {
-            std::cerr << " TexCoord container empty " << std::endl;
+//            std::cerr << " TexCoord container empty " << std::endl; //do not display error msg when a point is created before triangles around
             return m_defaultTexCoord;
         }
 
@@ -77,7 +83,7 @@ public:
 
         if (it == m_mapTexFaces.cend())
         {
-            std::cerr << " Non existent texCoord on face Id : " << faceId << " in map : "  << *this <<  std::endl;
+//            std::cerr << " Non existent texCoord on face Id : " << faceId << " in map : "  << *this <<  std::endl; //do not display error msg when a point is created before triangles around
             return m_defaultTexCoord;
         }
         else
@@ -131,9 +137,30 @@ public:
         return m_mapTexFaces.size();
     }
 
+    inline friend std::ostream& operator << (std::ostream& out, const MapFaceTexCoord& mftc)
+    {
+        if (!mftc.m_mapTexFaces.empty())
+        {
+            for (const auto& tcInFace : mftc.m_mapTexFaces)
+            {
+                out << tcInFace.first << " faces { " << tcInFace.second << " }" << std::endl;
+            }
+        }
+        else
+        {
+            out << mftc.m_defaultTexCoord << " default" << std::endl;
+        }
+
+        return out;
+    }
+    inline friend std::istream& operator >> (std::istream& in, MapFaceTexCoord& /*mftc*/)
+    {
+        return in;
+    }
+
 
     SOFA_STRUCT_DECL(MapFaceTexCoord, m_mapTexFaces);
-    SOFA_STRUCT_STREAM_METHODS(MapFaceTexCoord);
+    //SOFA_STRUCT_STREAM_METHODS(MapFaceTexCoord);
     SOFA_STRUCT_COMPARE_METHOD(MapFaceTexCoord);
 };
 
