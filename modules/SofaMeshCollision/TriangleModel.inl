@@ -58,17 +58,13 @@ TTriangleModel<DataTypes>::TTriangleModel()
                                                                                                           0    -> All edges/points are flagged as boundary. \
                                                                                                           180  -> Only edges with a single adjacent triangle are marked as boundary \
                                                                                                                   and only points attached to these boundary edges are marked as boundary."))
-    , d_intersectOnlyBoundaryPoints(initData(&d_intersectOnlyBoundaryPoints, false, "intersectOnlyBoundaryPoints", "If true, compute intersection only with boundary points (see triangleFlags)."))
-    , d_intersectOnlyBoundaryEdges(initData(&d_intersectOnlyBoundaryEdges, false, "intersectOnlyBoundaryEdges", "If true, compute intersection only with boundary edges (see triangleFlags)."))
-    , drawBoundaryPoints(initData(&drawBoundaryPoints, false, "drawBoundaryPoints", "Draw triangle points that are classified as boundary."))
-    , drawBoundaryEdges(initData(&drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
+    , d_drawBoundaryPoints(initData(&d_drawBoundaryPoints, false, "drawBoundaryPoints", "Draw triangle points that are classified as boundary."))
+    , d_drawBoundaryEdges(initData(&d_drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
 {
     triangles = &mytriangles;
     enum_type = TRIANGLE_TYPE;
 
     d_boundaryAngleThreshold.setGroup("TriangleFlags_");
-    d_intersectOnlyBoundaryPoints.setGroup("TriangleFlags_");
-    d_intersectOnlyBoundaryEdges.setGroup("TriangleFlags_");
 }
 
 template<class DataTypes>
@@ -439,8 +435,8 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         //if( size != _topology->getNbTriangles())
         //  updateFromTopology();
 
-        const bool drawBPoints = drawBoundaryPoints.getValue();
-        const bool drawBEdges = drawBoundaryEdges.getValue();
+        const bool drawBPoints = d_drawBoundaryPoints.getValue();
+        const bool drawBEdges = d_drawBoundaryEdges.getValue();
 
         if (bBothSide.getValue() || vparams->displayFlags().getShowWireFrame())
             vparams->drawTool()->setPolygonMode(0,vparams->displayFlags().getShowWireFrame());

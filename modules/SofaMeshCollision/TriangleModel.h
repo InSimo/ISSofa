@@ -93,8 +93,6 @@ public:
     bool hasFreePosition() const;
 
     int flags() const;
-    bool intersectOnlyBoundaryPoints() const;
-    bool intersectOnlyBoundaryEdges() const;
 
 	TTriangle& shape() { return *this; }
     const TTriangle& shape() const { return *this; }
@@ -170,16 +168,12 @@ protected:
     virtual void updateNormals();
     virtual void updateFlags();
     int getTriangleFlags(int i) const;
-    bool intersectOnlyBoundaryPoints() const { return d_intersectOnlyBoundaryPoints.getValue(); }
-    bool intersectOnlyBoundaryEdges() const { return d_intersectOnlyBoundaryEdges.getValue(); }
 
     core::behavior::MechanicalState<DataTypes>* mstate = nullptr;
     Data<bool> computeNormals;
     Data<Real> d_boundaryAngleThreshold;
-    Data<bool> d_intersectOnlyBoundaryPoints;
-    Data<bool> d_intersectOnlyBoundaryEdges;
-    Data<bool> drawBoundaryPoints;
-    Data<bool> drawBoundaryEdges;
+    Data<bool> d_drawBoundaryPoints;
+    Data<bool> d_drawBoundaryEdges;
     int meshRevision = -1;
     sofa::helper::vector<int> triangleFlags;
 
@@ -323,12 +317,6 @@ inline       typename DataTypes::Deriv& TTriangle<DataTypes>::n()       { return
 
 template<class DataTypes>
 inline int TTriangle<DataTypes>::flags() const { return this->model->getTriangleFlags(this->index); }
-
-template<class DataTypes>
-inline bool TTriangle<DataTypes>::intersectOnlyBoundaryPoints() const { return this->model->intersectOnlyBoundaryPoints(); }
-
-template<class DataTypes>
-inline bool TTriangle<DataTypes>::intersectOnlyBoundaryEdges() const { return this->model->intersectOnlyBoundaryEdges(); }
 
 template<class DataTypes>
 inline bool TTriangle<DataTypes>::hasFreePosition() const { return this->model->mstate->read(core::ConstVecCoordId::freePosition())->isSet(); }
