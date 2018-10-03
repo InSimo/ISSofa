@@ -260,6 +260,7 @@ void TTriangleModel<DataTypes>::updateFlags()
                 if (tae.size() == 1)
                 {
                     f |= (FLAG_BE23 << j);
+                    boundaryEdges.push_back(e[j]);
                 }
                 else if (computeAngleAtEdge)
                 {
