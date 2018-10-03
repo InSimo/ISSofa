@@ -665,6 +665,20 @@ SP_CLASS_ATTR_GET(Data,json)(PyObject *self, void*)
 }
 
 
+SP_CLASS_ATTR_GET(Data,link)(PyObject *self, void*)
+{
+    BaseData* data=((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
+
+    std::string path = data->getLinkPath();
+    if (path.size() == 0)
+    {
+        SP_MESSAGE_ERROR( "no link for data " + data->getName());
+    }
+
+    return PyString_FromString(path.c_str());
+}
+
+
 SP_CLASS_ATTR_SET(Data,value)(PyObject *self, PyObject * args, void*)
 {
     BaseData* data=((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
@@ -685,6 +699,19 @@ SP_CLASS_ATTR_SET(Data,json)(PyObject *self, PyObject * args, void*)
 
 
     SP_MESSAGE_ERROR( "argument type not supported" )
+    PyErr_BadArgument();
+    return -1;
+}
+
+SP_CLASS_ATTR_SET(Data,link)(PyObject *self, PyObject * args, void*)
+{
+    BaseData* data=((PyPtr<BaseData>*)self)->object; // TODO: check dynamic cast
+    const std::string input = PyString_AsString(args);
+
+    if (data->setParent(input))
+        return 0;
+
+    SP_MESSAGE_ERROR( "Bad parents" )
     PyErr_BadArgument();
     return -1;
 }
@@ -839,6 +866,7 @@ SP_CLASS_ATTR(Data,name)
 //SP_CLASS_ATTR(BaseData,owner)
 SP_CLASS_ATTR(Data,value)
 SP_CLASS_ATTR(Data,json)
+SP_CLASS_ATTR(Data,link)
 SP_CLASS_ATTR(Data,fullPath)
 SP_CLASS_ATTRS_END
 
