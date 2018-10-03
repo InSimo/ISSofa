@@ -114,6 +114,11 @@ void TTriangleModel<DataTypes>::init()
     updateNormals();
 }
 
+template<class DataTypes>
+void TTriangleModel<DataTypes>::reinit()
+{
+    updateFlags();
+}
 
 template< class DataTypes> 
 inline typename DataTypes::Deriv computeTriangleNormal(const typename DataTypes::Coord& p0,
@@ -260,14 +265,14 @@ void TTriangleModel<DataTypes>::updateFlags()
                 {
                     const sofa::core::topology::Topology::Triangle tri_0 = (*triangles)[tae[0]];
                     const Deriv n_0 = computeTriangleNormal<DataTypes>(x0[tri_0[0]],
-                        x0[tri_0[1]],
-                        x0[tri_0[2]]);
+                                                                       x0[tri_0[1]],
+                                                                       x0[tri_0[2]]);
                     for (std::size_t k=1; k<tae.size(); ++k)
                     {
                         const sofa::core::topology::Topology::Triangle tri_k = (*triangles)[tae[k]];
                         const Deriv n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]],
-                            x0[tri_k[1]],
-                            x0[tri_k[2]]);
+                                                                           x0[tri_k[1]],
+                                                                           x0[tri_k[2]]);
                         const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
                         const bool isAngleAboveThreshold = cos < cosAngleThreshold;
                         if (isAngleAboveThreshold)
@@ -278,7 +283,6 @@ void TTriangleModel<DataTypes>::updateFlags()
                     }
                 }
             }
-                boundaryEdges.push_back(e[j]);
         }
         triangleFlags[tid] = f;
     }

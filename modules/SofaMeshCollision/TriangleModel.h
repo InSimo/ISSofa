@@ -192,6 +192,8 @@ protected:
 public:
     virtual void init() override;
 
+    virtual void reinit() override;
+
     // -- CollisionModel interface
 
     virtual void resize(int size);
