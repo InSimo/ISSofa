@@ -83,8 +83,8 @@ PluginManager::~PluginManager()
 
 void PluginManager::readFromIniFile()
 {
-    std::string path= pluginsIniFile;
-    if ( !DataRepository.findFile(path) )
+    std::string path = pluginsIniFile;
+    if (!DataRepository.findFile(path, "", nullptr))
     {
         path = DataRepository.getFirstPath() + "/" + pluginsIniFile;
         std::ofstream ofile(path.c_str());
@@ -107,7 +107,7 @@ void PluginManager::readFromIniFile()
 void PluginManager::writeToIniFile()
 {
     std::string path= pluginsIniFile;
-    if ( !DataRepository.findFile(path) )
+    if (!DataRepository.findFile(path, "", nullptr))
     {
         path = DataRepository.getFirstPath() + "/" + pluginsIniFile;
         std::ofstream ofile(path.c_str(),std::ios::out);
