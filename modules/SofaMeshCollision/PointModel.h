@@ -179,6 +179,8 @@ protected:
     void updateNormals();
 
     PointActiver *myActiver;
+
+    sofa::core::topology::BaseMeshTopology* m_topology = nullptr;
 };
 
 template<class DataTypes>

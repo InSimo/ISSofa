@@ -82,6 +82,7 @@ void TPointModel<DataTypes>::init()
 {
     this->CollisionModel::init();
     mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
+    m_topology = this->getContext()->getActiveMeshTopology();
 
     if (mstate==NULL)
     {
@@ -232,15 +233,10 @@ bool TPointModel<DataTypes>::canCollideWithElement(int index, CollisionModel* mo
 
         if (index<=index2) // to avoid to have two times the same auto-collision we only consider the case when index > index2
             return false;
-
-        sofa::core::topology::BaseMeshTopology* topology = this->getMeshTopology();
-
-
-
-
+        
         // in the neighborhood, if we find a point in common, we cancel the collision
-        const helper::vector <unsigned int>& verticesAroundVertex1 =topology->getVerticesAroundVertex(index);
-        const helper::vector <unsigned int>& verticesAroundVertex2 =topology->getVerticesAroundVertex(index2);
+        const helper::vector <unsigned int>& verticesAroundVertex1 = m_topology->getVerticesAroundVertex(index);
+        const helper::vector <unsigned int>& verticesAroundVertex2 = m_topology->getVerticesAroundVertex(index2);
 
         for (unsigned int i1=0; i1<verticesAroundVertex1.size(); i1++)
         {
@@ -358,12 +354,11 @@ void TPointModel<DataTypes>::updateNormals()
     {
         normals[i].clear();
     }
-    core::topology::BaseMeshTopology* mesh = getContext()->getMeshTopology();
-    if (mesh->getNbTetrahedra()+mesh->getNbHexahedra() > 0)
+    if (m_topology->getNbTetrahedra()+ m_topology->getNbHexahedra() > 0)
     {
-        if (mesh->getNbTetrahedra()>0)
+        if (m_topology->getNbTetrahedra()>0)
         {
-            const core::topology::BaseMeshTopology::SeqTetrahedra &elems = mesh->getTetrahedra();
+            const core::topology::BaseMeshTopology::SeqTetrahedra &elems = m_topology->getTetrahedra();
             for (unsigned int i=0; i < elems.size(); ++i)
             {
                 const core::topology::BaseMeshTopology::Tetra &e = elems[i];
@@ -396,11 +391,11 @@ void TPointModel<DataTypes>::updateNormals()
         }
         /// @todo Hexahedra
     }
-    else if (mesh->getNbTriangles()+mesh->getNbQuads() > 0)
+    else if (m_topology->getNbTriangles()+ m_topology->getNbQuads() > 0)
     {
-        if (mesh->getNbTriangles()>0)
+        if (m_topology->getNbTriangles()>0)
         {
-            const core::topology::BaseMeshTopology::SeqTriangles &elems = mesh->getTriangles();
+            const core::topology::BaseMeshTopology::SeqTriangles &elems = m_topology->getTriangles();
             for (unsigned int i=0; i < elems.size(); ++i)
             {
                 const core::topology::BaseMeshTopology::Triangle &e = elems[i];
@@ -417,9 +412,9 @@ void TPointModel<DataTypes>::updateNormals()
                 n3 += n;
             }
         }
-        if (mesh->getNbQuads()>0)
+        if (m_topology->getNbQuads()>0)
         {
-            const core::topology::BaseMeshTopology::SeqQuads &elems = mesh->getQuads();
+            const core::topology::BaseMeshTopology::SeqQuads &elems = m_topology->getQuads();
             for (unsigned int i=0; i < elems.size(); ++i)
             {
                 const core::topology::BaseMeshTopology::Quad &e = elems[i];
@@ -456,11 +451,10 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
 
     defaulttype::Vector3 pt = p();
 
-    sofa::core::topology::BaseMeshTopology* mesh = this->model->getMeshTopology();
     helper::vector<defaulttype::Vector3> x = (*this->model->mstate->getX());
 
-    const helper::vector <unsigned int>& trianglesAroundVertex = mesh->getTrianglesAroundVertex(this->index);
-    const helper::vector <unsigned int>& edgesAroundVertex = mesh->getEdgesAroundVertex(this->index);
+    const helper::vector <unsigned int>& trianglesAroundVertex = m_topology->getTrianglesAroundVertex(this->index);
+    const helper::vector <unsigned int>& edgesAroundVertex = m_topology->getEdgesAroundVertex(this->index);
 
 
     defaulttype::Vector3 nMean;
@@ -468,7 +462,7 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
     for (unsigned int i=0; i<trianglesAroundVertex.size(); i++)
     {
         unsigned int t = trianglesAroundVertex[i];
-        const helper::fixed_array<unsigned int,3>& ptr = mesh->getTriangle(t);
+        const helper::fixed_array<unsigned int,3>& ptr = m_topology->getTriangle(t);
         defaulttype::Vector3 nCur = (x[ptr[1]]-x[ptr[0]]).cross(x[ptr[2]]-x[ptr[0]]);
         nCur.normalize();
         nMean += nCur;
@@ -479,7 +473,7 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
         for (unsigned int i=0; i<edgesAroundVertex.size(); i++)
         {
             unsigned int e = edgesAroundVertex[i];
-            const helper::fixed_array<unsigned int,2>& ped = mesh->getEdge(e);
+            const helper::fixed_array<unsigned int,2>& ped = m_topology->getEdge(e);
             defaulttype::Vector3 l = (pt - x[ped[0]]) + (pt - x[ped[1]]);
             l.normalize();
             nMean += l;
@@ -493,7 +487,7 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
     for (unsigned int i=0; i<edgesAroundVertex.size(); i++)
     {
         unsigned int e = edgesAroundVertex[i];
-        const helper::fixed_array<unsigned int,2>& ped = mesh->getEdge(e);
+        const helper::fixed_array<unsigned int,2>& ped = m_topology->getEdge(e);
         defaulttype::Vector3 l = (pt - x[ped[0]]) + (pt - x[ped[1]]);
         l.normalize();
         double computedAngleCone = dot(nMean , l) * coneFactor;
