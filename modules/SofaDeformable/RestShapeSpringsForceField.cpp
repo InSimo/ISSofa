@@ -98,7 +98,7 @@ void RestShapeSpringsForceField<Rigid3dTypes>::addForce(const core::MechanicalPa
         }
 
         if (dq[3] < 0.999999999999999)
-            dq.quatToAxis(dir, angle);
+            dq.quatToAxis(dir, angle, false);
 
         getVOrientation(f1[index]) -= dir * angle * (i < k_a.size() ? k_a[i] : k_a[0]);
     }

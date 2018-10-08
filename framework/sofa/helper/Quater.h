@@ -166,7 +166,7 @@ public:
     }
 
     // integrate using exponential map parametrization
-    void integrateExponentialMap(const Vec3& omega, Real epsilon = Real(1e-6) );
+    void integrateExponentialMap(const Vec3& omega, Real epsilon = Real(1e-6));
 
     // euler integration using quaternion derivative
     void integrate(const Vec3& omega);
@@ -291,10 +291,10 @@ public:
     }
 
     /// Return the eulerian vector resulting of the movement between 2 quaternions
-    static defaulttype::Vec<3,Real> angularDisplacement( const Quater& a, const Quater& b)
+    static defaulttype::Vec<3,Real> angularDisplacement( const Quater& a, const Quater& b, bool normalize = false)
     {
         Quater qDiff = quatDiff(a, b);
-        return qDiff.getLog();
+        return qDiff.getLog(normalize);
     }
 
     // Print the quaternion (C style)

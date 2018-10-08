@@ -541,7 +541,7 @@ void Quater<Real>::quatToAxis(defaulttype::Vec<3,Real> & axis, Real &angle, bool
     
     angle = axis.norm();
 
-    if (angle >= epsilon)
+    if (angle > epsilon)
     {
         axis /= angle;
     }

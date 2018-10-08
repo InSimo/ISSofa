@@ -80,7 +80,7 @@ extern inline bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, co
         {
             // rotations are taken into account to compute the violations
             sofa::defaulttype::Quat q;
-            getVOrientation(d[i]) = x0[i].rotate(q.angularDisplacement(x1[i].getOrientation(), x0[i].getOrientation() ) );
+            getVOrientation(d[i]) = x0[i].rotate(q.angularDisplacement(x1[i].getOrientation(), x0[i].getOrientation(), true ) );
             // getVOrientation(d[i]) = x0[i].rotate(angularDisplacement<DataTypes::Real>(x1[i].getOrientation(), x0[i].getOrientation() ) );
         }
         else
@@ -95,7 +95,7 @@ extern inline bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, co
         {
             // rotations are taken into account to compute the violations
             sofa::defaulttype::Quat q= x0[i].getOrientation();
-            getVOrientation(d[i]) = -x0[i].rotate( q.getLog() );
+            getVOrientation(d[i]) = -x0[i].rotate( q.getLog(true) );
         }
         else
             getVOrientation(d[i]) *= 0;
