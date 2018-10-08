@@ -76,79 +76,13 @@ void SubsetMultiMapping<TIn, TOut>::init()
 
     this->toModels[0]->resize( indexPairSize );
 
-#ifdef SOFA_HAVE_EIGEN2
-    unsigned Nin = TIn::deriv_total_size, Nout = Nin;
-
-    for( unsigned i=0; i<baseMatrices.size(); i++ )
-        delete baseMatrices[i];
-
-    typedef linearsolver::EigenSparseMatrix<TIn,TOut> Jacobian;
-    baseMatrices.resize( this->getFrom().size() );
-    vector<Jacobian*> jacobians( this->getFrom().size() );
-    for(unsigned i=0; i<baseMatrices.size(); i++ )
-    {
-        baseMatrices[i] = jacobians[i] = new linearsolver::EigenSparseMatrix<TIn,TOut>;
-        jacobians[i]->resize(Nout*indexPairSize,Nin*this->fromModels[i]->readPositions().size() ); // each jacobian has the same number of rows
-    }
-
-    // fill the jacobians
-    for(unsigned i=0; i<indexPairSize; i++)
-    {
-        unsigned parent = indexPairs.getValue()[i*2];
-        Jacobian* jacobian = jacobians[parent];
-        unsigned bcol = indexPairs.getValue()[i*2+1];  // parent particle
-        for(unsigned k=0; k<Nin; k++ )
-        {
-            unsigned row = i*Nout + k;
-
-            jacobian->beginRow(row);
-            jacobian->insertBack( row, Nin*bcol +k, (SReal)1. );
-        }
-    }
-//    // fill the jacobians
-//    vector<unsigned> rowIndex(this->getFrom().size(),0); // current block row index in each jacobian
-//    for(unsigned i=0; i<indexPairSize; i++)
-//    {
-//        unsigned parent = indexPairs[i*2];
-//        Jacobian* jacobian = jacobians[parent];
-//        unsigned& brow = rowIndex[parent];
-//        unsigned bcol = indexPairs[i*2+1];  // parent particle
-//        for(unsigned k=0; k<Nin; k++ )
-//        {
-////            baseMatrices[ indexPairs[i*2] ]->set( Nout*i+k, Nin*indexPairs[i*2+1], (SReal)1. );
-//            jacobian->beginRow(Nout*brow+k);
-//            jacobian->insertBack( Nout*brow+k, Nin*bcol +k, (SReal)1. );
-//        }
-//        brow++;
-//    }
-
-    // finalize the jacobians
-    for(unsigned i=0; i<baseMatrices.size(); i++ )
-    {
-        baseMatrices[i]->compress();
-    }
-#endif
-
     Inherit::init();
 }
 
 template <class TIn, class TOut>
 SubsetMultiMapping<TIn, TOut>::~SubsetMultiMapping()
 {
-    for(unsigned i=0; i<baseMatrices.size(); i++ )
-    {
-        delete baseMatrices[i];
-    }
 }
-
-#ifdef SOFA_HAVE_EIGEN2
-template <class TIn, class TOut>
-const helper::vector<sofa::defaulttype::BaseMatrix*>* SubsetMultiMapping<TIn, TOut>::getJs()
-{
-    return &baseMatrices;
-}
-#endif
-
 
 template <class TIn, class TOut>
 void SubsetMultiMapping<TIn, TOut>::addPoint( const core::BaseState* from, int index)

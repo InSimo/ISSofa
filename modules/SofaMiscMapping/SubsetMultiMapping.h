@@ -93,13 +93,7 @@ public:
     virtual void applyDJT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, core::MultiVecDerivId /*inForce*/, core::ConstMultiVecDerivId /*outForce*/) {}
 
     virtual void applyJT( const core::ConstraintParams* cparams /* PARAMS FIRST */, const helper::vector< InDataMatrixDeriv* >& dataMatOutConst, const helper::vector< const OutDataMatrixDeriv* >& dataMatInConst );
-
-#ifdef SOFA_HAVE_EIGEN2
-    /// Experimental API used to handle multimappings in matrix assembly. Returns pointers to matrices associated with parent states, consistently with  getFrom().
-    virtual const helper::vector<sofa::defaulttype::BaseMatrix*>* getJs();
-#endif
-
-
+    
     Data< vector<unsigned> > indexPairs;                     ///< Two indices per child: the parent, and the index within the parent
     Data< vector<unsigned> > d_identityIndices;              ///< One index per child to select the parent : the index in the parent is the same as the child index
 
