@@ -453,8 +453,8 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
 
     helper::vector<defaulttype::Vector3> x = (*this->model->mstate->getX());
 
-    const helper::vector <unsigned int>& trianglesAroundVertex = m_topology->getTrianglesAroundVertex(this->index);
-    const helper::vector <unsigned int>& edgesAroundVertex = m_topology->getEdgesAroundVertex(this->index);
+    const helper::vector <unsigned int>& trianglesAroundVertex = this->m_topology->getTrianglesAroundVertex(this->index);
+    const helper::vector <unsigned int>& edgesAroundVertex = this->m_topology->getEdgesAroundVertex(this->index);
 
 
     defaulttype::Vector3 nMean;
@@ -462,7 +462,7 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
     for (unsigned int i=0; i<trianglesAroundVertex.size(); i++)
     {
         unsigned int t = trianglesAroundVertex[i];
-        const helper::fixed_array<unsigned int,3>& ptr = m_topology->getTriangle(t);
+        const helper::fixed_array<unsigned int,3>& ptr = this->m_topology->getTriangle(t);
         defaulttype::Vector3 nCur = (x[ptr[1]]-x[ptr[0]]).cross(x[ptr[2]]-x[ptr[0]]);
         nCur.normalize();
         nMean += nCur;
@@ -473,7 +473,7 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
         for (unsigned int i=0; i<edgesAroundVertex.size(); i++)
         {
             unsigned int e = edgesAroundVertex[i];
-            const helper::fixed_array<unsigned int,2>& ped = m_topology->getEdge(e);
+            const helper::fixed_array<unsigned int,2>& ped = this->m_topology->getEdge(e);
             defaulttype::Vector3 l = (pt - x[ped[0]]) + (pt - x[ped[1]]);
             l.normalize();
             nMean += l;
@@ -487,7 +487,7 @@ bool TPoint<DataTypes>::testLMD(const defaulttype::Vector3 &PQ, double &coneFact
     for (unsigned int i=0; i<edgesAroundVertex.size(); i++)
     {
         unsigned int e = edgesAroundVertex[i];
-        const helper::fixed_array<unsigned int,2>& ped = m_topology->getEdge(e);
+        const helper::fixed_array<unsigned int,2>& ped = this->m_topology->getEdge(e);
         defaulttype::Vector3 l = (pt - x[ped[0]]) + (pt - x[ped[1]]);
         l.normalize();
         double computedAngleCone = dot(nMean , l) * coneFactor;
