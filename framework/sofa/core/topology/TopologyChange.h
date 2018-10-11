@@ -467,6 +467,8 @@ public:
     unsigned int getNbAddedElements() const { return nVertices; }
     const sofa::helper::vector< unsigned int >& getIndexArray() const { return pointIndexArray; }
     const sofa::helper::vector< Topology::Point >& getElementArray() const { return pointIndexArray; }
+    const sofa::helper::vector< sofa::helper::vector< unsigned int > >& getAncestorsList() const { return ancestorsList; }
+
 
 
 public:
