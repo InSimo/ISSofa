@@ -230,6 +230,7 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::applyJT( typename In::Ma
 template <class TIn, class TInRoot, class TOut>
 void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::handleTopologyChange(core::topology::Topology* t)
 {
+#ifdef SOFA_MAPPING_APPLY_HANDLETOPOLOGYCHANGE
 	core::topology::BaseMeshTopology* from = core::topology::BaseMeshTopology::DynamicCast(t);
     if(from == NULL ) {
 		this->serr << __FUNCTION__ << ": could not cast topology to BaseMeshTopology" << this->sendl; 
@@ -257,7 +258,7 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::handleTopologyChange(cor
 		}
 
 	}
-
+#endif
 }
 
 

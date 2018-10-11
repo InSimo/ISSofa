@@ -200,6 +200,7 @@ void SubsetMapping<TIn, TOut>::postInit()
 template <class TIn, class TOut>
 void SubsetMapping<TIn, TOut>::handleEvent(core::objectmodel::Event *e)
 {
+#ifdef SOFA_MAPPING_APPLY_HANDLETOPOLOGYCHANGE
     if (sofa::simulation::AnimateBeginEvent::DynamicCast(e))
     {
         f_indices.getValue();
@@ -217,7 +218,7 @@ void SubsetMapping<TIn, TOut>::handleEvent(core::objectmodel::Event *e)
         }
 
     }
-
+#endif
 }
 
 template <class TIn, class TOut>
