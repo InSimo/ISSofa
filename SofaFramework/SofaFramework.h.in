@@ -60,6 +60,8 @@
 
 #cmakedefine DETECTIONOUTPUT_BARYCENTRICINFO
 
+#cmakedefine SOFA_MAPPING_APPLY_HANDLETOPOLOGYCHANGE
+
 #cmakedefine SOFA_HAVE_EASTL
 
 // Use of "extern template" is activated by the following macro
