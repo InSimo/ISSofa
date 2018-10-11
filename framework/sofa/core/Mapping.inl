@@ -110,10 +110,14 @@ void Mapping<In,Out>::init()
     if(toModel && !testMechanicalState(toModel.get()))
         setNonMechanical();
 
+
+    if (f_applyRestPosition.getValue())
+    {
+        apply(MechanicalParams::defaultInstance() /* PARAMS FIRST */, VecCoordId::restPosition(), ConstVecCoordId::restPosition());
+    }
+
     apply(MechanicalParams::defaultInstance() /* PARAMS FIRST */, VecCoordId::position(), ConstVecCoordId::position());
     applyJ(MechanicalParams::defaultInstance() /* PARAMS FIRST */, VecDerivId::velocity(), ConstVecDerivId::velocity());
-    if (f_applyRestPosition.getValue())
-        apply(MechanicalParams::defaultInstance() /* PARAMS FIRST */, VecCoordId::restPosition(), ConstVecCoordId::restPosition());
 }
 
 template <class In, class Out>
