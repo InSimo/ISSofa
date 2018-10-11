@@ -1029,6 +1029,10 @@ public:
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
     const sofa::helper::vector<MappingData>& getMap() const {return this->map.getValue() ;}
+
+    helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > > readPoint2TetraMap(){ return helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
+    helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > > writePoint2TetraMap() { return helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
+
 };
 
 
