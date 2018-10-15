@@ -275,7 +275,7 @@ void TTriangleModel<DataTypes>::updateFlags()
                                                                            x0[tri_k[1]],
                                                                            x0[tri_k[2]]);
                         const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
-                        const bool isAngleAboveThreshold = cos < cosAngleThreshold;
+                        const bool isAngleAboveThreshold = cos <= cosAngleThreshold;
                         if (isAngleAboveThreshold)
                         {
                             f |= (FLAG_BE23 << j);
@@ -444,7 +444,9 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         const bool drawBEdges = d_drawBoundaryEdges.getValue();
 
         if (bBothSide.getValue() || vparams->displayFlags().getShowWireFrame())
-            vparams->drawTool()->setPolygonMode(0,vparams->displayFlags().getShowWireFrame());
+        {
+            vparams->drawTool()->setPolygonMode(0, vparams->displayFlags().getShowWireFrame());
+        }
         else
         {
             vparams->drawTool()->setPolygonMode(2,true);
@@ -477,7 +479,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
                     if (f&FLAG_BP1 << j)
                     {
                         pointsBP.push_back(tpv[j]);
-        }
+                    }
                 }
             }
 
@@ -508,7 +510,6 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
                     }
                 }
             }
-            
         }
 
         vparams->drawTool()->setLightingEnabled(true);
@@ -530,9 +531,9 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             }
 
             vparams->drawTool()->drawLines(pointsEdges, 1, defaulttype::Vec<4,float>(1,1,1,1));
-
         }
     }
+
     if (getPrevious()!=NULL && vparams->displayFlags().getShowBoundingCollisionModels())
         getPrevious()->draw(vparams);
 }
