@@ -491,7 +491,7 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
 	}
 	else if (cParams->constOrder() == core::ConstraintParams::VEL)
 	{
-        core::MultiVecDerivId vId(res1);
+        core::MultiVecDerivId vId = res2.isNull() ? core::MultiVecDerivId(res1) : core::MultiVecDerivId(res2);
 		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
 		{
 			BaseConstraintCorrection* cc = constraintCorrections[i];
