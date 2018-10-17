@@ -78,9 +78,6 @@ protected:
     LinkToModels toModels;
     //helper::vector<State<Out>*> toModels;
 
-public:
-
-    Data<bool> f_applyRestPosition; ///< @todo document this
 protected:
 
     /// Constructor

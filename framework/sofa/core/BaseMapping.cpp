@@ -37,6 +37,8 @@ BaseMapping::BaseMapping()
     , f_mapConstraints(initData(&f_mapConstraints, true, "mapConstraints", "Are constraints mapped ?"))
     , f_mapMasses(initData(&f_mapMasses, true, "mapMasses", "Are masses mapped ?"))
     , f_mapMatrices(initData(&f_mapMatrices, false, "mapMatrices", "Are matrix explicit mapped?"))
+    , f_applyRestPosition( initData( &f_applyRestPosition, false, "applyRestPosition", "set to true to apply this mapping on restPosition, \
+                                                                    which is useful in case of topological changes for instance"))
 {
     this->addAlias(&f_mapForces, "isMechanical");
     this->addAlias(&f_mapMasses, "isMechanical");
@@ -84,6 +86,11 @@ bool BaseMapping::areMassesMapped() const
 bool BaseMapping::areMatricesMapped() const
 {
     return f_mapMatrices.getValue();
+}
+
+bool BaseMapping::applyRestPosition() const
+{
+    return f_applyRestPosition.getValue();
 }
 
 void BaseMapping::setForcesMapped(bool b)

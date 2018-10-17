@@ -76,7 +76,6 @@ protected:
     SingleLink<Mapping<In,Out>, State< Out >, BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> toModel;
 public:
 
-    Data<bool> f_applyRestPosition; ///< @todo document this
     Data<bool> f_checkJacobian;     ///< @todo document this
 protected:
     /// Constructor, taking input and output models as parameters.

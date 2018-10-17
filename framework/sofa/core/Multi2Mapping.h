@@ -86,9 +86,7 @@ protected:
     LinkFromModels2 fromModels2;
     LinkToModels toModels;
 
-public:
 
-    Data<bool> f_applyRestPosition; ///< @todo document this
 protected:
 
     /// Constructor

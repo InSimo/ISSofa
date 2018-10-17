@@ -42,7 +42,6 @@ Mapping<In,Out>::Mapping(State<In>* from, State<Out>* to)
     : BaseMapping()
     , fromModel(initLink("input", "Input object to map"), from)
     , toModel(initLink("output", "Output object to map"), to)
-    , f_applyRestPosition( initData( &f_applyRestPosition, false, "applyRestPosition", "set to true to apply this mapping to restPosition at init"))
     , f_checkJacobian( initData( &f_checkJacobian, false, "checkJacobian", "set to true to compare results of applyJ/applyJT methods with multiplication with the matrix given by getJ()" ) )
 {
     if(to != NULL && !testMechanicalState(to))
