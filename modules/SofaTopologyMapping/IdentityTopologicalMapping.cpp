@@ -70,6 +70,7 @@ int IdentityTopologicalMappingClass = core::RegisterObject("This class is a spec
         ;
 
 IdentityTopologicalMapping::IdentityTopologicalMapping()
+: d_createOutputTopologyAtInit(initData(&d_createOutputTopologyAtInit, false, "createOutputTopologyAtInit", "If true, the output topology is create from input topology"))
 {
 }
 
@@ -81,7 +82,8 @@ IdentityTopologicalMapping::~IdentityTopologicalMapping()
 void IdentityTopologicalMapping::init()
 {
     sofa::core::topology::TopologicalMapping::init();
-    if (fromModel && toModel)
+    this->updateLinks();
+    if (d_createOutputTopologyAtInit.getValue() && fromModel && toModel)
     {
         toModel->clear();
         for (int i = 0; i < fromModel->getNbPoints(); i++)

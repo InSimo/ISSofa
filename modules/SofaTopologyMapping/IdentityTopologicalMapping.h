@@ -54,6 +54,8 @@ public:
     void updateTopologicalMappingTopDown() override;
 
     unsigned int getFromIndex(unsigned int ind) override;
+
+    sofa::Data<bool> d_createOutputTopologyAtInit;
 };
 
 } // namespace topology
