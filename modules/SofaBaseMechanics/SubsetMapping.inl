@@ -247,7 +247,10 @@ void SubsetMapping<TIn, TOut>::apply ( const core::MechanicalParams* /*mparams*/
         if(indices[i] < fromSize)
             out[i] = in[ indices[i] ];
         else
+        {
+            serr<<"Indice "<<indices[i]<<" doesn't exist in input state"<<sendl;
             out[i] = out0[i];
+        }
     }
 
     dOut.endEdit();
