@@ -270,7 +270,7 @@ void Quater<Real>::normalize()
     const Real _norm =  norm();
     Quater<Real>& q  = *this;
 
-    if (_norm  != Real(0.0) )
+    if (_norm  > std::numeric_limits<SReal>::epsilon() )
     {
         q /= _norm;
     }
@@ -575,7 +575,7 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
         q.normalize();
     }
 
-    assert(std::abs(q.norm() - 1) < epsilon); // make sure we are dealing with a unit quaternion.
+    assert(std::abs(q.norm() - 1) <= epsilon); // make sure we are dealing with a unit quaternion.
 
     defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
 
