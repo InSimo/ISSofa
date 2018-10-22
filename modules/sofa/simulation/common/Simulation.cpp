@@ -247,8 +247,13 @@ void Simulation::animate ( Node* root, double dt )
         return;
     }
     sofa::core::ExecParams* params = sofa::core::ExecParams::defaultInstance();
-
     sofa::core::behavior::BaseAnimationLoop* aloop = root->getAnimationLoop();
+
+    if (dt == 0)
+    {
+        dt = root->getDt();
+    }
+
     if(aloop)
     {
         aloop->step(params,dt);
