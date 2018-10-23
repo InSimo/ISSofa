@@ -34,13 +34,13 @@
 
 #include <sofa/simulation/common/DefaultAnimationLoop.h>
 #include <sofa/simulation/common/DefaultVisualManagerLoop.h>
+#include <sofa/simulation/common/SceneLoaderFactory.h>
 
 namespace sofa
 {
 
 namespace simulation
 {
-
 
 SOFA_SIMULATION_COMMON_API void initializeGraph(sofa::simulation::Node* node);
 
@@ -153,6 +153,9 @@ public:
 protected:
     /// The only one top root Node of the Sofa scene
     static Node::SPtr sRoot;
+
+    /// The current scene loader begin used.
+    std::unique_ptr< SceneLoader > m_sceneLoader;
 };
 
 /// Set the (unique) simulation which controls the scene

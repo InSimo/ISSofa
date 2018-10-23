@@ -34,11 +34,7 @@ namespace sofa
 namespace simulation
 {
 
-// register the loader in the factory
-SceneLoader* loaderPHP = SceneLoaderFactory::getInstance()->addEntry(new SceneLoaderPHP());
-
-
-
+sofa::helper::Creator<sofa::simulation::SceneLoaderFactory, SceneLoaderPHP> creatorSceneLoaderPHP("SceneLoaderPHP", false, 0, "Scene Loader for php simulation files", { "php","pscn" });
 
 bool SceneLoaderPHP::canLoadFileExtension(const char *extension)
 {

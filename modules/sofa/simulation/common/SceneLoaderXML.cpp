@@ -34,9 +34,9 @@ namespace simulation
 {
 
 // register the loader in the factory
-SceneLoader* loaderXML = SceneLoaderFactory::getInstance()->addEntry(new SceneLoaderXML());
-bool SceneLoaderXML::loadSucceed = true;
+sofa::helper::Creator<sofa::simulation::SceneLoaderFactory, SceneLoaderXML> creatorSceneLoaderXML("SceneLoaderXML", false, 0, "Scene Loader for xml simulation files", { "scn","xml" });
 
+bool SceneLoaderXML::loadSucceed = true;
 
 bool SceneLoaderXML::canLoadFileExtension(const char *extension)
 {

@@ -39,6 +39,7 @@ sofa::simulation::Node::SPtr SceneLoader::load(const char *filename)
     return load(filename, args);
 }
 
+
 SceneLoaderFactory* SceneLoaderFactory::getInstance()
 {
     static SceneLoaderFactory instance;
@@ -46,67 +47,62 @@ SceneLoaderFactory* SceneLoaderFactory::getInstance()
 }
 
 /// Get an entry given a file extension
-SceneLoader* SceneLoaderFactory::getEntryFileExtension(std::string extension)
+SceneLoader* SceneLoaderFactory::createFromFileExtension(std::string extension)
 {
-    SceneLoaderList::iterator it = registry.begin();
-    while (it!=registry.end())
-    {
-        if ((*it)->canLoadFileExtension(extension.c_str()))
-            return *it;
-        ++it;
-    }
-    // not found, sorry....
-    return 0;
+    return this->createObject(extension, nullptr);
 }
 
 /// Get an entry given a file extension
+SceneLoader* SceneLoaderFactory::createFromFileName(std::string filename)
+{
+    std::string ext = sofa::helper::system::SetDirectory::GetExtension(filename.c_str() );
+    return createFromFileExtension(ext);
+}
+
 SceneLoader* SceneLoaderFactory::getEntryFileName(std::string filename)
 {
-    SceneLoaderList::iterator it = registry.begin();
-    while (it!=registry.end())
-    {
-        if ((*it)->canLoadFileName(filename.c_str()))
-            return *it;
-        ++it;
-    }
-    // not found, sorry....
-    return 0;
+    return createFromFileName(filename);
 }
 
-
-SceneLoader* SceneLoaderFactory::getExporterEntryFileExtension(std::string extension)
+std::map<std::string, std::vector<std::string>> SceneLoaderFactory::getSupportedExtensionsMap() const
 {
-    SceneLoaderList::iterator it = registry.begin();
-    while (it!=registry.end())
+    std::map<std::string, std::vector<std::string>> keyAliasesMap;
+    std::vector<std::string> keysAndAliases;
+    this->uniqueKeys(std::back_inserter(keysAndAliases) );
+
+    for (const std::string& k : keysAndAliases)
     {
-        if ((*it)->canWriteFileExtension(extension.c_str()))
-            return *it;
-        it++;
+        std::vector<std::string> extensions;
+
+        auto entry = this->registry.find(k);
+        if (entry != this->registry.end())
+        {
+            const std::vector<std::string>& entryAliases = entry->second->aliases();
+
+            bool isCurrentKeyAlias = false;
+            for (const std::string& entryAlias : entryAliases)
+            {
+                if (entryAlias == k)
+                {
+                    isCurrentKeyAlias = true;
+                    break;
+                }
+            }
+
+            if (!isCurrentKeyAlias)
+            {
+                for (const std::string& alias : entryAliases)
+                {
+                    extensions.push_back(alias);
+                }
+
+                keyAliasesMap.insert(std::pair<std::string, std::vector<std::string>>(k, extensions));
+            }
+        }
     }
-    // not found, sorry....
-    return 0;
-}
 
-SceneLoader* SceneLoaderFactory::getExporterEntryFileName(std::string filename)
-{
-    SceneLoaderList::iterator it = registry.begin();
-    while (it!=registry.end())
-    {
-        if ((*it)->canWriteFileName(filename.c_str()))
-            return *it;
-        it++;
-    }
-    // not found, sorry....
-    return 0;
+    return keyAliasesMap;
 }
-
-/// Add a scene loader
-SceneLoader* SceneLoaderFactory::addEntry(SceneLoader *loader)
-{
-    registry.push_back(loader);
-    return loader;
-}
-
 
 
 } // namespace simulation

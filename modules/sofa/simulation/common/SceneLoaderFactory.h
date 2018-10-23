@@ -84,43 +84,48 @@ public:
     /// get the list of file extensions
     virtual void getExtensionList(ExtensionList* list) = 0;
 
+    virtual ~SceneLoader() {};
 
+    template <class TSceneLoader>
+    static TSceneLoader* create(TSceneLoader*, const void* /*argument*/)
+    {
+        return new TSceneLoader();
+    }
 };
 
 
-class SOFA_SIMULATION_COMMON_API SceneLoaderFactory
+class SOFA_SIMULATION_COMMON_API SceneLoaderFactory : private sofa::helper::Factory<std::string, SceneLoader, void*>
 {
-
 public:
     typedef std::vector<SceneLoader*> SceneLoaderList;
+    typedef sofa::helper::Factory<std::string, SceneLoader, void*> Inherit;
+    typedef Inherit::Object    Object;
+    typedef Inherit::ObjectPtr ObjectPtr;
+    typedef Inherit::Argument  Argument;
+    typedef Inherit::Key       Key;
+    typedef Inherit::Creator   Creator;
+    typedef Inherit::Registry  Registry;
 
-    /// Get the ObjectFactory singleton instance
+    using  Inherit::registerCreator;
+
     static SceneLoaderFactory* getInstance();
 
-protected:
 
-    /// Main class registry
-    SceneLoaderList registry;
 
-public:
-    /// Get an entry given a file extension
-    SceneLoader* getEntryFileExtension(std::string extension);
+    /// Returns a map containing for each SceneLoaderFactory key, 
+    /// the list of file extensions that the SceneLoader would support.
+    std::map<std::string, std::vector<std::string>> getSupportedExtensionsMap() const;
 
-    /// Get an entry given a file name
+    /// Create a new SceneLoader instance based on a file extension.
+    /// returns nullptr if no matching entry exists in factory.
+    SceneLoader* createFromFileExtension(std::string extension);
+
+    /// Create a new SceneLoader instance based on a filename.
+    /// returns nullptr if no matching entry exists in factory.
+    SceneLoader* createFromFileName(std::string filename);
+
+    /// For backward compatibility with external codes.
     SceneLoader* getEntryFileName(std::string filename);
-
-    /// Get an exporter entry given a file extension
-    SceneLoader* getExporterEntryFileExtension(std::string extension);
-
-    /// Get an exporter entry given a file name
-    SceneLoader* getExporterEntryFileName(std::string filename);
-
-    /// Add a scene loader
-    SceneLoader* addEntry(SceneLoader *loader);
-
-    /// Get the list of loaders
-    SceneLoaderList* getEntries() {return &registry;}
-
 };
 
 } // namespace simulation

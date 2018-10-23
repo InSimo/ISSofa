@@ -52,7 +52,6 @@
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/visual/VisualParams.h>
 
-#include <sofa/simulation/common/SceneLoaderFactory.h>
 
 
 #include <fstream>
@@ -173,11 +172,9 @@ void Simulation::exportGraph ( Node* root, const char* filename )
 {
     if ( !root ) return;
 
-    SceneLoader *exporter = SceneLoaderFactory::getInstance()->getExporterEntryFileName(filename);
-
-    if (exporter)
+    if (m_sceneLoader)
     {
-        exporter->write(root,filename);
+        m_sceneLoader->write(root,filename);
     }
     else
     {
@@ -495,11 +492,11 @@ void Simulation::dumpState ( Node* root, std::ofstream& out )
 /// Load a scene
 Node::SPtr Simulation::load(const char *filename, const std::vector<std::string>& sceneArguments)
 {
-    SceneLoader *loader = SceneLoaderFactory::getInstance()->getEntryFileName(filename);
+    m_sceneLoader.reset(SceneLoaderFactory::getInstance()->createFromFileName(filename));
 
-    if (loader)
+    if (m_sceneLoader)
     {
-        sRoot = loader->load(filename, sceneArguments);
+        sRoot = m_sceneLoader->load(filename, sceneArguments);
         return sRoot;
     }
 
