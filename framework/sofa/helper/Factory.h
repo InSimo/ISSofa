@@ -55,6 +55,7 @@ public:
     virtual ObjectPtr createInstance(Argument arg) = 0;
     virtual const std::type_info& type() = 0;
     virtual const std::string& description() const = 0;
+    virtual const std::vector<std::string>& aliases() const = 0;
     virtual int priority() const { return 0; }
 };
 
@@ -88,7 +89,7 @@ public:
     ObjectPtr createAnyObject(Argument arg);
 
     template< typename OutIterator >
-    void uniqueKeys(OutIterator out);
+    void uniqueKeys(OutIterator out) const;
 
     bool hasKey(Key key);
     bool duplicateEntry( Key existing, Key duplicate, bool multi=false);

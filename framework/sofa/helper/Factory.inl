@@ -104,10 +104,10 @@ TPtr Factory<TKey, TObject, TArgument, TPtr>::createObjectRange(iterator begin, 
 
 template <typename TKey, class TObject, typename TArgument, typename TPtr>
 template< typename OutIterator >
-void Factory<TKey, TObject, TArgument, TPtr>::uniqueKeys(OutIterator out)
+void Factory<TKey, TObject, TArgument, TPtr>::uniqueKeys(OutIterator out) const
 {
 
-    typename std::multimap<Key, Creator*>::iterator it;
+    typename std::multimap<Key, Creator*>::const_iterator it;
 
     const Key* p_key = NULL;
     for ( it = registry.begin(); it != registry.end(); ++it)
