@@ -453,7 +453,7 @@ void MechanicalObject<DataTypes>::handleStateChange()
 
                 for (unsigned int k = 0; k < vectorsCoord.size(); k++)
                 {
-                    if (vectorsCoord[k] != NULL)
+                    if (vectorsCoord[k] != NULL && vectorsCoord[k]->isSet())
                     {
                         const VecCoord &vecCoord = vectorsCoord[k]->getValue();
 
@@ -466,7 +466,7 @@ void MechanicalObject<DataTypes>::handleStateChange()
 
                 for (unsigned int k = 0; k < vectorsDeriv.size(); k++)
                 {
-                    if (vectorsDeriv[k] != NULL)
+                    if (vectorsDeriv[k] != NULL && vectorsDeriv[k]->isSet())
                     {
                         const VecDeriv &vecDeriv = vectorsDeriv[k]->getValue();
 
@@ -560,7 +560,7 @@ void MechanicalObject<DataTypes>::replaceValue (const int inputIndex, const int 
     const unsigned int vecCoordSize = vectorsCoord.size();
     for (unsigned int i = 0; i < vecCoordSize; i++)
     {
-        if (vectorsCoord[i] != NULL)
+        if (vectorsCoord[i] != NULL && vectorsCoord[i]->isSet())
         {
             VecCoord& vector = *(vectorsCoord[i]->beginEdit());
 
@@ -574,7 +574,7 @@ void MechanicalObject<DataTypes>::replaceValue (const int inputIndex, const int 
     const unsigned int vecDerivSize = vectorsDeriv.size();
     for (unsigned int i = 0; i < vecDerivSize; i++)
     {
-        if (vectorsDeriv[i] != NULL)
+        if (vectorsDeriv[i] != NULL && vectorsDeriv[i]->isSet())
         {
             VecDeriv& vector = *(vectorsDeriv[i]->beginEdit());
 
@@ -597,7 +597,7 @@ void MechanicalObject<DataTypes>::swapValues (const int idx1, const int idx2)
     unsigned int i;
     for (i=0; i<vectorsCoord.size(); i++)
     {
-        if(vectorsCoord[i] != NULL)
+        if (vectorsCoord[i] != NULL && vectorsCoord[i]->isSet())
         {
             VecCoord& vector = *vectorsCoord[i]->beginEdit();
             if(vector.size() > maxIndex)
@@ -611,7 +611,7 @@ void MechanicalObject<DataTypes>::swapValues (const int idx1, const int idx2)
     }
     for (i=0; i<vectorsDeriv.size(); i++)
     {
-        if(vectorsDeriv[i] != NULL)
+        if (vectorsDeriv[i] != NULL && vectorsDeriv[i]->isSet())
         {
             VecDeriv& vector = *vectorsDeriv[i]->beginEdit();
             if(vector.size() > maxIndex)
@@ -633,7 +633,7 @@ void MechanicalObject<DataTypes>::renumberValues( const sofa::helper::vector< un
 
     for (unsigned int i = 0; i < vectorsCoord.size(); ++i)
     {
-        if (vectorsCoord[i] != NULL)
+        if (vectorsCoord[i] != NULL && vectorsCoord[i]->isSet())
         {
             renumber(vectorsCoord[i]->beginEdit(), &ctmp, index);
             vectorsCoord[i]->endEdit();
@@ -642,7 +642,7 @@ void MechanicalObject<DataTypes>::renumberValues( const sofa::helper::vector< un
 
     for (unsigned int i = 0; i < vectorsDeriv.size(); ++i)
     {
-        if (vectorsDeriv[i] != NULL)
+        if (vectorsDeriv[i] != NULL && vectorsDeriv[i]->isSet())
         {
             renumber(vectorsDeriv[i]->beginEdit(), &dtmp, index);
             vectorsDeriv[i]->endEdit();
@@ -785,7 +785,7 @@ void MechanicalObject<DataTypes>::computeWeightedValue( const unsigned int i, co
 
     for (unsigned int k = 0; k < vectorsCoord.size(); k++)
     {
-        if (vectorsCoord[k] != NULL)
+        if (vectorsCoord[k] != NULL && vectorsCoord[k]->isSet())
         {
             VecCoord &vecCoord = *(vectorsCoord[k]->beginEdit());
 
@@ -806,7 +806,7 @@ void MechanicalObject<DataTypes>::computeWeightedValue( const unsigned int i, co
 
     for (unsigned int k = 0; k < vectorsDeriv.size(); k++)
     {
-        if (vectorsDeriv[k] != NULL)
+        if (vectorsDeriv[k] != NULL && vectorsDeriv[k]->isSet())
         {
             VecDeriv &vecDeriv = *(vectorsDeriv[k]->beginEdit());
 
