@@ -48,7 +48,10 @@ void initExternalModule()
     static bool first = true;
     if (first)
     {
-        first = false;        
+        first = false;
+
+        // register the loader in the factory
+        sofa::helper::Creator<sofa::simulation::SceneLoaderFactory, sofa::simulation::SceneLoaderPY> creatorSceneLoaderPY("SceneLoaderPY", false, 0, "Scene Loader for py simulation files", { "py" });
     }
 }
 
@@ -86,12 +89,6 @@ const char* getModuleComponentList()
 //SOFA_LINK_CLASS(MyBehaviorModel)
 //SOFA_LINK_CLASS(MyProjectiveConstraintSet)
 SOFA_LINK_CLASS(PythonController)
-
-
-// register the loader in the factory
-sofa::simulation::SceneLoader* loaderPY = sofa::simulation::SceneLoaderFactory::getInstance()->addEntry(new sofa::simulation::SceneLoaderPY());
-
-
 
 
 }
