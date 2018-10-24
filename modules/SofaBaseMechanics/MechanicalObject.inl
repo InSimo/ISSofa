@@ -1250,7 +1250,7 @@ void MechanicalObject<DataTypes>::init()
 
     if (l_topology && getSize() < l_topology->getNbPoints())
     {
-        serr << "Resizing to " << l_topology->getNbPoints() << " to match topology points" << sendl;
+        serr << "Resizing from " << getSize() << " to " << l_topology->getNbPoints() << " to match topology points" << sendl;
         resize(l_topology->getNbPoints());
     }
 
