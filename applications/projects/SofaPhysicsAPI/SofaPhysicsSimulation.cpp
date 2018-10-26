@@ -193,9 +193,7 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_), GUIShareRenderingContext(shareRend
 
         if (useGUI)
         {
-            int argc = 1;
-            char* argv[] = { const_cast<char*>("a") };
-            glutInit(&argc, argv);
+            // Note: since glut can only be initialized once, calling glutInit() is the responsability of the main program
 
             std::string guiName("SofaGuiQt");
             if (sofa::simulation::gui::initGUI(guiName))
@@ -208,7 +206,9 @@ useGUI(useGUI_), GUIFramerate(GUIFramerate_), GUIShareRenderingContext(shareRend
                     std::cout << o.str() << std::endl;
                     options.push_back(o.str());
                 }
-                auto* gui = sofa::simulation::gui::createGUI(guiName, argv[0],options);
+
+                char* argv[] = { const_cast<char*>("a") };
+                auto* gui = sofa::simulation::gui::createGUI(guiName, argv[0], options);
                 if (gui)
                 {
                     gui->initialize();
