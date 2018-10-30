@@ -28,12 +28,6 @@
 #include <sofa/SofaGeneral.h>
 #include <sofa/core/topology/TopologicalMapping.h>
 
-#include <sofa/defaulttype/Vec.h>
-#include <map>
-
-#include <sofa/core/BaseMapping.h>
-#include <sofa/SofaGeneral.h>
-
 namespace sofa
 {
 
@@ -45,36 +39,21 @@ namespace topology
 
 /**
  * This class is a specific implementation of TopologicalMapping where the destination topology should be kept identical to the source topology.
- * The implementation currently assumes that both topology have been initialized identically.
  */
-
 class SOFA_TOPOLOGY_MAPPING_API IdentityTopologicalMapping : public sofa::core::topology::TopologicalMapping
 {
 public:
     SOFA_CLASS(IdentityTopologicalMapping,sofa::core::topology::TopologicalMapping);
+
 protected:
     IdentityTopologicalMapping();
     virtual ~IdentityTopologicalMapping();
 public:
-    virtual void init();
+    void init() override;
 
+    void updateTopologicalMappingTopDown() override;
 
-    /** \brief Translates the TopologyChange objects from the source to the target.
-     *
-     * Translates each of the TopologyChange objects waiting in the source list so that they have a meaning and
-     * reflect the effects of the first topology changes on the second topology.
-     *
-     */
-    virtual void updateTopologicalMappingTopDown();
-
-    virtual unsigned int getFromIndex(unsigned int ind);
-
-    template<class T>
-    static bool canCreate ( T*& /*obj*/, core::objectmodel::BaseContext* /*context*/, core::objectmodel::BaseObjectDescription* /*arg*/ )
-    {
-        return true;
-    }
-
+    unsigned int getFromIndex(unsigned int ind) override;
 };
 
 } // namespace topology

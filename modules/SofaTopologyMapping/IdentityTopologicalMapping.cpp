@@ -81,7 +81,6 @@ IdentityTopologicalMapping::~IdentityTopologicalMapping()
 void IdentityTopologicalMapping::init()
 {
     sofa::core::topology::TopologicalMapping::init();
-    this->updateLinks();
     if (fromModel && toModel)
     {
         for (int i = 0; i < fromModel->getNbPoints(); i++)
@@ -110,6 +109,8 @@ void IdentityTopologicalMapping::init()
             toModel->addHexa(hexa[0], hexa[1], hexa[2], hexa[3], hexa[4], hexa[5], hexa[6], hexa[7]);
         }
 
+        //Need to call container init() method to initialise topology neighborhood information
+        toModel->init();
     }
 }
 
@@ -127,28 +128,20 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
     if (itBegin == itEnd) return;
 
-    PointSetTopologyModifier *toPointMod = NULL;
-    EdgeSetTopologyModifier *toEdgeMod = NULL;
-    TriangleSetTopologyModifier *toTriangleMod = NULL;
-    //QuadSetTopologyModifier *toQuadMod = NULL;
-    //TetrahedronSetTopologyModifier *toTetrahedronMod = NULL;
-    //HexahedronSetTopologyModifier *toHexahedronMod = NULL;
+    PointSetTopologyModifier *toPointMod = nullptr;
+    EdgeSetTopologyModifier *toEdgeMod   = nullptr;
+    TriangleSetTopologyModifier *toTriangleMod = nullptr;
+    
+    toModel->getContext()->get(toPointMod);
+    toModel->getContext()->get(toEdgeMod);
+    toModel->getContext()->get(toTriangleMod);
 
-    TriangleSetTopologyContainer *fromTriangleCon = NULL;
+    TriangleSetTopologyContainer *fromTriangleCon = nullptr;
     fromModel->getContext()->get(fromTriangleCon);
 
-//    std::cout << "Begin Nb of points of fromModel : " << fromTriangleCon->getNbPoints() << std::endl;
-//    std::cout << "Begin Nb of edges of fromModel : " << fromTriangleCon->getNbEdges() << std::endl;
-//    std::cout << "Begin Nb of triangles of fromModel : " << fromTriangleCon->getNbTriangles() << std::endl;
-
-
-    TriangleSetTopologyContainer *toTriangleCon = NULL;
+    TriangleSetTopologyContainer *toTriangleCon = nullptr;
     toModel->getContext()->get(toTriangleCon);
-//    std::cout << "Begin Nb of points of toModel : " << toTriangleCon->getNbPoints() << std::endl;
-//    std::cout << "Begin Nb of edges of toModel : " << toTriangleCon->getNbEdges() << std::endl;
-//    std::cout << "Begin Nb of triangles of toModel : " << toTriangleCon->getNbTriangles() << std::endl;
 
-    toModel->getContext()->get(toPointMod);
     if (!toPointMod)
     {
         serr << "No PointSetTopologyModifier found for target topology." << sendl;
@@ -205,7 +198,6 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::EDGESADDED:
         {
-            if (!toEdgeMod) toModel->getContext()->get(toEdgeMod);
             if (!toEdgeMod) break;
             const EdgesAdded *eAdd = static_cast< const EdgesAdded * >( topoChange );
 //            std::cout << "EDGESADDED : " << eAdd->getNbAddedEdges() << std::endl;
@@ -217,7 +209,6 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::EDGESREMOVED:
         {
-            if (!toEdgeMod) toModel->getContext()->get(toEdgeMod);
             if (!toEdgeMod) break;
             const EdgesRemoved *eRem = static_cast< const EdgesRemoved * >( topoChange );
             sofa::helper::vector<unsigned int> tab = eRem->getArray();
@@ -230,7 +221,6 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::TRIANGLESADDED:
         {
-            if (!toTriangleMod) toModel->getContext()->get(toTriangleMod);
             if (!toTriangleMod) break;
             const TrianglesAdded *tAdd = static_cast< const TrianglesAdded * >( topoChange );
 //            std::cout << "TRIANGLESADDED : " << tAdd->getNbAddedTriangles() << std::endl;
@@ -242,7 +232,6 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::TRIANGLESREMOVED:
         {
-            if (!toTriangleMod) toModel->getContext()->get(toTriangleMod);
             if (!toTriangleMod) break;
             const TrianglesRemoved *tRem = static_cast< const TrianglesRemoved * >( topoChange );
             sofa::helper::vector<unsigned int> tab = tRem->getArray();
