@@ -691,6 +691,12 @@ protected:
     MatrixType* matrixJ;
     bool updateJ;
 
+    struct Jacobian
+    {
+        std::vector< std::array<InDeriv,3> > jacobianVector; /// only used in template VecNormal3Types
+    };
+
+    Jacobian   J;          ///< Jacobian of the mapping, in a vector
 
     // topologyData mechanism to handle topology changes (protected) 
     class TriangleInfoHandler : public sofa::component::topology::TopologyDataHandler<Triangle, VecBaryTriangleInfo>
