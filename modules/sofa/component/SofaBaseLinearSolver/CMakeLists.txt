@@ -33,12 +33,14 @@ set(SOURCE_FILES
     ../initBaseLinearSolver.cpp 
     ../linearsolver/CGLinearSolver.cpp 
     ../linearsolver/CholeskySolver.cpp 
+    ../linearsolver/CompressedRowSparseMatrix.cpp
     ../linearsolver/BTDLinearSolver.cpp 
     ../linearsolver/FullVector.cpp 
     ../linearsolver/GraphScatteredTypes.cpp 
     ../linearsolver/DefaultMultiMatrixAccessor.cpp 
     ../linearsolver/MatrixLinearSolver.cpp 
     ../linearsolver/SingleMatrixAccessor.cpp
+    ../linearsolver/SparseMatrix.cpp 
     ../linearsolver/MinResLinearSolver.cpp
 
     )
