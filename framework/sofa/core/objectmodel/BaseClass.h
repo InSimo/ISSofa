@@ -236,9 +236,9 @@ public:
 
     virtual bool isInstance(RootType* obj) const = 0;
 
-protected:
     typedef void*(StaticCastFunction)(void*);
     typedef const void*(StaticCastConstFunction)(const void*);
+protected:
     std::vector<StaticCastFunction*> staticCastFunctions;
     std::vector<StaticCastConstFunction*> staticCastConstFunctions;
     mutable std::size_t dynamicCastCount = 0;
