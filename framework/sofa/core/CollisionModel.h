@@ -96,6 +96,7 @@ protected:
         , bSelfCollision(initData(&bSelfCollision, false, "selfCollision", "flag indication if the object can self collide"))
         , bBothSide(initData(&bBothSide, false, "bothSide", "flag indication if the object can self collide on both side"))
         , proximity(initData(&proximity, (SReal)0.0, "proximity", "Distance to the actual (visual) surface"))
+        , proximitySelfCollision(initData(&proximitySelfCollision, (SReal)0.0, "proximitySelfCollision", "Distance to the actual (visual) surface for self collision case"))
         , contactStiffness(initData(&contactStiffness, (SReal)10.0, "contactStiffness", "Default contact stiffness"))
         , contactFriction(initData(&contactFriction, (SReal)0.01, "contactFriction", "Default contact friction (damping) coefficient"))
         , contactRestitution(initData(&contactRestitution, (SReal)0.0, "contactRestitution", "Default contact coefficient of restitution"))
@@ -387,7 +388,7 @@ public:
     SReal getProximity() { return proximity.getValue(); }
 
     /// Get distance to the actual (visual) surface in self collision case
-    SReal getSelfCollisionProximity() {}
+    SReal getSelfCollisionProximity() { return proximitySelfCollision.getValue(); }
 
     /// Get contact stiffness
     SReal getContactStiffness(int /*index*/) { return contactStiffness.getValue(); }
@@ -457,6 +458,8 @@ protected:
     Data<bool> bBothSide;
     /// Distance to the actual (visual) surface
     Data<SReal> proximity;
+    /// Distance to the actual (visual) surface for self collision case
+    Data<SReal> proximitySelfCollision;
     /// Default contact stiffness
     Data<SReal> contactStiffness;
     /// Default contact friction (damping) coefficient
