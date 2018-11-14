@@ -53,12 +53,6 @@ TransformEngine<DataTypes>::TransformEngine()
     , rotationAxis(initData(&rotationAxis, defaulttype::Vector3(0,0,0), "rotationAxis", "Axis vector used in 'rotation around axis' operation"))
     , rotationAngle(initData(&rotationAngle, Real(0), "rotationAngle", "Angle (radians) used in 'rotation around axis' operation"))
 {
-}
-
-
-template <class DataTypes>
-void TransformEngine<DataTypes>::init()
-{
     addInput(&f_inputX);
     addInput(&translation);
     addInput(&rotation);
@@ -67,6 +61,12 @@ void TransformEngine<DataTypes>::init()
     addInput(&inverse);
     addOutput(&f_outputX);
     setDirtyValue();
+}
+
+
+template <class DataTypes>
+void TransformEngine<DataTypes>::init()
+{
 }
 
 template <class DataTypes>
