@@ -386,6 +386,9 @@ public:
     /// Get distance to the actual (visual) surface
     SReal getProximity() { return proximity.getValue(); }
 
+    /// Get distance to the actual (visual) surface in self collision case
+    SReal getSelfCollisionProximity() {}
+
     /// Get contact stiffness
     SReal getContactStiffness(int /*index*/) { return contactStiffness.getValue(); }
     /// Set contact stiffness
