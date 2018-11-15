@@ -92,6 +92,16 @@ void ConstraintSolver::postStabilize(const core::ConstraintParams*, MultiVecCoor
 
 }
 
+void ConstraintSolver::registerConstraintCorrection(BaseConstraintCorrection*)
+{
+
+}
+
+void ConstraintSolver::unregisterConstraintCorrection(BaseConstraintCorrection*)
+{
+
+}
+
 
 } // namespace behavior
 
