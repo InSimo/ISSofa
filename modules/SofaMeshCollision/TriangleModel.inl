@@ -382,7 +382,6 @@ template<class DataTypes>
 void TTriangleModel<DataTypes>::handleTopologyChange()
 {
     //bool debug_mode = false;
-    updateFromTopology();
     if (triangles != &mytriangles)
     {
         // We use the same triangle array as the topology -> only resize and recompute flags
@@ -397,16 +396,19 @@ void TTriangleModel<DataTypes>::handleTopologyChange()
 
             switch( changeType )
             {
-            case sofa::core::topology::TRIANGLESREMOVED:
-            case sofa::core::topology::TRIANGLESADDED:
-            case sofa::core::topology::QUADSREMOVED:
-            case sofa::core::topology::QUADSADDED:
-            case core::topology::ENDING_EVENT:
-            {
-                sout << "TriangleModel: now "<<_topology->getNbTriangles()<<" triangles." << sendl;
-                needsUpdate=true;
-                break;
-            }
+                case core::topology::ENDING_EVENT:
+                {
+                  updateFromTopology();
+                }
+                case sofa::core::topology::TRIANGLESREMOVED:
+                case sofa::core::topology::TRIANGLESADDED:
+                case sofa::core::topology::QUADSREMOVED:
+                case sofa::core::topology::QUADSADDED:
+                {
+                    sout << "TriangleModel: now "<<_topology->getNbTriangles()<<" triangles." << sendl;
+                    needsUpdate=true;
+                }
+
             default: break;
             }
             ++itBegin;
