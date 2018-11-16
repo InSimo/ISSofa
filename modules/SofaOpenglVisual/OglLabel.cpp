@@ -123,7 +123,9 @@ void OglLabel::drawVisual(const core::visual::VisualParams* vparams)
 
     // Save state and disable clipping plane
     glPushAttrib(GL_ENABLE_BIT);
-	for(int i = 0; i < GL_MAX_CLIP_PLANES; ++i)
+    GLint maxClipPlanes;
+    glGetIntegerv(GL_MAX_CLIP_PLANES, &maxClipPlanes);
+    for (int i = 0; i < maxClipPlanes; ++i)
 		glDisable(GL_CLIP_PLANE0+i);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_1D);

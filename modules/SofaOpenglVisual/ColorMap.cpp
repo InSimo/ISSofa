@@ -342,7 +342,9 @@ void ColorMap::drawVisual(const core::visual::VisualParams* vparams)
     glDisable(GL_LIGHTING);
     glDisable(GL_BLEND);
 
-	for(int i = 0; i < GL_MAX_CLIP_PLANES; ++i)
+    GLint maxClipPlanes;
+    glGetIntegerv(GL_MAX_CLIP_PLANES, &maxClipPlanes);
+    for (int i = 0; i < maxClipPlanes; ++i)
 		glDisable(GL_CLIP_PLANE0+i);
 
     // Setup orthogonal projection
@@ -389,7 +391,7 @@ void ColorMap::drawVisual(const core::visual::VisualParams* vparams)
 
     // Save state and disable clipping plane
     glPushAttrib(GL_ENABLE_BIT);
-	for(int i = 0; i < GL_MAX_CLIP_PLANES; ++i)
+    for (int i = 0; i < maxClipPlanes; ++i)
 		glDisable(GL_CLIP_PLANE0+i);
 
     // Maximum & minimum
