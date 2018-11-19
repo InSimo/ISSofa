@@ -118,6 +118,8 @@ public:
     /// Get an entry given a class name (or alias)
     ClassEntry& getEntry(std::string classname);
 
+    const ClassEntryMap& getRegistry() const;
+
     /// Test if a creator exists for a given classname
     bool hasCreator(std::string classname);
 

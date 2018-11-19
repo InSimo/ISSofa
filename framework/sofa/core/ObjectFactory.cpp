@@ -46,6 +46,11 @@ ObjectFactory::ClassEntry& ObjectFactory::getEntry(std::string classname)
     return *registry[classname];
 }
 
+const ObjectFactory::ClassEntryMap& ObjectFactory::getRegistry() const
+{
+    return registry;
+}
+
 /// Test if a creator exists for a given classname
 bool ObjectFactory::hasCreator(std::string classname)
 {
