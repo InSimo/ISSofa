@@ -237,7 +237,6 @@ void RigidRigidMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparam
     {
         helper::gl::Axis::draw(x[i].getCenter(), x[i].getOrientation(), axisLength.getValue());
     }
-    glEnd();
 #endif /* SOFA_NO_OPENGL */
 }
 
