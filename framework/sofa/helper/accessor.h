@@ -232,7 +232,8 @@ public:
     iterator end() { return vref->end(); }
 
     void clear() { vref->clear(); }
-    void resize(size_type s, bool /*init*/ = true) { vref->resize(s); }
+    void resize(size_type s) { vref->resize(s); }
+    void resize(size_type s, const value_type& value) { vref->resize(s, value); }
     void reserve(size_type s) { vref->reserve(s); }
     void push_back(const_reference v) { vref->push_back(v); }
 
