@@ -191,6 +191,18 @@ bool BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info, std::vect
     return res;
 }
 
+template<class TRootType>
+void BaseRootClass<TRootType>::insertTargetNames(const BaseClassInfo & info)
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    if (!info.targetNames.empty())
+    {
+        targetNames.insert(targetNames.end(), info.targetNames.cbegin(), info.targetNames.cend());
+    }
+}
+
 template class SOFA_CORE_API BaseRootClass< Base >;
 template class SOFA_CORE_API BaseRootClass< Event >;
 template class SOFA_CORE_API BaseRootClass< defaulttype::BaseVector >;

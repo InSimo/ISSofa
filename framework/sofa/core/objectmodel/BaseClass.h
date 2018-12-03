@@ -208,6 +208,8 @@ public:
     virtual const RootClass* findDerived(const BaseClassInfo& info) const;
     virtual bool findDerived(const BaseClassInfo& info, std::vector<const RootClass*>& result) const;
 
+    virtual void insertTargetNames(const BaseClassInfo & info);
+
     void dumpInfo(std::ostream& out, int indent = 0) const;
     void dumpHierarchy(std::ostream& out, int indent = 0) const;
 
@@ -1110,10 +1112,7 @@ public:
         else
         {
             MyClass* res = const_cast<MyClass*>(existingClass);
-            if (!info.targetNames.empty())
-            {
-                res->targetNames.insert(res->targetNames.end(), info.targetNames.cbegin(), info.targetNames.cend());
-            }
+            res->insertTargetNames(info);
             return res->shared_from_this();
         }
     }
