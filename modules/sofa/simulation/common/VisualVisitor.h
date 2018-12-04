@@ -66,8 +66,11 @@ public:
 
     virtual Result processNodeTopDown(simulation::Node* node)
     {
-        for_each(this, node, node->object, &VisualVisitor::processObject);
-        for_each(this, node, node->visualModel, &VisualVisitor::processVisualModel);
+        if (node->isDrawActive())
+        {
+            for_each(this, node, node->object, &VisualVisitor::processObject);
+            for_each(this, node, node->visualModel, &VisualVisitor::processVisualModel);
+        }
         return RESULT_CONTINUE;
     }
 

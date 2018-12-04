@@ -112,6 +112,7 @@ Node::Node(const std::string& name)
     , debug_(false)
     , initialized(false)
     , depend(initData(&depend,"depend","Dependencies between the nodes.\nname 1 name 2 name3 name4 means that name1 must be initialized before name2 and name3 before name4"))
+    , d_isDrawActive(initData(&d_isDrawActive, true, "isDrawActive", "status of the draw in the Node"))
 {
     _context = this;
     setName(name);
@@ -178,6 +179,11 @@ void Node::init(const core::ExecParams* params)
 {
     //     cerr<<"Node::init() begin node "<<getName()<<endl;
     execute<simulation::InitVisitor>(params);
+
+    if (!d_isDrawActive.getValue())
+    {
+        this->setDrawStatus(false);
+    }
 
     //     cerr<<"Node::init() end node "<<getName()<<endl;
 }
@@ -1160,6 +1166,27 @@ void Node::sortComponents()
     }
     //cerr << endl;
 
+}
+
+void Node::setDrawStatus(bool status)
+{
+    d_isDrawActive.setValue(status);
+    const Children childrenNode = this->getChildren();
+    if (childrenNode.empty())
+    {
+        return;
+    }
+    else
+    {
+        for (auto child : childrenNode)
+        {
+            Node* childNode = dynamic_cast<Node*>(child);
+            if (childNode)
+            {
+                childNode->setDrawStatus(status);
+            }
+        }
+    }
 }
 
 #ifdef SOFA_SMP

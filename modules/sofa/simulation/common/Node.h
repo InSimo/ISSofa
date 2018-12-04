@@ -529,6 +529,18 @@ public:
     void sortComponents();
 
 
+    Data<bool> d_isDrawActive;
+
+public:
+
+    void setDrawStatus(bool status);
+
+    inline bool isDrawActive()
+    {
+        return d_isDrawActive.getValue();
+    }
+
+
 };
 
 }
