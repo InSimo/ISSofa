@@ -15,6 +15,7 @@ set(HEADER_FILES
     CompositingVisualLoop.h
     ColorMap.h
     DataDisplay.h
+    OglClear.h
     OglLabel.h
     OglCylinderModel.h
     OglSceneFrame.h
@@ -29,6 +30,7 @@ set(SOURCE_FILES_OUTSIDE_UNITY
 
 set(SOURCE_FILES_UNITY
     initOpenGLVisual.cpp
+    OglClear.cpp
     OglModel.cpp
     OglViewport.cpp
     Light.cpp
