@@ -414,7 +414,7 @@ MathOp<VecT>::MathOp()
     , f_op       (initData(&f_op      ,              "op"      , "Selected operation to apply"))
     , f_output   (initData(&f_output  ,              "output"  , "Output values"))
 {
-    
+    addAlias(&f_output, "value");
     sofa::helper::OptionsGroup& ops = *f_op.beginEdit();
     helper::vector<std::string> opnames;
     MathOpNames< typename MathOpTraits<Value>::Ops >::get(opnames);
