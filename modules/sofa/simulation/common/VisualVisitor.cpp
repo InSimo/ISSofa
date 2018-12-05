@@ -34,6 +34,15 @@ namespace sofa
 namespace simulation
 {
 
+Visitor::Result VisualVisitor::processNodeTopDown(simulation::Node* node)
+{
+    if (node->isDrawActive())
+    {
+        for_each(this, node, node->object, &VisualVisitor::processObject);
+        for_each(this, node, node->visualModel, &VisualVisitor::processVisualModel);
+    }
+    return RESULT_CONTINUE;
+}
 
 Visitor::Result VisualDrawVisitor::processNodeTopDown(simulation::Node* node)
 {
@@ -56,7 +65,7 @@ Visitor::Result VisualDrawVisitor::processNodeTopDown(simulation::Node* node)
 
 void VisualDrawVisitor::processNodeBottomUp(simulation::Node* node)
 {
-    for_each(this, node, node->visualModel,     &VisualDrawVisitor::bwdVisualModel);
+    for_each_reverse(this, node, node->visualModel,     &VisualDrawVisitor::bwdVisualModel);
 }
 
 void VisualDrawVisitor::processObject(simulation::Node* /*node*/, core::objectmodel::BaseObject* o)

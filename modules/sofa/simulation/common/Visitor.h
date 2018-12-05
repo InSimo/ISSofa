@@ -127,6 +127,24 @@ public:
 
     /// Helper method to enumerate objects in the given list. The callback gets the pointer to node
     template < class Visit, class VContext, class Container >
+    void for_each_reverse(Visit* visitor, VContext* ctx, const Container& list, void (Visit::*fn)(VContext*, typename Container::pointed_type*))
+    {
+        for (typename Container::reverse_iterator it=list.rbegin(); it != list.rend(); ++it)
+        {
+            typename Container::pointed_type* ptr = &*(*it);
+            if(testTags(ptr))
+            {
+                debug_write_state_before(ptr);
+                ctime_t t=begin(ctx, ptr);
+                (visitor->*fn)(ctx, ptr);
+                end(ctx, ptr, t);
+                debug_write_state_after(ptr);
+            }
+        }
+    }
+
+    /// Helper method to enumerate objects in the given list. The callback gets the pointer to node
+    template < class Visit, class VContext, class Container >
     Visitor::Result for_each_r(Visit* visitor, VContext* ctx, const Container& list, Visitor::Result (Visit::*fn)(VContext*, typename Container::pointed_type*))
     {
         Visitor::Result res = Visitor::RESULT_CONTINUE;

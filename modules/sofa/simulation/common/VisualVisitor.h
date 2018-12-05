@@ -61,18 +61,10 @@ public:
         ,vparams(params)
     {}
 
+    virtual Result processNodeTopDown(simulation::Node* node);
+
     virtual void processVisualModel(simulation::Node* node, core::visual::VisualModel* vm) = 0;
     virtual void processObject(simulation::Node* /*node*/, core::objectmodel::BaseObject* /*o*/) {}
-
-    virtual Result processNodeTopDown(simulation::Node* node)
-    {
-        if (node->isDrawActive())
-        {
-            for_each(this, node, node->object, &VisualVisitor::processObject);
-            for_each(this, node, node->visualModel, &VisualVisitor::processVisualModel);
-        }
-        return RESULT_CONTINUE;
-    }
 
     /// Return a category name for this action.
     /// Only used for debugging / profiling purposes
