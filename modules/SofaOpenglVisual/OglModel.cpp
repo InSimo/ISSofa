@@ -64,6 +64,14 @@ const T* getData(const defaulttype::ResizableExtVector<T>& v) { return v.getData
 template<class T>
 const T* getData(const sofa::helper::vector<T>& v) { return &v[0]; }
 
+std::pair<helper::vector<GLenum>,helper::vector<std::string> > OglModel::OptionsStencilFunc {
+    {  GL_ALWAYS,   GL_NEVER,   GL_LESS,   GL_GREATER,   GL_EQUAL,   GL_LEQUAL,   GL_GEQUAL,   GL_NOTEQUAL  } ,
+    { "GL_ALWAYS", "GL_NEVER", "GL_LESS", "GL_GREATER", "GL_EQUAL", "GL_LEQUAL", "GL_GEQUAL", "GL_NOTEQUAL" } };
+
+std::pair<helper::vector<GLenum>,helper::vector<std::string> > OglModel::OptionsStencilOp {
+    {  GL_KEEP,   GL_ZERO,   GL_INCR,   GL_DECR,   GL_INVERT,   GL_REPLACE,   GL_INCR_WRAP,   GL_DECR_WRAP  } ,
+    { "GL_KEEP", "GL_ZERO", "GL_INCR", "GL_DECR", "GL_INVERT", "GL_REPLACE", "GL_INCR_WRAP", "GL_DECR_WRAP" } };
+
 
 OglModel::OglModel()
     : premultipliedAlpha(initData(&premultipliedAlpha, (bool) false, "premultipliedAlpha", "is alpha premultiplied ?"))
@@ -75,6 +83,7 @@ OglModel::OglModel()
     , writeZTransparent(initData(&writeZTransparent, (bool) false, "writeZTransparent", "Write into Z Buffer for Transparent Object"))
     , alphaBlend(initData(&alphaBlend, (bool) false, "alphaBlend", "Enable alpha blending"))
     , depthTest(initData(&depthTest, (bool) true, "depthTest", "Enable depth testing"))
+    , d_stencilTest(initData(&d_stencilTest, (bool) false, "stencilTest", "Enable stencil testing"))
     , cullFace(initData(&cullFace, (int) 0, "cullFace", "Face culling (0 = no culling, 1 = cull back faces, 2 = cull front faces)"))
     , lineWidth(initData(&lineWidth, (GLfloat) 1, "lineWidth", "Line width (set if != 1, only for lines rendering)"))
     , pointSize(initData(&pointSize, (GLfloat) 1, "pointSize", "Point size (set if != 1, only for points rendering)"))
@@ -85,6 +94,22 @@ OglModel::OglModel()
     , blendEquation( initData(&blendEquation, "blendEquation", "if alpha blending is enabled this specifies how source and destination colors are combined") )
     , sourceFactor( initData(&sourceFactor, "sfactor", "if alpha blending is enabled this specifies how the red, green, blue, and alpha source blending factors are computed") )
     , destFactor( initData(&destFactor, "dfactor", "if alpha blending is enabled this specifies how the red, green, blue, and alpha destination blending factors are computed") )
+    , d_stencilFuncFront    ( initData(&d_stencilFuncFront,     "stencilFuncFront",     "Stencil test for Front faces: test function"))
+    , d_stencilFuncRefFront ( initData(&d_stencilFuncRefFront,  "stencilFuncRefFront",  "Stencil test for Front faces: test reference value"))
+    , d_stencilFuncMaskFront( initData(&d_stencilFuncMaskFront, (unsigned)-1, "stencilFuncMaskFront", "Stencil test for Front faces: test mask"))
+    , d_stencilOpSFailFront ( initData(&d_stencilOpSFailFront,  "stencilOpSFailFront",  "Stencil test for Front faces: operation when stencil test failed"))
+    , d_stencilOpDpFailFront( initData(&d_stencilOpDpFailFront, "stencilOpDpFailFront", "Stencil test for Front faces: operation when depth test failed"))
+    , d_stencilOpDpPassFront( initData(&d_stencilOpDpPassFront, "stencilOpDpPassFront", "Stencil test for Front faces: operation when depth test passed"))
+    , d_stencilOpMaskFront  ( initData(&d_stencilOpMaskFront,   (unsigned)-1, "stencilOpMaskFront",   "Stencil test for Front faces: write operation mask"))
+    , d_stencilFuncBack    ( initData(&d_stencilFuncBack,     "stencilFuncBack",     "Stencil test for Back faces: test function"))
+    , d_stencilFuncRefBack ( initData(&d_stencilFuncRefBack,  "stencilFuncRefBack",  "Stencil test for Back faces: test reference value"))
+    , d_stencilFuncMaskBack( initData(&d_stencilFuncMaskBack, (unsigned)-1, "stencilFuncMaskBack", "Stencil test for Back faces: test mask"))
+    , d_stencilOpSFailBack ( initData(&d_stencilOpSFailBack,  "stencilOpSFailBack",  "Stencil test for Back faces: operation when stencil test failed"))
+    , d_stencilOpDpFailBack( initData(&d_stencilOpDpFailBack, "stencilOpDpFailBack", "Stencil test for Back faces: operation when depth test failed"))
+    , d_stencilOpDpPassBack( initData(&d_stencilOpDpPassBack, "stencilOpDpPassBack", "Stencil test for Back faces: operation when depth test passed"))
+    , d_stencilOpMaskBack  ( initData(&d_stencilOpMaskBack,   (unsigned)-1, "stencilOpMaskBack",   "Stencil test for Back faces: write operation mask"))
+    , d_activeClipDistances( initData(&d_activeClipDistances, 0, "activeClipDistances", "Number of clip planes (clip distances) to enable, to be computed within shaders. For fixed-function planes use the ClipPlane component"))
+    , d_colorMask( initData(&d_colorMask, (GLfloat)1.0f, "colorMask", "When false: disable writing to color buffer (i.e. only depth and/or stencil)"))
     , tex(NULL)
     , vbo(0), iboEdges(0), iboTriangles(0), iboQuads(0)
     , canUseVBO(false), VBOGenDone(false), initDone(false), useEdges(false), useTriangles(false), useQuads(false), canUsePatches(false)
@@ -96,26 +121,54 @@ OglModel::OglModel()
     sofa::helper::OptionsGroup* blendEquationOptions = blendEquation.beginEdit();
     blendEquationOptions->setNames(4,"GL_FUNC_ADD", "GL_FUNC_SUBTRACT", "GL_MIN", "GL_MAX"); // .. add other options
     blendEquationOptions->setSelectedItem(0);
-    //this->f_printLog.setValue(true);
     blendEquation.endEdit();
 
     // alpha blend values
     sofa::helper::OptionsGroup* sourceFactorOptions = sourceFactor.beginEdit();
     sourceFactorOptions->setNames(4,"GL_ZERO", "GL_ONE", "GL_SRC_ALPHA", "GL_ONE_MINUS_SRC_ALPHA"); // .. add other options
     sourceFactorOptions->setSelectedItem(2);
-    //this->f_printLog.setValue(true);
     sourceFactor.endEdit();
 
     sofa::helper::OptionsGroup* destFactorOptions = destFactor.beginEdit();
     destFactorOptions->setNames(4,"GL_ZERO", "GL_ONE", "GL_SRC_ALPHA", "GL_ONE_MINUS_SRC_ALPHA"); // .. add other options
     destFactorOptions->setSelectedItem(3);
-    //this->f_printLog.setValue(true);
     destFactor.endEdit();
 
     sofa::helper::OptionsGroup* primitiveTypeOptions = primitiveType.beginEdit();
     primitiveTypeOptions->setNames(4, "DEFAULT", "LINES_ADJACENCY", "PATCHES", "POINTS");
     primitiveTypeOptions->setSelectedItem(0);
     primitiveType.endEdit();
+
+    addAlias(&d_stencilFuncFront,     "stencilFunc"    );    addAlias(&d_stencilFuncBack,     "stencilFunc"    );
+    addAlias(&d_stencilFuncRefFront,  "stencilFuncRef" );    addAlias(&d_stencilFuncRefBack,  "stencilFuncRef" );
+    addAlias(&d_stencilFuncMaskFront, "stencilFuncMask");    addAlias(&d_stencilFuncMaskBack, "stencilFuncMask");
+    addAlias(&d_stencilOpSFailFront,  "stencilOpSFail" );    addAlias(&d_stencilOpSFailBack,  "stencilOpSFail" );
+    addAlias(&d_stencilOpDpFailFront, "stencilOpDpFail");    addAlias(&d_stencilOpDpFailBack, "stencilOpDpFail");
+    addAlias(&d_stencilOpDpPassFront, "stencilOpDpPass");    addAlias(&d_stencilOpDpPassBack, "stencilOpDpPass");
+    addAlias(&d_stencilOpMaskFront,   "stencilOpMask"  );    addAlias(&d_stencilOpMaskBack,   "stencilOpMask"  );
+    for (auto d : std::vector<DataOptions*>{&d_stencilFuncFront, &d_stencilFuncBack})
+    {
+        sofa::helper::OptionsGroup* o = d->beginEdit();
+        o->setNames(OptionsStencilFunc.second);
+        o->setSelectedItem(0); // GL_ALWAYS
+        d->endEdit();
+        d->setGroup("Stencil");
+    }
+    for (auto d : std::vector<DataOptions*> {&d_stencilOpSFailFront, &d_stencilOpDpFailFront, &d_stencilOpDpPassFront,
+                                             &d_stencilOpSFailBack,  &d_stencilOpDpFailBack,  &d_stencilOpDpPassBack  })
+    {
+        sofa::helper::OptionsGroup* o = d->beginEdit();
+        o->setNames(OptionsStencilOp.second);
+        o->setSelectedItem(0); // GL_KEEP
+        d->endEdit();
+        d->setGroup("Stencil");
+    }
+    for (auto d : std::vector<core::objectmodel::BaseData*> {&d_stencilTest,
+        &d_stencilFuncRefFront, &d_stencilFuncMaskFront, &d_stencilOpMaskFront,
+        &d_stencilFuncRefBack,  &d_stencilFuncMaskBack,  &d_stencilOpMaskBack })
+    {
+        d->setGroup("Stencil");
+    }
 }
 
 OglModel::~OglModel()
@@ -259,8 +312,9 @@ void OglModel::drawGroup(int ig, bool transparent)
         specular.clear();
         shininess = 1;
     }
-
-    if (isTransparent)
+    const GLfloat colorMask = d_colorMask.getValue();
+    diffuse[3] *= colorMask;
+    if (isTransparent || colorMask < 1.0f)
     {
         emissive[3] = 0; //diffuse[3];
         ambient[3] = 0; //diffuse[3];
@@ -530,6 +584,78 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
         }
     }
 
+    if (!depthTest.getValue())
+        glDisable(GL_DEPTH_TEST);
+
+    const GLfloat colorMask = d_colorMask.getValue();
+    if (colorMask == 0.0f)
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    switch (cullFace.getValue())
+    {
+    case 1:
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        break;
+    case 2:
+        glCullFace(GL_FRONT);
+        glEnable(GL_CULL_FACE);
+        break;
+    }
+
+    if (d_stencilTest.getValue())
+    {
+        glEnable(GL_STENCIL_TEST);
+
+        glStencilFuncSeparate(GL_FRONT,
+            OptionsStencilFunc.first[d_stencilFuncFront.getValue().getSelectedId()],
+            d_stencilFuncRefFront.getValue(), d_stencilFuncMaskFront.getValue());
+        glStencilOpSeparate(GL_FRONT,
+            OptionsStencilOp.first[d_stencilOpSFailFront.getValue().getSelectedId()],
+            OptionsStencilOp.first[d_stencilOpDpFailFront.getValue().getSelectedId()],
+            OptionsStencilOp.first[d_stencilOpDpPassFront.getValue().getSelectedId()]);
+        glStencilMaskSeparate(GL_FRONT, d_stencilOpMaskFront.getValue());
+
+        glStencilFuncSeparate(GL_BACK,
+            OptionsStencilFunc.first[d_stencilFuncBack.getValue().getSelectedId()],
+            d_stencilFuncRefBack.getValue(), d_stencilFuncMaskBack.getValue());
+        glStencilOpSeparate(GL_BACK,
+            OptionsStencilOp.first[d_stencilOpSFailBack.getValue().getSelectedId()],
+            OptionsStencilOp.first[d_stencilOpDpFailBack.getValue().getSelectedId()],
+            OptionsStencilOp.first[d_stencilOpDpPassBack.getValue().getSelectedId()]);
+        glStencilMaskSeparate(GL_BACK, d_stencilOpMaskBack.getValue());
+    }
+
+    const int activeClipDistances = d_activeClipDistances.getValue();
+    if (activeClipDistances > 0)
+    {
+        for (int id = 0; id < activeClipDistances; ++id)
+        {
+            glEnable(GL_CLIP_DISTANCE0 + id);
+        }
+    }
+
+    if (lineWidth.isSet())
+    {
+        glLineWidth(lineWidth.getValue());
+    }
+    
+    if (pointSize.isSet())
+    {
+        glPointSize(pointSize.getValue());
+    }
+    
+    if (pointSmooth.getValue())
+    {
+        glEnable(GL_POINT_SMOOTH);
+    }
+
+    if (lineSmooth.getValue())
+    {
+        glEnable(GL_LINE_SMOOTH);
+        glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
+    }
+
     if (transparent)
     {
         glEnable(GL_BLEND);
@@ -554,41 +680,11 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
         glBlendFunc( sfactor, dfactor );
         glEnable(GL_BLEND);
     }
-
-    if (!depthTest.getValue())
-        glDisable(GL_DEPTH_TEST);
-
-    switch (cullFace.getValue())
+    else if (!transparent && colorMask < 1.0f)
     {
-    case 1:
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE);
-        break;
-    case 2:
-        glCullFace(GL_FRONT);
-        glEnable(GL_CULL_FACE);
-        break;
-    }
-
-    if (lineWidth.isSet())
-    {
-        glLineWidth(lineWidth.getValue());
-    }
-    
-    if (pointSize.isSet())
-    {
-        glPointSize(pointSize.getValue());
-    }
-    
-    if (pointSmooth.getValue())
-    {
-        glEnable(GL_POINT_SMOOTH);
-    }
-
-    if (lineSmooth.getValue())
-    {
-        glEnable(GL_LINE_SMOOTH);
-        glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
+        glBlendEquation( GL_FUNC_ADD );
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
     }
 
     drawGroups(transparent);
@@ -613,6 +709,23 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
         glPointSize((GLfloat)1);
     }
 
+    if (activeClipDistances > 0)
+    {
+        for (int id = 0; id < activeClipDistances; ++id)
+        {
+            glDisable(GL_CLIP_DISTANCE0 + id);
+        }
+    }
+
+    if (d_stencilTest.getValue())
+    {
+        glDisable(GL_STENCIL_TEST);
+
+        glStencilFunc(GL_ALWAYS, 0, (GLuint)-1);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glStencilMask((GLuint)-1);
+    }
+
     switch (cullFace.getValue())
     {
     case 1:
@@ -620,18 +733,11 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
         glDisable(GL_CULL_FACE);
         break;
     }
+    if (colorMask == 0.0f)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     if (!depthTest.getValue())
         glEnable(GL_DEPTH_TEST);
-
-    if (alphaBlend.getValue())
-    {
-        // restore Default value
-        glBlendEquation( GL_FUNC_ADD );
-        glBlendFunc( GL_ONE, GL_ONE );
-        glDisable(GL_BLEND);
-        glDepthMask(GL_TRUE);
-    }
 
     if ( (tex || putOnlyTexCoords.getValue()) )//&& !numberOfTextures)
     {
@@ -652,9 +758,10 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisable(GL_LIGHTING);
 
-    if (transparent)
+    if (alphaBlend.getValue() || transparent || (!transparent && colorMask < 1.0f))
     {
         glDisable(GL_BLEND);
+        glBlendEquation( GL_FUNC_ADD );
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         //glBlendFunc(GL_ONE, GL_ZERO);
         glDepthMask(GL_TRUE);

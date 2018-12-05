@@ -61,7 +61,7 @@ public:
     SOFA_CLASS_EXTERNAL((OglModel), ((VisualModelImpl)));
 
 protected:
-    Data<bool> premultipliedAlpha, useVBO, writeZTransparent, alphaBlend, depthTest;
+    Data<bool> premultipliedAlpha, useVBO, writeZTransparent, alphaBlend, depthTest, d_stencilTest;
     Data<int> cullFace;
     Data<GLfloat> lineWidth;
     Data<GLfloat> pointSize;
@@ -70,14 +70,40 @@ protected:
     /// Suppress field for save as function
     Data < bool > isToPrint;
 
+    using DataOptions = Data<sofa::helper::OptionsGroup>;
+
     // primitive types
-    Data<sofa::helper::OptionsGroup> primitiveType;
+    DataOptions primitiveType;
 
     //alpha blend function
-    Data<sofa::helper::OptionsGroup> blendEquation;
-    Data<sofa::helper::OptionsGroup> sourceFactor;
-    Data<sofa::helper::OptionsGroup> destFactor;
+    DataOptions blendEquation;
+    DataOptions sourceFactor;
+    DataOptions destFactor;
     GLenum blendEq, sfactor, dfactor;
+
+    //stencil function
+    DataOptions    d_stencilFuncFront;
+    Data<unsigned> d_stencilFuncRefFront;
+    Data<unsigned> d_stencilFuncMaskFront;
+    DataOptions    d_stencilOpSFailFront;
+    DataOptions    d_stencilOpDpFailFront;
+    DataOptions    d_stencilOpDpPassFront;
+    Data<unsigned> d_stencilOpMaskFront;
+    DataOptions    d_stencilFuncBack;
+    Data<unsigned> d_stencilFuncRefBack;
+    Data<unsigned> d_stencilFuncMaskBack;
+    DataOptions  d_stencilOpSFailBack;
+    DataOptions  d_stencilOpDpFailBack;
+    DataOptions  d_stencilOpDpPassBack;
+    Data<unsigned> d_stencilOpMaskBack;
+    static std::pair<helper::vector<GLenum>,helper::vector<std::string> > OptionsStencilFunc;
+    static std::pair<helper::vector<GLenum>,helper::vector<std::string> > OptionsStencilOp;
+
+    // support for enabling clip planes within shaders
+    Data<int> d_activeClipDistances;
+
+    // allow disabling writing to color buffer (i.e. only depth and/or stencil)
+    Data<GLfloat> d_colorMask;
 
     helper::gl::Texture *tex; //this texture is used only if a texture name is specified in the scn
     GLuint vbo, iboEdges, iboTriangles, iboQuads;
