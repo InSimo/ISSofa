@@ -126,6 +126,7 @@ public:
     void reinit();
     void drawVisual(const core::visual::VisualParams* vparams);
     void updateVisual();
+    void handleEvent(sofa::core::objectmodel::Event* event) override;
 
     void start();
     void stop();

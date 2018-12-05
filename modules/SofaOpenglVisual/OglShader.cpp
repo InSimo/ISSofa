@@ -38,7 +38,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/system/FileRepository.h>
-
+#include <sofa/core/objectmodel/KeypressedEvent.h>
 
 namespace sofa
 {
@@ -95,6 +95,7 @@ OglShader::OglShader():
     addAlias(&tessellationOuterLevel,"tessellationLevel");
     addAlias(&tessellationInnerLevel,"tessellationLevel");
 #endif
+    this->f_listening.setValue(true);
 }
 
 OglShader::~OglShader()
@@ -208,6 +209,32 @@ void OglShader::initVisual()
     {
         shaderVector[i]->InitShaders();
     }
+}
+
+void OglShader::handleEvent(sofa::core::objectmodel::Event* event)
+{
+    if (sofa::core::objectmodel::KeypressedEvent* ev = sofa::core::objectmodel::KeypressedEvent::DynamicCast(event))
+    {
+        switch(ev->getKey())
+        {
+        case 'w':
+        case 'W':
+            serr << "Reloading shaders..." << sendl;
+            for (auto& s: shaderVector)
+            {
+                s->InitShaders();
+            }
+            // reinit all local objects depending on this shader (so that uniform values are set again)
+            helper::vector<OglShaderElement*> elems;
+            this->getContext()->sofa::core::objectmodel::BaseContext::get<OglShaderElement>(&elems, sofa::core::objectmodel::BaseContext::Local);
+            for (auto e: elems)
+            {
+                e->reinit();
+            }
+            break;
+        }
+    }
+    Inherit1::handleEvent(event);
 }
 
 void OglShader::drawVisual(const core::visual::VisualParams* )
