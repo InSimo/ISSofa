@@ -70,11 +70,12 @@ protected:
     virtual ~OglVariable() {}
 public:
     virtual void setValue( const DataTypes& v ) { value.setValue(v); }
-    void init() { OglShaderElement::init(); }
-    void initVisual() { core::visual::VisualModel::initVisual(); }
+    void init() override { OglShaderElement::init(); }
+    void initVisual() override { core::visual::VisualModel::initVisual(); }
     void pushValue() { initVisual(); }
-    void reinit() { init();	initVisual(); }
-	void updateVisual() { initVisual(); }
+    void reinit() override { init();	initVisual(); }
+	void updateVisual() override { initVisual(); }
+    void fwdDraw(core::visual::VisualParams*) override { initVisual(); }
 
     /// Returns the type of shader element (texture, macro, variable, or attribute)
     virtual ShaderElementType getSEType() const { return core::visual::ShaderElement::SE_VARIABLE; }
