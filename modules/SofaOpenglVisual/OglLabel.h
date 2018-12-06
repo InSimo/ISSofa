@@ -68,6 +68,7 @@ public:
     Data<std::string> color;
     Data<unsigned int> updateLabelEveryNbSteps;
 	Data<bool> f_visible;
+    Data<bool> f_allViewports;
 
     void init();
     void reinit();

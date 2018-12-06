@@ -119,19 +119,22 @@ ColorMap::ColorMap()
 : f_paletteSize(initData(&f_paletteSize, (unsigned int)256, "paletteSize", "How many colors to use"))
 , f_colorScheme(initData(&f_colorScheme, "colorScheme", "Color scheme to use"))
 , f_showLegend(initData(&f_showLegend, false, "showLegend", "Activate rendering of color scale legend on the side"))
-, texture(0)
+, texture(0),min(0),max(0)
 , m_updateLegend(false)
 {
-    f_colorScheme.beginEdit()->setNames(6,
+    auto c = f_colorScheme.beginEdit();
+    c->setNames({
         "Red to Blue",  // HSV space
         "Blue to Red",  // HSV space
         "HSV",          // HSV space
         "Red",          // RGB space
         "Green",        // RGB space
         "Blue",         // RGB space
+        "White to Red", // RGB space
+        "Red to White", // RGB space
         "Custom"        // TODO: Custom colors
-        );
-    f_colorScheme.beginEdit()->setSelectedItem("HSV");
+    });
+    c->setSelectedItem("HSV");
     f_colorScheme.endEdit();
 
 }
@@ -254,7 +257,24 @@ void ColorMap::reinit()
                     ));
         }
 
-
+    } else if (scheme == "White to Red") {
+        float step = 1.0f / (nColors);
+        for (unsigned int i = 0; i<nColors; i++)
+        {
+            entries.push_back(Color(
+                1.0, 1.0 - i*step, 1.0 - i*step,
+                1.0 // alpha
+            ));
+        }
+    } else if (scheme == "Red to White") {
+        float step = 1.0f / (nColors);
+        for (unsigned int i = 0; i<nColors; i++)
+        {
+            entries.push_back(Color(
+                1.0, i*step, i*step,
+                1.0 // alpha
+            ));
+        }
     } else {
         // HSV is the default
         if (scheme != "HSV") {
@@ -337,7 +357,7 @@ void ColorMap::drawVisual(const core::visual::VisualParams* vparams)
     const int vHeight = viewport[3];
 
     glPushAttrib(GL_ENABLE_BIT);
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
     glDisable(GL_LIGHTING);
     glDisable(GL_BLEND);
@@ -351,7 +371,7 @@ void ColorMap::drawVisual(const core::visual::VisualParams* vparams)
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0.0, vWidth, vHeight, 0.0, -1.0, 1.0);
+    glOrtho(0.0, vWidth, vHeight, 0.0, 0.0, 1.0);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -397,30 +417,32 @@ void ColorMap::drawVisual(const core::visual::VisualParams* vparams)
     // Maximum & minimum
     //
 
-    std::ostringstream smin, smax;
-    smin << min;
-    smax << max;
+    if (min < max)
+    {
+        std::ostringstream smin, smax;
+        smin << min;
+        smax << max;
 
-	Color textcolor(1.0f, 1.0f, 1.0f, 1.0f);
+        Color textcolor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// We check here if the background is dark enough to have white text
-	// else we use black text
-	GLfloat bgcol[4];
-	glGetFloatv(GL_COLOR_CLEAR_VALUE,bgcol);
-	float maxdarkcolor = 0.2f; 
-	if(bgcol[0] > maxdarkcolor || bgcol[1] > maxdarkcolor || bgcol[2] > maxdarkcolor)
-		textcolor = Color (0.0f, 0.0f, 0.0f, 0.0f);
+        // We check here if the background is dark enough to have white text
+        // else we use black text
+        GLfloat bgcol[4];
+        glGetFloatv(GL_COLOR_CLEAR_VALUE, bgcol);
+        float maxdarkcolor = 0.2f;
+        if (bgcol[0] > maxdarkcolor || bgcol[1] > maxdarkcolor || bgcol[2] > maxdarkcolor)
+            textcolor = Color(0.0f, 0.0f, 0.0f, 0.0f);
 
-    vparams->drawTool()->writeOverlayText(
-        10, 10, 14,  // x, y, size
-        textcolor,
-        smax.str().c_str());
+        vparams->drawTool()->writeOverlayText(
+            10, 10, 14,  // x, y, size
+            textcolor,
+            smax.str().c_str());
 
-    vparams->drawTool()->writeOverlayText(
-        10, 135, 14,  // x, y, size
-        textcolor,
-        smin.str().c_str());
-
+        vparams->drawTool()->writeOverlayText(
+            10, 135, 14,  // x, y, size
+            textcolor,
+            smin.str().c_str());
+    }
     // Restore state
     glPopAttrib();
 }

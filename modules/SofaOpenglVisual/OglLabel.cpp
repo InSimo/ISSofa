@@ -60,6 +60,7 @@ OglLabel::OglLabel(): stepCounter(0)
   ,color(initData(&color, std::string("contrast"), "color", "The color of the text to display"))
   ,updateLabelEveryNbSteps(initData(&updateLabelEveryNbSteps, (unsigned int)0, "updateLabelEveryNbSteps", "Update the display of the label every nb of time steps"))
   ,f_visible(initData(&f_visible,true,"visible","Is label displayed"))
+  ,f_allViewports(initData(&f_allViewports, false, "allViewports", "Set to true to enable rendering in all viewports (use tags to select which subset)"))
 {
     f_listening.setValue(true);
 }
@@ -116,7 +117,7 @@ void OglLabel::drawVisual(const core::visual::VisualParams* vparams)
     if (!f_visible.getValue() ) return;
 
     const core::visual::VisualParams::Viewport& viewport = vparams->viewport();
-    if (viewport[0] != 0 || viewport[1] != 0)
+    if (!f_allViewports.getValue() && (viewport[0] != 0 || viewport[1] != 0))
     {
         return; // do not display in viewports other that the main view
     }
@@ -135,16 +136,15 @@ void OglLabel::drawVisual(const core::visual::VisualParams* vparams)
     vparams->drawTool()->setLightingEnabled(false);
 	// vparams->drawTool()->setPolygonMode(1,true);
 
-	// color of the text
-    Color color( r, g, b, a);
-	glColor4f( r, g, b, a );
-
+    // color of the text
+    Color color(r, g, b, a);
     glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, &color[0]);
     static const float emissive[4] = { 0.0f, 0.0f, 0.0f, 0.0f};
     static const float specular[4] = { 1.0f, 1.0f, 1.0f, 1.0f};
     glMaterialfv (GL_FRONT_AND_BACK, GL_EMISSION, emissive);
     glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, specular);
     glMaterialf  (GL_FRONT_AND_BACK, GL_SHININESS, 20);
+    glColor4f(r, g, b, a);
 
     std::string text = prefix.getValue() + internalLabel.c_str() + suffix.getValue();
 
