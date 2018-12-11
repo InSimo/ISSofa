@@ -46,9 +46,58 @@ namespace objectmodel
 
 struct LinkChecker
 {
+
+    enum BaseStatus
+    {
+        NOT_VISITED = 0,
+        VISITING,
+        VISITED
+    };
+
+    static void visit(const Base* cur, const std::map<const Base*, std::set<const Base*>>& src2dst, std::map<const Base*, int>& marks, std::map<const Base*, const Base*> backprop)
+    {
+        auto it = marks.find(cur);
+        if (it != marks.end())
+        {
+            int mark = it->second;
+            if (mark == VISITING)
+            {
+                std::cerr << "Link cycle : [" << cur->getClassName() << "] " << cur->getName();
+                std::vector<const Base*> path;
+                const Base* b = backprop[cur];
+                while (b != cur)
+                {
+                    path.push_back(b);
+                    b = backprop[b];
+                }
+                for (auto rit = path.rbegin(); rit != path.rend(); ++rit)
+                {
+                    const Base* b = *rit;
+                    std::cerr << " -> [" << b->getClassName() << "] " << b->getName();
+                }
+                std::cerr << std::endl;
+            }
+            return;
+        }
+        marks[cur] = VISITING;
+
+        auto it2 = src2dst.find(cur);
+        if (it2 != src2dst.end())
+        {
+            for (const Base* next : it2->second)
+            {
+                backprop[next] = cur;
+                visit(next, src2dst, marks, backprop);
+            }
+        }
+
+        marks[cur] = VISITED;
+    }
+
     ~LinkChecker()
     {
         std::cerr << "================ LINK CHECKER ================" << std::endl;
+
         std::map<const Base*, std::set<const Base*>> dst2src;
         std::map<const Base*, std::set<const Base*>> src2dst;
         std::cerr << "Remaining links : " << links.size() << std::endl;
@@ -71,16 +120,32 @@ struct LinkChecker
             auto it = dst2src.find(src);
             if (it == dst2src.end())
             {
-                std::cerr << "Source-only link [" << src->getClassName() << "]" << src->getName() << " to: ";
+                std::cerr << "Source-only link [" << src->getClassName() << "] " << src->getName() << " to: ";
                 for (const Base* dst : p.second)
                 {
-                    std::cerr << "[" << dst->getClassName() << "]" << dst->getName() << "  ";
+                    std::cerr << "[" << dst->getClassName() << "] " << dst->getName() << ", ";
                 }
                 std::cerr << std::endl;
             }
         }
 
-        // TODO: detect circular dependencies between links (which indicates either an error or a missing FLAG_DUPLICATE)
+        // Detect circular dependencies between links (which indicates either an error or a missing FLAG_DUPLICATE)
+        std::map<const Base*, const Base*> backprop; // used to backpropagate in cycles
+        std::map<const Base*, int> marks; // used to mark visitation state of each Base
+
+        // Use topological sorting based on depth-first search (https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search)
+        for (const auto& p : src2dst)
+        {
+            const Base* src = p.first;
+
+            if (backprop.find(src) != backprop.cend())
+            {
+                // sub-graph already visited
+                continue;
+            }
+
+            visit(src, src2dst, marks, backprop);
+        }
 
         std::cerr << "================ LINK CHECKER ================" << std::endl;
     }
