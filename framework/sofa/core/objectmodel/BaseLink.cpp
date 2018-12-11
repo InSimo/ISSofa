@@ -103,13 +103,19 @@ struct LinkChecker
         std::cerr << "Remaining links : " << links.size() << std::endl;
         for (const BaseLink* l : links)
         {
+            bool linkedBaseFound = false;
             for (unsigned int i = 0u; i < l->getSize(); ++i)
             {
                 if (l->getLinkedBase(i))
                 {
                     dst2src[l->getLinkedBase(i)].insert(l->getOwnerBase());
                     src2dst[l->getOwnerBase()].insert(l->getLinkedBase(i));
+                    linkedBaseFound = true;
                 }
+            }
+            if (!linkedBaseFound)
+            {
+                src2dst[l->getOwnerBase()].insert(nullptr);
             }
         }
 
@@ -123,7 +129,10 @@ struct LinkChecker
                 std::cerr << "Source-only link [" << src->getClassName() << "] " << src->getName() << " to: ";
                 for (const Base* dst : p.second)
                 {
-                    std::cerr << "[" << dst->getClassName() << "] " << dst->getName() << ", ";
+                    if (dst)
+                    {
+                        std::cerr << "[" << dst->getClassName() << "] " << dst->getName() << ", ";
+                    }
                 }
                 std::cerr << std::endl;
             }
