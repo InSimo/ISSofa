@@ -81,7 +81,7 @@ public:
         return DataTypes::Name();
     }
 
-protected:
+//protected:
     Data<VecCoord> f_inputX; // input position
     Data<VecCoord> f_outputX; // ouput position
     Data<defaulttype::Vector3> translation; // translation
