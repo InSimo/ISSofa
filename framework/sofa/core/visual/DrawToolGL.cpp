@@ -81,18 +81,22 @@ void DrawToolGL::drawPoints(const sofa::helper::vector<Vector3> &points, float s
 
 void DrawToolGL::drawPoints(const sofa::helper::vector<Vector3> &points, float size, const sofa::helper::vector<Vec4f> colour)
 {
+    if (points.empty()) return;
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    setMaterial(colour[0]);
     glPointSize(size);
     glDisable(GL_LIGHTING);
     glBegin(GL_POINTS);
     {
         for (unsigned int i=0; i<points.size(); ++i)
         {
-            setMaterial(colour[i]);
             drawPoint(points[i], colour[i]);
-            if (getLightEnabled()) glEnable(GL_LIGHTING);
-            resetMaterial(colour[i]);
         }
     } glEnd();
+    if (getLightEnabled()) glEnable(GL_LIGHTING);
+    glDisable(GL_COLOR_MATERIAL);
+    resetMaterial(colour[0]);
     glPointSize(1);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
