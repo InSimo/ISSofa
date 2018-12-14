@@ -191,6 +191,11 @@ void Node::init(const core::ExecParams* params)
 /// ReInitialize the components of this node and all the nodes which depend on it.
 void Node::reinit(const core::ExecParams* params)
 {
+	if (!d_isDrawActive.getValue())
+	{
+		this->setDrawStatus(false);
+	}
+
     sofa::simulation::DeactivationVisitor deactivate(params, isActive());
     deactivate.execute( this );
 }
@@ -1172,21 +1177,14 @@ void Node::setDrawStatus(bool status)
 {
     d_isDrawActive.setValue(status);
     const Children childrenNode = this->getChildren();
-    if (childrenNode.empty())
-    {
-        return;
-    }
-    else
-    {
-        for (auto child : childrenNode)
-        {
-            Node* childNode = dynamic_cast<Node*>(child);
-            if (childNode)
-            {
-                childNode->setDrawStatus(status);
-            }
-        }
-    }
+	for (auto child : childrenNode)
+	{
+		Node* childNode = dynamic_cast<Node*>(child);
+		if (childNode)
+		{
+			childNode->setDrawStatus(status);
+		}
+	}
 }
 
 #ifdef SOFA_SMP
