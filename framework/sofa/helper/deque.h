@@ -31,7 +31,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdlib.h>
-
+#include <sofa/defaulttype/DataTypeInfo.h>
 #include <sofa/SofaFramework.h>
 
 namespace sofa
@@ -264,8 +264,25 @@ inline std::istream& deque<unsigned int >::read( std::istream& in )
     return in;
 }
 
+// Specialization of the defaulttype::DataTypeInfo type traits template
+template<class T>
+extern inline void DataTypeInfo_ContainerReserve(sofa::helper::deque<T>& /*array*/, size_t /*reserve*/){}
+
 } // namespace helper
 
+namespace defaulttype
+{
+
+template<class T>
+struct DataTypeInfo< sofa::helper::deque<T> > : public ContainerTypeInfo<sofa::helper::deque<T>, ContainerKindEnum::Array, 0>{};
+
+template<class T>
+struct DataTypeName< sofa::helper::deque<T> > { static std::string name() { std::ostringstream o; o << "deque<" << DataTypeName<T>::name() << ">"; return o.str(); } };
+
+} //defaulttype
+
 } // namespace sofa
+
+
 
 #endif
