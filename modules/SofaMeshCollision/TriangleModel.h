@@ -132,6 +132,7 @@ public:
         FLAG_BE23 = 1 << 9,  ///< Edge 2-3 is attached to this triangle and is a boundary
         FLAG_BE31 = 1 << 10, ///< Edge 3-1 is attached to this triangle and is a boundary
         FLAG_BE12 = 1 << 11, ///< Edge 1-2 is attached to this triangle and is a boundary
+        FLAG_BADSHAPE = 1 << 12, ///< Triangle has a bad shape and should be ignored
         FLAG_POINTS = FLAG_P1 | FLAG_P2 | FLAG_P3,
         FLAG_EDGES = FLAG_E12 | FLAG_E23 | FLAG_E31,
         FLAG_BPOINTS = FLAG_BP1 | FLAG_BP2 | FLAG_BP3,
@@ -172,6 +173,7 @@ protected:
     core::behavior::MechanicalState<DataTypes>* mstate = nullptr;
     Data<bool> computeNormals;
     Data<Real> d_boundaryAngleThreshold;
+    Data<Real> d_minTriangleArea;
     Data<bool> d_drawBoundaryPoints;
     Data<bool> d_drawBoundaryEdges;
     int meshRevision = -1;

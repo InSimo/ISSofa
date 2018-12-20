@@ -58,6 +58,7 @@ TTriangleModel<DataTypes>::TTriangleModel()
                                                                                                           0    -> All edges/points are flagged as boundary. \
                                                                                                           180  -> Only edges with a single adjacent triangle are marked as boundary \
                                                                                                                   and only points attached to these boundary edges are marked as boundary."))
+    , d_minTriangleArea(initData(&d_minTriangleArea, Real(1.0e-6), "minTriangleArea", "Triangle area threshold below which elements are considered as badly shaped and collisions are disabled"))
     , d_drawBoundaryPoints(initData(&d_drawBoundaryPoints, false, "drawBoundaryPoints", "Draw triangle points that are classified as boundary."))
     , d_drawBoundaryEdges(initData(&d_drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
 {
@@ -587,6 +588,12 @@ bool TTriangleModel<DataTypes>::canCollideWithElement(int index, CollisionModel*
 
 }
 
+template< class Real >
+Real computeTriangleAreaSquared(const sofa::defaulttype::Vec<3, Real>& p0, const sofa::defaulttype::Vec<3, Real>& p1, const sofa::defaulttype::Vec<3, Real>& p2)
+{
+    return (Real(0.25)*((p1-p0).cross(p2-p0)).norm2());
+}
+
 template<class DataTypes>
 void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
 {
@@ -602,6 +609,9 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
 
     const bool calcNormals = computeNormals.getValue();
+    const Real minTriangleArea = d_minTriangleArea.getValue();
+    const Real minTriangleArea2 = minTriangleArea*minTriangleArea;
+    const bool updateBadShape = minTriangleArea != Real(0.0);
 
 //    if (maxDepth == 0)
 //    {
@@ -676,6 +686,19 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
                 const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
                 const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
 
+                if (updateBadShape)
+                {
+                    const Real triangleArea2 = computeTriangleAreaSquared(pt1,pt2,pt3); // area of the triangle squared.
+                    if (triangleArea2 < minTriangleArea2)
+                    {
+                        triangleFlags[i] |= FLAG_BADSHAPE;
+                    }
+                    else
+                    {
+                        triangleFlags[i] &= ~FLAG_BADSHAPE;
+                    }
+                }
+                
                 for (int c = 0; c < 3; c++)
                 {
                     minElem[c] = pt1[c];
