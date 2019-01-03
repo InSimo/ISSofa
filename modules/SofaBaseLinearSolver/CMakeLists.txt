@@ -8,11 +8,8 @@ set(HEADER_FILES
     CGLinearSolver.inl
     CholeskySolver.h
     CholeskySolver.inl
-    CompressedRowSparseMatrix.h
-    CompressedRowSparseMatrix.inl
     BTDLinearSolver.h
     BTDLinearSolver.inl
-    FullVector.h
     FullMatrix.h
     DiagonalMatrix.h
     SingleMatrixAccessor.h
@@ -21,8 +18,6 @@ set(HEADER_FILES
     DefaultMultiMatrixAccessor.h
     MatrixLinearSolver.h
     MatrixLinearSolver.inl
-    MatrixExpr.h
-    matrix_bloc_traits.h
     BlocMatrixWriter.h
     MinResLinearSolver.h
     MinResLinearSolver.inl
@@ -34,9 +29,7 @@ set(SOURCE_FILES
     initBaseLinearSolver.cpp
     CGLinearSolver.cpp
     CholeskySolver.cpp
-    CompressedRowSparseMatrix.cpp
     BTDLinearSolver.cpp
-    FullVector.cpp
     GraphScatteredTypes.cpp
     DefaultMultiMatrixAccessor.cpp
     MatrixLinearSolver.cpp

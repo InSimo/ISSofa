@@ -22,18 +22,15 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_LINEARSOLVER_COMPRESSEDROWSPARSEMATRIX_INL
-#define SOFA_COMPONENT_LINEARSOLVER_COMPRESSEDROWSPARSEMATRIX_INL
+#ifndef SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_INL
+#define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_INL
 
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include "CompressedRowSparseMatrix.h"
 
 namespace sofa
 {
 
-namespace component
-{
-
-namespace linearsolver
+namespace defaulttype
 {
 
 template <> template <>
@@ -297,9 +294,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
 }
 
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 

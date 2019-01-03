@@ -22,22 +22,19 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_LINEARSOLVER_COMPRESSEDROWSPARSEMATRIX_H
-#define SOFA_COMPONENT_LINEARSOLVER_COMPRESSEDROWSPARSEMATRIX_H
+#ifndef SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_H
+#define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_H
 
 #include <sofa/defaulttype/BaseMatrix.h>
-#include <SofaBaseLinearSolver/MatrixExpr.h>
-#include <SofaBaseLinearSolver/matrix_bloc_traits.h>
-#include "FullVector.h"
+#include <sofa/defaulttype/MatrixExpr.h>
+#include <sofa/defaulttype/matrix_bloc_traits.h>
+#include <sofa/defaulttype/FullVector.h>
 #include <algorithm>
 
 namespace sofa
 {
 
-namespace component
-{
-
-namespace linearsolver
+namespace defaulttype
 {
 
 //#define SPARSEMATRIX_CHECK
@@ -2052,9 +2049,7 @@ public:
 #undef SPARSEMATRIX_VERBOSE
 #endif
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 

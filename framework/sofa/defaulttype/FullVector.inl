@@ -22,24 +22,16 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#define SOFA_COMPONENT_LINEARSOLVER_FULLVECTOR_CPP
-#include <SofaBaseLinearSolver/FullVector.h>
-#include <sofa/core/visual/VisualParams.h>
+#ifndef SOFA_DEFAULTTYPE_FULLVECTOR_INL
+#define SOFA_DEFAULTTYPE_FULLVECTOR_INL
+#include "FullVector.h"
 
 namespace sofa
 {
 
-namespace component
+namespace defaulttype
 {
 
-namespace linearsolver
-{
-/*
-template<> FullVector<bool>::FullVector()
-: data(NULL), cursize(0), allocsize(0)
-{
-}
-*/
 template<> void FullVector<bool>::set(Index i, SReal v)
 {
     data[i] = (v!=0);
@@ -66,10 +58,10 @@ template<> double FullVector<bool>::norm() const
     return helper::rsqrt(r);
 }
 
-template SOFA_BASE_LINEAR_SOLVER_API class FullVector<bool>;
+template SOFA_DEFAULTTYPE_API class FullVector<bool>;
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
+
+#endif

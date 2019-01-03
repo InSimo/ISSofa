@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_LINEARSOLVER_MATRIXEXPR_H
-#define SOFA_COMPONENT_LINEARSOLVER_MATRIXEXPR_H
+#ifndef SOFA_DEFAULTTYPE_MATRIXEXPR_H
+#define SOFA_DEFAULTTYPE_MATRIXEXPR_H
 
 #include <sofa/defaulttype/BaseMatrix.h>
 #include <sstream>
@@ -31,10 +31,7 @@
 namespace sofa
 {
 
-namespace component
-{
-
-namespace linearsolver
+namespace defaulttype
 {
 
 //#define SPARSEMATRIX_CHECK
@@ -609,9 +606,7 @@ public:
     }
 };
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 

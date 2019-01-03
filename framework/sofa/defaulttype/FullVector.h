@@ -22,11 +22,10 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_LINEARSOLVER_FULLVECTOR_H
-#define SOFA_COMPONENT_LINEARSOLVER_FULLVECTOR_H
+#ifndef SOFA_DEFAULTTYPE_FULLVECTOR_H
+#define SOFA_DEFAULTTYPE_FULLVECTOR_H
 
-#include <sofa/SofaBase.h>
-#include <sofa/defaulttype/BaseVector.h>
+#include "BaseVector.h"
 #include <sofa/helper/rmath.h>
 #include <sofa/helper/vector.h>
 
@@ -36,10 +35,7 @@
 namespace sofa
 {
 
-namespace component
-{
-
-namespace linearsolver
+namespace defaulttype
 {
 
 template<typename T>
@@ -47,7 +43,7 @@ class FullVector : public defaulttype::BaseVector
 {
 public:
     SOFA_VECTOR_CLASS_UNIQUE((FullVector<T>),((defaulttype::BaseVector)));
-    
+
     typedef T Real;
     typedef defaulttype::BaseVector::Index Index;
     typedef T* Iterator;
@@ -87,9 +83,9 @@ public:
     FullVector(const FullVector& vect)
         : defaulttype::BaseVector()
         , data(NULL), cursize(0), allocsize(0)
-	{
-		(*this) = vect;
-	}
+    {
+        (*this) = vect;
+    }
 
     explicit FullVector(Index n)
         : defaulttype::BaseVector()
@@ -349,21 +345,15 @@ public:
         return out;
     }
 
-    static const char* Name() { return "FullVector"; }
+//    static const char* Name() { return "FullVector"; }
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_LINEARSOLVER_FULLVECTOR_CPP)
-//extern template class SOFA_BASE_LINEAR_SOLVER_API FullVector<bool>;
-#endif
+template<> SOFA_DEFAULTTYPE_API void FullVector<bool>::set(Index i, SReal v);
+template<> SOFA_DEFAULTTYPE_API void FullVector<bool>::add(Index i, SReal v);
+template<> SOFA_DEFAULTTYPE_API bool FullVector<bool>::dot(const FullVector<Real>& a) const;
+template<> SOFA_DEFAULTTYPE_API double FullVector<bool>::norm() const;
 
-template<> SOFA_BASE_LINEAR_SOLVER_API void FullVector<bool>::set(Index i, SReal v);
-template<> SOFA_BASE_LINEAR_SOLVER_API void FullVector<bool>::add(Index i, SReal v);
-template<> SOFA_BASE_LINEAR_SOLVER_API bool FullVector<bool>::dot(const FullVector<Real>& a) const;
-template<> SOFA_BASE_LINEAR_SOLVER_API double FullVector<bool>::norm() const;
-
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 

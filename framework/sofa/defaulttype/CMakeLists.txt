@@ -4,19 +4,23 @@ project(SofaDefaultType)
 
 set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
-	BoundingBox.h	
+    BoundingBox.h
+    CompressedRowSparseMatrix.h
 	DataTypeInfo.h	
 	EnumTypeInfo.h	
     DataMetadata.h
 	DataTypeKind.h	
 	Frame.h	 
+    FullVector.h
 	LaparoscopicRigidTypes.h	
 	MapMapSparseMatrix.h	
     MapMapSparseMatrixEigenUtils.h
 	Mat.h	
 	Mat_solve_LU.h	
 	Mat_solve_SVD.h	
-	Mat_solve_Cholesky.h	
+    Mat_solve_Cholesky.h
+    MatrixExpr.h
+    matrix_bloc_traits.h
 	QuantityTypeInfo.h
 	Quat.h	
 	Quat.inl	
@@ -41,7 +45,9 @@ set(SOFADEFAULTTYPE_HEADERS
 set(SOFADEFAULTTYPE_SOURCES
 	AbstractTypeInfo.cpp
 	BoundingBox.cpp
+    CompressedRowSparseMatrix.inl
 	Frame.cpp
+    FullVector.inl
 	#RigidInertia.cpp
 	SolidTypes.cpp
 	TemplatesAliases.cpp
