@@ -64,8 +64,6 @@ public:
     typedef typename DataTypes1::MatrixDeriv::RowConstIterator MatrixDeriv1RowConstIterator;
     typedef typename DataTypes1::MatrixDeriv::ColConstIterator MatrixDeriv1ColConstIterator;
     typedef typename DataTypes1::MatrixDeriv::RowIterator MatrixDeriv1RowIterator;
-    typedef typename DataTypes1::MatrixDeriv::ColIterator MatrixDeriv1ColIterator;
-    typedef typename DataTypes1::MatrixDeriv::RowType MatrixDerivRowType1;
 
     typedef typename DataTypes2::Real Real2;
     typedef typename DataTypes2::VecCoord VecCoord2;
@@ -76,8 +74,6 @@ public:
     typedef typename DataTypes2::MatrixDeriv::RowConstIterator MatrixDeriv2RowConstIterator;
     typedef typename DataTypes2::MatrixDeriv::ColConstIterator MatrixDeriv2ColConstIterator;
     typedef typename DataTypes2::MatrixDeriv::RowIterator MatrixDeriv2RowIterator;
-    typedef typename DataTypes2::MatrixDeriv::ColIterator MatrixDeriv2ColIterator;
-    typedef typename DataTypes2::MatrixDeriv::RowType MatrixDerivRowType2;
 
 protected:
     LMConstraint( MechanicalState<DataTypes1> *dof1, MechanicalState<DataTypes2> *dof2)

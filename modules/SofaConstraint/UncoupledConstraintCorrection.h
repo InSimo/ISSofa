@@ -57,7 +57,7 @@ public:
     typedef typename DataTypes::MatrixDeriv::RowConstIterator MatrixDerivRowConstIterator;
     typedef typename DataTypes::MatrixDeriv::ColConstIterator MatrixDerivColConstIterator;
     typedef typename DataTypes::MatrixDeriv::RowIterator MatrixDerivRowIterator;
-    typedef typename DataTypes::MatrixDeriv::ColIterator MatrixDerivColIterator;
+
     typedef typename Coord::value_type Real;
 
     typedef helper::vector<Real> VecReal;

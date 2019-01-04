@@ -60,7 +60,6 @@ public:
     typedef typename DataTypes::MatrixDeriv::RowConstIterator MatrixDerivRowConstIterator;
     typedef typename DataTypes::MatrixDeriv::ColConstIterator MatrixDerivColConstIterator;
     typedef typename DataTypes::MatrixDeriv::RowIterator MatrixDerivRowIterator;
-    typedef typename DataTypes::MatrixDeriv::ColIterator MatrixDerivColIterator;
 
 protected:
     /// Default Constructor

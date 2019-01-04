@@ -75,7 +75,6 @@ public:
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::VecDeriv VecDeriv;
     typedef typename DataTypes::MatrixDeriv MatrixDeriv;
-    typedef typename DataTypes::MatrixDeriv::RowType MatrixDerivRowType;
     typedef helper::vector<Real> VecDensity;
 
     typedef core::behavior::MechanicalState<DataTypes> MechanicalModel;

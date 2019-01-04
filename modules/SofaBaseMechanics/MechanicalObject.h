@@ -31,7 +31,6 @@
 #include <sofa/core/topology/BaseMeshTopology.h>
 
 #include <sofa/defaulttype/BaseVector.h>
-#include <sofa/defaulttype/MapMapSparseMatrix.h>
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
@@ -82,8 +81,7 @@ public:
     typedef typename DataTypes::MatrixDeriv						MatrixDeriv;
     typedef typename DataTypes::MatrixDeriv::RowConstIterator	MatrixDerivRowConstIterator;
     typedef typename DataTypes::MatrixDeriv::ColConstIterator	MatrixDerivColConstIterator;
-    typedef typename DataTypes::MatrixDeriv::RowIterator		MatrixDerivRowIterator;
-    typedef typename DataTypes::MatrixDeriv::ColIterator		MatrixDerivColIterator;
+    typedef typename DataTypes::MatrixDeriv::RowIterator   MatrixDerivRowIterator;
 
     typedef typename core::behavior::BaseMechanicalState::ConstraintBlock ConstraintBlock;
 
@@ -152,8 +150,6 @@ public:
     Data< VecCoord > reset_position;
     Data< VecDeriv > reset_velocity;
 #endif
-
-    defaulttype::MapMapSparseMatrix< Deriv > c2;
 
     Data< SReal > restScale;
 

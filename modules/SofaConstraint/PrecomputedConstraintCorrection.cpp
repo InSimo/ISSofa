@@ -45,19 +45,19 @@ SOFA_CONSTRAINT_API void PrecomputedConstraintCorrection< defaulttype::Rigid3dTy
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
     const VecCoord& x0 = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
     helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
-    MatrixDeriv& c = cData.wref();
+    const MatrixDeriv& c = cData.wref();
 
     // On fait tourner les normales (en les ramenant dans le "pseudo" repere initial)
 
-    MatrixDerivRowIterator rowItEnd = c.end();
+    MatrixDerivRowConstIterator rowItEnd = c.end();
 
-    for (MatrixDerivRowIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
+    for (MatrixDerivRowConstIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
     {
-        MatrixDerivColIterator colItEnd = rowIt.end();
+        MatrixDerivColConstIterator colItEnd = rowIt.end();
 
-        for (MatrixDerivColIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
+        for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
         {
-            Deriv& n = colIt.val();
+            Deriv n = colIt.val();
             const unsigned int localRowNodeIdx = colIt.index();
 
             sofa::defaulttype::Quat q;
@@ -143,19 +143,19 @@ SOFA_CONSTRAINT_API void PrecomputedConstraintCorrection< defaulttype::Rigid3fTy
     const VecCoord& x0 = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
 
     helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
-    MatrixDeriv& c = cData.wref();
+    const MatrixDeriv& c = cData.wref();
 
     // On fait tourner les normales (en les ramenant dans le "pseudo" repere initial)
 
-    MatrixDerivRowIterator rowItEnd = c.end();
+    MatrixDerivRowConstIterator rowItEnd = c.end();
 
-    for (MatrixDerivRowIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
+    for (MatrixDerivRowConstIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
     {
-        MatrixDerivColIterator colItEnd = rowIt.end();
+        MatrixDerivColConstIterator colItEnd = rowIt.end();
 
-        for (MatrixDerivColIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
+        for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
         {
-            Deriv& n = colIt.val();
+            Deriv n = colIt.val();
             const unsigned int localRowNodeIdx = colIt.index();
 
             sofa::defaulttype::Quat q;
