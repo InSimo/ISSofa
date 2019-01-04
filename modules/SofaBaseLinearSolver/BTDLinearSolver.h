@@ -305,9 +305,9 @@ public:
     }
 
     template<class Real2>
-    FullVector<Real2> operator*(const FullVector<Real2>& v) const
+    sofa::defaulttype::FullVector<Real2> operator*(const sofa::defaulttype::FullVector<Real2>& v) const
     {
-        FullVector<Real2> res(rowSize());
+        sofa::defaulttype::FullVector<Real2> res(rowSize());
         for (Index bi=0; bi<nBRow; ++bi)
         {
             Index bj = 0;
@@ -341,10 +341,10 @@ public:
 };
 
 template<int N, typename T>
-class BlockVector : public FullVector<T>
+class BlockVector : public sofa::defaulttype::FullVector<T>
 {
 public:
-    typedef FullVector<T> Inherit;
+    typedef sofa::defaulttype::FullVector<T> Inherit;
     typedef T Real;
     typedef typename Inherit::Index Index;
 
@@ -706,9 +706,9 @@ public:
     }
 
     template<class Real2>
-    FullVector<Real2> operator*(const FullVector<Real2>& v) const
+    sofa::defaulttype::FullVector<Real2> operator*(const sofa::defaulttype::FullVector<Real2>& v) const
     {
-        FullVector<Real2> res(rowSize());
+        sofa::defaulttype::FullVector<Real2> res(rowSize());
         for (Index bi=0; bi<nBRow; ++bi)
         {
             Index b0 = (bi > 0) ? 0 : 1;

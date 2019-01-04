@@ -26,8 +26,8 @@
 #define SOFA_COMPONENT_LINEARSOLVER_SPARSEMATRIX_H
 
 #include <sofa/defaulttype/BaseMatrix.h>
-#include "FullVector.h"
-#include "MatrixExpr.h"
+#include <sofa/defaulttype/FullVector.h>
+#include <sofa/defaulttype/MatrixExpr.h>
 
 #include <map>
 
@@ -254,7 +254,7 @@ public:
     void clear() { data.clear(); }
 
     template<class Real2>
-    void mul(FullVector<Real2>& res, const FullVector<Real2>& v) const
+    void mul(sofa::defaulttype::FullVector<Real2>& res, const sofa::defaulttype::FullVector<Real2>& v) const
     {
         res.resize(rowSize());
         for (LineConstIterator itl = begin(), itlend=end(); itl!=itlend; ++itl)
@@ -267,7 +267,7 @@ public:
     }
 
     template<class Real2>
-    void addMulTranspose(FullVector<Real2>& res, const FullVector<Real2>& v) const
+    void addMulTranspose(sofa::defaulttype::FullVector<Real2>& res, const sofa::defaulttype::FullVector<Real2>& v) const
     {
         res.resize(colSize());
         for (LineConstIterator itl = begin(), itlend=end(); itl!=itlend; ++itl)
@@ -279,7 +279,7 @@ public:
     }
 
     template<class Real2>
-    void mul(FullVector<Real2>& res, const defaulttype::BaseVector* v) const
+    void mul(sofa::defaulttype::FullVector<Real2>& res, const defaulttype::BaseVector* v) const
     {
         res.resize(rowSize());
         for (LineConstIterator itl = begin(), itlend=end(); itl!=itlend; ++itl)
@@ -292,7 +292,7 @@ public:
     }
 
     template<class Real2>
-    void addMulTranspose(FullVector<Real2>& res, const defaulttype::BaseVector* v) const
+    void addMulTranspose(sofa::defaulttype::FullVector<Real2>& res, const defaulttype::BaseVector* v) const
     {
         res.resize(colSize());
         for (LineConstIterator itl = begin(), itlend=end(); itl!=itlend; ++itl)
@@ -304,7 +304,7 @@ public:
     }
 
     template<class Real2>
-    void mul(defaulttype::BaseVector* res, const FullVector<Real2>& v) const
+    void mul(defaulttype::BaseVector* res, const sofa::defaulttype::FullVector<Real2>& v) const
     {
         res->resize(rowSize());
         for (LineConstIterator itl = begin(), itlend=end(); itl!=itlend; ++itl)
@@ -317,7 +317,7 @@ public:
     }
 
     template<class Real2>
-    void addMulTranspose(defaulttype::BaseVector* res, const FullVector<Real2>& v) const
+    void addMulTranspose(defaulttype::BaseVector* res, const sofa::defaulttype::FullVector<Real2>& v) const
     {
         res->resize(colSize());
         for (LineConstIterator itl = begin(), itlend=end(); itl!=itlend; ++itl)
@@ -352,9 +352,9 @@ public:
     }
 
     template<class Real2>
-    FullVector<Real2> operator*(const FullVector<Real2>& v) const
+    sofa::defaulttype::FullVector<Real2> operator*(const sofa::defaulttype::FullVector<Real2>& v) const
     {
-        FullVector<Real2> res;
+        sofa::defaulttype::FullVector<Real2> res;
         mul(res,v);
         return res;
     }
@@ -403,55 +403,55 @@ public:
     */
 
 
-    MatrixExpr< MatrixTranspose< SparseMatrix<T> > > t() const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixTranspose< SparseMatrix<T> > > t() const
     {
-        return MatrixExpr< MatrixTranspose< SparseMatrix<T> > >(MatrixTranspose< SparseMatrix<T> >(*this));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixTranspose< SparseMatrix<T> > >(sofa::defaulttype::MatrixTranspose< SparseMatrix<T> >(*this));
     }
 
-    MatrixExpr< MatrixNegative< SparseMatrix<T> > > operator-() const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< SparseMatrix<T> > > operator-() const
     {
-        return MatrixExpr< MatrixNegative< SparseMatrix<T> > >(MatrixNegative< SparseMatrix<T> >(*this));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< SparseMatrix<T> > >(sofa::defaulttype::MatrixNegative< SparseMatrix<T> >(*this));
     }
 
     template<class Real2>
-    MatrixExpr< MatrixProduct< SparseMatrix<T>, SparseMatrix<Real2> > > operator*(const SparseMatrix<Real2>& m) const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixProduct< SparseMatrix<T>, SparseMatrix<Real2> > > operator*(const SparseMatrix<Real2>& m) const
     {
-        return MatrixExpr< MatrixProduct< SparseMatrix<T>, SparseMatrix<Real2> > >(MatrixProduct< SparseMatrix<T>, SparseMatrix<Real2> >(*this, m));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixProduct< SparseMatrix<T>, SparseMatrix<Real2> > >(sofa::defaulttype::MatrixProduct< SparseMatrix<T>, SparseMatrix<Real2> >(*this, m));
     }
 
-    MatrixExpr< MatrixScale< SparseMatrix<T>, double > > operator*(const double& r) const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixScale< SparseMatrix<T>, double > > operator*(const double& r) const
     {
-        return MatrixExpr< MatrixScale< SparseMatrix<T>, double > >(MatrixScale< SparseMatrix<T>, double >(*this, r));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixScale< SparseMatrix<T>, double > >(sofa::defaulttype::MatrixScale< SparseMatrix<T>, double >(*this, r));
     }
 
     // template<class Expr2>
-    // MatrixExpr< MatrixProduct< SparseMatrix<T>, Expr2 > > operator*(const MatrixExpr<Expr2>& m) const
+    // sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixProduct< SparseMatrix<T>, Expr2 > > operator*(const sofa::defaulttype::MatrixExpr<Expr2>& m) const
     // {
-    //     return MatrixExpr< MatrixProduct< SparseMatrix<T>, Expr2 > >(MatrixProduct< SparseMatrix<T>, Expr2 >(*this, m));
+    //     return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixProduct< SparseMatrix<T>, Expr2 > >(sofa::defaulttype::MatrixProduct< SparseMatrix<T>, Expr2 >(*this, m));
     // }
 
     template<class Real2>
-    MatrixExpr< MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > > operator+(const SparseMatrix<Real2>& m) const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > > operator+(const SparseMatrix<Real2>& m) const
     {
-        return MatrixExpr< MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > >(MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> >(*this, m));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > >(sofa::defaulttype::MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> >(*this, m));
     }
 
     // template<class Expr2>
-    // MatrixExpr< MatrixAddition< SparseMatrix<T>, Expr2 > > operator+(const MatrixExpr<Expr2>& m) const
+    // sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, Expr2 > > operator+(const sofa::defaulttype::MatrixExpr<Expr2>& m) const
     // {
-    //     return MatrixExpr< MatrixAddition< SparseMatrix<T>, Expr2 > >(MatrixAddition< SparseMatrix<T>, Expr2 >(*this, m));
+    //     return sofa::defaulttype::sofa::defaulttype::MatrixExpr< MatrixAddition< SparseMatrix<T>, Expr2 > >(sofa::defaulttype::MatrixAddition< SparseMatrix<T>, Expr2 >(*this, m));
     // }
 
     template<class Real2>
-    MatrixExpr< MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > > operator-(const SparseMatrix<Real2>& m) const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > > operator-(const SparseMatrix<Real2>& m) const
     {
-        return MatrixExpr< MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > >(MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> >(*this, m));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> > >(sofa::defaulttype::MatrixAddition< SparseMatrix<T>, SparseMatrix<Real2> >(*this, m));
     }
 
     // template<class Expr2>
-    // MatrixExpr< MatrixAddition< SparseMatrix<T>, Expr2 > > operator-(const MatrixExpr<Expr2>& m) const
+    // sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, Expr2 > > operator-(const sofa::defaulttype::MatrixExpr<Expr2>& m) const
     // {
-    //     return MatrixExpr< MatrixAddition< SparseMatrix<T>, Expr2 > >(MatrixAddition< SparseMatrix<T>, Expr2 >(*this, m));
+    //     return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixAddition< SparseMatrix<T>, Expr2 > >(sofa::defaulttype::MatrixAddition< SparseMatrix<T>, Expr2 >(*this, m));
     // }
 
     void swap(SparseMatrix<T>& m)
@@ -542,25 +542,25 @@ public:
     template<class Real2>
     void operator-=(const SparseMatrix<Real2>& m)
     {
-        equal(MatrixExpr< MatrixNegative< SparseMatrix<Real2> > >(MatrixNegative< SparseMatrix<Real2> >(m)), true);
+        equal(sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< SparseMatrix<Real2> > >(sofa::defaulttype::MatrixNegative< SparseMatrix<Real2> >(m)), true);
     }
 
     template<class Expr2>
-    void operator=(const MatrixExpr< Expr2 >& m)
+    void operator=(const sofa::defaulttype::MatrixExpr< Expr2 >& m)
     {
         equal(m, false);
     }
 
     template<class Expr2>
-    void operator+=(const MatrixExpr< Expr2 >& m)
+    void operator+=(const sofa::defaulttype::MatrixExpr< Expr2 >& m)
     {
         addEqual(m);
     }
 
     template<class Expr2>
-    void operator-=(const MatrixExpr< Expr2 >& m)
+    void operator-=(const sofa::defaulttype::MatrixExpr< Expr2 >& m)
     {
-        addEqual(MatrixExpr< MatrixNegative< Expr2 > >(MatrixNegative< Expr2 >(m)));
+        addEqual(sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< Expr2 > >(sofa::defaulttype::MatrixNegative< Expr2 >(m)));
     }
 
     static const char* Name();
@@ -569,28 +569,39 @@ public:
 template<> inline const char* SparseMatrix<double>::Name() { return "SparseMatrix"; }
 template<> inline const char* SparseMatrix<float>::Name() { return "SparseMatrixf"; }
 
+} // namespace linearsolver
+
+} // namespace component
+
+} // namespace sofa
+
+namespace sofa
+{
+
+namespace defaulttype
+{
 
 template<class R1, class R2>
-class MatrixProductOp<SparseMatrix<R1>, SparseMatrix<R2> >
+class MatrixProductOp<sofa::component::linearsolver::SparseMatrix<R1>, sofa::component::linearsolver::SparseMatrix<R2> >
 {
 public:
-    typedef SparseMatrix<R1> M1;
-    typedef SparseMatrix<R2> M2;
+    typedef sofa::component::linearsolver::SparseMatrix<R1> M1;
+    typedef sofa::component::linearsolver::SparseMatrix<R2> M2;
     typedef typename type_selector<(sizeof(R2)>sizeof(R1)),M1,M2>::T matrix_type;
     enum { category = matrix_type::category };
 
     template<class Dest>
-    void operator()(const SparseMatrix<R1>& m1, const SparseMatrix<R2>& m2, Dest* d)
+    void operator()(const sofa::component::linearsolver::SparseMatrix<R1>& m1, const sofa::component::linearsolver::SparseMatrix<R2>& m2, Dest* d)
     {
-        for (typename SparseMatrix<R1>::LineConstIterator itl = m1.begin(), itlend=m1.end(); itl!=itlend; ++itl)
+        for (typename sofa::component::linearsolver::SparseMatrix<R1>::LineConstIterator itl = m1.begin(), itlend=m1.end(); itl!=itlend; ++itl)
         {
             const int l1 = itl->first;
-            for (typename SparseMatrix<R1>::LElementConstIterator ite = itl->second.begin(), iteend=itl->second.end(); ite!=iteend; ++ite)
+            for (typename sofa::component::linearsolver::SparseMatrix<R1>::LElementConstIterator ite = itl->second.begin(), iteend=itl->second.end(); ite!=iteend; ++ite)
             {
                 const int c1 = ite->first;
                 R1 v = ite->second;
-                const typename SparseMatrix<R2>::Line& m2l = m2[c1];
-                for (typename SparseMatrix<R2>::LElementConstIterator ite2 = m2l.begin(), ite2end=m2l.end(); ite2!=ite2end; ++ite2)
+                const typename sofa::component::linearsolver::SparseMatrix<R2>::Line& m2l = m2[c1];
+                for (typename sofa::component::linearsolver::SparseMatrix<R2>::LElementConstIterator ite2 = m2l.begin(), ite2end=m2l.end(); ite2!=ite2end; ++ite2)
                 {
                     R2 v2 = ite2->second;
                     const int c2 = ite2->first;
@@ -608,9 +619,7 @@ public:
 #undef SPARSEMATRIX_VERBOSE
 #endif
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 

@@ -116,7 +116,7 @@ void LagrangeMultiplierInteraction<DataTypes1, DataTypes2>::addForce(
     const DataVecDeriv1& , const DataVecDeriv2& /*data_v2*/)
 {
     helper::WriteAccessor< DataVecDeriv1 > violation = data_violation;
-    using linearsolver::FullVector;
+    using defaulttype::FullVector;
 
     unsigned int count=0;
 

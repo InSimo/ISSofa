@@ -58,7 +58,7 @@ public:
     typedef core::behavior::ConstraintResolution ConstraintResolution;
     typedef std::function<void(ConstraintResolution*, int, double**, double*, double*, double *)> ConstraintResolutionFunctor;
 
-    sofa::component::linearsolver::FullVector<double> _d;
+    sofa::defaulttype::FullVector<double> _d;
 	std::vector<core::behavior::ConstraintResolution*> constraintsResolutions;
     bool   useInfiniteNorm; 
     bool   unbuilt;

@@ -311,9 +311,9 @@ protected:
     //operators
     sofa::component::linearsolver::SparseMatrix<int> d0;
     sofa::component::linearsolver::SparseMatrix<int> d1;
-    sofa::component::linearsolver::FullVector<double> star0;
-    sofa::component::linearsolver::FullVector<double> star1;
-    sofa::component::linearsolver::FullVector<double> star2;
+    sofa::defaulttype::FullVector<double> star0;
+    sofa::defaulttype::FullVector<double> star1;
+    sofa::defaulttype::FullVector<double> star2;
     sofa::component::linearsolver::SparseMatrix<double> curl;
     sofa::component::linearsolver::SparseMatrix<double> laplace;
     NEWMAT::Matrix m_d0;

@@ -50,7 +50,7 @@
 #ifdef SOFA_HAVE_CSPARSE
 #include <SofaSparseSolver/SparseCholeskySolver.h>
 #endif
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <SofaBaseLinearSolver/CholeskySolver.h>
 
 namespace sofa

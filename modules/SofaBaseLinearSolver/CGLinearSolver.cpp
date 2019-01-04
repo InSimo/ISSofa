@@ -73,22 +73,22 @@ SOFA_DECL_CLASS(CGLinearSolver)
 int CGLinearSolverClass = core::RegisterObject("Linear system solver using the conjugate gradient iterative algorithm")
         .add< CGLinearSolver< GraphScatteredMatrix, GraphScatteredVector > >(true)
 #ifndef SOFA_FLOAT
-        .add< CGLinearSolver< FullMatrix<double>, FullVector<double> > >()
-        .add< CGLinearSolver< SparseMatrix<double>, FullVector<double> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<double>, FullVector<double> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<2,2,double> >, FullVector<double> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<3,3,double> >, FullVector<double> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<4,4,double> >, FullVector<double> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<6,6,double> >, FullVector<double> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<8,8,double> >, FullVector<double> > >()
+        .add< CGLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<double>, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<2,2,double> >, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<3,3,double> >, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<4,4,double> >, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<6,6,double> >, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<8,8,double> >, sofa::defaulttype::FullVector<double> > >()
 #endif
 #ifndef SOFA_DOUBLE
-        .add< CGLinearSolver< CompressedRowSparseMatrix<float>, FullVector<float> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<2,2,float> >, FullVector<float> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<3,3,float> >, FullVector<float> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<4,4,float> >, FullVector<float> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<6,6,float> >, FullVector<float> > >()
-        .add< CGLinearSolver< CompressedRowSparseMatrix<Mat<8,8,float> >, FullVector<float> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<float>, sofa::defaulttype::FullVector<float> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<2,2,float> >, sofa::defaulttype::FullVector<float> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<3,3,float> >, sofa::defaulttype::FullVector<float> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<4,4,float> >, sofa::defaulttype::FullVector<float> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<6,6,float> >, sofa::defaulttype::FullVector<float> > >()
+        .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<Mat<8,8,float> >, sofa::defaulttype::FullVector<float> > >()
 #endif
         .addAlias("CGSolver")
         .addAlias("ConjugateGradient")
@@ -96,23 +96,23 @@ int CGLinearSolverClass = core::RegisterObject("Linear system solver using the c
 
 template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< GraphScatteredMatrix, GraphScatteredVector >;
 #ifndef SOFA_FLOAT
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< FullMatrix<double>, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< SparseMatrix<double>, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<double>, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<2u,2u,double> >, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<3u,3u,double> >, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<4u,4u,double> >, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<6u,6u,double> >, FullVector<double> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<8u,8u,double> >, FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<2u,2u,double> >, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3u,3u,double> >, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<4u,4u,double> >, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<6u,6u,double> >, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<8u,8u,double> >, sofa::defaulttype::FullVector<double> >;
 #endif
 
 #ifndef SOFA_DOUBLE
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<float>, FullVector<float> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<2u,2u,float> >, FullVector<float> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<3u,3u,float> >, FullVector<float> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<4u,4u,float> >, FullVector<float> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<6u,6u,float> >, FullVector<float> >;
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<8u,8u,float> >, FullVector<float> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<float>, sofa::defaulttype::FullVector<float> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<2u,2u,float> >, sofa::defaulttype::FullVector<float> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3u,3u,float> >, sofa::defaulttype::FullVector<float> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<4u,4u,float> >, sofa::defaulttype::FullVector<float> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<6u,6u,float> >, sofa::defaulttype::FullVector<float> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<8u,8u,float> >, sofa::defaulttype::FullVector<float> >;
 #endif
 } // namespace linearsolver
 

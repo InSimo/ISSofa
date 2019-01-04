@@ -94,23 +94,23 @@ inline void CGLinearSolver<component::linearsolver::GraphScatteredMatrix,compone
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_BASE_LINEAR_SOLVER)
 extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< GraphScatteredMatrix, GraphScatteredVector >;
 #ifndef SOFA_FLOAT
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< FullMatrix<double>, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< SparseMatrix<double>, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<double>, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<2,2,double> >, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<4,4,double> >, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<6,6,double> >, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<8,8,double> >, FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<2,2,double> >, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<4,4,double> >, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<6,6,double> >, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<8,8,double> >, sofa::defaulttype::FullVector<double> >;
 #endif
 
 #ifndef SOFA_DOUBLE
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<float>, FullVector<float> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<2,2,float> >, FullVector<float> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >, FullVector<float> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<4,4,float> >, FullVector<float> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<6,6,float> >, FullVector<float> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< CompressedRowSparseMatrix<defaulttype::Mat<8,8,float> >, FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<float>, sofa::defaulttype::FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<2,2,float> >, sofa::defaulttype::FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >, sofa::defaulttype::FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<4,4,float> >, sofa::defaulttype::FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<6,6,float> >, sofa::defaulttype::FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<8,8,float> >, sofa::defaulttype::FullVector<float> >;
 #endif
 #endif
 

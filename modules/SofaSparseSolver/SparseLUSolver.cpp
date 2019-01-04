@@ -34,7 +34,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <math.h>
 #include <sofa/helper/system/thread/CTime.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 
 namespace sofa
 {

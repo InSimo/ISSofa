@@ -39,16 +39,16 @@ namespace linearsolver
 SOFA_DECL_CLASS(SparseLDLSolver)
 
 int SparseLDLSolverClass = core::RegisterObject("Direct linear solver based on Sparse LDL^T factorization")
-        .add< SparseLDLSolver< CompressedRowSparseMatrix<double>,FullVector<double> > >()
-        .add< SparseLDLSolver< CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >,FullVector<double> > >(true)
-        .add< SparseLDLSolver< CompressedRowSparseMatrix<float>,FullVector<float> > >()
-        .add< SparseLDLSolver< CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >,FullVector<float> > >()
+        .add< SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix<double>,sofa::defaulttype::FullVector<double> > >()
+        .add< SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >,sofa::defaulttype::FullVector<double> > >(true)
+        .add< SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix<float>,sofa::defaulttype::FullVector<float> > >()
+        .add< SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >,sofa::defaulttype::FullVector<float> > >()
         ;
 
-template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix<double>,FullVector<double> >;
-template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix< defaulttype::Mat<3,3,double> >,FullVector<double> >;
-template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix<float>,FullVector<float> >;
-template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix< defaulttype::Mat<3,3,float> >,FullVector<float> >;
+template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix<double>,sofa::defaulttype::FullVector<double> >;
+template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix< defaulttype::Mat<3,3,double> >,sofa::defaulttype::FullVector<double> >;
+template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix<float>,sofa::defaulttype::FullVector<float> >;
+template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< sofa::defaulttype::CompressedRowSparseMatrix< defaulttype::Mat<3,3,float> >,sofa::defaulttype::FullVector<float> >;
 
 } // namespace linearsolver
 

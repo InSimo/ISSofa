@@ -31,7 +31,7 @@
 
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/defaulttype/VecTypes.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 
 #include <vector>
 #include <memory>
@@ -71,7 +71,7 @@ public:
     typedef defaulttype::Mat<N, N, Real> Mat;
     typedef defaulttype::Vec<N, Real> Vector;
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::component::linearsolver::CompressedRowSparseMatrix<MBloc> MatrixType;
+    typedef sofa::defaulttype::CompressedRowSparseMatrix<MBloc> MatrixType;
 
 protected:
     helper::vector<Coord> points;

@@ -27,7 +27,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/behavior/LinearSolver.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
-#include <SofaBaseLinearSolver/FullVector.h>
+#include <sofa/defaulttype/FullVector.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
 
 #include <sofa/defaulttype/Quat.h>
@@ -49,7 +49,7 @@ namespace component
 namespace constraintset
 {
 
-using linearsolver::FullVector;
+using sofa::defaulttype::FullVector;
 using linearsolver::FullMatrix;
 
 LMConstraintSolver::LMConstraintSolver()

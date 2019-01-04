@@ -25,9 +25,9 @@
 #ifndef SOFA_COMPONENT_LINEARSOLVER_DIAGONALMATRIX_H
 #define SOFA_COMPONENT_LINEARSOLVER_DIAGONALMATRIX_H
 
-#include "MatrixExpr.h"
-//#include "NewMatMatrix.h"
-#include <SofaBaseLinearSolver/matrix_bloc_traits.h>
+#include <sofa/defaulttype/FullVector.h>
+#include <sofa/defaulttype/MatrixExpr.h>
+#include <sofa/defaulttype/matrix_bloc_traits.h>
 
 namespace sofa
 {
@@ -52,7 +52,7 @@ public:
     enum { operand = 1 };
 
 protected:
-    FullVector<T> data;
+    sofa::defaulttype::FullVector<T> data;
 
 public:
 
@@ -180,9 +180,9 @@ public:
     }
 
     template<class Real2>
-    FullVector<Real2> operator*(const FullVector<Real2>& v) const
+    sofa::defaulttype::FullVector<Real2> operator*(const sofa::defaulttype::FullVector<Real2>& v) const
     {
-        FullVector<Real2> res;
+        sofa::defaulttype::FullVector<Real2> res;
         res.resize(rowSize());
         for (Index i=0; i<rowSize(); i++) res[i] = data[i] * v[i];
         return res;
@@ -194,7 +194,7 @@ public:
     }
 
     template<class Real2>
-    void mult(FullVector<Real2>& z,const FullVector<Real2>& v) const
+    void mult(sofa::defaulttype::FullVector<Real2>& z,const sofa::defaulttype::FullVector<Real2>& v) const
     {
         for (Index i=0; i<rowSize(); i++) z[i] = data[i] * v[i];
     }
@@ -275,45 +275,45 @@ public:
     template<class Real2>
     void operator-=(const DiagonalMatrix<Real2>& m)
     {
-        addEqual(MatrixExpr< MatrixNegative< DiagonalMatrix<Real2> > >(MatrixNegative< DiagonalMatrix<Real2> >(m)));
+        addEqual(sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< DiagonalMatrix<Real2> > >(sofa::defaulttype::MatrixNegative< DiagonalMatrix<Real2> >(m)));
     }
 
     template<class Expr2>
-    void operator=(const MatrixExpr< Expr2 >& m)
+    void operator=(const sofa::defaulttype::MatrixExpr< Expr2 >& m)
     {
         equal(m, false);
     }
 
     template<class Expr2>
-    void operator+=(const MatrixExpr< Expr2 >& m)
+    void operator+=(const sofa::defaulttype::MatrixExpr< Expr2 >& m)
     {
         addEqual(m);
     }
 
     template<class Expr2>
-    void operator-=(const MatrixExpr< Expr2 >& m)
+    void operator-=(const sofa::defaulttype::MatrixExpr< Expr2 >& m)
     {
-        addEqual(MatrixExpr< MatrixNegative< Expr2 > >(MatrixNegative< Expr2 >(m)));
+        addEqual(sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< Expr2 > >(sofa::defaulttype::MatrixNegative< Expr2 >(m)));
     }
 
-    MatrixExpr< MatrixTranspose< DiagonalMatrix<T> > > t() const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixTranspose< DiagonalMatrix<T> > > t() const
     {
-        return MatrixExpr< MatrixTranspose< DiagonalMatrix<T> > >(MatrixTranspose< DiagonalMatrix<T> >(*this));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixTranspose< DiagonalMatrix<T> > >(sofa::defaulttype::MatrixTranspose< DiagonalMatrix<T> >(*this));
     }
 
-    MatrixExpr< MatrixInverse< DiagonalMatrix<T> > > i() const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixInverse< DiagonalMatrix<T> > > i() const
     {
-        return MatrixExpr< MatrixInverse< DiagonalMatrix<T> > >(MatrixInverse< DiagonalMatrix<T> >(*this));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixInverse< DiagonalMatrix<T> > >(sofa::defaulttype::MatrixInverse< DiagonalMatrix<T> >(*this));
     }
 
-    MatrixExpr< MatrixNegative< DiagonalMatrix<T> > > operator-() const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< DiagonalMatrix<T> > > operator-() const
     {
-        return MatrixExpr< MatrixNegative< DiagonalMatrix<T> > >(MatrixNegative< DiagonalMatrix<T> >(*this));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixNegative< DiagonalMatrix<T> > >(sofa::defaulttype::MatrixNegative< DiagonalMatrix<T> >(*this));
     }
 
-    MatrixExpr< MatrixScale< DiagonalMatrix<T>, double > > operator*(const double& r) const
+    sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixScale< DiagonalMatrix<T>, double > > operator*(const double& r) const
     {
-        return MatrixExpr< MatrixScale< DiagonalMatrix<T>, double > >(MatrixScale< DiagonalMatrix<T>, double >(*this, r));
+        return sofa::defaulttype::MatrixExpr< sofa::defaulttype::MatrixScale< DiagonalMatrix<T>, double > >(sofa::defaulttype::MatrixScale< DiagonalMatrix<T>, double >(*this, r));
     }
 
     friend std::ostream& operator << (std::ostream& out, const DiagonalMatrix<T>& v )
@@ -328,6 +328,17 @@ public:
     static const char* Name() { return "DiagonalMatrix"; }
 };
 
+} // namespace linearsolver
+
+} // namespace component
+
+} // namespace sofa
+
+namespace sofa
+{
+
+namespace defaulttype
+{
 
 /// Simple full matrix container
 template<int LC, typename T = double>
@@ -337,7 +348,7 @@ public:
     SOFA_MATRIX_CLASS_UNIQUE((BlockDiagonalMatrix<LC,T>),((defaulttype::BaseMatrix)));
     typedef T Real;
     typedef defaulttype::Mat<LC,LC,Real> Bloc;
-    typedef matrix_bloc_traits<Bloc> traits;
+    typedef sofa::defaulttype::matrix_bloc_traits<Bloc> traits;
 
     enum { BSIZE = LC };
 
@@ -500,7 +511,7 @@ public:
     }
 
     template<class Real2>
-    void mul(FullVector<Real2>& res, const FullVector<Real2>& v) const
+    void mul(sofa::defaulttype::FullVector<Real2>& res, const sofa::defaulttype::FullVector<Real2>& v) const
     {
         res.resize(cSize);
         Index nblocs = cSize;
@@ -536,9 +547,9 @@ public:
     }
 
     template<class Real2>
-    FullVector<Real2> operator*(const FullVector<Real2>& v) const
+    sofa::defaulttype::FullVector<Real2> operator*(const sofa::defaulttype::FullVector<Real2>& v) const
     {
-        FullVector<Real2> res;
+        sofa::defaulttype::FullVector<Real2> res;
         mul(res, v);
         return res;
     }
@@ -567,7 +578,7 @@ typedef BlockDiagonalMatrix<12> BlockDiagonalMatrix12;
 // trivial product and inverse operations for diagonal matrices
 
 template<class R1, class M2>
-class MatrixProductOp<DiagonalMatrix<R1>, M2>
+class MatrixProductOp<sofa::component::linearsolver::DiagonalMatrix<R1>, M2>
 {
     typedef typename M2::Index Index;
 protected:
@@ -575,9 +586,9 @@ protected:
     class MyDest
     {
     public:
-        const DiagonalMatrix<R1>& m1;
+        const sofa::component::linearsolver::DiagonalMatrix<R1>& m1;
         Dest* d;
-        MyDest(const DiagonalMatrix<R1>& m1, Dest* d) : m1(m1), d(d) {}
+        MyDest(const sofa::component::linearsolver::DiagonalMatrix<R1>& m1, Dest* d) : m1(m1), d(d) {}
         void add(Index l, Index c, double v) { d->add(l,c,m1.element(l)*v); }
     };
 public:
@@ -585,7 +596,7 @@ public:
     enum { category = M2::category };
 
     template<class Dest>
-    void operator()(const DiagonalMatrix<R1>& m1, const M2& m2, Dest* d)
+    void operator()(const sofa::component::linearsolver::DiagonalMatrix<R1>& m1, const M2& m2, Dest* d)
     {
         MyDest<Dest> myd(m1,d);
         std::cout << "EXPR using diagonal pre-product: " << m1.expr() << " * " << m2.expr() << std::endl;
@@ -594,7 +605,7 @@ public:
 };
 
 template<class M1, class R2>
-class MatrixProductOp<M1, DiagonalMatrix<R2> >
+class MatrixProductOp<M1, sofa::component::linearsolver::DiagonalMatrix<R2> >
 {
     typedef typename M1::Index Index;
 protected:
@@ -602,9 +613,9 @@ protected:
     class MyDest
     {
     public:
-        const DiagonalMatrix<R2>& m2;
+        const sofa::component::linearsolver::DiagonalMatrix<R2>& m2;
         Dest* d;
-        MyDest(const DiagonalMatrix<R2>& m2, Dest* d) : m2(m2), d(d) {}
+        MyDest(const sofa::component::linearsolver::DiagonalMatrix<R2>& m2, Dest* d) : m2(m2), d(d) {}
         void add(Index l, Index c, double v) { d->add(l,c,v*m2.element(c)); }
     };
 public:
@@ -612,7 +623,7 @@ public:
     enum { category = M1::category };
 
     template<class Dest>
-    void operator()(const M1& m1, const DiagonalMatrix<R2>& m2, Dest* d)
+    void operator()(const M1& m1, const sofa::component::linearsolver::DiagonalMatrix<R2>& m2, Dest* d)
     {
         MyDest<Dest> myd(m2,d);
         std::cout << "EXPR using diagonal post-product: " << m1.expr() << " * " << m2.expr() << std::endl;
@@ -621,17 +632,17 @@ public:
 };
 
 template<class R1, class R2>
-class MatrixProductOp<DiagonalMatrix<R1>, DiagonalMatrix<R2> >
+class MatrixProductOp<sofa::component::linearsolver::DiagonalMatrix<R1>, sofa::component::linearsolver::DiagonalMatrix<R2> >
 {
 public:
-    typedef DiagonalMatrix<R1> M1;
-    typedef DiagonalMatrix<R2> M2;
+    typedef sofa::component::linearsolver::DiagonalMatrix<R1> M1;
+    typedef sofa::component::linearsolver::DiagonalMatrix<R2> M2;
     typedef typename M1::Index Index;
     typedef typename type_selector<(sizeof(R2)>sizeof(R1)),M1,M2>::T matrix_type;
     enum { category = matrix_type::category };
 
     template<class Dest>
-    void operator()(const DiagonalMatrix<R1>& m1, const DiagonalMatrix<R2>& m2, Dest* d)
+    void operator()(const sofa::component::linearsolver::DiagonalMatrix<R1>& m1, const sofa::component::linearsolver::DiagonalMatrix<R2>& m2, Dest* d)
     {
         Index n = m1.size();
         std::cout << "EXPR using diagonal product: " << m1.expr() << " * " << m2.expr() << std::endl;
@@ -641,15 +652,15 @@ public:
 };
 
 template<class R1>
-class MatrixInvertOp<DiagonalMatrix<R1> >
+class MatrixInvertOp<sofa::component::linearsolver::DiagonalMatrix<R1> >
 {
 public:
-    typedef DiagonalMatrix<R1> matrix_type;
+    typedef sofa::component::linearsolver::DiagonalMatrix<R1> matrix_type;
     typedef typename matrix_type::Index Index;
     enum { category = matrix_type::category };
 
     template<class Dest>
-    void operator()(const DiagonalMatrix<R1>& m1, Dest* d)
+    void operator()(const sofa::component::linearsolver::DiagonalMatrix<R1>& m1, Dest* d)
     {
         Index n = m1.size();
         for (Index i=0; i<n; ++i)
@@ -657,9 +668,7 @@ public:
     }
 };
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 

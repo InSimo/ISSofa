@@ -26,7 +26,7 @@
 //
 // Copyright: See COPYING file that comes with this distribution
 #include <SofaPreconditioner/SSORPreconditioner.inl>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <sofa/core/ObjectFactory.h>
 
 

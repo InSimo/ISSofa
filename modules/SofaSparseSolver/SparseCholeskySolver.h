@@ -30,7 +30,7 @@
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <sofa/SofaGeneral.h>
 #include <sofa/helper/map.h>
 #include <math.h>

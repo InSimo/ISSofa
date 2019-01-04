@@ -208,7 +208,7 @@ private:
 
     /// common built-unbuilt
     simulation::Node *context;
-    sofa::component::linearsolver::FullVector<double> *_dFree, *_result;
+    sofa::defaulttype::FullVector<double> *_dFree, *_result;
     ///
     sofa::helper::system::thread::CTime timer;
     sofa::helper::system::thread::CTime timerTotal;

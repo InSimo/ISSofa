@@ -28,7 +28,7 @@
 #include <sofa/core/Mapping.h>
 #include <sofa/core/objectmodel/DataFileName.h>
 
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #ifdef SOFA_HAVE_EIGEN2
 #include <SofaEigen2Solver/EigenSparseMatrix.h>
 #endif
@@ -94,7 +94,7 @@ public:
     typedef defaulttype::Mat<N, N, Real> Mat;
     typedef defaulttype::Vec<N, Real> Vector;
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::component::linearsolver::CompressedRowSparseMatrix<MBloc> MatrixType;
+    typedef sofa::defaulttype::CompressedRowSparseMatrix<MBloc> MatrixType;
 #ifdef SOFA_HAVE_EIGEN2
     typedef linearsolver::EigenSparseMatrix<In,Out>    SparseMatrixEigen;
 #endif

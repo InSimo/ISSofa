@@ -44,7 +44,7 @@ class SOFA_CONSTRAINT_API ConstraintProblem
 {
 public:
     sofa::component::linearsolver::LPtrFullMatrix<double> W;
-    sofa::component::linearsolver::FullVector<double> dFree, f;
+    sofa::defaulttype::FullVector<double> dFree, f;
 
     ConstraintProblem();
     virtual ~ConstraintProblem();

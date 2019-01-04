@@ -63,7 +63,7 @@ public:
     typedef typename DataTypes::MatrixDeriv::RowConstIterator MatrixDerivRowConstIterator;
     typedef typename DataTypes::MatrixDeriv::ColConstIterator MatrixDerivColConstIterator;
     typedef typename DataTypes::MatrixDeriv::RowIterator MatrixDerivRowIterator;
-    typedef typename DataTypes::MatrixDeriv::ColIterator MatrixDerivColIterator;
+    
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
 
@@ -139,7 +139,7 @@ protected:
     std::vector<sofa::core::behavior::LinearSolver*> linearsolvers;
 
     linearsolver::SparseMatrix<SReal> J; ///< constraint matrix
-    linearsolver::FullVector<SReal> F; ///< forces computed from the constraints
+    sofa::defaulttype::FullVector<SReal> F; ///< forces computed from the constraints
 #if 0 // refMinv is not use in normal case    
     linearsolver::FullMatrix<SReal> refMinv; ///< reference inverse matrix
 #endif

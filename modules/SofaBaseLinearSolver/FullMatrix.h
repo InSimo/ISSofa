@@ -26,7 +26,7 @@
 #define SOFA_COMPONENT_LINEARSOLVER_FULLMATRIX_H
 
 #include <sofa/defaulttype/BaseMatrix.h>
-#include "FullVector.h"
+#include <sofa/defaulttype/FullVector.h>
 
 #include <map>
 
@@ -52,7 +52,7 @@ public:
 
     typedef T Real;
     typedef typename defaulttype::BaseMatrix::Index Index;
-    typedef FullVector<Real> Line;
+    typedef sofa::defaulttype::FullVector<Real> Line;
 
     class LineConstIterator
     {
@@ -302,9 +302,9 @@ public:
     /// matrix-vector product
     /// @returns this * v
     template<class Real2>
-    FullVector<Real2> operator*( const FullVector<Real2>& v ) const
+    sofa::defaulttype::FullVector<Real2> operator*( const sofa::defaulttype::FullVector<Real2>& v ) const
     {
-        FullVector<Real2> res( rowSize() );
+        sofa::defaulttype::FullVector<Real2> res( rowSize() );
         mul( res, v );
         return res;
     }
@@ -312,7 +312,7 @@ public:
     /// matrix-vector product
     /// res = this * v
     template<class Real2>
-    void mul( FullVector<Real2>& res,const FullVector<Real2>& b ) const
+    void mul( sofa::defaulttype::FullVector<Real2>& res,const sofa::defaulttype::FullVector<Real2>& b ) const
     {
         for( Index i=0 ; i<nRow ; ++i )
         {
@@ -326,7 +326,7 @@ public:
     /// transposed matrix-vector product
     /// res = this^T * v
     template<class Real2>
-    void mulT( FullVector<Real2>& res, const FullVector<Real2>& b ) const
+    void mulT( sofa::defaulttype::FullVector<Real2>& res, const sofa::defaulttype::FullVector<Real2>& b ) const
     {
         for( Index i=0 ; i<nCol ; ++i )
         {

@@ -81,7 +81,7 @@ struct TestSparseMatrices : public Sofa_test<_Real>
 
     // Dense implementation
     typedef sofa::component::linearsolver::FullMatrix<Real> FullMatrix;
-    typedef sofa::component::linearsolver::FullVector<Real> FullVector;
+    typedef sofa::defaulttype::FullVector<Real> FullVector;
 
     // Simple sparse matrix implemented using map< map< > >
     typedef sofa::component::linearsolver::SparseMatrix<Real> MapMatrix;

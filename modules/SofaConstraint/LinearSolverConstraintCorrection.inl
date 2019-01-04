@@ -405,7 +405,7 @@ void LinearSolverConstraintCorrection<DataTypes>::applyContactForce(const defaul
     const unsigned int N = Deriv::size();
     const unsigned int numDOFReals = numDOFs*N;
     F.resize(numDOFReals);
-    const linearsolver::FullVector<Real>* fcast = linearsolver::FullVector<Real>::DynamicCast(f);
+    const defaulttype::FullVector<Real>* fcast = defaulttype::FullVector<Real>::DynamicCast(f);
     if (fcast)
         J.addMulTranspose(F, *fcast); // fast
     else

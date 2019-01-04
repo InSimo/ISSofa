@@ -84,7 +84,7 @@ typedef Eigen::SparseMatrix<SReal, Eigen::RowMajor> SparseMatrix;
 
 
 /// Dense state vector deriving from BaseVector, used to access data in the scene graph
-typedef component::linearsolver::FullVector<SReal> FullVector;
+typedef defaulttype::FullVector<SReal> FullVector;
 
 
 

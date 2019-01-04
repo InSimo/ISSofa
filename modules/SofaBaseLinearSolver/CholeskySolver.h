@@ -70,9 +70,9 @@ private :
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_BASE_LINEAR_SOLVER)
-extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< SparseMatrix<double>, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< FullMatrix<double>, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< FullMatrix<float>, FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< FullMatrix<float>, sofa::defaulttype::FullVector<float> >;
 #endif
 
 } // namespace linearsolver

@@ -29,7 +29,7 @@
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <sofa/helper/map.h>
 #include <math.h>
 #include <SofaSparseSolver/SparseLDLSolverImpl.h>
@@ -90,7 +90,7 @@ protected :
 
     helper::vector<int> Jlocal2global;
     FullMatrix<Real> JLinvDinv,JLinv;
-    sofa::component::linearsolver::CompressedRowSparseMatrix<Real> Mfiltered;
+    sofa::defaulttype::CompressedRowSparseMatrix<Real> Mfiltered;
 //    helper::vector<Real> line,res;
 };
 

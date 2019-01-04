@@ -31,7 +31,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <iostream>
 #include <sofa/core/objectmodel/BaseContext.h>
 #include <sofa/core/behavior/LinearSolver.h>
@@ -92,7 +92,7 @@ void SSORPreconditioner<TMatrix,TVector,TThreadManager>::solve (Matrix& M, Vecto
 }
 
 template<>
-void SSORPreconditioner<SparseMatrix<double>, FullVector<double> >::solve (Matrix& M, Vector& z, Vector& r)
+void SSORPreconditioner<SparseMatrix<double>, sofa::defaulttype::FullVector<double> >::solve (Matrix& M, Vector& z, Vector& r)
 {
     SSORPreconditionerInvertData * data = (SSORPreconditionerInvertData *) this->getMatrixInvertData(&M);
 
@@ -132,7 +132,7 @@ void SSORPreconditioner<SparseMatrix<double>, FullVector<double> >::solve (Matri
 }
 
 template<>
-void SSORPreconditioner<CompressedRowSparseMatrix<double>, FullVector<double> >::solve (Matrix& M, Vector& z, Vector& r)
+void SSORPreconditioner<sofa::defaulttype::CompressedRowSparseMatrix<double>, sofa::defaulttype::FullVector<double> >::solve (Matrix& M, Vector& z, Vector& r)
 {
     SSORPreconditionerInvertData * data = (SSORPreconditionerInvertData *) this->getMatrixInvertData(&M);
 
@@ -184,7 +184,7 @@ void SSORPreconditioner<CompressedRowSparseMatrix<double>, FullVector<double> >:
 #define typename
 //template<int B, class Real>
 template<>
-void SSORPreconditioner< CompressedRowSparseMatrix< defaulttype::Mat<B,B,Real> >, FullVector<Real> >::solve(Matrix& M, Vector& z, Vector& r)
+void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrix< defaulttype::Mat<B,B,Real> >, sofa::defaulttype::FullVector<Real> >::solve(Matrix& M, Vector& z, Vector& r)
 {
     SSORPreconditionerInvertData * data = (SSORPreconditionerInvertData *) this->getMatrixInvertData(&M);
 

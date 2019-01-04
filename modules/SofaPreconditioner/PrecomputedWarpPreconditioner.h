@@ -29,7 +29,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <SofaBaseLinearSolver/MatrixLinearSolver.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
 #include <sofa/helper/map.h>
 #include <math.h>
@@ -50,7 +50,7 @@ public :
     typedef typename TDataTypes::Coord Coord;
     typedef typename Coord::value_type Real;
     typedef FullMatrix<Real> TBaseMatrix;
-    typedef FullVector<Real> TBaseVector;
+    typedef sofa::defaulttype::FullVector<Real> TBaseVector;
 
     SparseMatrix<Real> JR;
     FullMatrix<Real> JRMinv;
@@ -94,11 +94,11 @@ public :
 
 /// Linear system solver based on a precomputed inverse matrix, wrapped by a per-node rotation matrix
 template<class TDataTypes>
-class PrecomputedWarpPreconditioner : public sofa::component::linearsolver::MatrixLinearSolver<CompressedRowSparseMatrix<typename TDataTypes::Real>,typename PrecomputedWarpPreconditionerInternalData<TDataTypes>::TBaseVector>
+class PrecomputedWarpPreconditioner : public sofa::component::linearsolver::MatrixLinearSolver<sofa::defaulttype::CompressedRowSparseMatrix<typename TDataTypes::Real>,typename PrecomputedWarpPreconditionerInternalData<TDataTypes>::TBaseVector>
 {
 public:
     typedef typename TDataTypes::Real Real;
-    typedef CompressedRowSparseMatrix<Real> TMatrix;
+    typedef sofa::defaulttype::CompressedRowSparseMatrix<Real> TMatrix;
     typedef typename PrecomputedWarpPreconditionerInternalData<TDataTypes>::TBaseVector TVector;
     typedef typename PrecomputedWarpPreconditionerInternalData<TDataTypes>::TBaseMatrix TBaseMatrix;
     typedef sofa::component::linearsolver::MatrixLinearSolver<TMatrix,TVector> Inherit;

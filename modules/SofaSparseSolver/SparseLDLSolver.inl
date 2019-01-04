@@ -36,7 +36,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <math.h>
 #include <sofa/helper/system/thread/CTime.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.inl>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.inl>
 #include <SofaConstraint/ConstraintSolverImpl.h>
 #include <sofa/helper/AdvancedTimer.h>
 

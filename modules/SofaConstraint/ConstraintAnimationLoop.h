@@ -201,7 +201,7 @@ class SOFA_CONSTRAINT_API ConstraintProblem
 {
 protected:
     sofa::component::linearsolver::LPtrFullMatrix<double> _W;
-    sofa::component::linearsolver::FullVector<double> _dFree, _force, _d, _df;              // cf. These Duriez + _df for scheme correction
+    sofa::defaulttype::FullVector<double> _dFree, _force, _d, _df;              // cf. These Duriez + _df for scheme correction
     std::vector<core::behavior::ConstraintResolution*> _constraintsResolutions;
     double _tol;
     int _dim;
@@ -215,10 +215,10 @@ public:
 
     inline int getSize(void) {return _dim;};
     inline sofa::component::linearsolver::LPtrFullMatrix<double>* getW(void) {return &_W;};
-    inline sofa::component::linearsolver::FullVector<double>* getDfree(void) {return &_dFree;};
-    inline sofa::component::linearsolver::FullVector<double>* getD(void) {return &_d;};
-    inline sofa::component::linearsolver::FullVector<double>* getF(void) {return &_force;};
-    inline sofa::component::linearsolver::FullVector<double>* getdF(void) {return &_df;};
+    inline sofa::defaulttype::FullVector<double>* getDfree(void) {return &_dFree;};
+    inline sofa::defaulttype::FullVector<double>* getD(void) {return &_d;};
+    inline sofa::defaulttype::FullVector<double>* getF(void) {return &_force;};
+    inline sofa::defaulttype::FullVector<double>* getdF(void) {return &_df;};
     inline std::vector<core::behavior::ConstraintResolution*>& getConstraintResolutions(void) {return _constraintsResolutions;};
     inline double *getTolerance(void) {return &_tol;};
 

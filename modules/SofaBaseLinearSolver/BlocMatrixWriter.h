@@ -28,7 +28,7 @@
 #include <sofa/SofaBase.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Mat.h>
-#include <SofaBaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 
 namespace sofa
 {
@@ -46,7 +46,7 @@ class BlocMatrixWriter
 {
 public:
     typedef TBloc Bloc;
-    typedef matrix_bloc_traits<Bloc> traits;
+    typedef sofa::defaulttype::matrix_bloc_traits<Bloc> traits;
     typedef typename traits::Real Real;
     enum { NL = traits::NL };
     enum { NC = traits::NC };
@@ -249,10 +249,10 @@ public:
     template<class MReal>
     class BlocCRSMatrixWriter
     {
-        sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m;
+        sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m;
         const unsigned int boffsetL, boffsetC;
     public:
-        BlocCRSMatrixWriter(sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
+        BlocCRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i0 = boffsetL + bi;
@@ -370,10 +370,10 @@ public:
     template<class MReal>
     class CRSMatrixWriter
     {
-        sofa::component::linearsolver::CompressedRowSparseMatrix<MReal>* m;
+        sofa::defaulttype::CompressedRowSparseMatrix<MReal>* m;
         const unsigned int offsetL, offsetC;
     public:
-        CRSMatrixWriter(sofa::component::linearsolver::CompressedRowSparseMatrix<MReal>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
+        CRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrix<MReal>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i0 = offsetL + bi*NL;
@@ -493,11 +493,11 @@ public:
         {
             unsigned int boffsetL = offsetL / NL;
             unsigned int boffsetC = offsetC / NC;
-            if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,double> > * mat = sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,double> >::DynamicCast(m))
+            if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,double> > * mat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,double> >::DynamicCast(m))
             {
                 dispatch(BlocCRSMatrixWriter<double>(mat, boffsetL, boffsetC));
             }
-            else if (sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,float> > * mat = sofa::component::linearsolver::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,float> >::DynamicCast(m))
+            else if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,float> > * mat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,float> >::DynamicCast(m))
             {
                 dispatch(BlocCRSMatrixWriter<float>(mat, boffsetL, boffsetC));
             }
@@ -508,11 +508,11 @@ public:
         }
         else
         {
-            if (sofa::component::linearsolver::CompressedRowSparseMatrix<double> * mat = sofa::component::linearsolver::CompressedRowSparseMatrix<double>::DynamicCast(m))
+            if (sofa::defaulttype::CompressedRowSparseMatrix<double> * mat = sofa::defaulttype::CompressedRowSparseMatrix<double>::DynamicCast(m))
             {
                 dispatch(CRSMatrixWriter<double>(mat, offsetL, offsetC));
             }
-            else if (sofa::component::linearsolver::CompressedRowSparseMatrix<float> * mat = sofa::component::linearsolver::CompressedRowSparseMatrix<float>::DynamicCast(m))
+            else if (sofa::defaulttype::CompressedRowSparseMatrix<float> * mat = sofa::defaulttype::CompressedRowSparseMatrix<float>::DynamicCast(m))
             {
                 dispatch(CRSMatrixWriter<float>(mat, offsetL, offsetC));
             }
