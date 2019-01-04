@@ -22,10 +22,10 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_INL
-#define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_INL
+#ifndef SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIXMECHANICAL_INL
+#define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIXMECHANICAL_INL
 
-#include "CompressedRowSparseMatrix.h"
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 namespace sofa
 {
@@ -34,7 +34,7 @@ namespace defaulttype
 {
 
 template <> template <>
-inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
+inline void CompressedRowSparseMatrixMechanical<double>::filterValues(CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -45,15 +45,17 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
     rowBegin.clear();
     colsIndex.clear();
     colsValue.clear();
-    compressed = true;
     btemp.clear();
+    skipCompressZero = true;
     rowIndex.reserve(M.rowIndex.size()*3);
     rowBegin.reserve(M.rowBegin.size()*3);
     colsIndex.reserve(M.colsIndex.size()*9);
     colsValue.reserve(M.colsValue.size()*9);
 
+    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.clear();
+
     Index vid = 0;
-    for (Index rowId = 0; rowId < (Index)M.rowIndex.size(); ++rowId)
+    for (std::size_t rowId = 0; rowId < M.rowIndex.size(); ++rowId)
     {
         Index i = M.rowIndex[rowId] * 3;
 
@@ -64,7 +66,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
             rowIndex.push_back(i+lb);
             rowBegin.push_back(vid);
 
-            for (Index xj = rowRange.begin(); xj < rowRange.end(); ++xj)
+            for (std::size_t xj = static_cast<std::size_t>(rowRange.begin()); xj < static_cast<std::size_t>(rowRange.end()); ++xj)
             {
                 Index j = M.colsIndex[xj] * 3;
                 defaulttype::Mat<3,3,double> b = M.colsValue[xj];
@@ -72,18 +74,21 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
                 {
                     colsIndex.push_back(j+0);
                     colsValue.push_back(b[lb][0]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+1,b[lb][1],ref))
                 {
                     colsIndex.push_back(j+1);
                     colsValue.push_back(b[lb][1]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+2,b[lb][2],ref))
                 {
                     colsIndex.push_back(j+2);
                     colsValue.push_back(b[lb][2]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
             }
@@ -99,7 +104,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
 }
 
 template <> template <>
-inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
+inline void CompressedRowSparseMatrixMechanical<double>::filterValues(CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -110,15 +115,17 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
     rowBegin.clear();
     colsIndex.clear();
     colsValue.clear();
-    compressed = true;
+    skipCompressZero = true;
     btemp.clear();
     rowIndex.reserve(M.rowIndex.size()*3);
     rowBegin.reserve(M.rowBegin.size()*3);
     colsIndex.reserve(M.colsIndex.size()*9);
     colsValue.reserve(M.colsValue.size()*9);
 
+    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.clear();
+
     Index vid = 0;
-    for (Index rowId = 0; rowId < (Index)M.rowIndex.size(); ++rowId)
+    for (std::size_t rowId = 0; rowId < M.rowIndex.size(); ++rowId)
     {
         Index i = M.rowIndex[rowId] * 3;
 
@@ -129,7 +136,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
             rowIndex.push_back(i+lb);
             rowBegin.push_back(vid);
 
-            for (Index xj = rowRange.begin(); xj < rowRange.end(); ++xj)
+            for (std::size_t xj = static_cast<std::size_t>(rowRange.begin()); xj < static_cast<std::size_t>(rowRange.end()); ++xj)
             {
                 Index j = M.colsIndex[xj] * 3;
                 defaulttype::Mat<3,3,double> b = M.colsValue[xj];
@@ -137,18 +144,21 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
                 {
                     colsIndex.push_back(j+0);
                     colsValue.push_back(b[lb][0]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+1,b[lb][1],ref))
                 {
                     colsIndex.push_back(j+1);
                     colsValue.push_back(b[lb][1]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+2,b[lb][2],ref))
                 {
                     colsIndex.push_back(j+2);
                     colsValue.push_back(b[lb][2]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
             }
@@ -164,7 +174,7 @@ inline void CompressedRowSparseMatrix<double>::filterValues(CompressedRowSparseM
 }
 
 template <> template <>
-inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
+inline void CompressedRowSparseMatrixMechanical<float>::filterValues(CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -175,15 +185,17 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
     rowBegin.clear();
     colsIndex.clear();
     colsValue.clear();
-    compressed = true;
+    skipCompressZero = true;
     btemp.clear();
     rowIndex.reserve(M.rowIndex.size()*3);
     rowBegin.reserve(M.rowBegin.size()*3);
     colsIndex.reserve(M.colsIndex.size()*9);
     colsValue.reserve(M.colsValue.size()*9);
 
+    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.clear();
+
     Index vid = 0;
-    for (Index rowId = 0; rowId < (Index)M.rowIndex.size(); ++rowId)
+    for (std::size_t rowId = 0; rowId < M.rowIndex.size(); ++rowId)
     {
         Index i = M.rowIndex[rowId] * 3;
 
@@ -194,7 +206,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
             rowIndex.push_back(i+lb);
             rowBegin.push_back(vid);
 
-            for (Index xj = rowRange.begin(); xj < rowRange.end(); ++xj)
+            for (std::size_t xj = static_cast<std::size_t>(rowRange.begin()); xj < static_cast<std::size_t>(rowRange.end()); ++xj)
             {
                 Index j = M.colsIndex[xj] * 3;
                 defaulttype::Mat<3,3,float> b = M.colsValue[xj];
@@ -202,18 +214,21 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
                 {
                     colsIndex.push_back(j+0);
                     colsValue.push_back(b[lb][0]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+1,b[lb][1],ref))
                 {
                     colsIndex.push_back(j+1);
                     colsValue.push_back(b[lb][1]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+2,b[lb][2],ref))
                 {
                     colsIndex.push_back(j+2);
                     colsValue.push_back(b[lb][2]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
             }
@@ -229,7 +244,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
 }
 
 template <> template <>
-inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
+inline void CompressedRowSparseMatrixMechanical<float>::filterValues(CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> >& M, filter_fn* filter, const Real ref, bool keepEmptyRows)
 {
     M.compress();
     nRow = M.rowSize();
@@ -240,15 +255,17 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
     rowBegin.clear();
     colsIndex.clear();
     colsValue.clear();
-    compressed = true;
+    skipCompressZero = true;
     btemp.clear();
     rowIndex.reserve(M.rowIndex.size()*3);
     rowBegin.reserve(M.rowBegin.size()*3);
     colsIndex.reserve(M.colsIndex.size()*9);
     colsValue.reserve(M.colsValue.size()*9);
 
+    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.clear();
+
     Index vid = 0;
-    for (Index rowId = 0; rowId < (Index)M.rowIndex.size(); ++rowId)
+    for (std::size_t rowId = 0; rowId < M.rowIndex.size(); ++rowId)
     {
         Index i = M.rowIndex[rowId] * 3;
 
@@ -259,7 +276,7 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
             rowIndex.push_back(i+lb);
             rowBegin.push_back(vid);
 
-            for (Index xj = rowRange.begin(); xj < rowRange.end(); ++xj)
+            for (std::size_t xj = static_cast<std::size_t>(rowRange.begin()); xj < static_cast<std::size_t>(rowRange.end()); ++xj)
             {
                 Index j = M.colsIndex[xj] * 3;
                 defaulttype::Mat<3,3,float> b = M.colsValue[xj];
@@ -267,18 +284,21 @@ inline void CompressedRowSparseMatrix<float>::filterValues(CompressedRowSparseMa
                 {
                     colsIndex.push_back(j+0);
                     colsValue.push_back(b[lb][0]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+1,b[lb][1],ref))
                 {
                     colsIndex.push_back(j+1);
                     colsValue.push_back(b[lb][1]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
                 if ((*filter)(i+lb,j+2,b[lb][2],ref))
                 {
                     colsIndex.push_back(j+2);
                     colsValue.push_back(b[lb][2]);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
                     ++vid;
                 }
             }

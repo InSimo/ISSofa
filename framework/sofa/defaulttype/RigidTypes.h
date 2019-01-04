@@ -386,6 +386,21 @@ public:
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
     static const char* Name() { return DataTypeName<RigidDeriv<N, T>>::name(); }
+
+    static std::size_t logBloc(const Bloc& b, FILE* file)
+    {
+        std::size_t count = 0;
+        for (int i=0; i<NC; ++i)
+            count += fwrite( &b[i], sizeof(Real), 1, file);
+        return count;
+    }
+    static std::size_t readBloc(Bloc& b, FILE* file)
+    {
+        std::size_t count = 0;
+        for (int i=0; i<NC; ++i)
+            count += fread( &b[i], sizeof(Real), 1, file);
+        return count;
+    }
 };
 
 template<typename real>

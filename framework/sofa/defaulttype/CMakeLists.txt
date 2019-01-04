@@ -6,6 +6,9 @@ set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
     BoundingBox.h
     CompressedRowSparseMatrix.h
+    CompressedRowSparseMatrixConstraint.h
+    CompressedRowSparseMatrixMechanical.h
+    CompressedRowSparseMatrixTraceLogger.h
 	DataTypeInfo.h	
 	EnumTypeInfo.h	
     DataMetadata.h
@@ -45,7 +48,7 @@ set(SOFADEFAULTTYPE_HEADERS
 set(SOFADEFAULTTYPE_SOURCES
 	AbstractTypeInfo.cpp
 	BoundingBox.cpp
-    CompressedRowSparseMatrix.inl
+    CompressedRowSparseMatrixMechanical.inl
 	Frame.cpp
     FullVector.inl
 	#RigidInertia.cpp

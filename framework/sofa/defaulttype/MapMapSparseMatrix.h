@@ -66,6 +66,27 @@ public:
         m_data.clear();
     }
 
+    /// Removes col j in all line
+    void clearColBloc(KeyType j)
+    {
+        auto rowIt = this->begin();
+        auto rowItEnd = this->end();
+        while (rowIt != rowItEnd)
+        {
+            rowIt.row().erase(j);
+            rowIt++;
+        }
+    }
+
+    /// Removes in line i if exist
+    void clearRowBloc(KeyType i)
+    {
+        m_data.erase(i);
+    }
+
+    /// Useless method for MapMap and CompressedRowSparse compatibily
+    void compress() {}
+
     /// @return true if the matrix is empty
     bool empty() const
     {
