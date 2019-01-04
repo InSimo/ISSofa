@@ -405,6 +405,29 @@ inline LaparoscopicRigid3Types::Deriv operator/(const LaparoscopicRigid3Types::D
     return res;
 }
 
+template <>
+class matrix_bloc_traits < LaparoscopicRigid3Types::Deriv >
+{
+public:
+    typedef LaparoscopicRigid3Types::Deriv Bloc;
+    typedef SReal Real;
+    enum { NL = 1 };
+    enum { NC = 4 };
+
+    static Real& v(Bloc& b, int /*row*/, int col) { return b[col]; }
+    static const Real& v(const Bloc& b, int /*row*/, int col) { return b[col]; }
+    static void clear(Bloc& b) { b.clear(); }
+    static bool empty(const Bloc& b)
+    {
+        for (int i=0; i<NC; ++i)
+            if (b[i] != 0) return false;
+        return true;
+    }
+
+    static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
+    static const char* Name() { return "LaparoscopicRigid3Types"; }
+};
+
 typedef LaparoscopicRigid3Types LaparoscopicRigidTypes; ///< Alias
 
 // Specialization of the defaulttype::DataTypeInfo type traits template

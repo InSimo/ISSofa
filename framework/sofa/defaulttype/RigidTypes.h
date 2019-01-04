@@ -30,6 +30,7 @@
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/defaulttype/StructTypeInfo.h>
+#include <sofa/defaulttype/matrix_bloc_traits.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/rmath.h>
 #include <sofa/helper/RandomGenerator.h>
@@ -358,6 +359,30 @@ Real dot(const RigidDeriv<N, Real>& a, const RigidDeriv<N, Real>& b)
 {
     return a*b;
 }
+
+template <int N, class T>
+class matrix_bloc_traits < RigidDeriv<N, T> >
+{
+public:
+    typedef RigidDeriv<N, T> Bloc;
+    typedef T Real;
+    enum { NL = 1 };
+    enum { NC = RigidDeriv<N, T>::total_size };
+
+    static const Real& v(const Bloc& b, int /*row*/, int col) { return b[col]; }
+    static void vset(Bloc& b, int /*row*/, int col, Real v) { b[col] = v; }
+    static void vadd(Bloc& b, int /*row*/, int col, Real v) { b[col] += v; }
+    static void clear(Bloc& b) { b.clear(); }
+    static bool empty(const Bloc& b)
+    {
+        for (int i=0; i<NC; ++i)
+            if (b[i] != 0) return false;
+        return true;
+    }
+
+    static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
+    static const char* Name() { return DataTypeName<RigidDeriv<N, T>>::name(); }
+};
 
 template<typename real>
 class RigidCoord<3,real>

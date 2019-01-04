@@ -247,6 +247,55 @@ public:
     static const char* Name() { return "f"; }
 };
 
+template <int N, class T>
+class matrix_bloc_traits < sofa::defaulttype::Vec<N, T> >
+{
+public:
+    typedef sofa::defaulttype::Vec<N, T> Bloc;
+    typedef T Real;
+    enum { NL = 1 };
+    enum { NC = N };
+
+    static const Real& v(const Bloc& b, int /*row*/, int col) { return b[col]; }
+    static void vset(Bloc& b, int /*row*/, int col, Real v) { b[col] = v; }
+    static void vadd(Bloc& b, int /*row*/, int col, Real v) { b[col] += v; }
+    static void clear(Bloc& b) { b.clear(); }
+    static bool empty(const Bloc& b)
+    {
+        for (int i=0; i<NC; ++i)
+            if (b[i] != 0) return false;
+        return true;
+    }
+
+    static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
+    static const char* Name();
+};
+
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<1, float > >::Name() { return "V1f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<1, double> >::Name() { return "V1d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<2, float > >::Name() { return "V2f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<2, double> >::Name() { return "V2d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<3, float > >::Name() { return "V3f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<3, double> >::Name() { return "V3d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<4, float > >::Name() { return "V4f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<4, double> >::Name() { return "V4d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<5, float > >::Name() { return "V5f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<5, double> >::Name() { return "V5d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<6, float > >::Name() { return "V6f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<6, double> >::Name() { return "V6d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<7, float > >::Name() { return "V7f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<7, double> >::Name() { return "V7d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<8, float > >::Name() { return "V8f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<8, double> >::Name() { return "V8d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<9, float > >::Name() { return "V9f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<9, double> >::Name() { return "V9d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<10, float > >::Name() { return "V10f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<10, double> >::Name() { return "V10d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<11, float > >::Name() { return "V11f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<11, double> >::Name() { return "V11d"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<12, float > >::Name() { return "V12f"; }
+template<> inline const char* matrix_bloc_traits<defaulttype::Vec<12, double> >::Name() { return "V12d"; }
+
 } // namespace defaulttype
 
 } // namespace sofa
