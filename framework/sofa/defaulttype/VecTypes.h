@@ -25,12 +25,18 @@
 #ifndef SOFA_DEFAULTTYPE_VECTYPES_H
 #define SOFA_DEFAULTTYPE_VECTYPES_H
 
+#include <sofa/SofaFramework.h>
+
 #include <sofa/defaulttype/Vec.h>
 
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/RandomGenerator.h>
+#ifndef SOFA_USECRSCONSTRAINT
 #include <sofa/defaulttype/MapMapSparseMatrix.h>
+#else
+#include <sofa/defaulttype/CompressedRowSparseMatrixConstraint.h>
+#endif
 #include <iostream>
 #include <algorithm>
 #include <memory>
@@ -66,7 +72,11 @@ public:
     static const DPos& getDPos(const Deriv& d) { return d; }
     static void setDPos(Deriv& d, const DPos& v) { d = v; }
 
+#ifndef SOFA_USECRSCONSTRAINT
     typedef MapMapSparseMatrix<Deriv> MatrixDeriv;
+#else
+    typedef CompressedRowSparseMatrixConstraint<Deriv> MatrixDeriv;
+#endif
 
     template<typename T>
     static void set(Coord& c, T x, T y, T z)
@@ -370,7 +380,11 @@ public:
     static const DPos& getDPos(const Deriv& d) { return d; }
     static void setDPos(Deriv& d, const DPos& v) { d = v; }
 
+#ifndef SOFA_USECRSCONSTRAINT
     typedef MapMapSparseMatrix<Deriv> MatrixDeriv;
+#else
+    typedef CompressedRowSparseMatrixConstraint<Deriv> MatrixDeriv;
+#endif
 
     template<typename T>
     static void set(Coord& c, T x, T y, T z)

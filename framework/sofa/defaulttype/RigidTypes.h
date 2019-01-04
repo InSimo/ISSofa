@@ -25,8 +25,14 @@
 #ifndef SOFA_DEFAULTTYPE_RIGIDTYPES_H
 #define SOFA_DEFAULTTYPE_RIGIDTYPES_H
 
+#include <sofa/SofaFramework.h>
+
 #include <sofa/defaulttype/Vec.h>
+#ifndef SOFA_USECRSCONSTRAINT
 #include <sofa/defaulttype/MapMapSparseMatrix.h>
+#else
+#include <sofa/defaulttype/CompressedRowSparseMatrixConstraint.h>
+#endif
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/defaulttype/StructTypeInfo.h>
@@ -287,7 +293,6 @@ public:
     {
         return vCenter != b.vCenter || vOrientation != b.vOrientation;
     }
-
     /// @}
 
     typedef real* iterator;
@@ -931,7 +936,11 @@ public:
     static const DRot& getDRot(const Deriv& d) { return getVOrientation(d); }
     static void setDRot(Deriv& d, const DRot& v) { getVOrientation(d) = v; }
 
+#ifndef SOFA_USECRSCONSTRAINT
     typedef MapMapSparseMatrix<Deriv> MatrixDeriv;
+#else
+    typedef CompressedRowSparseMatrixConstraint<Deriv> MatrixDeriv;
+#endif
 
     typedef helper::vector<Coord> VecCoord;
     typedef helper::vector<Deriv> VecDeriv;
@@ -1842,7 +1851,11 @@ public:
     typedef helper::vector<Deriv> VecDeriv;
     typedef helper::vector<Real> VecReal;
 
+#ifndef SOFA_USECRSCONSTRAINT
     typedef MapMapSparseMatrix<Deriv> MatrixDeriv;
+#else
+    typedef CompressedRowSparseMatrixConstraint<Deriv> MatrixDeriv;
+#endif
 
     template<typename T>
     static void set(Coord& c, T x, T y, T)

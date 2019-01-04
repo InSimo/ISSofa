@@ -25,7 +25,13 @@
 #ifndef SOFA_DEFAULTTYPE_LAPAROSCOPICRIGIDTYPES_H
 #define SOFA_DEFAULTTYPE_LAPAROSCOPICRIGIDTYPES_H
 
+#include <sofa/SofaFramework.h>
+
+#ifndef SOFA_USECRSCONSTRAINT
 #include <sofa/defaulttype/MapMapSparseMatrix.h>
+#else
+#include <sofa/defaulttype/CompressedRowSparseMatrixConstraint.h>
+#endif
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/helper/vector.h>
@@ -326,11 +332,15 @@ public:
     static const DRot& getDRot(const Deriv& d) { return d.getVOrientation(); }
     static void setDRot(Deriv& d, const DRot& v) { d.getVOrientation() = v; }
 
+#ifndef SOFA_USECRSCONSTRAINT
     typedef MapMapSparseMatrix<Deriv> MatrixDeriv;
+#else
+    typedef CompressedRowSparseMatrixConstraint<Deriv> MatrixDeriv;
+#endif
 
-    typedef vector<Coord> VecCoord;
-    typedef vector<Deriv> VecDeriv;
-    typedef vector<Real> VecReal;
+    typedef sofa::helper::vector<Coord> VecCoord;
+    typedef sofa::helper::vector<Deriv> VecDeriv;
+    typedef sofa::helper::vector<Real> VecReal;
 
     template<typename T>
     static void set(Coord& c, T x, T, T)
