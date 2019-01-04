@@ -345,7 +345,7 @@ public:
         return out;
     }
 
-//    static const char* Name() { return "FullVector"; }
+    static const char* Name() { return "FullVector"; }
 };
 
 template<> SOFA_DEFAULTTYPE_API void FullVector<bool>::set(Index i, SReal v);
