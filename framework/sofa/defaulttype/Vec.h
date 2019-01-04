@@ -48,6 +48,7 @@ class Vec : public helper::fixed_array<real,N>
 public:
     // Type inconsistency workaround, see Mat.h
     typedef int size_type;
+    typedef real Real;
 
     /// Compile-time constant specifying the number of scalars within this vector (equivalent to static_size and size() method)
     enum { total_size = N };
