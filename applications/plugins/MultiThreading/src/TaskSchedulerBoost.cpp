@@ -165,10 +165,9 @@ bool TaskScheduler::start(const unsigned int NbThread )
     mRootTaskStatus = nullptr;
     mHasWorkToDo    = false;
 
-    // only physical cores. no advantage from hyperthreading.
-    mThreadCount = GetHardwareThreadsCount() / 2;
+    mThreadCount = std::min<unsigned int>(GetHardwareThreadsCount(), MAX_THREADS);
 
-    if (NbThread > 0 && NbThread <= MAX_THREADS)
+    if (NbThread > 0 && NbThread <= mThreadCount)
     {
         mThreadCount = NbThread;
     }
