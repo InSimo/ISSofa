@@ -156,35 +156,35 @@ public:
             c2_it.addCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(cx, vZero));
 
             c1_it = c1.writeLine(self.cid[pid] + 1);
-            c1_it.setCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(-cy, vZero));
+            c1_it.addCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(-cy, vZero));
 
             c2_it = c2.writeLine(self.cid[pid] + 1);
-            c2_it.setCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(cy, vZero));
+            c2_it.addCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(cy, vZero));
 
             c1_it = c1.writeLine(self.cid[pid] + 2);
-            c1_it.setCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(-cz, vZero));
+            c1_it.addCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(-cz, vZero));
 
             c2_it = c2.writeLine(self.cid[pid] + 2);
-            c2_it.setCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(cz, vZero));
+            c2_it.addCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(cz, vZero));
 
             //Apply constraint for orientation
             c1_it = c1.writeLine(self.cid[pid] + 3);
-            c1_it.setCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(vZero, -cx));
+            c1_it.addCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(vZero, -cx));
 
             c2_it = c2.writeLine(self.cid[pid] + 3);
-            c2_it.setCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(vZero, cx));
+            c2_it.addCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(vZero, cx));
 
             c1_it = c1.writeLine(self.cid[pid] + 4);
-            c1_it.setCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(vZero, -cy));
+            c1_it.addCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(vZero, -cy));
 
             c2_it = c2.writeLine(self.cid[pid] + 4);
-            c2_it.setCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(vZero, cy));
+            c2_it.addCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(vZero, cy));
 
             c1_it = c1.writeLine(self.cid[pid] + 5);
-            c1_it.setCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(vZero, -cz));
+            c1_it.addCol(tm1, typename BilateralInteractionConstraint<T>::Deriv(vZero, -cz));
 
             c2_it = c2.writeLine(self.cid[pid] + 5);
-            c2_it.setCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(vZero, cz));
+            c2_it.addCol(tm2, typename BilateralInteractionConstraint<T>::Deriv(vZero, cz));
         }
 
         c1_d.endEdit();

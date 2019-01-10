@@ -357,6 +357,7 @@ public:
             *m_matrix->wbloc(m_rowIndex, id, true) += value;
         }
 
+        // TODO: this is wrong in case the returned bloc is within the uncompressed triplets
         void setCol(Index id, const Bloc& value)
         {
             SOFA_IF_CONSTEXPR (Policy::LogTrace) m_matrix->logCall(FnEnum::setCol, m_rowIndex, id, value);
@@ -430,7 +431,7 @@ public:
     /// @param lIndex row Index
     /// @param row constraint itself
     /// If lindex already exists, overwrite existing constraint
-    void writeLine(Index lIndex, RowType row)
+    void setLine(Index lIndex, RowType row)
     {
         if (readLine(lIndex) != this->end()) this->clearRowBloc(lIndex);
 

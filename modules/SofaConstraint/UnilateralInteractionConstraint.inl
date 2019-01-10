@@ -94,12 +94,12 @@ void UnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const cor
             if (c.mu > 0.0)
             {
                 c1_it = c1.writeLine(c.id + 1);
-                c1_it.setCol(c.m1, -c.t);
-                c1_it.setCol(c.m2, c.t);
+                c1_it.addCol(c.m1, -c.t);
+                c1_it.addCol(c.m2, c.t);
 
                 c1_it = c1.writeLine(c.id + 2);
-                c1_it.setCol(c.m1, -c.s);
-                c1_it.setCol(c.m2, c.s);
+                c1_it.addCol(c.m1, -c.s);
+                c1_it.addCol(c.m2, c.s);
 
                 contactId += 2;
             }
@@ -129,16 +129,16 @@ void UnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const cor
             if (c.mu > 0.0)
             {
                 c1_it = c1.writeLine(c.id + 1);
-                c1_it.setCol(c.m1, -c.t);
+                c1_it.addCol(c.m1, -c.t);
 
                 c1_it = c1.writeLine(c.id + 2);
-                c1_it.setCol(c.m1, -c.s);
+                c1_it.addCol(c.m1, -c.s);
 
                 c2_it = c2.writeLine(c.id + 1);
-                c2_it.setCol(c.m2, c.t);
+                c2_it.addCol(c.m2, c.t);
 
                 c2_it = c2.writeLine(c.id + 2);
-                c2_it.setCol(c.m2, c.s);
+                c2_it.addCol(c.m2, c.s);
 
                 contactId += 2;
             }

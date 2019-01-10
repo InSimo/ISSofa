@@ -736,7 +736,7 @@ public:
     /// @param lIndex row Index
     /// @param row constraint itself
     /// If lindex already exists, overwrite existing constraint
-    std::pair< RowIterator, bool > writeLine(KeyType lIndex, RowType row)
+    std::pair< RowIterator, bool > setLine(KeyType lIndex, RowType row)
     {
         RowIterator it(m_data.find(lIndex));
 

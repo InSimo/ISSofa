@@ -269,7 +269,7 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(
 
     while (rowIt != rowItEnd)
     {
-        constraintCopy.writeLine(rowIt.index(), rowIt.row());
+        constraintCopy.setLine(rowIt.index(), rowIt.row());
         ++rowIt;
     }
 
@@ -318,7 +318,7 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(
 
     while (rowIt != rowItEnd)
     {
-        constraints.writeLine(rowIt.index(), rowIt.row());
+        constraints.setLine(rowIt.index(), rowIt.row());
         ++rowIt;
     }
 }

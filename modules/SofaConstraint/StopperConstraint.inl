@@ -62,7 +62,7 @@ void StopperConstraint<DataTypes>::buildConstraintMatrix(const core::ConstraintP
     MatrixDeriv& c = *c_d.beginEdit();
 
     MatrixDerivRowIterator c_it = c.writeLine(cid);
-    c_it.setCol(index.getValue(), Coord(1));
+    c_it.addCol(index.getValue(), Coord(1));
 
     cIndex++;
     c_d.endEdit();

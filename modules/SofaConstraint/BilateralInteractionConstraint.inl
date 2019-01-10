@@ -208,16 +208,16 @@ void BilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const Cons
             c2_it.addCol(tm2, cx);
 
             c1_it = c1.writeLine(cid[pid] + 1);
-            c1_it.setCol(tm1, -cy);
+            c1_it.addCol(tm1, -cy);
 
             c2_it = c2.writeLine(cid[pid] + 1);
-            c2_it.setCol(tm2, cy);
+            c2_it.addCol(tm2, cy);
 
             c1_it = c1.writeLine(cid[pid] + 2);
-            c1_it.setCol(tm1, -cz);
+            c1_it.addCol(tm1, -cz);
 
             c2_it = c2.writeLine(cid[pid] + 2);
-            c2_it.setCol(tm2, cz);
+            c2_it.addCol(tm2, cz);
         }
     }
     else

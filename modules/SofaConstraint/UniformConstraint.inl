@@ -37,7 +37,7 @@ void UniformConstraint<DataTypes>::buildConstraintMatrix(const sofa::core::Const
             auto row = jacobian.writeLine(N*i + j + m_constraintIndex);
             Deriv d;
             d[j] = Real(1);
-            row.setCol(i, d);
+            row.addCol(i, d);
             ++cIndex;
         }
     }

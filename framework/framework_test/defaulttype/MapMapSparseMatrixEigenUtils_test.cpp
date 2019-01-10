@@ -169,7 +169,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkConversionMapMapSparseVec1dEigenSpar
             ++it;
         }
 
-        mat.writeLine(row).setCol(col,vec);
+        mat.writeLine(row).addCol(col,vec);
     }
 
     EigenSparseMatrix eigenMat = mapmapSparseToEigenSparse(mat, 5);
@@ -218,7 +218,7 @@ TEST(MapMapSparseMatrixEigenUtilsTest, checkConversionMapMapSparseVec3dEigenSpar
             ++it;
         }
 
-        mat.writeLine(row).setCol(col, vec);
+        mat.writeLine(row).addCol(col, vec);
     }
 
     EigenSparseMatrix eigenMat = mapmapSparseToEigenSparse(mat, 12);
