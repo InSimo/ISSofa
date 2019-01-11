@@ -207,7 +207,11 @@ public:
     {
         return helper::rsqrt( vCenter*vCenter + vOrientation*vOrientation);
     }
-    
+
+    real norm2() const
+    {
+        return vCenter*vCenter + vOrientation*vOrientation;
+    }
 
     Vec3& getVCenter() { return vCenter; }
     Vec3& getVOrientation() { return vOrientation; }
