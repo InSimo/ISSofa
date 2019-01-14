@@ -140,6 +140,20 @@ public:
             else       return this->vOrientation(i-1);
         }
 
+        /// @name Tests operators
+        /// @{
+
+        bool operator==(const Deriv& b) const
+        {
+            return this->vTranslation == b.vTranslation && this->vOrientation == b.vOrientation;
+        }
+
+        bool operator!=(const Deriv& b) const
+        {
+            return this->vTranslation != b.vTranslation || this->vOrientation != b.vOrientation;
+        }
+        /// @}
+
         typedef Real* iterator;
         typedef const Real* const_iterator;
         iterator begin() { return ptr(); }
