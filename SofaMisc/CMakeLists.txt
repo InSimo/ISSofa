@@ -22,9 +22,9 @@ set(SOFAMISC_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(SOFAMISC_BUILD_CMAKE_DIR   ${CMAKE_BINARY_DIR}/SofaMisc)
 
 # Offer the user the choice of overriding the installation directories
-set(SOFAMISC_INSTALL_LIB_DIR     lib     					  CACHE PATH "Installation directory for libraries")
-set(SOFAMISC_INSTALL_BIN_DIR     bin     					  CACHE PATH "Installation directory for executables")
-set(SOFAMISC_INSTALL_INCLUDE_DIR include 					  CACHE PATH "Installation directory for header files")
+set(SOFAMISC_INSTALL_LIB_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(SOFAMISC_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for executables")
+set(SOFAMISC_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for header files")
 set(SOFAMISC_INSTALL_CMAKE_DIR   ${SOFAMISC_INSTALL_LIB_DIR}/cmake/SofaMisc)
 
 ## SofaMisc dependencies

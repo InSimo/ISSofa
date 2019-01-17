@@ -22,9 +22,9 @@ set(SOFAGENERAL_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(SOFAGENERAL_BUILD_CMAKE_DIR   ${CMAKE_BINARY_DIR}/SofaGeneral)
 
 # Offer the user the choice of overriding the installation directories
-set(SOFAGENERAL_INSTALL_LIB_DIR     lib                     CACHE PATH "Installation directory for libraries")
-set(SOFAGENERAL_INSTALL_BIN_DIR     bin                     CACHE PATH "Installation directory for executables")
-set(SOFAGENERAL_INSTALL_INCLUDE_DIR include                 CACHE PATH "Installation directory for header files")
+set(SOFAGENERAL_INSTALL_LIB_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(SOFAGENERAL_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for executables")
+set(SOFAGENERAL_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for header files")
 set(SOFAGENERAL_INSTALL_CMAKE_DIR   ${SOFAGENERAL_INSTALL_LIB_DIR}/cmake/SofaGeneral )
 
 ## SofaGeneral dependencies

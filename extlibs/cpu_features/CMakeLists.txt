@@ -8,9 +8,9 @@ set(CPU_FEATURES_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CPU_FEATURES_BUILD_CMAKE_DIR ${CMAKE_BINARY_DIR}/cpu_features/)
 
 # Offer the user the choice of overriding the installation directories
-set(CPU_FEATURES_INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
-set(CPU_FEATURES_INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
-set(CPU_FEATURES_INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(CPU_FEATURES_INSTALL_LIB_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries")
+set(CPU_FEATURES_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for executables")
+set(CPU_FEATURES_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for header files")
 set(CPU_FEATURES_INSTALL_CMAKE_DIR   ${CPU_FEATURES_INSTALL_LIB_DIR}/cmake/cpu_features)
 
 # BUILD_TESTING is a standard CMake variable, but we declare it here to make it

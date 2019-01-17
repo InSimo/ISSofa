@@ -13,10 +13,10 @@ set(QWT_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(QWT_BUILD_CMAKE_DIR ${CMAKE_BINARY_DIR}/Qwt/)
 
 # Offer the user the choice of overriding the installation directories
-set(QWT_INSTALL_LIB_DIR     lib                 CACHE PATH "Installation directory for libraries")
-set(QWT_INSTALL_BIN_DIR     bin                 CACHE PATH "Installation directory for executables")
-set(QWT_INSTALL_INCLUDE_DIR include             CACHE PATH "Installation directory for header files")
-set(QWT_INSTALL_CMAKE_DIR   lib/cmake/Qwt   CACHE PATH "Installation directory for CMake files")
+set(QWT_INSTALL_LIB_DIR     ${CMAKE_INSTALL_LIBDIR}          CACHE PATH "Installation directory for libraries")
+set(QWT_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}          CACHE PATH "Installation directory for executables")
+set(QWT_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}      CACHE PATH "Installation directory for header files")
+set(QWT_INSTALL_CMAKE_DIR   ${QWT_INSTALL_LIB_DIR}/cmake/Qwt CACHE PATH "Installation directory for CMake files")
 
 file(GLOB HEADER_FILES qwt_*.h)
 

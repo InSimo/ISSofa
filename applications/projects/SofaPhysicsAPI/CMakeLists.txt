@@ -18,9 +18,9 @@ set(SOFAPHYSICSAPI_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(SOFAPHYSICSAPI_BUILD_CMAKE_DIR   ${CMAKE_BINARY_DIR}/SofaPhysicsAPI)
 
 # Offer the user the choice of overriding the installation directories
-set(SOFAPHYSICSAPI_INSTALL_LIB_DIR     lib                      CACHE PATH "Installation directory for libraries relative to CMAKE_INSTALL_PREFIX variable")
-set(SOFAPHYSICSAPI_INSTALL_BIN_DIR     bin                      CACHE PATH "Installation directory for executables relative to CMAKE_INSTALL_PREFIX variable")
-set(SOFAPHYSICSAPI_INSTALL_INCLUDE_DIR include                  CACHE PATH "Installation directory for header files relative to CMAKE_INSTALL_PREFIX variable")
+set(SOFAPHYSICSAPI_INSTALL_LIB_DIR     ${CMAKE_INSTALL_LIBDIR}     CACHE PATH "Installation directory for libraries relative to CMAKE_INSTALL_PREFIX variable")
+set(SOFAPHYSICSAPI_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for executables relative to CMAKE_INSTALL_PREFIX variable")
+set(SOFAPHYSICSAPI_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for header files relative to CMAKE_INSTALL_PREFIX variable")
 set(SOFAPHYSICSAPI_INSTALL_CMAKE_DIR   ${SOFAPHYSICSAPI_INSTALL_LIB_DIR}/cmake/SofaPhysicsAPI)
 
 set(HEADER_FILES
