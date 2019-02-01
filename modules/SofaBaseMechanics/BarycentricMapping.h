@@ -132,9 +132,8 @@ protected:
 
     void addMatrixContrib(MatrixType* m, int row, int col, Real value)
     {
-        MBloc* b = m->wbloc(row, col, true); // get write access to a matrix bloc, creating it if not found
         for (int i=0; i < ((int)NIn < (int)NOut ? (int)NIn : (int)NOut); ++i)
-            (*b)[i][i] += value;
+            m->add(row + i, col + i,value);
     }
 
 public:

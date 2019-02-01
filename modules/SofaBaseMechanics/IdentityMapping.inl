@@ -280,10 +280,11 @@ const sofa::defaulttype::BaseMatrix* IdentityMapping<TIn, TOut>::getJ()
             matrixJ->clear();
         }
 
+        MBloc tempBloc;
+        IdentityMappingMatrixHelper<NOut, NIn, Real>::setMatrix(tempBloc);
         for(unsigned i = 0; i < outStateSize; i++)
         {
-            MBloc& block = *matrixJ->wbloc(i, i, true);
-            IdentityMappingMatrixHelper<NOut, NIn, Real>::setMatrix(block);
+            matrixJ->setBloc(i, i, tempBloc);
         }
     }
     return matrixJ.get();

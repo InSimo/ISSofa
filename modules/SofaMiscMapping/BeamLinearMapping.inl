@@ -335,14 +335,15 @@ const sofa::defaulttype::BaseMatrix* BeamLinearMapping<TIn, TOut>::getJ()
 //	        Deriv omega1 = getVOrientation(in[in1]);
 //	        Deriv out1 = getVCenter(in[in1]) - cross(rotatedPoints1[i], omega1);
 
+            MBloc tempBloc;
+
             Coord rotatedPoint0 = rotatedPoints0[outIdx] * (1-fact);
-            MBloc& block0 = *matrixJ->wbloc(outIdx, in0, true);
-            RigidMappingMatrixHelper<N, Real>::setMatrix(block0, rotatedPoint0);
+            RigidMappingMatrixHelper<N, Real>::setMatrix(tempBloc, rotatedPoint0);
+            matrixJ->setBloc(outIdx, in0, tempBloc);
 
             Coord rotatedPoint1 = rotatedPoints1[outIdx] * fact;
-            MBloc& block1 = *matrixJ->wbloc(outIdx, in1, true);
-            RigidMappingMatrixHelper<N, Real>::setMatrix(block1, rotatedPoint1);
-
+            RigidMappingMatrixHelper<N, Real>::setMatrix(tempBloc, rotatedPoint1);
+            matrixJ->setBloc(outIdx, in1, tempBloc);
         }
     }
     return matrixJ.get();

@@ -1092,8 +1092,9 @@ template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::setJMatrixBlock(unsigned outIdx, unsigned inIdx)
 {
     //    cerr<<"RigidMapping<TIn, TOut>::setJMatrixBlock, outIdx = " << outIdx << ", inIdx = " << inIdx << endl;
-    MBloc& block = *matrixJ->wbloc(outIdx, inIdx, true);
-    RigidMappingMatrixHelper<N, Real>::setMatrix(block, rotatedPoints[outIdx]);
+    MBloc tempBloc;
+    RigidMappingMatrixHelper<N, Real>::setMatrix(tempBloc, rotatedPoints[outIdx]);
+    matrixJ->setBloc(outIdx, inIdx, tempBloc);
 }
 
 template <class TIn, class TOut>

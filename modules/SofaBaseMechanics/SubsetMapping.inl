@@ -375,8 +375,9 @@ const sofa::defaulttype::BaseMatrix* SubsetMapping<TIn, TOut>::getJ()
         {
             if(indices[i] < fromSize)
             {
-                MBloc& block = *matrixJ->wbloc(i, indices[i], true);
-                block.identity();
+                MBloc tempbloc;
+                tempbloc.identity();
+                matrixJ->setBloc(i, indices[i], tempbloc);
             }
         }
     }
