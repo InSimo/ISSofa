@@ -828,8 +828,8 @@ public:
         assert(nbRow >= nCol && nbCol >= nCol);
         nRow = nbRow;
         nCol = nbCol;
-        nBlocRow = nbRow;
-        nBlocCol = nbCol;
+        nBlocRow = (nbRow + NL-1) / NL;
+        nBlocCol = (nbCol + NC-1) / NC;
     }
 
     SReal element(Index i, Index j) const
