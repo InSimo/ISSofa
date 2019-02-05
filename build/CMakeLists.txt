@@ -6,6 +6,7 @@ project(${SOLUTION_NAME})
 get_filename_component(SOFA_ACTUAL_SOURCE_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
 
 # Environment
+include(GNUInstallDirs)
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 set(SOFA_CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 list(APPEND CMAKE_MODULE_PATH "${SOFA_CMAKE_DIR}")
@@ -23,6 +24,9 @@ file(RELATIVE_PATH SOFA_SOURCE_PATH_RELATIVE_TO_ENV ${SOFA_ENV_DIR} ${SOFA_ACTUA
 set(SOFA_DATA_PATH_ENV "${SOFA_SOURCE_PATH_RELATIVE_TO_ENV}/examples" "${SOFA_SOURCE_PATH_RELATIVE_TO_ENV}/share" CACHE LIST "A list (semicolon separated) of sofa data paths to write in sofa.env file. They should be relative to the SOFA_ENV_DIR directory (CMAKE_BINARY_DIR by default).")
 set(SOFA_PLUGIN_PATH_ENV CACHE LIST "A list (semicolon separated) of sofa data paths to write in sofa.env file. They should be relative to the SOFA_ENV_DIR directory (CMAKE_BINARY_DIR by default).")
 set(SOFA_PRELOAD_ENV CACHE LIST "A list (semicolon separated) of preloaded sofa plugins to write in sofa.env file.")
+
+# Offer the user the choice of overriding the installation directories
+set(SOFA_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Installation directory for executables relative to CMAKE_INSTALL_PREFIX variable")
 
 # Forced options
 set(SOFAFRAMEWORK_DETECTIONOUTPUT_BARYCENTRICINFO ON CACHE BOOL "Activate DETECTIONOUTPUT_BARYCENTRICINFO option" FORCE)
@@ -107,7 +111,7 @@ SOFA_PRELOAD=$<JOIN:$<TARGET_PROPERTY:SofaHelper,SOFA_PRELOAD>,\nSOFA_PRELOAD=>\
 SOFA_PRELOAD=$<JOIN:$<TARGET_PROPERTY:SofaHelper,SOFA_PRELOAD>,\nSOFA_PRELOAD=>\n"
         )
     install(FILES ${SOFA_ENV_DIR}/sofa-install.env
-            DESTINATION ${DEFAULT_BIN_INSTALL}
+            DESTINATION ${SOFA_INSTALL_BIN_DIR}
             RENAME sofa.env)
 endif()
 
