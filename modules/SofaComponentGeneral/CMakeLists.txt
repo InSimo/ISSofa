@@ -4,11 +4,15 @@ project(SofaComponentGeneral)
 set(HEADER_FILES
 
     initComponentGeneral.h
+    initPlugin.h
+
     )
 
 set(SOURCE_FILES
 
     initComponentGeneral.cpp
+    initPlugin.cpp
+
     )
 
 

@@ -4,12 +4,14 @@ project(SofaComponentMisc)
 set(HEADER_FILES
 
     initComponentMisc.h
+    initPlugin.h
 
     )
 
 set(SOURCE_FILES
 
     initComponentMisc.cpp
+    initPlugin.cpp
 
     )
 
