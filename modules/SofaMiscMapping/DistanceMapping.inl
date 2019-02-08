@@ -138,7 +138,16 @@ void DistanceMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*
         computeCoordPositionDifference( gap, in[links[i][0]], in[links[i][1]] );
 
         Real gapNorm = gap.norm();
-        out[i] = gapNorm - restLengths[i];  // output
+        if(gap.size() == 1)
+        {
+            out[i] = gap[0] - restLengths[i];  // output
+        }
+        else
+        {
+            out[i] = gapNorm - restLengths[i];  // output
+        }
+        
+        
 
         // normalize
         if( gapNorm>s_null_distance_epsilon )

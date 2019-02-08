@@ -49,10 +49,12 @@ int DistanceMappingClass = core::RegisterObject("Compute edge extensions")
 #ifndef SOFA_FLOAT
         .add< DistanceMapping< Vec3dTypes, Vec1dTypes > >()
         .add< DistanceMapping< Rigid3dTypes, Vec1dTypes > >()
+        .add< DistanceMapping< Vec1dTypes, Vec1dTypes > >()
 #endif
 #ifndef SOFA_DOUBLE
         .add< DistanceMapping< Vec3fTypes, Vec1fTypes > >()
         .add< DistanceMapping< Rigid3fTypes, Vec1fTypes > >()
+        .add< DistanceMapping< Vec1fTypes, Vec1fTypes > >()
 #endif
         ;
 int DistanceMultiMappingClass = core::RegisterObject("Compute edge extensions")
@@ -66,9 +68,17 @@ int DistanceMultiMappingClass = core::RegisterObject("Compute edge extensions")
 #endif
         ;
 
+
+template <>
+void DistanceMapping< Vec1dTypes, Vec1dTypes >::draw(const core::visual::VisualParams* vparams){}
+
+template <>
+void DistanceMapping< Vec1fTypes, Vec1fTypes >::draw(const core::visual::VisualParams* vparams){}
+
 #ifndef SOFA_FLOAT
 template class SOFA_MISC_MAPPING_API DistanceMapping< Vec3dTypes, Vec1dTypes >;
 template class SOFA_MISC_MAPPING_API DistanceMapping< Rigid3dTypes, Vec1dTypes >;
+template class SOFA_MISC_MAPPING_API DistanceMapping< Vec1dTypes, Vec1dTypes >;
 template class SOFA_MISC_MAPPING_API DistanceMultiMapping< Vec3dTypes, Vec1dTypes >;
 template class SOFA_MISC_MAPPING_API DistanceMultiMapping< Rigid3dTypes, Vec1dTypes >;
 #endif
@@ -76,6 +86,7 @@ template class SOFA_MISC_MAPPING_API DistanceMultiMapping< Rigid3dTypes, Vec1dTy
 #ifndef SOFA_DOUBLE
 template class SOFA_MISC_MAPPING_API DistanceMapping< Vec3fTypes, Vec1fTypes >;
 template class SOFA_MISC_MAPPING_API DistanceMapping< Rigid3fTypes, Vec1fTypes >;
+template class SOFA_MISC_MAPPING_API DistanceMapping< Vec1fTypes, Vec1fTypes >;
 template class SOFA_MISC_MAPPING_API DistanceMultiMapping< Vec3fTypes, Vec1fTypes >;
 template class SOFA_MISC_MAPPING_API DistanceMultiMapping< Rigid3fTypes, Vec1fTypes >;
 #endif
