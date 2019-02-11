@@ -173,12 +173,35 @@ void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points, cons
 void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points, const sofa::helper::vector< defaulttype::Vec<3,int> > &index,
         const sofa::helper::vector<Vector3> &normal, const Vec<4,float> colour=Vec<4,float>(1.0f,1.0f,1.0f,1.0f))
 {
+    const std::size_t nbTriangles=index.size();
+    if (nbTriangles == 0) return;
+    const std::size_t nbVertices=points.size();
+    bool triangleNormals = (normal.size() == nbTriangles);
+    bool vertexNormals = (normal.size() == nbVertices);
     setMaterial(colour);
     glBegin(GL_TRIANGLES);
     {
         for (unsigned int i=0; i<index.size(); ++i)
         {
-            drawTriangle(points[ index[i][0] ],points[ index[i][1] ],points[ index[i][2] ],normal[i],colour);
+            if (triangleNormals)
+            {
+                drawTriangle(points[ index[i][0] ],points[ index[i][1] ],points[ index[i][2] ],normal[i],colour);
+            }
+            else if (vertexNormals)
+            {
+                drawTriangle(points[ index[i][0] ],points[ index[i][1] ],points[ index[i][2] ],
+                        normal[ index[i][0] ],normal[ index[i][1] ],normal[ index[i][2] ],
+                        colour,colour,colour);
+            }
+            else
+            {
+                const Vector3& a = points[ index[i][0] ];
+                const Vector3& b = points[ index[i][1] ];
+                const Vector3& c = points[ index[i][2] ];
+                Vector3 n = cross((b-a),(c-a));
+                n.normalize();
+                drawTriangle(a,b,c,n,colour);
+            }
         }
     } glEnd();
     resetMaterial(colour);
@@ -190,8 +213,10 @@ void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points,
         const sofa::helper::vector<Vector3> &normal, const sofa::helper::vector< Vec<4,float> > &colour)
 {
     const std::size_t nbTriangles=points.size()/3;
-    bool computeNormals= (normal.size() != nbTriangles);
     if (nbTriangles == 0) return;
+    const std::size_t nbVertices=points.size();
+    bool triangleNormals = (normal.size() == nbTriangles);
+    bool vertexNormals = (normal.size() == nbVertices);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
     setMaterial(colour[0]);
@@ -199,9 +224,15 @@ void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points,
     {
         for (std::size_t i=0; i<nbTriangles; ++i)
         {
-            if (!computeNormals)
+            if (triangleNormals)
             {
                 drawTriangle(points[3*i+0],points[3*i+1],points[3*i+2],normal[i],
+                        colour[3*i+0],colour[3*i+1],colour[3*i+2]);
+            }
+            else if (vertexNormals)
+            {
+                drawTriangle(points[3*i+0],points[3*i+1],points[3*i+2],
+                        normal[3*i+0],normal[3*i+1],normal[3*i+2],
                         colour[3*i+0],colour[3*i+1],colour[3*i+2]);
             }
             else
@@ -211,10 +242,8 @@ void DrawToolGL::drawTriangles(const sofa::helper::vector<Vector3> &points,
                 const Vector3& c = points[ 3*i+2 ];
                 Vector3 n = cross((b-a),(c-a));
                 n.normalize();
-
-                drawPoint(a,n,colour[3*i+0]);
-                drawPoint(b,n,colour[3*i+1]);
-                drawPoint(c,n,colour[3*i+2]);
+                drawTriangle(a,b,c,n,
+                        colour[3*i+0],colour[3*i+1],colour[3*i+2]);
 
             }
         }
