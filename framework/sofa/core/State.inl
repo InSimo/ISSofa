@@ -62,6 +62,10 @@ const objectmodel::BaseData* State<DataTypes>::baseRead(ConstVecId v) const
 template<class DataTypes>
 void State<DataTypes>::computeBBox(const core::ExecParams* params)
 {
+    if (DataTypes::spatial_dimensions == 1)
+    {
+        return; // 1D dofs are no relevant for computing bounding boxes
+    }
     const VecCoord& x = read(ConstVecCoordId::position())->getValue(params);
     const size_t xSize = x.size();
 
