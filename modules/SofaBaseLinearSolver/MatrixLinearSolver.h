@@ -246,27 +246,15 @@ public:
     /// Invert the system, this method is optional because it's call when solveSystem() is called for the first time
     virtual void invertSystem();
 
-    void prepareVisitor(Visitor* v)
-    {
-        v->setTags(this->getTags());
-    }
-
-    void prepareVisitor(simulation::BaseMechanicalVisitor* v)
-    {
-        prepareVisitor((Visitor*)v);
-    }
-
     template<class T>
     void executeVisitor(T v)
     {
-        prepareVisitor(&v);
         v.execute( this->getContext() );
     }
 
     template<class T>
     void executeVisitor(T* v)
     {
-        prepareVisitor(v);
         v->execute( this->getContext() );
     }
 

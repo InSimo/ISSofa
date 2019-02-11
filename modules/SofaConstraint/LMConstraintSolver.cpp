@@ -156,7 +156,7 @@ bool LMConstraintSolver::prepareStates(const core::ConstraintParams *cparams, Mu
         }
         // calling writeConstraintEquations
         LMConstraintVisitor.setOrder(orderState);
-        LMConstraintVisitor.setTags(getTags()).execute(this->getContext());
+        LMConstraintVisitor.execute(this->getContext());
 
         if (f_printLog.getValue()) cerr << "LMConstraintSolver::prepareStates for accelerations"<<endl;
 
@@ -183,7 +183,7 @@ bool LMConstraintSolver::prepareStates(const core::ConstraintParams *cparams, Mu
 
         // calling writeConstraintEquations
         LMConstraintVisitor.setOrder(orderState);
-        LMConstraintVisitor.setTags(getTags()).execute(this->getContext());
+        LMConstraintVisitor.execute(this->getContext());
 
         simulation::MechanicalProjectJacobianMatrixVisitor(&mparams).execute(this->getContext());
 
@@ -209,7 +209,7 @@ bool LMConstraintSolver::prepareStates(const core::ConstraintParams *cparams, Mu
         }
         // calling writeConstraintEquations
         LMConstraintVisitor.setOrder(orderState);
-        LMConstraintVisitor.setTags(getTags()).execute(this->getContext());
+        LMConstraintVisitor.execute(this->getContext());
 
 #ifdef SOFA_DUMP_VISITOR_INFO
         arg.push_back(std::make_pair("Order", "Position"));

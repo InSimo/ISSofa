@@ -441,7 +441,7 @@ void MatrixLinearSolver<Matrix,Vector>::computeResidual(const core::ExecParams* 
 
     internalData.projectForceInConstraintSpace(currentGroup->systemRHVector,f);
 
-    sofa::simulation::common::VectorOperations vop( params, this->getContext() );
+    sofa::simulation::common::VectorOperations vop( params, this->getContext());
     sofa::core::behavior::MultiVecDeriv force(&vop, core::VecDerivId::force() );
 
     executeVisitor( simulation::MechanicalMultiVectorPeqBaseVectorVisitor(core::ExecParams::defaultInstance(), force, currentGroup->systemRHVector, &(currentGroup->matrixAccessor)) );

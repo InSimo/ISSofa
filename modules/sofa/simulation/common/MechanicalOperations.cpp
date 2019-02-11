@@ -41,13 +41,13 @@ namespace simulation
 namespace common
 {
 
-MechanicalOperations::MechanicalOperations(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, sofa::core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder)
-    :mparams(*mparams),ctx(ctx),executeVisitor(*ctx,precomputedTraversalOrder)
+MechanicalOperations::MechanicalOperations(const sofa::core::MechanicalParams* mparams /* PARAMS FIRST */, core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder)
+    :mparams(*mparams),ctx(ctx),executeVisitor(*ctx, precomputedTraversalOrder)
 {
 }
 
-MechanicalOperations::MechanicalOperations(const sofa::core::ExecParams* params /* PARAMS FIRST */, sofa::core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder)
-    :mparams(*params),ctx(ctx),executeVisitor(*ctx,precomputedTraversalOrder)
+MechanicalOperations::MechanicalOperations(const sofa::core::ExecParams* params /* PARAMS FIRST */, core::objectmodel::BaseContext* ctx, bool precomputedTraversalOrder)
+    :mparams(*params),ctx(ctx),executeVisitor(*ctx, precomputedTraversalOrder)
 {
 }
 
@@ -377,7 +377,7 @@ void MechanicalOperations::solveConstraint(MultiVecId id, core::ConstraintParams
 //	ctx->serr << "MechanicalOperations::solveConstraint" << ctx->sendl;
     helper::vector< core::behavior::ConstraintSolver* > constraintSolverList;
 
-    ctx->get<core::behavior::ConstraintSolver>(&constraintSolverList, ctx->getTags(), BaseContext::Local);
+    ctx->get<core::behavior::ConstraintSolver>(&constraintSolverList, BaseContext::Local);
     if (constraintSolverList.empty())
     {
         //ctx->sout << "No ConstraintSolver found." << ctx->sendl;
@@ -393,7 +393,7 @@ void MechanicalOperations::solveConstraint(MultiVecId id, core::ConstraintParams
 
 void MechanicalOperations::m_resetSystem()
 {
-    LinearSolver* s = ctx->get<LinearSolver>(ctx->getTags(), BaseContext::SearchDown);
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
     {
         ctx->serr << "ERROR: requires a LinearSolver."<<ctx->sendl;
@@ -404,7 +404,7 @@ void MechanicalOperations::m_resetSystem()
 
 void MechanicalOperations::m_setSystemMBKMatrix(double mFact, double bFact, double kFact)
 {
-    LinearSolver* s = ctx->get<LinearSolver>(ctx->getTags(), BaseContext::SearchDown);
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
     {
         ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
@@ -418,7 +418,7 @@ void MechanicalOperations::m_setSystemMBKMatrix(double mFact, double bFact, doub
 
 void MechanicalOperations::m_setSystemRHVector(core::MultiVecDerivId v)
 {
-    LinearSolver* s = ctx->get<LinearSolver>(ctx->getTags(), BaseContext::SearchDown);
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
     {
         ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
@@ -429,7 +429,7 @@ void MechanicalOperations::m_setSystemRHVector(core::MultiVecDerivId v)
 
 void MechanicalOperations::m_setSystemLHVector(core::MultiVecDerivId v)
 {
-    LinearSolver* s = ctx->get<LinearSolver>(ctx->getTags(), BaseContext::SearchDown);
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
     {
         ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
@@ -441,7 +441,7 @@ void MechanicalOperations::m_setSystemLHVector(core::MultiVecDerivId v)
 
 void MechanicalOperations::m_solveSystem()
 {
-    LinearSolver* s = ctx->get<LinearSolver>(ctx->getTags(), BaseContext::SearchDown);
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
     {
         ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
@@ -452,7 +452,7 @@ void MechanicalOperations::m_solveSystem()
 
 void MechanicalOperations::m_print( std::ostream& out )
 {
-    LinearSolver* s = ctx->get<LinearSolver>(ctx->getTags(), BaseContext::SearchDown);
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
     {
         ctx->serr << "ERROR: requires a LinearSolver."<<ctx->sendl;

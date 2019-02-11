@@ -75,7 +75,6 @@ void CollisionAnimationLoop::computeCollision(const core::ExecParams* params)
     }
 
     CollisionVisitor act(params);
-    act.setTags(this->getTags());
     act.execute( getContext() );
 
     {
@@ -95,7 +94,6 @@ void CollisionAnimationLoop::integrate(const core::ExecParams* params /* PARAMS 
     }
 
     MechanicalIntegrationVisitor act( params /* PARAMS FIRST */, dt );
-    act.setTags(this->getTags());
     act.execute( getContext() );
 
     {

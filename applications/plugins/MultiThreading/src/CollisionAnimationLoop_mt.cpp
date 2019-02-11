@@ -67,7 +67,6 @@ void CollisionAnimationLoop_mt::collisionReset(const core::ExecParams* params)
     }
 
 	CollisionResetVisitor resetV(params);
-    resetV.setTags(this->getTags());
     resetV.execute( getContext() );
 
 }
@@ -77,7 +76,6 @@ void CollisionAnimationLoop_mt::collisionCompute(const core::ExecParams* params)
     if (this->f_printLog.getValue()) std::cerr<<"CollisionAnimationLoop_mt::collisionCompute()"<<endl;
 
     CollisionDetectionVisitor detectionV(params);
-    detectionV.setTags(this->getTags());
     detectionV.execute( getContext() );
 
 }
@@ -88,7 +86,6 @@ void CollisionAnimationLoop_mt::collisionResponse(const core::ExecParams* params
 
 
 	CollisionResponseVisitor responseV(params);
-    responseV.setTags(this->getTags());
     responseV.execute( getContext() );
 
     {
@@ -110,7 +107,6 @@ void CollisionAnimationLoop_mt::integrate(const core::ExecParams* params /* PARA
     }
 
     MechanicalIntegrationVisitor act( params /* PARAMS FIRST */, dt );
-    act.setTags(this->getTags());
     act.execute( getContext() );
 
     {

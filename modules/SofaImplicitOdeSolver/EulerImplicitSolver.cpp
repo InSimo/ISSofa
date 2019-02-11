@@ -63,14 +63,6 @@ EulerImplicitSolver::EulerImplicitSolver()
 
 void EulerImplicitSolver::init()
 {
-    if (!this->getTags().empty())
-    {
-        sout << "EulerImplicitSolver: responsible for the following objects with tags " << this->getTags() << " :" << sendl;
-        helper::vector<core::objectmodel::BaseObject*> objs;
-        this->getContext()->get<core::objectmodel::BaseObject>(&objs,this->getTags(),sofa::core::objectmodel::BaseContext::SearchDown);
-        for (unsigned int i=0; i<objs.size(); ++i)
-            sout << "  " << objs[i]->getClassName() << ' ' << objs[i]->getName() << sendl;
-    }
     sofa::core::behavior::OdeSolver::init();
 }
 

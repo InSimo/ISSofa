@@ -40,38 +40,32 @@ namespace common
 struct VisitorExecuteFunc
 {
 protected:
-    core::objectmodel::BaseContext& ctx;
-
+    core::objectmodel::BaseContext& m_ctx;
 public:
 
     bool precomputedTraversalOrder;
 
     VisitorExecuteFunc(core::objectmodel::BaseContext& ctx, bool precomputedTraversalOrder=false)
-        : ctx(ctx)
+        : m_ctx(ctx)
         , precomputedTraversalOrder(precomputedTraversalOrder)
     {}
 
     template< class Visitor >
     void operator()(Visitor* pv)
     {
-        prepareVisitor(pv);
-        pv->execute(&ctx,precomputedTraversalOrder);
+        pv->execute(&m_ctx,precomputedTraversalOrder);
     }
     template< class Visitor >
-    void operator()(Visitor v)
+    void operator()(const Visitor& v)
     {
-        prepareVisitor(&v);
-        v.execute(&ctx,precomputedTraversalOrder);
+        v.execute(&m_ctx,precomputedTraversalOrder);
     }
-protected:
-    void prepareVisitor( sofa::simulation::Visitor* v)
+    template< class Visitor >
+    void operator()(Visitor&& v)
     {
-        v->setTags( ctx.getTags() );
+        v.execute(&m_ctx, precomputedTraversalOrder);
     }
-    void prepareVisitor( sofa::simulation::BaseMechanicalVisitor* mv)
-    {
-        prepareVisitor( (sofa::simulation::Visitor*)mv );
-    }
+
 };
 }
 }
