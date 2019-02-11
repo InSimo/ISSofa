@@ -541,6 +541,7 @@ struct BaryElementInfo
 {
     using PointID = core::topology::Topology::PointID;
 
+    bool dirty = true; // dirty for newly created triangles since last apply call
     sofa::helper::vector<PointID> vPointsIncluded; // ID of the points that are projected on the element
     sofa::defaulttype::Mat3x3d restBase;           // Base matrix used in the projection computation (in restPositions)
     sofa::defaulttype::Vector3 restCenter;         // Center of the element (in restPositions)

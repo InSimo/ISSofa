@@ -661,8 +661,11 @@ void BarycentricMapperTriangleSetTopology<In,Out>::clear ( int reserve )
     helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = map;
     vectorData.clear(); if ( reserve>0 ) vectorData.reserve ( reserve );
 
-    helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = d_vBaryTriangleInfo;
-    vBaryTriangleInfo.clear();
+    auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
+    for (auto& tInfo : triangleInfo)
+    {
+        tInfo.vPointsIncluded.clear();
+    }
 
     m_dirtyPoints.clear();
 }
@@ -670,14 +673,20 @@ void BarycentricMapperTriangleSetTopology<In,Out>::clear ( int reserve )
 template <class In, class Out>
 int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int triangleIndex, const SReal* baryCoords )
 {
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
-    vectorData.resize ( map.getValue().size() +1 );
-    MappingData& data = *vectorData.rbegin();
-    map.endEdit();
+    auto vectorData = sofa::helper::write(map);
+
+    MappingData data;
     data.in_index = triangleIndex;
     data.baryCoords[0] = ( Real ) baryCoords[0];
     data.baryCoords[1] = ( Real ) baryCoords[1];
-    return map.getValue().size()-1;
+    vectorData.wref().emplace_back(data);
+
+    const std::size_t indexLast = vectorData.size()-1;
+
+    auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
+    triangleInfo[triangleIndex].vPointsIncluded.push_back(indexLast);
+    
+    return indexLast;
 }
 
 template <class In, class Out>
@@ -690,6 +699,14 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     data.in_index = triangleIndex;
     data.baryCoords[0] = ( Real ) baryCoords[0];
     data.baryCoords[1] = ( Real ) baryCoords[1];
+
+    auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
+    const BaryElementInfo& tInfo = triangleInfo[triangleIndex];
+    assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != 
+                     tInfo.vPointsIncluded.end() );
+
+    m_dirtyPoints.erase(pointIndex);
+
     return pointIndex;
 }
 
@@ -767,34 +784,21 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCr
     const sofa::helper::vector< unsigned int >& ancestors,
     const sofa::helper::vector< double >& /*coeffs*/)
 {
-    // get restPositions
-    helper::ReadAccessor< Data<typename core::State< In >::VecCoord > >  pIn = obj->m_useRestPosition ?
-            obj->m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition()) : obj->m_stateFrom->read(sofa::core::ConstVecCoordId::position());
-
-    sofa::defaulttype::Mat3x3d m;
-    m[0] = In::getCPos(pIn[triangle[1]] - pIn[triangle[0]]);
-    m[1] = In::getCPos(pIn[triangle[2]] - pIn[triangle[0]]);
-    m[2] = cross(m[0], m[1]);
-    sofa::defaulttype::Mat3x3d mTranspose;
-    mTranspose.transpose(m);
-
-    baryTriangleInfo.restBase.invert(mTranspose);
-    baryTriangleInfo.restCenter = (In::getCPos(pIn[triangle[0]] + pIn[triangle[1]] + pIn[triangle[2]])) / 3;
-
-    helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = obj->d_vBaryTriangleInfo;
-
-    for (unsigned int ancestor : ancestors)
-    {
-        assert(ancestor < vBaryTriangleInfo.size());
-        BaryElementInfo& baryTriangleInfoA = vBaryTriangleInfo[ancestor];
-        baryTriangleInfoA.vPointsIncluded.clear();
-    }
+    baryTriangleInfo.dirty = true;
 }
 
 
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDestroyFunction(unsigned int /*t*/, BaryElementInfo& baryTriangleInfo)
 {
+    auto mapData = sofa::helper::write(obj->map);
+
+    for (auto pid : baryTriangleInfo.vPointsIncluded)
+    {
+        obj->m_dirtyPoints.insert(pid);
+        mapData[pid].in_index = sofa::core::topology::Topology::InvalidID;
+    }
+
     baryTriangleInfo.vPointsIncluded.clear();
 }
 
@@ -831,21 +835,78 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::swap(un
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in)
 {
-    if (m_dirtyPoints.empty() || !m_fromContainer) return;
+    if (m_dirtyPoints.empty())
+    {
+        return;
+    }
+
+    const bool printLog = f_printLog.getValue();
+
+    if (printLog)
+    {
+        sout << "ProjectDirtyPoints" << sendl;
+        sout << "\t- Dirty points(" << m_dirtyPoints.size() <<")" << sendl;
+        sout << "\t";
+
+        std::ostream_iterator<unsigned int> sout_it(sout, ", ");
+        std::copy(m_dirtyPoints.begin(), m_dirtyPoints.end(), sout_it);
+        sout << sendl;
+    }
 
     // get restPositions
-    helper::ReadAccessor< Data<typename core::State< In >::VecCoord > >  pIn = m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition());
+    const In::VecCoord&  pIn = m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
     helper::ReadAccessor< Data<typename core::State< Out >::VecCoord> > pOut = m_stateTo->read(sofa::core::ConstVecCoordId::restPosition());
+
+    const auto& triangles = this->m_fromContainer->getTriangleArray();
 
     // evaluate dirty projections : fill in d_vBaryTriangleInfo and map 
     helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = d_vBaryTriangleInfo;
     helper::WriteAccessor<Data<sofa::helper::vector<MappingData> > > vectorData = map;
     vectorData.resize(out.size());
-
-    const sofa::helper::vector<topology::Triangle>& triangles = this->fromTopology->getTriangles();
-    
+   
     assert(triangles.size() == vBaryTriangleInfo.size());
 
+    std::size_t numDirtyTriangles = 0; // only used for logging 
+
+    if (printLog)
+    {
+        for (const auto& triangleElemInfo : vBaryTriangleInfo)
+        {
+            if (triangleElemInfo.dirty)
+            {
+                ++numDirtyTriangles;
+            }
+        }
+
+        if (numDirtyTriangles > 0)
+        {
+            sout << "\t- DirtyTriangles("<< numDirtyTriangles<< ")" << sendl;
+        }
+    }
+
+    for (TriangleID tid = 0; tid < triangles.size(); ++tid)
+    {
+        const Triangle triangle = triangles[tid];
+        auto& triangleElemInfo  = vBaryTriangleInfo[tid];
+
+        if (triangleElemInfo.dirty)
+        {
+            const auto& inX = m_useRestPosition ? pIn : in;
+            sofa::defaulttype::Mat3x3d m;
+            m[0] = In::getCPos(inX[triangle[1]] - inX[triangle[0]]);
+            m[1] = In::getCPos(inX[triangle[2]] - inX[triangle[0]]);
+            m[2] = cross(m[0], m[1]);
+            sofa::defaulttype::Mat3x3d mTranspose;
+            mTranspose.transpose(m);
+            triangleElemInfo.restBase.invert(mTranspose);
+            triangleElemInfo.restCenter = (In::getCPos(inX[triangle[0]] + inX[triangle[1]] + inX[triangle[2]])) / 3;
+            triangleElemInfo.dirty = false;
+            if (printLog)
+            {
+                sout <<"\t" << triangleElemInfo << sendl;
+            }
+        }
+    }
     for (auto dirtyPoint : m_dirtyPoints)
     {
         sofa::defaulttype::Vec3d pos = (m_useRestPosition && pOut.size() > 0) ? Out::getCPos(pOut[dirtyPoint]) : Out::getCPos(out[dirtyPoint]);
@@ -858,6 +919,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
             sofa::defaulttype::Vec3d xTri = (m_useRestPosition && pIn.size() > 0) ? In::getCPos(pIn[triangles[t][0]]) : In::getCPos(in[triangles[t][0]]);
 
             const BaryElementInfo& baryTriangleInfo = vBaryTriangleInfo[t];
+            assert(baryTriangleInfo.dirty == false);
             const sofa::defaulttype::Mat3x3d& restBase = baryTriangleInfo.restBase;
             const sofa::defaulttype::Vector3& restCenter = baryTriangleInfo.restCenter;
 
@@ -867,13 +929,19 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
             if (d<distance) { coefs = v; distance = d; index = t; }
         }
 
-        vBaryTriangleInfo[index].vPointsIncluded.emplace_back(dirtyPoint);
+        vBaryTriangleInfo[index].vPointsIncluded.push_back(dirtyPoint);
 
         assert(dirtyPoint < vectorData.size());
         MappingData& mapData = vectorData[dirtyPoint];
         mapData.in_index = index;
         mapData.baryCoords[0] = (Real)coefs[0];
         mapData.baryCoords[1] = (Real)coefs[1];
+
+        if (printLog)
+        {
+            sout << "\tProjecting point (out): " << dirtyPoint << " on  triangle (in): " <<  index 
+                 << " baryCoords: (" << mapData.baryCoords[0] << "," << mapData.baryCoords[1] << ")" << sendl;
+        }
     }
 
     m_dirtyPoints.clear();
@@ -897,7 +965,7 @@ void BarycentricMapperQuadSetTopology<In,Out>::clear ( int reserve )
 {
     helper::vector<MappingData>& vectorData = *(map.beginEdit());
     vectorData.clear(); if ( reserve>0 ) vectorData.reserve ( reserve );
-    map.beginEdit();
+    map.endEdit();
 }
 
 template <class In, class Out>
@@ -1727,11 +1795,16 @@ void BarycentricMapperEdgeSetTopology<In,Out>::apply ( typename Out::VecCoord& o
 
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In,Out>::apply ( typename Out::VecCoord& out, const typename In::VecCoord& in )
-{
+{ 
     out.resize ( map.getValue().size() );
+
+    projectDirtyPoints(out, in);
+
     const sofa::helper::vector<topology::Triangle>& triangles = this->fromTopology->getTriangles();
     for ( unsigned int i=0; i<map.getValue().size(); i++ )
     {
+        assert( m_dirtyPoints.count(i) == 0 );
+
         const Real fx = map.getValue()[i].baryCoords[0];
         const Real fy = map.getValue()[i].baryCoords[1];
         int index = map.getValue()[i].in_index;
@@ -1763,10 +1836,7 @@ void BarycentricMapperQuadSetTopology<In,Out>::apply ( typename Out::VecCoord& o
 template <class In, class Out>
 void BarycentricMapperTetrahedronSetTopology<In,Out>::apply ( typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    if (!m_dirtyPoints.empty())
-    {
-        projectDirtyPoints(out, in);
-    }
+
 
     out.resize ( map.getValue().size() );
     const sofa::helper::vector<topology::Tetrahedron>& tetrahedra = this->fromTopology->getTetrahedra();
