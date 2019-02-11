@@ -37,9 +37,9 @@ namespace sofa
 namespace simulation
 {
 
-
 Visitor::Result InitVisitor::processNodeTopDown(simulation::Node* node)
 {
+    static sofa::core::objectmodel::Tag tagNoBBox("NoBBox");
     if (!rootNode) rootNode=node;
 
     node->initialize();
@@ -56,9 +56,13 @@ Visitor::Result InitVisitor::processNodeTopDown(simulation::Node* node)
 
     for(unsigned int i=0; i<node->object.size(); ++i)
     {
-        node->object[i]->init();
-        node->object[i]->computeBBox(params);
-        nodeBBox->include(node->object[i]->f_bbox.getValue(params));
+        sofa::core::objectmodel::BaseObject* o = node->object[i].get();
+        o->init();
+        if (!o->hasTag(tagNoBBox))
+        {
+            o->computeBBox(params);
+            nodeBBox->include(o->f_bbox.getValue(params));
+        }
     }
     node->f_bbox.endEdit(params);
     return RESULT_CONTINUE;
@@ -68,13 +72,18 @@ Visitor::Result InitVisitor::processNodeTopDown(simulation::Node* node)
 void InitVisitor::processNodeBottomUp(simulation::Node* node)
 {
     // init all the components in reverse order
+    static sofa::core::objectmodel::Tag tagNoBBox("NoBBox");
     node->setDefaultVisualContextValue();
     sofa::defaulttype::BoundingBox* nodeBBox = node->f_bbox.beginEdit(params);
 
     for(unsigned int i=node->object.size(); i>0; --i)
     {
-        node->object[i-1]->bwdInit();
-        nodeBBox->include(node->object[i-1]->f_bbox.getValue(params));
+        sofa::core::objectmodel::BaseObject* o = node->object[i-1].get();
+        o->bwdInit();
+        if (!o->hasTag(tagNoBBox))
+        {
+            nodeBBox->include(o->f_bbox.getValue(params));
+        }
     }
 
     node->f_bbox.endEdit(params);

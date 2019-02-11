@@ -43,7 +43,12 @@ UpdateBoundingBoxVisitor::UpdateBoundingBoxVisitor(const sofa::core::ExecParams*
 
 Visitor::Result UpdateBoundingBoxVisitor::processNodeTopDown(Node* node)
 {
+    static sofa::core::objectmodel::Tag tagNoBBox("NoBBox");
     using namespace sofa::core::objectmodel;
+    if (node->hasTag(tagNoBBox))
+    {
+        return RESULT_PRUNE;
+    }
     helper::vector<BaseObject*> objectList;
     helper::vector<BaseObject*>::iterator object;
     node->get<BaseObject>(&objectList,BaseContext::Local);
@@ -51,10 +56,11 @@ Visitor::Result UpdateBoundingBoxVisitor::processNodeTopDown(Node* node)
     nodeBBox->invalidate();
     for ( object = objectList.begin(); object != objectList.end(); ++object)
     {
-        (*object)->computeBBox(params);
-//        cerr<<"UpdateBoundingBoxVisitor::processNodeTopDown object " << (*object)->getName() << " = "<< (*object)->f_bbox.getValue(params) << endl;
-        nodeBBox->include((*object)->f_bbox.getValue(params));
-//        cerr << "   new bbox = " << *nodeBBox << endl;
+        if (!(*object)->hasTag(tagNoBBox))
+        {
+            (*object)->computeBBox(params);
+            nodeBBox->include((*object)->f_bbox.getValue(params));
+        }
     }
     node->f_bbox.endEdit(params);
     return RESULT_CONTINUE;
@@ -62,12 +68,15 @@ Visitor::Result UpdateBoundingBoxVisitor::processNodeTopDown(Node* node)
 
 void UpdateBoundingBoxVisitor::processNodeBottomUp(simulation::Node* node)
 {
+    static sofa::core::objectmodel::Tag tagNoBBox("NoBBox");
     sofa::defaulttype::BoundingBox* nodeBBox = node->f_bbox.beginEdit(params);
     Node::ChildIterator childNode;
     for( childNode = node->child.begin(); childNode!=node->child.end(); ++childNode)
     {
-//        cerr<<"   UpdateBoundingBoxVisitor::processNodeBottomUpDown object " << (*childNode)->getName() << endl;
-        nodeBBox->include((*childNode)->f_bbox.getValue(params));
+        if (!(*childNode)->hasTag(tagNoBBox))
+        {
+            nodeBBox->include((*childNode)->f_bbox.getValue(params));
+        }
     }
     node->f_bbox.endEdit(params);
 }

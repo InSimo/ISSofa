@@ -35,6 +35,8 @@ TagFactory::TagFactory()
     tagsList.push_back(std::string("0")); // ID 0 == "0" or empty string
     // Add standard tags
     tagsList.push_back(std::string("Visual"));
+    tagsList.push_back(std::string("NoPicking"));
+    tagsList.push_back(std::string("NoBBox"));
 }
 
 /*SOFA_HELPER_API*/ unsigned int TagFactory::getID(std::string name)
