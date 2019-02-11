@@ -59,6 +59,8 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFABASETOPOL
 if(NOT SOFA_INSTALL_HEADERS_GENERATED_ONLY)
 set_target_properties( ${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" )
 endif()
+# Add the plugin to SOFA_PRELOAD_ENV so that it is automatically preloaded by runSofa
+set_property(TARGET SofaHelper APPEND PROPERTY SOFA_PRELOAD "SofaComponentBase")
 
 install(TARGETS ${PROJECT_NAME}
         EXPORT  SofaBaseTargets
