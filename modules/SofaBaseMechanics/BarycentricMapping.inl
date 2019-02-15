@@ -840,7 +840,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
         return;
     }
 
-    const bool printLog = f_printLog.getValue();
+    const bool printLog = this->f_printLog.getValue();
 
     if (printLog)
     {
@@ -854,7 +854,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
     }
 
     // get restPositions
-    const In::VecCoord&  pIn = m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const typename In::VecCoord&  pIn = m_stateFrom->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
     helper::ReadAccessor< Data<typename core::State< Out >::VecCoord> > pOut = m_stateTo->read(sofa::core::ConstVecCoordId::restPosition());
 
     const auto& triangles = this->m_fromContainer->getTriangleArray();
