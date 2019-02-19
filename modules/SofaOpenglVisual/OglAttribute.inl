@@ -90,7 +90,6 @@ template < int size, unsigned int type, class DataTypes>
 void OglAttribute< size, type, DataTypes>::init()
 {
     OglShaderElement::init();
-    getContext()->get( _topology);
     value.getValue(); // make sure the data is updated
 }
 
@@ -235,8 +234,13 @@ void OglAttribute< size, type, DataTypes>::reinit()
 template < int size, unsigned int type, class DataTypes>
 void OglAttribute< size, type, DataTypes>::handleTopologyChange()
 {
-    if( _topology && handleDynamicTopology.getValue())
+    if( handleDynamicTopology.getValue())
     {
+        if (!_topology)
+        {
+            getContext()->get(_topology);
+            if (!_topology) return;
+        }
         std::list<const sofa::core::topology::TopologyChange *>::const_iterator itBegin=_topology->beginChange();
         std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd=_topology->endChange();
 
