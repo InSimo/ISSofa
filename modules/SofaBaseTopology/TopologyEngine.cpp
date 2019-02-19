@@ -60,6 +60,12 @@ TopologyEngineImpl::~TopologyEngineImpl()
 {
     if (m_topology)
     {
+        const DDGLinkContainer inputs = this->getInputs();
+        for (auto input: inputs)
+        {
+            DDGNode::delInput(input);
+        }
+
         m_topology->removeTopologyEngine(this);
     }
 }
