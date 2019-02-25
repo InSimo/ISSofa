@@ -143,46 +143,29 @@ void PartialFixedConstraint<DataTypes>::init()
 
 template <class DataTypes>
 template <class DataDeriv>
-void PartialFixedConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res)
+void PartialFixedConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res,
+                                                         std::function<void(DataDeriv&, const unsigned int, const VecBool&)> clear)
 {
     const VecBool& blockedDirection = fixedDirections.getValue();
-    //serr<<"PartialFixedConstraint<DataTypes>::projectResponse, res.size()="<<res.size()<<sendl;
-    if (f_fixAll.getValue() == true)
+
+    if (f_fixAll.getValue())
     {
-        // fix everyting
-        for( unsigned i=0; i<res.size(); i++ )
-        {
-            for (unsigned j = 0; j < NumDimensions; j++)
-            {
-                if (blockedDirection[j])
-                {
-                    res[i][j] = (Real) 0.0;
-                }
-            }
-        }
+        for (unsigned int i = 0; i < res.size(); i++)
+            clear(res, i, blockedDirection);
     }
     else
     {
         const SetIndexArray & indices = f_indices.getValue();
         for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
-        {
-            for (unsigned j = 0; j < NumDimensions; j++)
-            {
-                if (blockedDirection[j])
-                {
-                    res[*it][j] = (Real) 0.0;
-                }
-            }
-        }
+            clear(res, *it, blockedDirection);
     }
-//    cerr<<"PartialFixedConstraint<DataTypes>::projectResponse is called  res = "<<endl<<res<<endl;
 }
 
 template <class DataTypes>
 void PartialFixedConstraint<DataTypes>::projectResponse(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& resData)
 {
     helper::WriteAccessor<DataVecDeriv> res = resData;
-    projectResponseT(mparams /* PARAMS FIRST */, res.wref());
+    projectResponseT<VecDeriv>(mparams /* PARAMS FIRST */, res.wref());
 }
 
 // projectVelocity applies the same changes on velocity vector as projectResponse on position vector :
@@ -226,16 +209,26 @@ template <class DataTypes>
 void PartialFixedConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c = cData;
+    projectResponseT<MatrixDeriv>(mparams /* PARAMS FIRST */, c.wref(),
+            [](MatrixDeriv& res, const unsigned int index, const VecBool& btype)
+            {
+                auto itRow = res.begin();
+                auto itRowEnd = res.end();
 
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-
-    while (rowIt != rowItEnd)
-    {
-        projectResponseT<MatrixDerivRowType>(mparams /* PARAMS FIRST */, rowIt.row());
-        ++rowIt;
-    }
-    //cerr<<"PartialFixedConstraint<DataTypes>::projectJacobianMatrix : helper::WriteAccessor<DataMatrixDeriv> c =  "<<endl<< c<<endl;
+                while (itRow != itRowEnd)
+                {
+                    for (auto colIt = itRow.begin(); colIt != itRow.end(); colIt++)
+                    {
+                        if (index == colIt.index())
+                        {
+                            Deriv b = colIt.val();
+                            for (unsigned int j = 0; j < btype.size(); j++) if (btype[j]) b[j] = 0.0;
+                            res.writeLine(itRow.index()).setCol(colIt.index(), b);
+                        }
+                    }
+                    ++itRow;
+                }
+            });
 }
 
 // Matrix Integration interface

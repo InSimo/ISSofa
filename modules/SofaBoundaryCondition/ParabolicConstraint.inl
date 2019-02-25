@@ -130,14 +130,15 @@ void ParabolicConstraint<DataTypes>::reinit()
 
 template <class DataTypes>
 template <class DataDeriv>
-void ParabolicConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& dx)
+void ParabolicConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& dx,
+                                                      std::function<void(DataDeriv&, const unsigned int)> clear)
 {
     Real t = (Real) this->getContext()->getTime();
     if ( t >= m_tBegin.getValue() && t <= m_tEnd.getValue())
     {
         const SetIndexArray & indices = m_indices.getValue();
         for(SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
-            dx[*it] = Deriv();
+            clear(dx, *it);
     }
 }
 
@@ -209,15 +210,7 @@ template <class DataTypes>
 void ParabolicConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c = cData;
-
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-
-    while (rowIt != rowItEnd)
-    {
-        projectResponseT<MatrixDerivRowType>(mparams /* PARAMS FIRST */, rowIt.row());
-        ++rowIt;
-    }
+    projectResponseT<MatrixDeriv>(mparams /* PARAMS FIRST */, c.wref(), [](MatrixDeriv& res, const unsigned int index) { res.clearColBloc(index); });
 }
 
 

@@ -70,8 +70,6 @@ public:
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::Real Real;
-    typedef typename MatrixDeriv::RowIterator MatrixDerivRowIterator;
-    typedef typename MatrixDeriv::RowType MatrixDerivRowType;
     typedef Data<VecCoord> DataVecCoord;
     typedef Data<VecDeriv> DataVecDeriv;
     typedef Data<MatrixDeriv> DataMatrixDeriv;
@@ -140,7 +138,10 @@ public:
 
 protected:
     template <class DataDeriv>
-    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx);
+    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx,
+                          std::function<void(DataDeriv&, const unsigned int, const VecBool&)> clear =
+                            [](VecDeriv& dx, const unsigned int index, const VecBool& b)
+                                { for( unsigned j = 0; j < b.size(); j++) if (b[j]) dx[index][j] = 0.0; });
 
     /// Pointer to the current topology
     sofa::core::topology::BaseMeshTopology* topology;

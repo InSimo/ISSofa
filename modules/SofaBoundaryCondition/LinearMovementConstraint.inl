@@ -168,7 +168,8 @@ void LinearMovementConstraint<DataTypes>::reset()
 
 template <class DataTypes>
 template <class DataDeriv>
-void LinearMovementConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& dx)
+void LinearMovementConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& dx,
+                                                            std::function<void(DataDeriv&, const unsigned int)> clear)
 {
     Real cT = (Real) this->getContext()->getTime();
     if ((cT != currentTime) || !finished)
@@ -179,12 +180,9 @@ void LinearMovementConstraint<DataTypes>::projectResponseT(const core::Mechanica
     if (finished && nextT != prevT)
     {
         const SetIndexArray & indices = m_indices.getValue();
-
         //set the motion to the Dofs
         for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
-        {
-            dx[*it] = Deriv();
-        }
+            clear(dx, *it);
     }
 }
 
@@ -295,15 +293,7 @@ template <class DataTypes>
 void LinearMovementConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c = cData;
-
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-
-    while (rowIt != rowItEnd)
-    {
-        projectResponseT<MatrixDerivRowType>(mparams /* PARAMS FIRST */, rowIt.row());
-        ++rowIt;
-    }
+    projectResponseT<MatrixDeriv>(mparams /* PARAMS FIRST */, c.wref(), [](MatrixDeriv& res, const unsigned int index) { res.clearColBloc(index); });
 }
 
 template <class DataTypes>

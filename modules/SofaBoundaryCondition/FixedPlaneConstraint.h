@@ -60,8 +60,6 @@ public:
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::DPos DPos;
     typedef typename Coord::value_type Real;
-    typedef typename MatrixDeriv::RowIterator MatrixDerivRowIterator;
-    typedef typename MatrixDeriv::RowType MatrixDerivRowType;
     typedef Data<VecCoord> DataVecCoord;
     typedef Data<VecDeriv> DataVecDeriv;
     typedef Data<MatrixDeriv> DataMatrixDeriv;
@@ -78,7 +76,8 @@ protected:
     friend class FixedPlaneConstraintInternalData<DataTypes>;
 
     template <class DataDeriv>
-    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx);
+    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx,
+                          std::function<void(DataDeriv&, const SetIndexArray&)> project);
 
     SetIndex indices; // the set of vertex indices
 

@@ -260,34 +260,19 @@ template <class DataTypes>
 void ProjectToPointConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c ( mparams, cData );
-    const SetIndexArray & indices = f_indices.getValue(mparams);
-
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
 
     if( f_fixAll.getValue(mparams) )
     {
-        // fix everything
-        while (rowIt != rowItEnd)
-        {
-            rowIt.row().clear();
-            ++rowIt;
-        }
+        c->clear();
     }
     else
     {
-        while (rowIt != rowItEnd)
+        const SetIndexArray & indices = f_indices.getValue(mparams);
+        for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
         {
-            for (SetIndexArray::const_iterator it = indices.begin();
-                    it != indices.end();
-                    ++it)
-            {
-                rowIt.row().erase(*it);
-            }
-            ++rowIt;
+            c->clearColBloc(*it);
         }
     }
-    //cerr<<"ProjectToPointConstraint<DataTypes>::projectJacobianMatrix : helper::WriteAccessor<DataMatrixDeriv> c =  "<<endl<< c<<endl;
 }
 
 template <class DataTypes>

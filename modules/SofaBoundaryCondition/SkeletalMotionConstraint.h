@@ -110,8 +110,6 @@ public:
 	void addChannel(unsigned int index , Coord channel, double time);
 
 protected:
-    template <class DataDeriv>
-    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx);
 
     template<class MyCoord>
     void interpolatePosition(Real cT, typename boost::enable_if<boost::is_same<MyCoord, defaulttype::RigidCoord<3, Real> >, VecCoord>::type& x);

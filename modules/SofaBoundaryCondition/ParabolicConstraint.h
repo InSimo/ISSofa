@@ -124,7 +124,8 @@ public:
 
 protected:
     template <class DataDeriv>
-    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx);
+    void projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& dx,
+                          std::function<void(DataDeriv&, const unsigned int)> clear = [](VecDeriv& dx, const unsigned int index) { dx[index].clear(); });
 
     /// Pointer to the current topology
     sofa::core::topology::BaseMeshTopology* topology;

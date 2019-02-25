@@ -102,25 +102,29 @@ void FixedPlaneConstraint<DataTypes>::removeConstraint(int index)
 // -- Constraint interface
 
 
-template <class DataTypes>
-template <class DataDeriv>
-void FixedPlaneConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res)
+template <class DataTypes> template <class DataDeriv>
+void FixedPlaneConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& data,
+                                                       std::function<void(DataDeriv&, const SetIndexArray&)> project)
 {
-    const DPos dir=direction.getValue();
-    for (unsigned int index : this->indices.getValue())
-    {
-        /// only constraint one projection of the displacement to be zero
-        DPos val = DataTypes::getDPos(res[index]);
-        val -= dir*dot(val,dir);
-        DataTypes::setDPos(res[index], val);
-    }
+    project(data, indices.getValue());
 }
 
 template <class DataTypes>
 void FixedPlaneConstraint<DataTypes>::projectResponse(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& resData)
 {
     helper::WriteAccessor<DataVecDeriv> res = resData;
-    projectResponseT<VecDeriv>(mparams, res.wref());
+    projectResponseT<VecDeriv>(mparams /* PARAMS FIRST */, res.wref(),
+            [&](auto& dx, const SetIndexArray& indices)
+            {
+                const DPos dir = direction.getValue();
+                for (const auto& i : indices)
+                {
+                    /// only constraint one projection of the displacement to be zero
+                    DPos val = DataTypes::getDPos(dx[i]);
+                    val -= dir*dot(val,dir);
+                    DataTypes::setDPos(dx[i], val);
+                }
+            });
 }
 
 /// project dx to constrained space (dx models a velocity)
@@ -153,15 +157,26 @@ template <class DataTypes>
 void FixedPlaneConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c = cData;
-
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-
-    while (rowIt != rowItEnd)
-    {
-        projectResponseT<MatrixDerivRowType>(mparams /* PARAMS FIRST */, rowIt.row());
-        ++rowIt;
-    }
+    projectResponseT<MatrixDeriv>(mparams /* PARAMS FIRST */, c.wref(),
+        [&](auto& dx, const SetIndexArray& indices)
+        {
+            const DPos dir = direction.getValue();
+            auto itRow = dx.begin();
+            auto itRowEnd = dx.end();
+            while (itRow != itRowEnd)
+            {
+                for (auto colIt = itRow.begin(); colIt != itRow.end(); colIt++)
+                {
+                    if (std::find(indices.begin(), indices.end(), colIt.index()) != indices.end())
+                    {
+                        DPos val = DataTypes::getDPos(colIt.val());
+                        Deriv r;
+                        DataTypes::setDPos(r, -(dir*dot(val,dir)));
+                        dx.writeLine(itRow.index()).addCol(colIt.index(), r);
+                    }
+                }
+            }
+        });
 }
 
 template <class DataTypes>

@@ -69,19 +69,15 @@ OscillatorConstraint<TDataTypes>*  OscillatorConstraint<TDataTypes>::addConstrai
 
 
 template <class TDataTypes> template <class DataDeriv>
-void OscillatorConstraint<TDataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res)
+void OscillatorConstraint<TDataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res,
+                                                        std::function<void(DataDeriv&, const unsigned int)> clear)
 {
     const helper::vector<Oscillator> &oscillators = constraints.getValue();
-    //Real t = (Real) this->getContext()->getTime();
+
     for (unsigned i = 0; i < oscillators.size(); ++i)
     {
         const unsigned& index = oscillators[i].index;
-        //const Deriv& a = constraints[i].second.amplitude;
-        //const Real& w = constraints[i].second.pulsation;
-        //const Real& p = constraints[i].second.phase;
-
-        //res[index] = a*(-w)*w*sin(w*t+p);
-        res[index] = Deriv();
+        clear(res, index);
     }
 }
 
@@ -89,7 +85,7 @@ template <class TDataTypes>
 void OscillatorConstraint<TDataTypes>::projectResponse(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& resData)
 {
     helper::WriteAccessor<DataVecDeriv> res = resData;
-    projectResponseT(mparams /* PARAMS FIRST */, res.wref());
+    projectResponseT<VecDeriv>(mparams /* PARAMS FIRST */, res.wref());
 }
 
 template <class TDataTypes>
@@ -131,15 +127,7 @@ template <class TDataTypes>
 void OscillatorConstraint<TDataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c = cData;
-
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-
-    while (rowIt != rowItEnd)
-    {
-        projectResponseT<MatrixDerivRowType>(mparams /* PARAMS FIRST */, rowIt.row());
-        ++rowIt;
-    }
+    projectResponseT<MatrixDeriv>(mparams /* PARAMS FIRST */, c.wref(), [](MatrixDeriv& res, const unsigned int index) { res.clearColBloc(index); });
 }
 
 } // namespace constraint

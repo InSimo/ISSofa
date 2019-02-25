@@ -125,22 +125,12 @@ template <class DataTypes>
 void PointConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c ( mparams, cData );
+
     const SetIndexArray & indices = f_indices.getValue(mparams);
-
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-
-    while (rowIt != rowItEnd)
+    for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
     {
-        for (SetIndexArray::const_iterator it = indices.begin();
-                it != indices.end();
-                ++it)
-        {
-            rowIt.row().erase(*it);
-        }
-        ++rowIt;
+        c->clearColBloc(*it);
     }
-    //cerr<<"PointConstraint<DataTypes>::projectJacobianMatrix : helper::WriteAccessor<DataMatrixDeriv> c =  "<<endl<< c<<endl;
 }
 
 // constant velocity: do not change the velocity
