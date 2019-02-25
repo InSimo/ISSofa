@@ -168,6 +168,9 @@ add_subdirectory( ${SofaFramework_ACTUAL_SOURCE_DIR}/sofa/core        ${CMAKE_CU
 if(TARGET gtest)
     add_subdirectory( ${SofaFramework_ACTUAL_SOURCE_DIR}/framework_test        ${CMAKE_CURRENT_BINARY_DIR}/framework_test )
 endif()
+if(SOFA_ENABLE_BENCHMARKS)
+    add_subdirectory(${SofaFramework_ACTUAL_SOURCE_DIR}/framework_bench        ${CMAKE_CURRENT_BINARY_DIR}/framework_bench )
+endif()
 
 # set IDE project filter
 if(MSVC)
