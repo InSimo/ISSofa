@@ -45,17 +45,18 @@ SOFA_CONSTRAINT_API void PrecomputedConstraintCorrection< defaulttype::Rigid3dTy
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
     const VecCoord& x0 = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
     helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
-    const MatrixDeriv& c = cData.wref();
+    MatrixDeriv& c = cData.wref();
 
     // On fait tourner les normales (en les ramenant dans le "pseudo" repere initial)
 
-    MatrixDerivRowConstIterator rowItEnd = c.end();
+    auto rowItEnd = c.end();
 
-    for (MatrixDerivRowConstIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
+    for (auto rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
     {
-        MatrixDerivColConstIterator colItEnd = rowIt.end();
+        auto rowWrite = c.writeLine(rowIt.index());
+        auto colItEnd = rowIt.end();
 
-        for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
+        for (auto colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
         {
             Deriv n = colIt.val();
             const unsigned int localRowNodeIdx = colIt.index();
@@ -76,8 +77,7 @@ SOFA_CONSTRAINT_API void PrecomputedConstraintCorrection< defaulttype::Rigid3dTy
             }
 
             // on passe les normales du repere global au repere local
-            getVCenter(n) = n_i;
-            getVOrientation(n) = wn_i;
+            rowWrite.setCol(colIt.index(), Deriv(n_i, wn_i));
         }
     }
 }
@@ -143,17 +143,18 @@ SOFA_CONSTRAINT_API void PrecomputedConstraintCorrection< defaulttype::Rigid3fTy
     const VecCoord& x0 = this->mstate->read(core::ConstVecCoordId::restPosition())->getValue();
 
     helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
-    const MatrixDeriv& c = cData.wref();
+    MatrixDeriv& c = cData.wref();
 
     // On fait tourner les normales (en les ramenant dans le "pseudo" repere initial)
 
-    MatrixDerivRowConstIterator rowItEnd = c.end();
+    auto rowItEnd = c.end();
 
-    for (MatrixDerivRowConstIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
+    for (auto rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
     {
-        MatrixDerivColConstIterator colItEnd = rowIt.end();
+        auto rowWrite = c.writeLine(rowIt.index());
+        auto colItEnd = rowIt.end();
 
-        for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
+        for (auto colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
         {
             Deriv n = colIt.val();
             const unsigned int localRowNodeIdx = colIt.index();
@@ -175,8 +176,7 @@ SOFA_CONSTRAINT_API void PrecomputedConstraintCorrection< defaulttype::Rigid3fTy
 
 
             // on passe les normales du repere global au repere local
-            getVCenter(n) = n_i;
-            getVOrientation(n) = wn_i;
+            rowWrite.setCol(colIt.index(), Deriv(n_i, wn_i));
         }
     }
 }

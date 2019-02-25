@@ -29,7 +29,11 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <iostream>
 #include <sofa/simulation/common/Node.h>
+#ifndef SOFA_USECRSCONSTRAINT
 #include <sofa/defaulttype/MapMapSparseMatrixEigenUtils.h>
+#else
+#include <sofa/defaulttype/CompressedRowSparseMatrixConstraintEigenUtils.h>
+#endif
 
 namespace sofa
 {

@@ -947,7 +947,7 @@ void PrecomputedConstraintCorrection< DataTypes >::rotateConstraints(bool back)
     using sofa::core::behavior::RotationFinder;
 
     helper::WriteAccessor<Data<MatrixDeriv> > cData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
-    const MatrixDeriv& c = cData.wref();
+    MatrixDeriv& c = cData.wref();
 
     simulation::Node *node = simulation::Node::DynamicCast(this->getContext());
 
@@ -974,13 +974,14 @@ void PrecomputedConstraintCorrection< DataTypes >::rotateConstraints(bool back)
     }
 
     // on fait tourner les normales (en les ramenant dans le "pseudo" repere initial) //
-    MatrixDerivRowConstIterator rowItEnd = c.end();
+    auto rowItEnd = c.end();
 
-    for (MatrixDerivRowConstIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
+    for (auto rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
     {
-        MatrixDerivColConstIterator colItEnd = rowIt.end();
+        auto rowWrite = c.writeLine(rowIt.index());
+        auto colItEnd = rowIt.end();
 
-        for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
+        for (auto colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
         {
             Deriv n = colIt.val();
             const int localRowNodeIdx = colIt.index();
@@ -999,10 +1000,7 @@ void PrecomputedConstraintCorrection< DataTypes >::rotateConstraints(bool back)
                 Ri.transpose();
 
             // on passe les normales du repere global au repere local
-            Deriv n_i = Ri * n;
-            n.x() =  n_i.x();
-            n.y() =  n_i.y();
-            n.z() =  n_i.z();
+            rowWrite.setCol(colIt.index(), Ri * n);
         }
     }
 }

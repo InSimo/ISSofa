@@ -258,14 +258,14 @@ template<class DataTypes>
 void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(defaulttype::BaseMatrix* Wmerged, std::vector<int> &constraint_merge)
 {
     helper::WriteAccessor<Data<MatrixDeriv> > constraintsData = *this->mstate->write(core::MatrixDerivId::constraintJacobian());
-    MatrixDeriv& constraints = constraintsData.wref();
+    const MatrixDeriv& constraints = constraintsData.ref();
 
     MatrixDeriv constraintCopy;
 
     std::cout << "******\n Constraint before Merge  \n *******" << std::endl;
 
-    MatrixDerivRowIterator rowIt = constraints.begin();
-    MatrixDerivRowIterator rowItEnd = constraints.end();
+    MatrixDerivRowConstIterator rowIt = constraints.begin();
+    MatrixDerivRowConstIterator rowItEnd = constraints.end();
 
     while (rowIt != rowItEnd)
     {
@@ -274,7 +274,7 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(
     }
 
     /////////// MERGE OF THE CONSTRAINTS //////////////
-    constraints.clear();
+    constraintsData.wref().clear();
 
     // look for the number of group;
     unsigned int numGroup = 0;
@@ -291,14 +291,14 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(
     {
         std::cout << "constraint[" << group << "] : " << std::endl;
 
-        MatrixDerivRowIterator rowCopyIt = constraintCopy.begin();
-        MatrixDerivRowIterator rowCopyItEnd = constraintCopy.end();
+        MatrixDerivRowConstIterator rowCopyIt = constraints.begin();
+        MatrixDerivRowConstIterator rowCopyItEnd = constraints.end();
 
         while (rowCopyIt != rowCopyItEnd)
         {
             if (constraint_merge[rowCopyIt.index()] == (int)group)
             {
-                constraints.addLine(group, rowCopyIt.row());
+                constraintsData.wref().addLine(group, rowCopyIt.row());
             }
 
             ++rowCopyIt;
@@ -310,16 +310,16 @@ void UncoupledConstraintCorrection<DataTypes>::getComplianceWithConstraintMerge(
 
     /////////// BACK TO THE INITIAL CONSTRAINT SET//////////////
 
-    constraints.clear();
+    constraintsData.wref().clear();
     std::cout << "******\n Constraint back to initial values  \n *******" << std::endl;
 
-    rowIt = constraintCopy.begin();
-    rowItEnd = constraintCopy.end();
+    auto rowItCopy = constraintCopy.begin();
+    auto rowItEndCopy = constraintCopy.end();
 
-    while (rowIt != rowItEnd)
+    while (rowItCopy != rowItEndCopy)
     {
-        constraints.setLine(rowIt.index(), rowIt.row());
-        ++rowIt;
+        constraintsData.wref().setLine(rowItCopy.index(), rowItCopy.row());
+        ++rowItCopy;
     }
 }
 

@@ -59,6 +59,7 @@ public:
     typedef typename DataTypes::MatrixDeriv MatrixDeriv;
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
+    typedef typename DataTypes::MatrixDeriv::RowIterator MatrixDerivRowIterator;
     typedef typename DataTypes::MatrixDeriv::RowConstIterator MatrixDerivRowConstIterator;
     typedef typename DataTypes::MatrixDeriv::ColConstIterator MatrixDerivColConstIterator;
 
