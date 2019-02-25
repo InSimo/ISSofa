@@ -96,7 +96,7 @@ public:
     /// Reset the value of both row and column i to 0
     virtual void clearRowCol(Index i) { clearRow(i); clearCol(i); }
     /// Clears all the values in rows imin to imax-1 and columns imin to imax-1
-    virtual void clearRowsCols(Index imin, Index imax) { clearRows(imin,imax); clearCols(imin,imax); }
+    virtual void clearRowsCols(Index imin, Index imax) { for (Index i=imin; i<imax; i++) clearRowCol(i); }
     /** Make the final data setup after adding entries. For most concrete types, this method does nothing.
       */
     virtual void compress();
