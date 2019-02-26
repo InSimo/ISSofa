@@ -14,6 +14,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC gtest SofaHelper)
 project(SofaFramework_test)
 
 set(SOURCE_FILES
+    defaulttype/CompressedRowSparseMatrixConstraintEigenUtils_test.cpp
+    defaulttype/ConstraintSparseMatrix_test.cpp
     defaulttype/MapMapSparseMatrix_test.cpp
     defaulttype/MapMapSparseMatrixEigenUtils_test.cpp
     defaulttype/VecTypesTest.cpp
