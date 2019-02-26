@@ -103,6 +103,11 @@ typedef double SReal;
     #define SOFA_CLASS_METHOD ( std::string(this->getClassName()) + "::" + __func__ + " " )
 #endif
 
+#ifdef __cpp_if_constexpr
+#define SOFA_IF_CONSTEXPR if constexpr
+#else
+#define SOFA_IF_CONSTEXPR if
+#endif
 /// macros to locally disable warnings
 #if defined(__clang__) || defined(__GNUC__)
     #define SOFA_PRAGMA(x) _Pragma(sofa_tostring(x))
