@@ -156,7 +156,7 @@ void DefaultMultiMatrixAccessor::setupMatrices()
     }
 
 
-#if 0 // the following code was used to debug resize issues in CompressedRowSparseMatrix
+#if 0 // the following code was used to debug resize issues in CompressedRowSparseMatrixMechanical
     if (globalMatrix)
     {
         globalMatrix->resize(globalDim, globalDim);

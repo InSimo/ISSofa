@@ -29,7 +29,7 @@
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/helper/map.h>
 #include <math.h>
 #include <SofaSparseSolver/SparseLDLSolverImpl.h>
@@ -90,15 +90,15 @@ protected :
 
     helper::vector<int> Jlocal2global;
     FullMatrix<Real> JLinvDinv,JLinv;
-    sofa::defaulttype::CompressedRowSparseMatrix<Real> Mfiltered;
+    sofa::defaulttype::CompressedRowSparseMatrixMechanical<Real> Mfiltered;
 //    helper::vector<Real> line,res;
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_SPARSE_SOLVER)
-extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix< double>,FullVector<double> >;
-extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix< defaulttype::Mat<3,3,double> >,FullVector<double> >;
-extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix< float>,FullVector<float> >;
-extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrix< defaulttype::Mat<3,3,float> >,FullVector<float> >;
+extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrixMechanical< double>,FullVector<double> >;
+extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrixMechanical< defaulttype::Mat<3,3,double> >,FullVector<double> >;
+extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrixMechanical< float>,FullVector<float> >;
+extern template class SOFA_SPARSE_SOLVER_API SparseLDLSolver< CompressedRowSparseMatrixMechanical< defaulttype::Mat<3,3,float> >,FullVector<float> >;
 #endif
 
 

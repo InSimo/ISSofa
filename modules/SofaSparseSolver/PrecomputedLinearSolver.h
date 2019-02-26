@@ -32,7 +32,7 @@
 #include <SofaBaseLinearSolver/FullMatrix.h>
 #include <sofa/helper/map.h>
 #include <math.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 namespace sofa
 {

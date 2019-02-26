@@ -34,7 +34,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <math.h>
 #include <sofa/helper/system/thread/CTime.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 namespace sofa
 {
@@ -105,7 +105,7 @@ void SparseLUSolver<TMatrix,TVector>::invert(Matrix& M)
     cs_dropzeros( &A );
 
     //M.check_matrix();
-    //CompressedRowSparseMatrix<double>::check_matrix(-1 /*A.nzmax*/,A.m,A.n,A.p,A.i,A.x);
+    //CompressedRowSparseMatrixMechanical<double>::check_matrix(-1 /*A.nzmax*/,A.m,A.n,A.p,A.i,A.x);
     //sout << "diag =";
     //for (int i=0;i<A.n;++i) sout << " " << M.element(i,i);
     //sout << sendl;
@@ -119,7 +119,7 @@ void SparseLUSolver<TMatrix,TVector>::invert(Matrix& M)
 SOFA_DECL_CLASS(SparseLUSolver)
 
 int SparseLUSolverClass = core::RegisterObject("Direct linear solver based on Sparse LU factorization, implemented with the CSPARSE library")
-        .add< SparseLUSolver< CompressedRowSparseMatrix<double>,FullVector<double> > >(true)
+        .add< SparseLUSolver< CompressedRowSparseMatrixMechanical<double>,FullVector<double> > >(true)
         ;
 
 } // namespace linearsolver

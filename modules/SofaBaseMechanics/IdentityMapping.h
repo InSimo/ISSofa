@@ -26,7 +26,7 @@
 #define SOFA_COMPONENT_MAPPING_IDENTITYMAPPING_H
 
 #include <sofa/core/Mapping.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/SofaBase.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
@@ -90,7 +90,7 @@ public:
 
     typedef defaulttype::Mat<N, N, Real> Mat;
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::defaulttype::CompressedRowSparseMatrix<MBloc> MatrixType;
+    typedef sofa::defaulttype::CompressedRowSparseMatrixMechanical<MBloc> MatrixType;
 
     //enum { N=((int)Deriv::static_size < (int)InDeriv::static_size ? (int)Deriv::static_size : (int)InDeriv::static_size) };
 

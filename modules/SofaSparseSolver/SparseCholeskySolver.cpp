@@ -125,7 +125,7 @@ void SparseCholeskySolver<TMatrix,TVector>::invert(Matrix& M)
     A.nz = -1;							// # of entries in triplet matrix, -1 for compressed-col
     cs_dropzeros( &A );
     //M.check_matrix();
-    //CompressedRowSparseMatrix<double>::check_matrix(-1 /*A.nzmax*/,A.m,A.n,A.p,A.i,A.x);
+    //CompressedRowSparseMatrixMechanical<double>::check_matrix(-1 /*A.nzmax*/,A.m,A.n,A.p,A.i,A.x);
     //sout << "diag =";
     //for (int i=0;i<A.n;++i) sout << " " << M.element(i,i);
     //sout << sendl;
@@ -140,12 +140,12 @@ void SparseCholeskySolver<TMatrix,TVector>::invert(Matrix& M)
 SOFA_DECL_CLASS(SparseCholeskySolver)
 
 int SparseCholeskySolverClass = core::RegisterObject("Direct linear solver based on Sparse Cholesky factorization, implemented with the CSPARSE library")
-        .add< SparseCholeskySolver< CompressedRowSparseMatrix<double>,FullVector<double> > >(true)
-        .add< SparseCholeskySolver< CompressedRowSparseMatrix<float>,FullVector<float> > >()
+        .add< SparseCholeskySolver< CompressedRowSparseMatrixMechanical<double>,FullVector<double> > >(true)
+        .add< SparseCholeskySolver< CompressedRowSparseMatrixMechanical<float>,FullVector<float> > >()
         ;
 
-template class SOFA_SPARSE_SOLVER_API SparseCholeskySolver< CompressedRowSparseMatrix<double>,FullVector<double> >;
-template class SOFA_SPARSE_SOLVER_API SparseCholeskySolver< CompressedRowSparseMatrix<float>,FullVector<float> >;
+template class SOFA_SPARSE_SOLVER_API SparseCholeskySolver< CompressedRowSparseMatrixMechanical<double>,FullVector<double> >;
+template class SOFA_SPARSE_SOLVER_API SparseCholeskySolver< CompressedRowSparseMatrixMechanical<float>,FullVector<float> >;
 
 } // namespace linearsolver
 

@@ -27,7 +27,7 @@
 
 #include "EigenBaseSparseMatrix.h"
 #include <sofa/defaulttype/Mat.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/helper/SortedPermutation.h>
 #include <sofa/helper/vector.h>
 #include <Eigen/Core>
@@ -275,10 +275,10 @@ public:
     // mapping ::Real member types (sometimes it's In::Real, sometimes it's
     // Out::Real, see e.g. BarycentricMapping/RigidMapping)
 
-    /** Set from a CompressedRowSparseMatrix. @pre crs must be compressed
+    /** Set from a CompressedRowSparseMatrixMechanical. @pre crs must be compressed
       */
     template<class AnyReal>
-    void copyFrom( const sofa::defaulttype::CompressedRowSparseMatrix< defaulttype::Mat<Nout,Nin, AnyReal> >& crs )
+    void copyFrom( const sofa::defaulttype::CompressedRowSparseMatrixMechanical< defaulttype::Mat<Nout,Nin, AnyReal> >& crs )
     {
         this->resize( crs.rowSize(), crs.colSize() );
 //        cerr<<"copyFrom, size " << crs.rowSize() << ", " << crs.colSize()<< ", block rows: " << crs.rowIndex.size() << endl;
@@ -295,7 +295,7 @@ public:
 //                rowStarted++;
 //            }
 
-            typename sofa::defaulttype::CompressedRowSparseMatrix<Block>::Range rowRange(crs.rowBegin[xi], crs.rowBegin[xi+1]);
+            typename sofa::defaulttype::CompressedRowSparseMatrixMechanical<Block>::Range rowRange(crs.rowBegin[xi], crs.rowBegin[xi+1]);
 
             for( unsigned r=0; r<Nout; r++ )   // process one scalar row after another
             {

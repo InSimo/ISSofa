@@ -30,7 +30,7 @@
 #include <sofa/core/behavior/MultiMatrixAccessor.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/defaulttype/Mat.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 namespace sofa
 {
@@ -60,10 +60,10 @@ public:
     template<class MReal>
     class BlocCRSMatrixWriter
     {
-        sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m;
+        sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal> >* m;
         const unsigned int boffsetL, boffsetC;
     public:
-        BlocCRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,MReal> >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
+        BlocCRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal> >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             m->add(bi, bj, b, boffsetL, boffsetC);
@@ -129,10 +129,10 @@ public:
     template<class MReal>
     class CRSMatrixWriter
     {
-        sofa::defaulttype::CompressedRowSparseMatrix<MReal>* m;
+        sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal>* m;
         const unsigned int offsetL, offsetC;
     public:
-        CRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrix<MReal>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
+        CRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i0 = offsetL + bi*NL;
@@ -252,11 +252,11 @@ public:
         {
             unsigned int boffsetL = offsetL / NL;
             unsigned int boffsetC = offsetC / NC;
-            if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,double> > * mat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,double> >::DynamicCast(m))
+            if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,double> > * mat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,double> >::DynamicCast(m))
             {
                 dispatch(BlocCRSMatrixWriter<double>(mat, boffsetL, boffsetC));
             }
-            else if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,float> > * mat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<NL,NC,float> >::DynamicCast(m))
+            else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,float> > * mat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,float> >::DynamicCast(m))
             {
                 dispatch(BlocCRSMatrixWriter<float>(mat, boffsetL, boffsetC));
             }
@@ -267,11 +267,11 @@ public:
         }
         else
         {
-            if (sofa::defaulttype::CompressedRowSparseMatrix<double> * mat = sofa::defaulttype::CompressedRowSparseMatrix<double>::DynamicCast(m))
+            if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<double> * mat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>::DynamicCast(m))
             {
                 dispatch(CRSMatrixWriter<double>(mat, offsetL, offsetC));
             }
-            else if (sofa::defaulttype::CompressedRowSparseMatrix<float> * mat = sofa::defaulttype::CompressedRowSparseMatrix<float>::DynamicCast(m))
+            else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<float> * mat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<float>::DynamicCast(m))
             {
                 dispatch(CRSMatrixWriter<float>(mat, offsetL, offsetC));
             }

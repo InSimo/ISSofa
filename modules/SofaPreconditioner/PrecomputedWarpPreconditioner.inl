@@ -55,7 +55,7 @@
 
 #ifdef SOFA_HAVE_CSPARSE
 #include <SofaSparseSolver/SparseCholeskySolver.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #else
 #include <SofaBaseLinearSolver/CholeskySolver.h>
 #endif
@@ -230,7 +230,7 @@ void PrecomputedWarpPreconditioner<TDataTypes>::loadMatrixWithCSparse(TMatrix& M
     b.resize(systemSize);
     for (unsigned int j=0; j<systemSize; j++) b.set(j,0.0);
 
-    SparseCholeskySolver<CompressedRowSparseMatrix<Real>, FullVector<Real> > solver;
+    SparseCholeskySolver<CompressedRowSparseMatrixMechanical<Real>, FullVector<Real> > solver;
 
     std::cout << "Precomputing constraint correction LU decomposition " << std::endl;
     solver.invert(M);

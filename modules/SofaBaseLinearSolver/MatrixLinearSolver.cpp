@@ -30,7 +30,7 @@
 #include <sofa/simulation/common/MechanicalVPrintVisitor.h>
 #include <sofa/simulation/common/VelocityThresholdVisitor.h>
 #include <sofa/core/behavior/LinearSolver.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.inl>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.inl>
 
 #include <stdlib.h>
 #include <math.h>
@@ -235,20 +235,20 @@ template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< FullMatrix<double
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< FullMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< SparseMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<1,1,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<1,1,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<2,2,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<2,2,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<4,4,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<4,4,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<6,6,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<6,6,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<8,8,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<8,8,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<1,1,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<1,1,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<2,2,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<2,2,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<4,4,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<4,4,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<6,6,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<6,6,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<8,8,double> >, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<8,8,float> >, sofa::defaulttype::FullVector<float>, NoThreadManager >;
 
 } // namespace linearsolver
 

@@ -31,7 +31,7 @@
 #include <sofa/SofaBase.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <SofaBaseLinearSolver/FullMatrix.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <SofaBaseLinearSolver/GraphScatteredTypes.h>
 #include <vector>
 
@@ -160,9 +160,9 @@ protected:
 
 /* CRSMultiMatrixAccessor do the same thing as DefaultMultiMatrixAccessor but optimal.
  * The different is instead of creating a standard full matrix for mapped and mapping, CRSMultiMatrixAccessor works
- * with CompressedRowSparseMatrix.
+ * with CompressedRowSparseMatrixMechanicalMechanical.
  *
- * To be able to creat  CompressedRowSparseMatrix, it is needle to know about block format of relied to the
+ * To be able to creat  CompressedRowSparseMatrixMechanicalMechanical, it is needle to know about block format of relied to the
  * size of DOF of mapped Mechanical state and input-output Mechanical State of the mapping
  * */
 class SOFA_BASE_LINEAR_SOLVER_API CRSMultiMatrixAccessor : public DefaultMultiMatrixAccessor
@@ -189,7 +189,7 @@ public:
 template<int blocRsize, int blocCsize, class elementType>
 inline defaulttype::BaseMatrix* createBlocSparseMatrixT(int nbRowBloc, int nbColBloc, bool _debug)
 {
-    typedef CompressedRowSparseMatrix< defaulttype::Mat<blocRsize, blocCsize, elementType> > BlocMatrix;
+    typedef CompressedRowSparseMatrixMechanicalMechanical< defaulttype::Mat<blocRsize, blocCsize, elementType> > BlocMatrix;
     BlocMatrix* m =	new BlocMatrix;
     m->resizeBloc(nbRowBloc,nbColBloc);
     if(_debug)
@@ -244,17 +244,17 @@ inline bool opAddMulJTM_TBloc(defaulttype::BaseMatrix* out, defaulttype::BaseMat
     // Notice : in case where stiffMatrix2 are self-stiffness matrix,
     // we have JblocRsize = MblocCsize
     typedef defaulttype::Mat<JblocRsize, JblocCsize, JelementType> JBloc;
-    typedef CompressedRowSparseMatrix<JBloc>                       JMatrix;
+    typedef CompressedRowSparseMatrixMechanical<JBloc>                       JMatrix;
     typedef typename JMatrix::ColBlockConstIterator                JBColConstIterator;
     typedef typename JMatrix::BlockConstAccessor                   JBlocConstAccessor;
 
     typedef defaulttype::Mat<JblocRsize, MblocCsize, MelementType> MBloc;
-    typedef CompressedRowSparseMatrix<MBloc>                       MMatrix;
+    typedef CompressedRowSparseMatrixMechanical<MBloc>                       MMatrix;
     typedef typename MMatrix::ColBlockConstIterator                MBColConstIterator;
     typedef typename MMatrix::BlockConstAccessor                   MBlocConstAccessor;
 
     typedef defaulttype::Mat<JblocCsize, MblocCsize, MelementType> OutBloc;
-    typedef CompressedRowSparseMatrix<OutBloc>                     OutMatrix;
+    typedef CompressedRowSparseMatrixMechanical<OutBloc>                     OutMatrix;
 
     JMatrix* Jmatrix = JMatrix::DynamicCast(J);
     MMatrix* Mmatrix = MMatrix::DynamicCast(stiffMatrix2);
@@ -457,17 +457,17 @@ template<int MblocRsize, int MblocCsize, int JblocCsize, class JelementType, cla
 inline bool opAddMulMJ_TBloc(defaulttype::BaseMatrix* out, defaulttype::BaseMatrix* stiffMatrix2,  defaulttype::BaseMatrix* J,int offsetRow, int offsetCol, bool _debug)
 {
     typedef defaulttype::Mat<MblocCsize, JblocCsize, JelementType> JBloc;
-    typedef CompressedRowSparseMatrix<JBloc>                       JMatrix;
+    typedef CompressedRowSparseMatrixMechanical<JBloc>                       JMatrix;
     typedef typename JMatrix::ColBlockConstIterator                JBColConstIterator;
     typedef typename JMatrix::BlockConstAccessor                   JBlocConstAccessor;
 
     typedef defaulttype::Mat<MblocRsize, MblocCsize, MelementType> MBloc;
-    typedef CompressedRowSparseMatrix<MBloc>                       MMatrix;
+    typedef CompressedRowSparseMatrixMechanical<MBloc>                       MMatrix;
     typedef typename MMatrix::ColBlockConstIterator                MBColConstIterator;
     typedef typename MMatrix::BlockConstAccessor                   MBlocConstAccessor;
 
     typedef defaulttype::Mat<MblocRsize, JblocCsize, MelementType> OutBloc;
-    typedef CompressedRowSparseMatrix<OutBloc>                     OutMatrix;
+    typedef CompressedRowSparseMatrixMechanical<OutBloc>                     OutMatrix;
 
     JMatrix* Jmatrix = JMatrix::DynamicCast(J);
     MMatrix* Mmatrix = MMatrix::DynamicCast(stiffMatrix2);

@@ -35,7 +35,7 @@
 #include <assert.h>
 #include <iostream>
 #include <set>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 
 namespace sofa
@@ -2027,7 +2027,7 @@ void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMa
     Rot[1][0]=Rot[1][2]=0;
     Rot[2][0]=Rot[2][1]=0;
 
-    if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >::DynamicCast(mat))
+    if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> >::DynamicCast(mat))
     {
         for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
         {
@@ -2070,7 +2070,7 @@ void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMa
             crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[3], tmpBlock[3][3]);
         }
     }
-    else if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >::DynamicCast(mat))
+    else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> >::DynamicCast(mat))
     {
         for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
         {
@@ -2188,7 +2188,7 @@ void TetrahedronFEMForceField<DataTypes>::addSubKToMatrix(sofa::defaulttype::Bas
         }
     }
 
-    if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,double> >::DynamicCast(mat)) {
+    if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> >::DynamicCast(mat)) {
         for(unsigned e = 0;e< itTetraBuild.size();e++) {
             IT = itTetraBuild[e];
             it = _indexedElements->begin() + IT;
@@ -2229,7 +2229,7 @@ void TetrahedronFEMForceField<DataTypes>::addSubKToMatrix(sofa::defaulttype::Bas
             crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[2], tmpBlock[3][2]);
             crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[3], tmpBlock[3][3]);
         }
-    } else if (sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrix<defaulttype::Mat<3,3,float> >::DynamicCast(mat)) {
+    } else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> >::DynamicCast(mat)) {
         for(unsigned e = 0;e< itTetraBuild.size();e++) {
             IT = itTetraBuild[e];
             it = _indexedElements->begin() + IT;

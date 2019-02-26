@@ -28,7 +28,7 @@
 #include <SofaBaseTopology/TopologyData.h>
 #include <SofaBaseTopology/TopologyDataHandler.h>
 #include <SofaBaseTopology/RegularGridTopology.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 #ifdef SOFA_HAVE_EIGEN2
 #include <SofaEigen2Solver/EigenSparseMatrix.h>
@@ -126,7 +126,7 @@ public:
     enum { NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize };
     enum { NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize };
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::defaulttype::CompressedRowSparseMatrix<MBloc> MatrixType;
+    typedef sofa::defaulttype::CompressedRowSparseMatrixMechanical<MBloc> MatrixType;
 
 protected:
 

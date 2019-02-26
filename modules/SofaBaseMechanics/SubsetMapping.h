@@ -29,7 +29,7 @@
 #include <sofa/core/Mapping.h>
 
 #include <SofaBaseTopology/TopologySubsetData.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 #include <sofa/helper/vector.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
@@ -92,7 +92,7 @@ public:
     enum { NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize };
     enum { NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize };
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::defaulttype::CompressedRowSparseMatrix<MBloc> MatrixType;
+    typedef sofa::defaulttype::CompressedRowSparseMatrixMechanical<MBloc> MatrixType;
 
     /// Correspondance array
     typedef typename InVecCoord::template rebind<unsigned int>::other IndexArray;

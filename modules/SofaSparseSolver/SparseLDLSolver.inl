@@ -36,7 +36,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <math.h>
 #include <sofa/helper/system/thread/CTime.h>
-#include <sofa/defaulttype/CompressedRowSparseMatrix.inl>
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.inl>
 #include <SofaConstraint/ConstraintSolverImpl.h>
 #include <sofa/helper/AdvancedTimer.h>
 
@@ -135,13 +135,14 @@ template<class TMatrix, class TVector, class TThreadManager>
 void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsSystemMatrix(const sofa::core::ConstraintParams* /*cparams*/)
 {
     const JMatrixType * j_local = this->internalData.getLocalJ();
+    auto* systemMatrix = this->currentGroup->systemMatrix;
+    sofa::defaulttype::BaseMatrix* systemBaseMatrix = this->currentGroup->systemMatrix;
 
-    std::size_t mechanicalSystemSize = this->currentGroup->systemMatrix->colSize();
+    std::size_t mechanicalSystemSize = systemMatrix->colSize();
     std::size_t constitutiveConstraintsSystemSize = j_local->rowSize() + mechanicalSystemSize;
 
+    systemMatrix->extend(constitutiveConstraintsSystemSize, constitutiveConstraintsSystemSize);
     this->currentGroup->systemSize = constitutiveConstraintsSystemSize;
-
-    this->currentGroup->systemMatrix->extend(constitutiveConstraintsSystemSize,constitutiveConstraintsSystemSize);
 
     for(auto& line : *j_local)
     {    
@@ -149,14 +150,14 @@ void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstra
         for(auto& elem : line.second)
         {
             std::size_t colIndex = elem.first;
-            const double& value = elem.second;
+            const double value = elem.second;
 
             if(value == double(0))
             {
                 continue;
             }
-            this->currentGroup->systemMatrix->add(rowIndex + mechanicalSystemSize, colIndex, value);
-            this->currentGroup->systemMatrix->add(colIndex, rowIndex + mechanicalSystemSize, value);
+            systemBaseMatrix->add(rowIndex + mechanicalSystemSize, colIndex, value);
+            systemBaseMatrix->add(colIndex, rowIndex + mechanicalSystemSize, value);
         }
     }
 
