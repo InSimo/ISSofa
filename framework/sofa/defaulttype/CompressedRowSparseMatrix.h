@@ -61,7 +61,7 @@ public:
     /// Set to true if clear methods will put all concerned value to zero instead of clearing vectors (CompressZeros should be true)
     static constexpr bool ClearByZeros = true;
     /// Set to true if insertion in matrix are in most case at last line index or last col index
-    static constexpr bool OrderedInsertion = true;
+    static constexpr bool OrderedInsertion = false;
     /// Set to true if touch flags should be stored (to remove untouched blocs during compression)
     static constexpr bool StoreTouchFlags = false;
     /// Set to false to disable storage of blocs on the lower triangular part (IsAlwaysSymmetric must be true)

@@ -46,6 +46,7 @@ public:
 
     static constexpr bool IsAlwaysSquare = true;
     static constexpr bool IsAlwaysSymmetric = true;
+    static constexpr bool OrderedInsertion = true;
     static constexpr bool StoreLowerTriangularBloc = true;
 
     static constexpr int matrixType = 1;

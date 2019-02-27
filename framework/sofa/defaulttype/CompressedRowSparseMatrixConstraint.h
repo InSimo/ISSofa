@@ -62,7 +62,7 @@ public:
     static constexpr bool AutoCompress = true;
     static constexpr bool CompressZeros = false;
     static constexpr bool ClearByZeros = false;
-    static constexpr bool OrderedInsertion = true;
+    static constexpr bool OrderedInsertion = false;
 
     static constexpr int  matrixType = 2;
 };
