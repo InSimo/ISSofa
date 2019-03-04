@@ -60,6 +60,8 @@ TopologyEngineImpl::~TopologyEngineImpl()
 {
     if (m_topology)
     {
+        // Creating a copy instead of using a reference to be able to iterate
+        // on the inputs while deleting each item
         const DDGLinkContainer inputs = this->getInputs();
         for (auto input: inputs)
         {
