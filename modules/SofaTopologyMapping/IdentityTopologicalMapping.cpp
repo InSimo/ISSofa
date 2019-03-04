@@ -70,7 +70,7 @@ int IdentityTopologicalMappingClass = core::RegisterObject("This class is a spec
         ;
 
 IdentityTopologicalMapping::IdentityTopologicalMapping()
-: d_createOutputTopologyAtInit(initData(&d_createOutputTopologyAtInit, false, "createOutputTopologyAtInit", "If true, the output topology is create from input topology"))
+: d_createOutputTopologyAtInit(initData(&d_createOutputTopologyAtInit, true, "createOutputTopologyAtInit", "If true, the output topology is create from input topology"))
 {
 }
 
