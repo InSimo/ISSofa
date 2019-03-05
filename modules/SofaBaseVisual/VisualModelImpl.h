@@ -205,7 +205,7 @@ public:
     Data<bool> m_initRestPositions; ///< True if rest positions should be initialized with initial positions, False if nothing should be done
     Data<bool> m_useNormals; ///< True if normals should be read from file
     Data<bool> m_updateNormals; ///< True if normals should be updated at each iteration
-    Data<bool> m_inverseNormals; ///< True if normals should be updated at each iteration
+    Data<bool> m_flipNormals; ///< True if normals should be flipped at each iteration
     Data<bool> m_computeTangents; ///< True if tangents should be computed at startup
     Data<bool> m_updateTangents; ///< True if tangents should be updated at each iteration
     Data<bool> m_handleDynamicTopology; ///< True if topological changes should be handled
