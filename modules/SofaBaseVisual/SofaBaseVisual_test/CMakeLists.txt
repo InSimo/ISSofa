@@ -9,7 +9,7 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 include_directories(${gtest_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME} gtest_main SofaBaseVisual)
+target_link_libraries(${PROJECT_NAME} sofa_gtest_main SofaBaseVisual)
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${PROJECT_NAME} COMMENT "-> Running unit tests..." VERBATIM)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${PROJECT_NAME} "--output-on-failure" COMMENT "-> Running unit tests..." VERBATIM)
