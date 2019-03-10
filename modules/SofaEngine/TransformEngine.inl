@@ -49,9 +49,9 @@ TransformEngine<DataTypes>::TransformEngine()
     , rotation(initData(&rotation, defaulttype::Vector3(0,0,0), "rotation", "rotation vector ") )
     , quaternion(initData(&quaternion, defaulttype::Quaternion(0,0,0,1), "quaternion", "rotation quaternion ") )
     , scale(initData(&scale, defaulttype::Vector3(1,1,1),"scale", "scale factor") )
-    , inverse(initData(&inverse, false, "inverse", "true to apply inverse transformation"))
     , rotationAxis(initData(&rotationAxis, defaulttype::Vector3(0,0,0), "rotationAxis", "Axis vector used in 'rotation around axis' operation"))
     , rotationAngle(initData(&rotationAngle, Real(0), "rotationAngle", "Angle (radians) used in 'rotation around axis' operation"))
+    , inverse(initData(&inverse, false, "inverse", "true to apply inverse transformation"))
 {
     addInput(&f_inputX);
     addInput(&translation);
@@ -184,7 +184,7 @@ struct RotationSpecialized<DataTypes, 2, false> : public TransformOperation<Data
         assert(false && "This method should not be called without been implemented");
     }
 
-    void configure(const defaulttype::Vector3 &rAxis, const Real &rAngle, bool inverse)
+    void configure(const defaulttype::Vector3 &/*rAxis*/, const Real &/*rAngle*/, bool /*inverse*/)
     {
         assert(false && "Call to a method not implemented for the considered template");
     }

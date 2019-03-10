@@ -15,6 +15,12 @@ if("x${CMAKE_CXX_COMPILER_ID}" STREQUAL "xGNU" OR "x${CMAKE_CXX_COMPILER_ID}" ST
     add_compile_options(-fPIC)
 endif()
 
+# Disable numerous warnings in metis code
+if (MSVC)
+    add_compile_options(/wd4018 /wd4028 /wd4101 /wd4244 /wd4267 /wd4996)
+else()
+endif()
+
 add_library(${PROJECT_NAME} STATIC ${metis_sources} ${GKlib_sources})
 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/GKlib>")
@@ -26,7 +32,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/metis.h)
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} m)
 endif()
-
 
 include(CMakePackageConfigHelpers)
 

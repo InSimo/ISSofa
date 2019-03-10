@@ -86,7 +86,7 @@ public:
         return result;
     }
 
-    const bool isAssemblingConstitutiveConstraints() const
+    bool isAssemblingConstitutiveConstraints() const
     { 
         return m_assembleConstitutiveConstraints;
     }

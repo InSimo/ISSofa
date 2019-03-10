@@ -67,7 +67,7 @@ public:
     /// Topology global typedefs
     //typedef int index_type;
     typedef unsigned int index_type;
-    enum { InvalidID = (unsigned)-1 };
+    enum : index_type { InvalidID = (index_type)-1 };
     typedef index_type	        	    PointID;
     typedef index_type          		    EdgeID;
     typedef index_type                          TriangleID;

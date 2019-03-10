@@ -33,7 +33,8 @@ namespace core
 namespace dataparser
 {
 
-std::string DataParserErrorCategory::message(int value) const
+
+std::string getDataParserErrorMessage(int value)
 {
     switch (static_cast<DataParserError>(value))
     {

@@ -26,7 +26,7 @@ int OpenFile(const char* filename) { return _open(filename, _O_RDONLY); }
 void CloseFile(int file_descriptor) { _close(file_descriptor); }
 
 int ReadFile(int file_descriptor, void* buffer, size_t buffer_size) {
-  return _read(file_descriptor, buffer, buffer_size);
+  return (int)_read(file_descriptor, buffer, (unsigned int)buffer_size);
 }
 
 #else

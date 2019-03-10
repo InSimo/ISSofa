@@ -218,6 +218,8 @@ void SubsetMapping<TIn, TOut>::handleEvent(core::objectmodel::Event *e)
         }
 
     }
+#else
+    SOFA_UNUSED(e);
 #endif
 }
 

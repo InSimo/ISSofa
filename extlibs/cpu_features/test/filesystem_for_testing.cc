@@ -39,7 +39,7 @@ void FakeFile::Close() {
 
 int FakeFile::Read(int fd, void* buf, size_t count) {
   assert(count < INT_MAX);
-  assert(fd == file_descriptor_);
+  assert(fd == file_descriptor_); (void)(fd);
   const size_t remainder = content_.size() - head_index_;
   const size_t read = count > remainder ? remainder : count;
   memcpy(buf, content_.data() + head_index_, read);

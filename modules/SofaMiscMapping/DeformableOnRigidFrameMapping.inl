@@ -258,6 +258,8 @@ void DeformableOnRigidFrameMapping<TIn, TInRoot, TOut>::handleTopologyChange(cor
 		}
 
 	}
+#else
+    SOFA_UNUSED(t);
 #endif
 }
 

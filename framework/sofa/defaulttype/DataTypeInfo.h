@@ -37,6 +37,9 @@
 #include <sstream>
 #include <typeinfo>
 
+SOFA_WARNING_PUSH()
+SOFA_WARNING_DISABLE_MSC(4503) // decorated name length exceeded, name was truncated => templates here are often applied to inner classes that can be heavily templated
+
 namespace sofa
 {
 
@@ -1370,5 +1373,7 @@ struct DataTypeName< std::map<K,T,Compare,Alloc> > { static std::string name() {
 } // namespace defaulttype
 
 } // namespace sofa
+
+SOFA_WARNING_POP()
 
 #endif  // SOFA_DEFAULTTYPE_DATATYPEINFO_H

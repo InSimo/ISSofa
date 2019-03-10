@@ -701,7 +701,7 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     data.baryCoords[1] = ( Real ) baryCoords[1];
 
     auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
-    const BaryElementInfo& tInfo = triangleInfo[triangleIndex];
+    const BaryElementInfo& tInfo = triangleInfo[triangleIndex]; SOFA_UNUSED(tInfo);
     assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != 
                      tInfo.vPointsIncluded.end() );
 
@@ -780,8 +780,8 @@ void BarycentricMapperTriangleSetTopology<In,Out>::init(const typename Out::VecC
 template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyCreateFunction(unsigned int /*t*/,
     BaryElementInfo& baryTriangleInfo,
-    const Triangle & triangle,
-    const sofa::helper::vector< unsigned int >& ancestors,
+    const Triangle & /*triangle*/,
+    const sofa::helper::vector< unsigned int >& /*ancestors*/,
     const sofa::helper::vector< double >& /*coeffs*/)
 {
     baryTriangleInfo.dirty = true;
@@ -796,7 +796,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::applyDe
     for (auto pid : baryTriangleInfo.vPointsIncluded)
     {
         obj->m_dirtyPoints.insert(pid);
-        mapData[pid].in_index = sofa::core::topology::Topology::InvalidID;
+        mapData[pid].in_index = -1; // unfortunately NOT sofa::core::topology::Topology::InvalidID because in_index is signed
     }
 
     baryTriangleInfo.vPointsIncluded.clear();

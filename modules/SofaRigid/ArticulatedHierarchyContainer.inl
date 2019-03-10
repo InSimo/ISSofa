@@ -147,8 +147,8 @@ void ArticulatedHierarchyContainer::swapArticulations(vector<ArticulationCenter*
 }
 
 ArticulatedHierarchyContainer::ArticulatedHierarchyContainer()
-    : filename(initData(&filename, "filename", "BVH File to load the articulation", false))
-    , d_rootOutIndex(initData(&d_rootOutIndex, int(-1), "rootOutIndex", "(Optional) Define the out index on which the m_fromRootModel is attached in ArticulatedSystemMapping."))
+    : d_rootOutIndex(initData(&d_rootOutIndex, int(-1), "rootOutIndex", "(Optional) Define the out index on which the m_fromRootModel is attached in ArticulatedSystemMapping."))
+    , filename(initData(&filename, "filename", "BVH File to load the articulation", false))
 {
     joint = NULL;
     id = 0;

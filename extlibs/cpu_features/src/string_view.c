@@ -22,7 +22,7 @@ int IndexOfChar(const StringView view, char c) {
   if (view.ptr && view.size) {
     const char* const found = (const char*)memchr(view.ptr, c, view.size);
     if (found) {
-      return found - view.ptr;
+      return (int)(found - view.ptr);
     }
   }
   return -1;
@@ -36,7 +36,7 @@ int IndexOf(const StringView view, const StringView sub_view) {
       if (found_index < 0) break;
       remainder = PopFront(remainder, found_index);
       if (StartsWith(remainder, sub_view)) {
-        return remainder.ptr - view.ptr;
+        return (int)(remainder.ptr - view.ptr);
       }
       remainder = PopFront(remainder, 1);
     }

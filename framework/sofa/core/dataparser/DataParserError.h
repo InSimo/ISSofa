@@ -47,16 +47,27 @@ enum class DataParserError : int
     invalid_json
 };
 
-class SOFA_CORE_API DataParserErrorCategory : public std::error_category
+SOFA_CORE_API const std::error_category& getDataParserErrorCategory();
+
+SOFA_CORE_API std::string getDataParserErrorMessage(int value);
+
+class DataParserErrorCategory : public std::error_category
 {
 public:
-    const char* name() const noexcept override { return "sofa_data_parser"; }
-    std::string message(int value) const override;
+    const char* name() const noexcept override
+    {
+        return "sofa_data_parser";
+    }
+    std::string message(int value) const override
+    {
+        return getDataParserErrorMessage(value);
+    }
 
-    std::error_condition default_error_condition(int /*value*/) const noexcept override { return std::errc::io_error; }
+    std::error_condition default_error_condition(int /*value*/) const noexcept override
+    {
+        return std::errc::io_error;
+    }
 };
-
-SOFA_CORE_API const std::error_category& getDataParserErrorCategory();
 
 inline std::error_code make_error_code(DataParserError ec)
 {

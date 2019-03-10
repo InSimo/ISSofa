@@ -54,7 +54,7 @@ bool vector_access_call_assert()
 
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type)
 {
-    std::cerr << "ERROR in vector<"<<gettypename(type)<<"> " << std::hex << (long)vec << std::dec << " size " << size << " : invalid index " << (int)i << std::endl;
+    std::cerr << "ERROR in vector<"<<gettypename(type)<<"> " << std::hex << (std::uintptr_t)vec << std::dec << " size " << size << " : invalid index " << (int)i << std::endl;
     BackTrace::dump();
     static bool do_assert = vector_access_call_assert();
     if (do_assert)
@@ -65,7 +65,7 @@ void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsig
 
 void SOFA_HELPER_API vector_access_failure(const void* vec, unsigned size, unsigned i, const std::type_info& type, const char* tindex)
 {
-    std::cerr << "ERROR in vector<"<<gettypename(type)<<", integer_id<"<<tindex<<"> > " << std::hex << (long)vec << std::dec << " size " << size << " : invalid index " << (int)i << std::endl;
+    std::cerr << "ERROR in vector<"<<gettypename(type)<<", integer_id<"<<tindex<<"> > " << std::hex << (std::uintptr_t)vec << std::dec << " size " << size << " : invalid index " << (int)i << std::endl;
     BackTrace::dump();
     static bool do_assert = vector_access_call_assert();
     if (do_assert)

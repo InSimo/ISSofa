@@ -49,7 +49,7 @@ namespace
 {
 
 template <typename DataTypes>
-bool derivVectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool /*derivRotation*/)
+extern inline bool derivVectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool /*derivRotation*/)
 {
     unsigned int sz0 = x0.size();
     unsigned int szmin = std::min(sz0,(unsigned int)x1.size());
@@ -67,7 +67,7 @@ bool derivVectors(const typename DataTypes::VecCoord& x0, const typename DataTyp
 }
 
 template <typename DataTypes>
-bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool derivRotation=false)
+extern inline bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool derivRotation=false)
 {
     unsigned int sz0 = x0.size();
     unsigned int szmin = std::min(sz0,(unsigned int)x1.size());
@@ -106,7 +106,7 @@ bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, const typename D
 
 
 template <typename DataTypes>
-double computeDot(const typename DataTypes::Deriv& v0, const typename DataTypes::Deriv& v1)
+extern inline double computeDot(const typename DataTypes::Deriv& v0, const typename DataTypes::Deriv& v1)
 {
     return dot(v0,v1);
 }

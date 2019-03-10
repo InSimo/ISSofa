@@ -97,9 +97,9 @@ GenericConstraintSolver::GenericConstraintSolver()
 , currentIterations(initData(&currentIterations, 0, "currentIterations", "OUTPUT: current number of constraint groups"))
 , currentError(initData(&currentError, 0.0, "currentError", "OUTPUT: current error"))
 , reverseAccumulateOrder(initData(&reverseAccumulateOrder, false, "reverseAccumulateOrder", "True to accumulate constraints from nodes in reversed order (can be necessary when using multi-mappings or interaction constraints not following the node hierarchy)"))
+, d_dumpSystem(initData(&d_dumpSystem, false, "dumpSystem", "Dump linear systems to terminal (debug purpose, to use with small systems)"))
 , current_cp(&m_cpBuffer[0])
 , last_cp(NULL)
-, d_dumpSystem(initData(&d_dumpSystem, false, "dumpSystem", "Dump linear systems to terminal (debug purpose, to use with small systems)"))
 {
 	addAlias(&maxIt, "maxIt");
 
@@ -1029,7 +1029,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
 
 	for(i=0; i<maxIterations; i++)
 	{
-		bool constraintsAreVerified = true;
+		//bool constraintsAreVerified = true;
         if(sor != 1.0)
 		{
 			for(j=0; j<dimension; j++)
@@ -1073,8 +1073,8 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
 						lineError += dofError * dofError;
 					}
 					lineError = sqrt(lineError);
-					if(lineError > tol)
-						constraintsAreVerified = false;
+					//if(lineError > tol)
+					//	constraintsAreVerified = false;
 
 					contraintError += lineError;
 				}
@@ -1082,14 +1082,14 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
 			else
 			{
 				contraintError = fabs(w[j][j] * (force[j] - errF[0]));
-				if(contraintError > tol)
-					constraintsAreVerified = false;
+				//if(contraintError > tol)
+				//	constraintsAreVerified = false;
 			}
 
 			if(constraintsResolutions[j]->getTolerance())
 			{
-				if(contraintError > constraintsResolutions[j]->getTolerance())
-					constraintsAreVerified = false;
+				//if(contraintError > constraintsResolutions[j]->getTolerance())
+				//	constraintsAreVerified = false;
 				contraintError *= tol / constraintsResolutions[j]->getTolerance();
 			}
 

@@ -132,7 +132,7 @@ void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstra
 
 
 template<class TMatrix, class TVector, class TThreadManager>
-void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsSystemMatrix(const sofa::core::ConstraintParams* cparams)
+void SparseLDLSolver<TMatrix, TVector, TThreadManager>::buildConstitutiveConstraintsSystemMatrix(const sofa::core::ConstraintParams* /*cparams*/)
 {
     const JMatrixType * j_local = this->internalData.getLocalJ();
 

@@ -70,10 +70,10 @@ int DistanceMultiMappingClass = core::RegisterObject("Compute edge extensions")
 
 
 template <>
-void DistanceMapping< Vec1dTypes, Vec1dTypes >::draw(const core::visual::VisualParams* vparams){}
+void DistanceMapping< Vec1dTypes, Vec1dTypes >::draw(const core::visual::VisualParams*){}
 
 template <>
-void DistanceMapping< Vec1fTypes, Vec1fTypes >::draw(const core::visual::VisualParams* vparams){}
+void DistanceMapping< Vec1fTypes, Vec1fTypes >::draw(const core::visual::VisualParams*){}
 
 #ifndef SOFA_FLOAT
 template class SOFA_MISC_MAPPING_API DistanceMapping< Vec3dTypes, Vec1dTypes >;

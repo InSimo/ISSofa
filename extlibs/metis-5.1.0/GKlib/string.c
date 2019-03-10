@@ -91,6 +91,7 @@ based substitution function.
   returned in <tt>newstr</tt>, which also needs to be freed afterwards.
 */
 /************************************************************************/
+#if 0
 int gk_strstr_replace(char *str, char *pattern, char *replacement, char *options,
       char **new_str)
 {
@@ -233,7 +234,7 @@ int gk_strstr_replace(char *str, char *pattern, char *replacement, char *options
   return nmatches + 1;
 
 }
-
+#endif
 
 
 /************************************************************************/

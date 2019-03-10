@@ -409,7 +409,7 @@ std::string ExportDotVisitor::getParentName(core::objectmodel::BaseObject* obj)
     GNode* node = GNode::DynamicCast(obj->getContext());
     if (!node) return "";
     bool isMechanicalState = !node->mechanicalState.empty() && node->mechanicalState==obj;
-    bool isState = core::BaseState::DynamicCast(obj);
+    bool isState = (core::BaseState::DynamicCast(obj) != nullptr);
     while (node)
     {
         if (display(node))

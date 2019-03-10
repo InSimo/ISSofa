@@ -56,9 +56,9 @@ void TriangleSetGeometryAlgorithms< DataTypes >::reinit()
 }
 
 template<class DataTypes>
-void TriangleSetGeometryAlgorithms< DataTypes >::handleEvent(sofa::core::objectmodel::Event* e)
+void TriangleSetGeometryAlgorithms< DataTypes >::handleEvent(sofa::core::objectmodel::Event*)
 {
-#ifndef NDEBUG
+#if 0
     // check that the topology doesn't contain any degenerated triangle
     std::list<const sofa::core::topology::TopologyChange *>::const_iterator itBegin = this->m_topology->beginChange();
     std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd = this->m_topology->endChange();
