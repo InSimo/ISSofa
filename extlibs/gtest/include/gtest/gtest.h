@@ -1394,9 +1394,11 @@ AssertionResult CmpHelperEQ(const char* lhs_expression,
                             const T1& lhs,
                             const T2& rhs) {
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4389 /* signed/unsigned mismatch */)
+GTEST_DISABLE_GCC_WARNINGS_PUSH_(sign-compare)
   if (lhs == rhs) {
     return AssertionSuccess();
   }
+GTEST_DISABLE_GCC_WARNINGS_POP_()
 GTEST_DISABLE_MSC_WARNINGS_POP_()
 
   return CmpHelperEQFailure(lhs_expression, rhs_expression, lhs, rhs);
@@ -1523,6 +1525,8 @@ GTEST_API_ AssertionResult CmpHelper##op_name(\
 
 // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
 
+GTEST_DISABLE_MSC_WARNINGS_PUSH_(4389 /* signed/unsigned mismatch */)
+GTEST_DISABLE_GCC_WARNINGS_PUSH_(sign-compare)
 // Implements the helper function for {ASSERT|EXPECT}_NE
 GTEST_IMPL_CMP_HELPER_(NE, !=);
 // Implements the helper function for {ASSERT|EXPECT}_LE
@@ -1533,6 +1537,8 @@ GTEST_IMPL_CMP_HELPER_(LT, <);
 GTEST_IMPL_CMP_HELPER_(GE, >=);
 // Implements the helper function for {ASSERT|EXPECT}_GT
 GTEST_IMPL_CMP_HELPER_(GT, >);
+GTEST_DISABLE_GCC_WARNINGS_POP_()
+GTEST_DISABLE_MSC_WARNINGS_POP_()
 
 #undef GTEST_IMPL_CMP_HELPER_
 

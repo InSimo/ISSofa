@@ -318,6 +318,25 @@
 # define GTEST_DISABLE_MSC_WARNINGS_POP_()
 #endif
 
+// Macros for disabling GNU C warnings.
+//
+//   GTEST_DISABLE_GCC_WARNINGS_PUSH_(-Wsign-compare)
+//   /* code that triggers warnings -Wsign-compare */
+//   GTEST_DISABLE_GCC_WARNINGS_POP_()
+#ifdef __GNUC__
+#define GTEST_DISABLE_GCC_WARNINGS_HELP0(x) #x
+#define GTEST_DISABLE_GCC_WARNINGS_HELP1(x) GTEST_DISABLE_GCC_WARNINGS_HELP0(GCC diagnostic ignored x)
+#define GTEST_DISABLE_GCC_WARNINGS_HELP2(x) GTEST_DISABLE_GCC_WARNINGS_HELP1(#x)
+# define GTEST_DISABLE_GCC_WARNINGS_PUSH_(warnings) \
+    _Pragma("GCC diagnostic push") _Pragma(GTEST_DISABLE_GCC_WARNINGS_HELP2(-W##warnings))
+# define GTEST_DISABLE_GCC_WARNINGS_POP_()          \
+    _Pragma("GCC diagnostic pop")
+#else
+// Older versions of MSVC don't have __pragma.
+# define GTEST_DISABLE_GCC_WARNINGS_PUSH_(warnings)
+# define GTEST_DISABLE_GCC_WARNINGS_POP_()
+#endif
+
 #ifndef GTEST_LANG_CXX11
 // gcc and clang define __GXX_EXPERIMENTAL_CXX0X__ when
 // -std={c,gnu}++{0x,11} is passed.  The C++11 standard specifies a
