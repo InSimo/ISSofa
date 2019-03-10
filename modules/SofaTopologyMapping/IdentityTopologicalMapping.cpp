@@ -83,34 +83,35 @@ void IdentityTopologicalMapping::init()
     sofa::core::topology::TopologicalMapping::init();
     if (fromModel && toModel)
     {
+        toModel->clear();
         for (int i = 0; i < fromModel->getNbPoints(); i++)
         {
             toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
         }
-        const auto edges = fromModel->getEdges();
+        const auto& edges = fromModel->getEdges();
         for (auto e : edges)
         {
             toModel->addEdge(e[0], e[1]);
         }
-        const auto triangles = fromModel->getTriangles();
+        const auto& triangles = fromModel->getTriangles();
         for (auto tri : triangles)
         {
             toModel->addTriangle(tri[0], tri[1], tri[2]);
         }
-        const auto tetrahedra = fromModel->getTetrahedra();
+        const auto& tetrahedra = fromModel->getTetrahedra();
         for (auto tetra : tetrahedra)
         {
             toModel->addTetra(tetra[0], tetra[1], tetra[2], tetra[3]);
         }
 
-        const auto hexahedra = fromModel->getHexahedra();
+        const auto& hexahedra = fromModel->getHexahedra();
         for (auto hexa : hexahedra)
         {
             toModel->addHexa(hexa[0], hexa[1], hexa[2], hexa[3], hexa[4], hexa[5], hexa[6], hexa[7]);
         }
 
-        //Need to call container init() method to initialise topology neighborhood information
-        toModel->init();
+        //Need to call container createDerivedData() method to update topology neighborhood information
+        toModel->createDerivedData();
     }
 }
 
@@ -198,6 +199,7 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::EDGESADDED:
         {
+            if (!toEdgeMod) toModel->getContext()->get(toEdgeMod);
             if (!toEdgeMod) break;
             const EdgesAdded *eAdd = static_cast< const EdgesAdded * >( topoChange );
 //            std::cout << "EDGESADDED : " << eAdd->getNbAddedEdges() << std::endl;
@@ -209,6 +211,7 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::EDGESREMOVED:
         {
+            if (!toEdgeMod) toModel->getContext()->get(toEdgeMod);
             if (!toEdgeMod) break;
             const EdgesRemoved *eRem = static_cast< const EdgesRemoved * >( topoChange );
             sofa::helper::vector<unsigned int> tab = eRem->getArray();
@@ -221,6 +224,7 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::TRIANGLESADDED:
         {
+            if (!toTriangleMod) toModel->getContext()->get(toTriangleMod);
             if (!toTriangleMod) break;
             const TrianglesAdded *tAdd = static_cast< const TrianglesAdded * >( topoChange );
 //            std::cout << "TRIANGLESADDED : " << tAdd->getNbAddedTriangles() << std::endl;
@@ -232,6 +236,7 @@ void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 
         case core::topology::TRIANGLESREMOVED:
         {
+            if (!toTriangleMod) toModel->getContext()->get(toTriangleMod);
             if (!toTriangleMod) break;
             const TrianglesRemoved *tRem = static_cast< const TrianglesRemoved * >( topoChange );
             sofa::helper::vector<unsigned int> tab = tRem->getArray();
