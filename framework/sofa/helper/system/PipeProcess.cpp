@@ -87,6 +87,10 @@ bool PipeProcess::executeProcess(const std::string &command,  const std::vector<
     //std::string fileIN = filenameStdin;
     //Remove this line below and uncomment the one above when Windows will be able to read file as stdin
     std::string fileIN = "";
+    if (!filenameStdin.empty())
+    {
+        std::cerr << "PipeProcess::executeProcess: input file \"" << filenameStdin << "\" ignored as input pipes are not fully tested/implemented." << std::endl;
+    }
 
     fd_t fds[2][2];
 

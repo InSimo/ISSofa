@@ -627,14 +627,16 @@ template<class Real>
 defaulttype::Vec<3, Real> Quater<Real>::getEuler(bool normalize, Real epsilon) const
 {
     defaulttype::Vec<3, Real> v;
-    
+    double qnorm2 = norm2();
     // roll (x-axis rotation)
     double sinr = +2.0 * (_q[3] * _q[0] + _q[1] * _q[2]);
-    double cosr = +1.0 - 2.0 * (_q[0] * _q[0] + _q[1] * _q[1]);
+    double cosr = qnorm2 - 2.0 * (_q[0] * _q[0] + _q[1] * _q[1]);
     v[0] = atan2(sinr, cosr);
 
     // pitch (y-axis rotation)
     double sinp = +2.0 * (_q[3] * _q[1] - _q[2] * _q[0]);
+    if (normalize && qnorm2 - 1 > epsilon*epsilon)
+        sinp /= qnorm2;
     if (fabs(sinp) >= 1)
         v[1] = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
     else
@@ -642,7 +644,7 @@ defaulttype::Vec<3, Real> Quater<Real>::getEuler(bool normalize, Real epsilon) c
 
     // yaw (z-axis rotation)
     double siny = +2.0 * (_q[3] * _q[2] + _q[0] * _q[1]);
-    double cosy = +1.0 - 2.0 * (_q[1] * _q[1] + _q[2] * _q[2]);
+    double cosy = qnorm2 - 2.0 * (_q[1] * _q[1] + _q[2] * _q[2]);
     v[2] = atan2(siny, cosy);
 
     return v;
