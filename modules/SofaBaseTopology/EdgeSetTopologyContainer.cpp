@@ -69,22 +69,7 @@ void EdgeSetTopologyContainer::init()
 {
     PointSetTopologyContainer::init();
 
-    d_edge.updateIfDirty(); // make sure m_edge is up to date
-
-    helper::ReadAccessor< Data< sofa::helper::vector<Edge> > > m_edge = d_edge;
-    if (!m_edge.empty() && !d_initPoints.isSet()) // if d_initPoints is set, we don't overwrite it.
-    {
-        for (size_t i=0; i<m_edge.size(); ++i)
-        {
-            for(size_t j=0; j<2; ++j)
-            {
-                int a = m_edge[i][j];
-                if (a >= getNbPoints()) setNbPoints(a+1);
-            }
-        }
-    }
-    // std::cout << "coords: " << getPX(m_edge[1][0]) << " " << getPY(m_edge[1][0]) << " " << getPZ(m_edge[1][0]) << std::endl;
-    createEdgesAroundVertexArray();
+    createDerivedData();
 }
 
 void EdgeSetTopologyContainer::addEdge(int a, int b)
@@ -107,8 +92,12 @@ void EdgeSetTopologyContainer::createEdgesAroundVertexArray()
     for (size_t edge=0; edge<m_edge.size(); ++edge)
     {
         // adding edge in the edge shell of both points
-        m_edgesAroundVertex[ m_edge[edge][0] ].push_back(edge);
-        m_edgesAroundVertex[ m_edge[edge][1] ].push_back(edge);
+        for(size_t j=0; j<2; ++j)
+        {
+            int a = m_edge[edge][j];
+            assert(a < getNbPoints());
+            m_edgesAroundVertex[ a ].push_back(edge);
+        }
     }
 
     if (m_checkConnexity.getValue())
@@ -121,6 +110,25 @@ void EdgeSetTopologyContainer::reinit()
 
     if (m_checkConnexity.getValue())
         this->checkConnexity();
+}
+
+void EdgeSetTopologyContainer::createDerivedData()
+{
+
+    helper::ReadAccessor< Data< sofa::helper::vector<Edge> > > m_edge = d_edge;
+    if (!m_edge.empty())
+    {
+        for (size_t i=0; i<m_edge.size(); ++i)
+        {
+            for(size_t j=0; j<2; ++j)
+            {
+                int a = m_edge[i][j];
+                if (a >= getNbPoints()) setNbPoints(a+1);
+            }
+        }
+    }
+
+    createEdgesAroundVertexArray();
 }
 
 void EdgeSetTopologyContainer::createEdgeSetArray()

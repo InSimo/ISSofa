@@ -265,6 +265,8 @@ public:
     /// @}
 
     /// Procedural creation methods
+    /// Note: createDerivedData() must be called if these methods are used
+    /// after init(), to ensure all neighborhood info are up to date.
     /// @{
     virtual void clear();
     virtual void addPoint(double px, double py, double pz);
@@ -335,6 +337,10 @@ public:
     virtual const sofa::helper::vector <EdgeID>& getEdgesOnBorder();
 
     virtual const sofa::helper::vector <PointID>& getPointsOnBorder();
+
+    /// Create / update all topological arrays that are derived from the "master" elements
+    /// (i.e. edges around triangles, edges in triangles, triangles around points, ...)
+    virtual void createDerivedData() {}
 
 protected:
 

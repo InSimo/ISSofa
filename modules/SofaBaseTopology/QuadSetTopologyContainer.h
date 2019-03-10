@@ -227,6 +227,10 @@ public:
     /** \brief Returns the type of the topology */
     virtual sofa::core::topology::TopologyObjectType getTopologyType() const {return sofa::core::topology::QUAD;}
 
+    /// Create / update all topological arrays that are derived from the "master" elements
+    /// (i.e. edges around triangles, edges in triangles, triangles around points, ...)
+    void createDerivedData() override;
+
 protected:
 
     /** \brief Creates the QuadSet array.

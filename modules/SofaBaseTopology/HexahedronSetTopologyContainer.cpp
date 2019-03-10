@@ -70,11 +70,23 @@ void HexahedronSetTopologyContainer::addHexa( int a, int b, int c, int d, int e,
 
 void HexahedronSetTopologyContainer::init()
 {
-    QuadSetTopologyContainer::init();
     d_hexahedron.updateIfDirty(); // make sure m_hexahedron is up to date
+    QuadSetTopologyContainer::init();
 }
 
+void HexahedronSetTopologyContainer::createDerivedData()
+{
+    createQuadSetArray(); // create the quads for the tetrahedra
 
+    QuadSetTopologyContainer::createDerivedData();
+
+    // update the neighborhood information.
+    createEdgesInHexahedronArray();
+    createQuadsInHexahedronArray();
+    createHexahedraAroundVertexArray();
+    createHexahedraAroundEdgeArray();
+    createHexahedraAroundQuadArray();
+}
 
 void HexahedronSetTopologyContainer::createHexahedronSetArray()
 {

@@ -64,6 +64,8 @@ public:
 
 
     /// Procedural creation methods
+    /// Note: createDerivedData() must be called if these methods are used
+    /// after init(), to ensure all neighborhood info are up to date.
     /// @{
     virtual void clear();
     virtual void addEdge( int a, int b );
@@ -226,9 +228,12 @@ public:
     virtual const VecEdgeID getElementAroundElements(VecEdgeID elems);
     /// @}
 
-	  /** \brief Returns the type of the topology */
-	  virtual sofa::core::topology::TopologyObjectType getTopologyType() const {return sofa::core::topology::EDGE;}
-    
+    /** \brief Returns the type of the topology */
+    virtual sofa::core::topology::TopologyObjectType getTopologyType() const {return sofa::core::topology::EDGE;}
+
+    /// Create / update all topological arrays that are derived from the "master" elements
+    /// (i.e. edges around triangles, edges in triangles, triangles around points, ...)
+    void createDerivedData() override;
 
 protected:
 

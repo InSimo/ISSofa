@@ -75,13 +75,18 @@ void TriangleSetTopologyContainer::init()
     //std::cout << "TriangleSetTopologyContainer::init()" << std::endl;
     d_triangle.updateIfDirty(); // make sure m_triangle is up to date
 
+    EdgeSetTopologyContainer::init();
+}
+
+void TriangleSetTopologyContainer::createDerivedData()
+{
     if (d_createEdgeSetArray.getValue())
     {
         createEdgeSetArray(); // create the edges for the triangles
     }
-    EdgeSetTopologyContainer::init(); 
-    
-    // udpate the neighborhood information.
+
+    EdgeSetTopologyContainer::createDerivedData();
+
     createTrianglesAroundEdgeArray();
     createTrianglesAroundVertexArray();
     createEdgesInTriangleArray();

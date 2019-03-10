@@ -72,8 +72,14 @@ void TetrahedronSetTopologyContainer::addTetra( int a, int b, int c, int d )
 void TetrahedronSetTopologyContainer::init()
 {
     d_tetrahedron.updateIfDirty(); // make sure m_tetrahedron is up to date
-    createTriangleSetArray(); // create the triangles for the tetrahedra
     TriangleSetTopologyContainer::init();
+}
+
+void TetrahedronSetTopologyContainer::createDerivedData()
+{
+    createTriangleSetArray(); // create the triangles for the tetrahedra
+
+    TriangleSetTopologyContainer::createDerivedData();
 
     // update the neighborhood information.
     createEdgesInTetrahedronArray();

@@ -316,6 +316,10 @@ public:
     /// Will change order of vertices in triangle: t[1] <=> t[2]
     void reOrientateTriangle(TriangleID id);
 
+    /// Create / update all topological arrays that are derived from the "master" elements
+    /// (i.e. edges around triangles, edges in triangles, triangles around points, ...)
+    void createDerivedData() override;
+
 protected:
 
     /** \brief Creates the TriangleSet array.

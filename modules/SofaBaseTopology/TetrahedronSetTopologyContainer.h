@@ -350,6 +350,9 @@ public:
         return in;
     }
 
+    /// Create / update all topological arrays that are derived from the "master" elements
+    /// (i.e. edges around triangles, edges in triangles, triangles around points, ...)
+    void createDerivedData() override;
 
 protected:
 
