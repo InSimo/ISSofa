@@ -100,8 +100,9 @@ public:
     typedef typename T::Real Real;
     enum { NL = T::nbLines };
     enum { NC = T::nbCols };
-    static Real& v(Bloc& b, int row, int col) { return b[row][col]; }
     static const Real& v(const Bloc& b, int row, int col) { return b[row][col]; }
+    static void vset(Bloc& b, int row, int col, Real val) { b[row][col] = val; }
+    static void vadd(Bloc& b, int row, int col, Real val) { b[row][col] += val; }
     static void clear(Bloc& b) { b.clear(); }
     static bool empty(const Bloc& b)
     {
@@ -127,8 +128,9 @@ public:
     typedef real Real;
     enum { NL = L };
     enum { NC = C };
-    static Real& v(Bloc& b, int row, int col) { return b[row][col]; }
     static const Real& v(const Bloc& b, int row, int col) { return b[row][col]; }
+    static void vset(Bloc& b, int row, int col, Real val) { b[row][col] = val; }
+    static void vadd(Bloc& b, int row, int col, Real val) { b[row][col] += val; }
     static void clear(Bloc& b) { b.clear(); }
     static bool empty(const Bloc& b)
     {
@@ -179,8 +181,9 @@ public:
     typedef float Real;
     enum { NL = 1 };
     enum { NC = 1 };
-    static Real& v(Bloc& b, int, int) { return b; }
     static const Real& v(const Bloc& b, int, int) { return b; }
+    static void vset(Bloc& b, int, int, Real val) { b = val; }
+    static void vadd(Bloc& b, int, int, Real val) { b += val; }
     static void clear(Bloc& b) { b = 0; }
     static bool empty(const Bloc& b)
     {
@@ -204,8 +207,9 @@ public:
     typedef double Real;
     enum { NL = 1 };
     enum { NC = 1 };
-    static Real& v(Bloc& b, int, int) { return b; }
     static const Real& v(const Bloc& b, int, int) { return b; }
+    static void vset(Bloc& b, int, int, Real val) { b = val; }
+    static void vadd(Bloc& b, int, int, Real val) { b += val; }
     static void clear(Bloc& b) { b = 0; }
     static bool empty(const Bloc& b)
     {
@@ -228,8 +232,9 @@ public:
     typedef float Real;
     enum { NL = 1 };
     enum { NC = 1 };
-    static Real& v(Bloc& b, int, int) { return b; }
     static const Real& v(const Bloc& b, int, int) { return b; }
+    static void vset(Bloc& b, int, int, Real val) { b = val; }
+    static void vadd(Bloc& b, int, int, Real val) { b += val; }
     static void clear(Bloc& b) { b = 0; }
     static bool empty(const Bloc& b)
     {

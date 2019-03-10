@@ -583,7 +583,7 @@ public:
         {
             for (Index bi = 1; bi < NL; ++bi)
                 for (Index bj = 0; bj < bi; ++bj)
-                    traits::v(val, bi, bj) = 0;
+                    traits::vset(val, bi, bj, 0);
         }
         return i*NL <= j*NC;
     }
@@ -593,7 +593,7 @@ public:
         {
             for (Index bi = 0; bi < NL-1; ++bi)
                 for (Index bj = bi+1; bj < NC; ++bj)
-                    traits::v(val, bi, bj) = 0;
+                    traits::vset(val, bi, bj, 0);
         }
         return i*NL >= j*NC;
     }
@@ -862,7 +862,7 @@ public:
 #ifdef SPARSEMATRIX_VERBOSE
         std::cout << this->Name()  << "("<<rowBSize()<<"*"<<NL<<","<<colBSize()<<"*"<<NC<<"): bloc("<<i<<","<<j<<")["<<bi<<","<<bj<<"] = "<<v<<std::endl;
 #endif
-        traits::v(*wbloc(i,j,true), bi, bj) = (Real)v;
+        traits::vset(*wbloc(i,j,true), bi, bj, (Real)v);
     }
 
     void add(Index i, Index j, double v)
@@ -881,7 +881,7 @@ public:
 #ifdef SPARSEMATRIX_VERBOSE
         std::cout << this->Name()  << "("<<rowBSize()<<"*"<<NL<<","<<colBSize()<<"*"<<NC<<"): bloc("<<i<<","<<j<<")["<<bi<<","<<bj<<"] += "<<v<<std::endl;
 #endif
-        traits::v(*wbloc(i,j,true), bi, bj) += (Real)v;
+        traits::vadd(*wbloc(i,j,true), bi, bj, (Real)v);
     }
 
     void clear(Index i, Index j)
@@ -900,7 +900,7 @@ public:
         compress();
         Bloc* b = wbloc(i,j,false);
         if (b)
-            traits::v(*b, bi, bj) = 0;
+            traits::vset(*b, bi, bj, 0);
     }
 
     void clearRow(Index i)
@@ -925,7 +925,7 @@ public:
             {
                 Bloc& b = colsValue[xj];
                 for (Index bj = 0; bj < NC; ++bj)
-                    traits::v(b, bi, bj) = 0;
+                    traits::vset(b, bi, bj, 0);
             }
         }
     }
@@ -950,7 +950,7 @@ public:
             if (b)
             {
                 for (Index bi = 0; bi < NL; ++bi)
-                    traits::v(*b, bi, bj) = 0;
+                    traits::vset(*b, bi, bj, 0);
             }
         }
     }
@@ -988,7 +988,7 @@ public:
                     Bloc* b = &colsValue[xj];
                     // first clear line i
                     for (Index bj = 0; bj < NC; ++bj)
-                        traits::v(*b, bi, bj) = 0;
+                        traits::vset(*b, bi, bj, 0);
                     // then clean column i
                     Index j = colsIndex[xj];
                     if (j != i)
@@ -1004,7 +1004,7 @@ public:
 #endif
                     }
                     for (Index bj = 0; bj < NL; ++bj)
-                        traits::v(*b, bj, bi) = 0;
+                        traits::vset(*b, bj, bi, 0);
                 }
             }
         }
@@ -1065,14 +1065,14 @@ protected:
         //set(b->row * getBlockRows() + i, b->col * getBlockCols() + j, v);
         Index index = b->data;
         Bloc& data = (index >= 0) ? colsValue[index] : btemp[-index-1].value;
-        traits::v(data, i, j) = (Real)v;
+        traits::vset(data, i, j, (Real)v);
     }
     virtual void bAccessorAdd(InternalBlockAccessor* b, Index i, Index j, double v)
     {
         //add(b->row * getBlockRows() + i, b->col * getBlockCols() + j, v);
         Index index = b->data;
         Bloc& data = (index >= 0) ? colsValue[index] : btemp[-index-1].value;
-        traits::v(data, i, j) += (Real)v;
+        traits::vadd(data, i, j, (Real)v);
     }
 
     template<class T>
@@ -1105,7 +1105,7 @@ protected:
         Bloc& data = (index >= 0) ? colsValue[index] : btemp[-index-1].value;
         for (Index l=0; l<NL; ++l)
             for (Index c=0; c<NC; ++c)
-                traits::v(data, l, c) = (Real)buffer[l*NC+c];
+                traits::vset(data, l, c, (Real)buffer[l*NC+c]);
     }
     virtual void bAccessorSet(InternalBlockAccessor* b, const float* buffer)
     {
@@ -1127,7 +1127,7 @@ protected:
         Bloc& data = (index >= 0) ? colsValue[index] : btemp[-index-1].value;
         for (Index l=0; l<NL; ++l)
             for (Index c=0; c<NC; ++c)
-                traits::v(data, l, c) += (Real)buffer[l*NC+c];
+                traits::vadd(data, l, c, (Real)buffer[l*NC+c]);
     }
     virtual void bAccessorAdd(InternalBlockAccessor* b, const float* buffer)
     {
