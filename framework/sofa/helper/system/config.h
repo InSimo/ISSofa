@@ -86,8 +86,8 @@ typedef double SReal;
 
 #if !defined(MAKEFOURCC)
     #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
-		(uint(uint8_t(ch0)) | (uint(uint8_t(ch1)) << 8) | \
-		(uint(uint8_t(ch2)) << 16) | (uint(uint8_t(ch3)) << 24 ))
+        (uint(uint8_t(ch0)) | (uint(uint8_t(ch1)) << 8) | \
+        (uint(uint8_t(ch2)) << 16) | (uint(uint8_t(ch3)) << 24 ))
 #endif
 
 // Prevent compiler warnings about 'unused variables'.
@@ -103,5 +103,35 @@ typedef double SReal;
     #define SOFA_CLASS_METHOD ( std::string(this->getClassName()) + "::" + __func__ + " " )
 #endif
 
+/// macros to locally disable warnings
+#if defined(__clang__) || defined(__GNUC__)
+    #define SOFA_PRAGMA(x) _Pragma(sofa_tostring(x))
+    #if defined(__clang__)
+        #define SOFA_WARNING_PUSH() SOFA_PRAGMA(clang diagnostic push)
+        #define SOFA_WARNING_POP() SOFA_PRAGMA(clang diagnostic pop)
+        #define SOFA_WARNING_DISABLE_CLANG(x) SOFA_PRAGMA(clang diagnostic ignored sofa_tostring(sofa_concat(-W,x)))
+        #define SOFA_WARNING_DISABLE_GCC(x)
+        #define SOFA_WARNING_DISABLE_MSC(x)
+    #else
+        #define SOFA_WARNING_PUSH() SOFA_PRAGMA(GCC diagnostic push)
+        #define SOFA_WARNING_POP() SOFA_PRAGMA(GCC diagnostic pop)
+        #define SOFA_WARNING_DISABLE_CLANG(x)
+        #define SOFA_WARNING_DISABLE_GCC(x) SOFA_PRAGMA(GCC diagnostic ignored sofa_tostring(sofa_concat(-W,x)))
+        #define SOFA_WARNING_DISABLE_MSC(x)
+    #endif
+#elif defined(_MSC_VER)
+    #define SOFA_PRAGMA(x) __pragma(x)
+    #define SOFA_WARNING_PUSH() SOFA_PRAGMA(warning(push))
+    #define SOFA_WARNING_POP() SOFA_PRAGMA(warning(pop))
+    #define SOFA_WARNING_DISABLE_CLANG(x)
+    #define SOFA_WARNING_DISABLE_GCC(x)
+    #define SOFA_WARNING_DISABLE_MSC(x) SOFA_PRAGMA(warning(disable: x))
+#else
+    #define SOFA_WARNING_PUSH()
+    #define SOFA_WARNING_POP()
+    #define SOFA_WARNING_DISABLE_CLANG(x)
+    #define SOFA_WARNING_DISABLE_GCC(x)
+    #define SOFA_WARNING_DISABLE_MSC(x)
+#endif
 
 #endif

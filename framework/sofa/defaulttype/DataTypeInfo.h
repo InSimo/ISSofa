@@ -84,17 +84,15 @@ extern inline void DataTypeInfo_ContainerResize(TDataType& array, size_t size)
     array.resize(size);
 }
 
+SOFA_WARNING_PUSH()
+SOFA_WARNING_DISABLE_MSC(4244) // possible loss of data warnings, unavoidable here without overloading all combinations of basic types...
+SOFA_WARNING_DISABLE_GCC(uninitialized) // triggered in DataTypeInfo_Clear() for fixed_array<bool> for an unknown reason
 
 template<class TDataType>
 extern inline void DataTypeInfo_Clear(TDataType& data)
 {
     data = TDataType();
 }
-
-#if defined(_MSC_VER)
-#  pragma warning(push)
-#  pragma warning(disable:4244) // possible loss of data warnings, unavoidable here without overloading all combinations of basic types...
-#endif
 
 template<class TDataType, class T>
 extern inline void DataTypeInfo_GetValue(const TDataType& data, T& value)
@@ -108,9 +106,7 @@ extern inline void DataTypeInfo_SetValue(TDataType& data, const T& value)
     data = static_cast<TDataType>(value);
 }
 
-#if defined(_MSC_VER)
-#  pragma warning(pop)
-#endif
+SOFA_WARNING_POP()
 
 template<class TDataType>
 extern inline void DataTypeInfo_GetValue(const TDataType& data, TDataType& value)
