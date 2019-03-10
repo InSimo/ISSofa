@@ -185,7 +185,7 @@ protected:
 
     TriangleLocalMinDistanceFilter *m_lmdFilter = nullptr;
 
-
+    int m_countBadShape = 0; ///< how many triangles were below the minTriangleArea threshold
 
 
 protected:

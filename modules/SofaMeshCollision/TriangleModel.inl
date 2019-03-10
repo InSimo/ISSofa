@@ -692,6 +692,11 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
                     if (triangleArea2 < minTriangleArea2)
                     {
                         triangleFlags[i] |= FLAG_BADSHAPE;
+                        if (m_countBadShape++ == 0)
+                        { // show a warning, but only the first time a triangle is flagged in this model
+                            serr << "Triangle with index " << i << " (area = " << sqrt(triangleArea2)
+                                 << ") is badly shaped: collision detection within this triangle will be disabled." << sendl;
+                        }
                     }
                     else
                     {
