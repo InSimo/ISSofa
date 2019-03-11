@@ -32,7 +32,7 @@ namespace sofa
 namespace component
 {
 
-void SOFA_COMPONENT_BASE_API initSofaComponentGeneral();
+void SOFA_COMPONENT_GENERAL_API initSofaComponentGeneral();
 
 }
 
