@@ -398,8 +398,9 @@ void TTriangleModel<DataTypes>::handleTopologyChange()
             {
                 case core::topology::ENDING_EVENT:
                 {
-                  updateFromTopology();
+                    updateFromTopology();
                 }
+                // fallthrough
                 case sofa::core::topology::TRIANGLESREMOVED:
                 case sofa::core::topology::TRIANGLESADDED:
                 case sofa::core::topology::QUADSREMOVED:
