@@ -176,7 +176,7 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
     }
 
     /*VecDeriv dx;
-    derivVectors< DataTypes >(val, state, dx, d_derivRotations.getValue());
+    derivVectors< DataTypes >(dx, val, state, d_derivRotations.getValue());
     m_dxRotation = dx[0];
     m_valRotation = val[0];*/
 
@@ -184,7 +184,7 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
     {
         VecDeriv dx;
 
-        derivVectors< DataTypes >(val, state, dx, d_derivRotations.getValue());
+        derivVectors< DataTypes >(dx, val, state, d_derivRotations.getValue());
 
         const bool localHapticConstraintAllFrames = d_localHapticConstraintAllFrames.getValue();
 
@@ -198,7 +198,7 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
 
             for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
             {
-                cp->getDfree()[rowIt.index()] += computeDot<DataTypes>(colIt.val(), dx[localHapticConstraintAllFrames ? 0 : colIt.index()]);
+                cp->getDfree()[rowIt.index()] += computeDot(colIt.val(), dx[localHapticConstraintAllFrames ? 0 : colIt.index()]);
             }
         }
 
@@ -212,7 +212,7 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
 
             for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
             {
-                cp->getDfree()[rowIt.index()] -= computeDot<DataTypes>(colIt.val(), dx[localHapticConstraintAllFrames ? 0 : colIt.index()]);
+                cp->getDfree()[rowIt.index()] -= computeDot(colIt.val(), dx[localHapticConstraintAllFrames ? 0 : colIt.index()]);
             }
         }
 

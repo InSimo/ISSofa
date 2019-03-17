@@ -48,8 +48,49 @@ namespace controller
 namespace
 {
 
+template <int N, typename real>
+void deriv2Coord(sofa::defaulttype::Vec<N, real>& d, const sofa::defaulttype::Vec<N, real>& x0, const sofa::defaulttype::Vec<N, real>& x1, bool /*derivRotation*/)
+{
+    d = x1 - x0;
+}
+
+template <int N, typename real>
+void deriv1Coord(sofa::defaulttype::Vec<N, real>& d, const sofa::defaulttype::Vec<N, real>& x0, bool /*derivRotation*/)
+{
+    d = - x0;
+}
+
+template <typename real>
+void deriv2Coord(sofa::defaulttype::RigidDeriv<3, real>& d, const sofa::defaulttype::RigidCoord<3, real>& x0, const sofa::defaulttype::RigidCoord<3, real>& x1, bool derivRotation)
+{
+    getVCenter(d) = x1.getCenter() - x0.getCenter();
+    if (derivRotation)
+    {
+        // rotations are taken into account to compute the violations
+        sofa::defaulttype::Quat q;
+        getVOrientation(d) = x0.rotate(q.angularDisplacement(x1.getOrientation(), x0.getOrientation(), true ) );
+    }
+    else
+        getVOrientation(d) *= 0;
+}
+
+template <typename real>
+void deriv1Coord(sofa::defaulttype::RigidDeriv<3, real>& d, const sofa::defaulttype::RigidCoord<3, real>& x0, bool derivRotation)
+{
+    getVCenter(d) = - x0.getCenter();
+
+    if (derivRotation)
+    {
+        // rotations are taken into account to compute the violations
+        sofa::defaulttype::Quat q= x0.getOrientation();
+        getVOrientation(d) = -x0.rotate( q.getLog(true) );
+    }
+    else
+        getVOrientation(d) *= 0;
+}
+
 template <typename DataTypes>
-extern inline bool derivVectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool /*derivRotation*/)
+void derivVectors(typename DataTypes::VecDeriv& d, const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, bool derivRotation)
 {
     unsigned int sz0 = x0.size();
     unsigned int szmin = std::min(sz0,(unsigned int)x1.size());
@@ -57,86 +98,25 @@ extern inline bool derivVectors(const typename DataTypes::VecCoord& x0, const ty
     d.resize(sz0);
     for(unsigned int i=0; i<szmin; ++i)
     {
-        d[i]=x1[i]-x0[i];
+        deriv2Coord(d[i], x0[i], x1[i], derivRotation);
     }
     for(unsigned int i=szmin; i<sz0; ++i) // not sure in what case this is applicable...
     {
-        d[i]=-x0[i];
+        deriv1Coord(d[i], x0[i], derivRotation);
     }
-    return true;
 }
 
-template <typename DataTypes>
-extern inline bool derivRigid3Vectors(const typename DataTypes::VecCoord& x0, const typename DataTypes::VecCoord& x1, typename DataTypes::VecDeriv& d, bool derivRotation=false)
-{
-    unsigned int sz0 = x0.size();
-    unsigned int szmin = std::min(sz0,(unsigned int)x1.size());
-
-    d.resize(sz0);
-    for(unsigned int i=0; i<szmin; ++i)
-    {
-        getVCenter(d[i]) = x1[i].getCenter() - x0[i].getCenter();
-        if (derivRotation)
-        {
-            // rotations are taken into account to compute the violations
-            sofa::defaulttype::Quat q;
-            getVOrientation(d[i]) = x0[i].rotate(q.angularDisplacement(x1[i].getOrientation(), x0[i].getOrientation(), true ) );
-            // getVOrientation(d[i]) = x0[i].rotate(angularDisplacement<DataTypes::Real>(x1[i].getOrientation(), x0[i].getOrientation() ) );
-        }
-        else
-            getVOrientation(d[i]) *= 0;
-    }
-
-    for(unsigned int i=szmin; i<sz0; ++i) // not sure in what case this is applicable..
-    {
-        getVCenter(d[i]) = - x0[i].getCenter();
-
-        if (derivRotation)
-        {
-            // rotations are taken into account to compute the violations
-            sofa::defaulttype::Quat q= x0[i].getOrientation();
-            getVOrientation(d[i]) = -x0[i].rotate( q.getLog(true) );
-        }
-        else
-            getVOrientation(d[i]) *= 0;
-    }
-
-    return true;
-}
-
-
-template <typename DataTypes>
-extern inline double computeDot(const typename DataTypes::Deriv& v0, const typename DataTypes::Deriv& v1)
+template <int N, typename real>
+real computeDot(const sofa::defaulttype::Vec<N, real>& v0, const sofa::defaulttype::Vec<N, real>& v1)
 {
     return dot(v0,v1);
 }
 
-#ifndef SOFA_FLOAT
-template<>
-bool derivVectors<sofa::defaulttype::Rigid3dTypes>(const sofa::defaulttype::Rigid3dTypes::VecCoord& x0, const sofa::defaulttype::Rigid3dTypes::VecCoord& x1, sofa::defaulttype::Rigid3dTypes::VecDeriv& d, bool derivRotation )
-{
-    return derivRigid3Vectors<sofa::defaulttype::Rigid3dTypes>(x0,x1,d, derivRotation);
-}
-template <>
-double computeDot<sofa::defaulttype::Rigid3dTypes>(const sofa::defaulttype::Rigid3dTypes::Deriv& v0, const sofa::defaulttype::Rigid3dTypes::Deriv& v1)
+template <typename real>
+real computeDot(const sofa::defaulttype::RigidDeriv<3, real>& v0, const sofa::defaulttype::RigidDeriv<3, real>& v1)
 {
     return dot(getVCenter(v0),getVCenter(v1)) + dot(getVOrientation(v0), getVOrientation(v1));
 }
-
-#endif
-#ifndef SOFA_DOUBLE
-template<>
-bool derivVectors<sofa::defaulttype::Rigid3fTypes>(const sofa::defaulttype::Rigid3fTypes::VecCoord& x0, const sofa::defaulttype::Rigid3fTypes::VecCoord& x1, sofa::defaulttype::Rigid3fTypes::VecDeriv& d, bool derivRotation )
-{
-    return derivRigid3Vectors<sofa::defaulttype::Rigid3fTypes>(x0,x1,d, derivRotation);
-}
-template <>
-double computeDot<sofa::defaulttype::Rigid3fTypes>(const sofa::defaulttype::Rigid3fTypes::Deriv& v0, const sofa::defaulttype::Rigid3fTypes::Deriv& v1)
-{
-    return dot(getVCenter(v0),getVCenter(v1)) + dot(getVOrientation(v0), getVOrientation(v1));
-}
-
-#endif
 
 } // anonymous namespace
 

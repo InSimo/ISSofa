@@ -27,45 +27,6 @@
 #include <SofaHaptics/LCPForceFeedback.inl>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/defaulttype/RigidTypes.h>
-/*
-namespace
-{
-
-#ifndef SOFA_FLOAT
-using sofa::defaulttype::Rigid3dTypes;
-
-template<>
-bool derivVectors<Rigid3dTypes>(const Rigid3dTypes::VecCoord& x0, const Rigid3dTypes::VecCoord& x1, Rigid3dTypes::VecDeriv& d, bool derivRotation)
-{
-    return derivRigid3Vectors<Rigid3dTypes>(x0, x1, d, derivRotation);
-}
-
-template <>
-double computeDot<Rigid3dTypes>(const Rigid3dTypes::Deriv& v0, const Rigid3dTypes::Deriv& v1)
-{
-    return dot(getVCenter(v0),getVCenter(v1)) + dot(getVOrientation(v0), getVOrientation(v1));
-}
-
-#endif
-
-#ifndef SOFA_DOUBLE
-using sofa::defaulttype::Rigid3fTypes;
-
-template<>
-bool derivVectors<Rigid3fTypes>(const Rigid3fTypes::VecCoord& x0, const Rigid3fTypes::VecCoord& x1, Rigid3fTypes::VecDeriv& d, bool derivRotation)
-{
-    return derivRigid3Vectors<Rigid3fTypes>(x0, x1, d, derivRotation);
-}
-
-template <>
-double computeDot<Rigid3fTypes>(const Rigid3fTypes::Deriv& v0, const Rigid3fTypes::Deriv& v1)
-{
-    return dot(getVCenter(v0),getVCenter(v1)) + dot(getVOrientation(v0), getVOrientation(v1));
-}
-
-#endif
-
-} */// anonymous namespace
 
 
 namespace sofa
