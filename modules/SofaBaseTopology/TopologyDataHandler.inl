@@ -250,14 +250,11 @@ void TopologyDataHandler <TopologyElementType, ContainerType>::add(const sofa::h
 
     for (unsigned int i = 0; i < nbElements; ++i)
     {
-        MappedType* newElemPtr = DataTypeInfo::insertItem(containerData, nbElemsTopo + i);
-        if (newElemPtr)
-        {
-            this->applyCreateFunction(nbElemsTopo + i, *newElemPtr, elems[i],
-                (ancestors.empty() || coefs.empty()) ? empty_vecint : ancestors[i],
-                (ancestors.empty() || coefs.empty()) ? empty_vecdouble : coefs[i],
-                (ancestorElems.empty()) ? NULL : &ancestorElems[i]);
-        }
+        this->applyCreateFunction(nbElemsTopo + i, containerData,
+            elems[i],
+            (ancestors.empty() || coefs.empty()) ? empty_vecint : ancestors[i],
+            (ancestors.empty() || coefs.empty()) ? empty_vecdouble : coefs[i],
+            (ancestorElems.empty()) ? nullptr : &ancestorElems[i]);
     }
     //this->m_lastTopoElementId += nbElements;
     this->setLastTopoSize(nbElemsTopo + nbElements);
