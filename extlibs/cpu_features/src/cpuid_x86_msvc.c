@@ -29,6 +29,6 @@ Leaf CpuId(uint32_t leaf_id) {
   return leaf;
 }
 
-uint32_t GetXCR0Eax(void) { return _xgetbv(0); }
+uint32_t GetXCR0Eax(void) { return (uint32_t)_xgetbv(0); }
 
 #endif  // defined(CPU_FEATURES_ARCH_X86) && defined(CPU_FEATURES_COMPILER_MSC)

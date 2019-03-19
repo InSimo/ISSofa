@@ -59,16 +59,16 @@ target_link_libraries(cpuinfo_x86_test all_libraries)
 add_test(NAME cpuinfo_x86_test COMMAND cpuinfo_x86_test)
 ##------------------------------------------------------------------------------
 ## cpuinfo_arm_test
-add_executable(cpuinfo_arm_test cpuinfo_arm_test.cc ../src/cpuinfo_arm.c)
-target_link_libraries(cpuinfo_arm_test all_libraries)
-add_test(NAME cpuinfo_arm_test COMMAND cpuinfo_arm_test)
+#add_executable(cpuinfo_arm_test cpuinfo_arm_test.cc ../src/cpuinfo_arm.c)
+#target_link_libraries(cpuinfo_arm_test all_libraries)
+#add_test(NAME cpuinfo_arm_test COMMAND cpuinfo_arm_test)
 ##------------------------------------------------------------------------------
 ## cpuinfo_aarch64_test
-add_executable(cpuinfo_aarch64_test cpuinfo_aarch64_test.cc ../src/cpuinfo_aarch64.c)
-target_link_libraries(cpuinfo_aarch64_test all_libraries)
-add_test(NAME cpuinfo_aarch64_test COMMAND cpuinfo_aarch64_test)
+#add_executable(cpuinfo_aarch64_test cpuinfo_aarch64_test.cc ../src/cpuinfo_aarch64.c)
+#target_link_libraries(cpuinfo_aarch64_test all_libraries)
+#add_test(NAME cpuinfo_aarch64_test COMMAND cpuinfo_aarch64_test)
 ##------------------------------------------------------------------------------
 ## cpuinfo_mips_test
-add_executable(cpuinfo_mips_test cpuinfo_mips_test.cc  ../src/cpuinfo_mips.c)
-target_link_libraries(cpuinfo_mips_test all_libraries)
-add_test(NAME cpuinfo_mips_test COMMAND cpuinfo_mips_test)
+#add_executable(cpuinfo_mips_test cpuinfo_mips_test.cc  ../src/cpuinfo_mips.c)
+#target_link_libraries(cpuinfo_mips_test all_libraries)
+#add_test(NAME cpuinfo_mips_test COMMAND cpuinfo_mips_test)

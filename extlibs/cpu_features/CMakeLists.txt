@@ -27,9 +27,9 @@ option(BUILD_SHARED_LIBS "Build library as shared." OFF)
 #
 
 set(_HDRS
-  include/cpuinfo_aarch64.h
-  include/cpuinfo_arm.h
-  include/cpuinfo_mips.h
+#  include/cpuinfo_aarch64.h
+#  include/cpuinfo_arm.h
+#  include/cpuinfo_mips.h
   include/cpuinfo_x86.h
 )
 
@@ -49,9 +49,9 @@ set(SOURCE_FILES
   src/linux_features_aggregator.c
   src/cpuid_x86_clang_gcc.c
   src/cpuid_x86_msvc.c
-  src/cpuinfo_aarch64.c
-  src/cpuinfo_arm.c
-  src/cpuinfo_mips.c
+#  src/cpuinfo_aarch64.c
+#  src/cpuinfo_arm.c
+#  src/cpuinfo_mips.c
   src/cpuinfo_x86.c
   src/filesystem.c
   src/hwcaps.c
