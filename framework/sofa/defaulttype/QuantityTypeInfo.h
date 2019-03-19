@@ -53,33 +53,27 @@ template <typename TDataType, int kg, int m, int s, int A, int K, int mol, int c
 class QuantityTypeInfo<TDataType, kg, m, s, A, K, mol, cd, typename std::enable_if<DataTypeInfo<TDataType>::IsSingleValue>::type> : public DataTypeInfo<TDataType>
 {
 public:
-    typedef units::Quantity<TDataType, kg, m, s, A, K, mol, cd> DataType;
+    using QuantityDataType = units::Quantity<TDataType, kg, m, s, A, K, mol, cd>;
+    using ValueDataType = TDataType;
+    using ValueInfo = DataTypeInfo<TDataType>;
 
-
-    static constexpr size_t finalSize(const DataType& /*data*/) { return DataTypeInfo<TDataType>::FinalSize; }
-    static constexpr size_t byteSize(const DataType& /*data*/)
+    static constexpr size_t finalSize(const QuantityDataType& data)
     {
-        return byteSize(DataType());
+        return ValueInfo::finalSize(data.value());
+    }
+    static constexpr size_t byteSize(const QuantityDataType& data)
+    {
+        return ValueInfo::byteSize(data.value());
     }
 
-    static const void* getValuePtr(const DataType& data)
+    static const void* getValuePtr(const QuantityDataType& data)
     {
-        return getValuePtr(data);
+        return ValueInfo::getValuePtr(data.value());
     }
-protected:
-    static const void* getValuePtr(const DataType& data, std::true_type)
-    {
-        return nullptr;
-    }
-    static const void* getValuePtr(const DataType& data, std::false_type)
-    {
-        return &data.value();
-    }
-public:
 
-    static void resetValue(DataType& data, size_t /*reserve*/ = 0)
+    static void resetValue(QuantityDataType& data, size_t reserve = 0)
     {
-        data = DataType();
+        ValueInfo::resetValue(data.value(), reserve);
     }
 
     // Single Value API
@@ -87,31 +81,32 @@ public:
     template <typename DataTypeRef, typename T>
     static void getDataValue(const DataTypeRef& data, T& value)
     {
-        value = data.value();
+        ValueInfo::getDataValue(data.value(), value);
     }
 
     template<typename DataTypeRef, typename T>
     static void setDataValue(DataTypeRef&& data, const T& value)
     {
-        data = value;
+        ValueInfo::setDataValue(data.value(), value);
     }
     
 
     // Multi Value API
-    static void setFinalSize(DataType& /*data*/, size_t /*size*/)
+    static void setFinalSize(QuantityDataType& data, size_t size)
     {
+        ValueInfo::setFinalSize(data.value(), size);
     }
 
     template <typename DataTypeRef, typename T>
-    static void getFinalValue(const DataTypeRef& data, size_t /*index*/, T& value)
+    static void getFinalValue(const DataTypeRef& data, size_t index, T& value)
     {
-        value = data.value();
+        ValueInfo::getFinalValue(data.value(), index, value);
     }
 
     template<typename DataTypeRef, typename T>
-    static void setFinalValue(DataTypeRef&& data, size_t /*index*/, const T& value)
+    static void setFinalValue(DataTypeRef&& data, size_t index, const T& value)
     {
-        data = value;
+        ValueInfo::setFinalValue(data.value(), index, value);
     }
 };
 
