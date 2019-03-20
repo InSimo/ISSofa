@@ -32,6 +32,7 @@
 #include <sofa/core/ObjectFactory.h>
 
 
+#ifdef SOFA_ENABLE_CUTHILLMCKEE_ALGORITHM
 // Use BOOST GRAPH LIBRARY :
 
 #include <boost/config.hpp>
@@ -44,6 +45,7 @@
 
 #include <boost/graph/cuthill_mckee_ordering.hpp>
 #include <boost/graph/bandwidth.hpp>
+#endif
 
 namespace sofa
 {
@@ -745,6 +747,7 @@ void EdgeSetTopologyModifier::splitEdges( sofa::helper::vector<unsigned int> &in
     m_container->checkTopology();
 }
 
+#ifdef SOFA_ENABLE_CUTHILLMCKEE_ALGORITHM
 // Give the optimal vertex permutation according to the Reverse CuthillMckee algorithm (use BOOST GRAPH LIBRAIRY)
 void EdgeSetTopologyModifier::resortCuthillMckee(sofa::helper::vector<int>& inverse_permutation)
 {
@@ -795,7 +798,7 @@ void EdgeSetTopologyModifier::resortCuthillMckee(sofa::helper::vector<int>& inve
             << bandwidth(G, make_iterator_property_map(&perm[0], index_map, perm[0]))
             << sendl;
 }
-
+#endif
 
 
 

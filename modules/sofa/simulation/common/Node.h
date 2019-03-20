@@ -85,6 +85,10 @@ using sofa::simulation::VisitorScheduler;
 #include <string>
 #include <stack>
 
+
+// uncomment to enable support for sorting components based on explicitly declared dependencies
+//#define SOFA_SIMULATION_NODE_DEPEND_SORT
+
 namespace sofa
 {
 
@@ -522,12 +526,13 @@ public:
     virtual void addListener(MutationListener* obj);
     virtual void removeListener(MutationListener* obj);
 
+#ifdef SOFA_SIMULATION_NODE_DEPEND_SORT
     // Added by FF to model component dependencies
     /// Pairs representing component dependencies. First must be initialized before second.
     Data < sofa::helper::vector < std::string > > depend;
     /// Sort the components according to the dependencies expressed in Data depend.
     void sortComponents();
-
+#endif
 
     Data<bool> d_isDrawActive;
 

@@ -50,8 +50,10 @@
 #include <sofa/simulation/common/xml/Element.inl>
 #include <iostream>
 
+#ifdef SOFA_SIMULATION_NODE_DEPEND_SORT
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/topological_sort.hpp>
+#endif
 
 //#define DEBUG_VISITOR
 //#define DEBUG_LINK
@@ -111,7 +113,9 @@ Node::Node(const std::string& name)
     , actionScheduler(initLink("visitorScheduler", "The VisitorScheduler attached to this node (deprecated)"))
     , debug_(false)
     , initialized(false)
+#ifdef SOFA_SIMULATION_NODE_DEPEND_SORT
     , depend(initData(&depend,"depend","Dependencies between the nodes.\nname 1 name 2 name3 name4 means that name1 must be initialized before name2 and name3 before name4"))
+#endif
     , d_isDrawActive(initData(&d_isDrawActive, true, "isDrawActive", "status of the draw in the Node"))
 {
     _context = this;
@@ -914,7 +918,9 @@ void Node::initialize()
     //cerr<<"Node::initialize()"<<endl;
 
     initVisualContext();
+#ifdef SOFA_SIMULATION_NODE_DEPEND_SORT
     sortComponents();
+#endif
     //     // Put the OdeSolver, if any, in first position. This makes sure that the OdeSolver component is initialized only when all its sibling and children components are already initialized.
     //     /// @todo Putting the solver first means that it will be initialized *before* any sibling or childrens. Is that what we want? -- Jeremie A.
     //     Sequence<BaseObject>::iterator i=object.begin(), iend=object.end();
@@ -1105,6 +1111,7 @@ void Node::printComponents()
     serr<<sendl;
 }
 
+#ifdef SOFA_SIMULATION_NODE_DEPEND_SORT
 /** @name Dependency graph
 This graph reflects the dependencies between the components. It is used internally to ensure that the initialization order is comform to the dependencies.
 */
@@ -1172,6 +1179,7 @@ void Node::sortComponents()
     //cerr << endl;
 
 }
+#endif
 
 void Node::setDrawStatus(bool status)
 {

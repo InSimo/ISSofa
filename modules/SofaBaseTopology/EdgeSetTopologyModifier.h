@@ -27,6 +27,9 @@
 
 #include <SofaBaseTopology/PointSetTopologyModifier.h>
 
+// uncomment to enable resortCuthillMckee method
+//#define SOFA_ENABLE_CUTHILLMCKEE_ALGORITHM
+
 namespace sofa
 {
 
@@ -252,10 +255,11 @@ public:
             const sofa::helper::vector< sofa::helper::vector< double > >& baryCoefs,
             const bool removeIsolatedPoints = true);
 
+#ifdef SOFA_ENABLE_CUTHILLMCKEE_ALGORITHM
     /** \brief Gives the optimal vertex permutation according to the Reverse CuthillMckee algorithm (use BOOST GRAPH LIBRAIRY)
     */
     virtual void resortCuthillMckee(sofa::helper::vector<int>& inverse_permutation);
-
+#endif
 
     /** \brief Move input points indices to input new coords.
      * Also propagate event and update edgesAroundVertex for data handling.
