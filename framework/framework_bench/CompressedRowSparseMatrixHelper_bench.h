@@ -8,25 +8,13 @@
 
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixConstraint.h>
+#include <sofa/helper/system/SetDirectory.h>
 #include <boost/filesystem.hpp>
 #include <boost/range.hpp>
 
 using namespace sofa::defaulttype;
 using namespace boost::system;
 namespace filesys = boost::filesystem;
-
-std::string getFileName(const std::string& s)
-{
-   char sep = '/';
-
-#ifdef _WIN32
-   sep = '\\';
-#endif
-
-   size_t i = s.rfind(sep, s.length());
-   if (i != std::string::npos) return(s.substr(i+1, s.length() - i));
-   return("");
-}
 
 bool compareFunction (std::string a, std::string b) {return a<b;}
 
@@ -71,27 +59,40 @@ FnList<TMatrix> readInstructionsFromFiles(const std::vector<std::string>& listOf
 
     for (auto str : listOfFiles)
     {
-        FILE* currentFile = nullptr;
-        currentFile = fopen(str.c_str(), "rb");
-        if (currentFile == nullptr)
+#ifdef SOFA_HAVE_ZLIB
+        if (str.substr(str.length()-3) == ".gz")
         {
-            std::cout<<"ERROR: when reading trace instructions from file : "<<str<<std::endl;
+            auto currentFile = reader.fileOpenGZ(str.c_str(), "rb");
+            if (currentFile == nullptr)
+            {
+                std::cout<<"ERROR: when reading trace instructions from file : "<<str<<std::endl;
+                continue;
+            }
+            reader.setFileGZ(currentFile);
         }
         else
+#endif
         {
-            reader.setFile(currentFile);
-            std::vector<int> fnIds;
-            std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>> fnArgs;
-
-            int fnId;
-            while (reader.readFn(fnId))
+            auto currentFile = reader.fileOpen(str.c_str(), "rb");
+            if (currentFile == nullptr)
             {
-                fnIds.push_back(fnId);
-                fnArgs.push_back(reader.readArgs(fnIds.back()));
+                std::cout<<"ERROR: when reading trace instructions from file : "<<str<<std::endl;
+                continue;
             }
-            instructions.fnIdbyStep.push_back(fnIds);
-            instructions.fnArgsbyStep.push_back(fnArgs);
+            reader.setFile(currentFile);
         }
+        std::vector<int> fnIds;
+        std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>> fnArgs;
+
+        int fnId;
+        while (reader.readFn(fnId))
+        {
+            fnIds.push_back(fnId);
+            fnArgs.push_back(reader.readArgs(fnIds.back()));
+        }
+        instructions.fnIdbyStep.push_back(fnIds);
+        instructions.fnArgsbyStep.push_back(fnArgs);
+        reader.fileClose();
     }
     reader.endPrint();
     return instructions;

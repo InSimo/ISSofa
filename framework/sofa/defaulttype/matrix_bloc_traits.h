@@ -144,23 +144,6 @@ public:
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
     static const char* Name();
-
-    static std::size_t logBloc(const Bloc& b, FILE* file)
-    {
-        std::size_t count = 0;
-        for (int i=0; i<NL; ++i)
-            for (int j=0; j<NC; ++j)
-                count += fwrite( &b[i][j], sizeof(Real), 1, file);
-        return count;
-    }
-    static std::size_t readBloc(Bloc& b, FILE* file)
-    {
-        std::size_t count = 0;
-        for (int i=0; i<NL; ++i)
-            for (int j=0; j<NC; ++j)
-                count += fread( &b[i][j], sizeof(Real), 1, file);
-        return count;
-    }
 };
 
 template<> inline const char* matrix_bloc_traits<defaulttype::Mat<1,1,float > >::Name() { return "1f"; }
@@ -212,9 +195,6 @@ public:
     static const char* Name() { return "f"; }
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return sofa::defaulttype::BaseMatrix::ELEMENT_FLOAT; }
     static std::size_t getElementSize() { return sizeof(Real); }
-
-    static std::size_t logBloc(const Bloc& b, FILE* file) { return fwrite( &b, sizeof(float), 1, file); }
-    static std::size_t readBloc(Bloc& b, FILE* file) { return fread( &b, sizeof(float), 1, file); }
 };
 
 template <>
@@ -240,9 +220,6 @@ public:
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return sofa::defaulttype::BaseMatrix::ELEMENT_FLOAT; }
     static const char* Name() { return "d"; }
-
-    static std::size_t logBloc(const Bloc& b, FILE* file) { return fwrite( &b, sizeof(double), 1, file); }
-    static std::size_t readBloc(Bloc& b, FILE* file) { return fread( &b, sizeof(double), 1, file); }
 };
 
 template <>
@@ -268,9 +245,6 @@ public:
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return sofa::defaulttype::BaseMatrix::ELEMENT_INT; }
     static const char* Name() { return "f"; }
-
-    static std::size_t logBloc(const Bloc& b, FILE* file) { return fwrite( &b, sizeof(float), 1, file); }
-    static std::size_t readBloc(Bloc& b, FILE* file) { return fread( &b, sizeof(float), 1, file); }
 };
 
 template <int N, class T>
@@ -295,21 +269,6 @@ public:
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
     static const char* Name();
-
-    static std::size_t logBloc(const Bloc& b, FILE* file)
-    {
-        std::size_t count = 0;
-        for (int i=0; i<NC; ++i)
-            count += fwrite( &b[i], sizeof(Real), 1, file);
-        return count;
-    }
-    static std::size_t readBloc(Bloc& b, FILE* file)
-    {
-        std::size_t count = 0;
-        for (int i=0; i<NC; ++i)
-            count += fread( &b[i], sizeof(Real), 1, file);
-        return count;
-    }
 };
 
 template<> inline const char* matrix_bloc_traits<defaulttype::Vec<1, float > >::Name() { return "V1f"; }

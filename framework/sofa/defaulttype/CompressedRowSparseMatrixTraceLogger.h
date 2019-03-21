@@ -32,7 +32,12 @@
 #include <fstream>
 
 #include <assert.h>
+#include <sofa/SofaFramework.h>
 #include <sofa/defaulttype/matrix_bloc_traits.h>
+
+#ifdef SOFA_HAVE_ZLIB
+#include <zlib.h>
+#endif
 
 namespace sofa
 {
@@ -180,8 +185,18 @@ public :
     std::size_t logT (const double       d, FILE* file) { return fwrite( &d, sizeof(double),       1, file); }
     std::size_t logT (const float        f, FILE* file) { return fwrite( &f, sizeof(float),        1, file); }
 
-    template< class TBloc, typename std::enable_if< (!std::is_same<double, TBloc>::value && !std::is_same<float, TBloc>::value), int >::type = 0 >
-    std::size_t logT (const TBloc b, FILE* file) { return matrix_bloc_traits<TBloc>::logBloc(b, file); }
+    // non-templated functions will take precedence to this method
+    template< class TBloc>
+    std::size_t logT (const TBloc b, FILE* file)
+    {
+
+        using traits = matrix_bloc_traits<TBloc>;
+        typename traits::Real vals[traits::NL][traits::NC];
+        for (int l = 0; l < traits::NL; ++l)
+            for (int c = 0; c < traits::NC; ++c)
+                vals[l][c] = traits::v(b,l,c);
+        return fwrite(&(vals[0][0]),sizeof(vals),1, file);
+    }
 
     void setFile(FILE* file) { m_matrixFile = file; }
 
@@ -224,7 +239,7 @@ public :
 
     std::size_t readT(char& c, int argId = -1)
     {
-        std::size_t processed = fread( &c, sizeof(char), 1, this->m_matrixFile);
+        std::size_t processed = this->fileRead( &c, sizeof(char), 1);
         SOFA_IF_CONSTEXPR (Policy::PrintTrace)
         {
             if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << c;
@@ -233,7 +248,7 @@ public :
     }
     std::size_t readT(unsigned int& i, int argId = -1)
     {
-        std::size_t processed = fread( &i, sizeof(unsigned int), 1, this->m_matrixFile);
+        std::size_t processed = this->fileRead( &i, sizeof(unsigned int), 1);
         SOFA_IF_CONSTEXPR (Policy::PrintTrace)
         {
             if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << + "] = " << i;
@@ -242,33 +257,16 @@ public :
     }
     std::size_t readT(int& i, int argId = -1)
     {
-        std::size_t processed = fread( &i, sizeof(int), 1, this->m_matrixFile);
+        std::size_t processed = this->fileRead( &i, sizeof(int), 1);
         SOFA_IF_CONSTEXPR (Policy::PrintTrace)
         {
             if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << i;
         }
         return processed;
     }
-    std::size_t readT(double& d, int argId = -1)
-    {
-        std::size_t processed = fread( &d, sizeof(double), 1, this->m_matrixFile);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
-        {
-            if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << d;
-        }
-        return processed;
-    }
-    std::size_t readT(float& f, int argId = -1)
-    {
-        std::size_t processed = fread( &f, sizeof(float), 1, this->m_matrixFile);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
-        {
-            if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << f;
-        }
-        return processed;
-    }
 
-    template< class TBloc, typename std::enable_if< (!std::is_same<double, TBloc>::value && !std::is_same<float, TBloc>::value), int >::type = 0 >
+    // non-templated functions will take precedence over this method
+    template< class TBloc>
     std::size_t readT(TBloc& b, int argId = -1)
     {
         using traits = matrix_bloc_traits<TBloc>;
@@ -326,7 +324,7 @@ public :
             case FnEnum::clearRowCol     : readT(args.i, 0); break;
             case FnEnum::addCol          : readT(args.i, 0); readT(args.j, 1); readT(args.b, 2); break;
             case FnEnum::setCol          : readT(args.i, 0); readT(args.j, 1); readT(args.b, 2); break;
-            default                      : assert(false); break; /// unrocognized method id.
+            default                      : assert(false); break; /// unrecognized method id.
         }
         SOFA_IF_CONSTEXPR (Policy::PrintTrace) m_matrixTextFile << std::endl;
         return args;
@@ -394,14 +392,65 @@ public :
         }
     }
 
-    void setFile(FILE* file) { m_matrixFile = file; }
-
     void setTextFile(const std::string fileName) { m_matrixTextFile.open(fileName); }
 
-    void endPrint() { if (m_matrixTextFile.is_open()) m_matrixTextFile.close(); }
+    void endPrint()
+    {
+        if (m_matrixTextFile.is_open()) m_matrixTextFile.close();
+    }
 
+    static FILE* fileOpen(const char *path, const char *mode)
+    {
+        return fopen(path, mode);
+    }
+    void setFile(FILE* file)
+    {
+        m_matrixFile = file;
+#ifdef SOFA_HAVE_ZLIB
+        m_matrixFileGZ = nullptr;
+#endif
+    }
+#ifdef SOFA_HAVE_ZLIB
+    static gzFile fileOpenGZ(const char *path, const char *mode)
+    {
+        return gzopen(path, mode);
+    }
+    void setFileGZ(gzFile file)
+    {
+        m_matrixFile = nullptr;
+        m_matrixFileGZ = file;
+    }
+#endif
+    std::size_t fileRead(void* buf, std::size_t size, std::size_t nitems)
+    {
+#ifdef SOFA_HAVE_ZLIB
+        if (m_matrixFileGZ)
+        {
+            return gzfread(buf, size, nitems, m_matrixFileGZ);
+        }
+#endif
+        return fread(buf, size, nitems, m_matrixFile);
+    }
+    void fileClose()
+    {
+#ifdef SOFA_HAVE_ZLIB
+        if (m_matrixFileGZ)
+        {
+            gzclose(m_matrixFileGZ);
+            m_matrixFileGZ = nullptr;
+        }
+#endif
+        if (m_matrixFile)
+        {
+            fclose(m_matrixFile);
+            m_matrixFile = nullptr;
+        }
+    }
 protected :
-    FILE* m_matrixFile; /// File where matrix trace is logged.
+    FILE* m_matrixFile = nullptr; /// File where matrix trace is logged.
+#ifdef SOFA_HAVE_ZLIB
+    gzFile m_matrixFileGZ = nullptr; /// File where matrix trace is logged.
+#endif
     std::ofstream m_matrixTextFile; /// File where matrix trace is logged as txt for debug purposes.
     TMatrix * m_CRSmatrix;
 

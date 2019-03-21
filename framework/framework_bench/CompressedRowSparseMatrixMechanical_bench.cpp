@@ -802,7 +802,7 @@ int main(int argc, char* argv[])
 
     std::string resourcesDirectory = "/benchmarks/CRSResources";
     std::string matrixTraceDirectory = resourcesDirectory + "/" + folderName + "/";
-    const std::vector< std::string > paths = sofa::helper::system::DataRepository.getPaths();
+    const std::vector< std::string >& paths = sofa::helper::system::DataRepository.getPaths();
 
     bool foundPath = false;
     for (std::size_t i = 0; i < paths.size(); i++)
@@ -817,26 +817,35 @@ int main(int argc, char* argv[])
 
     if (!foundPath)
     {
-        std::cout<<"Error could not found "<<matrixTraceDirectory<<" in all environnement paths"<<std::endl;
+        std::cout<<"Error could not find "<<matrixTraceDirectory<<" in all environnement paths"<<std::endl;
         return -1;
     }
 
-    std::vector<std::string> listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".bin");
+    std::vector<std::string> listOfBinFiles;
+#ifdef SOFA_HAVE_ZLIB
+    { // first try compressed files
+        listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".gz");
+    }
+    if (listOfBinFiles.empty())
+#endif
+    { // try uncompressed files
+        listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".bin");
+    }
     if (listOfBinFiles.empty())
     {
-        std::cout<<"ERROR: could not find trace into specified folder name"<<std::endl;
+        std::cout<<"ERROR: could not find trace into specified folder "<<matrixTraceDirectory << std::endl;
         return -1;
     }
 
     const char delim = '_';
-    std::string filesName = getFileName(listOfBinFiles[0]);
+    std::string filesName = sofa::helper::system::SetDirectory::GetFileName(listOfBinFiles[0].c_str());
     std::stringstream ss(filesName);
 
     std::string matrixType, tbloc;
     std::getline(ss, matrixType, delim);
     std::getline(ss, tbloc, delim);
 
-    std::string checkFile = matrixType + "_" + tbloc + "_Check.txt";
+    std::string checkFile = matrixTraceDirectory + matrixType + "_" + tbloc + "_Check.txt";
 
     if (endStep == -1) endStep = static_cast<long>(listOfBinFiles.size() - 1);
 
