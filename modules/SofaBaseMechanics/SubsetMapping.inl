@@ -118,7 +118,7 @@ void SubsetMapping<TIn, TOut>::init()
             indices[i] = first+i;
         f_indices.endEdit();
     }
-    else if (f_indices.getValue().empty())
+    else if (f_indices.getValue().empty() && !f_resizeToModel.getValue())
     {
 
         // We have to construct the correspondance index
