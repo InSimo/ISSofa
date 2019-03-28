@@ -25,7 +25,7 @@
 #ifndef PLUGIN_MULTITHREADING_INIT_H
 #define PLUGIN_MULTITHREADING_INIT_H
 
-#include <sofa/SofaGeneral.h>
+#include <sofa/SofaFramework.h>
 
 #ifndef WIN32
     #define SOFA_EXPORT_DYNAMIC_LIBRARY 
@@ -59,4 +59,4 @@ namespace component
 } //sofa 
 
 
-#endif /* PLUGIN_XICATH_INIT_H */
+#endif /* PLUGIN_MULTITHREADING_INIT_H */
