@@ -30,11 +30,11 @@ set(SOFAMISC_INSTALL_CMAKE_DIR   ${SOFAMISC_INSTALL_LIB_DIR}/cmake/SofaMisc)
 ## SofaMisc dependencies
 ##
 find_package(SofaGeneral REQUIRED)
-set(SOFAMISC_DEPENDENCY_DIR ${SofaGeneral_INCLUDE_DIRS})
+set(SOFAMISC_DEPENDENCY_DIR ${SOFAMISC_BUILD_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS})
 
 configure_file( ${SofaMisc_SOURCE_DIR}/SofaMisc.h.in
-                ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaMisc.h )
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaMisc.h
+                ${SOFAMISC_BUILD_INCLUDE_DIR}/sofa/SofaMisc.h )
+install( FILES ${SOFAMISC_BUILD_INCLUDE_DIR}/sofa/SofaMisc.h
          DESTINATION "${SOFAMISC_INSTALL_INCLUDE_DIR}/sofa")
 
 set(SOFAMISC_TARGETS SofaMiscTopology SofaMiscMapping SofaMiscForceField SofaMiscFem SofaMiscEngine 
