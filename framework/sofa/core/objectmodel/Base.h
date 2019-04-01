@@ -66,6 +66,7 @@ public:
     SOFA_ROOT_CLASS_EXTERNAL((Base));
 
     typedef boost::intrusive_ptr<Base> SPtr;
+    typedef std::size_t ExecUID;
 
     template<class T>
     static void dynamicCast(T*& ptr, Base* b)
@@ -293,6 +294,13 @@ public:
 
     /// @}
 
+    /// Get the unique ID of this Base instance (unique for this run of the
+    /// application, implemented as a counter starting from 1)
+    ExecUID getExecUID() const
+    {
+        return f_execUID.getValue();
+    }
+
 protected:
     /// Helper method used by initData()
     void initData0( BaseData* field, BaseData::BaseInitData& res, const char* name, const char* help, bool isDisplayed=true, bool isReadOnly=false );
@@ -335,6 +343,10 @@ public:
     Data< sofa::core::objectmodel::TagSet > f_tags;
 
     Data< sofa::defaulttype::BoundingBox > f_bbox;
+
+    /// Unique ID of this Base instance (unique for this run of the
+    // application, implemented as a counter starting from 1)
+    Data<ExecUID> f_execUID;
 
 };
 

@@ -27,9 +27,9 @@
 #include <map>
 #include <typeinfo>
 #include <algorithm>
-
 #include <string.h>
 #include <sstream>
+#include <atomic>
 
 namespace sofa
 {
@@ -45,6 +45,7 @@ SOFA_ROOT_CLASS_IMPL((Base));
 using std::string;
 
 static const std::string unnamed_label=std::string("unnamed");
+static std::atomic<Base::ExecUID> counterExecUID;
 
 namespace
 {
@@ -66,6 +67,7 @@ Base::Base()
     , f_printLog(initData(&f_printLog, false, "printLog", "if true, print logs at run-time"))
     , f_tags(initData( &f_tags, "tags", "list of the subsets the objet belongs to"))
     , f_bbox(initData( &f_bbox, "bbox", "this object bounding box"))
+    , f_execUID(initData( &f_execUID, ++counterExecUID, "execUID", "Unique ID of this Base instance (unique for this run of the application, implemented as a counter starting from 1)"))
 {
     name.setOwnerClass("Base");
     name.setAutoLink(false);
@@ -78,8 +80,11 @@ Base::Base()
     f_bbox.setPersistent(false);
     f_bbox.setDisplayed(false);
     f_bbox.setAutoLink(false);
+    f_execUID.setOwnerClass("Base");
+    f_execUID.setReadOnly(true);
+    f_execUID.setPersistent(false);
+    f_execUID.setAutoLink(false);
     sendl.setParent(this);
-
 }
 
 Base::~Base()
