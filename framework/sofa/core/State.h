@@ -141,6 +141,28 @@ public:
     virtual Data< MatrixDeriv >* write(MatrixDerivId v) = 0;
     virtual const Data< MatrixDeriv >* read(ConstMatrixDerivId v) const = 0;
 
+    virtual ConstVecCoordId getCoordId(const Data< VecCoord >* d) const = 0;
+    virtual ConstVecDerivId getDerivId(const Data< VecDeriv >* d) const = 0;
+    virtual ConstMatrixDerivId getMatrixDerivId(const Data< MatrixDeriv >* d) const = 0;
+
+    VecCoordId getCoordId(Data< VecCoord >* d)
+    {
+        const Data< VecCoord >* cd = d;
+        return VecCoordId(getCoordId(cd).getIndex());
+    }
+
+    VecDerivId getDerivId(Data< VecDeriv >* d)
+    {
+        const Data< VecDeriv >* cd = d;
+        return VecDerivId(getDerivId(cd).getIndex());
+    }
+
+    MatrixDerivId getMatrixDerivId(Data< MatrixDeriv >* d)
+    {
+        const Data< MatrixDeriv >* cd = d;
+        return MatrixDerivId(getMatrixDerivId(cd).getIndex());
+    }
+
     /// @}
 
     /// @name BaseData vectors access API based on VecId

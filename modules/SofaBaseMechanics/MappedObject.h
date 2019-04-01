@@ -130,6 +130,28 @@ public:
     {
         return NULL;
     }
+
+    core::ConstVecCoordId getCoordId(const Data< VecCoord >* d) const override
+    {
+        if(d == &f_X)
+            return core::ConstVecCoordId::position();
+        else
+            return core::ConstVecCoordId();
+    }
+
+    core::ConstVecDerivId getDerivId(const Data< VecDeriv >* d) const override
+    {
+        if(d == &f_V)
+            return core::ConstVecDerivId::velocity();
+        else
+            return core::ConstVecDerivId();
+    }
+
+    core::ConstMatrixDerivId getMatrixDerivId(const Data< MatrixDeriv >* /*d*/) const override
+    {
+        return core::ConstMatrixDerivId();
+    }
+
 };
 
 }

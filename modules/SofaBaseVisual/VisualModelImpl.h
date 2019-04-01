@@ -82,6 +82,21 @@ public:
 
     virtual       Data<MatrixDeriv>* write(     core::MatrixDerivId /* v */) { return NULL; }
     virtual const Data<MatrixDeriv>*  read(core::ConstMatrixDerivId /* v */) const {  return NULL; }
+
+    core::ConstVecCoordId getCoordId(const Data< VecCoord >* /* d */) const override
+    {
+        return core::ConstVecCoordId();
+    }
+
+    core::ConstVecDerivId getDerivId(const Data< VecDeriv >* /* d */) const override
+    {
+        return core::ConstVecDerivId();
+    }
+
+    core::ConstMatrixDerivId getMatrixDerivId(const Data< MatrixDeriv >* /* d */) const override
+    {
+        return core::ConstMatrixDerivId();
+    }
 };
 
 class SOFA_BASE_VISUAL_API ExtVec3fState : public core::State< sofa::defaulttype::ExtVec3fTypes >
@@ -159,6 +174,29 @@ public:
 
     virtual       Data<MatrixDeriv>*	write(     core::MatrixDerivId /* v */) { return NULL; }
     virtual const Data<MatrixDeriv>*	read(core::ConstMatrixDerivId /* v */) const {  return NULL; }
+
+    core::ConstVecCoordId getCoordId(const Data< VecCoord >* d) const override
+    {
+        if(d == &m_positions)
+            return core::ConstVecCoordId::position();
+        else if(d == &m_restPositions)
+            return core::ConstVecCoordId::restPosition();
+        else
+            return core::ConstVecCoordId();
+    }
+
+    core::ConstVecDerivId getDerivId(const Data< VecDeriv >* d) const override
+    {
+        if(d == &m_vnormals)
+            return core::ConstVecDerivId::normal();
+        else
+            return core::ConstVecDerivId();
+    }
+
+    core::ConstMatrixDerivId getMatrixDerivId(const Data< MatrixDeriv >* /* d */) const override
+    {
+        return core::ConstMatrixDerivId();
+    }
 };
 
 /**

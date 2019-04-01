@@ -1591,6 +1591,24 @@ const Data<typename MechanicalObject<DataTypes>::VecCoord>* MechanicalObject<Dat
     }
 }
 
+
+template <class DataTypes>
+core::ConstVecCoordId MechanicalObject<DataTypes>::getCoordId(const Data<VecCoord>* d) const
+{
+    if (d)
+    {
+        for (unsigned int index = 0; index < (unsigned int)vectorsCoord.size(); ++index)
+        {
+            if (vectorsCoord[index] == d)
+            {
+                return core::ConstVecCoordId(index);
+            }
+        }
+    }
+    return core::ConstVecCoordId();
+}
+
+
 template <class DataTypes>
 Data<typename MechanicalObject<DataTypes>::VecDeriv>* MechanicalObject<DataTypes>::write(core::VecDerivId v)
 {
@@ -1657,6 +1675,24 @@ const Data<typename MechanicalObject<DataTypes>::VecDeriv>* MechanicalObject<Dat
     }
 }
 
+
+template <class DataTypes>
+core::ConstVecDerivId MechanicalObject<DataTypes>::getDerivId(const Data<VecDeriv>* d) const
+{
+    if (d)
+    {
+        for (unsigned int index = 0; index < (unsigned int)vectorsDeriv.size(); ++index)
+        {
+            if (vectorsDeriv[index] == d)
+            {
+                return core::ConstVecDerivId(index);
+            }
+        }
+    }
+    return core::ConstVecDerivId();
+}
+
+
 template <class DataTypes>
 Data<typename MechanicalObject<DataTypes>::MatrixDeriv>* MechanicalObject<DataTypes>::write(core::MatrixDerivId v)
 {
@@ -1691,6 +1727,22 @@ const Data<typename MechanicalObject<DataTypes>::MatrixDeriv>* MechanicalObject<
         serr << "Vector " << v << "does not exist" << sendl;
         return NULL;
     }
+}
+
+template <class DataTypes>
+core::ConstMatrixDerivId MechanicalObject<DataTypes>::getMatrixDerivId(const Data<MatrixDeriv>* d) const
+{
+    if (d)
+    {
+        for (unsigned int index = 0; index < (unsigned int)vectorsMatrixDeriv.size(); ++index)
+        {
+            if (vectorsMatrixDeriv[index] == d)
+            {
+                return core::ConstMatrixDerivId(index);
+            }
+        }
+    }
+    return core::ConstMatrixDerivId();
 }
 
 template <class DataTypes>
