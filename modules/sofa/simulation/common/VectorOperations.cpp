@@ -110,9 +110,11 @@ void VectorOperations::v_realloc(sofa::core::MultiVecDerivId& v, bool interactio
 }
 
 
-void VectorOperations::v_clear(sofa::core::MultiVecId v) //v=0
+void VectorOperations::v_clear(sofa::core::MultiVecId v, bool propagate) //v=0
 {
-    executeVisitor( MechanicalVOpVisitor(params /* PARAMS FIRST */, v, core::ConstMultiVecId::null(), core::ConstMultiVecId::null(), 1.0) );
+    executeVisitor( MechanicalVOpVisitor(params /* PARAMS FIRST */, v, core::ConstMultiVecId::null(), core::ConstMultiVecId::null(), 1.0)
+        .setMapped(propagate)
+    );
 }
 
 void VectorOperations::v_eq(sofa::core::MultiVecId v, sofa::core::ConstMultiVecId a) // v=a

@@ -59,7 +59,7 @@ public:
     void v_realloc(sofa::core::MultiVecCoordId& id, bool interactionForceField=false, bool propagate=false);
     void v_realloc(sofa::core::MultiVecDerivId& id, bool interactionForceField=false, bool propagate=false);
 
-    void v_clear(core::MultiVecId v); ///< v=0
+    void v_clear(core::MultiVecId v, bool propagate=false); ///< v=0
     void v_eq(core::MultiVecId v, core::ConstMultiVecId a); ///< v=a
     void v_eq(core::MultiVecId v, core::ConstMultiVecId a, double f); ///< v=f*a
     void v_peq(core::MultiVecId v, core::ConstMultiVecId a, double f=1.0); ///< v+=f*a
