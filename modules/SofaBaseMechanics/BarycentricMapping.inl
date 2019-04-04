@@ -684,8 +684,18 @@ int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int
     const std::size_t indexLast = vectorData.size()-1;
 
     auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
-    triangleInfo[triangleIndex].vPointsIncluded.push_back(indexLast);
-    
+    // When the BarycentricMapping is updated externally using clear(), addPointInTriangle(),
+    // setPointInTriangle(), the handleTopologyChange flag is set to false as it's the external
+    // code responsability to update the mapping data. However, in case the from topology
+    // changes, the triangleInfo vector may not be of the correct size, which is fine as it should
+    // never be used, however maintaining the vPointsIncluded member here might crash as a result.
+    // To FIX this, we don't update vPointsIncluded if the size of the triangleInfo is not up to date.
+    // It would be better to refactor this such that this situation does not happen, but it is not
+    // trivial to do while maintaining backward compatibility.
+    if (triangleIndex < (int)triangleInfo.size())
+    {
+        triangleInfo[triangleIndex].vPointsIncluded.push_back(indexLast);
+    }
     return indexLast;
 }
 
@@ -701,10 +711,13 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     data.baryCoords[1] = ( Real ) baryCoords[1];
 
     auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
-    const BaryElementInfo& tInfo = triangleInfo[triangleIndex]; SOFA_UNUSED(tInfo);
-    assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != 
-                     tInfo.vPointsIncluded.end() );
-
+    // See comment in addPointInTriangle()
+    if (triangleIndex < (int)triangleInfo.size())
+    {
+        const BaryElementInfo& tInfo = triangleInfo[triangleIndex]; SOFA_UNUSED(tInfo);
+        assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != 
+                        tInfo.vPointsIncluded.end() );
+    }
     m_dirtyPoints.erase(pointIndex);
 
     return pointIndex;
