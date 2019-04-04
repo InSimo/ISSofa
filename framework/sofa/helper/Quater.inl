@@ -526,6 +526,7 @@ template<class Real>
 Quater<Real>& Quater<Real>::axisToQuat(const defaulttype::Vec<3,Real>& a, Real phi, Real epsilon)
 {
     defaulttype::Vec<3, Real> axis = a;
+    axis.normalize();
     axis *= phi;
 
     *this = exponentialMap(axis,epsilon);
