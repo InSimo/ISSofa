@@ -684,7 +684,35 @@ protected:
         BarycentricMapperTriangleSetTopology* obj;
     };
 
+
+    // topologyData mechanism to handle topology changes (protected)
+    class MapPointInfoHandler : public sofa::component::topology::TopologyDataHandler<topology::Topology::Point, sofa::helper::vector<MappingData> >
+    {
+    public:
+        typedef topology::Topology::Point Point;
+
+        MapPointInfoHandler(BarycentricMapperTriangleSetTopology* o, sofa::component::topology::PointData<sofa::helper::vector<MappingData>>* d)
+            : sofa::component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>>(d), obj(o)
+        {}
+
+        virtual void applyCreateFunction(unsigned int p, MappingData& poinInfo,
+            const Point & point,
+            const sofa::helper::vector< unsigned int > &,
+            const sofa::helper::vector< double > &) override;
+        virtual void applyDestroyFunction(unsigned int p, MappingData& pointInfo) override;
+        virtual void swap(unsigned int i1, unsigned int i2) override;
+
+        //TODO
+        //virtual void move(const sofa::helper::vector<unsigned int> &indexList,
+        //    const sofa::helper::vector< sofa::helper::vector< unsigned int > >& ancestors,
+        //    const sofa::helper::vector< sofa::helper::vector< double > >& coefs);
+
+    protected:
+        BarycentricMapperTriangleSetTopology* obj;
+    };
+
     std::unique_ptr<TriangleInfoHandler> m_vBTInfoHandler;
+    std::unique_ptr<MapPointInfoHandler> m_vMapInfoHandler;
     std::set< PointID > m_dirtyPoints;
 
     // END topologyData mechanism (protected)
@@ -705,6 +733,7 @@ protected:
           updateJ(true)
     {
         m_vBTInfoHandler = std::unique_ptr<TriangleInfoHandler>(new TriangleInfoHandler(this, &d_vBaryTriangleInfo));
+        m_vMapInfoHandler = std::unique_ptr<MapPointInfoHandler>(new MapPointInfoHandler(this, &map));
     }
 
     virtual ~BarycentricMapperTriangleSetTopology(){}

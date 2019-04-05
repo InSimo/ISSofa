@@ -709,7 +709,12 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     MappingData& data = vectorData[pointIndex];
     data.baryCoords[0] = ( Real ) baryCoords[0];
     data.baryCoords[1] = ( Real ) baryCoords[1];
-    if (data.in_index == triangleIndex)
+    if (data.in_index == -1)
+    {
+        data.in_index = triangleIndex;
+        triangleInfo[triangleIndex].vPointsIncluded.push_back(pointIndex);
+    }
+    else if (data.in_index == triangleIndex)
     {
         const BaryElementInfo& tInfo = triangleInfo[data.in_index]; SOFA_UNUSED(tInfo);
         assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != tInfo.vPointsIncluded.end() );
@@ -717,6 +722,7 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     else
     {
           BaryElementInfo& tInfo = triangleInfo[data.in_index];
+          assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != tInfo.vPointsIncluded.end() );
           tInfo.vPointsIncluded.erase(std::remove(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex), tInfo.vPointsIncluded.end());
           data.in_index = triangleIndex;
           triangleInfo[triangleIndex].vPointsIncluded.push_back(pointIndex);
@@ -850,6 +856,59 @@ void BarycentricMapperTriangleSetTopology<In, Out>::TriangleInfoHandler::swap(un
 //}
 
 template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::applyCreateFunction(unsigned int pid, MappingData& pointInfo,
+      const Point &,
+      const sofa::helper::vector< unsigned int > &,
+      const sofa::helper::vector< double > &)
+{
+    obj->m_dirtyPoints.insert(pid);
+    pointInfo.in_index = -1; // unfortunately NOT sofa::core::topology::Topology::InvalidID because in_index is signed
+}
+
+
+template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::applyDestroyFunction(unsigned int pointIndex, MappingData& pointInfo)
+{
+     sofa::helper::WriteAccessor< sofa::Data<VecBaryTriangleInfo> > triangleInfo = sofa::helper::write(obj->d_vBaryTriangleInfo);
+     const auto& tid = pointInfo.in_index;
+     if(tid != -1)
+     {
+        triangleInfo[tid].vPointsIncluded.erase(std::remove(triangleInfo[tid].vPointsIncluded.begin(), triangleInfo[tid].vPointsIncluded.end(), pointIndex), triangleInfo[tid].vPointsIncluded.end());
+     }
+     obj->m_dirtyPoints.erase(pointIndex);
+     pointInfo.in_index = -1;
+}
+
+template <class In, class Out>
+void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::swap(unsigned int i1, unsigned int i2)
+{
+    helper::WriteAccessor<Data<VecBaryTriangleInfo> > vBaryTriangleInfo = obj->d_vBaryTriangleInfo;
+
+    helper::ReadAccessor<Data<sofa::helper::vector<MappingData> > > mapData = obj->map;
+
+    const MappingData& pointInfo1 = mapData[i1];
+    const MappingData& pointInfo2 = mapData[i2];
+    const auto& tid1 = pointInfo1.in_index;
+    const auto& tid2 = pointInfo2.in_index;
+
+    if (tid1 != -1)
+    {
+        assert(std::find(vBaryTriangleInfo[tid1].vPointsIncluded.begin(), vBaryTriangleInfo[tid1].vPointsIncluded.end(), i1) != vBaryTriangleInfo[tid1].vPointsIncluded.end() );
+        vBaryTriangleInfo[tid1].vPointsIncluded.erase(std::remove(vBaryTriangleInfo[tid1].vPointsIncluded.begin(), vBaryTriangleInfo[tid1].vPointsIncluded.end(), i1), vBaryTriangleInfo[tid1].vPointsIncluded.end());
+        vBaryTriangleInfo[tid1].vPointsIncluded.push_back(i2);
+    }
+
+    if (tid2 != -1)
+    {
+        assert(std::find(vBaryTriangleInfo[tid2].vPointsIncluded.begin(), vBaryTriangleInfo[tid2].vPointsIncluded.end(), i2) != vBaryTriangleInfo[tid2].vPointsIncluded.end() );
+        vBaryTriangleInfo[tid2].vPointsIncluded.erase(std::remove(vBaryTriangleInfo[tid2].vPointsIncluded.begin(), vBaryTriangleInfo[tid2].vPointsIncluded.end(), i2), vBaryTriangleInfo[tid2].vPointsIncluded.end());
+        vBaryTriangleInfo[tid2].vPointsIncluded.push_back(i1);
+    }
+
+    component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>>::swap(i1, i2);
+}
+
+template <class In, class Out>
 void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in)
 {
     if (m_dirtyPoints.empty())
@@ -969,7 +1028,7 @@ void BarycentricMapperTriangleSetTopology<In,Out>::initTopologyChange()
 {
     if (m_toContainer)
     {
-        map.createTopologicalEngine(m_toContainer);
+        map.createTopologicalEngine(m_toContainer, m_vMapInfoHandler.get());
         map.registerTopologicalData();
     }
 
