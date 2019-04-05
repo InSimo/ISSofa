@@ -28,6 +28,7 @@
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/helper/list.h>
 #include <sofa/core/DataEngine.h>
+#include <sofa/defaulttype/EnumTypeInfo.h>
 
 #include <sofa/helper/fixed_array.h>
 #include <iostream>
@@ -58,6 +59,8 @@ enum TopologyObjectType
 
 SOFA_CORE_API TopologyObjectType parseTopologyObjectTypeFromString(const std::string& s);
 SOFA_CORE_API std::string parseTopologyObjectTypeToString(TopologyObjectType t);
+SOFA_ENUM_DECL(TopologyObjectType, POINT, EDGE, TRIANGLE, QUAD, TETRAHEDRON, HEXAHEDRON);
+SOFA_ENUM_STREAM_METHODS(TopologyObjectType);
 
 class SOFA_CORE_API Topology : public virtual core::objectmodel::BaseObject
 {
@@ -219,5 +222,7 @@ struct DataTypeName< sofa::core::topology::Topology::Hexahedron > { static const
 } // namespace defaulttype
 
 } // namespace sofa
+
+SOFA_ENUM_DEFINE_TYPEINFO(sofa::core::topology::TopologyObjectType);
 
 #endif
