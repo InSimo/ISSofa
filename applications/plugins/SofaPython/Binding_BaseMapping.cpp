@@ -33,6 +33,13 @@ using namespace sofa::core::objectmodel;
 
 
 
+extern "C" PyObject * BaseMapping_apply(PyObject *self, PyObject * /*args*/)
+{
+    BaseMapping* mapping = dynamic_cast<BaseMapping*>(((PySPtr<Base>*)self)->object.get());
+    mapping->apply();
+    Py_RETURN_NONE;
+}
+
 extern "C" PyObject * BaseMapping_getFrom(PyObject * self, PyObject * /*args*/)
 {
     BaseMapping* mapping = dynamic_cast<BaseMapping*>(((PySPtr<Base>*)self)->object.get());
@@ -109,6 +116,7 @@ extern "C" PyObject * BaseMapping_setTo(PyObject * self, PyObject * args)
 
 
 SP_CLASS_METHODS_BEGIN(BaseMapping)
+SP_CLASS_METHOD(BaseMapping,apply)
 SP_CLASS_METHOD(BaseMapping,getFrom)
 SP_CLASS_METHOD(BaseMapping,getTo)
 SP_CLASS_METHOD(BaseMapping,setFrom)
