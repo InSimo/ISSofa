@@ -122,6 +122,8 @@ public:
 
     Data<Real> d_drawMaxSpringEnergy;
     Data<float> d_drawSpringSize;
+    /// The list of edge springs, one for each edge between two triangles
+    sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > d_edgeSprings;
 
     /// Searches triangle topology and creates the bending springs
     virtual void init();
@@ -141,9 +143,6 @@ public:
     void draw(const core::visual::VisualParams* vparams);
 
 protected:
-
-    /// The list of edge springs, one for each edge between two triangles
-    sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > edgeSprings;
 
     class TriangularBSEdgeHandler : public sofa::component::topology::TopologyDataHandler<Edge,vector<VecEdgeSpring> >
     {
@@ -189,7 +188,7 @@ protected:
 
     virtual ~FastTriangularBendingSprings();
 
-    sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > &getEdgeInfo() {return edgeSprings;}
+    sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > &getEdgeInfo() {return d_edgeSprings;}
 
     TriangularBSEdgeHandler* edgeHandler;
 

@@ -156,7 +156,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
         unsigned int last = ff->_topology->getNbPoints() -1;
         unsigned int i,j;
 
-        helper::vector<VecEdgeSpring>& edgeInf = *(ff->edgeSprings.beginEdit());
+        helper::vector<VecEdgeSpring>& edgeInf = *(ff->d_edgeSprings.beginEdit());
 
         //make a reverse copy of tab
         sofa::helper::vector<unsigned int> lastIndexVec;
@@ -205,7 +205,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
             --last;
         }
 
-        ff->edgeSprings.endEdit();
+        ff->d_edgeSprings.endEdit();
     }
 }
 
@@ -215,7 +215,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
 {
     if(ff)
     {
-        helper::vector<VecEdgeSpring>& edgeInf = *(ff->edgeSprings.beginEdit());
+        helper::vector<VecEdgeSpring>& edgeInf = *(ff->d_edgeSprings.beginEdit());
         for (int i = 0; i < ff->_topology->getNbEdges(); ++i)
         {
             for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
@@ -226,7 +226,7 @@ void FastTriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPoin
                 }
             }
         }
-        ff->edgeSprings.endEdit();
+        ff->d_edgeSprings.endEdit();
     }
 }
 
@@ -253,11 +253,11 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSpringEnergy","Maximum value of spring bending energy to draw"))
 , d_drawSpringSize(initData(&d_drawSpringSize, 1.0f,"drawSpringSize","Size of drawed lines"))
-, edgeSprings(initData(&edgeSprings, "edgeInfo", "Internal edge data"))
+, d_edgeSprings(initData(&d_edgeSprings, "edgeInfo", "Internal edge data"))
 , edgeHandler(NULL)
 {
     // Create specific handler for EdgeData
-    edgeHandler = new TriangularBSEdgeHandler(this, &edgeSprings);
+    edgeHandler = new TriangularBSEdgeHandler(this, &d_edgeSprings);
     //serr<<"FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings"<<sendl;
 }
 
@@ -281,10 +281,10 @@ void FastTriangularBendingSprings<DataTypes>::init()
         serr << "ERROR(FastTriangularBendingSprings): object must have a Triangular Set Topology."<<sendl;
         return;
     }
-    edgeSprings.createTopologicalEngine(_topology,edgeHandler);
-    edgeSprings.linkToPointDataArray();
-    edgeSprings.linkToTriangleDataArray();
-    edgeSprings.registerTopologicalData();
+    d_edgeSprings.createTopologicalEngine(_topology,edgeHandler);
+    d_edgeSprings.linkToPointDataArray();
+    d_edgeSprings.linkToTriangleDataArray();
+    d_edgeSprings.registerTopologicalData();
 
     this->reinit();
 }
@@ -295,7 +295,7 @@ void FastTriangularBendingSprings<DataTypes>::reinit()
 {
     using namespace sofa::component::topology;
     /// prepare to store info in the edge array
-    helper::vector<VecEdgeSpring>& edgeInf = *(edgeSprings.beginEdit());
+    helper::vector<VecEdgeSpring>& edgeInf = *(d_edgeSprings.beginEdit());
     edgeInf.resize(_topology->getNbEdges());
     int i;
     // set edge tensor to 0
@@ -317,7 +317,7 @@ void FastTriangularBendingSprings<DataTypes>::reinit()
             (const sofa::helper::vector<sofa::helper::vector<unsigned int> >)0,
             (const sofa::helper::vector<sofa::helper::vector<double> >)0);
 
-    edgeSprings.endEdit();
+    d_edgeSprings.endEdit();
 }
 
 
@@ -330,7 +330,7 @@ void FastTriangularBendingSprings<DataTypes>::createBendingSprings(unsigned int 
     const Real bendingStiffness = (Real)f_bendingStiffness.getValue();
     const bool useRestCurvature = d_useRestCurvature.getValue();
     const bool useCorotational = d_useCorotational.getValue();
-    sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring> > > edgeData(edgeSprings);
+    sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring> > > edgeData(d_edgeSprings);
     double epsilonSq = d_minDistValidity.getValue();
     epsilonSq *= epsilonSq;
     VecEdgeSpring& ei = edgeData[edgeIndex]; // edge spring
@@ -391,7 +391,7 @@ void FastTriangularBendingSprings<DataTypes>::addForce(const core::MechanicalPar
     const VecCoord& x = d_x.getValue();
     const VecDeriv& v = d_v.getValue();
     typename MechanicalState::WriteVecDeriv f(d_f);
-    const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& edgeInf = d_edgeSprings.getValue();
     const bool useCorotaional = d_useCorotational.getValue();
     f.resize(x.size());
 
@@ -410,7 +410,7 @@ void FastTriangularBendingSprings<DataTypes>::addDForce(const core::MechanicalPa
 {
     const VecDeriv& dx = d_dx.getValue();
     typename MechanicalState::WriteVecDeriv df(d_df);
-    const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& edgeInf = d_edgeSprings.getValue();
     const Real kFactor = (Real)mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     df.resize(dx.size());
 
@@ -439,7 +439,7 @@ template<class MatrixWriter>
 void FastTriangularBendingSprings<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter mwriter)
 {
     const Real kFactor = (Real)mparams->kFactor();
-    const helper::vector<VecEdgeSpring>& vecsprings = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& vecsprings = d_edgeSprings.getValue();
 
     for (unsigned i=0; i< vecsprings.size() ; i++)
     {
@@ -464,7 +464,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     if (!this->mstate) return;
 
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
-    const helper::vector<VecEdgeSpring>& edgeInf = edgeSprings.getValue();
+    const helper::vector<VecEdgeSpring>& edgeInf = d_edgeSprings.getValue();
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
     const bool useCorotational = d_useCorotational.getValue();
     const Real drawSpringSize = d_drawSpringSize.getValue();
