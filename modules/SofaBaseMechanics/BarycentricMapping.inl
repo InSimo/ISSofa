@@ -702,22 +702,26 @@ int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int
 template <class In, class Out>
 int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int pointIndex, const int triangleIndex, const SReal* baryCoords )
 {
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
-    vectorData.resize ( map.getValue().size() );
+    auto vectorData = sofa::helper::write(map);
+    auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
+
+    assert(pointIndex < vectorData.size());
     MappingData& data = vectorData[pointIndex];
-    map.endEdit();
-    data.in_index = triangleIndex;
     data.baryCoords[0] = ( Real ) baryCoords[0];
     data.baryCoords[1] = ( Real ) baryCoords[1];
-
-    auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
-    // See comment in addPointInTriangle()
-    if (triangleIndex < (int)triangleInfo.size())
+    if (data.in_index == triangleIndex)
     {
-        const BaryElementInfo& tInfo = triangleInfo[triangleIndex]; SOFA_UNUSED(tInfo);
-        assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != 
-                        tInfo.vPointsIncluded.end() );
+        const BaryElementInfo& tInfo = triangleInfo[data.in_index]; SOFA_UNUSED(tInfo);
+        assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != tInfo.vPointsIncluded.end() );
     }
+    else
+    {
+          BaryElementInfo& tInfo = triangleInfo[data.in_index];
+          tInfo.vPointsIncluded.erase(std::remove(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex), tInfo.vPointsIncluded.end());
+          data.in_index = triangleIndex;
+          triangleInfo[triangleIndex].vPointsIncluded.push_back(pointIndex);
+    }
+
     m_dirtyPoints.erase(pointIndex);
 
     return pointIndex;
