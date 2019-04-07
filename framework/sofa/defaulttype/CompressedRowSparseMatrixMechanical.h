@@ -1383,8 +1383,12 @@ public:
 
     static const char* Name()
     {
-        static std::string name = std::string("CompressedRowSparseMatrixMechanical") + std::string(traits::Name());
-        return name.c_str();
+        // Note: to preserve backward compatibility, CompressedRowSparseMatrixMechanical keeps the same
+        // name as CompressedRowSparseMatrix. We could change it later but it requires either being
+        // sure all old code/scenes are updated, or add an alias mechanism in template names.
+        return CRSMatrix::Name();
+        // static std::string name = std::string("CompressedRowSparseMatrixMechanical") + std::string(traits::Name());
+        // return name.c_str();
     }
 };
 
