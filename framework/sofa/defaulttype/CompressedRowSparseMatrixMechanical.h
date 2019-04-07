@@ -246,8 +246,8 @@ public:
         }
         nRow = nbRow;
         nCol = nbCol;
-        nBlocRow = (nbRow + NL-1) / NL;
-        nBlocCol = (nbCol + NC-1) / NC;
+        this->nBlocRow = (nbRow + NL-1) / NL;
+        this->nBlocCol = (nbCol + NC-1) / NC;
     }
 
     /**
