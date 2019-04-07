@@ -426,7 +426,11 @@ public :
 #ifdef SOFA_HAVE_ZLIB
         if (m_matrixFileGZ)
         {
+#if ZLIB_VERNUM >= 0x1290
             return gzfread(buf, size, nitems, m_matrixFileGZ);
+#else
+            return gzread(m_matrixFileGZ; buf, (unsigned)nitems*size)/size;
+#endif
         }
 #endif
         return fread(buf, size, nitems, m_matrixFile);
