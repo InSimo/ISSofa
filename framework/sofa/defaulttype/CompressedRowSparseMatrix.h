@@ -341,7 +341,7 @@ protected:
     /**
     * \brief Clear matrix and just add btemp array
     **/
-    virtual void fullyCompressBtemp()
+    void fullyCompressBtemp()
     {
         rowIndex.clear();
         rowBegin.clear();
@@ -458,7 +458,7 @@ protected:
 
 public:
 
-    virtual void compress()
+    void compress()
     {
         if (skipCompressZero && btemp.empty()) return;
         if (!btemp.empty())

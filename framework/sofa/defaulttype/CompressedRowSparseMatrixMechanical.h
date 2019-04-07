@@ -53,8 +53,8 @@ public:
 };
 
 template<typename TBloc, typename TPolicy = CRSMechanicalPolicy<TBloc> >
-class CompressedRowSparseMatrixMechanical : public CompressedRowSparseMatrix<TBloc, TPolicy>,
-                                            public sofa::defaulttype::BaseMatrix
+class CompressedRowSparseMatrixMechanical final // final is used to allow the compiler to inline virtual methods
+    : public CompressedRowSparseMatrix<TBloc, TPolicy>, public sofa::defaulttype::BaseMatrix
 {
 public:
     typedef CompressedRowSparseMatrixMechanical<TBloc, TPolicy> Matrix;
@@ -87,6 +87,8 @@ public:
 
     /// Size
     Index nRow,nCol;         ///< Mathematical size of the matrix, in scalars
+    static_assert(!Policy::AutoSize,
+        "CompressedRowSparseMatrixMechanical cannot use AutoSize policy to make sure bloc-based and scalar-based sizes match");
 
     CompressedRowSparseMatrixMechanical()
         : CRSMatrix()
@@ -106,11 +108,6 @@ public:
     void compress() override
     {
         CRSMatrix::compress();
-        SOFA_IF_CONSTEXPR (Policy::AutoSize)
-        {
-            nRow = this->nBlocRow * NL;
-            nCol = this->nBlocCol * NC;
-        }
     }
 
     void swap(Matrix& m)
