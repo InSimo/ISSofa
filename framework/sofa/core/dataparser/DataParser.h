@@ -58,6 +58,8 @@ public:
 
     DataParser(std::string name);
 
+    virtual ~DataParser() = default;
+
     ParserId getId() const;
 
     // Read input stream or string into the Data
