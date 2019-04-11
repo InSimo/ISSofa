@@ -73,6 +73,8 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping()
     , mapper(initLink("mapper","Internal mapper created depending on the type of topology"))
     , useRestPosition(core::objectmodel::Base::initData(&useRestPosition, false, "useRestPosition", "Use the rest position of the input and output models to initialize the mapping"))
     , d_handleTopologyChange(core::objectmodel::Base::initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable (partial) support of topological changes (disable if another component takes care of this)"))
+    , topology_from(NULL)
+    , topology_to(NULL)
 #ifdef SOFA_DEV
     , sleeping(core::objectmodel::Base::initData(&sleeping, false, "sleeping", "is the mapping sleeping (not computed)"))
 #endif
@@ -85,6 +87,8 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping(core::State<In>* from, core::S
     , mapper(initLink("mapper","Internal mapper created depending on the type of topology"), mapper)
     , useRestPosition(core::objectmodel::Base::initData(&useRestPosition, false, "useRestPosition", "Use the rest position of the input and output models to initialize the mapping"))
     , d_handleTopologyChange(core::objectmodel::Base::initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable (partial) support of topological changes (disable if another component takes care of this)"))
+    , topology_from(NULL)
+    , topology_to(NULL)
 #ifdef SOFA_DEV
     , sleeping(core::objectmodel::Base::initData(&sleeping, false, "sleeping", "is the mapping sleeping (not computed)"))
 #endif
@@ -99,14 +103,12 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping (core::State<In>* from, core::
     , mapper (initLink("mapper","Internal mapper created depending on the type of topology"))
     , useRestPosition(core::objectmodel::Base::initData(&useRestPosition, false, "useRestPosition", "Use the rest position of the input and output models to initialize the mapping"))
     , d_handleTopologyChange(core::objectmodel::Base::initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable (partial) support of topological changes (disable if another component takes care of this)"))
+    , topology_from(topology)
+    , topology_to(NULL)
 #ifdef SOFA_DEV
     , sleeping(core::objectmodel::Base::initData(&sleeping, false, "sleeping", "is the mapping sleeping (not computed)"))
 #endif
 {
-    if (topology)
-    {
-        createMapperFromTopology ( topology );
-    }
 }
 
 template <class TIn, class TOut>
@@ -1599,7 +1601,11 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
 template <class TIn, class TOut>
 void BarycentricMapping<TIn, TOut>::init()
 {
-    topology_from = this->fromModel->getContext()->getActiveMeshTopology();
+    if (topology_from == NULL)
+    {
+        topology_from = this->fromModel->getContext()->getActiveMeshTopology();
+    }
+
     topology_to = this->toModel->getContext()->getActiveMeshTopology();
 
     //IPB
@@ -1610,7 +1616,7 @@ void BarycentricMapping<TIn, TOut>::init()
 
     if ( mapper == NULL ) // try to create a mapper according to the topology of the In model
     {
-        if ( topology_from!=NULL )
+        if ( topology_from != NULL)
         {
             createMapperFromTopology ( topology_from );
         }
