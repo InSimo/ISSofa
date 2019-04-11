@@ -43,9 +43,19 @@ extern "C" PyObject * PointSetTopologyModifier_addPoints(PyObject *self, PyObjec
 }
 
 
+extern "C" PyObject * PointSetTopologyModifier_propagateEndingEvent(PyObject *self, PyObject * /*args*/)
+{
+    PointSetTopologyModifier* obj = PointSetTopologyModifier::DynamicCast(((PySPtr<Base>*)self)->object.get());
+    obj->notifyEndingEvent();
+    obj->propagateTopologicalChanges();
+    Py_RETURN_NONE;
+}
+
+
 
 SP_CLASS_METHODS_BEGIN(PointSetTopologyModifier)
 SP_CLASS_METHOD(PointSetTopologyModifier,addPoints)
+SP_CLASS_METHOD(PointSetTopologyModifier,propagateEndingEvent)
 SP_CLASS_METHODS_END
 
 SP_CLASS_TYPE_SPTR(PointSetTopologyModifier,PointSetTopologyModifier,BaseObject)
