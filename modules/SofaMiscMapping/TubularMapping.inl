@@ -42,7 +42,7 @@ namespace mapping
 template <class TIn, class TOut>
 void TubularMapping<TIn, TOut>::init()
 {
-    if (!m_radius.isSet())
+    if (!d_radius.isSet())
     {
         this->getContext()->get(radiusContainer);
         sout << "get Radius Container" << sendl;
@@ -63,11 +63,11 @@ void TubularMapping<TIn, TOut>::apply ( const core::MechanicalParams* /* mparams
     const InVecCoord& in = dIn.getValue();
     OutVecCoord& out = *dOut.beginEdit();
 
-    unsigned int N = m_nbPointsOnEachCircle.getValue();
-    double rho = m_radius.getValue();
-    int peak = m_peak.getValue();
+    unsigned int N = d_nbPointsOnEachCircle.getValue();
+    double rho = d_radius.getValue();
+    int peak = d_peak.getValue();
 
-    out.resize(in.size() * N);
+    this->toModel->resize(in.size() * N);
     rotatedPoints.resize(in.size() * N);
 
     Vec Y0;
@@ -137,7 +137,7 @@ void TubularMapping<TIn, TOut>::applyJ( const core::MechanicalParams* /* mparams
     const InVecDeriv& in = dIn.getValue();
     OutVecDeriv& out = *dOut.beginEdit();
 
-    unsigned int N = m_nbPointsOnEachCircle.getValue();
+    unsigned int N = d_nbPointsOnEachCircle.getValue();
 
     out.resize(in.size() * N);
     OutDeriv v,omega;
@@ -176,7 +176,7 @@ void TubularMapping<TIn, TOut>::applyJT( const core::MechanicalParams* /* mparam
         rotatedPoints.resize(in.size());
     }
 
-    unsigned int N = m_nbPointsOnEachCircle.getValue();
+    unsigned int N = d_nbPointsOnEachCircle.getValue();
 
     OutDeriv v,omega;
 
@@ -205,7 +205,7 @@ void TubularMapping<TIn, TOut>::applyJT( const core::ConstraintParams * /*cparam
     const OutMatrixDeriv& in = dIn.getValue();
     InMatrixDeriv& out = *dOut.beginEdit();
 
-    unsigned int N = m_nbPointsOnEachCircle.getValue();
+    unsigned int N = d_nbPointsOnEachCircle.getValue();
 
     typename Out::MatrixDeriv::RowConstIterator rowItEnd = in.end();
 
