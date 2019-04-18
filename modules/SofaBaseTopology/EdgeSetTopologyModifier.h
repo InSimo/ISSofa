@@ -232,6 +232,11 @@ public:
     */
     virtual void swapEdges(const sofa::helper::vector< sofa::helper::vector< unsigned int > >& edgesPairs);
 
+    /** \brief Swap 2 edges e0 and e1 : e0 = e1 and e1 = e0
+    *
+    */
+    virtual void swapEdge(const EdgeID id0, const EdgeID id1);
+
     /** \brief Fuse a list of pair edges, replacing each edge pair ((p11, p12), (p21, p22)) by one edge (p11, p22)
     *
     * @param removeIsolatedPoints if true isolated vertices are also removed
