@@ -88,6 +88,27 @@ public:
 
     /// Method called when the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
     virtual void idle(const core::ExecParams* /*params*/) {}
+
+    ///Methods used to add specific actions/simulation in the step() method (for example haptics)
+    typedef std::string SyncPointID;
+    typedef std::function<void()> SyncPointWorkFunctor;
+    typedef void* SyncPointWorkRegisterID;
+    
+    /// Register work functor that will be executed asynchronously when between predecessorID and successorID.
+    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID predecessorID, SyncPointID successorID, SyncPointWorkFunctor work, std::string taskName) { return nullptr; }
+    
+    /// Register work functor that will be executed synchronously when syncPointID is reached .
+    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName) { return nullptr; }
+    
+    /// Register work functor that will be executed asynchronously when syncPointID is reached.
+    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName) { return nullptr; }
+
+
+    virtual bool unregisterSyncPointWork(SyncPointWorkRegisterID registerID) { return false; }
+    
+
+
+
 };
 
 } // namespace behavior
