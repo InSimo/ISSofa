@@ -66,6 +66,7 @@ set(SOFAHELPER_HEADERS
     TagFactory.h
     accessor.h
     test.h
+    unordered_set.h
     vector.h
     vector_device.h
     vector_algebra.h
