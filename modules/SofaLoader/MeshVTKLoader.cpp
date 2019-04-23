@@ -313,10 +313,12 @@ bool MeshVTKLoader::setInputsMesh()
         }
 
     }
-    if (reader->inputPoints) delete reader->inputPoints;
-    if (reader->inputPolygons) delete reader->inputPolygons;
-    if (reader->inputCells) delete reader->inputCells;
-    if (reader->inputCellTypes) delete reader->inputCellTypes;
+
+    delete reader->inputPoints;
+    delete reader->inputPolygons;
+    delete reader->inputCells;
+    delete reader->inputCellOffsets;
+    delete reader->inputCellTypes;
 
     edges.endEdit();
     triangles.endEdit();
@@ -352,6 +354,10 @@ bool MeshVTKLoader::setInputsData()
 
     //f = this->getFields();
     //std::cout << "Number of Fields after :" << f.size() << std::endl;
+
+    std::for_each(reader->inputPointDataVector.cbegin(), reader->inputPointDataVector.cend(), [](BaseVTKReader::BaseVTKDataIO* io) { delete io; });
+    std::for_each(reader->inputCellDataVector.cbegin(), reader->inputCellDataVector.cend(), [](BaseVTKReader::BaseVTKDataIO* io) { delete io; });
+
     return true;
 }
 
