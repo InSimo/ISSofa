@@ -696,7 +696,7 @@ int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int
     // trivial to do while maintaining backward compatibility.
     if (triangleIndex < (int)triangleInfo.size())
     {
-        triangleInfo[triangleIndex].vPointsIncluded.push_back(indexLast);
+        triangleInfo[triangleIndex].vPointsIncluded.insert(indexLast);
     }
     return indexLast;
 }
@@ -714,20 +714,20 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     if (data.in_index == -1)
     {
         data.in_index = triangleIndex;
-        triangleInfo[triangleIndex].vPointsIncluded.push_back(pointIndex);
+        triangleInfo[triangleIndex].vPointsIncluded.insert(pointIndex);
     }
     else if (data.in_index == triangleIndex)
     {
         const BaryElementInfo& tInfo = triangleInfo[data.in_index]; SOFA_UNUSED(tInfo);
-        assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != tInfo.vPointsIncluded.end() );
+        assert(tInfo.vPointsIncluded.find(pointIndex) != tInfo.vPointsIncluded.end() );
     }
     else
     {
           BaryElementInfo& tInfo = triangleInfo[data.in_index];
-          assert(std::find(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex) != tInfo.vPointsIncluded.end() );
-          tInfo.vPointsIncluded.erase(std::remove(tInfo.vPointsIncluded.begin(), tInfo.vPointsIncluded.end(), pointIndex), tInfo.vPointsIncluded.end());
+          assert(tInfo.vPointsIncluded.find(pointIndex) != tInfo.vPointsIncluded.end());
+          tInfo.vPointsIncluded.erase(pointIndex);
           data.in_index = triangleIndex;
-          triangleInfo[triangleIndex].vPointsIncluded.push_back(pointIndex);
+          triangleInfo[triangleIndex].vPointsIncluded.insert(pointIndex);
     }
 
     m_dirtyPoints.erase(pointIndex);
@@ -875,7 +875,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::applyDe
      const auto& tid = pointInfo.in_index;
      if(tid != -1)
      {
-        triangleInfo[tid].vPointsIncluded.erase(std::remove(triangleInfo[tid].vPointsIncluded.begin(), triangleInfo[tid].vPointsIncluded.end(), pointIndex), triangleInfo[tid].vPointsIncluded.end());
+        triangleInfo[tid].vPointsIncluded.erase(pointIndex);
      }
      obj->m_dirtyPoints.erase(pointIndex);
      pointInfo.in_index = -1;
@@ -895,16 +895,16 @@ void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::swap(un
 
     if (tid1 != -1)
     {
-        assert(std::find(vBaryTriangleInfo[tid1].vPointsIncluded.begin(), vBaryTriangleInfo[tid1].vPointsIncluded.end(), i1) != vBaryTriangleInfo[tid1].vPointsIncluded.end() );
-        vBaryTriangleInfo[tid1].vPointsIncluded.erase(std::remove(vBaryTriangleInfo[tid1].vPointsIncluded.begin(), vBaryTriangleInfo[tid1].vPointsIncluded.end(), i1), vBaryTriangleInfo[tid1].vPointsIncluded.end());
-        vBaryTriangleInfo[tid1].vPointsIncluded.push_back(i2);
+        assert(vBaryTriangleInfo[tid1].vPointsIncluded.find(i1) != vBaryTriangleInfo[tid1].vPointsIncluded.end() );
+        vBaryTriangleInfo[tid1].vPointsIncluded.erase(i1);
+        vBaryTriangleInfo[tid1].vPointsIncluded.insert(i2);
     }
 
     if (tid2 != -1)
     {
-        assert(std::find(vBaryTriangleInfo[tid2].vPointsIncluded.begin(), vBaryTriangleInfo[tid2].vPointsIncluded.end(), i2) != vBaryTriangleInfo[tid2].vPointsIncluded.end() );
-        vBaryTriangleInfo[tid2].vPointsIncluded.erase(std::remove(vBaryTriangleInfo[tid2].vPointsIncluded.begin(), vBaryTriangleInfo[tid2].vPointsIncluded.end(), i2), vBaryTriangleInfo[tid2].vPointsIncluded.end());
-        vBaryTriangleInfo[tid2].vPointsIncluded.push_back(i1);
+        assert(vBaryTriangleInfo[tid2].vPointsIncluded.find(i2) != vBaryTriangleInfo[tid2].vPointsIncluded.end());
+        vBaryTriangleInfo[tid2].vPointsIncluded.erase(i2);
+        vBaryTriangleInfo[tid2].vPointsIncluded.insert(i1);
     }
 
     component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>>::swap(i1, i2);
@@ -1007,7 +1007,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::projectDirtyPoints(const typ
             if (d<distance) { coefs = v; distance = d; index = t; }
         }
 
-        vBaryTriangleInfo[index].vPointsIncluded.push_back(dirtyPoint);
+        vBaryTriangleInfo[index].vPointsIncluded.insert(dirtyPoint);
 
         assert(dirtyPoint < vectorData.size());
         MappingData& mapData = vectorData[dirtyPoint];
@@ -1289,11 +1289,7 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::VertexInfoHandler::applyDe
     if (vertexInfo.in_index != -1)
     {
         helper::WriteAccessor<Data<VecBaryTetraInfo> > vBaryTetraInfo = obj->d_vBaryTetraInfo;
-        auto it = std::find(vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.begin(), vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.end(), t);
-        if (it != vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.end())
-        {
-            vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.erase(it);
-        }
+        vBaryTetraInfo[vertexInfo.in_index].vPointsIncluded.erase(t);
         vertexInfo.in_index = -1;
     }
 
@@ -1312,22 +1308,14 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::VertexInfoHandler::swap(un
 
     if (vectorData[i1].in_index != -1)
     {
-        auto it = std::find(vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.begin(), vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.end(), i1);
-        if (it != vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.end())
-        {
-            vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.erase(it);
-        }
-        vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.push_back(i2);
+        vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.erase(i1);
+        vBaryTetraInfo[vectorData[i1].in_index].vPointsIncluded.insert(i2);
     }
 
     if (vectorData[i2].in_index != -1)
     {
-        auto it = std::find(vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.begin(), vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.end(), i2);
-        if (it != vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.end())
-        {
-            vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.erase(it);
-        }
-        vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.push_back(i1);
+        vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.erase(i2);
+        vBaryTetraInfo[vectorData[i2].in_index].vPointsIncluded.insert(i1);
     }
 
     auto it = std::find(obj->m_dirtyPoints.begin(), obj->m_dirtyPoints.end(), i1);
@@ -1387,7 +1375,7 @@ void BarycentricMapperTetrahedronSetTopology<In,Out>::projectDirtyPoints(const t
                 if (d < distance) { coefs = v; distance = d; index = t; }
             }
 
-            vBaryTetraInfo[index].vPointsIncluded.emplace_back(dirtyPoint);
+            vBaryTetraInfo[index].vPointsIncluded.insert(dirtyPoint);
 
             assert(dirtyPoint < vectorData.size());
             MappingData& mapData = vectorData[dirtyPoint];

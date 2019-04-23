@@ -44,6 +44,7 @@
 #include <sofa/defaulttype/Mat.h>
 
 #include <sofa/helper/vector.h>
+#include <sofa/helper/unordered_set.h>
 #include <memory>
 
 // forward declarations
@@ -1270,16 +1271,16 @@ struct BMBaryElementInfo
     using PointID = core::topology::Topology::PointID;
 
     bool dirty = true; // dirty for newly created triangles since last apply call
-    sofa::helper::vector<PointID> vPointsIncluded; // ID of the points that are projected on the element
+    sofa::helper::unordered_set<PointID> vPointsIncluded; // ID of the points that are projected on the element
     sofa::defaulttype::Mat3x3d restBase;           // Base matrix used in the projection computation (in restPositions)
     sofa::defaulttype::Vec<3, Real> restCenter;         // Center of the element (in restPositions)
 
     inline friend std::ostream& operator<< (std::ostream& os, const BMBaryElementInfo<Real>& baryElementInfo)
     {
         os << " vPointsIncluded = " << baryElementInfo.vPointsIncluded
-            << " restBase = " << baryElementInfo.restBase
-            << " restCenter = " << baryElementInfo.restCenter
-            << "\n";
+           << " restBase = " << baryElementInfo.restBase
+           << " restCenter = " << baryElementInfo.restCenter
+           << "\n";
         return os;
     }
     inline friend std::istream& operator >> (std::istream& in, BMBaryElementInfo<Real>&)
