@@ -907,6 +907,25 @@ void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::swap(un
         vBaryTriangleInfo[tid2].vPointsIncluded.insert(i1);
     }
 
+    auto findIt =  obj->m_dirtyPoints.find(i1);
+    if ( findIt != obj->m_dirtyPoints.end())
+    {
+        // if i1 and i2 are both dirty then the swap is useless
+        if (obj->m_dirtyPoints.find(12) == obj->m_dirtyPoints.end())
+        {
+            obj->m_dirtyPoints.erase(findIt);
+            obj->m_dirtyPoints.insert(i2);
+        }
+
+    }
+    else
+    {
+        if (obj->m_dirtyPoints.erase(i2))
+        {
+            obj->m_dirtyPoints.insert(i1);
+        }
+    }
+
     component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>>::swap(i1, i2);
 }
 
