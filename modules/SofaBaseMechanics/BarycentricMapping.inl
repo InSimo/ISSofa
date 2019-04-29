@@ -911,7 +911,7 @@ void BarycentricMapperTriangleSetTopology<In, Out>::MapPointInfoHandler::swap(un
     if ( findIt != obj->m_dirtyPoints.end())
     {
         // if i1 and i2 are both dirty then the swap is useless
-        if (obj->m_dirtyPoints.find(12) == obj->m_dirtyPoints.end())
+        if (obj->m_dirtyPoints.find(i2) == obj->m_dirtyPoints.end())
         {
             obj->m_dirtyPoints.erase(findIt);
             obj->m_dirtyPoints.insert(i2);
