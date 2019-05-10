@@ -122,6 +122,7 @@ public:
 
     Data<Real> d_drawMaxSpringEnergy;
     Data<float> d_drawSpringSize;
+    Data<bool>  d_drawSpringBase;
     /// The list of edge springs, one for each edge between two triangles
     sofa::component::topology::EdgeData<helper::vector<VecEdgeSpring> > d_edgeSprings;
 

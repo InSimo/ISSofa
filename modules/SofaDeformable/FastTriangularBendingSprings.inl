@@ -253,6 +253,7 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSpringEnergy","Maximum value of spring bending energy to draw"))
 , d_drawSpringSize(initData(&d_drawSpringSize, 1.0f,"drawSpringSize","Size of drawed lines"))
+, d_drawSpringBase(initData(&d_drawSpringBase, false,"drawSpringBase","draw orthogonal base use for corotational"))
 , d_edgeSprings(initData(&d_edgeSprings, "edgeInfo", "Internal edge data"))
 , edgeHandler(NULL)
 {
@@ -501,6 +502,26 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
             if (is_activated)
             {
                 vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
+
+                if (d_drawSpringBase.getValue())
+                {
+                    const Coord middle = (pa[0]+pa[1])*0.5;
+                    for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
+                    {
+                        Mat Kx;
+                        edgeInf[i].springs[j].computeSpringRotation(Kx, x);
+                        vparams->drawTool()->drawArrow(middle, middle + Coord(Kx[0][0], Kx[1][0], Kx[2][0]) * 10*drawSpringSize, drawSpringSize, sofa::defaulttype::Vec4f(1, 0, 0, 1.f));
+                        vparams->drawTool()->drawArrow(middle, middle + Coord(Kx[0][1], Kx[1][1], Kx[2][1]) * 10*drawSpringSize, drawSpringSize, sofa::defaulttype::Vec4f(0, 1, 0, 1.f));
+                        vparams->drawTool()->drawArrow(middle, middle + Coord(Kx[0][2], Kx[1][2], Kx[2][2]) * 10*drawSpringSize, drawSpringSize, sofa::defaulttype::Vec4f(0, 0, 1, 1.f));
+
+
+                        Deriv R = edgeInf[i].springs[j].computeBendingVector(x);
+                        Deriv R0 = Kx*edgeInf[i].springs[j].R0;
+                        vparams->drawTool()->drawArrow(middle, middle +R * 10*drawSpringSize, drawSpringSize, sofa::defaulttype::Vec4f(0.5, 0.5, 0, 1.f));
+                        vparams->drawTool()->drawArrow(middle, middle + R0 * 10*drawSpringSize, drawSpringSize, sofa::defaulttype::Vec4f(0.0, 0.5, 0.5, 1.f));
+
+                    }
+                }
             }
         }
     }
