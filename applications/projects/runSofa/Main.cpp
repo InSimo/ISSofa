@@ -145,6 +145,7 @@ int main(int argc, char** argv)
     unsigned    computationTimeSampling=0; ///< Frequency of display of the computation time statistics, in number of animation steps. 0 means never.
     std::vector<std::string> guiOptions;
     std::string viewerDimension = "800x600";
+    double maxFps = -1.;
 
     std::string guiName = "SofaGuiQt";
     std::string verif = "";
@@ -168,6 +169,7 @@ int main(int argc, char** argv)
     .option(&guiName, 'g', "gui", "Name of the GUI or GUI plugin")
     .option(&guiOptions,'o',"guiOption","Options for the chosen GUI")
     .option(&viewerDimension,'d',"dimension","Set the GUI viewer dimension in WIDTHxHEIGHT format or with any other separator")
+    .option(&maxFps, 'F', "maxfps", "Maximum frequency of the simulation")
     .option(&plugins,'l',"load","load given plugins")
     .option(&nbIterations,'n',"nb_iterations","Number of iterations of the simulation")
     .option(&printFactory,'p',"factory","print factory logs")
@@ -297,6 +299,11 @@ int main(int argc, char** argv)
             int height = atoi(heightStr.c_str());
             gui->setViewerResolution(width, height);
         }
+    }
+
+    if (maxFps > 0)
+    {
+        gui->setMaxFPS(maxFps);
     }
 
     sofa::simulation::Node::SPtr groot = sofa::simulation::getSimulation()->load(fileName.c_str(), args);
