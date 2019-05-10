@@ -117,6 +117,7 @@ public:
 
     Data<bool>   d_useRestCurvature; ///< Use the rest curvature as the zero energy bending.
     Data<bool>   d_useCorotational;  ///< Use edge rotation to make restCurvature invariant to rotation
+    Data<bool>   d_forceContinuity;  ///< Handle discontinuity for 180° edge rotation by using an hysterisis
 
     Data<bool>   d_quadraticBendingModel; /// Use quadratic bending model method for Inextensible Surfaces
 
@@ -197,6 +198,18 @@ protected:
 };
 
 
+enum class BendingShellQuadrant : uint
+{
+    UNUSED  = 0,
+    I       = 1,
+    II      = 2,
+    III     = 3,
+    IV      = 4
+};
+
+SOFA_ENUM_DECL(BendingShellQuadrant, I, II, III, IV);
+SOFA_ENUM_STREAM_METHODS(BendingShellQuadrant);
+
 template<class _DataTypes>
 class TEdgeSpring
 {
@@ -219,6 +232,8 @@ public:
     Deriv R0;                                ///< rest curvature
     bool is_activated = false;
     bool is_initialized = false;
+    bool invertNormal = false;
+    BendingShellQuadrant quadrant = BendingShellQuadrant::UNUSED;
 
     mutable std::array<std::array<int, 2>, 4> mwriterCacheD;
     mutable std::array<std::array<int, 4>, 6> mwriterCacheS;
@@ -232,6 +247,30 @@ public:
         {
             a.fill(-1);
         }
+    }
+
+    BendingShellQuadrant computeShellQuadrant(const Deriv& n1 /*normal of first triangle*/, const Deriv& n2 /*normal of second triangle*/, const Deriv& u /*edge direction*/) const
+    {
+        assert(n1.isNormalized());
+        assert(n2.isNormalized());
+        assert(u.isNormalized());
+
+        Deriv v2 = u.cross(n2);
+
+        const bool IorII = n1*v2 > 0;
+        const bool IorIV = n1*n2 > 0;
+
+        if ( IorII && IorIV)
+            return BendingShellQuadrant::I;
+        if (IorII && !IorIV)
+            return BendingShellQuadrant::II;
+        if (!IorII && !IorIV)
+            return BendingShellQuadrant::III;
+        if (!IorII && IorIV)
+            return BendingShellQuadrant::IV;
+
+        assert(false);
+        return BendingShellQuadrant::UNUSED;
     }
 
     /// Store the vertex indices and perform all the precomputations
@@ -313,7 +352,7 @@ public:
     }
 
     ///Compute the Rotation Matrix to SpringBase
-    void computeSpringRotation(Mat& result, const VecCoord& p) const
+    void computeSpringRotation(Mat& result, const VecCoord& p)
     {
         //The spring base is defined as:
         // u : the edge direction
@@ -326,7 +365,7 @@ public:
         unsigned int pt1 = vid[VA]; //point id of first triangle
         unsigned int pt2 = vid[VB]; //point id of second triangle
 
-        Deriv u = p[pe1] - p[pe2];
+        Deriv u = p[pe2] - p[pe1];
         u.normalize();
         const Deriv ea1 = p[pt1] - p[pe1];
         const Deriv ea2 = p[pt2] - p[pe1];
@@ -336,7 +375,30 @@ public:
         n2.normalize();
         Deriv n = ((n1+n2) * 0.5);
         n.normalize();
-        Deriv v = n.cross(u);
+
+        if (quadrant != BendingShellQuadrant::UNUSED)
+        {
+            const BendingShellQuadrant newQuadrant = computeShellQuadrant(n1, n2, u);
+            if (newQuadrant != quadrant)
+            {
+                if (quadrant == BendingShellQuadrant::II && newQuadrant == BendingShellQuadrant::III)
+                {
+                    invertNormal = !invertNormal;
+                }
+                else if (quadrant == BendingShellQuadrant::III && newQuadrant == BendingShellQuadrant::II)
+                {
+                    invertNormal = !invertNormal;
+                }
+            }
+
+            if(invertNormal)
+            {
+                n = -n;
+            }
+            quadrant = newQuadrant;
+        }
+
+        Deriv v = u.cross(n);
         v.normalize();
 
         for( int i = 0; i < 3; i++)
@@ -364,7 +426,7 @@ public:
     }
 
     /// Accumulates force and return potential energy
-    Real addForce( VecDeriv& f, const VecCoord& p, const VecDeriv& /*v*/, bool useCorotational) const
+    Real addForce( VecDeriv& f, const VecCoord& p, const VecDeriv& /*v*/, bool useCorotational)
     {
         if( !is_activated ) return 0;
 
@@ -447,7 +509,7 @@ public:
     }
 
 
-    SOFA_STRUCT_DECL(TEdgeSpring, vid, alpha, lambda, R0, is_activated, is_initialized);
+    SOFA_STRUCT_DECL(TEdgeSpring, vid, alpha, lambda, R0, is_activated, is_initialized, quadrant, invertNormal);
     SOFA_STRUCT_STREAM_METHODS(TEdgeSpring);
     SOFA_STRUCT_COMPARE_METHOD(TEdgeSpring);
 };
@@ -494,6 +556,7 @@ typedef sofa::component::forcefield::TEdgeSpring<sofa::defaulttype::Vec3fTypes> 
 typedef sofa::component::forcefield::TVecEdgeSpring<sofa::defaulttype::Vec3dTypes> VecEdgeSpringVec3d;
 typedef sofa::component::forcefield::TVecEdgeSpring<sofa::defaulttype::Vec3fTypes> VecEdgeSpringVec3f;
 
+SOFA_ENUM_DEFINE_TYPEINFO(sofa::component::forcefield::BendingShellQuadrant);
 SOFA_STRUCT_DEFINE_TYPEINFO(EdgeSpringVec3d);
 SOFA_STRUCT_DEFINE_TYPEINFO(EdgeSpringVec3f);
 SOFA_STRUCT_DEFINE_TYPEINFO(VecEdgeSpringVec3d);

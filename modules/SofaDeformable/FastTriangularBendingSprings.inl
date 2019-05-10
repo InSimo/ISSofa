@@ -250,6 +250,7 @@ FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings()
 , d_minDistValidity(initData(&d_minDistValidity,(double) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
 , d_useRestCurvature(initData(&d_useRestCurvature, false, "useRestCurvature", "Use rest curvature as the zero potential energy"))
 , d_useCorotational(initData(&d_useCorotational, false, "useCorotational","Use a rotation to make rest curvature invariant to rotation"))
+, d_forceContinuity(initData(&d_forceContinuity, false, "forceContinuity","handle discontinuity for 180° edge rotation by using an hysterisis"))
 , d_quadraticBendingModel(initData(&d_quadraticBendingModel, false,"quadraticBendingModel","Use quadratic bending model method for Inextensible Surfaces"))
 , d_drawMaxSpringEnergy(initData(&d_drawMaxSpringEnergy,(Real) 1.0,"drawMaxSpringEnergy","Maximum value of spring bending energy to draw"))
 , d_drawSpringSize(initData(&d_drawSpringSize, 1.0f,"drawSpringSize","Size of drawed lines"))
@@ -331,6 +332,8 @@ void FastTriangularBendingSprings<DataTypes>::createBendingSprings(unsigned int 
     const Real bendingStiffness = (Real)f_bendingStiffness.getValue();
     const bool useRestCurvature = d_useRestCurvature.getValue();
     const bool useCorotational = d_useCorotational.getValue();
+    const bool forceContinuity = d_forceContinuity.getValue();
+
     sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring> > > edgeData(d_edgeSprings);
     double epsilonSq = d_minDistValidity.getValue();
     epsilonSq *= epsilonSq;
@@ -372,6 +375,13 @@ void FastTriangularBendingSprings<DataTypes>::createBendingSprings(unsigned int 
             if (useRestCurvature)
             {
                 ei.springs[0].computeRestCurvature(restPosition.ref(), useCorotational);
+                if (forceContinuity)
+                {
+                    const Deriv u = ve.normalized();
+                    const Deriv n1 = u.cross(restPosition[v1] - restPosition[e1]).normalized();
+                    const Deriv n2 = -u.cross(restPosition[v2] - restPosition[e1]).normalized();
+                    ei.springs[0].quadrant = ei.springs[0].computeShellQuadrant(n1, n2, u);
+                }
             }
         }
     }
@@ -392,8 +402,8 @@ void FastTriangularBendingSprings<DataTypes>::addForce(const core::MechanicalPar
     const VecCoord& x = d_x.getValue();
     const VecDeriv& v = d_v.getValue();
     typename MechanicalState::WriteVecDeriv f(d_f);
-    const helper::vector<VecEdgeSpring>& edgeInf = d_edgeSprings.getValue();
-    const bool useCorotaional = d_useCorotational.getValue();
+    sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring>>> edgeInf = d_edgeSprings;
+    const bool useCorotational = d_useCorotational.getValue();
     f.resize(x.size());
 
     m_potentialEnergy = 0;
@@ -401,7 +411,7 @@ void FastTriangularBendingSprings<DataTypes>::addForce(const core::MechanicalPar
     {
         for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
         {
-            m_potentialEnergy += edgeInf[i].springs[j].addForce(f.wref(), x, v, useCorotaional);
+            m_potentialEnergy += edgeInf[i].springs[j].addForce(f.wref(), x, v, useCorotational);
         }
     }
 }
@@ -465,7 +475,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     if (!this->mstate) return;
 
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
-    const helper::vector<VecEdgeSpring>& edgeInf = d_edgeSprings.getValue();
+    sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring>>> edgeInf = d_edgeSprings;
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
     const bool useCorotational = d_useCorotational.getValue();
     const Real drawSpringSize = d_drawSpringSize.getValue();
