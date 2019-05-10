@@ -198,7 +198,7 @@ protected:
 };
 
 
-enum class BendingShellQuadrant : uint
+enum class BendingShellQuadrant : unsigned int
 {
     UNUSED  = 0,
     I       = 1,
