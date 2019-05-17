@@ -62,7 +62,7 @@ public :
     OptionsGroup(int nbofRadioButton,...);
 
     ///generic constructor taking other string container like list<string>, set<string>, vector<string>
-    template <class T> OptionsGroup(const T& list);
+    template <class T> explicit OptionsGroup(const T& list);
 
     ///Copy constructor
     OptionsGroup(const OptionsGroup& m_radiotrick);
