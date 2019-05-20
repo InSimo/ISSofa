@@ -63,8 +63,6 @@ TTriangleModel<DataTypes>::TTriangleModel()
     , d_drawBoundaryEdges(initData(&d_drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
 {
     triangles = &mytriangles;
-    enum_type = TRIANGLE_TYPE;
-
     d_boundaryAngleThreshold.setGroup("TriangleFlags_");
 }
 
@@ -135,7 +133,7 @@ inline typename DataTypes::Deriv computeTriangleNormal(const typename DataTypes:
 template<class DataTypes>
 void TTriangleModel<DataTypes>::updateNormals()
 {
-    for (int i=0; i<size; i++)
+    for (int i = 0; i < this->size; i++)
     {
         Element t(this,i);
         t.n() = computeTriangleNormal<DataTypes>(t.p1(), t.p2(), t.p3());
@@ -151,7 +149,7 @@ void TTriangleModel<DataTypes>::updateFromTopology()
     const unsigned newsize = ntris+2*nquads;
 
     int revision = _topology->getRevision();
-    if (newsize==(unsigned)size && revision == meshRevision)
+    if (newsize==(unsigned)this->size && revision == meshRevision)
         return;
     meshRevision = revision;
 
@@ -447,7 +445,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         const bool drawBPoints = d_drawBoundaryPoints.getValue();
         const bool drawBEdges = d_drawBoundaryEdges.getValue();
 
-        if (bBothSide.getValue() || vparams->displayFlags().getShowWireFrame())
+        if (this->bBothSide.getValue() || vparams->displayFlags().getShowWireFrame())
         {
             vparams->drawTool()->setPolygonMode(0, vparams->displayFlags().getShowWireFrame());
         }
@@ -460,8 +458,8 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         sofa::helper::vector< defaulttype::Vector3 > points, pointsBP, pointsBE;
         sofa::helper::vector< defaulttype::Vec<3,int> > indices;
         sofa::helper::vector< defaulttype::Vector3 > normals;
-        int index=0;
-        for (int i=0; i<size; i++)
+        int index = 0;
+        for (int i = 0; i < this->size; i++)
         {
             Element t(this,i);
             normals.push_back(DataTypes::getDPos(t.n()));
@@ -517,7 +515,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         }
 
         vparams->drawTool()->setLightingEnabled(true);
-        vparams->drawTool()->drawTriangles(points, indices, normals, defaulttype::Vec<4,float>(getColor4f()));
+        vparams->drawTool()->drawTriangles(points, indices, normals, defaulttype::Vec<4,float>(this->getColor4f()));
         vparams->drawTool()->setLightingEnabled(false);
         vparams->drawTool()->setPolygonMode(0,false);
 
@@ -527,7 +525,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         if (vparams->displayFlags().getShowNormals())
         {
             sofa::helper::vector< defaulttype::Vector3 > pointsEdges;
-            for (int i=0; i<size; i++)
+            for (int i = 0; i < this->size; i++)
             {
                 Element t(this,i);
                 pointsEdges.push_back(DataTypes::getCPos((t.p1()+t.p2()+t.p3()))/3.0);
@@ -538,13 +536,15 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         }
     }
 
-    if (getPrevious()!=NULL && vparams->displayFlags().getShowBoundingCollisionModels())
-        getPrevious()->draw(vparams);
+    if (this->getPrevious()!=NULL && vparams->displayFlags().getShowBoundingCollisionModels())
+    {
+        this->getPrevious()->draw(vparams);
+    }
 }
 
 
 template<class DataTypes>
-bool TTriangleModel<DataTypes>::canCollideWithElement(int index, CollisionModel* model2, int index2)
+bool TTriangleModel<DataTypes>::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
 {
     if (!this->bSelfCollision.getValue()) return true; // we need to perform this verification process only for the selfcollision case.
     if (this->getContext() != model2->getContext()) return true;
@@ -600,12 +600,12 @@ Real computeTriangleAreaSquared(const sofa::defaulttype::Vec<3, Real>& p0, const
 template<class DataTypes>
 void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
 {
-    CubeModel* cubeModel = createPrevious<CubeModel>();
+    CubeModel* cubeModel = this->template createPrevious<CubeModel>();
     updateFromTopology();
 
     if (needsUpdate && !cubeModel->empty()) cubeModel->resize(0);
 
-    if (!isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
+    if (!this->isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
 
     needsUpdate=false;
     defaulttype::Vector3 minElem, maxElem;
@@ -678,11 +678,11 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
 //    else
 //    {
 
-        cubeModel->resize(size);  // size = number of triangles
-        if (!empty())
+        cubeModel->resize(this->size);  // size = number of triangles
+        if (!this->empty())
         {
             const SReal distance = (SReal)this->proximity.getValue();
-            for (int i=0; i<size; i++)
+            for (int i = 0; i < this->size; i++)
             {
                 Element t(this,i);
                 const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
@@ -738,19 +738,19 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
 template<class DataTypes>
 void TTriangleModel<DataTypes>::computeContinuousBoundingTree(double dt, int maxDepth)
 {
-    CubeModel* cubeModel = createPrevious<CubeModel>();
+    CubeModel* cubeModel = this->template createPrevious<CubeModel>();
     updateFromTopology();
     if (needsUpdate) cubeModel->resize(0);
-    if (!isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
+    if (!this->isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
 
     needsUpdate=false;
     defaulttype::Vector3 minElem, maxElem;
 
-    cubeModel->resize(size);
-    if (!empty())
+    cubeModel->resize(this->size);
+    if (!this->empty())
     {
         const SReal distance = (SReal)this->proximity.getValue();
-        for (int i=0; i<size; i++)
+        for (int i = 0; i < this->size; i++)
         {
             Element t(this,i);
             const defaulttype::Vector3& pt1 = DataTypes::getCPos(t.p1());

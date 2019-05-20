@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_COLLISION_TRIANGLEMODEL_H
 
 #include <sofa/core/CollisionModel.h>
+#include <SofaMeshCollision/GenericTriangleModel.h>
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
 #include <SofaBaseTopology/TopologyData.h>
@@ -104,15 +105,16 @@ public:
 };
 
 template<class TDataTypes>
-class TTriangleModel : public core::CollisionModel
+class TTriangleModel : public component::collision::GenericTriangleModel<TDataTypes>
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE(TTriangleModel, TDataTypes), core::CollisionModel);
+    SOFA_CLASS(SOFA_TEMPLATE(TTriangleModel, TDataTypes), SOFA_TEMPLATE(component::collision::GenericTriangleModel, TDataTypes));
 
     typedef TDataTypes DataTypes;
     typedef DataTypes InDataTypes;
     typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::VecDeriv VecDeriv;
+    typedef typename DataTypes::Real Real;
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
     typedef TTriangle<DataTypes> Element;
@@ -208,7 +210,7 @@ public:
 
     void draw(const core::visual::VisualParams* vparams) override;
      
-    virtual bool canCollideWithElement(int index, CollisionModel* model2, int index2) override;
+    virtual bool canCollideWithElement(int index, core::CollisionModel* model2, int index2) override;
 
     virtual void handleTopologyChange() override;
 
@@ -243,7 +245,7 @@ public:
     {
         if (core::behavior::MechanicalState<DataTypes>::DynamicCast(context->getMechanicalState()) == NULL)
             return false;
-        return BaseObject::canCreate(obj, context, arg);
+        return core::objectmodel::BaseObject::canCreate(obj, context, arg);
     }
 
     virtual std::string getTemplateName() const
