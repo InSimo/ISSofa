@@ -95,19 +95,16 @@ public:
     typedef void* SyncPointWorkRegisterID;
     
     /// Register work functor that will be executed asynchronously when between predecessorID and successorID.
-    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID predecessorID, SyncPointID successorID, SyncPointWorkFunctor work, std::string taskName) { return nullptr; }
+    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID predecessorID, SyncPointID successorID, SyncPointWorkFunctor work, std::string taskName);
     
     /// Register work functor that will be executed synchronously when syncPointID is reached .
-    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName) { return nullptr; }
+    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName);
     
     /// Register work functor that will be executed asynchronously when syncPointID is reached.
-    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName) { return nullptr; }
+    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName);
 
-
-    virtual bool unregisterSyncPointWork(SyncPointWorkRegisterID registerID) { return false; }
-    
-
-
+    /// Unregister work functor
+    virtual bool unregisterSyncPointWork(SyncPointWorkRegisterID registerID);
 
 };
 

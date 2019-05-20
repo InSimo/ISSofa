@@ -58,6 +58,26 @@ double BaseAnimationLoop::getResetTime() const
     return m_resetTime;
 }
 
+BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointWork(SyncPointID /*predecessorID*/, SyncPointID /*successorID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/)
+{
+    return nullptr;
+}
+
+BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointSeqWork(SyncPointID /*syncPointID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/)
+{
+    return nullptr;
+}
+
+BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointWork(SyncPointID /*syncPointID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/)
+{
+    return nullptr;
+}
+
+bool BaseAnimationLoop::unregisterSyncPointWork(SyncPointWorkRegisterID /*registerID*/)
+{
+    return false;
+}
+
 } // namespace behavior
 
 } // namespace core
