@@ -100,6 +100,9 @@ public:
     ReadVecCoord  readRestPositions() const { return ReadVecCoord (*this->read (core::ConstVecCoordId::restPosition())); }
     WriteVecCoord writeRestPositions()      { return WriteVecCoord(*this->write(core::VecCoordId::restPosition())); }
     WriteOnlyVecCoord writeOnlyRestPositions()  { return WriteOnlyVecCoord(*this->write(core::VecCoordId::restPosition())); }
+    ReadVecCoord  readFreePositions() const { return ReadVecCoord (*this->read (core::ConstVecCoordId::freePosition())); }
+    WriteVecCoord writeFreePositions()      { return WriteVecCoord(*this->write(core::VecCoordId::freePosition())); }
+    WriteOnlyVecCoord writeOnlyFreePositions()  { return WriteOnlyVecCoord(*this->write(core::VecCoordId::freePosition())); }
 
     typedef helper::ReadAccessor     <Data<Deriv> >    ReadDeriv;
     typedef helper::WriteAccessor    <Data<Deriv> >    WriteDeriv;
