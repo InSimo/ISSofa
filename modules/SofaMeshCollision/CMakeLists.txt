@@ -22,6 +22,7 @@ set(HEADER_FILES
     Point.h
     PointModel.h
     PointModel.inl
+    GenericLineIterator.h
     Line.h
     LineModel.h
     LineModel.inl
