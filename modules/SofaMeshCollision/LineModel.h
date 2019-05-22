@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_COLLISION_LINEMODEL_H
 
 #include <sofa/core/CollisionModel.h>
+#include <SofaMeshCollision/GenericLineModel.h>
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
@@ -98,10 +99,10 @@ public:
 };
 
 template<class TDataTypes>
-class TLineModel : public core::CollisionModel
+class TLineModel : public GenericLineModel<TDataTypes>
 {
 public :
-    SOFA_CLASS(SOFA_TEMPLATE(TLineModel, TDataTypes), core::CollisionModel);
+    SOFA_CLASS(SOFA_TEMPLATE(TLineModel, TDataTypes), SOFA_TEMPLATE(GenericLineModel, TDataTypes));
     
     enum LineFlag
     {
@@ -157,7 +158,7 @@ public:
 
     virtual void handleTopologyChange();
 
-    bool canCollideWithElement(int index, CollisionModel* model2, int index2);
+    bool canCollideWithElement(int index, core::CollisionModel* model2, int index2);
 
     core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return mstate; }
 
@@ -190,7 +191,7 @@ public:
     {
         if (core::behavior::MechanicalState<DataTypes>::DynamicCast(context->getMechanicalState()) == NULL)
             return false;
-        return BaseObject::canCreate(obj, context, arg);
+        return core::objectmodel::BaseObject::canCreate(obj, context, arg);
     }
 
     virtual std::string getTemplateName() const
@@ -208,7 +209,7 @@ public:
 protected:
 
     core::behavior::MechanicalState<DataTypes>* mstate;
-    Topology* topology;
+    core::CollisionModel::Topology* topology;
     PointModel* mpoints;
     int meshRevision;
     LineLocalMinDistanceFilter *m_lmdFilter;
@@ -283,7 +284,7 @@ inline const typename DataTypes::Deriv& TLine<DataTypes>::v2() const { return th
 
 
 template<class DataTypes>
-inline typename TLineModel<DataTypes>::Deriv TLineModel<DataTypes>::velocity(int index) const { return (mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[0]] + mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[1]])/((Real)(2.0)); }
+inline typename TLineModel<DataTypes>::Deriv TLineModel<DataTypes>::velocity(int index) const { return (mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[0]] + mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[1]])/((core::CollisionModel::Real)(2.0)); }
 
 template<class DataTypes>
 inline int TLine<DataTypes>::flags() const { return this->model->getLineFlags(this->index); }

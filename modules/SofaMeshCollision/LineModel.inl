@@ -57,7 +57,6 @@ TLineModel<DataTypes>::TLineModel()
     , d_classificationSampling(initData(&d_classificationSampling, "classificationSampling", "Line sub sampling factor per edge to create additional contacts for classification"))
     , myActiver(NULL)
 {
-    enum_type = LINE_TYPE;
 }
 
 //LineMeshModel::LineMeshModel()
@@ -80,8 +79,8 @@ void TLineModel<DataTypes>::resize(int size)
 template<class DataTypes>
 void TLineModel<DataTypes>::init()
 {
-    this->CollisionModel::init();
-    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
+    Inherit1::init();
+    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
 //    mpoints = getContext()->get<sofa::component::collision::PointModel>();
     this->getContext()->get(mpoints);
 
@@ -97,7 +96,7 @@ void TLineModel<DataTypes>::init()
         m_lmdFilter = node->getNodeObject< LineLocalMinDistanceFilter >();
     }
 
-    core::topology::BaseMeshTopology *bmt = getContext()->getMeshTopology();
+    core::topology::BaseMeshTopology *bmt = this->getContext()->getMeshTopology();
     if (!bmt)
     {
         serr <<"LineModel requires a MeshTopology" << sendl;
@@ -163,7 +162,7 @@ void TLineModel<DataTypes>::handleTopologyChange()
     //{
     // We use the same edge array as the topology -> only resize and recompute flags
 
-    core::topology::BaseMeshTopology *bmt = getContext()->getMeshTopology();
+    core::topology::BaseMeshTopology *bmt = this->getContext()->getMeshTopology();
     if (bmt)
     {
         resize(bmt->getNbEdges());
@@ -366,7 +365,7 @@ void TLineModel<DataTypes>::handleTopologyChange()
 template<class DataTypes>
 void TLineModel<DataTypes>::updateFromTopology()
 {
-    core::topology::BaseMeshTopology *bmt = getContext()->getMeshTopology();
+    core::topology::BaseMeshTopology *bmt = this->getContext()->getMeshTopology();
     if (bmt)
     {
         int revision = bmt->getRevision();
@@ -437,7 +436,7 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             vparams->drawTool()->setPolygonMode(0,true);
 
         sofa::helper::vector< defaulttype::Vector3 > points;
-        for (int i=0; i<size; i++)
+        for (int i = 0; i < this->size; i++)
         {
             TLine<DataTypes> l(this,i);
             if(l.activated())
@@ -447,12 +446,12 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             }
         }
 
-        vparams->drawTool()->drawLines(points, 1, defaulttype::Vec<4,float>(getColor4f()));
+        vparams->drawTool()->drawLines(points, 1, defaulttype::Vec<4,float>(this->getColor4f()));
 
         if (m_displayFreePosition.getValue())
         {
             sofa::helper::vector< defaulttype::Vector3 > pointsFree;
-            for (int i=0; i<size; i++)
+            for (int i = 0; i < this->size; i++)
             {
                 TLine<DataTypes> l(this,i);
                 if(l.activated())
@@ -468,12 +467,12 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
         if (vparams->displayFlags().getShowWireFrame())
             vparams->drawTool()->setPolygonMode(0,false);
     }
-    if (getPrevious()!=NULL && vparams->displayFlags().getShowBoundingCollisionModels())
-        getPrevious()->draw(vparams);
+    if (this->getPrevious()!=NULL && vparams->displayFlags().getShowBoundingCollisionModels())
+        this->getPrevious()->draw(vparams);
 }
 
 template<class DataTypes>
-bool TLineModel<DataTypes>::canCollideWithElement(int index, CollisionModel* model2, int index2)
+bool TLineModel<DataTypes>::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
 {
     //std::cerr<<"canCollideWithElement is called"<<std::endl;
 
@@ -598,19 +597,19 @@ bool TLineModel<DataTypes>::canCollideWithElement(int index, CollisionModel* mod
 template<class DataTypes>
 void TLineModel<DataTypes>::computeBoundingTree(int maxDepth)
 {
-    CubeModel* cubeModel = createPrevious<CubeModel>();
+    CubeModel* cubeModel = this->template createPrevious<CubeModel>();
     updateFromTopology();
     if (needsUpdate) cubeModel->resize(0);
-    if (!isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
+    if (!this->isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
 
     needsUpdate = false;
     defaulttype::Vector3 minElem, maxElem;
 
-    cubeModel->resize(size);
-    if (!empty())
+    cubeModel->resize(this->size);
+    if (!this->empty())
     {
         const SReal distance = (SReal)this->proximity.getValue();
-        for (int i=0; i<size; i++)
+        for (int i = 0; i < this->size; i++)
         {
             defaulttype::Vector3 minElem, maxElem;
             TLine<DataTypes> l(this,i);
@@ -641,19 +640,19 @@ void TLineModel<DataTypes>::computeBoundingTree(int maxDepth)
 template<class DataTypes>
 void TLineModel<DataTypes>::computeContinuousBoundingTree(double dt, int maxDepth)
 {
-    CubeModel* cubeModel = createPrevious<CubeModel>();
+    CubeModel* cubeModel = this->template createPrevious<CubeModel>();
     updateFromTopology();
     if (needsUpdate) cubeModel->resize(0);
-    if (!isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
+    if (!this->isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
 
     needsUpdate=false;
     defaulttype::Vector3 minElem, maxElem;
 
-    cubeModel->resize(size);
-    if (!empty())
+    cubeModel->resize(this->size);
+    if (!this->empty())
     {
         const SReal distance = (SReal)this->proximity.getValue();
-        for (int i=0; i<size; i++)
+        for (int i = 0; i < this->size; i++)
         {
             TLine<DataTypes> t(this,i);
             const defaulttype::Vector3& pt1 = t.p1();
