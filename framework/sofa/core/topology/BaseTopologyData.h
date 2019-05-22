@@ -85,14 +85,6 @@ public:
 
     }
 
-    /** \copydoc Data(const ContainerType&, const char*, bool, bool) */
-    BaseTopologyData( const ContainerType& value, const char* helpMsg=0, bool isDisplayed=true, bool isReadOnly=false)
-        : Data<ContainerType>(helpMsg, isDisplayed, isReadOnly),
-        m_topology(NULL),
-        m_topologicalEngine(NULL)
-    {
-    }
-
 
     // Generic methods to apply changes on the Data
     //{

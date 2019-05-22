@@ -540,7 +540,7 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
         if(VBOGenDone && useVBO.getValue())
         {
             glBindBufferARB(GL_ARRAY_BUFFER, vbo);
-            glTexCoordPointer(2, GL_FLOAT, 0, (char*)NULL + (vertices.size()*sizeof(vertices[0])) + (vnormals.size()*sizeof(vnormals[0])) );
+            glTexCoordPointer(2, GL_FLOAT, 0, reinterpret_cast<const void*>((vertices.size()*sizeof(vertices[0])) + (vnormals.size()*sizeof(vnormals[0]))));
             glBindBufferARB(GL_ARRAY_BUFFER, 0);
         }
         else
@@ -556,10 +556,7 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
             if(VBOGenDone && useVBO.getValue())
             {
                 glBindBufferARB(GL_ARRAY_BUFFER, vbo);
-                glTexCoordPointer(3, GL_FLOAT, 0,
-                        (char*)NULL + (vertices.size()*sizeof(vertices[0])) +
-                        (vnormals.size()*sizeof(vnormals[0])) +
-                        (vtexcoords.size()*sizeof(vtexcoords[0])));
+                glTexCoordPointer(3, GL_FLOAT, 0, reinterpret_cast<const void*>((vertices.size()*sizeof(vertices[0])) + (vnormals.size()*sizeof(vnormals[0])) + (vtexcoords.size()*sizeof(vtexcoords[0]))));
                 glBindBufferARB(GL_ARRAY_BUFFER, 0);
             }
             else

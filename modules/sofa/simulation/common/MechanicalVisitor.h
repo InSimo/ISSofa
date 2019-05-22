@@ -246,15 +246,15 @@ public:
     }
 
     /// Process all the InteractionConstraint
-    virtual Result fwdInteractionProjectiveConstraintSet(simulation::Node* node, core::behavior::BaseInteractionProjectiveConstraintSet* c)
+    virtual Result fwdInteractionProjectiveConstraintSet(simulation::Node* /*node*/, core::behavior::BaseInteractionProjectiveConstraintSet* /*c*/)
     {
-        return fwdInteractionProjectiveConstraintSet(node, c);
+        return RESULT_CONTINUE;
     }
 
     /// Process all the InteractionConstraint
-    virtual Result fwdInteractionConstraint(simulation::Node* node, core::behavior::BaseInteractionConstraint* c)
+    virtual Result fwdInteractionConstraint(simulation::Node* /*node*/, core::behavior::BaseInteractionConstraint* /*c*/)
     {
-        return fwdInteractionConstraint(node, c);
+        return RESULT_CONTINUE;
     }
 
     /// Process all the InteractionConstraint
