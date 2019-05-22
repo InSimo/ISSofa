@@ -19,6 +19,7 @@ set(HEADER_FILES
     MeshDiscreteIntersection.h
     MeshDiscreteIntersection.inl
     MeshMinProximityIntersection.h
+    GenericPointIterator.h
     Point.h
     PointModel.h
     PointModel.inl
