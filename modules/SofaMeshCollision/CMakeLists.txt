@@ -25,6 +25,7 @@ set(HEADER_FILES
     Line.h
     LineModel.h
     LineModel.inl
+    GenericLineModel.h
     GenericTriangleModel.h
     Triangle.h
     TriangleModel.h
@@ -60,6 +61,7 @@ set(SOURCE_FILES
     MeshMinProximityIntersection.cpp
     PointModel.cpp
     LineModel.cpp
+    GenericLineModel.cpp
     GenericTriangleModel.cpp
     TriangleModel.cpp
     TriangleOctree.cpp
