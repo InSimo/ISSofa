@@ -40,7 +40,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 
-namespace sofa::helper::svg
+namespace sofa
+{
+namespace helper
+{
+namespace svg
 {
     // Utility XML/String Functions.
     template <typename T>
@@ -637,6 +641,8 @@ namespace sofa::helper::svg
 
         std::string body_nodes_str;
     };
+}
+}
 }
 
 #endif
