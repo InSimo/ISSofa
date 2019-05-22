@@ -44,6 +44,7 @@ set(SOFAHELPER_HEADERS
     rmath.h
     RandomGenerator.h
     set.h
+    simple_svg.h
     SSOBuffer.h
     SVector.h
     system/config.h
