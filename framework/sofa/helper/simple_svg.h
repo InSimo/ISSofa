@@ -30,8 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ******************************************************************************/
 
-#ifndef SIMPLE_SVG_HPP
-#define SIMPLE_SVG_HPP
+#ifndef SOFA_HELPER_SIMPLE_SVG_HPP
+#define SOFA_HELPER_SIMPLE_SVG_HPP
 
 #include <vector>
 #include <string>
@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 
-namespace svg
+namespace sofa::helper::svg
 {
     // Utility XML/String Functions.
     template <typename T>
