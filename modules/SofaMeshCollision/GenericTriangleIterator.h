@@ -147,13 +147,13 @@ template<class DataTypes>
 inline int GenericTriangleIterator<DataTypes>::flags() const { return this->model->getTriangleFlags(this->index); }
 
 template<class DataTypes>
-inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryPoints() const { return this->model->intersectOnlyBoundaryPoints(); }
+inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryPoints() const { return false; }
 
 template<class DataTypes>
-inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryEdges() const { return this->model->intersectOnlyBoundaryEdges(); }
+inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryEdges() const { return false; }
 
 template<class DataTypes>
-inline bool GenericTriangleIterator<DataTypes>::getTrianglePointProjectionRule() const { return this->model->getTrianglePointProjectionRule(); }
+inline bool GenericTriangleIterator<DataTypes>::getTrianglePointProjectionRule() const { return false; }
 
 template<class DataTypes>
 inline bool GenericTriangleIterator<DataTypes>::hasFreePosition() const { return this->model->getMechanicalState()->read(core::ConstVecCoordId::freePosition())->isSet(); }

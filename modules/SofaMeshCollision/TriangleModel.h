@@ -27,6 +27,7 @@
 
 #include <sofa/core/CollisionModel.h>
 #include <SofaMeshCollision/GenericTriangleModel.h>
+#include <SofaMeshCollision/GenericTriangleIterator.h>
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
 #include <SofaBaseTopology/TopologyData.h>
@@ -50,7 +51,7 @@ class TTriangleModel;
 class TriangleLocalMinDistanceFilter;
 
 template<class TDataTypes>
-class TTriangle : public core::TCollisionElementIterator< TTriangleModel<TDataTypes> >
+class TTriangle : public sofa::component::collision::GenericTriangleIterator< TTriangleModel<TDataTypes> >
 {
 public:
     typedef TDataTypes DataTypes;
@@ -119,6 +120,7 @@ public:
     typedef typename DataTypes::Deriv Deriv;
     typedef TTriangle<DataTypes> Element;
     friend class TTriangle<DataTypes>;
+    friend class GenericTriangleIterator<TTriangleModel<DataTypes>>;
 
     enum TriangleFlag
     {
@@ -261,17 +263,17 @@ public:
 
 template<class DataTypes>
 inline TTriangle<DataTypes>::TTriangle(ParentModel* model, int index)
-    : core::TCollisionElementIterator<ParentModel>(model, index)
+    : sofa::component::collision::GenericTriangleIterator<ParentModel>(model, index)
 {}
 
 template<class DataTypes>
 inline TTriangle<DataTypes>::TTriangle(const core::CollisionElementIterator& i)
-    : core::TCollisionElementIterator<ParentModel>(static_cast<ParentModel*>(i.getCollisionModel()), i.getIndex())
+    : sofa::component::collision::GenericTriangleIterator<ParentModel>(static_cast<ParentModel*>(i.getCollisionModel()), i.getIndex())
 {}
 
 template<class DataTypes>
 inline TTriangle<DataTypes>::TTriangle(ParentModel* model, int index, helper::ReadAccessor<typename DataTypes::VecCoord>& /*x*/)
-    : core::TCollisionElementIterator<ParentModel>(model, index)
+    : sofa::component::collision::GenericTriangleIterator<ParentModel>(model, index)
 {}
 
 template<class DataTypes>
