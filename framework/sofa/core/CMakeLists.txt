@@ -92,6 +92,7 @@ set(SOFACORE_HEADERS
 	topology/BaseTopologyEngine.h
 	topology/TopologyHandler.h
 	topology/TopologyElementHandler.h
+	topology/TopologyElementInfo.h
 	topology/Topology.h
 	loader/BaseLoader.h
 	loader/ImageLoader.h
@@ -219,6 +220,7 @@ set(SOFACORE_SOURCES
 	topology/TopologyChange.cpp
 	topology/TopologyHandler.cpp
 	topology/TopologyElementHandler.cpp
+	topology/TopologyElementInfo.cpp
 	behavior/BaseConstraint.cpp
 	behavior/BaseForceField.cpp
 	behavior/BaseLMConstraint.cpp

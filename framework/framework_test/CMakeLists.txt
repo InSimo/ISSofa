@@ -38,6 +38,7 @@ set(SOURCE_FILES
     core/objectmodel/PairTypeInfoTest.cpp
     core/objectmodel/StructTypeInfoTest.cpp
     core/objectmodel/EnumTypeInfoTest.cpp
+    core/topology/TopologyElementInfo_test.cpp
     defaulttype/QuatTest.cpp
     defaulttype/UnitsTest.cpp
     defaulttype/DataMetadataTest.cpp
