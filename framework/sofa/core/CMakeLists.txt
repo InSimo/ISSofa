@@ -67,6 +67,7 @@ set(SOFACORE_HEADERS
 	collision/BroadPhaseDetection.h
 	collision/CollisionAlgorithm.h
 	collision/CollisionGroupManager.h
+	collision/CollisionModelTraits.h
 	collision/Contact.h
 	collision/ContactManager.h
 	collision/Detection.h

@@ -217,10 +217,10 @@ inline TopologyElementInfo _getTopologyElementInfo(sofa::core::CollisionModel* m
 
 template < class TCollisionModel >
 inline TopologyElementInfo getTopologyElementInfo( TCollisionModel* model, int index, const sofa::defaulttype::Vector3& baryCoord,
-                                                   typename CollisionModelTraits<TCollisionModel>::Real epsilon = typename CollisionModelTraits<TCollisionModel>::Real(1e-6) )
+                                                   typename collision::CollisionModelTraits<TCollisionModel>::Real epsilon = typename collision::CollisionModelTraits<TCollisionModel>::Real(1e-6) )
 {
-    typename CollisionModelTraits<TCollisionModel>::collision_topology_category topology_category;
-    return internal::_getTopologyElementInfo<typename CollisionModelTraits<TCollisionModel>::DataTypes >( model, index, baryCoord, epsilon, topology_category);
+    typename collision::CollisionModelTraits<TCollisionModel>::collision_topology_category topology_category;
+    return internal::_getTopologyElementInfo<typename collision::CollisionModelTraits<TCollisionModel>::DataTypes >( model, index, baryCoord, epsilon, topology_category);
 }
 
 

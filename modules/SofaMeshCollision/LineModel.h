@@ -367,4 +367,41 @@ extern template class SOFA_MESH_COLLISION_API TLineModel<defaulttype::Vec3fTypes
 
 } // namespace sofa
 
+template < class DataTypes >
+struct sofa::core::collision::CollisionModelTraits< sofa::component::collision::TLineModel<DataTypes> >
+    : public CollisionLineModelTraits<DataTypes>
+{
+};
+
+template < class DataTypes >
+struct sofa::core::collision::InterpX< sofa::component::collision::TLineModel< DataTypes> >
+{
+    typedef sofa::component::collision::TLineModel< DataTypes>         CollisionModel;
+    typedef typename CollisionModelTraits<CollisionModel>::Coord       Coord;
+    typedef typename CollisionModelTraits<CollisionModel>::BaryCoord   BaryCoord;
+    typedef typename CollisionModel::Element                           Element;
+
+    static Coord eval(const Element& e, const BaryCoord& baryCoords)
+    {
+        Coord interp = e.p1()*(1 - baryCoords[0]) + e.p2()*baryCoords[0];
+        return interp;
+    }
+
+};
+
+template < class DataTypes >
+struct sofa::core::collision::InterpV< sofa::component::collision::TLineModel< DataTypes > >
+{
+    typedef sofa::component::collision::TLineModel< DataTypes>       CollisionModel;
+    typedef typename CollisionModelTraits<CollisionModel>::Deriv     Deriv;
+    typedef typename CollisionModelTraits<CollisionModel>::BaryCoord BaryCoord;
+    typedef typename CollisionModel::Element Element;
+
+    static Deriv eval(const Element& e, const BaryCoord& baryCoords)
+    {
+        Deriv interp = e.v1()*(1 - baryCoords[0]) + e.v2()*baryCoords[0];
+        return interp;
+    }
+};
+
 #endif

@@ -33,6 +33,7 @@
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/accessor.h>
 //#include <SofaMeshCollision/RigidContactMapper.h>
+#include <sofa/core/collision/CollisionModelTraits.h>
 
 namespace sofa
 {
@@ -256,4 +257,37 @@ extern template class SOFA_BASE_COLLISION_API TSphereModel<defaulttype::Rigid3fT
 
 } // namespace sofa
 
+template < class DataTypes >
+struct sofa::core::collision::CollisionModelTraits< sofa::component::collision::TSphereModel<DataTypes> >
+    : public CollisionPointModelTraits<DataTypes>
+{
+};
+
+template < class DataTypes >
+struct sofa::core::collision::InterpX< sofa::component::collision::TSphereModel< DataTypes > >
+{
+    typedef sofa::component::collision::TSphereModel< DataTypes>       CollisionModel;
+    typedef typename CollisionModelTraits<CollisionModel>::Coord       Coord;
+    typedef typename CollisionModelTraits<CollisionModel>::BaryCoord   BaryCoord;
+    typedef typename CollisionModel::Element                           Element;
+
+    static Coord eval(const Element& e, const BaryCoord&)
+    {
+        return e.p();
+    }
+};
+
+template < class DataTypes >
+struct sofa::core::collision::InterpV< sofa::component::collision::TSphereModel< DataTypes > >
+{
+    typedef sofa::component::collision::TSphereModel< DataTypes>       CollisionModel;
+    typedef typename CollisionModelTraits<CollisionModel>::Deriv       Deriv;
+    typedef typename CollisionModelTraits<CollisionModel>::BaryCoord   BaryCoord;
+    typedef typename CollisionModel::Element                           Element;
+
+    static Deriv eval(const Element& e, const BaryCoord&)
+    {
+        return e.v();
+    }
+};
 #endif

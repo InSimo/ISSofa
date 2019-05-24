@@ -25,6 +25,7 @@
 #ifndef SOFA_COMPONENT_COLLISION_POINTMODEL_H
 #define SOFA_COMPONENT_COLLISION_POINTMODEL_H
 
+#include <sofa/core/collision/CollisionModelTraits.h>
 #include <sofa/core/CollisionModel.h>
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
@@ -246,5 +247,37 @@ extern template class SOFA_MESH_COLLISION_API TPointModel<defaulttype::Vec3fType
 } // namespace component
 
 } // namespace sofa
+template < class DataTypes >
+struct sofa::core::collision::CollisionModelTraits< sofa::component::collision::TPointModel<DataTypes> >
+    : public CollisionPointModelTraits<DataTypes>
+{
+};
 
+template < class DataTypes >
+struct sofa::core::collision::InterpX< sofa::component::collision::TPointModel< DataTypes > >
+{
+    typedef sofa::component::collision::TPointModel< DataTypes>        CollisionModel;
+    typedef typename CollisionModelTraits<CollisionModel>::Coord       Coord;
+    typedef typename CollisionModelTraits<CollisionModel>::BaryCoord   BaryCoord;
+    typedef typename CollisionModel::Element                           Element;
+
+    static Coord eval(const Element& e, const BaryCoord&)
+    {
+        return e.p();
+    }
+};
+
+template < class DataTypes >
+struct sofa::core::collision::InterpV< sofa::component::collision::TPointModel< DataTypes > >
+{
+    typedef sofa::component::collision::TPointModel< DataTypes>        CollisionModel;
+    typedef typename CollisionModelTraits<CollisionModel>::Deriv       Deriv;
+    typedef typename CollisionModelTraits<CollisionModel>::BaryCoord   BaryCoord;
+    typedef typename CollisionModel::Element                           Element;
+
+    static Deriv eval(const Element& e, const BaryCoord&)
+    {
+        return e.v();
+    }
+};
 #endif

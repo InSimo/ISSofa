@@ -644,4 +644,16 @@ extern template class SOFA_VOLUMETRIC_DATA_API ContactMapper<RigidDistanceGridCo
 
 } // namespace sofa
 
+template<>
+struct sofa::core::collision::CollisionModelTraits< sofa::component::collision::RigidDistanceGridCollisionModel >
+    : public CollisionDistanceGridTraits< sofa::defaulttype::Vec3Types >
+{
+};
+
+template<>
+struct sofa::core::collision::CollisionModelTraits< sofa::component::collision::FFDDistanceGridCollisionModel >
+    : public CollisionDistanceGridTraits< sofa::defaulttype::Vec3Types >
+{
+};
+
 #endif
