@@ -5,7 +5,7 @@
 *******************************************************************************/
 
 
-#include "GenericLineModel.h"
+#include "GenericLineModel.inl"
 
 namespace sofa
 {
