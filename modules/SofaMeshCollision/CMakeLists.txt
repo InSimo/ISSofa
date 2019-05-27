@@ -30,6 +30,7 @@ set(HEADER_FILES
     LineModel.inl
     GenericLineModel.h
     GenericTriangleModel.h
+    GenericTriangleModel.inl
     GenericTriangleIterator.h
     Triangle.h
     TriangleModel.h

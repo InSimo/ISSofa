@@ -5,7 +5,7 @@
 *******************************************************************************/
 
 
-#include "GenericTriangleModel.h"
+#include "GenericTriangleModel.inl"
 
 namespace sofa
 {
