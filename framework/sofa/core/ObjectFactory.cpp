@@ -391,6 +391,14 @@ RegisterObject& RegisterObject::addCreator(std::string classname,
     {
         std::cerr << "ERROR: ObjectFactory: getClass() for class "<<classname<<"<"<<templatename<<"> returns class "<<myclass->className<<"<"<<myclass->templateName<<">, SOFA_CLASS macro is probably missing or incorrect\n";
     }
+    else if (classname.empty())
+    {
+        std::cerr << "ERROR: ObjectFactory: class name is empty\n";
+    }
+    else if (classname[0] < 'A' || classname[0] > 'Z')
+    {
+        std::cout << "ObjectFactory: class name should start with an uppercase letter instead of " << classname << std::endl;
+    }
     else
     {
         //std::cout << "ObjectFactory: getClass() for class "<<classname<<"<"<<templatename<<"> OK" << std::endl;

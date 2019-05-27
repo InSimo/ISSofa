@@ -89,7 +89,7 @@ std::string DecodeTypeName::decodeTypeName(const std::type_info& t)
         {
             start = i+1;
         }
-        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'))
+        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9'))
         {
             // write result
             while (start < i)
@@ -136,7 +136,7 @@ std::string DecodeTypeName::decodeClassName(const std::type_info& t)
         {
             start = i+1;
         }
-        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'))
+        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9'))
         {
             // write result
             while (start < i)
@@ -179,7 +179,7 @@ std::string DecodeTypeName::decodeNamespaceName(const std::type_info& t)
         {
             last = i-1;
         }
-        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'))
+        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9'))
         {
             // write result
             break;
@@ -219,7 +219,7 @@ std::string DecodeTypeName::decodeTemplateName(const std::type_info& t)
         {
             start = i+1;
         }
-        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'))
+        else if (c != ':' && c != '_' && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9'))
         {
             // write result
             while (start <= i)
