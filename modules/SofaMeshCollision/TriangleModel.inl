@@ -28,11 +28,9 @@
 #include <SofaMeshCollision/TriangleModel.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <SofaMeshCollision/TriangleLocalMinDistanceFilter.h>
-#include <SofaBaseCollision/CubeModel.h>
 #include <SofaMeshCollision/Triangle.h>
 #include <SofaBaseTopology/TopologyData.inl>
 #include <sofa/simulation/common/Node.h>
-#include <SofaBaseTopology/RegularGridTopology.h>
 #include <sofa/core/CollisionElement.h>
 #include <vector>
 #include <sofa/helper/gl/template.h>
@@ -54,49 +52,26 @@ namespace collision
 template<class DataTypes>
 TTriangleModel<DataTypes>::TTriangleModel()
     : computeNormals(initData(&computeNormals, true, "computeNormals", "set to false to disable computation of triangles normal"))
-    , d_boundaryAngleThreshold(initData(&d_boundaryAngleThreshold,Real(180),"boundaryAngleThreshold","Angle threshold (in degrees) above which an edge or a point is qualified as boundary.\
-                                                                                                          0    -> All edges/points are flagged as boundary. \
-                                                                                                          180  -> Only edges with a single adjacent triangle are marked as boundary \
-                                                                                                                  and only points attached to these boundary edges are marked as boundary."))
     , d_minTriangleArea(initData(&d_minTriangleArea, Real(1.0e-6), "minTriangleArea", "Triangle area threshold below which elements are considered as badly shaped and collisions are disabled"))
     , d_drawBoundaryPoints(initData(&d_drawBoundaryPoints, false, "drawBoundaryPoints", "Draw triangle points that are classified as boundary."))
     , d_drawBoundaryEdges(initData(&d_drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
 {
     triangles = &mytriangles;
-    d_boundaryAngleThreshold.setGroup("TriangleFlags_");
 }
 
 template<class DataTypes>
 void TTriangleModel<DataTypes>::resize(int size)
 {
-    this->core::CollisionModel::resize(size);
-    //helper::vector<TriangleInfo>& e = *(elems.beginEdit());
-    //e.resize(size);
-    //elems.endEdit();
+    Inherit1::resize(size);
     normals.resize(size);
-    triangleFlags.resize(size);
 }
 
 template<class DataTypes>
 void TTriangleModel<DataTypes>::init()
 {
-    _topology = this->getContext()->getActiveMeshTopology();
-    mstate = core::behavior::MechanicalState<DataTypes>::DynamicCast(this->getContext()->getMechanicalState());
-    this->getContext()->get(mpoints);
-
     Inherit1::init();
 
-    if (mstate==NULL)
-    {
-        serr << "TriangleModel requires a Vec3 Mechanical Model" << sendl;
-        return;
-    }
-
-    if (!_topology)
-    {
-        serr << "TriangleModel requires a BaseMeshTopology" << sendl;
-        return;
-    }
+    this->getContext()->get(mpoints);
 
     simulation::Node* node = simulation::Node::DynamicCast(this->getContext());
     if (node != 0)
@@ -105,9 +80,9 @@ void TTriangleModel<DataTypes>::init()
     }
 
     //sout << "INFO_print : Col - init TRIANGLE " << sendl;
-    sout << "TriangleModel: initially "<<_topology->getNbTriangles()<<" triangles." << sendl;
-    triangles = &_topology->getTriangles();
-    resize(_topology->getNbTriangles());
+    sout << "TriangleModel: initially "<<this->m_topology->getNbTriangles()<<" triangles." << sendl;
+    triangles = &this->m_topology->getTriangles();
+    resize(this->m_topology->getNbTriangles());
 
     updateFromTopology();
     updateNormals();
@@ -116,7 +91,8 @@ void TTriangleModel<DataTypes>::init()
 template<class DataTypes>
 void TTriangleModel<DataTypes>::reinit()
 {
-    updateFlags();
+    this->updateTopologicalTriangleFlags();
+    this->updateMechanicalTriangleFlags();
 }
 
 template< class DataTypes> 
@@ -144,11 +120,11 @@ template<class DataTypes>
 void TTriangleModel<DataTypes>::updateFromTopology()
 {
     //    needsUpdate = false;
-    const unsigned ntris = _topology->getNbTriangles();
-    const unsigned nquads = _topology->getNbQuads();
+    const unsigned ntris = this->m_topology->getNbTriangles();
+    const unsigned nquads = this->m_topology->getNbQuads();
     const unsigned newsize = ntris+2*nquads;
 
-    int revision = _topology->getRevision();
+    int revision = this->m_topology->getRevision();
     if (newsize==(unsigned)this->size && revision == meshRevision)
         return;
     meshRevision = revision;
@@ -157,19 +133,19 @@ void TTriangleModel<DataTypes>::updateFromTopology()
 
     resize(newsize);
 
-    unsigned npoints = mstate->read(core::ConstVecCoordId::position())->getValue().size();
-    if (npoints != (unsigned)_topology->getNbPoints())
+    unsigned npoints = this->m_mstate->read(core::ConstVecCoordId::position())->getValue().size();
+    if (npoints != (unsigned)this->m_topology->getNbPoints())
     {
-        serr << "Mismatch between number of points in topology ("<<_topology->getNbPoints()
-             << ") and size of mstate positions vector ("<< npoints << ")" << sendl;
-        npoints = (unsigned)_topology->getNbPoints();
-        mstate->resize(npoints);
+        serr << "Mismatch between number of points in topology (" << this->m_topology->getNbPoints()
+             << ") and size of mstate positions vector (" << npoints << ")" << sendl;
+        npoints = (unsigned)this->m_topology->getNbPoints();
+        this->m_mstate->resize(npoints);
     }
 
     if (newsize == ntris)
     {
         // no need to copy the triangle indices
-        triangles = & _topology->getTriangles();
+        triangles = & this->m_topology->getTriangles();
     }
     else
     {
@@ -178,7 +154,7 @@ void TTriangleModel<DataTypes>::updateFromTopology()
         int index = 0;
         for (unsigned i=0; i<ntris; i++)
         {
-            topology::BaseMeshTopology::Triangle idx = _topology->getTriangle(i);
+            topology::BaseMeshTopology::Triangle idx = this->m_topology->getTriangle(i);
             if (idx[0] >= npoints || idx[1] >= npoints || idx[2] >= npoints)
             {
                 serr << "ERROR: Out of range index in triangle "<<i<<": "<<idx[0]<<" "<<idx[1]<<" "<<idx[2]<<" ( total points="<<npoints<<")"<<sendl;
@@ -191,7 +167,7 @@ void TTriangleModel<DataTypes>::updateFromTopology()
         }
         for (unsigned i=0; i<nquads; i++)
         {
-            topology::BaseMeshTopology::Quad idx = _topology->getQuad(i);
+            topology::BaseMeshTopology::Quad idx = this->m_topology->getQuad(i);
             if (idx[0] >= npoints || idx[1] >= npoints || idx[2] >= npoints || idx[3] >= npoints)
             {
                 serr << "ERROR: Out of range index in quad "<<i<<": "<<idx[0]<<" "<<idx[1]<<" "<<idx[2]<<" "<<idx[3]<<" ( total points="<<npoints<<")"<<sendl;
@@ -211,182 +187,21 @@ void TTriangleModel<DataTypes>::updateFromTopology()
         }
     }
     updateNormals();
-    updateFlags();
+    this->updateTopologicalTriangleFlags();
 }
 
 template<class DataTypes>
-void TTriangleModel<DataTypes>::updateFlags()
+void TTriangleModel<DataTypes>::handleTopologyChange(sofa::core::topology::Topology* t)
 {
-    auto x0 = this->mstate->readRestPositions();
-    auto x  = this->mstate->readPositions();
+    if (t != this->m_topology) return;
 
-    // if the topology of the triangle mesh used for the collision is modified 
-    // and the rest position is not updated, we cannot update the edge border
-    // flags value based on the angle made by the normal between adjacent triangles. 
-    const bool computeAngleAtEdge = x0.size() == x.size();
-
-    Real angleThreshold = d_boundaryAngleThreshold.getValue();
-    angleThreshold *= M_PI / Real(180);
-    const Real cosAngleThreshold = std::cos(angleThreshold);
-    sofa::helper::vector<sofa::core::topology::BaseMeshTopology::EdgeID> boundaryEdges;
-
-    // support for quads split as two triangles
-    const unsigned int ntris = _topology->getNbTriangles();
-    //const unsigned int nquads = _topology->getNbQuads();
-
-    for (sofa::core::topology::BaseMeshTopology::TriangleID tid=0; tid< ntris; ++tid)
-    {
-        sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[tid];
-        int f = 0;
-        for (unsigned int j=0; j<3; ++j)
-        {
-            const sofa::core::topology::BaseMeshTopology::TrianglesAroundVertex& tav = _topology->getTrianglesAroundVertex(t[j]);
-            if (tav[0] == tid)
-                f |= (FLAG_P1 << j);
-            if (tav.size() == 1)
-                f |= (FLAG_BP1 << j);
-        }
-
-        const sofa::core::topology::BaseMeshTopology::EdgesInTriangle& e = _topology->getEdgesInTriangle(tid);
-
-        for (unsigned int j=0; j<3; ++j)
-        {
-            const sofa::core::topology::BaseMeshTopology::TrianglesAroundEdge& tae = _topology->getTrianglesAroundEdge(e[j]);
-            if (tae[0] == tid)
-            {
-                f |= (FLAG_E23 << j);
-
-                if (tae.size() == 1)
-                {
-                    f |= (FLAG_BE23 << j);
-                    boundaryEdges.push_back(e[j]);
-                }
-                else if (computeAngleAtEdge)
-                {
-                    const sofa::core::topology::Topology::Triangle tri_0 = (*triangles)[tae[0]];
-                    const Deriv n_0 = computeTriangleNormal<DataTypes>(x0[tri_0[0]],
-                                                                       x0[tri_0[1]],
-                                                                       x0[tri_0[2]]);
-                    for (std::size_t k=1; k<tae.size(); ++k)
-                    {
-                        const sofa::core::topology::Topology::Triangle tri_k = (*triangles)[tae[k]];
-                        const Deriv n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]],
-                                                                           x0[tri_k[1]],
-                                                                           x0[tri_k[2]]);
-                        const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
-                        const bool isAngleAboveThreshold = cos <= cosAngleThreshold;
-                        if (isAngleAboveThreshold)
-                        {
-                            f |= (FLAG_BE23 << j);
-                            boundaryEdges.push_back(e[j]);
-                        }
-                    }
-                }
-            }
-        }
-        triangleFlags[tid] = f;
-    }
-
-    // 2nd pass to set up boundary points according to boundary edges
-    for (sofa::core::topology::BaseMeshTopology::TriangleID tid = 0; tid < triangles->size(); ++tid)
-    {
-        sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[tid];
-        int f = triangleFlags[tid];
-        for (unsigned int i = 0; i < 3; ++i)
-        {
-            if (!(f&FLAG_P1 << i)) continue; // this point is not attached to the triangle
-            if (f&FLAG_BP1 << i) continue; // already classified as a boundary point
-
-            const sofa::core::topology::BaseMeshTopology::EdgesAroundVertex& eav = _topology->getEdgesAroundVertex(t[i]);
-
-            // a point is a boundary if at least one adjacent edge is a boundary
-            for (auto eid : eav)
-            {
-                if (std::find(boundaryEdges.begin(), boundaryEdges.end(), eid) != boundaryEdges.end())
-                {
-                    f |= (FLAG_BP1 << i);
-                    break;
-                }
-            }
-        }
-        triangleFlags[tid] = f;
-    }
-
-    const auto& quads = _topology->getQuads();
-
-    // each quad [0,1,2,3] is split in two triangles: [1,2,0] and [3,0,2]
-    for (sofa::core::topology::BaseMeshTopology::TriangleID tid = ntris; tid < triangleFlags.size(); ++tid)
-    {
-        sofa::core::topology::BaseMeshTopology::QuadID qid = (tid-ntris)/2;
-        int tIndexInQuad = (tid-ntris)&1;
-        sofa::core::topology::BaseMeshTopology::Triangle t = (*triangles)[tid];
-        int f = 0;
-        // only look at the first 2 vertices of the triangles, covering all 4 quad vertices in the pair of triangles
-        for (unsigned int j=0; j<2; ++j)
-        {
-            if (_topology->getTrianglesAroundVertex(t[j]).empty() && _topology->getQuadsAroundVertex(t[j])[0] == qid)
-                f |= (FLAG_P1 << j);
-        }
-
-        const sofa::core::topology::BaseMeshTopology::EdgesInQuad eq = _topology->getEdgesInQuad(qid);
-        sofa::core::topology::BaseMeshTopology::EdgesInTriangle e;
-        e[0] = sofa::core::topology::BaseMeshTopology::InvalidID;
-        if (tIndexInQuad == 0)
-        {
-            e[1] = eq[3]; // 01
-            e[2] = eq[0]; // 12
-            f |= (FLAG_E23 << 0); // we arbitrarly associate the diagonal edge to the first triangle in the quad
-        }
-        else
-        {
-            e[1] = eq[1]; // 23
-            e[2] = eq[2]; // 30
-        }
-
-        // skip the first edge of each triangle, which is the quad diagonal
-        for (unsigned int j=1; j<3; ++j)
-        {
-            const sofa::core::topology::BaseMeshTopology::QuadsAroundEdge& qae = _topology->getQuadsAroundEdge(e[j]);
-            if (qae[0] == qid)
-            {
-                f |= (FLAG_E23 << j);
-                if (qae.size() == 1)
-                {
-                    f |= (FLAG_BE23 << j);
-                }
-                else if (computeAngleAtEdge)
-                {
-                    const sofa::core::topology::Topology::Quad q_0 = quads[qae[0]];
-                    const Deriv n_0 = computeTriangleNormal<DataTypes>(x0[q_0[0]], x0[q_0[1]], x0[q_0[2]]);
-                    for (std::size_t k=1; k<qae.size(); ++k)
-                    {
-                        const sofa::core::topology::Topology::Quad q_k = quads[qae[k]];
-                        const Deriv n_k = computeTriangleNormal<DataTypes>(x0[q_k[0]], x0[q_k[1]], x0[q_k[2]]);
-                        const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
-                        const bool isAngleAboveThreshold = cos < cosAngleThreshold;
-                        if (isAngleAboveThreshold)
-                        {
-                            f |= (FLAG_BE23 << j);
-                        }
-                    }
-                }
-            }
-        }
-        triangleFlags[tid] = f;
-    }
-}
-
-template<class DataTypes>
-void TTriangleModel<DataTypes>::handleTopologyChange()
-{
     //bool debug_mode = false;
     if (triangles != &mytriangles)
     {
         // We use the same triangle array as the topology -> only resize and recompute flags
 
-        std::list<const sofa::core::topology::TopologyChange *>::const_iterator itBegin=_topology->beginChange();
-        std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd=_topology->endChange();
-        //elems.handleTopologyEvents(itBegin,itEnd);
+        std::list<const sofa::core::topology::TopologyChange *>::const_iterator itBegin=this->m_topology->beginChange();
+        std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd=this->m_topology->endChange();
 
         while( itBegin != itEnd )
         {
@@ -396,6 +211,7 @@ void TTriangleModel<DataTypes>::handleTopologyChange()
             {
                 case core::topology::ENDING_EVENT:
                 {
+                    this->m_hasTopologicalChange = true;
                     updateFromTopology();
                 }
                 // fallthrough
@@ -404,8 +220,7 @@ void TTriangleModel<DataTypes>::handleTopologyChange()
                 case sofa::core::topology::QUADSREMOVED:
                 case sofa::core::topology::QUADSADDED:
                 {
-                    sout << "TriangleModel: now "<<_topology->getNbTriangles()<<" triangles." << sendl;
-                    needsUpdate=true;
+                    sout << "TriangleModel: now " << this->m_topology->getNbTriangles() << " triangles." << sendl;
                 }
 
             default: break;
@@ -439,9 +254,6 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
     if (vparams->displayFlags().getShowCollisionModels())
     {
-        //if( size != _topology->getNbTriangles())
-        //  updateFromTopology();
-
         const bool drawBPoints = d_drawBoundaryPoints.getValue();
         const bool drawBEdges = d_drawBoundaryEdges.getValue();
 
@@ -478,7 +290,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
                 tpv[2] = DataTypes::getCPos(t.p3());
                 for (unsigned int j = 0; j < 3; ++j)
                 {
-                    if (f&FLAG_BP1 << j)
+                    if (f & Inherit1::FLAG_BP1 << j)
                     {
                         pointsBP.push_back(tpv[j]);
                     }
@@ -500,7 +312,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
                 tiv[2] = t.p3Index();
                 for (unsigned int j = 0; j < eit.size(); ++j)
                 {
-                    if (f&FLAG_BE23 << j)
+                    if (f & Inherit1::FLAG_BE23 << j)
                     {
                         sofa::core::topology::BaseMeshTopology::Edge E = topo->getEdge(eit[j]);
                         const unsigned int piv[2] = { (E[0] == tiv[0] ) ? 0U : (E[0] == tiv[1] ) ? 1U : 2U,
@@ -598,136 +410,94 @@ Real computeTriangleAreaSquared(const sofa::defaulttype::Vec<3, Real>& p0, const
 }
 
 template<class DataTypes>
+defaulttype::BoundingBox TTriangleModel<DataTypes>::computeElementBBox(int index, SReal distance)
+{
+    const VecCoord& x = this->m_mstate->read(core::ConstVecCoordId::position())->getValue();
+
+    Element t(this, index);
+    const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
+    const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
+    const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
+
+    defaulttype::BoundingBox bbox;
+    bbox.include(pt1);
+    bbox.include(pt2);
+    bbox.include(pt3);
+    bbox.inflate(distance);
+
+    return bbox;
+}
+
+template<class DataTypes>
+defaulttype::BoundingBox TTriangleModel<DataTypes>::computeElementBBox(int index, SReal distance, double dt)
+{
+    const VecCoord& x = this->m_mstate->read(core::ConstVecCoordId::position())->getValue();
+
+    Element t(this, index);
+    const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
+    const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
+    const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
+    const defaulttype::Vector3 pt1v = pt1 + DataTypes::getDPos(t.v1())*dt;
+    const defaulttype::Vector3 pt2v = pt2 + DataTypes::getDPos(t.v2())*dt;
+    const defaulttype::Vector3 pt3v = pt3 + DataTypes::getDPos(t.v3())*dt;
+
+    defaulttype::BoundingBox bbox;
+    bbox.include(pt1);
+    bbox.include(pt2);
+    bbox.include(pt3);
+    bbox.include(pt1v);
+    bbox.include(pt2v);
+    bbox.include(pt3v);
+    bbox.inflate(distance);
+
+    return bbox;
+}
+
+template<class DataTypes>
 void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
 {
-    CubeModel* cubeModel = this->template createPrevious<CubeModel>();
-    updateFromTopology();
+    if (this->isMoving() || this->m_hasTopologicalChange)
+    {
+        const VecCoord& x = this->m_mstate->read(core::ConstVecCoordId::position())->getValue();
 
-    if (needsUpdate && !cubeModel->empty()) cubeModel->resize(0);
+        const bool calcNormals = computeNormals.getValue();
+        const Real minTriangleArea = d_minTriangleArea.getValue();
+        const Real minTriangleArea2 = minTriangleArea*minTriangleArea;
+        const bool updateBadShape = minTriangleArea != Real(0.0);
 
-    if (!this->isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
-
-    needsUpdate=false;
-    defaulttype::Vector3 minElem, maxElem;
-    const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
-
-    const bool calcNormals = computeNormals.getValue();
-    const Real minTriangleArea = d_minTriangleArea.getValue();
-    const Real minTriangleArea2 = minTriangleArea*minTriangleArea;
-    const bool updateBadShape = minTriangleArea != Real(0.0);
-
-//    if (maxDepth == 0)
-//    {
-//        // no hierarchy
-//        if (empty())
-//            cubeModel->resize(0);
-//        else
-//        {
-//            cubeModel->resize(1);
-//            minElem = x[0];
-//            maxElem = x[0];
-//            for (unsigned i=1; i<x.size(); i++)
-//            {
-//                const defaulttype::Vector3& pt1 = x[i];
-//                if (pt1[0] > maxElem[0]) maxElem[0] = pt1[0];
-//                else if (pt1[0] < minElem[0]) minElem[0] = pt1[0];
-//                if (pt1[1] > maxElem[1]) maxElem[1] = pt1[1];
-//                else if (pt1[1] < minElem[1]) minElem[1] = pt1[1];
-//                if (pt1[2] > maxElem[2]) maxElem[2] = pt1[2];
-//                else if (pt1[2] < minElem[2]) minElem[2] = pt1[2];
-//            }
-//            const SReal distance = (SReal)this->proximity.getValue();
-//            for (int c = 0; c < 3; c++)
-//            {
-//                minElem[c] -= distance;
-//                maxElem[c] += distance;
-//            }
-//            cubeModel->setLeafCube(0, std::make_pair(this->begin(),this->end()), minElem, maxElem); // define the bounding box of the current triangle
-//            if (calcNormals)
-//                for (int i=0; i<size; i++)
-//                {
-//                    Element t(this,i);
-//                    const defaulttype::Vector3& pt1 = x[t.p1Index()];
-//                    const defaulttype::Vector3& pt2 = x[t.p2Index()];
-//                    const defaulttype::Vector3& pt3 = x[t.p3Index()];
-
-//                    /*for (int c = 0; c < 3; c++)
-//                    {
-//                    if (i==0)
-//                    {
-//                    minElem[c] = pt1[c];
-//                    maxElem[c] = pt1[c];
-//                    }
-//                    else
-//                    {
-//                    if (pt1[c] > maxElem[c]) maxElem[c] = pt1[c];
-//                    else if (pt1[c] < minElem[c]) minElem[c] = pt1[c];
-//                    }
-//                    if (pt2[c] > maxElem[c]) maxElem[c] = pt2[c];
-//                    else if (pt2[c] < minElem[c]) minElem[c] = pt2[c];
-//                    if (pt3[c] > maxElem[c]) maxElem[c] = pt3[c];
-//                    else if (pt3[c] < minElem[c]) minElem[c] = pt3[c];
-//                    }*/
-
-//                    // Also recompute normal vector
-//                    t.n() = cross(pt2-pt1,pt3-pt1);
-//                    t.n().normalize();
-//                }
-//        }
-//    }
-//    else
-//    {
-
-        cubeModel->resize(this->size);  // size = number of triangles
-        if (!this->empty())
+        for (int i = 0; i < this->size; i++)
         {
-            const SReal distance = (SReal)this->proximity.getValue();
-            for (int i = 0; i < this->size; i++)
-            {
-                Element t(this,i);
-                const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
-                const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
-                const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
+            Element t(this,i);
+            const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
+            const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
+            const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
 
-                if (updateBadShape)
+            if (updateBadShape)
+            {
+                const Real triangleArea2 = computeTriangleAreaSquared(pt1,pt2,pt3);
+                if (triangleArea2 < minTriangleArea2)
                 {
-                    const Real triangleArea2 = computeTriangleAreaSquared(pt1,pt2,pt3); // area of the triangle squared.
-                    if (triangleArea2 < minTriangleArea2)
-                    {
-                        triangleFlags[i] |= FLAG_BADSHAPE;
-                        if (m_countBadShape++ == 0)
-                        { // show a warning, but only the first time a triangle is flagged in this model
-                            serr << "Triangle with index " << i << " (area = " << sqrt(triangleArea2)
-                                 << ") is badly shaped: collision detection within this triangle will be disabled." << sendl;
-                        }
-                    }
-                    else
-                    {
-                        triangleFlags[i] &= ~FLAG_BADSHAPE;
+                    this->m_triangleFlags[i] |= FLAG_BADSHAPE;
+                    if (m_countBadShape++ == 0)
+                    { // show a warning, but only the first time a triangle is flagged in this model
+                        serr << "Triangle with index " << i << " (area = " << sqrt(triangleArea2)
+                             << ") is badly shaped: collision detection within this triangle will be disabled." << sendl;
                     }
                 }
-                
-                for (int c = 0; c < 3; c++)
+                else
                 {
-                    minElem[c] = pt1[c];
-                    maxElem[c] = pt1[c];
-                    if (pt2[c] > maxElem[c]) maxElem[c] = pt2[c];
-                    else if (pt2[c] < minElem[c]) minElem[c] = pt2[c];
-                    if (pt3[c] > maxElem[c]) maxElem[c] = pt3[c];
-                    else if (pt3[c] < minElem[c]) minElem[c] = pt3[c];
-                    minElem[c] -= distance;
-                    maxElem[c] += distance;
+                    this->m_triangleFlags[i] &= ~FLAG_BADSHAPE;
                 }
-                if (calcNormals)
-                {
-                    // Also recompute normal vector
-                    t.n() = computeTriangleNormal<DataTypes>(x[t.p1Index()], x[t.p2Index()], x[t.p3Index()]);
-                }
-                cubeModel->setParentOf(i, minElem, maxElem); // define the bounding box of the current triangle
             }
-            cubeModel->computeBoundingTree(maxDepth);
+            if (calcNormals)
+            {
+                // Also recompute normal vector
+                t.n() = computeTriangleNormal<DataTypes>(x[t.p1Index()], x[t.p2Index()], x[t.p3Index()]);
+            }
         }
-    //}
+    }
+
+    Inherit1::computeBoundingTree(maxDepth);
 
     if (m_lmdFilter != 0)
     {
@@ -738,55 +508,24 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
 template<class DataTypes>
 void TTriangleModel<DataTypes>::computeContinuousBoundingTree(double dt, int maxDepth)
 {
-    CubeModel* cubeModel = this->template createPrevious<CubeModel>();
-    updateFromTopology();
-    if (needsUpdate) cubeModel->resize(0);
-    if (!this->isMoving() && !cubeModel->empty() && !needsUpdate) return; // No need to recompute BBox if immobile
-
-    needsUpdate=false;
-    defaulttype::Vector3 minElem, maxElem;
-
-    cubeModel->resize(this->size);
-    if (!this->empty())
+    if (this->isMoving() || this->m_hasTopologicalChange)
     {
-        const SReal distance = (SReal)this->proximity.getValue();
+        const VecCoord& x = this->m_mstate->read(core::ConstVecCoordId::position())->getValue();
+
+        const bool calcNormals = computeNormals.getValue();
+
         for (int i = 0; i < this->size; i++)
         {
             Element t(this,i);
-            const defaulttype::Vector3& pt1 = DataTypes::getCPos(t.p1());
-            const defaulttype::Vector3& pt2 = DataTypes::getCPos(t.p2());
-            const defaulttype::Vector3& pt3 = DataTypes::getCPos(t.p3());
-            const defaulttype::Vector3 pt1v = pt1 + DataTypes::getDPos(t.v1())*dt;
-            const defaulttype::Vector3 pt2v = pt2 + DataTypes::getDPos(t.v2())*dt;
-            const defaulttype::Vector3 pt3v = pt3 + DataTypes::getDPos(t.v3())*dt;
-
-            for (int c = 0; c < 3; c++)
+            if (calcNormals)
             {
-                minElem[c] = pt1[c];
-                maxElem[c] = pt1[c];
-                if (pt2[c] > maxElem[c]) maxElem[c] = pt2[c];
-                else if (pt2[c] < minElem[c]) minElem[c] = pt2[c];
-                if (pt3[c] > maxElem[c]) maxElem[c] = pt3[c];
-                else if (pt3[c] < minElem[c]) minElem[c] = pt3[c];
-
-                if (pt1v[c] > maxElem[c]) maxElem[c] = pt1v[c];
-                else if (pt1v[c] < minElem[c]) minElem[c] = pt1v[c];
-                if (pt2v[c] > maxElem[c]) maxElem[c] = pt2v[c];
-                else if (pt2v[c] < minElem[c]) minElem[c] = pt2v[c];
-                if (pt3v[c] > maxElem[c]) maxElem[c] = pt3v[c];
-                else if (pt3v[c] < minElem[c]) minElem[c] = pt3v[c];
-
-                minElem[c] -= distance;
-                maxElem[c] += distance;
+                // Also recompute normal vector
+                t.n() = computeTriangleNormal<DataTypes>(x[t.p1Index()], x[t.p2Index()], x[t.p3Index()]);
             }
-
-            // Also recompute normal vector
-            DataTypes::setDPos(t.n(), cross(pt2-pt1,pt3-pt1).normalized());
-
-            cubeModel->setParentOf(i, minElem, maxElem);
         }
-        cubeModel->computeBoundingTree(maxDepth);
     }
+
+    Inherit1::computeContinuousBoundingTree(dt, maxDepth);
 }
 
 template<class DataTypes>
@@ -800,12 +539,6 @@ template<class DataTypes>
 void TTriangleModel<DataTypes>::setFilter(TriangleLocalMinDistanceFilter *lmdFilter)
 {
     m_lmdFilter = lmdFilter;
-}
-
-template<class DataTypes>
-int TTriangleModel<DataTypes>::getTriangleFlags(int i) const
-{
-    return triangleFlags[i];
 }
 
 } // namespace collision

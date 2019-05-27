@@ -75,18 +75,12 @@ void TriangleModelInRegularGrid::init()
 {
     TriangleModel::init();
 
-    _topology = this->getContext()->getMeshTopology();
-    mstate = core::behavior::MechanicalState<Vec3Types>::DynamicCast(getContext()->getMechanicalState());
-
-    if( !mstate) { serr << "TriangleModelInRegularGrid requires a Vec3 Mechanical Model" << sendl; return;}
-    if (!_topology) { serr << "TriangleModelInRegularGrid requires a BaseMeshTopology" << sendl; return;}
-
     // Test if _topology depend on an higher topology (to compute Bounding Tree faster) and get it
     TopologicalMapping* _topoMapping = NULL;
     vector<TopologicalMapping*> topoVec;
     getContext()->get<TopologicalMapping> ( &topoVec, core::objectmodel::BaseContext::SearchRoot );
     _higher_topo = _topology;
-    _higher_mstate = mstate;
+    _higher_mstate = m_mstate;
     bool found = true;
     while ( found )
     {
@@ -119,7 +113,7 @@ void TriangleModelInRegularGrid::computeBoundingTree ( int )
     needsUpdate=false;
     Vector3 minElem, maxElem;
     const VecCoord& xHigh =_higher_mstate->read(core::ConstVecCoordId::position())->getValue();
-    const VecCoord& x =mstate->read(core::ConstVecCoordId::position())->getValue();
+    const VecCoord& x =m_mstate->read(core::ConstVecCoordId::position())->getValue();
 
     // no hierarchy
     if ( empty() )
