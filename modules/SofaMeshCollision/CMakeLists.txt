@@ -4,6 +4,7 @@ project(SofaMeshCollision)
 set(HEADER_FILES
 
     initMeshCollision.h
+    helpers.h
     MeshNewProximityIntersection.h
     MeshNewProximityIntersection.inl
     BarycentricPenalityContact.h
