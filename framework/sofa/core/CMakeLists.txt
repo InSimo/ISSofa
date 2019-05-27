@@ -74,6 +74,7 @@ set(SOFACORE_HEADERS
 	collision/DetectionOutput.h
 	collision/Intersection.h
 	collision/Intersection.inl
+	collision/LayerRange.h
 	collision/NarrowPhaseDetection.h
 	collision/Pipeline.h
 	collision/IntersectorFactory.h
@@ -209,6 +210,7 @@ set(SOFACORE_SOURCES
 	behavior/ConstraintSolver.cpp
 	collision/Contact.cpp
 	collision/Intersection.cpp
+	collision/LayerRange.cpp
 	collision/Pipeline.cpp
 	dataparser/CppDataParser.cpp
 	dataparser/DataParserError.cpp

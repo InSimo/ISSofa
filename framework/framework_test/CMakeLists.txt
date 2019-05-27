@@ -32,6 +32,7 @@ set(SOURCE_FILES
     helper/system/FileSystemTest.cpp
     helper/system/UtilsTest.cpp
     #core/PluginTest.cpp
+    core/collision/LayerRange_test.cpp
     core/objectmodel/AspectPoolTest.cpp
     core/objectmodel/DataTest.cpp
     core/objectmodel/DataTypeInfoTest.cpp
