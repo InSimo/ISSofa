@@ -29,8 +29,6 @@
 #include <SofaMeshCollision/GenericLineModel.h>
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
-#include <SofaBaseMechanics/MechanicalObject.h>
-#include <sofa/core/topology/BaseMeshTopology.h>
 #include <sofa/defaulttype/Vec3Types.h>
 #include <SofaMeshCollision/PointModel.h>
 
@@ -104,16 +102,6 @@ class TLineModel : public GenericLineModel<TDataTypes>
 public :
     SOFA_CLASS(SOFA_TEMPLATE(TLineModel, TDataTypes), SOFA_TEMPLATE(GenericLineModel, TDataTypes));
     
-    enum LineFlag
-    {
-        FLAG_P1  = 1<<0, ///< Point 1  is attached to this line
-        FLAG_P2  = 1<<1, ///< Point 2  is attached to this line
-        FLAG_BP1 = 1<<2, ///< Point 1  is attached to this line and is a boundary
-        FLAG_BP2 = 1<<3, ///< Point 2  is attached to this line and is a boundary
-        FLAG_POINTS  = FLAG_P1|FLAG_P2,
-        FLAG_BPOINTS = FLAG_BP1|FLAG_BP2,
-    };
-
 protected:
     struct LineData
     {
@@ -123,15 +111,9 @@ protected:
     };
 
     sofa::helper::vector<LineData> elems;
-    bool needsUpdate;
-    virtual void updateFromTopology();
-
     TLineModel();
 
 public:
-//    typedef Vec3Types InDataTypes;
-//    typedef Vec3Types DataTypes;
-//    typedef DataTypes DataTypes;
     typedef TDataTypes DataTypes;
     typedef DataTypes InDataTypes;
     typedef TLineModel<DataTypes> ParentModel;
@@ -142,45 +124,31 @@ public:
     typedef TLine<DataTypes> Element;
     friend class TLine<DataTypes>;
 
-    virtual void init();
+    virtual void init() override;
 
     // -- CollisionModel interface
 
-    virtual void resize(int size);
+    virtual void resize(int size) override;
 
-    virtual void computeBoundingTree(int maxDepth=0);
+    defaulttype::BoundingBox computeElementBBox(int index, SReal distance) override;
+    defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt) override;
 
-    virtual void computeContinuousBoundingTree(double dt, int maxDepth=0);
+    virtual void computeBoundingTree(int maxDepth=0) override;
 
-    void draw(const core::visual::VisualParams*,int index);
+    void draw(const core::visual::VisualParams*,int index) override;
 
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams* vparams) override;
 
-    virtual void handleTopologyChange();
+    bool canCollideWithElement(int index, core::CollisionModel* model2, int index2) override;
 
-    bool canCollideWithElement(int index, core::CollisionModel* model2, int index2);
+    void updateTopologicalLineFlags() override;
 
-    core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return mstate; }
-
-    //virtual const char* getTypeName() const { return "Line"; }
-
-    Deriv velocity(int index)const;
+    Deriv velocity(int index) const;
 
     LineLocalMinDistanceFilter *getFilter() const;
 
     virtual int getElemEdgeIndex(int index) const { return index; }
     
-    int getLineFlags(int i);
-
-    //template< class TFilter >
-    //TFilter *getFilter() const
-    //{
-    //	if (m_lmdFilter != 0)
-    //		return m_lmdFilter;
-    //	else
-    //		return &m_emptyFilter;
-    //}
-
     void setFilter(LineLocalMinDistanceFilter * /*lmdFilter*/);
 
 
@@ -208,10 +176,7 @@ public:
 
 protected:
 
-    core::behavior::MechanicalState<DataTypes>* mstate;
-    core::CollisionModel::Topology* topology;
     PointModel* mpoints;
-    int meshRevision;
     LineLocalMinDistanceFilter *m_lmdFilter;
 
     Data< std::string  > LineActiverPath;
@@ -243,26 +208,26 @@ template<class DataTypes>
 inline unsigned TLine<DataTypes>::i2() const { return this->model->elems[this->index].p[1]; }
 
 template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p1() const { return this->model->mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[0]]; }
+inline const typename DataTypes::Coord& TLine<DataTypes>::p1() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[0]]; }
 
 template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p2() const { return this->model->mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[1]]; }
+inline const typename DataTypes::Coord& TLine<DataTypes>::p2() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[1]]; }
 
 template<class DataTypes>
 inline const typename DataTypes::Coord& TLine<DataTypes>::p(int i) const {
-    return this->model->mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[i]];
+    return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[i]];
 }
 
 template<class DataTypes>
 inline const typename DataTypes::Coord& TLine<DataTypes>::p0(int i) const {
-    return this->model->mstate->read(core::ConstVecCoordId::restPosition())->getValue()[this->model->elems[this->index].p[i]];
+    return this->model->m_mstate->read(core::ConstVecCoordId::restPosition())->getValue()[this->model->elems[this->index].p[i]];
 }
 
 template<class DataTypes>
 inline const typename DataTypes::Coord& TLine<DataTypes>::p1Free() const
 {
     if (hasFreePosition())
-        return this->model->mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[0]];
+        return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[0]];
     else
         return p1();
 }
@@ -271,83 +236,32 @@ template<class DataTypes>
 inline const typename DataTypes::Coord& TLine<DataTypes>::p2Free() const
 {
     if (hasFreePosition())
-        return this->model->mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[1]];
+        return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[1]];
     else
         return p2();
 }
 
 template<class DataTypes>
-inline const typename DataTypes::Deriv& TLine<DataTypes>::v1() const { return this->model->mstate->read(core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[0]]; }
+inline const typename DataTypes::Deriv& TLine<DataTypes>::v1() const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[0]]; }
 
 template<class DataTypes>
-inline const typename DataTypes::Deriv& TLine<DataTypes>::v2() const { return this->model->mstate->read(core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[1]]; }
+inline const typename DataTypes::Deriv& TLine<DataTypes>::v2() const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[1]]; }
 
 
 template<class DataTypes>
-inline typename TLineModel<DataTypes>::Deriv TLineModel<DataTypes>::velocity(int index) const { return (mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[0]] + mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[1]])/((core::CollisionModel::Real)(2.0)); }
+inline typename TLineModel<DataTypes>::Deriv TLineModel<DataTypes>::velocity(int index) const { return (this->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[0]] + this->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[1]]) /((core::CollisionModel::Real)(2.0)); }
 
 template<class DataTypes>
 inline int TLine<DataTypes>::flags() const { return this->model->getLineFlags(this->index); }
 
 template<class DataTypes>
-inline bool TLine<DataTypes>::hasFreePosition() const { return this->model->mstate->read(core::ConstVecCoordId::freePosition())->isSet(); }
+inline bool TLine<DataTypes>::hasFreePosition() const { return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->isSet(); }
 
 template<class DataTypes>
 inline bool TLine<DataTypes>::activated(core::CollisionModel *cm) const
 {
     return this->model->myActiver->activeLine(this->index, cm);
 }
-
-//inline const Vector3* Line::tRight() const {
-//	if (model->elems[index].tRight != -1)
-//		return &(*model->mstate->getX())[model->elems[index].tRight];
-//	else
-//		return NULL;
-//}
-
-//inline const Vector3* Line::tLeft() const {
-//	if (model->elems[index].tLeft != -1)
-//		return &(*model->mstate->getX())[model->elems[index].tLeft];
-//	else
-//		return NULL;
-//}
-
-//class LineMeshModel : public LineModel
-//{
-//protected:
-//    int meshRevision;
-//    void updateFromTopology();
-//
-//public:
-//    typedef topology::MeshTopology Topology;
-//
-//    LineMeshModel();
-//
-//    virtual void init();
-//
-//    Topology* getMeshTopology() { return mesh; }
-//
-//protected:
-//    Topology* mesh;
-//};
-
-//class LineSetModel : public LineModel
-//{
-//public:
-//
-//    LineSetModel();
-//
-//    ///\Todo
-//    virtual void init();
-//
-//    Topology* getMeshTopology() { return mesh; }
-//
-//protected:
-//
-//    Topology* mesh;
-//
-//    void updateFromTopology();
-//};
 
 typedef TLineModel<sofa::defaulttype::Vec3Types> LineModel;
 typedef TLine<sofa::defaulttype::Vec3Types> Line;
