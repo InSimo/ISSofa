@@ -73,7 +73,7 @@ public:
     virtual std::pair< core::CollisionModel*, core::CollisionModel* > getCollisionModels() = 0;
 
     /// Receive the description of contact points for this time step
-    virtual void setDetectionOutputs(DetectionOutputVector* outputs) = 0;
+    virtual void setDetectionOutputs(DetectionOutputContainer* outputs) = 0;
 
     /// Prepare the response (multi-threaded API, first step, before parallel tasks, graph changes allowed)
     virtual void createResponse(objectmodel::BaseContext* group) = 0;

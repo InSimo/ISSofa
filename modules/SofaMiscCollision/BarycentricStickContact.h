@@ -49,8 +49,8 @@ public:
     typedef TCollisionModel1 CollisionModel1;
     typedef TCollisionModel2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
-    typedef core::collision::DetectionOutputVector OutputVector;
-    typedef core::collision::TDetectionOutputVector<CollisionModel1,CollisionModel2> TOutputVector;
+    typedef core::collision::DetectionOutputContainer OutputVector;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputVector;
     typedef ResponseDataTypes DataTypes1;
     typedef ResponseDataTypes DataTypes2;
     typedef core::behavior::MechanicalState<DataTypes1> MechanicalState1;

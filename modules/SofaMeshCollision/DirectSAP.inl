@@ -417,7 +417,7 @@ void TDirectSAP<List,Allocator>::beginNarrowPhase()
                     if(finalintersector != 0x0){
 //                        std::cout<<"Final phase "<<finalcm1->getClass()->className<<" - "<<finalcm2->getClass()->className<<std::endl;
                         if(swapModels){
-                            sofa::core::collision::DetectionOutputVector*& outputs = this->getDetectionOutputs(finalcm2, finalcm1);
+                            sofa::core::collision::DetectionOutputContainer*& outputs = this->getDetectionOutputs(finalcm2, finalcm1);
                             finalintersector->beginIntersect(finalcm2, finalcm1, outputs);//creates outputs if null
 
                             if(finalintersector->intersect(box1.cube.getExternalChildren().first,box0.cube.getExternalChildren().first,outputs)){
@@ -429,7 +429,7 @@ void TDirectSAP<List,Allocator>::beginNarrowPhase()
 
                         }
                         else{
-                            sofa::core::collision::DetectionOutputVector*& outputs = this->getDetectionOutputs(finalcm1, finalcm2);
+                            sofa::core::collision::DetectionOutputContainer*& outputs = this->getDetectionOutputs(finalcm1, finalcm2);
 
                             finalintersector->beginIntersect(finalcm1, finalcm2, outputs);//creates outputs if null
 

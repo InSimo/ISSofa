@@ -95,7 +95,7 @@ namespace sofa
 
 					//core::collision::NarrowPhaseDetection::DetectionOutputMap::iterator it = detectionOutputsMap.begin();
 					//const helper::vector<DetectionOutput>* detection = dynamic_cast<helper::vector<DetectionOutput>*>(it->second);
-					//const TDetectionOutputVector<mCollisionModel1,mCollisionModel2>* detection = dynamic_cast<TDetectionOutputVector*>(it->second);
+					//const TDetectionOutputContainer<mCollisionModel1,mCollisionModel2>* detection = dynamic_cast<TDetectionOutputContainer*>(it->second);
 
 					if  ( mCollisionModel2 == NULL )
 					{

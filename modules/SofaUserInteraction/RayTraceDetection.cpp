@@ -106,13 +106,13 @@ void RayTraceDetection::findPairsVolume (CubeModel * cm1, CubeModel * cm2)
     /* get the output vector for a TriangleOctreeModel, TriangleOctreeModel Collision*/
     /*Get the cube representing the bounding box of both Models */
     // sofa::core::collision::DetectionOutputVector *& contacts=outputsMap[std::make_pair(tm1, tm2)];
-    core::collision::DetectionOutputVector*& contacts = this->getDetectionOutputs(tm1, tm2);
+    core::collision::DetectionOutputContainer*& contacts = this->getDetectionOutputs(tm1, tm2);
 
 
     if (contacts == NULL)
     {
         contacts = new
-        sofa::core::collision::TDetectionOutputVector <
+        sofa::core::collision::TDetectionOutputContainer <
         TriangleOctreeModel, TriangleOctreeModel >;
 
     }
@@ -120,9 +120,9 @@ void RayTraceDetection::findPairsVolume (CubeModel * cm1, CubeModel * cm2)
 
 
 
-    TDetectionOutputVector < TriangleOctreeModel,
+    TDetectionOutputContainer < TriangleOctreeModel,
                            TriangleOctreeModel > *outputs =
-                                   static_cast < TDetectionOutputVector < TriangleOctreeModel,
+                                   static_cast < TDetectionOutputContainer < TriangleOctreeModel,
                                    TriangleOctreeModel > *>(contacts);
 
     Cube cube1 (cm1, 0);
@@ -319,12 +319,12 @@ void RayTraceDetection::draw (const core::visual::VisualParams* vparams)
     for (DetectionOutputMap::const_iterator it = outputsMap.begin ();
             it != outputsMap.end (); ++it)
     {
-        TDetectionOutputVector < TriangleOctreeModel,
+        TDetectionOutputContainer < TriangleOctreeModel,
                                TriangleOctreeModel > *outputs =
                                        static_cast <
-                                       sofa::core::collision::TDetectionOutputVector <
+                                       sofa::core::collision::TDetectionOutputContainer <
                                        TriangleOctreeModel, TriangleOctreeModel > *>(it->second);
-        for (TDetectionOutputVector < TriangleOctreeModel,
+        for (TDetectionOutputContainer < TriangleOctreeModel,
                 TriangleOctreeModel >::iterator it2 = (outputs)->begin ();
                 it2 != outputs->end (); ++it2)
         {

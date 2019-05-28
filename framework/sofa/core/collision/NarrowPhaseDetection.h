@@ -50,16 +50,14 @@ class NarrowPhaseDetection : virtual public Detection
 public:
     SOFA_ABSTRACT_CLASS_UNIQUE((NarrowPhaseDetection), ((Detection)));
 
-    typedef sofa::helper::map_ptr_stable_compare< std::pair< core::CollisionModel*, core::CollisionModel* >, DetectionOutputVector* > DetectionOutputMap;
+    typedef sofa::helper::map_ptr_stable_compare< std::pair< core::CollisionModel*, core::CollisionModel* >, DetectionOutputContainer* > DetectionOutputMap;
 
 protected:
     NarrowPhaseDetection()
     :d_showDetectionOutputMap(initData(&d_showDetectionOutputMap, false, "showDetectionOutputMap", "Set to true to draw the content of detection output map"))
     {
-
     }
 
-    /// Destructor
     virtual ~NarrowPhaseDetection() { }
 public:
     /// Clear all the potentially colliding pairs detected in the previous simulation step
@@ -67,9 +65,9 @@ public:
     {
         for (DetectionOutputMap::iterator it = m_outputsMap.begin(); it != m_outputsMap.end(); it++)
         {
-            DetectionOutputVector *do_vec = (it->second);
+            DetectionOutputContainer *do_vec = (it->second);
 
-            if (do_vec != 0)
+            if (do_vec)
                 do_vec->clear();
         }
     }
@@ -90,7 +88,7 @@ public:
         
         while (it != m_outputsMap.end())
         {
-            DetectionOutputVector *do_vec = (it->second);
+            DetectionOutputContainer *do_vec = (it->second);
 
             if (!do_vec || do_vec->empty())
             {
@@ -107,14 +105,12 @@ public:
         }
     }
 
-    //sofa::helper::vector<std::pair<core::CollisionElementIterator, core::CollisionElementIterator> >& getCollisionElementPairs() { return elemPairs; }
-
     const DetectionOutputMap& getDetectionOutputs()
     {
         return m_outputsMap;
     }
 
-    DetectionOutputVector*& getDetectionOutputs(CollisionModel *cm1, CollisionModel *cm2)
+    DetectionOutputContainer*& getDetectionOutputs(CollisionModel *cm1, CollisionModel *cm2)
     {
         std::pair< CollisionModel*, CollisionModel* > cm_pair = std::make_pair(cm1, cm2);
 
@@ -123,7 +119,7 @@ public:
         if (it == m_outputsMap.end())
         {
             // new contact
-            it = m_outputsMap.insert( std::make_pair(cm_pair, static_cast< DetectionOutputVector * >(0)) ).first;
+            it = m_outputsMap.insert( std::make_pair(cm_pair, static_cast< DetectionOutputContainer * >(0)) ).first;
         }
 
         return it->second;
@@ -141,7 +137,7 @@ public:
            
             for (auto it = m_outputsMap.cbegin(); it != m_outputsMap.cend(); ++it)
             {
-                const DetectionOutputVector* outputVector = it->second;
+                const DetectionOutputContainer* outputVector = it->second;
                 std::vector< sofa::defaulttype::Vector3 > lines;
                 for (std::size_t i=0; i< outputVector->size(); ++i)
                 {

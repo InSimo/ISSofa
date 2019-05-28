@@ -131,7 +131,7 @@ protected:
 
     sofa::component::collision::NewProximityIntersection::SPtr intersection;
     sofa::component::collision::BruteForceDetection::SPtr detection;
-    typedef core::collision::TDetectionOutputVector< sofa::component::collision::TriangleModel, sofa::component::collision::PointModel> ContactVector;
+    typedef core::collision::TDetectionOutputContainer< sofa::component::collision::TriangleModel, sofa::component::collision::PointModel> ContactVector;
 };
 
 } // namespace misc

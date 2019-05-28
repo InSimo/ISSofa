@@ -60,8 +60,8 @@ public:
     typedef core::behavior::MechanicalState<DataTypes2> MechanicalState2;
     typedef typename CollisionModel1::Element CollisionElement1;
     typedef typename CollisionModel2::Element CollisionElement2;
-    typedef core::collision::DetectionOutputVector OutputVector;
-    typedef core::collision::TDetectionOutputVector<CollisionModel1,CollisionModel2> TOutputVector;
+    typedef core::collision::DetectionOutputContainer OutputVector;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputVector;
 
 protected:
     CollisionModel1* model1;

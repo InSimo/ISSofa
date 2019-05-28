@@ -102,10 +102,10 @@ public:
  *  \brief Abstract description of a set of contact point.
  */
 
-class SOFA_CORE_API DetectionOutputVector
+class SOFA_CORE_API DetectionOutputContainer
 {
 protected:
-    virtual ~DetectionOutputVector() {}
+    virtual ~DetectionOutputContainer() {}
 public:
     /// Clear the content of this vector
     virtual void clear() = 0;
@@ -126,20 +126,20 @@ public:
  */
 
 template<class CM1, class CM2>
-class TDetectionOutputVector : public DetectionOutputVector, public sofa::helper::vector<DetectionOutput>
+class TDetectionOutputContainer : public DetectionOutputContainer, public sofa::helper::vector<DetectionOutput>
 {
 public:
     typedef sofa::helper::vector<DetectionOutput> Vector;
-    virtual ~TDetectionOutputVector() {}
+    virtual ~TDetectionOutputContainer() {}
     /// Clear the content of this vector
     virtual void clear()
     {
-        return this->Vector::clear();
+        return Vector::clear();
     }
     /// Current size (number of detected contacts)
     virtual unsigned int size() const
     {
-        return (unsigned int)this->Vector::size();
+        return (unsigned int)Vector::size();
     }
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)

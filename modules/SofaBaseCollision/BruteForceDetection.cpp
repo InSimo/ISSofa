@@ -215,7 +215,7 @@ void BruteForceDetection::addCollisionPair(const std::pair<core::CollisionModel*
     //if (self)
     //    sout << "SELF: Final intersector " << finalintersector->name() << " for "<<finalcm1->getName()<<" - "<<finalcm2->getName()<<sendl;
 
-    sofa::core::collision::DetectionOutputVector*& outputs = this->getDetectionOutputs(finalcm1, finalcm2);
+    sofa::core::collision::DetectionOutputContainer*& outputs = this->getDetectionOutputs(finalcm1, finalcm2);
 
     finalintersector->beginIntersect(finalcm1, finalcm2, outputs);//creates outputs if null
 
@@ -266,7 +266,7 @@ void BruteForceDetection::computeNarrowPhase(
         core::collision::Intersection* intersectionMethod,
         bool self,
         std::queue< TestPair >& externalCells,
-        sofa::core::collision::DetectionOutputVector* outputs
+        sofa::core::collision::DetectionOutputContainer* outputs
         )
 {
     MirrorIntersector mirror;

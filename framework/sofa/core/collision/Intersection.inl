@@ -56,7 +56,7 @@ public:
 
     /// Begin intersection tests between two collision models. Return the number of contacts written in the contacts vector.
     /// If the given contacts vector is NULL, then this method should allocate it.
-    int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, DetectionOutputVector*& contacts)
+    int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, DetectionOutputContainer*& contacts)
     {
         Model1* m1 = static_cast<Model1*>(model1);
         Model2* m2 = static_cast<Model2*>(model2);
@@ -68,7 +68,7 @@ public:
     }
 
     /// Compute the intersection between 2 elements.
-    int intersect(core::CollisionElementIterator elem1, core::CollisionElementIterator elem2,  DetectionOutputVector* contacts)
+    int intersect(core::CollisionElementIterator elem1, core::CollisionElementIterator elem2,  DetectionOutputContainer* contacts)
     {
         Model1* m1 = static_cast<Model1*>(elem1.getCollisionModel());
         Model2* m2 = static_cast<Model2*>(elem2.getCollisionModel());
@@ -83,7 +83,7 @@ public:
     }
 
     /// End intersection tests between two collision models. Return the number of contacts written in the contacts vector.
-    int endIntersect(core::CollisionModel* model1, core::CollisionModel* model2, DetectionOutputVector* contacts)
+    int endIntersect(core::CollisionModel* model1, core::CollisionModel* model2, DetectionOutputContainer* contacts)
     {
         Model1* m1 = static_cast<Model1*>(model1);
         Model2* m2 = static_cast<Model2*>(model2);

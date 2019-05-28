@@ -46,7 +46,7 @@ public:
     typedef CM1 CollisionModel1;
     typedef CM2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
-    typedef core::collision::TDetectionOutputVector<CollisionModel1, CollisionModel2> OutputVector;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1, CollisionModel2> OutputVector;
 protected:
     CollisionModel1* model1;
     CollisionModel2* model2;
@@ -59,7 +59,7 @@ public:
     {
     }
 
-    void setDetectionOutputs(core::collision::DetectionOutputVector* outputs) override
+    void setDetectionOutputs(core::collision::DetectionOutputContainer* outputs) override
     {
         OutputVector* o = static_cast<OutputVector*>(outputs);
         //collisions = outputs;
