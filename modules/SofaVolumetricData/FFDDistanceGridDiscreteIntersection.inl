@@ -52,7 +52,7 @@ bool FFDDistanceGridDiscreteIntersection::testIntersection(FFDDistanceGridCollis
 }
 
 template<class T>
-int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, TSphere<T>& e2, OutputVector* contacts)
+int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, TSphere<T>& e2, OutputContainer<FFDDistanceGridCollisionElement, TSphere<T>>* contacts)
 {
 
     DistanceGrid* grid1 = e1.getGrid();
@@ -101,15 +101,14 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
                     grad = c1.deformDir(c1.baryCoords(pinit),grad);
                     grad.normalize();
 
-                    contacts->resize(contacts->size()+1);
-                    sofa::core::collision::DetectionOutput *detection = &*(contacts->end()-1);
-                    detection->normal = defaulttype::Vector3(grad); // normal in global space from p1's surface
-                    detection->value = d - d0;
-                    detection->elem.first = e1;
-                    detection->elem.second = e2;
-                    detection->id = e2.getIndex();
-                    detection->point[0] = defaulttype::Vector3(pinit);
-                    detection->point[1] = e2.getContactPointWithSurfacePoint( pinit );
+                    sofa::core::collision::DetectionOutput& detection = contacts->addDetectionOutput();
+                    detection.normal = defaulttype::Vector3(grad); // normal in global space from p1's surface
+                    detection.value = d - d0;
+                    detection.elem.first = e1;
+                    detection.elem.second = e2;
+                    detection.id = e2.getIndex();
+                    detection.point[0] = defaulttype::Vector3(pinit);
+                    detection.point[1] = e2.getContactPointWithSurfacePoint( pinit );
                     return 1;
                 }
             }

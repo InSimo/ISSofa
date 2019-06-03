@@ -50,7 +50,8 @@ namespace collision
 class SOFA_VOLUMETRIC_DATA_API RigidDistanceGridDiscreteIntersection : public core::collision::BaseIntersector
 {
 
-    typedef DiscreteIntersection::OutputVector OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = DiscreteIntersection::OutputContainer<Elem1, Elem2>;
     typedef defaulttype::Matrix3 Matrix3;
     typedef defaulttype::Vector3 Vector3;
     typedef core::collision::DetectionOutput DetectionOutput;
@@ -65,12 +66,12 @@ public:
     bool testIntersection(RigidDistanceGridCollisionElement&, Triangle&);
     bool testIntersection(Ray&, RigidDistanceGridCollisionElement&);
 
-    int computeIntersection(RigidDistanceGridCollisionElement&, RigidDistanceGridCollisionElement&, OutputVector*);
+    int computeIntersection(RigidDistanceGridCollisionElement&, RigidDistanceGridCollisionElement&, OutputContainer<RigidDistanceGridCollisionElement, RigidDistanceGridCollisionElement>*);
     template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Point&, TOutputVector*);
     template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Sphere&, TOutputVector*);
     template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Line&, TOutputVector*);
     template<class TOutputVector> int computeIntersection(RigidDistanceGridCollisionElement&, Triangle&, TOutputVector*);
-    int computeIntersection(Ray&, RigidDistanceGridCollisionElement&, OutputVector*);
+    int computeIntersection(Ray&, RigidDistanceGridCollisionElement&, OutputContainer<Ray, RigidDistanceGridCollisionElement>*);
 
 protected:
 

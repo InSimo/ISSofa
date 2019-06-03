@@ -8,7 +8,7 @@ namespace collision
 
 
 template <class DataTypes>
-int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Point & pnt,SReal alarmDist,SReal contactDist,OutputVector* contacts){
+int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Point & pnt,SReal alarmDist,SReal contactDist,OutputContainer<TCapsule<DataTypes>, Point>* contacts){
     if(doCapPointInt(cap,pnt.p(),alarmDist,contactDist,contacts)){
         DetectionOutput *detection = &*(contacts->end()-1);
 
@@ -20,8 +20,8 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Point & pnt,SRea
     return 0;
 }
 
-template <class DataTypes>
-int MeshIntTool::doCapPointInt(TCapsule<DataTypes>& cap, const defaulttype::Vector3& q,SReal alarmDist,SReal contactDist,OutputVector* contacts){
+template <class DataTypes, class TOutputContainer>
+int MeshIntTool::doCapPointInt(TCapsule<DataTypes>& cap, const defaulttype::Vector3& q,SReal alarmDist,SReal contactDist,TOutputContainer* contacts){
     const defaulttype::Vector3 p1 = cap.point1();
     const defaulttype::Vector3 p2 = cap.point2();
     const defaulttype::Vector3 AB = p2-p1;
@@ -52,23 +52,22 @@ int MeshIntTool::doCapPointInt(TCapsule<DataTypes>& cap, const defaulttype::Vect
         return 0;
 
     //const SReal contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
-    contacts->resize(contacts->size()+1);
-    DetectionOutput *detection = &*(contacts->end()-1);
+    DetectionOutput& detection = contacts->addDetectionOutput();
 
-    detection->point[0]=p;
-    detection->point[1]=q;
-    detection->normal = pq;
+    detection.point[0]=p;
+    detection.point[1]=q;
+    detection.normal = pq;
 
-    detection->value = detection->normal.norm();
-    detection->normal /= detection->value;
+    detection.value = detection.normal.norm();
+    detection.normal /= detection.value;
 
-    detection->value -= (contactDist + cap_rad);
+    detection.value -= (contactDist + cap_rad);
 
     return 1;
 }
 
 template <class DataTypes>
-int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Line & lin,SReal alarmDist,SReal contactDist,OutputVector* contacts)
+int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Line & lin,SReal alarmDist,SReal contactDist,OutputContainer<TCapsule<DataTypes>, Line>* contacts)
 {
     SReal cap_rad = cap.radius();
     const defaulttype::Vector3 p1 = cap.point1();
@@ -77,7 +76,7 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Line & lin,SReal
     const defaulttype::Vector3 q2 = lin.p2();
 
     if(doCapLineInt(p1,p2,cap_rad,q1,q2,alarmDist,contactDist,contacts)){
-        OutputVector::iterator detection = contacts->end()-1;
+        auto detection = contacts->end()-1;
         //detection->id = cap.getCollisionModel()->getSize() > lin.getCollisionModel()->getSize() ? cap.getIndex() : lin.getIndex();
         detection->id = cap.getIndex();
         detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(cap, lin);
@@ -87,8 +86,8 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes> & cap, Line & lin,SReal
     return 0;
 }
 
-template <class DataTypes>
-int MeshIntTool::doCapLineInt(TCapsule<DataTypes> & cap,const defaulttype::Vector3 & q1,const defaulttype::Vector3 & q2 ,SReal alarmDist,SReal contactDist,OutputVector* contacts, bool ignore_p1, bool ignore_p2)
+template <class DataTypes, class TOutputContainer>
+int MeshIntTool::doCapLineInt(TCapsule<DataTypes> & cap,const defaulttype::Vector3 & q1,const defaulttype::Vector3 & q2 ,SReal alarmDist,SReal contactDist,TOutputContainer* contacts, bool ignore_p1, bool ignore_p2)
 {
     SReal cap_rad = cap.radius();
     const defaulttype::Vector3 p1 = cap.point1();
@@ -99,7 +98,7 @@ int MeshIntTool::doCapLineInt(TCapsule<DataTypes> & cap,const defaulttype::Vecto
 
 
 template <class DataTypes>
-int MeshIntTool::computeIntersection(TCapsule<DataTypes>& cap, Triangle& tri,SReal alarmDist,SReal contactDist,OutputVector* contacts){
+int MeshIntTool::computeIntersection(TCapsule<DataTypes>& cap, Triangle& tri,SReal alarmDist,SReal contactDist,OutputContainer<TCapsule<DataTypes>, Triangle>* contacts){
     const int tri_flg = tri.flags();
 
     int id = cap.getIndex();
@@ -119,8 +118,8 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes>& cap, Triangle& tri,SRe
     n += doIntersectionTrianglePoint(dist2,tri_flg,tri_p1,tri_p2,tri_p3,cap_p2,contacts,true);
 
     if(n == 2){
-        OutputVector::iterator detection1 = contacts->end() - 2;
-        OutputVector::iterator detection2 = contacts->end() - 1;
+        auto detection1 = contacts->end() - 2;
+        auto detection2 = contacts->end() - 1;
 
         if(detection1->value > detection2->value - 1e-15 && detection1->value < detection2->value + 1e-15){
             detection1->point[0] = (detection1->point[0] + detection2->point[0])/2.0;
@@ -129,11 +128,11 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes>& cap, Triangle& tri,SRe
             detection1->value = (detection1->value + detection2->value)/2.0 - substract_dist;
             detection1->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(cap, tri);
 
-            contacts->pop_back();
+            contacts->invalidateLastDetectionOutput();
             n = 1;
         }
         else{
-            for(OutputVector::iterator detection = contacts->end() - n; detection != contacts->end() ; ++detection){
+            for(auto detection = contacts->end() - n; detection != contacts->end() ; ++detection){
                 detection->value -= substract_dist;
                 detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(cap, tri);
                 detection->id = id;
@@ -141,7 +140,7 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes>& cap, Triangle& tri,SRe
         }
     }
     else{
-        for(OutputVector::iterator detection = contacts->end() - n; detection != contacts->end() ; ++detection){
+        for(auto detection = contacts->end() - n; detection != contacts->end() ; ++detection){
             detection->value -= substract_dist;
             detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(cap, tri);
             detection->id = id;
@@ -158,7 +157,7 @@ int MeshIntTool::computeIntersection(TCapsule<DataTypes>& cap, Triangle& tri,SRe
     if (tri_flg&TriangleModel::FLAG_E31)
         n += doCapLineInt(cap_p1,cap_p2,cap_rad,tri_p3,tri_p1,alarmDist,contactDist,contacts,!(tri_flg&TriangleModel::FLAG_P3),!(tri_flg&TriangleModel::FLAG_P1));
 
-    for(OutputVector::iterator detection = contacts->end()-n ; detection != contacts->end() ; ++detection){
+    for(auto detection = contacts->end()-n ; detection != contacts->end() ; ++detection){
         detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(cap, tri);
         detection->id = id;
     }

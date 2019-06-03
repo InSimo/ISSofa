@@ -120,7 +120,7 @@ bool LMDNewProximityIntersection::testIntersection(Cube &cube1, Cube &cube2)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Cube&, Cube&, OutputVector* /*contacts*/)
+int LMDNewProximityIntersection::computeIntersection(Cube&, Cube&, OutputContainer<Cube, Cube>* /*contacts*/)
 {
     return 0; /// \todo
 }
@@ -128,7 +128,7 @@ int LMDNewProximityIntersection::computeIntersection(Cube&, Cube&, OutputVector*
 
 bool LMDNewProximityIntersection::testIntersection(Point& e1, Point& e2)
 {
-    OutputVector contacts;
+    OutputContainer<Point, Point> contacts;
     const double alarmDist = getAlarmDistance() + e1.getProximity() + e2.getProximity();
 
     int n = doIntersectionPointPoint(alarmDist*alarmDist, e1.p(), e2.p(), &contacts, -1, e1.getIndex(), e2.getIndex(), *(e1.getCollisionModel()->getFilter()), *(e2.getCollisionModel()->getFilter()));
@@ -137,7 +137,7 @@ bool LMDNewProximityIntersection::testIntersection(Point& e1, Point& e2)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Point& e1, Point& e2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Point& e1, Point& e2, OutputContainer<Point, Point>* contacts)
 {
     const double alarmDist = getAlarmDistance() + e1.getProximity() + e2.getProximity();
     std::cout<<"computeIntersection(Point& e1, Point& e2... is called"<<std::endl;
@@ -152,7 +152,7 @@ int LMDNewProximityIntersection::computeIntersection(Point& e1, Point& e2, Outpu
     if ( n > 0)
     {
         const double contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
-        for (OutputVector::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
+        for (typename OutputContainer<Point, Point>::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
         {
             detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
             detection->value -= contactDist;
@@ -169,7 +169,7 @@ bool LMDNewProximityIntersection::testIntersection(Line&, Point&)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Line& e1, Point& e2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Line& e1, Point& e2, OutputContainer<Line, Point>* contacts)
 {
     const double alarmDist = getAlarmDistance() + e1.getProximity() + e2.getProximity();
 
@@ -184,7 +184,7 @@ int LMDNewProximityIntersection::computeIntersection(Line& e1, Point& e2, Output
     if ( n > 0)
     {
         const double contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
-        for (OutputVector::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
+        for (typename OutputContainer<Line, Point>::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
         {
             detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
             detection->value -= contactDist;
@@ -201,7 +201,7 @@ bool LMDNewProximityIntersection::testIntersection(Line&, Line&)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Line& e1, Line& e2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Line& e1, Line& e2, OutputContainer<Line, Line>* contacts)
 {
     std::cout<<"computeIntersection(Line& e1, Line& e2... is called"<<std::endl;
     const double alarmDist = getAlarmDistance() + e1.getProximity() + e2.getProximity();
@@ -216,7 +216,7 @@ int LMDNewProximityIntersection::computeIntersection(Line& e1, Line& e2, OutputV
     if ( n > 0)
     {
         const double contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
-        for (OutputVector::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
+        for (typename OutputContainer<Line, Line>::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
         {
             detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
             detection->value -= contactDist;
@@ -233,7 +233,7 @@ bool LMDNewProximityIntersection::testIntersection(Triangle&, Point&)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Point& e2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Point& e2, OutputContainer<Triangle, Point>* contacts)
 {
 
 // index of lines:
@@ -280,7 +280,7 @@ int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Point& e2, Ou
     if ( n > 0)
     {
         const double contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
-        for (OutputVector::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
+        for (typename OutputContainer<Triangle, Point>::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
         {
             detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
             detection->value -= contactDist;
@@ -297,7 +297,7 @@ bool LMDNewProximityIntersection::testIntersection(Triangle&, Line&)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Line& e2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Line& e2, OutputContainer<Triangle, Line>* contacts)
 {
 
 // index of lines:
@@ -384,7 +384,7 @@ int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Line& e2, Out
     if ( n > 0)
     {
         const double contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
-        for (OutputVector::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
+        for (typename OutputContainer<Triangle, Line>::iterator detection = contacts->end()-n; detection != contacts->end(); ++detection)
         {
             detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
             detection->value -= contactDist;
@@ -401,7 +401,7 @@ bool LMDNewProximityIntersection::testIntersection(Triangle&, Triangle&)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Triangle& e2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Triangle& e2, OutputContainer<sofa::component::collision::Triangle, sofa::component::collision::Triangle> *contacts)
 {
     //sofa::helper::AdvancedTimer::StepVar("ComputeIntersectionOnTri");
 
@@ -604,8 +604,8 @@ int LMDNewProximityIntersection::computeIntersection(Triangle& e1, Triangle& e2,
         const double contactDist = getContactDistance() + e1.getProximity() + e2.getProximity();
         for (int i = 0; i < n; ++i)
         {
-            (*contacts)[contacts->size()-n+i].elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
-            (*contacts)[contacts->size()-n+i].value -= contactDist;
+            (*contacts)[OutputContainer<Triangle, Triangle>::DetectionOutputID(contacts->size()-n+i)].elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
+            (*contacts)[OutputContainer<Triangle, Triangle>::DetectionOutputID(contacts->size()-n+i)].value -= contactDist;
         }
     }
     return n;
@@ -637,7 +637,7 @@ bool LMDNewProximityIntersection::testIntersection(Ray &t1,Triangle &t2)
 }
 
 
-int LMDNewProximityIntersection::computeIntersection(Ray &t1, Triangle &t2, OutputVector* contacts)
+int LMDNewProximityIntersection::computeIntersection(Ray &t1, Triangle &t2, OutputContainer<sofa::component::collision::Ray, sofa::component::collision::Triangle> *contacts)
 {
     const double alarmDist = getAlarmDistance() + t1.getProximity() + t2.getProximity();
 
@@ -657,19 +657,18 @@ int LMDNewProximityIntersection::computeIntersection(Ray &t1, Triangle &t2, Outp
         return 0;
 
     const double contactDist = alarmDist;
-    contacts->resize(contacts->size()+1);
-    DetectionOutput *detection = &*(contacts->end()-1);
+    DetectionOutput& detection = contacts->addDetectionOutput();
 
-    detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(t1, t2);
-    detection->point[1]=P;
-    detection->point[0]=Q;
+    detection.elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(t1, t2);
+    detection.point[1]=P;
+    detection.point[0]=Q;
 #ifdef DETECTIONOUTPUT_FREEMOTION
-    detection->freePoint[1] = P;
-    detection->freePoint[0] = Q;
+    detection.freePoint[1] = P;
+    detection.freePoint[0] = Q;
 #endif
-    detection->normal=-t2.n();
-    detection->value = PQ.norm();
-    detection->value -= contactDist;
+    detection.normal=-t2.n();
+    detection.value = PQ.norm();
+    detection.value -= contactDist;
     return 1;
 }
 

@@ -65,7 +65,7 @@ bool RayDiscreteIntersection::testIntersection(Ray& ray1, TSphere<T>& sph2)
 }
 
 template<class T>
-int RayDiscreteIntersection::computeIntersection(Ray& ray1, TSphere<T>& sph2, OutputVector* contacts)
+int RayDiscreteIntersection::computeIntersection(Ray& ray1, TSphere<T>& sph2, OutputContainer<Ray, TSphere<T>>* contacts)
 {
     // Center of the sphere
     const defaulttype::Vector3 sph2Pos(sph2.center());
@@ -84,17 +84,16 @@ int RayDiscreteIntersection::computeIntersection(Ray& ray1, TSphere<T>& sph2, Ou
 
     const SReal dist = sqrt(dist2);
 
-    contacts->resize(contacts->size()+1);
-    sofa::core::collision::DetectionOutput *detection = &*(contacts->end()-1);
+    sofa::core::collision::DetectionOutput& detection = contacts->addDetectionOutput();
 
-    detection->point[0] = ray1Origin + ray1Direction*rayPosInside;
-    detection->normal = sph2Pos - detection->point[0];
-    detection->normal /= dist;
-    detection->point[1] = sph2.getContactPointByNormal( detection->normal );;
-    detection->value = dist - radius1;
-    detection->elem.first = ray1;
-    detection->elem.second = sph2;
-    detection->id = ray1.getIndex();
+    detection.point[0] = ray1Origin + ray1Direction*rayPosInside;
+    detection.normal = sph2Pos - detection.point[0];
+    detection.normal /= dist;
+    detection.point[1] = sph2.getContactPointByNormal( detection.normal );
+    detection.value = dist - radius1;
+    detection.elem.first = ray1;
+    detection.elem.second = sph2;
+    detection.id = ray1.getIndex();
 
     return 1;
 }

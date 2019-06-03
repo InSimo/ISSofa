@@ -66,7 +66,7 @@ bool FFDDistanceGridDiscreteIntersection::testIntersection(FFDDistanceGridCollis
     return true;
 }
 
-int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, RigidDistanceGridCollisionElement& e2, OutputVector* contacts)
+int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, RigidDistanceGridCollisionElement& e2, OutputContainer<FFDDistanceGridCollisionElement, RigidDistanceGridCollisionElement>* contacts)
 {
     int nc = 0;
     DistanceGrid* grid1 = e1.getGrid();
@@ -108,6 +108,7 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
             const sofa::helper::vector<DistanceGrid::Coord>& x1 = c1.deformedPoints;
             const sofa::helper::vector<DistanceGrid::Coord>& n1 = c1.deformedNormals;
             bool first = true;
+            DetectionOutput* detection = nullptr;
             for (unsigned int i=0; i<x1.size(); i++)
             {
                 DistanceGrid::Coord p1 = x1[i] + n1[i]*margin;
@@ -128,8 +129,10 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
 
                 //p2 -= grad * d; // push p2 back to the surface
                 if (!singleContact || first)
-                    contacts->resize(contacts->size()+1);
-                DetectionOutput *detection = &*(contacts->end()-1);
+                {
+                    detection = &contacts->addDetectionOutput();
+                }
+
                 double value = d + margin - d0;
                 //std::cout << "value = d + margin - d0 = " << d << " + " << margin << " - " << d0 << " = " << value << std::endl;
                 if (!singleContact || first || (value < detection->value))
@@ -158,6 +161,7 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
     {
         const SReal cubesize = c1.invDP.norm();
         bool first = true;
+        DetectionOutput* detection = nullptr;
         for (unsigned int i=0; i<x2.size(); i++)
         {
             DistanceGrid::Coord p2 = x2[i];
@@ -202,8 +206,9 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
                                 grad.normalize();
 
                                 if (!singleContact || first)
-                                    contacts->resize(contacts->size()+1);
-                                DetectionOutput *detection = &*(contacts->end()-1);
+                                {
+                                    detection = &contacts->addDetectionOutput();
+                                }
                                 double value = d - d0;
                                 if (!singleContact || first || (value < detection->value))
                                 {
@@ -252,7 +257,7 @@ bool FFDDistanceGridDiscreteIntersection::testIntersection(FFDDistanceGridCollis
     return true;
 }
 
-int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, FFDDistanceGridCollisionElement& e2, OutputVector* contacts)
+int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, FFDDistanceGridCollisionElement& e2, OutputContainer<FFDDistanceGridCollisionElement, FFDDistanceGridCollisionElement>* contacts)
 {
     int nc = 0;
     DistanceGrid* grid1 = e1.getGrid();
@@ -281,6 +286,7 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
         const sofa::helper::vector<DistanceGrid::Coord>& x1 = c1.deformedPoints;
         const sofa::helper::vector<DistanceGrid::Coord>& n1 = c1.deformedNormals;
         bool first = true;
+        DetectionOutput* detection = nullptr;
         for (unsigned int i=0; i<x1.size(); i++)
         {
             DistanceGrid::Coord p2 = x1[i] + n1[i]*margin;
@@ -321,8 +327,9 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
                             grad.normalize();
 
                             if (!singleContact || first)
-                                contacts->resize(contacts->size()+1);
-                            DetectionOutput *detection = &*(contacts->end()-1);
+                            {
+                                detection = &contacts->addDetectionOutput();
+                            }
                             double value = d + margin - d0;
                             if (!singleContact || first || (value < detection->value))
                             {
@@ -369,6 +376,7 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
         const sofa::helper::vector<DistanceGrid::Coord>& x2 = c2.deformedPoints;
         const sofa::helper::vector<DistanceGrid::Coord>& n2 = c2.deformedNormals;
         bool first = true;
+        DetectionOutput* detection = nullptr;
         for (unsigned int i=0; i<x2.size(); i++)
         {
             DistanceGrid::Coord p1 = x2[i] + n2[i]*margin;
@@ -409,8 +417,9 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
                             grad.normalize();
 
                             if (!singleContact || first)
-                                contacts->resize(contacts->size()+1);
-                            DetectionOutput *detection = &*(contacts->end()-1);
+                            {
+                                detection = &contacts->addDetectionOutput();
+                            }
                             double value = d + margin - d0;
                             if (!singleContact || first || (value < detection->value))
                             {
@@ -457,7 +466,7 @@ bool FFDDistanceGridDiscreteIntersection::testIntersection(FFDDistanceGridCollis
     return true;
 }
 
-int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, Point& e2, OutputVector* contacts)
+int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, Point& e2, OutputContainer<FFDDistanceGridCollisionElement, Point>* contacts)
 {
 
     DistanceGrid* grid1 = e1.getGrid();
@@ -508,20 +517,19 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
                     grad = c1.deformDir(c1.baryCoords(pinit),grad);
                     grad.normalize();
 
-                    contacts->resize(contacts->size()+1);
-                    DetectionOutput *detection = &*(contacts->end()-1);
+                    DetectionOutput& detection = contacts->addDetectionOutput();
 
-                    detection->point[0] = Vector3(pinit);
-                    detection->point[1] = Vector3(p2);
+                    detection.point[0] = Vector3(pinit);
+                    detection.point[1] = Vector3(p2);
 #ifdef DETECTIONOUTPUT_BARYCENTRICINFO
-                    detection->baryCoords[0] = Vector3(pinit);
-                    detection->baryCoords[1] = Vector3(0.0,0.0,0.0);
+                    detection.baryCoords[0] = Vector3(pinit);
+                    detection.baryCoords[1] = Vector3(0.0,0.0,0.0);
 #endif
-                    detection->normal = Vector3(grad); // normal in global space from p1's surface
-                    detection->value = d - d0;
-                    detection->elem.first = e1;
-                    detection->elem.second = e2;
-                    detection->id = e2.getIndex();
+                    detection.normal = Vector3(grad); // normal in global space from p1's surface
+                    detection.value = d - d0;
+                    detection.elem.first = e1;
+                    detection.elem.second = e2;
+                    detection.id = e2.getIndex();
                     ++nc;
                 }
             }
@@ -551,7 +559,7 @@ bool FFDDistanceGridDiscreteIntersection::testIntersection(FFDDistanceGridCollis
     return true;
 }
 
-int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, Triangle& e2, OutputVector* contacts)
+int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridCollisionElement& e1, Triangle& e2, OutputContainer<FFDDistanceGridCollisionElement, Triangle>* contacts)
 {
     const int f2 = e2.flags();
     if (!(f2&TriangleModel::FLAG_POINTS)) return 0; // no points associated with this triangle
@@ -606,20 +614,19 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(FFDDistanceGridColl
                         grad = c1.deformDir(c1.baryCoords(pinit),grad);
                         grad.normalize();
 
-                        contacts->resize(contacts->size()+1);
-                        DetectionOutput *detection = &*(contacts->end()-1);
+                        DetectionOutput& detection = contacts->addDetectionOutput();
 
-                        detection->point[0] = Vector3(pinit);
-                        detection->point[1] = Vector3(p2);
+                        detection.point[0] = Vector3(pinit);
+                        detection.point[1] = Vector3(p2);
 #ifdef DETECTIONOUTPUT_BARYCENTRICINFO
-                        detection->baryCoords[0] = Vector3(pinit);
-                        detection->baryCoords[1] = Vector3((iP == 1)?1.0:0.0,(iP == 2)?1.0:0.0,0.0);
+                        detection.baryCoords[0] = Vector3(pinit);
+                        detection.baryCoords[1] = Vector3((iP == 1)?1.0:0.0,(iP == 2)?1.0:0.0,0.0);
 #endif
-                        detection->normal = Vector3(grad); // normal in global space from p1's surface
-                        detection->value = d - d0;
-                        detection->elem.first = e1;
-                        detection->elem.second = e2;
-                        detection->id = e2.getIndex()*3+iP;
+                        detection.normal = Vector3(grad); // normal in global space from p1's surface
+                        detection.value = d - d0;
+                        detection.elem.first = e1;
+                        detection.elem.second = e2;
+                        detection.id = e2.getIndex()*3+iP;
                         ++nc;
                     }
                 }
@@ -649,7 +656,7 @@ bool FFDDistanceGridDiscreteIntersection::testIntersection(Ray& /*e1*/, FFDDista
     return true;
 }
 
-int FFDDistanceGridDiscreteIntersection::computeIntersection(Ray& e2, FFDDistanceGridCollisionElement& e1, OutputVector* contacts)
+int FFDDistanceGridDiscreteIntersection::computeIntersection(Ray& e2, FFDDistanceGridCollisionElement& e1, OutputContainer<Ray, FFDDistanceGridCollisionElement>* contacts)
 {
     Vector3 rayOrigin(e2.origin());
     Vector3 rayDirection(e2.direction());
@@ -723,20 +730,19 @@ int FFDDistanceGridDiscreteIntersection::computeIntersection(Ray& e2, FFDDistanc
             {
                 // intersection found
 
-                contacts->resize(contacts->size()+1);
-                DetectionOutput *detection = &*(contacts->end()-1);
+                DetectionOutput& detection = contacts->addDetectionOutput();
 
-                detection->point[0] = e2.origin() + e2.direction()*rayPos;
-                detection->point[1] = c1.initpos(b);
+                detection.point[0] = e2.origin() + e2.direction()*rayPos;
+                detection.point[1] = c1.initpos(b);
 #ifdef DETECTIONOUTPUT_BARYCENTRICINFO
-                detection->baryCoords[0] = Vector3(rayPos,0,0);
-                detection->baryCoords[1] = detection->point[1];
+                detection.baryCoords[0] = Vector3(rayPos,0,0);
+                detection.baryCoords[1] = detection.point[1];
 #endif
-                detection->normal = e2.direction(); // normal in global space from p1's surface
-                detection->value = d;
-                detection->elem.first = e2;
-                detection->elem.second = e1;
-                detection->id = e2.getIndex();
+                detection.normal = e2.direction(); // normal in global space from p1's surface
+                detection.value = d;
+                detection.elem.first = e2;
+                detection.elem.second = e1;
+                detection.id = e2.getIndex();
                 return 1;
             }
         }

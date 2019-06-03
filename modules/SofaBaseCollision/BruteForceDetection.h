@@ -56,7 +56,7 @@ public:
 
     /// Begin intersection tests between two collision models. Return the number of contacts written in the contacts vector.
     /// If the given contacts vector is NULL, then this method should allocate it.
-    virtual int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, core::collision::DetectionOutputContainer*& contacts)
+    virtual int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, std::pair<core::collision::DetectionOutputContainer*, core::collision::DetectionOutputContainer*>& contacts)
     {
         return intersector->beginIntersect(model2, model1, contacts);
     }

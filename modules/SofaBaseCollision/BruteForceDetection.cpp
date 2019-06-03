@@ -215,7 +215,7 @@ void BruteForceDetection::addCollisionPair(const std::pair<core::CollisionModel*
     //if (self)
     //    sout << "SELF: Final intersector " << finalintersector->name() << " for "<<finalcm1->getName()<<" - "<<finalcm2->getName()<<sendl;
 
-    sofa::core::collision::DetectionOutputContainer*& outputs = this->getDetectionOutputs(finalcm1, finalcm2);
+    auto& outputs = this->getDetectionOutputs(finalcm1, finalcm2);
 
     finalintersector->beginIntersect(finalcm1, finalcm2, outputs);//creates outputs if null
 
@@ -254,7 +254,7 @@ void BruteForceDetection::addCollisionPair(const std::pair<core::CollisionModel*
     cm1 = NULL; // force later init of intersector
     cm2 = NULL;
     
-    computeNarrowPhase(cm1, cm2, intersector, finalcm1, finalcm2, finalintersector, intersectionMethod, self, externalCells, outputs);
+    computeNarrowPhase(cm1, cm2, intersector, finalcm1, finalcm2, finalintersector, intersectionMethod, self, externalCells, outputs.first);
     
     sofa::helper::AdvancedTimer::stepEnd("BruteForceDetection::addCollisionPair");
     //sout << "Narrow phase "<<cm1->getLast()->getName()<<"("<<gettypename(typeid(*cm1->getLast()))<<") - "<<cm2->getLast()->getName()<<"("<<gettypename(typeid(*cm2->getLast()))<<"): "<<elemPairs.size()-size0<<" contacts."<<sendl;

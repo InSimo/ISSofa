@@ -106,58 +106,58 @@ void DevAngleCollisionMonitor<DataTypes>::eval()
     while (it != itend)
     {
 
-        const ContactVector* contacts = dynamic_cast<const ContactVector*>(it->second);
+        const ContactContainer* contacts = dynamic_cast<const ContactContainer*>(it->second.first);
 
         if (contacts != NULL)
         {
             core::collision::DetectionOutput c;
 
-            double minNorm = ((*contacts)[0].point[0] - (*contacts)[0].point[1]).norm();
+            double minNorm = std::numeric_limits<double>::max();
 
             sout << contacts->size() << " contacts detected." << sendl;
-            for (unsigned int i=0; i<contacts->size(); i++)
+            for (const core::collision::DetectionOutput& o : *contacts)
             {
-                if ((*contacts)[i].elem.first.getCollisionModel() == surfaceCM)
+                if (o.elem.first.getCollisionModel() == surfaceCM)
                 {
-                    if ((*contacts)[i].elem.second.getCollisionModel() == pointsCM)
+                    if (o.elem.second.getCollisionModel() == pointsCM)
                     {
-                        if ((*contacts)[i].elem.second.getIndex() == ((int)x.size()-1))
+                        if (o.elem.second.getIndex() == ((int)x.size()-1))
                         {
-                            double norm = ((*contacts)[i].point[0] - (*contacts)[i].point[1]).norm();
+                            double norm = (o.point[0] - o.point[1]).norm();
                             if (norm < minNorm)
                             {
-                                c = (*contacts)[i];
+                                c = o;
                                 minNorm = norm;
                             }
                         }
-                        /*			int pi = (*contacts)[i].elem.second.getIndex();
-                        			if ((*contacts)[i].value < dmin[pi])
+                        /*			int pi = o.elem.second.getIndex();
+                                    if (o.value < dmin[pi])
                         			{
-                        			    dmin[pi] = (Real)((*contacts)[i].value);
-                        			    xproj[pi] = (*contacts)[i].point[0];
+                                        dmin[pi] = (Real)(o.value);
+                                        xproj[pi] = o.point[0];
                         			}*/
                     }
                 }
-                else if ((*contacts)[i].elem.second.getCollisionModel() == surfaceCM)
+                else if (o.elem.second.getCollisionModel() == surfaceCM)
                 {
-                    if ((*contacts)[i].elem.first.getCollisionModel() == pointsCM)
+                    if (o.elem.first.getCollisionModel() == pointsCM)
                     {
-                        if ((*contacts)[i].elem.first.getIndex() == ((int)x.size()-1))
+                        if (o.elem.first.getIndex() == ((int)x.size()-1))
                         {
-                            double norm = ((*contacts)[i].point[0] - (*contacts)[i].point[1]).norm();
+                            double norm = (o.point[0] - o.point[1]).norm();
 
                             if (norm < minNorm)
                             {
-                                c = (*contacts)[i];
+                                c = o;
                                 minNorm = norm;
                             }
                         }
 
-// 			int pi = (*contacts)[i].elem.first.getIndex();
-// 			if ((*contacts)[i].value < dmin[pi])
+// 			int pi = o.elem.first.getIndex();
+// 			if (o.value < dmin[pi])
 // 			{
-// 			    dmin[pi] = (Real)((*contacts)[i].value);
-// 			    xproj[pi] = (*contacts)[i].point[1];
+// 			    dmin[pi] = (Real)(o.value);
+// 			    xproj[pi] = o.point[1];
 // 			}
                     }
                 }

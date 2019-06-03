@@ -76,17 +76,17 @@ public:
     bool testIntersection(Ray&, Sphere&);
     bool testIntersection(Ray&, Triangle&);
 
-    int computeIntersection(Cube&, Cube&, OutputVector*);
-    int computeIntersection(Point&, Point&, OutputVector*);
-    int computeIntersection(Sphere&, Point&, OutputVector*);
-    int computeIntersection(Sphere&, Sphere&, OutputVector*);
-    int computeIntersection(Line&, Point&, OutputVector*);
-    int computeIntersection(Line&, Sphere&, OutputVector*);
-    int computeIntersection(Line&, Line&, OutputVector*);
-    int computeIntersection(Triangle&, Point&, OutputVector*);
-    int computeIntersection(Triangle&, Sphere&, OutputVector*);
-    int computeIntersection(Ray&, Sphere&, OutputVector*);
-    int computeIntersection(Ray&, Triangle&, OutputVector*);
+    int computeIntersection(Cube&, Cube&, OutputContainer<Cube, Cube>*);
+    int computeIntersection(Point&, Point&, OutputContainer<Point, Point>*);
+    int computeIntersection(Sphere&, Point&, OutputContainer<Sphere, Point>*);
+    int computeIntersection(Sphere&, Sphere&, OutputContainer<Sphere, Sphere>*);
+    int computeIntersection(Line&, Point&, OutputContainer<Line, Point>*);
+    int computeIntersection(Line&, Sphere&, OutputContainer<Line, Sphere>*);
+    int computeIntersection(Line&, Line&, OutputContainer<Line, Line>*);
+    int computeIntersection(Triangle&, Point&, OutputContainer<Triangle, Point>*);
+    int computeIntersection(Triangle&, Sphere&, OutputContainer<Triangle, Sphere>*);
+    int computeIntersection(Ray&, Sphere&, OutputContainer<Ray, Sphere>*);
+    int computeIntersection(Ray&, Triangle&, OutputContainer<Ray, Triangle>*);
 
     /// These methods check the validity of a found intersection.
     /// According to the local configuration around the found intersected primitive,
@@ -102,7 +102,7 @@ public:
     /// Actions to accomplish when the broadPhase is started. By default do nothing.
     virtual void beginBroadPhase() {}
 
-    int beginIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, OutputVector* /*contacts*/)
+    int beginIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, sofa::core::collision::DetectionOutputContainer* /*contacts*/)
     {
         //std::cout << "beginIntersection\n";
         return 0;

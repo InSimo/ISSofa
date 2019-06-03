@@ -47,7 +47,8 @@ namespace collision
 class SOFA_USER_INTERACTION_API RayDiscreteIntersection : public core::collision::BaseIntersector
 {
 
-    typedef DiscreteIntersection::OutputVector OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = DiscreteIntersection::OutputContainer<Elem1, Elem2>;
 
 public:
     RayDiscreteIntersection(DiscreteIntersection* object, bool addSelf=true);
@@ -55,8 +56,8 @@ public:
     template<class T> bool testIntersection(Ray&, TSphere<T>&);
     bool testIntersection(Ray&, Triangle&);
 
-    template<class T> int computeIntersection(Ray&, TSphere<T>&, OutputVector*);
-    int computeIntersection(Ray&, Triangle&, OutputVector*);
+    template<class T> int computeIntersection(Ray&, TSphere<T>&, OutputContainer<Ray, TSphere<T>>*);
+    int computeIntersection(Ray&, Triangle&, OutputContainer<Ray, Triangle>*);
 
 protected:
 

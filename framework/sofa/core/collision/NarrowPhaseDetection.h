@@ -50,7 +50,7 @@ class NarrowPhaseDetection : virtual public Detection
 public:
     SOFA_ABSTRACT_CLASS_UNIQUE((NarrowPhaseDetection), ((Detection)));
 
-    typedef sofa::helper::map_ptr_stable_compare< std::pair< core::CollisionModel*, core::CollisionModel* >, DetectionOutputContainer* > DetectionOutputMap;
+    typedef sofa::helper::map_ptr_stable_compare<std::pair<core::CollisionModel*, core::CollisionModel*>, std::pair<DetectionOutputContainer*, DetectionOutputContainer*>> DetectionOutputMap; // current + previous containers
 
 protected:
     NarrowPhaseDetection()
@@ -63,12 +63,16 @@ public:
     /// Clear all the potentially colliding pairs detected in the previous simulation step
     virtual void beginNarrowPhase()
     {
+        // swap output containers and clear the current one
         for (DetectionOutputMap::iterator it = m_outputsMap.begin(); it != m_outputsMap.end(); it++)
         {
-            DetectionOutputContainer *do_vec = (it->second);
-
-            if (do_vec)
-                do_vec->clear();
+            DetectionOutputContainer *currentContainer, *previousContainer;
+            std::tie(currentContainer, previousContainer) = it->second;
+            currentContainer->swap(*previousContainer);
+            if (currentContainer)
+            {
+                currentContainer->clear();
+            }
         }
     }
 
@@ -88,15 +92,15 @@ public:
         
         while (it != m_outputsMap.end())
         {
-            DetectionOutputContainer *do_vec = (it->second);
+            DetectionOutputContainer *currentContainer = it->second.first;
 
-            if (!do_vec || do_vec->empty())
+            if (!currentContainer || currentContainer->empty())
             {
                 /// @todo Optimization
                 DetectionOutputMap::iterator iterase = it;
 				++it;
 				m_outputsMap.erase(iterase);
-                if (do_vec) do_vec->release();
+                if (currentContainer) currentContainer->release();
             }
             else
             {
@@ -110,7 +114,7 @@ public:
         return m_outputsMap;
     }
 
-    DetectionOutputContainer*& getDetectionOutputs(CollisionModel *cm1, CollisionModel *cm2)
+    std::pair<DetectionOutputContainer*, DetectionOutputContainer*>& getDetectionOutputs(CollisionModel *cm1, CollisionModel *cm2)
     {
         std::pair< CollisionModel*, CollisionModel* > cm_pair = std::make_pair(cm1, cm2);
 
@@ -119,30 +123,25 @@ public:
         if (it == m_outputsMap.end())
         {
             // new contact
-            it = m_outputsMap.insert( std::make_pair(cm_pair, static_cast< DetectionOutputContainer * >(0)) ).first;
+            it = m_outputsMap.emplace(cm_pair, std::make_pair(nullptr, nullptr)).first;
         }
 
         return it->second;
     }
 
-    //Returns true if the last narrow phase detected no collision, to use after endNarrowPhase.
-    inline bool zeroCollision()const{
-        return m_outputsMap.empty();
-    }
-
-    void draw(const sofa::core::visual::VisualParams* vparams)
+    void draw(const sofa::core::visual::VisualParams* vparams) override
     {
         if (d_showDetectionOutputMap.getValue(vparams))
         {
            
             for (auto it = m_outputsMap.cbegin(); it != m_outputsMap.cend(); ++it)
             {
-                const DetectionOutputContainer* outputVector = it->second;
+                const DetectionOutputContainer *currentContainer = it->second.first;
                 std::vector< sofa::defaulttype::Vector3 > lines;
-                for (std::size_t i=0; i< outputVector->size(); ++i)
+                for (std::size_t i=0; i< currentContainer->size(); ++i)
                 {
                     DetectionOutput o;
-                    if (outputVector->getDetectionOutput(i, o))
+                    if (currentContainer->getDetectionOutput(i, o))
                     {
                         lines.push_back(o.point[0]);
                         lines.push_back(o.point[1]);
@@ -158,9 +157,7 @@ public:
     sofa::Data<bool> d_showDetectionOutputMap;
 
 protected:
-    bool _zeroCollision;//true if the last narrow phase detected no collision, to use after endNarrowPhase
-
-    virtual void changeInstanceNP(Instance inst)
+    virtual void changeInstanceNP(Instance inst) override
     {
         m_storedOutputsMap[instance].swap(m_outputsMap);
         m_outputsMap.swap(m_storedOutputsMap[inst]);

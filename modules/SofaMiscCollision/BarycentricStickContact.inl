@@ -70,10 +70,12 @@ void BarycentricStickContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes
 }
 
 template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes >
-void BarycentricStickContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDetectionOutputs(OutputVector* o)
+void BarycentricStickContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDetectionOutputs(OutputContainer* o)
 {
+    using DetectionOutputID = typename TOutputContainer::DetectionOutputID;
+
     if (o==NULL) return;
-    TOutputVector& outputs = *static_cast<TOutputVector*>(o);
+    TOutputContainer& outputs = *static_cast<TOutputContainer*>(o);
     const bool printLog = this->f_printLog.getValue();
     if (ff==NULL)
     {
@@ -97,13 +99,13 @@ void BarycentricStickContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes
 
     for (int i=0; i<insize; i++)
     {
-        sofa::core::collision::DetectionOutput* o = &outputs[i];
+        sofa::core::collision::DetectionOutput* o = &outputs[DetectionOutputID(i)];
         // find this contact in contactIndex, possibly creating a new entry initialized by 0
         int& index = contactIndex[o->id];
         if (index < 0) // duplicate contact
         {
             int i2 = -1-index;
-            sofa::core::collision::DetectionOutput* o2 = &outputs[i2];
+            sofa::core::collision::DetectionOutput* o2 = &outputs[DetectionOutputID(i2)];
             if (o2->value <= o->value)
             {
                 // current contact is ignored
@@ -174,7 +176,7 @@ void BarycentricStickContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes
     {
         int index = oldIndex[i];
         if (index < 0) continue; // this contact is ignored
-        sofa::core::collision::DetectionOutput* o = &outputs[i];
+        sofa::core::collision::DetectionOutput* o = &outputs[DetectionOutputID(i)];
         CollisionElement1 elem1(o->elem.first);
         CollisionElement2 elem2(o->elem.second);
         int index1 = elem1.getIndex();

@@ -60,8 +60,8 @@ public:
     typedef TCollisionModel1 CollisionModel1;
     typedef TCollisionModel2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
-    typedef core::collision::DetectionOutputContainer OutputVector;
-    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputVector;
+    typedef core::collision::DetectionOutputContainer OutputContainer;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputContainer;
     typedef typename TCollisionModel1::DataTypes::CPos TVec1;
     typedef typename TCollisionModel2::DataTypes::CPos TVec2;
     typedef sofa::defaulttype::StdVectorTypes<TVec1,TVec1, typename TCollisionModel1::DataTypes::Real > DataTypes1; 
@@ -101,7 +101,7 @@ public:
 
     std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }
 
-    void setDetectionOutputs(OutputVector* outputs) override;
+    void setDetectionOutputs(OutputContainer* outputs) override;
 
     void createResponse(core::objectmodel::BaseContext* group) override;
 

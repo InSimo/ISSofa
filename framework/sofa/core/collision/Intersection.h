@@ -40,7 +40,7 @@ namespace collision
 {
 
 template< class Model1, class Model2>
-struct DetectionOutputVectorCreator
+struct DetectionOutputContainerCreator
 {
     typedef typename sofa::core::collision::TDetectionOutputContainer<Model1,Model2> TDetectionOutputContainer;
     static TDetectionOutputContainer* create()
@@ -51,23 +51,23 @@ struct DetectionOutputVectorCreator
 };
 
 template<class Model1, class Model2>
-sofa::core::collision::TDetectionOutputContainer<Model1,Model2>* createOutputVector(Model1*, Model2*)
+sofa::core::collision::TDetectionOutputContainer<Model1,Model2>* createOutputContainer(Model1*, Model2*)
 {
-    return DetectionOutputVectorCreator<Model1,Model2>::create();
+    return DetectionOutputContainerCreator<Model1,Model2>::create();
 }
 
 template<class Model1, class Model2>
-sofa::core::collision::TDetectionOutputContainer<Model1,Model2>* getOutputVector(Model1*, Model2*, sofa::core::collision::DetectionOutputContainer* contacts)
+sofa::core::collision::TDetectionOutputContainer<Model1,Model2>* getOutputContainer(Model1*, Model2*, sofa::core::collision::DetectionOutputContainer* contacts)
 {
     return static_cast<sofa::core::collision::TDetectionOutputContainer<Model1,Model2>*>(contacts);
 }
 
 template<class Model1, class Model2>
-sofa::core::collision::TDetectionOutputContainer<Model1,Model2>* getOutputVector(sofa::core::collision::DetectionOutputContainer* contacts)
+sofa::core::collision::TDetectionOutputContainer<Model1,Model2>* getOutputContainer(sofa::core::collision::DetectionOutputContainer* contacts)
 {
     Model1* m1=NULL;
     Model2* m2=NULL;
-    return getOutputVector(m1,m2,contacts);
+    return getOutputContainer(m1,m2,contacts);
 }
 
 class BaseIntersector
@@ -78,14 +78,14 @@ public:
 
     ~BaseIntersector() {}
 
-    typedef sofa::core::collision::DetectionOutputContainer OutputVector;
+    typedef sofa::core::collision::DetectionOutputContainer OutputContainer;
 
-    virtual int beginIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, OutputVector* /*contacts*/)
+    virtual int beginIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, OutputContainer* /*contacts*/)
     {
         return 0;
     }
 
-    virtual int endIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, OutputVector* /*contacts*/)
+    virtual int endIntersection(sofa::core::CollisionModel* /*model1*/, sofa::core::CollisionModel* /*model2*/, OutputContainer* /*contacts*/)
     {
         return 0;
     }
@@ -102,7 +102,7 @@ public:
 
     /// Begin intersection tests between two collision models. Return the number of contacts written in the contacts vector.
     /// If the given contacts vector is NULL, then this method should allocate it.
-    virtual int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, DetectionOutputContainer*& contacts) = 0;
+    virtual int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, std::pair<DetectionOutputContainer*, DetectionOutputContainer*>& contacts) = 0;
 
     /// Compute the intersection between 2 elements. Return the number of contacts written in the contacts vector.
     virtual int intersect(core::CollisionElementIterator elem1, core::CollisionElementIterator elem2, DetectionOutputContainer* contacts) = 0;

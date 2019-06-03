@@ -30,6 +30,7 @@
 #include <sofa/core/CollisionElement.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/helper/vector.h>
+#include <sofa/helper/integer_id.h>
 #include <iostream>
 
 namespace sofa
@@ -101,53 +102,113 @@ public:
 /**
  *  \brief Abstract description of a set of contact point.
  */
-
 class SOFA_CORE_API DetectionOutputContainer
 {
 protected:
     virtual ~DetectionOutputContainer() {}
 public:
-    /// Clear the content of this vector
+    /// Clear the contents of this container
     virtual void clear() = 0;
-    /// Current size (number of detected contacts
+    /// Current size (number of detected contacts)
     virtual unsigned int size() const = 0;
-    /// Test if the vector is empty
+    /// Test if the container is empty
     bool empty() const { return size()==0; }
-    /// Delete this vector from memory once the contact pair is no longer active
+    /// Delete this container from memory once the contact pair is no longer active
     virtual void release() { delete this; }
+    /// Swap the contents of both containers
+    virtual void swap(DetectionOutputContainer& other) = 0;
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)
     /// @return false if not supported
     virtual bool getDetectionOutput(unsigned int /*i*/, DetectionOutput& /*o*/) const { return false; }
+    /// Invalidate the last DetectionOutput added to the container
+    virtual void invalidateLastDetectionOutput() = 0;
 };
 
 /**
  *  \brief Generic description of a set of contact point between two specific collision models
  */
-
 template<class CM1, class CM2>
-class TDetectionOutputContainer : public DetectionOutputContainer, public sofa::helper::vector<DetectionOutput>
+class TDetectionOutputContainer : public DetectionOutputContainer, protected sofa::helper::vector<DetectionOutput>
 {
+protected:
+    using Vector = sofa::helper::vector<DetectionOutput>;
 public:
-    typedef sofa::helper::vector<DetectionOutput> Vector;
+    using value_type = Vector::value_type;
+    using iterator = Vector::iterator;
+    using const_iterator = Vector::const_iterator;
+    constexpr static const char* DetectionOutputIDName() { return "DetectionOutputID"; }
+    using DetectionOutputID = sofa::helper::integer_id<DetectionOutputIDName>;
+
     virtual ~TDetectionOutputContainer() {}
-    /// Clear the content of this vector
-    virtual void clear()
+    /// Clear the contents of this container
+    virtual void clear() override
     {
         return Vector::clear();
     }
     /// Current size (number of detected contacts)
-    virtual unsigned int size() const
+    virtual unsigned int size() const override
     {
         return (unsigned int)Vector::size();
+    }
+    /// Swap the contents of both containers
+    virtual void swap(DetectionOutputContainer& other) override
+    {
+        TDetectionOutputContainer<CM1, CM2>& otherAsVector = dynamic_cast<TDetectionOutputContainer<CM1, CM2>&>(other);
+        assert(otherAsVector != nullptr);
+        Vector::swap(otherAsVector);
     }
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)
     /// @return false if not supported
-    virtual bool getDetectionOutput(unsigned int i, DetectionOutput& o) const
+    virtual bool getDetectionOutput(unsigned int i, DetectionOutput& o) const override
     {
-        o = (*this)[i];
+        o = Vector::operator[](i);
         return true;
+    }
+    /// Invalidate the last DetectionOutput added to the container
+    virtual void invalidateLastDetectionOutput() override
+    {
+        // Remove the DO from the vector rather than marking it invalid since the operation is cheap
+        Vector::pop_back();
+    }
+
+    virtual iterator begin()
+    {
+        return Vector::begin();
+    }
+    virtual iterator end()
+    {
+        return Vector::end();
+    }
+    virtual const_iterator begin() const
+    {
+        return Vector::begin();
+    }
+    virtual const_iterator end() const
+    {
+        return Vector::end();
+    }
+    virtual const_iterator cbegin() const
+    {
+        return Vector::cbegin();
+    }
+    virtual const_iterator cend() const
+    {
+        return Vector::cend();
+    }
+    virtual DetectionOutput& operator[](DetectionOutputID id)
+    {
+        return Vector::operator[](id.getId());
+    }
+    virtual const DetectionOutput& operator[](DetectionOutputID id) const
+    {
+        return Vector::operator[](id.getId());
+    }
+    virtual DetectionOutput& addDetectionOutput()
+    {
+        Vector::emplace_back(); // TODO return here in C++17
+        return Vector::back();
     }
 };
 

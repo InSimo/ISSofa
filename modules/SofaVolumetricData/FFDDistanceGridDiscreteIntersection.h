@@ -46,8 +46,8 @@ namespace collision
 {
 class SOFA_VOLUMETRIC_DATA_API FFDDistanceGridDiscreteIntersection : public core::collision::BaseIntersector
 {
-
-    typedef DiscreteIntersection::OutputVector OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = DiscreteIntersection::OutputContainer<Elem1, Elem2>;
 
 public:
     FFDDistanceGridDiscreteIntersection(DiscreteIntersection* object);
@@ -59,12 +59,12 @@ public:
     bool testIntersection(FFDDistanceGridCollisionElement&, Triangle&);
     bool testIntersection(Ray&, FFDDistanceGridCollisionElement&);
 
-    int computeIntersection(FFDDistanceGridCollisionElement&, RigidDistanceGridCollisionElement&, OutputVector*);
-    int computeIntersection(FFDDistanceGridCollisionElement&, FFDDistanceGridCollisionElement&, OutputVector*);
-    int computeIntersection(FFDDistanceGridCollisionElement&, Point&, OutputVector*);
-    template<class T> int computeIntersection(FFDDistanceGridCollisionElement&, TSphere<T>&, OutputVector*);
-    int computeIntersection(FFDDistanceGridCollisionElement&, Triangle&, OutputVector*);
-    int computeIntersection(Ray&, FFDDistanceGridCollisionElement&, OutputVector*);
+    int computeIntersection(FFDDistanceGridCollisionElement&, RigidDistanceGridCollisionElement&, OutputContainer<FFDDistanceGridCollisionElement, RigidDistanceGridCollisionElement>*);
+    int computeIntersection(FFDDistanceGridCollisionElement&, FFDDistanceGridCollisionElement&, OutputContainer<FFDDistanceGridCollisionElement, FFDDistanceGridCollisionElement>*);
+    int computeIntersection(FFDDistanceGridCollisionElement&, Point&, OutputContainer<FFDDistanceGridCollisionElement, Point>*);
+    template<class T> int computeIntersection(FFDDistanceGridCollisionElement&, TSphere<T>&, OutputContainer<FFDDistanceGridCollisionElement, TSphere<T>>*);
+    int computeIntersection(FFDDistanceGridCollisionElement&, Triangle&, OutputContainer<FFDDistanceGridCollisionElement, Triangle>*);
+    int computeIntersection(Ray&, FFDDistanceGridCollisionElement&, OutputContainer<Ray, FFDDistanceGridCollisionElement>*);
 
 protected:
 

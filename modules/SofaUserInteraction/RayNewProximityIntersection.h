@@ -47,7 +47,8 @@ namespace collision
 
 class SOFA_USER_INTERACTION_API RayNewProximityIntersection : public core::collision::BaseIntersector
 {
-    typedef NewProximityIntersection::OutputVector OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
 
 public:
     RayNewProximityIntersection(NewProximityIntersection* object, bool addSelf=true);
@@ -56,9 +57,9 @@ public:
     bool testIntersection(Ray& rRay, OBB& rOBB);
     bool testIntersection(Ray& rRay, RigidSphere& rSphere);
 
-    int computeIntersection(Ray& t1, Triangle& t2, OutputVector*);
-    int computeIntersection(Ray& rRay, OBB& rOBB, OutputVector*);
-    int computeIntersection(Ray& rRay, RigidSphere& rSphere, OutputVector*);
+    int computeIntersection(Ray& t1, Triangle& t2, OutputContainer<Ray, Triangle>*);
+    int computeIntersection(Ray& rRay, OBB& rOBB, OutputContainer<Ray, OBB>*);
+    int computeIntersection(Ray& rRay, RigidSphere& rSphere, OutputContainer<Ray, RigidSphere>*);
 
 
 protected:

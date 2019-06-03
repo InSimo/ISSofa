@@ -105,25 +105,17 @@ void RayTraceDetection::findPairsVolume (CubeModel * cm1, CubeModel * cm2)
 
     /* get the output vector for a TriangleOctreeModel, TriangleOctreeModel Collision*/
     /*Get the cube representing the bounding box of both Models */
-    // sofa::core::collision::DetectionOutputVector *& contacts=outputsMap[std::make_pair(tm1, tm2)];
-    core::collision::DetectionOutputContainer*& contacts = this->getDetectionOutputs(tm1, tm2);
-
-
-    if (contacts == NULL)
+    auto& contacts = this->getDetectionOutputs(tm1, tm2);
+    if (contacts.first == nullptr)
     {
-        contacts = new
-        sofa::core::collision::TDetectionOutputContainer <
-        TriangleOctreeModel, TriangleOctreeModel >;
-
+        contacts.first = new sofa::core::collision::TDetectionOutputContainer <TriangleOctreeModel, TriangleOctreeModel>;
+    }
+    if (contacts.second == nullptr)
+    {
+        contacts.second = new sofa::core::collision::TDetectionOutputContainer <TriangleOctreeModel, TriangleOctreeModel>;
     }
 
-
-
-
-    TDetectionOutputContainer < TriangleOctreeModel,
-                           TriangleOctreeModel > *outputs =
-                                   static_cast < TDetectionOutputContainer < TriangleOctreeModel,
-                                   TriangleOctreeModel > *>(contacts);
+    TDetectionOutputContainer < TriangleOctreeModel, TriangleOctreeModel > *outputs = static_cast < TDetectionOutputContainer < TriangleOctreeModel, TriangleOctreeModel > *>(contacts.first);
 
     Cube cube1 (cm1, 0);
     Cube cube2 (cm2, 0);
@@ -225,23 +217,22 @@ void RayTraceDetection::findPairsVolume (CubeModel * cm1, CubeModel * cm2)
                 (triang2.p1 () * (1.0 - res.u - res.v)) +
                 (triang2.p2 () * res.u) + (triang2.p3 () * res.v);
 
-            outputs->resize (outputs->size () + 1);
-            DetectionOutput *detection = &*(outputs->end () - 1);
+            DetectionOutput& detection = outputs->addDetectionOutput();
 
 
-            detection->elem =
+            detection.elem =
                 std::pair <
                 core::CollisionElementIterator,
                 core::CollisionElementIterator > (tri1, triang2);
-            detection->point[0] = point;
+            detection.point[0] = point;
 
-            detection->point[1] = Q;
+            detection.point[1] = Q;
 
-            detection->normal = normau[t];
+            detection.normal = normau[t];
 
-            detection->value = -(res.t);
+            detection.value = -(res.t);
 
-            detection->id = tri1.getIndex()*3+t;
+            detection.id = tri1.getIndex()*3+t;
             //found = true;
 
         }
@@ -323,7 +314,7 @@ void RayTraceDetection::draw (const core::visual::VisualParams* vparams)
                                TriangleOctreeModel > *outputs =
                                        static_cast <
                                        sofa::core::collision::TDetectionOutputContainer <
-                                       TriangleOctreeModel, TriangleOctreeModel > *>(it->second);
+                                       TriangleOctreeModel, TriangleOctreeModel > *>(it->second.first);
         for (TDetectionOutputContainer < TriangleOctreeModel,
                 TriangleOctreeModel >::iterator it2 = (outputs)->begin ();
                 it2 != outputs->end (); ++it2)

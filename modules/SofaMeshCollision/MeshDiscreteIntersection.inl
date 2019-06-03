@@ -97,7 +97,7 @@ bool MeshDiscreteIntersection::testIntersection( TSphere<T>& sph, Triangle& tria
 }
 
 template<class T>
-int MeshDiscreteIntersection::computeIntersection( TSphere<T>& sph, Triangle& triangle, OutputVector* contacts)
+int MeshDiscreteIntersection::computeIntersection( TSphere<T>& sph, Triangle& triangle, OutputContainer<TSphere<T>, Triangle>* contacts)
 {
     double EPSILON = 0.00001;
     //Vertices of the triangle:
@@ -141,17 +141,16 @@ int MeshDiscreteIntersection::computeIntersection( TSphere<T>& sph, Triangle& tr
 #define SAMESIDE(ap1,ap2,ap3,ap4) (((cross((ap4-ap3),(ap1-ap3))) * (cross((ap4-ap3),(ap2-ap3)))) >= 0)
     if ( (SAMESIDE(projPoint,p0,p1,p2) && SAMESIDE(projPoint,p1,p0,p2) && SAMESIDE(projPoint,p2,p0,p1)))
     {
-        contacts->resize(contacts->size()+1);
-        core::collision::DetectionOutput *detection = &*(contacts->end()-1);
-        detection->normal = -normal;
-        detection->point[1] = projPoint;
-        detection->point[0] = sph.getContactPointByNormal( detection->normal );
-        detection->value = -distance;
-        //detection->elem.first = triangle;
-        //detection->elem.second = sph;
-        detection->elem.first = sph;
-        detection->elem.second = triangle;
-        detection->id = sph.getIndex();
+        core::collision::DetectionOutput& detection = contacts->addDetectionOutput();
+        detection.normal = -normal;
+        detection.point[1] = projPoint;
+        detection.point[0] = sph.getContactPointByNormal( detection.normal );
+        detection.value = -distance;
+        //detection.elem.first = triangle;
+        //detection.elem.second = sph;
+        detection.elem.first = sph;
+        detection.elem.second = triangle;
+        detection.id = sph.getIndex();
         return 1;
     }
 #undef SAMESIDE
@@ -199,11 +198,11 @@ int MeshDiscreteIntersection::computeIntersection( TSphere<T>& sph, Triangle& tr
 }
 
 
-inline int MeshDiscreteIntersection::computeIntersection(Capsule & cap,Triangle & tri,OutputVector* contacts){
+inline int MeshDiscreteIntersection::computeIntersection(Capsule & cap,Triangle & tri,OutputContainer<Capsule, Triangle>* contacts){
     return MeshIntTool::computeIntersection(cap,tri,intersection->getAlarmDistance(),intersection->getContactDistance(),contacts);
 }
 
-inline int MeshDiscreteIntersection::computeIntersection(Capsule & cap,Line & lin,OutputVector* contacts){
+inline int MeshDiscreteIntersection::computeIntersection(Capsule & cap,Line & lin,OutputContainer<Capsule, Line>* contacts){
     return MeshIntTool::computeIntersection(cap,lin,intersection->getAlarmDistance(),intersection->getContactDistance(),contacts);
 }
 

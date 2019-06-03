@@ -60,8 +60,8 @@ public:
     typedef core::behavior::MechanicalState<DataTypes2> MechanicalState2;
     typedef typename CollisionModel1::Element CollisionElement1;
     typedef typename CollisionModel2::Element CollisionElement2;
-    typedef core::collision::DetectionOutputContainer OutputVector;
-    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputVector;
+    typedef core::collision::DetectionOutputContainer OutputContainer;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputContainer;
 
 protected:
     CollisionModel1* model1;
@@ -73,7 +73,7 @@ protected:
     constraintset::BilateralInteractionConstraint<sofa::defaulttype::Vec3Types>::SPtr m_constraint;
     core::objectmodel::BaseContext* parent;
 
-    std::vector< sofa::core::collision::DetectionOutput* > contacts;
+    std::vector< const sofa::core::collision::DetectionOutput* > contacts;
     std::vector< std::pair< std::pair<int, int>, double > > mappedContacts;
     void activateMappers();
 
@@ -95,7 +95,7 @@ public:
 
     std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }
 
-    void setDetectionOutputs(OutputVector* outputs) override;
+    void setDetectionOutputs(OutputContainer* outputs) override;
 
     void createResponse(core::objectmodel::BaseContext* group) override;
 

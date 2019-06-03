@@ -56,18 +56,20 @@ protected:
 	
 public:
 
-    typedef sofa::helper::vector< sofa::core::collision::DetectionOutput > OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
 
     /// Return the intersector class handling the given pair of collision models, or NULL if not supported.
     /// @param swapModel output value set to true if the collision models must be swapped before calling the intersector.
-    virtual core::collision::ElementIntersector* findIntersector(core::CollisionModel* object1, core::CollisionModel* object2, bool& swapModels);
+    virtual core::collision::ElementIntersector* findIntersector(core::CollisionModel* object1, core::CollisionModel* object2, bool& swapModels) override;
 
     core::collision::IntersectorMap intersectors;
     typedef core::collision::IntersectorFactory<DiscreteIntersection> IntersectorFactory;
 
     template <class Elem1,class Elem2>
-    int computeIntersection(Elem1 & e1,Elem2 & e2,OutputVector* contacts){
-        return BaseIntTool::computeIntersection(e1,e2,e1.getProximity() + e2.getProximity() + getAlarmDistance(),e1.getProximity() + e2.getProximity() + getContactDistance(),contacts);
+    int computeIntersection(Elem1 & e1,Elem2 & e2,OutputContainer<Elem1,Elem2>* contacts)
+    {
+        return BaseIntTool::computeIntersection(e1,e2,e1.getProximity() + e2.getProximity() + getAlarmDistance(),e1.getProximity() + e2.getProximity() + getContactDistance(), contacts);
     }
 
     template <class Elem1,class Elem2>

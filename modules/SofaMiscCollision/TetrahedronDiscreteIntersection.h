@@ -41,8 +41,8 @@ namespace collision
 {
 class SOFA_MISC_COLLISION_API TetrahedronDiscreteIntersection : public core::collision::BaseIntersector
 {
-
-    typedef DiscreteIntersection::OutputVector OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = DiscreteIntersection::OutputContainer<Elem1, Elem2>;
 
 public:
     TetrahedronDiscreteIntersection(DiscreteIntersection* object);
@@ -50,8 +50,8 @@ public:
     bool testIntersection(Tetrahedron&, Point&);
     bool testIntersection(Ray&, Tetrahedron&);
 
-    int computeIntersection(Tetrahedron&, Point&, OutputVector*);
-    int computeIntersection(Ray&, Tetrahedron&, OutputVector*);
+    int computeIntersection(Tetrahedron&, Point&, OutputContainer<Tetrahedron, Point>*);
+    int computeIntersection(Ray&, Tetrahedron&, OutputContainer<Ray, Tetrahedron>*);
 
 protected:
 

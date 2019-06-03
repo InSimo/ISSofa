@@ -48,7 +48,8 @@ namespace collision
 class SOFA_MESH_COLLISION_API MeshDiscreteIntersection : public core::collision::BaseIntersector
 {
 
-    typedef DiscreteIntersection::OutputVector OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
 
 public:
     MeshDiscreteIntersection(DiscreteIntersection* object, bool addSelf=true);
@@ -56,13 +57,13 @@ public:
     bool testIntersection(Triangle&, Line&);
     template<class T> bool testIntersection(TSphere<T>&, Triangle&);
 
-    int computeIntersection(Triangle& e1, Line& e2, OutputVector* contacts);
-    template<class T> int computeIntersection(TSphere<T>&, Triangle&, OutputVector*);
+    int computeIntersection(Triangle& e1, Line& e2, OutputContainer<Triangle, Line>* contacts);
+    template<class T> int computeIntersection(TSphere<T>&, Triangle&, OutputContainer<TSphere<T>, Triangle>*);
 
-    int computeIntersection(Triangle & e1,Capsule & e2, OutputVector* contacts);
+    int computeIntersection(Triangle & e1,Capsule & e2, OutputContainer<Triangle, Capsule>* contacts);
 
-    inline int computeIntersection(Capsule & cap,Triangle & tri,OutputVector* contacts);
-    inline int computeIntersection(Capsule & cap,Line & lin,OutputVector* contacts);
+    inline int computeIntersection(Capsule & cap,Triangle & tri,OutputContainer<Capsule, Triangle>* contacts);
+    inline int computeIntersection(Capsule & cap,Line & lin,OutputContainer<Capsule, Line>* contacts);
 
     bool testIntersection(Capsule&,Triangle&);
     bool testIntersection(Capsule&,Line&);

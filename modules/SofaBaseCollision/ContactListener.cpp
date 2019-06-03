@@ -107,7 +107,7 @@ namespace sofa
 
 							if ( mCollisionModel1 == collMod1 || mCollisionModel1 == collMod2 )
 							{
-								if ( const helper::vector<DetectionOutput>* contacts = dynamic_cast<helper::vector<DetectionOutput>*>(it->second) )
+                                if ( const helper::vector<DetectionOutput>* contacts = dynamic_cast<helper::vector<DetectionOutput>*>(it->second.first) )
 								{
 									mContactsVector.push_back( contacts );
 								}
@@ -124,7 +124,7 @@ namespace sofa
 
 							if ( (mCollisionModel1==collMod1 && mCollisionModel2==collMod2) || (mCollisionModel1==collMod2 && mCollisionModel2==collMod1) )
 							{
-								if ( const helper::vector<DetectionOutput>* contacts = dynamic_cast<helper::vector<DetectionOutput>*>(it->second) )
+                                if ( const helper::vector<DetectionOutput>* contacts = dynamic_cast<helper::vector<DetectionOutput>*>(it->second.first) )
 								{
 									mContactsVector.push_back( contacts );
 								}

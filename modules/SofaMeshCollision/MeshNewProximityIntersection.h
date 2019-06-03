@@ -48,11 +48,12 @@ namespace collision
 
 class SOFA_MESH_COLLISION_API MeshNewProximityIntersection : public core::collision::BaseIntersector
 {
-    typedef NewProximityIntersection::OutputVector OutputVector;
-
 public:
-    MeshNewProximityIntersection(NewProximityIntersection* object, bool addSelf=true);
+    template <class Elem1, class Elem2>
+    using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
 
+
+    MeshNewProximityIntersection(NewProximityIntersection* object, bool addSelf=true);
 
     template <class T1,class T2>
     bool testIntersection(T1 & e1,T2 & e2){
@@ -60,32 +61,37 @@ public:
     }
 
 
-    int computeIntersection(Point&, Point&, OutputVector*);
-    template <class T> int computeIntersection(TSphere<T>&, Point&, OutputVector*);
-    int computeIntersection(Line&, Point&, OutputVector*);
-    template <class T> int computeIntersection(Line&, TSphere<T>&, OutputVector*);
-    int computeIntersection(Line&, Line&, OutputVector*);
-    int computeIntersection(Triangle&, Point&, OutputVector*);
+    int computeIntersection(Point&, Point&, OutputContainer<Point, Point>*);
+    template <class T> int computeIntersection(TSphere<T>&, Point&, OutputContainer<TSphere<T>, Point>*);
+    int computeIntersection(Line&, Point&, OutputContainer<Line, Point>*);
+    template <class T> int computeIntersection(Line&, TSphere<T>&, OutputContainer<Line, TSphere<T>>*);
+    int computeIntersection(Line&, Line&, OutputContainer<Line, Line>*);
+    int computeIntersection(Triangle&, Point&, OutputContainer<Triangle, Point>*);
 
-    template <class T> int computeIntersection(Triangle&, TSphere<T>&, OutputVector*);
-    int computeIntersection(Triangle&, Line&, OutputVector*);
+    template <class T> int computeIntersection(Triangle&, TSphere<T>&, OutputContainer<Triangle, TSphere<T>>*);
+    int computeIntersection(Triangle&, Line&, OutputContainer<Triangle, Line>*);
 
-    int computeIntersection(Triangle&, Triangle&, OutputVector*);
+    int computeIntersection(Triangle&, Triangle&, OutputContainer<Triangle, Triangle>*);
 
     template <class T1,class T2>
-    int computeIntersection(T1 & e1,T2 & e2,OutputVector* contacts){
+    int computeIntersection(T1 & e1,T2 & e2,OutputContainer<T1, T2>* contacts){
         return MeshIntTool::computeIntersection(e1,e2,e1.getProximity() + e2.getProximity() + intersection->getAlarmDistance(),e1.getProximity() + e2.getProximity() + intersection->getContactDistance(),contacts);
     }
 
-    static inline int doIntersectionLineLine(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& q1, const defaulttype::Vector3& q2, OutputVector* contacts, int id);
+    template<class TOutputContainer>
+    static inline int doIntersectionLineLine(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& q1, const defaulttype::Vector3& q2, TOutputContainer* contacts, int id);
 
-    static inline int doIntersectionLinePoint(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems = false);
+    template<class TOutputContainer>
+    static inline int doIntersectionLinePoint(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& q, TOutputContainer* contacts, int id, bool swapElems = false);
 
-    static inline int doBarycentricIntersectionLinePoint(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& barycentre, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems = false);
+    template<class TOutputContainer>
+    static inline int doBarycentricIntersectionLinePoint(SReal dist2, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& barycentre, const defaulttype::Vector3& q, TOutputContainer* contacts, int id, bool swapElems = false);
 
-    static inline int doIntersectionTrianglePoint(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& n, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems = false);
+    template<class TOutputContainer>
+    static inline int doIntersectionTrianglePoint(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& n, const defaulttype::Vector3& q, TOutputContainer* contacts, int id, bool swapElems = false);
 
-    static inline int doIntersectionTrianglePoint2(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& n, const defaulttype::Vector3& q, OutputVector* contacts, int id, bool swapElems = false);
+    template<class TOutputContainer>
+    static inline int doIntersectionTrianglePoint2(SReal dist2, int flags, const defaulttype::Vector3& p1, const defaulttype::Vector3& p2, const defaulttype::Vector3& p3, const defaulttype::Vector3& n, const defaulttype::Vector3& q, TOutputContainer* contacts, int id, bool swapElems = false);
 
 protected:
 

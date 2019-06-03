@@ -59,8 +59,6 @@ private:
     sofa::helper::vector < core::CollisionModel * >collisionModels;
     Data < bool > bDraw;
 
-public:
-    typedef sofa::helper::vector<sofa::core::collision::DetectionOutput>    OutputVector;
 protected:
     RayTraceDetection ();
 public:

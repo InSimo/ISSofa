@@ -49,8 +49,8 @@ public:
     typedef TCollisionModel1 CollisionModel1;
     typedef TCollisionModel2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
-    typedef core::collision::DetectionOutputContainer OutputVector;
-    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputVector;
+    typedef core::collision::DetectionOutputContainer OutputContainer;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1,CollisionModel2> TOutputContainer;
     typedef ResponseDataTypes DataTypes1;
     typedef ResponseDataTypes DataTypes2;
     typedef core::behavior::MechanicalState<DataTypes1> MechanicalState1;
@@ -87,7 +87,7 @@ public:
 
     std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }
 
-    void setDetectionOutputs(OutputVector* outputs) override;
+    void setDetectionOutputs(OutputContainer* outputs) override;
 
     void createResponse(core::objectmodel::BaseContext* group) override;
 

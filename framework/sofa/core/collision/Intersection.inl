@@ -54,17 +54,21 @@ public:
         return impl->testIntersection(e1, e2);
     }
 
-    /// Begin intersection tests between two collision models. Return the number of contacts written in the contacts vector.
-    /// If the given contacts vector is NULL, then this method should allocate it.
-    int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, DetectionOutputContainer*& contacts)
+    /// Begin intersection tests between two collision models. Return the number of contacts written in the first (current) contacts vector.
+    /// If any of the given contacts vector is NULL, then this method should allocate it.
+    int beginIntersect(core::CollisionModel* model1, core::CollisionModel* model2, std::pair<DetectionOutputContainer*, DetectionOutputContainer*>& contacts)
     {
         Model1* m1 = static_cast<Model1*>(model1);
         Model2* m2 = static_cast<Model2*>(model2);
-        if (contacts == NULL)
+        if (contacts.first == nullptr)
         {
-            contacts = createOutputVector(m1,m2);
+            contacts.first = createOutputContainer(m1, m2);
         }
-        return impl->beginIntersection(m1, m2, getOutputVector(m1, m2, contacts));
+        if (contacts.second == nullptr)
+        {
+            contacts.second = createOutputContainer(m1, m2);
+        }
+        return impl->beginIntersection(m1, m2, getOutputContainer(m1, m2, contacts.first));
     }
 
     /// Compute the intersection between 2 elements.
@@ -74,7 +78,7 @@ public:
         Model2* m2 = static_cast<Model2*>(elem2.getCollisionModel());
         Elem1 e1(m1, elem1.getIndex());
         Elem2 e2(m2, elem2.getIndex());
-        return impl->computeIntersection(e1, e2, getOutputVector<Model1,Model2>( contacts ) );
+        return impl->computeIntersection(e1, e2, getOutputContainer<Model1,Model2>( contacts ) );
     }
 
     std::string name() const
@@ -87,7 +91,7 @@ public:
     {
         Model1* m1 = static_cast<Model1*>(model1);
         Model2* m2 = static_cast<Model2*>(model2);
-        return impl->endIntersection(m1, m2, getOutputVector(m1, m2, contacts));
+        return impl->endIntersection(m1, m2, getOutputContainer(m1, m2, contacts));
     }
 
 protected:

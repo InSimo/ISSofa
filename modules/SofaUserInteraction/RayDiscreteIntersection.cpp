@@ -72,7 +72,7 @@ bool RayDiscreteIntersection::testIntersection(Ray&, Triangle&)
     return true;
 }
 
-int RayDiscreteIntersection::computeIntersection(Ray& e1, Triangle& e2, OutputVector* contacts)
+int RayDiscreteIntersection::computeIntersection(Ray& e1, Triangle& e2, OutputContainer<Ray, Triangle>* contacts)
 {
     Vector3 A = e2.p1();
     Vector3 AB = e2.p2()-A;
@@ -98,15 +98,14 @@ int RayDiscreteIntersection::computeIntersection(Ray& e1, Triangle& e2, OutputVe
 
     Vector3 X = P+PQ*baryCoords[2];
 
-    contacts->resize(contacts->size()+1);
-    DetectionOutput *detection = &*(contacts->end()-1);
-    detection->point[0] = X;
-    detection->point[1] = X;
-    detection->normal = -e2.n();
-    detection->value = 0;
-    detection->elem.first = e1;
-    detection->elem.second = e2;
-    detection->id = e1.getIndex();
+    DetectionOutput& detection = contacts->addDetectionOutput();
+    detection.point[0] = X;
+    detection.point[1] = X;
+    detection.normal = -e2.n();
+    detection.value = 0;
+    detection.elem.first = e1;
+    detection.elem.second = e2;
+    detection.id = e1.getIndex();
     return 1;
 }
 

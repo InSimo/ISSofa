@@ -10,7 +10,7 @@ namespace collision
 
 
 template <class DataTypes1,class DataTypes2>
-int CapsuleIntTool::computeIntersection(TCapsule<DataTypes1> & e1,TCapsule<DataTypes2> & e2,SReal alarmDist,SReal contactDist,OutputVector * contacts){
+int CapsuleIntTool::computeIntersection(TCapsule<DataTypes1> & e1,TCapsule<DataTypes2> & e2,SReal alarmDist,SReal contactDist,OutputContainer<TCapsule<DataTypes1>, TCapsule<DataTypes2>>* contacts){
     using namespace sofa::defaulttype;
     if(shareSameVertex(e1,e2))
         return 0;
@@ -176,24 +176,23 @@ int CapsuleIntTool::computeIntersection(TCapsule<DataTypes1> & e1,TCapsule<DataT
     if (norm2 > contact_exists * contact_exists)
         return 0;
 
-    contacts->resize(contacts->size()+1);
-    sofa::core::collision::DetectionOutput *detection = &*(contacts->end()-1);
+    sofa::core::collision::DetectionOutput& detection = contacts->addDetectionOutput();
 
     const SReal theory_contactDist = e1.radius() + e2.radius() + contactDist;
 
-    detection->elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
-    detection->id = (e1.getCollisionModel()->getSize() > e2.getCollisionModel()->getSize()) ? e1.getIndex() : e2.getIndex();
-    detection->value = helper::rsqrt( norm2 );
-    detection->normal = PQ / detection->value;
-    detection->point[0] = P + e1.radius() * detection->normal;
-    detection->point[1] = Q - e2.radius() * detection->normal;
+    detection.elem = std::pair<core::CollisionElementIterator, core::CollisionElementIterator>(e1, e2);
+    detection.id = (e1.getCollisionModel()->getSize() > e2.getCollisionModel()->getSize()) ? e1.getIndex() : e2.getIndex();
+    detection.value = helper::rsqrt( norm2 );
+    detection.normal = PQ / detection.value;
+    detection.point[0] = P + e1.radius() * detection.normal;
+    detection.point[1] = Q - e2.radius() * detection.normal;
 
-    detection->value -= theory_contactDist;
+    detection.value -= theory_contactDist;
     return 1;
 }
 
 template <class DataTypes>
-int CapsuleIntTool::computeIntersection(TCapsule<DataTypes> & cap, OBB& obb,SReal alarmDist,SReal contactDist,OutputVector* contacts){
+int CapsuleIntTool::computeIntersection(TCapsule<DataTypes> & cap, OBB& obb,SReal alarmDist,SReal contactDist,OutputContainer<TCapsule<DataTypes>, OBB>* contacts){
     using namespace sofa::defaulttype;
     TIntrCapsuleOBB<DataTypes,RigidTypes> intr(cap,obb);
     if(intr.Find(alarmDist)){
@@ -201,22 +200,21 @@ int CapsuleIntTool::computeIntersection(TCapsule<DataTypes> & cap, OBB& obb,SRea
         if((!intr.colliding()) && dist2 > alarmDist * alarmDist)
             return 0;
 
-        contacts->resize(contacts->size()+1);
-        sofa::core::collision::DetectionOutput *detection = &*(contacts->end()-1);
+        sofa::core::collision::DetectionOutput& detection = contacts->addDetectionOutput();
 
-        detection->normal = intr.separatingAxis();
-        detection->point[0] = intr.pointOnFirst();
-        detection->point[1] = intr.pointOnSecond();
+        detection.normal = intr.separatingAxis();
+        detection.point[0] = intr.pointOnFirst();
+        detection.point[1] = intr.pointOnSecond();
 
         if(intr.colliding())
-            detection->value = -helper::rsqrt(dist2) - contactDist;
+            detection.value = -helper::rsqrt(dist2) - contactDist;
         else
-            detection->value = helper::rsqrt(dist2) - contactDist;
+            detection.value = helper::rsqrt(dist2) - contactDist;
 
-        detection->elem.first = cap;
-        detection->elem.second = obb;
-        //detection->id = (cap.getCollisionModel()->getSize() > obb.getCollisionModel()->getSize()) ? cap.getIndex() : obb.getIndex();
-        detection->id = cap.getIndex();
+        detection.elem.first = cap;
+        detection.elem.second = obb;
+        //detection.id = (cap.getCollisionModel()->getSize() > obb.getCollisionModel()->getSize()) ? cap.getIndex() : obb.getIndex();
+        detection.id = cap.getIndex();
 
         return 1;
     }

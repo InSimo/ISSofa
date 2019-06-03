@@ -139,7 +139,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 				Contact::SPtr contact = Contact::Create(responseUsed, model1, model2, intersectionMethod,
 					this->f_printLog.getValue());
 
-				if (contact == NULL)
+                if (contact == nullptr)
 				{
 					std::string model1class = model1->getClassName();
 					std::string model2class = model2->getClassName();
@@ -172,14 +172,14 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 					setContactTags(model1, model2, contact);
 					contact->f_printLog.setValue(this->f_printLog.getValue());
 					contact->init();
-					contact->setDetectionOutputs(outputsIt->second);
+                    contact->setDetectionOutputs(outputsIt->second.first);
 					++nbContact;
 				}
 			}
 		}
 		else
 		{
-            contactIt->second->setDetectionOutputs(outputsIt->second);
+            contactIt->second->setDetectionOutputs(outputsIt->second.first);
             ++nbContact;
 		}
 	}
@@ -201,7 +201,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
             // inactive contact
             if (contactIt->second->keepAlive())
             {
-				contactIt->second->setDetectionOutputs(NULL);
+                contactIt->second->setDetectionOutputs(nullptr);
                 ++nbContact;
             }
             else
@@ -264,7 +264,7 @@ void DefaultContactManager::draw(const core::visual::VisualParams* vparams)
 {
     for (sofa::helper::vector<core::collision::Contact::SPtr>::iterator it = contacts.begin(); it!=contacts.end(); ++it)
     {
-        if ((*it)!=NULL)
+        if ((*it)!=nullptr)
             (*it)->draw(vparams);
     }
 }

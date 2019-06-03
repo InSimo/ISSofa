@@ -305,8 +305,8 @@ void DefaultPipeline::draw(const core::visual::VisualParams* )
     for (DetectionOutputMap::iterator it = outputsMap.begin(); it!=outputsMap.end(); it++)
     {
         /*
-        DetectionOutputVector& outputs = it->second;
-        for (DetectionOutputVector::iterator it2 = outputs.begin(); it2!=outputs.end(); it2++)
+        DetectionOutputContainer& outputs = it->second.first;
+        for (DetectionOutputContainer::iterator it2 = outputs.begin(); it2!=outputs.end(); it2++)
         {
             DetectionOutput* d = &*it2;
             if (d->distance<0)

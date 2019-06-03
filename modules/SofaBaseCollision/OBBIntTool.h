@@ -11,17 +11,18 @@ namespace collision{
 
 class SOFA_BASE_COLLISION_API OBBIntTool{
 public:
-    typedef sofa::helper::vector<sofa::core::collision::DetectionOutput> OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
     typedef sofa::core::collision::DetectionOutput DetectionOutput;
 
-    static int computeIntersection(OBB&, OBB&,SReal alarmDist,SReal contactDist,OutputVector* contacts);
+    static int computeIntersection(OBB&, OBB&,SReal alarmDist,SReal contactDist,OutputContainer<OBB, OBB>* contacts);
 
     template <class DataTypes>
-    static int computeIntersection(TSphere<DataTypes> &sph1, OBB &box,SReal alarmDist,SReal contactDist,OutputVector* contacts);
+    static int computeIntersection(TSphere<DataTypes> &sph1, OBB &box,SReal alarmDist,SReal contactDist,OutputContainer<TSphere<DataTypes>, OBB>* contacts);
 };
 
 template <class DataTypes>
-int OBBIntTool::computeIntersection(TSphere<DataTypes> & sphere,OBB & box,SReal alarmDist,SReal contactDist,OutputVector* contacts){
+int OBBIntTool::computeIntersection(TSphere<DataTypes> & sphere,OBB & box,SReal alarmDist,SReal contactDist,OutputContainer<TSphere<DataTypes>, OBB>* contacts){
     TIntrSphereOBB<DataTypes,OBB::DataTypes> intr(sphere,box);
     //double max_time = helper::rsqrt((alarmDist * alarmDist)/((box1.lvelocity() - box0.lvelocity()).norm2()));
     if(/*intr.Find(max_time,box0.lvelocity(),box1.lvelocity())*/intr.Find()){
@@ -29,22 +30,21 @@ int OBBIntTool::computeIntersection(TSphere<DataTypes> & sphere,OBB & box,SReal 
         if((!intr.colliding()) && dist > alarmDist)
             return 0;
 
-        contacts->resize(contacts->size()+1);
-        DetectionOutput *detection = &*(contacts->end()-1);
+        DetectionOutput& detection = contacts->addDetectionOutput();
 
-        detection->normal = intr.separatingAxis();
-        detection->point[0] = sphere.getContactPointWithSurfacePoint( intr.pointOnFirst() );
-        detection->point[1] = intr.pointOnSecond();
+        detection.normal = intr.separatingAxis();
+        detection.point[0] = sphere.getContactPointWithSurfacePoint( intr.pointOnFirst() );
+        detection.point[1] = intr.pointOnSecond();
 
         if(intr.colliding())
-            detection->value = -dist - contactDist;
+            detection.value = -dist - contactDist;
         else
-            detection->value = dist - contactDist;
+            detection.value = dist - contactDist;
 
-        detection->elem.first = sphere;
-        detection->elem.second = box;
-        //detection->id = (box.getCollisionModel()->getSize() > sphere.getCollisionModel()->getSize()) ? box.getIndex() : sphere.getIndex();
-        detection->id = sphere.getIndex();
+        detection.elem.first = sphere;
+        detection.elem.second = box;
+        //detection.id = (box.getCollisionModel()->getSize() > sphere.getCollisionModel()->getSize()) ? box.getIndex() : sphere.getIndex();
+        detection.id = sphere.getIndex();
 
 
         return 1;

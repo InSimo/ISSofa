@@ -92,9 +92,9 @@ void FrictionContact<TCollisionModel1,TCollisionModel2>::cleanup()
 
 
 template < class TCollisionModel1, class TCollisionModel2>
-void FrictionContact<TCollisionModel1,TCollisionModel2>::setDetectionOutputs(OutputVector* o)
+void FrictionContact<TCollisionModel1,TCollisionModel2>::setDetectionOutputs(OutputContainer* o)
 {
-    TOutputVector& outputs = *static_cast<TOutputVector*>(o);
+    TOutputContainer& outputs = *static_cast<TOutputContainer*>(o);
     // We need to remove duplicate contacts
     const double minDist2 = 0.00000001f;
 
@@ -108,23 +108,19 @@ void FrictionContact<TCollisionModel1,TCollisionModel2>::setDetectionOutputs(Out
 
     contacts.reserve(outputs.size());
 
-    int SIZE = outputs.size();
-
     // the following procedure cancels the duplicated detection outputs
-    for (int cpt=0; cpt<SIZE; cpt++)
+    for (const sofa::core::collision::DetectionOutput& o : outputs)
     {
-        sofa::core::collision::DetectionOutput* o = &outputs[cpt];
-
         bool found = false;
         for (unsigned int i=0; i<contacts.size() && !found; i++)
         {
-            sofa::core::collision::DetectionOutput* p = contacts[i];
-            if ((o->point[0]-p->point[0]).norm2()+(o->point[1]-p->point[1]).norm2() < minDist2)
+            const sofa::core::collision::DetectionOutput* p = contacts[i];
+            if ((o.point[0]-p->point[0]).norm2()+(o.point[1]-p->point[1]).norm2() < minDist2)
                 found = true;
         }
 
         if (!found)
-            contacts.push_back(o);
+            contacts.push_back(&o);
     }
 
     if (contacts.size()<outputs.size() && this->f_printLog.getValue())
@@ -175,9 +171,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2>::activateMappers()
     //std::cout<<" d0 = "<<d0<<std::endl;
 
     mappedContacts.resize(contacts.size());
-    for (std::vector<sofa::core::collision::DetectionOutput*>::const_iterator it = contacts.begin(); it!=contacts.end(); it++, i++)
+    for (const sofa::core::collision::DetectionOutput* o : contacts)
     {
-        sofa::core::collision::DetectionOutput* o = *it;
         //std::cout<<" collisionElements :"<<o->elem.first<<" - "<<o->elem.second<<std::endl;
         CollisionElement1 elem1(o->elem.first);
         CollisionElement2 elem2(o->elem.second);
@@ -243,9 +238,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2>::createResponse(core::ob
     int i=0;
     if (m_constraint)
     {
-        for (std::vector<sofa::core::collision::DetectionOutput*>::const_iterator it = contacts.begin(); it!=contacts.end(); it++, i++)
+        for (const sofa::core::collision::DetectionOutput* o : contacts)
         {
-            sofa::core::collision::DetectionOutput* o = *it;
             int index1 = mappedContacts[i].first.first;
             int index2 = mappedContacts[i].first.second;
             double distance = mappedContacts[i].second;

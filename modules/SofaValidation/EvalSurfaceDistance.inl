@@ -122,33 +122,33 @@ SReal EvalSurfaceDistance<DataTypes>::eval()
 
     while (it != itend)
     {
-        const ContactVector* contacts = dynamic_cast<const ContactVector*>(it->second);
+        const ContactContainer* contacts = dynamic_cast<const ContactContainer*>(it->second.first);
         if (contacts != NULL)
         {
             sout << contacts->size() << " contacts detected." << sendl;
-            for (unsigned int i=0; i<contacts->size(); i++)
+            for (const core::collision::DetectionOutput& o : *contacts)
             {
-                if ((*contacts)[i].elem.first.getCollisionModel() == surfaceCM)
+                if (o.elem.first.getCollisionModel() == surfaceCM)
                 {
-                    if ((*contacts)[i].elem.second.getCollisionModel() == pointsCM)
+                    if (o.elem.second.getCollisionModel() == pointsCM)
                     {
-                        int pi = (*contacts)[i].elem.second.getIndex();
-                        if ((*contacts)[i].value < dmin[pi])
+                        int pi = o.elem.second.getIndex();
+                        if (o.value < dmin[pi])
                         {
-                            dmin[pi] = (Real)((*contacts)[i].value);
-                            xproj[pi] = (*contacts)[i].point[0];
+                            dmin[pi] = (Real)(o.value);
+                            xproj[pi] = o.point[0];
                         }
                     }
                 }
-                else if ((*contacts)[i].elem.second.getCollisionModel() == surfaceCM)
+                else if (o.elem.second.getCollisionModel() == surfaceCM)
                 {
-                    if ((*contacts)[i].elem.first.getCollisionModel() == pointsCM)
+                    if (o.elem.first.getCollisionModel() == pointsCM)
                     {
-                        int pi = (*contacts)[i].elem.first.getIndex();
-                        if ((*contacts)[i].value < dmin[pi])
+                        int pi = o.elem.first.getIndex();
+                        if (o.value < dmin[pi])
                         {
-                            dmin[pi] = (Real)((*contacts)[i].value);
-                            xproj[pi] = (*contacts)[i].point[1];
+                            dmin[pi] = (Real)(o.value);
+                            xproj[pi] = o.point[1];
                         }
                     }
                 }

@@ -80,7 +80,7 @@ public:
     typedef RayModel CollisionModel1;
     typedef CM2 CollisionModel2;
     typedef core::collision::Intersection Intersection;
-    typedef core::collision::TDetectionOutputContainer<CollisionModel1, CollisionModel2> OutputVector;
+    typedef core::collision::TDetectionOutputContainer<CollisionModel1, CollisionModel2> OutputContainer;
 protected:
     CollisionModel2* model2;
     core::objectmodel::BaseContext* parent;
@@ -92,11 +92,11 @@ public:
 
     void setDetectionOutputs(core::collision::DetectionOutputContainer* outputs) override
     {
-        OutputVector* o = static_cast<OutputVector*>(outputs);
+        OutputContainer* o = static_cast<OutputContainer*>(outputs);
         //collisions = outputs;
         collisions.resize(o->size());
         for (unsigned int i=0; i< o->size(); ++i)
-            collisions[i] = &(*o)[i];
+            collisions[i] = &(*o)[typename OutputContainer::DetectionOutputID(i)];
     }
 
     std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }

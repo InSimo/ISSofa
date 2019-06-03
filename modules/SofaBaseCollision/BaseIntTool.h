@@ -21,7 +21,8 @@ namespace collision
 
 class SOFA_BASE_COLLISION_API BaseIntTool : public CapsuleIntTool,public OBBIntTool{
 public:
-    typedef sofa::helper::vector<sofa::core::collision::DetectionOutput> OutputVector;
+    template <class Elem1, class Elem2>
+    using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
 
     template <class Elem1,class Elem2>
     static bool testIntersection(Elem1&,Elem2&,SReal){
@@ -40,11 +41,8 @@ public:
     }
 
 
-
-
-
     template <class DataTypes1,class DataTypes2>
-    static int computeIntersection(TSphere<DataTypes1>& sph1, TSphere<DataTypes2>& sph2,SReal alarmDist,SReal contactDist,OutputVector* contacts)
+    static int computeIntersection(TSphere<DataTypes1>& sph1, TSphere<DataTypes2>& sph2,SReal alarmDist,SReal contactDist,OutputContainer<TSphere<DataTypes1>, TSphere<DataTypes2>>* contacts)
     {
         SReal r = sph1.r() + sph2.r();
         SReal myAlarmDist = alarmDist + r;
@@ -54,17 +52,16 @@ public:
         if (norm2 > myAlarmDist*myAlarmDist)
             return 0;
 
-        contacts->resize(contacts->size()+1);
-        DetectionOutput *detection = &*(contacts->end()-1);
+        DetectionOutput& detection = contacts->addDetectionOutput();
         SReal distSph1Sph2 = helper::rsqrt(norm2);
-        detection->normal = dist / distSph1Sph2;
-        detection->point[0] = sph1.getContactPointByNormal( -detection->normal );
-        detection->point[1] = sph2.getContactPointByNormal( detection->normal );
+        detection.normal = dist / distSph1Sph2;
+        detection.point[0] = sph1.getContactPointByNormal( -detection.normal );
+        detection.point[1] = sph2.getContactPointByNormal( detection.normal );
 
-        detection->value = distSph1Sph2 - r - contactDist;
-        detection->elem.first = sph1;
-        detection->elem.second = sph2;
-        detection->id = (sph1.getCollisionModel()->getSize() > sph2.getCollisionModel()->getSize()) ? sph1.getIndex() : sph2.getIndex();
+        detection.value = distSph1Sph2 - r - contactDist;
+        detection.elem.first = sph1;
+        detection.elem.second = sph2;
+        detection.id = (sph1.getCollisionModel()->getSize() > sph2.getCollisionModel()->getSize()) ? sph1.getIndex() : sph2.getIndex();
 
         return 1;
     }
@@ -72,30 +69,30 @@ public:
 
 
     template <class DataTypes1,class DataTypes2>
-    inline static int computeIntersection(TCapsule<DataTypes1> &c1, TCapsule<DataTypes2> &c2, SReal alarmDist, SReal contactDist, OutputVector *contacts){
+    inline static int computeIntersection(TCapsule<DataTypes1> &c1, TCapsule<DataTypes2> &c2, SReal alarmDist, SReal contactDist, OutputContainer<TCapsule<DataTypes1>, TCapsule<DataTypes2>> *contacts){
         return CapsuleIntTool::computeIntersection(c1,c2,alarmDist,contactDist,contacts);
     }
 
     template <class DataTypes1,class DataTypes2>
-    inline static int computeIntersection(TCapsule<DataTypes1> &cap, TSphere<DataTypes2> &sph, SReal alarmDist, SReal contactDist, OutputVector *contacts){
+    inline static int computeIntersection(TCapsule<DataTypes1> &cap, TSphere<DataTypes2> &sph, SReal alarmDist, SReal contactDist, OutputContainer<TCapsule<DataTypes1>, TSphere<DataTypes2>> *contacts){
         return CapsuleIntTool::computeIntersection(cap,sph,alarmDist,contactDist,contacts);
     }
 
     template <class DataTyes>
-    inline static int computeIntersection(TCapsule<DataTyes> &cap, OBB & obb, SReal alarmDist, SReal contactDist, OutputVector *contacts){
+    inline static int computeIntersection(TCapsule<DataTyes> &cap, OBB & obb, SReal alarmDist, SReal contactDist, OutputContainer<TCapsule<DataTyes>, OBB> *contacts){
         return CapsuleIntTool::computeIntersection(cap,obb,alarmDist,contactDist,contacts);
     }
 
-    inline static int computeIntersection(OBB &obb0, OBB &obb1, SReal alarmDist, SReal contactDist, OutputVector *contacts){
+    inline static int computeIntersection(OBB &obb0, OBB &obb1, SReal alarmDist, SReal contactDist, OutputContainer<OBB, OBB> *contacts){
         return OBBIntTool::computeIntersection(obb0,obb1,alarmDist,contactDist,contacts);
     }
 
     template <class DataType>
-    inline static int computeIntersection(TSphere<DataType> &sph, OBB &obb, SReal alarmDist, SReal contactDist, OutputVector *contacts){
+    inline static int computeIntersection(TSphere<DataType> &sph, OBB &obb, SReal alarmDist, SReal contactDist, OutputContainer<TSphere<DataType>, OBB> *contacts){
         return OBBIntTool::computeIntersection(sph,obb,alarmDist,contactDist,contacts);
     }
 
-    inline static int computeIntersection(Cube&, Cube&, SReal, SReal, OutputVector *){
+    inline static int computeIntersection(Cube&, Cube&, SReal, SReal, OutputContainer<Cube, Cube> *){
         return 0;
     }
 
