@@ -73,8 +73,8 @@ public:
 
     int computeIntersection(Triangle&, Triangle&, OutputContainer<Triangle, Triangle>*);
 
-    template <class T1,class T2>
-    int computeIntersection(T1 & e1,T2 & e2,OutputContainer<T1, T2>* contacts){
+    template <class T1,class T2,class TOutputContainer>
+    int computeIntersection(T1 & e1,T2 & e2,TOutputContainer* contacts){
         return MeshIntTool::computeIntersection(e1,e2,e1.getProximity() + e2.getProximity() + intersection->getAlarmDistance(),e1.getProximity() + e2.getProximity() + intersection->getContactDistance(),contacts);
     }
 
