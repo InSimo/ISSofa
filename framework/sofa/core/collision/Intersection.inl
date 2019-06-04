@@ -78,7 +78,7 @@ public:
         Model2* m2 = static_cast<Model2*>(elem2.getCollisionModel());
         Elem1 e1(m1, elem1.getIndex());
         Elem2 e2(m2, elem2.getIndex());
-        return impl->computeIntersection(e1, e2, getOutputContainer<Model1,Model2>( contacts ) );
+        return impl->computeIntersection(e1, e2, getOutputContainer(m1, m2, contacts));
     }
 
     std::string name() const
