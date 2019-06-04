@@ -31,6 +31,7 @@
 #include <sofa/core/objectmodel/DataFileName.h>
 #include <sofa/SofaBase.h>
 #include <sofa/defaulttype/VecTypes.h>
+#include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/helper/accessor.h>
 //#include <SofaMeshCollision/RigidContactMapper.h>
 #include <sofa/core/collision/CollisionModelTraits.h>
