@@ -104,6 +104,7 @@ public:
     Data<sofa::helper::vector<CPos>> vradius;
     Data<Real> stiffness;
     Data<Real> damping;
+    Data<sofa::helper::vector< unsigned > >  d_indices;
     Data<defaulttype::Vec3f> color;
     Data<bool> bDraw;
     Data<int>  nbContact;
@@ -114,6 +115,7 @@ protected:
         , vradius(initData(&vradius, "vradius", "ellipsoid radius"))
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness (positive to repulse outward, negative inward)"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
+        , d_indices(initData(&d_indices, "indices","If not empty the list of indices where this forcefield is applied"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,0.5f,1.0f), "color", "ellipsoid color"))
         , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the ellipsoid"))
         , nbContact(initData(&nbContact, (int)0, "nbContact", "number of contact outside ellipsoid"))

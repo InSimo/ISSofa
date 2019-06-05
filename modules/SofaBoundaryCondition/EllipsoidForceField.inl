@@ -74,6 +74,7 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
     const VecCoord& p1  =   dataX.getValue()  ;
     const VecDeriv& v1  =   dataV.getValue()  ;
 
+    sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector<unsigned > > > indices = d_indices;
     const sofa::helper::vector<CPos> vcenter = this->center.getValue();
     const sofa::helper::vector<CPos> vr = this->vradius.getValue();
     const Real stiffness = this->stiffness.getValue();
@@ -87,64 +88,131 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
     sofa::helper::vector<Contact>* contacts = this->contacts.beginEdit();
     contacts->clear();
     f1.resize(p1.size());
-    for (unsigned int i = 0; i < p1.size(); i++)
-    {
-        CPos bdp;
-        Real bnorm2 = -1;
-        int be = -1;
 
-        for (unsigned int e = 0; e < nelems; ++e)
+    if(indices.empty() )
+    {
+        for (unsigned int i = 0; i < p1.size(); i++)
         {
-            CPos dp = DataTypes::getCPos(p1[i]) - vcenter[e];
-            for (int j = 0; j < N; j++)
+            CPos bdp;
+            Real bnorm2 = -1;
+            int be = -1;
+
+            for (unsigned int e = 0; e < nelems; ++e)
             {
-                inv_r2[e][j] = 1 / (vr[e][j] * vr[e][j]);
+                CPos dp = DataTypes::getCPos(p1[i]) - vcenter[e];
+                for (int j = 0; j < N; j++)
+                {
+                    inv_r2[e][j] = 1 / (vr[e][j] * vr[e][j]);
+                }
+                Real norm2 = 0;
+                for (int j = 0; j < N; j++)
+                {
+                    norm2 += (dp[j] * dp[j]) * inv_r2[e][j];
+                }
+                if (be == -1 || norm2 < bnorm2)
+                {
+                    bnorm2 = norm2;
+                    be = e;
+                    bdp = dp;
+                }
             }
-            Real norm2 = 0;
-            for (int j = 0; j < N; j++)
+
+            if ((bnorm2-1)*stiffness<0)
             {
-                norm2 += (dp[j] * dp[j]) * inv_r2[e][j];
-            }
-            if (be == -1 || norm2 < bnorm2)
-            {
-                bnorm2 = norm2;
-                be = e;
-                bdp = dp;
+                int e = be;
+                Real norm = helper::rsqrt(bnorm2);
+                Real v = norm-1;
+                DPos grad;
+                for (int j = 0; j < N; j++)
+                {
+                    grad[j] = bdp[j] * inv_r2[e][j];
+                }
+                Real gnorm2 = grad.norm2();
+                Real gnorm = helper::rsqrt(gnorm2);
+                //grad /= gnorm; //.normalize();
+                Real forceIntensity = -stiffabs*v/gnorm;
+                Real dampingIntensity = this->damping.getValue()*helper::rabs(v);
+                DPos force = grad*forceIntensity - DataTypes::getDPos(v1[i])*dampingIntensity;
+                //f1[i]+=force;
+                DataTypes::setDPos(f1[i],DataTypes::getDPos(f1[i])+force);
+                Contact c;
+                c.index = i;
+                Real fact1 = -stiffabs / (norm * gnorm);
+                Real fact2 = -stiffabs*v / gnorm;
+                Real fact3 = -stiffabs*v / gnorm2;
+                for (int ci = 0; ci < N; ++ci)
+                {
+                    for (int cj = 0; cj < N; ++cj)
+                    {
+                        c.m[ci][cj] = grad[ci] * grad[cj] * (fact1 + fact3 * inv_r2[e][cj]);
+                    }
+                    c.m[ci][ci] += fact2 * inv_r2[e][ci];
+                }
+                contacts->push_back(c);
             }
         }
-
-        if ((bnorm2-1)*stiffness<0)
+    }
+    else
+    {
+        for(std::size_t ind=0;ind<indices.size();++ind)
         {
-            int e = be;
-            Real norm = helper::rsqrt(bnorm2);
-            Real v = norm-1;
-            DPos grad;
-            for (int j = 0; j < N; j++)
+            CPos bdp;
+            Real bnorm2 = -1;
+            int be = -1;
+
+            for (unsigned int e = 0; e < nelems; ++e)
             {
-                grad[j] = bdp[j] * inv_r2[e][j];
-            }
-            Real gnorm2 = grad.norm2();
-            Real gnorm = helper::rsqrt(gnorm2);
-            //grad /= gnorm; //.normalize();
-            Real forceIntensity = -stiffabs*v/gnorm;
-            Real dampingIntensity = this->damping.getValue()*helper::rabs(v);
-            DPos force = grad*forceIntensity - DataTypes::getDPos(v1[i])*dampingIntensity;
-            //f1[i]+=force;
-            DataTypes::setDPos(f1[i],DataTypes::getDPos(f1[i])+force);
-            Contact c;
-            c.index = i;
-            Real fact1 = -stiffabs / (norm * gnorm);
-            Real fact2 = -stiffabs*v / gnorm;
-            Real fact3 = -stiffabs*v / gnorm2;
-            for (int ci = 0; ci < N; ++ci)
-            {
-                for (int cj = 0; cj < N; ++cj)
+                CPos dp = DataTypes::getCPos(p1[indices[ind]]) - vcenter[e];
+                for (int j = 0; j < N; j++)
                 {
-                    c.m[ci][cj] = grad[ci] * grad[cj] * (fact1 + fact3 * inv_r2[e][cj]);
+                    inv_r2[e][j] = 1 / (vr[e][j] * vr[e][j]);
                 }
-                c.m[ci][ci] += fact2 * inv_r2[e][ci];
+                Real norm2 = 0;
+                for (int j = 0; j < N; j++)
+                {
+                    norm2 += (dp[j] * dp[j]) * inv_r2[e][j];
+                }
+                if (be == -1 || norm2 < bnorm2)
+                {
+                    bnorm2 = norm2;
+                    be = e;
+                    bdp = dp;
+                }
             }
-            contacts->push_back(c);
+
+            if ((bnorm2-1)*stiffness<0)
+            {
+                int e = be;
+                Real norm = helper::rsqrt(bnorm2);
+                Real v = norm-1;
+                DPos grad;
+                for (int j = 0; j < N; j++)
+                {
+                    grad[j] = bdp[j] * inv_r2[e][j];
+                }
+                Real gnorm2 = grad.norm2();
+                Real gnorm = helper::rsqrt(gnorm2);
+                //grad /= gnorm; //.normalize();
+                Real forceIntensity = -stiffabs*v/gnorm;
+                Real dampingIntensity = this->damping.getValue()*helper::rabs(v);
+                DPos force = grad*forceIntensity - DataTypes::getDPos(v1[indices[ind]])*dampingIntensity;
+                //f1[i]+=force;
+                DataTypes::setDPos(f1[indices[ind]],DataTypes::getDPos(f1[indices[ind]])+force);
+                Contact c;
+                c.index = indices[ind];
+                Real fact1 = -stiffabs / (norm * gnorm);
+                Real fact2 = -stiffabs*v / gnorm;
+                Real fact3 = -stiffabs*v / gnorm2;
+                for (int ci = 0; ci < N; ++ci)
+                {
+                    for (int cj = 0; cj < N; ++cj)
+                    {
+                        c.m[ci][cj] = grad[ci] * grad[cj] * (fact1 + fact3 * inv_r2[e][cj]);
+                    }
+                    c.m[ci][ci] += fact2 * inv_r2[e][ci];
+                }
+                contacts->push_back(c);
+            }
         }
     }
     nbContact = contacts->size();
