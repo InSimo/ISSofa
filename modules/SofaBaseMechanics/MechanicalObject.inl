@@ -1800,6 +1800,16 @@ void MechanicalObject<DataTypes>::vAvail(const core::ExecParams* /* params */ /*
 }
 
 template <class DataTypes>
+void MechanicalObject<DataTypes>::vAvail(const core::ExecParams*, core::MatrixDerivId& v)
+{
+    for (unsigned int i = v.index; i < vectorsMatrixDeriv.size(); ++i)
+    {
+        if (vectorsMatrixDeriv[i] && vectorsMatrixDeriv[i]->isSet())
+            v.index = i+1;
+    }
+}
+
+template <class DataTypes>
 void MechanicalObject<DataTypes>::vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v)
 {
 #ifdef SOFA_SMP_NUMA
@@ -1847,11 +1857,20 @@ void MechanicalObject<DataTypes>::vAlloc(const core::ExecParams* params /* PARAM
 }
 
 template <class DataTypes>
+void MechanicalObject<DataTypes>::vAlloc(const core::ExecParams* /*params*/, core::MatrixDerivId v)
+{
+    if (v.index >= sofa::core::MatrixDerivId::V_FIRST_DYNAMIC_INDEX)
+    {
+        this->write(v);
+    }
+}
+
+template <class DataTypes>
 void MechanicalObject<DataTypes>::vRealloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v)
 {
     Data<VecCoord>* vec_d = this->write(v);
 
-    if ( !vec_d->isSet(params) /*&& v.index >= sofa::core::VecCoordId::V_FIRST_DYNAMIC_INDEX*/ )
+    if ( !vec_d->isSet(params) )
     {
         vec_d->beginEdit(params)->resize(d_size.getValue());
         vec_d->endEdit(params);
@@ -1869,6 +1888,19 @@ void MechanicalObject<DataTypes>::vRealloc(const core::ExecParams* params /* PAR
         vec_d->endEdit(params);
     }
 }
+
+template <class DataTypes>
+void MechanicalObject<DataTypes>::vRealloc(const core::ExecParams* params, core::MatrixDerivId v)
+{
+    Data<MatrixDeriv>* vec_d = this->write(v);
+
+    if (!vec_d->isSet(params) )
+    {
+        vec_d->beginEdit(params);
+        vec_d->endEdit(params);
+    }
+}
+
 
 template <class DataTypes>
 void MechanicalObject<DataTypes>::vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId vId)
@@ -1896,6 +1928,20 @@ void MechanicalObject<DataTypes>::vFree(const core::ExecParams* params /* PARAMS
         vec->resize(0);
         vec_d->endEdit(params);
 
+        vec_d->unset(params);
+    }
+}
+
+template <class DataTypes>
+void MechanicalObject<DataTypes>::vFree(const core::ExecParams* params, core::MatrixDerivId vId)
+{
+    if (vId.index >= sofa::core::VecDerivId::V_FIRST_DYNAMIC_INDEX)
+    {
+        Data< MatrixDeriv >* vec_d = this->write(vId);
+
+        MatrixDeriv *vec = vec_d->beginEdit(params);
+        vec->clear();
+        vec_d->endEdit(params);
         vec_d->unset(params);
     }
 }
@@ -1929,6 +1975,29 @@ void MechanicalObject<DataTypes>::vInit(const core::ExecParams* params /* PARAMS
 
         if (vSrcId != core::ConstVecDerivId::null())
             vOp(params, vId, vSrcId);
+    }
+}
+
+template <class DataTypes>
+void MechanicalObject<DataTypes>::vInit(const core::ExecParams* params, core::MatrixDerivId vId, core::ConstMatrixDerivId vSrcId)
+{
+    Data< MatrixDeriv >* vec_d     = this->write(vId);
+
+    if (!vec_d->isSet(params))
+    {
+        vec_d->forceSet(params);
+
+        if (vSrcId != core::ConstMatrixDerivId::null() )
+        {
+            const Data<MatrixDeriv>* vec_s = this->read(vSrcId);
+            if (vec_s != nullptr && vec_s->isSet(params) )
+            {
+                MatrixDeriv* dest      = vec_d->beginEdit(params);
+                const MatrixDeriv& src = vec_s->getValue(params);
+                *dest = src;
+                vec_d->endEdit(params);
+            }
+        }
     }
 }
 

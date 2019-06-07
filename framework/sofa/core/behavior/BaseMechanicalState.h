@@ -101,34 +101,35 @@ public:
     /// Increment the index of the given VecDerivId, so that all 'allocated' vectors in this state have a lower index
     virtual void vAvail(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecDerivId& v) = 0;
     /// Increment the index of the given MatrixDerivId, so that all 'allocated' vectors in this state have a lower index
-    //virtual void vAvail(MatrixDerivId& v) = 0;
+    virtual void vAvail(const ExecParams* params, MatrixDerivId& v) = 0;
 
     /// Allocate a new temporary vector
     virtual void vAlloc(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecCoordId v) = 0;
     /// Allocate a new temporary vector
     virtual void vAlloc(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecDerivId v) = 0;
     /// Allocate a new temporary vector
-    //virtual void vAlloc(MatrixDerivId v) = 0;
+    virtual void vAlloc(const ExecParams* params, MatrixDerivId v) = 0;
 
     /// Reallocate a new temporary vector
     virtual void vRealloc(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecCoordId v) = 0;
     /// Reallocate a new temporary vector
     virtual void vRealloc(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecDerivId v) = 0;
-
+    /// Reallocate a new temporary vector
+    virtual void vRealloc(const ExecParams* params, MatrixDerivId v) = 0;
 
     /// Free a temporary vector
     virtual void vFree(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecCoordId v) = 0;
     /// Free a temporary vector
     virtual void vFree(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecDerivId v) = 0;
     /// Free a temporary vector
-    //virtual void vFree(MatrixDerivId v) = 0;
+    virtual void vFree(const ExecParams* params, MatrixDerivId v) = 0;
 
     /// Initialize an unset vector
     virtual void vInit(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecCoordId v, ConstVecCoordId vSrc) = 0;
     /// Initialize an unset vector
     virtual void vInit(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, VecDerivId v, ConstVecDerivId vSrc) = 0;
     /// Initialize an unset vector
-    //virtual void vInit(const ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, MatrixDerivId v, ConstMatrixDerivId vSrc) = 0;
+    virtual void vInit(const ExecParams* params, MatrixDerivId v, ConstMatrixDerivId vSrc) = 0;
 
     /// \brief Compute a linear operation on vectors : v = a + b * f.
     ///

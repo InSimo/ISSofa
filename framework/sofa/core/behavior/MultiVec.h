@@ -228,9 +228,12 @@ public:
 
 typedef TMultiVec<V_COORD> MultiVecCoord;
 typedef TMultiVec<V_DERIV> MultiVecDeriv;
-typedef TMultiVec<V_MATDERIV> MultiVecMatrixDeriv;
 
 
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_CORE)
+extern template class SOFA_CORE_API  TMultiVec<V_COORD>;
+extern template class SOFA_CORE_API  TMultiVec<V_DERIV>;
+#endif
 
 } // namespace behavior
 

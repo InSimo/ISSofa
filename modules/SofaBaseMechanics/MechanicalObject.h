@@ -323,34 +323,35 @@ public:
     /// Increment the index of the given VecDerivId, so that all 'allocated' vectors in this state have a lower index
     virtual void vAvail(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId& v);
     /// Increment the index of the given MatrixDerivId, so that all 'allocated' vectors in this state have a lower index
-    //virtual void vAvail(core::MatrixDerivId& v);
+    virtual void vAvail(const core::ExecParams* params, core::MatrixDerivId& v) override;
 
     /// Allocate a new temporary vector
     virtual void vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v);
     /// Allocate a new temporary vector
     virtual void vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v);
     /// Allocate a new temporary vector
-    //virtual void vAlloc(core::MatrixDerivId v);
+    virtual void vAlloc(const core::ExecParams* params, core::MatrixDerivId v) override;
 
     /// Reallocate a new temporary vector
     virtual void vRealloc(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, core::VecCoordId v);
     /// Reallocate a new temporary vector
     virtual void vRealloc(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, core::VecDerivId v);
-
+    /// Reallocate a new temporary vector
+    virtual void vRealloc(const core::ExecParams* params, core::MatrixDerivId v);
 
     /// Free a temporary vector
     virtual void vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v);
     /// Free a temporary vector
     virtual void vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v);
     /// Free a temporary vector
-    //virtual void vFree(core::MatrixDerivId v);
+    virtual void vFree(const core::ExecParams* params, core::MatrixDerivId v) override;
 
     /// Initialize an unset vector
     virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v, core::ConstVecCoordId vSrc);
     /// Initialize an unset vector
     virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v, core::ConstVecDerivId vSrc);
     /// Initialize an unset vector
-    //virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::MatrixDerivId v, core::ConstMatrixDerivId vSrc);
+    virtual void vInit(const core::ExecParams* params, core::MatrixDerivId v, core::ConstMatrixDerivId vSrc) override;
 
     virtual void vOp(const core::ExecParams* params /* PARAMS FIRST = core::ExecParams::defaultInstance()*/, core::VecId v, core::ConstVecId a = core::ConstVecId::null(), core::ConstVecId b = core::ConstVecId::null(), double f=1.0);
 

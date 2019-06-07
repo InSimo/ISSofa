@@ -718,6 +718,19 @@ typedef TMultiVecId<V_MATDERIV, V_READ> ConstMultiMatrixDerivId;
 typedef TMultiVecId<V_MATDERIV, V_WRITE>     MultiMatrixDerivId;
 typedef TMultiVecId<V_ALL, V_READ>      ConstMultiVecId;
 typedef TMultiVecId<V_ALL, V_WRITE>          MultiVecId;
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_CORE)
+extern template class SOFA_CORE_API  TMultiVecId<V_COORD, V_READ>;
+extern template class SOFA_CORE_API  TMultiVecId<V_COORD, V_WRITE>;
+extern template class SOFA_CORE_API  TMultiVecId<V_DERIV, V_READ>;
+extern template class SOFA_CORE_API  TMultiVecId<V_DERIV, V_WRITE>;
+extern template class SOFA_CORE_API  TMultiVecId<V_MATDERIV, V_READ>;
+extern template class SOFA_CORE_API  TMultiVecId<V_MATDERIV, V_WRITE>;
+extern template class SOFA_CORE_API  TMultiVecId<V_ALL, V_READ>;
+extern template class SOFA_CORE_API  TMultiVecId<V_ALL, V_WRITE>;
+#endif
+
+
 /*
 //typedef TMultiVecId<V_ALL, V_READ>      ConstMultiVecId;
 class ConstMultiVecId : public TMultiVecId<V_ALL, V_READ>

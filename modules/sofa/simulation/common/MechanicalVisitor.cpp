@@ -1518,14 +1518,23 @@ Visitor::Result MechanicalVSizeVisitor::fwdMappedMechanicalState(simulation::Nod
 
 template class SOFA_SIMULATION_COMMON_API MechanicalVAvailVisitor<V_COORD>;
 template class SOFA_SIMULATION_COMMON_API MechanicalVAvailVisitor<V_DERIV>;
+template class SOFA_SIMULATION_COMMON_API MechanicalVAvailVisitor<V_MATDERIV>;
+
 template class SOFA_SIMULATION_COMMON_API MechanicalVAllocVisitor<V_COORD>;
 template class SOFA_SIMULATION_COMMON_API MechanicalVAllocVisitor<V_DERIV>;
+template class SOFA_SIMULATION_COMMON_API MechanicalVAllocVisitor<V_MATDERIV>;
+
 template class SOFA_SIMULATION_COMMON_API MechanicalVReallocVisitor<V_COORD>;
 template class SOFA_SIMULATION_COMMON_API MechanicalVReallocVisitor<V_DERIV>;
+template class SOFA_SIMULATION_COMMON_API MechanicalVReallocVisitor<V_MATDERIV>;
+
 template class SOFA_SIMULATION_COMMON_API MechanicalVFreeVisitor<V_COORD>;
 template class SOFA_SIMULATION_COMMON_API MechanicalVFreeVisitor<V_DERIV>;
+template class SOFA_SIMULATION_COMMON_API MechanicalVFreeVisitor<V_MATDERIV>;
+
 template class SOFA_SIMULATION_COMMON_API MechanicalVInitVisitor<V_COORD>;
 template class SOFA_SIMULATION_COMMON_API MechanicalVInitVisitor<V_DERIV>;
+template class SOFA_SIMULATION_COMMON_API MechanicalVInitVisitor<V_MATDERIV>;
 
 
 } // namespace simulation

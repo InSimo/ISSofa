@@ -2446,16 +2446,25 @@ public:
 
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_SIMULATION_COMMON)
-extern template class MechanicalVAvailVisitor<sofa::core::V_COORD>;
-extern template class MechanicalVAvailVisitor<sofa::core::V_DERIV>;
-extern template class MechanicalVAllocVisitor<sofa::core::V_COORD>;
-extern template class MechanicalVAllocVisitor<sofa::core::V_DERIV>;
-extern template class MechanicalVReallocVisitor<sofa::core::V_COORD>;
-extern template class MechanicalVReallocVisitor<sofa::core::V_DERIV>;
-extern template class MechanicalVFreeVisitor<sofa::core::V_COORD>;
-extern template class MechanicalVFreeVisitor<sofa::core::V_DERIV>;
-extern template class MechanicalVInitVisitor<sofa::core::V_COORD>;
-extern template class MechanicalVInitVisitor<sofa::core::V_DERIV>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVAvailVisitor<sofa::core::V_COORD>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVAvailVisitor<sofa::core::V_DERIV>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVAvailVisitor<sofa::core::V_MATDERIV>;
+
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVAllocVisitor<sofa::core::V_COORD>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVAllocVisitor<sofa::core::V_DERIV>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVAllocVisitor<sofa::core::V_MATDERIV>;
+
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVReallocVisitor<sofa::core::V_COORD>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVReallocVisitor<sofa::core::V_DERIV>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVReallocVisitor<sofa::core::V_MATDERIV>;
+
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVFreeVisitor<sofa::core::V_COORD>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVFreeVisitor<sofa::core::V_DERIV>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVFreeVisitor<sofa::core::V_MATDERIV>;
+
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVInitVisitor<sofa::core::V_COORD>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVInitVisitor<sofa::core::V_DERIV>;
+extern template class SOFA_SIMULATION_COMMON_API MechanicalVInitVisitor<sofa::core::V_MATDERIV>;
 #endif
 
 } // namespace simulation

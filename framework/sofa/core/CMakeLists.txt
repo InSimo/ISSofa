@@ -185,6 +185,7 @@ set(SOFACORE_SOURCES
 	ObjectFactory.cpp
 	ExecParams.cpp
 	MechanicalParams.cpp
+	MultiVecId.cpp
 #	Plugin.cpp
 #	PluginManager.cpp
 	ConstraintParams.cpp
@@ -224,6 +225,7 @@ set(SOFACORE_SOURCES
 	behavior/BaseLMConstraint.cpp
 	behavior/BaseMechanicalState.cpp
 	behavior/MechanicalState.cpp
+	behavior/MultiVec.cpp
 	behavior/ForceField.cpp
 	behavior/LMConstraint.cpp
 	behavior/Mass.cpp
