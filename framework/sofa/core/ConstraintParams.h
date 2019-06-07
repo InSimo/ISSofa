@@ -61,6 +61,12 @@ public:
 	/// Smooth contribution factor (for smooth constraints resolution)
     double smoothFactor() const { return m_smoothFactor; }
 
+    /// Compliance matrix contribution factor 
+    SReal cFactor() const { return m_cFactor; }
+
+    /// Set Compliance matrix contribution factor
+    void setCFactor(SReal c) { m_cFactor = c; }
+
     /// @}
 
     std::string getName() const
@@ -237,6 +243,7 @@ public:
         , m_lambda(VecDerivId::externalForce())
         , m_constOrder (POS_AND_VEL)
 		, m_smoothFactor (1)
+        , m_cFactor (0)
         , m_assembleConstitutiveConstraints(false)
     {
     }
@@ -271,6 +278,9 @@ protected:
 
 	/// Smooth contribution factor (for smooth constraints resolution)
     double m_smoothFactor;
+
+    /// Compliance matrix contribution factor
+    double m_cFactor;
 
     /// Boolean flag to tell if this ConstraintParams deal with constituive constraints
     bool m_assembleConstitutiveConstraints;

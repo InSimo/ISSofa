@@ -5,6 +5,7 @@ set(HEADER_FILES
     BilateralConstraintResolution.h
     BilateralInteractionConstraint.h
     BilateralInteractionConstraint.inl
+    ConstraintAddCToMatrixVisitor.h
     ConstraintAnimationLoop.h
     ConstraintAttachBodyPerformer.h
     ConstraintAttachBodyPerformer.inl
@@ -59,6 +60,7 @@ set(SOURCE_FILES
     PrecomputedConstraintCorrection.cpp
     LinearSolverConstraintCorrection.cpp
     LCPConstraintSolver.cpp
+    ConstraintAddCToMatrixVisitor.cpp
     ConstraintSolverImpl.cpp
     ConstraintStoreLambdaVisitor.cpp
     ContactIdentifier.cpp

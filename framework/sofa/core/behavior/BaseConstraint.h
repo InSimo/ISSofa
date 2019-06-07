@@ -176,6 +176,18 @@ public:
 
 	}
 
+    /// Add optional local compliance of this constraint to the Compliance Matrix
+    /// Local compliance is a diagonal matrix, whose value may depend on the actual constraint measure stored in \phi  
+    /// \param cParams the constraint params communicated by the solver to this constraint component
+    /// \param C the compliance matrix
+    /// \param \phi the constraint measure
+    virtual void addCToMatrix(const ConstraintParams* cParams, sofa::defaulttype::BaseMatrix* C, const sofa::defaulttype::BaseVector* phi)
+    {
+        SOFA_UNUSED(cParams);
+        SOFA_UNUSED(C);
+        SOFA_UNUSED(phi);
+    }
+
 	/// Add the corresponding ConstraintResolution using the offset parameter
 	/// \param cParams defines the state vectors to use for positions and velocities. Also defines the order of the constraint (POS, VEL, ACC) and resolution parameters (smoothness, ...)
 	/// \param resTab is the result vector that contains the contraint resolution algorithms
