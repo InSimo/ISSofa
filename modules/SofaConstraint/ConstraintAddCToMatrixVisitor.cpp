@@ -39,7 +39,7 @@ ConstraintAddCToMatrixVisitor::ConstraintAddCToMatrixVisitor(const sofa::core::C
 }
 
 
-Visitor::Result ConstraintAddCToMatrixVisitor::fwdConstraintSet(simulation::Node* node, core::behavior::BaseConstraintSet* cSet)
+Visitor::Result ConstraintAddCToMatrixVisitor::fwdConstraintSet(simulation::Node* /*node*/, core::behavior::BaseConstraintSet* cSet)
 {
     if (core::behavior::BaseConstraint *c = core::behavior::BaseConstraint::DynamicCast(cSet))
     {
