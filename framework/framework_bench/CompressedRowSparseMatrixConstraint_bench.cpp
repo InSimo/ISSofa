@@ -22,8 +22,7 @@ using namespace sofa::helper::system::thread;
 static constexpr std::size_t nPreload = 100u;
 
 /// Specific policy for benchmark on CRSMatrixConstraint
-template<typename TBloc>
-class CRSBenchConstraintPolicyA : public CRSConstraintPolicy<TBloc>
+class CRSBenchConstraintPolicyA : public CRSConstraintPolicy
 {
 public:
 
@@ -36,8 +35,7 @@ public:
 };
 
 /// Specific policy for benchmark on CRSMatrixConstraint
-template<typename TBloc>
-class CRSBenchConstraintPolicyB : public CRSConstraintPolicy<TBloc>
+class CRSBenchConstraintPolicyB : public CRSConstraintPolicy
 {
 public:
 
@@ -50,8 +48,7 @@ public:
 };
 
 /// Specific policy for benchmark on CRSMatrixConstraint
-template<typename TBloc>
-class CRSBenchConstraintPolicyC : public CRSConstraintPolicy<TBloc>
+class CRSBenchConstraintPolicyC : public CRSConstraintPolicy
 {
 public:
 
@@ -64,8 +61,7 @@ public:
 };
 
 /// Specific policy for benchmark on CRSMatrixConstraint
-template<typename TBloc>
-class CRSBenchConstraintPolicyD : public CRSConstraintPolicy<TBloc>
+class CRSBenchConstraintPolicyD : public CRSConstraintPolicy
 {
 public:
 
@@ -113,34 +109,34 @@ template<class TBloc>
 void benchFast(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
                const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
 {
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA<TBloc>> TMatrixA;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyB<TBloc>> TMatrixB;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyC<TBloc>> TMatrixC;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyD<TBloc>> TMatrixD;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA> TMatrixA;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyB> TMatrixB;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyC> TMatrixC;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyD> TMatrixD;
     typedef MapMapSparseMatrix<TBloc>                                                    TMapMap;
 
     std::cout<<"Run benchFast on "<<nbExec<<" executions with "<<nbPolicy<<" policies between step "<<start<<" and step "<<stop<<std::endl;
 
     std::cout<<std::endl;
     std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchConstraintPolicyA<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+    bool checkA = checkMatrix<TBloc, CRSBenchConstraintPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
     bool checkB = false;
     bool checkC = false;
     bool checkD = false;
     if (nbPolicy > 1)
     {
         std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchConstraintPolicyB<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkB = checkMatrix<TBloc, CRSBenchConstraintPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 2)
     {
         std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchConstraintPolicyC<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkC = checkMatrix<TBloc, CRSBenchConstraintPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 3)
     {
         std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchConstraintPolicyD<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkD = checkMatrix<TBloc, CRSBenchConstraintPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
     }
     std::cout<<std::endl;
 

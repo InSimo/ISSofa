@@ -17,8 +17,7 @@ namespace test
 {
 
 /// Specific policy for benchmark on CRSMatrixConstraint
-template<typename TBloc>
-class CRSConstraintTestPolicy : public sofa::defaulttype::CRSConstraintPolicy<TBloc>
+class CRSConstraintTestPolicy : public sofa::defaulttype::CRSConstraintPolicy
 {
 public:
     static constexpr bool LogTrace = false;
@@ -38,12 +37,12 @@ typedef ::testing::Types<
             sofa::defaulttype::MapMapSparseMatrix<sofa::defaulttype::Rigid3Types::Deriv>,
             sofa::defaulttype::MapMapSparseMatrix<sofa::defaulttype::LaparoscopicRigidTypes::Deriv>,
 
-            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec1Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Vec1Types::Deriv>>,
-            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec2Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Vec2Types::Deriv>>,
-            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec3Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Vec3Types::Deriv>>,
-            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid2Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Rigid2Types::Deriv>>,
-            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid3Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Rigid3Types::Deriv>>,
-            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::LaparoscopicRigidTypes::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::LaparoscopicRigidTypes::Deriv>>
+            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec1Types::Deriv, CRSConstraintTestPolicy>,
+            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec2Types::Deriv, CRSConstraintTestPolicy>,
+            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec3Types::Deriv, CRSConstraintTestPolicy>,
+            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid2Types::Deriv, CRSConstraintTestPolicy>,
+            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid3Types::Deriv, CRSConstraintTestPolicy>,
+            sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::LaparoscopicRigidTypes::Deriv, CRSConstraintTestPolicy>
             > SparseMatrixTestTypes;
 
 TYPED_TEST_CASE(SparseMatrixTest, SparseMatrixTestTypes);
@@ -1921,12 +1920,12 @@ struct CompressedRowSparseMatrixConstraintTest : public TMatrix, ::testing::Test
 };
 
 typedef ::testing::Types<
-    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec1Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Vec1Types::Deriv>>,
-    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec2Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Vec2Types::Deriv>>,
-    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec3Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Vec3Types::Deriv>>,
-    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid2Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Rigid2Types::Deriv>>,
-    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid3Types::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::Rigid3Types::Deriv>>,
-    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::LaparoscopicRigidTypes::Deriv, CRSConstraintTestPolicy<sofa::defaulttype::LaparoscopicRigidTypes::Deriv>>
+    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec1Types::Deriv, CRSConstraintTestPolicy>,
+    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec2Types::Deriv, CRSConstraintTestPolicy>,
+    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Vec3Types::Deriv, CRSConstraintTestPolicy>,
+    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid2Types::Deriv, CRSConstraintTestPolicy>,
+    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::Rigid3Types::Deriv, CRSConstraintTestPolicy>,
+    sofa::defaulttype::CompressedRowSparseMatrixConstraint<sofa::defaulttype::LaparoscopicRigidTypes::Deriv, CRSConstraintTestPolicy>
 > CompressedRowSparseMatrixConstraintTestTypes;
 
 TYPED_TEST_CASE(CompressedRowSparseMatrixConstraintTest, CompressedRowSparseMatrixConstraintTestTypes);

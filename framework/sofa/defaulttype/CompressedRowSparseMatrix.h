@@ -38,16 +38,19 @@ namespace defaulttype
 //#define SPARSEMATRIX_CHECK
 //#define SPARSEMATRIX_VERBOSE
 
-/// Default policy type, showing the types and flags to give to CompressedRowSparseMatrix
-/// for its second template type. The default values correspond to the original implementation.
-template<typename TBloc, typename TVecBloc = helper::vector<TBloc>,
-    typename TVecIndex = helper::vector<int>, typename TVecFlag = helper::vector<bool> >
+
+/// Traits class which defines the containers to use for a given type of block
+template<class Bloc>
+struct CRSBlocTraits
+{
+    using VecBloc  = sofa::helper::vector<Bloc>;
+    using VecIndex = sofa::helper::vector<int>;
+    using VecFlag  = sofa::helper::vector<bool>;
+};
+
 class CRSDefaultPolicy
 {
 public:
-    typedef TVecBloc VecBloc;
-    typedef TVecIndex VecIndex;
-    typedef TVecFlag VecFlag;
     /// Set to true if this matrix is always square (must be true for symmetric)
     static constexpr bool IsAlwaysSquare = false;
     /// Set to true if this matrix is always symmetric (IsAlwaysSquare should be true)
@@ -90,7 +93,7 @@ public:
     static constexpr int  matrixType = 0;
 };
 
-template<typename TBloc, typename TPolicy = CRSDefaultPolicy<TBloc> >
+template<typename TBloc, typename TPolicy = CRSDefaultPolicy>
 class CompressedRowSparseMatrix : public TPolicy
 {
 public:
@@ -104,9 +107,9 @@ public:
     enum { NL = traits::NL };  ///< Number of rows of a block
     enum { NC = traits::NC };  ///< Number of columns of a block
 
-    typedef typename Policy::VecBloc VecBloc;
-    typedef typename Policy::VecIndex VecIndex;
-    typedef typename Policy::VecFlag VecFlag;
+    using VecBloc  = typename CRSBlocTraits<Bloc>::VecBloc;
+    using VecIndex = typename CRSBlocTraits<Bloc>::VecIndex;
+    using VecFlag  = typename CRSBlocTraits<Bloc>::VecFlag;
     typedef typename VecIndex::value_type Index;
 
     typedef sofa::defaulttype::Vec<NC,Real> DBloc;

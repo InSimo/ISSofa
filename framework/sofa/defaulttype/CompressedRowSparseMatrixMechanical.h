@@ -38,9 +38,7 @@ namespace defaulttype
 
 /// Mechanical policy type, showing the types and flags to give to CompressedRowSparseMatrixMechanical
 /// for its second template type.
-template<typename TBloc, typename TVecBloc = sofa::helper::vector<TBloc>,
-         typename TVecIndex = sofa::helper::vector<int>, typename TVecFlag = sofa::helper::vector<bool> >
-class CRSMechanicalPolicy : public CRSDefaultPolicy<TBloc, TVecBloc, TVecIndex, TVecFlag>
+class CRSMechanicalPolicy : public CRSDefaultPolicy
 {
 public:
 
@@ -52,7 +50,7 @@ public:
     static constexpr int matrixType = 1;
 };
 
-template<typename TBloc, typename TPolicy = CRSMechanicalPolicy<TBloc> >
+template<typename TBloc, typename TPolicy = CRSMechanicalPolicy >
 class CompressedRowSparseMatrixMechanical final // final is used to allow the compiler to inline virtual methods
     : public CompressedRowSparseMatrix<TBloc, TPolicy>, public sofa::defaulttype::BaseMatrix
 {
@@ -63,11 +61,11 @@ public:
     typedef CompressedRowSparseMatrix<TBloc, TPolicy> CRSMatrix;
     typedef typename CRSMatrix::Policy Policy;
 
-    typedef typename Policy::VecBloc VecBloc;
-    typedef typename Policy::VecIndex VecIndex;
-    typedef typename Policy::VecFlag VecFlag;
-    typedef typename BaseMatrix::Index Index;
-    typedef typename VecBloc::value_type Bloc;
+    using Bloc     = TBloc;
+    using VecBloc  = typename CRSBlocTraits<Bloc>::VecBloc;
+    using VecIndex = typename CRSBlocTraits<Bloc>::VecIndex;
+    using VecFlag  = typename CRSBlocTraits<Bloc>::VecFlag;
+    using Index    = typename VecIndex::value_type;
 
     typedef typename CRSMatrix::Bloc Data;
     typedef typename CRSMatrix::Range Range;

@@ -53,9 +53,7 @@ void convertCompressedRowSparseMatrixRowToVecDeriv(const RowType row, VecDeriv& 
 
 /// Constraint policy type, showing the types and flags to give to CompressedRowSparseMatrix
 /// for its second template type. The default values correspond to the original implementation.
-template<typename TBloc, typename TVecBloc = sofa::helper::vector<TBloc>,
-    typename TVecIndex = sofa::helper::vector<int>, typename TVecFlag = sofa::helper::vector<bool> >
-class CRSConstraintPolicy : public CRSDefaultPolicy<TBloc, TVecBloc, TVecIndex, TVecFlag>
+class CRSConstraintPolicy : public CRSDefaultPolicy
 {
 public:
     static constexpr bool AutoSize = true;
@@ -67,7 +65,7 @@ public:
     static constexpr int  matrixType = 2;
 };
 
-template<typename TBloc, typename TPolicy = CRSConstraintPolicy<TBloc> >
+template<typename TBloc, typename TPolicy = CRSConstraintPolicy >
 class CompressedRowSparseMatrixConstraint : public sofa::defaulttype::CompressedRowSparseMatrix<TBloc, TPolicy>
 {
 public:
@@ -75,11 +73,11 @@ public:
     typedef CompressedRowSparseMatrix<TBloc, TPolicy> CRSMatrix;
     typedef typename CRSMatrix::Policy Policy;
 
-    typedef typename Policy::VecBloc VecBloc;
-    typedef typename Policy::VecIndex VecIndex;
-    typedef typename Policy::VecFlag VecFlag;
-    typedef typename VecIndex::value_type Index;
-    typedef typename VecBloc::value_type Bloc;
+    using Bloc     = TBloc;
+    using VecBloc  = typename CRSBlocTraits<Bloc>::VecBloc;
+    using VecIndex = typename CRSBlocTraits<Bloc>::VecIndex;
+    using VecFlag  = typename CRSBlocTraits<Bloc>::VecFlag;
+    using Index    = typename VecIndex::value_type;
 
     typedef typename CRSMatrix::Bloc Data;
     typedef typename CRSMatrix::Range Range;

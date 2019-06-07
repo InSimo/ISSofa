@@ -20,8 +20,7 @@ using namespace sofa::helper::system::thread;
 static constexpr std::size_t nPreload = 100u;
 
 /// Specific policy for benchmark on CRSMatrixMechanical
-template<typename TBloc>
-class CRSBenchMechanicalPolicyA : public CRSMechanicalPolicy<TBloc>
+class CRSBenchMechanicalPolicyA : public CRSMechanicalPolicy
 {
 public:
 
@@ -34,8 +33,7 @@ public:
 };
 
 /// Specific policy for benchmark on CRSMatrixMechanical
-template<typename TBloc>
-class CRSBenchMechanicalPolicyB : public CRSMechanicalPolicy<TBloc>
+class CRSBenchMechanicalPolicyB : public CRSMechanicalPolicy
 {
 public:
 
@@ -48,8 +46,7 @@ public:
 };
 
 /// Specific policy for benchmark on CRSMatrixMechanical
-template<typename TBloc>
-class CRSBenchMechanicalPolicyC : public CRSMechanicalPolicy<TBloc>
+class CRSBenchMechanicalPolicyC : public CRSMechanicalPolicy
 {
 public:
 
@@ -62,8 +59,7 @@ public:
 };
 
 /// Specific policy for benchmark on CRSMatrixMechanical
-template<typename TBloc>
-class CRSBenchMechanicalPolicyD : public CRSMechanicalPolicy<TBloc>
+class CRSBenchMechanicalPolicyD : public CRSMechanicalPolicy
 {
 public:
 
@@ -94,11 +90,11 @@ template<class TBloc>
 void benchFast(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
                const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
 {
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA<TBloc>> TMatrixA;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB<TBloc>> TMatrixB;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC<TBloc>> TMatrixC;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD<TBloc>> TMatrixD;
-    typedef CompressedRowSparseMatrixOld<TBloc>                                          TMatrixOld;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA> TMatrixA;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB> TMatrixB;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC> TMatrixC;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD> TMatrixD;
+    typedef CompressedRowSparseMatrixOld<TBloc>                                   TMatrixOld;
 
     FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
 
@@ -106,24 +102,24 @@ void benchFast(std::string& checkMatrixFile, const std::vector<std::string>& lis
 
     std::cout<<std::endl;
     std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
     bool checkB = false;
     bool checkC = false;
     bool checkD = false;
     if (nbPolicy > 1)
     {
         std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 2)
     {
         std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 3)
     {
         std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
     }
     std::cout<<std::endl;
 
@@ -284,11 +280,11 @@ template<class TBloc>
 void benchByStep(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
                  const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
 {
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA<TBloc>> TMatrixA;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB<TBloc>> TMatrixB;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC<TBloc>> TMatrixC;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD<TBloc>> TMatrixD;
-    typedef CompressedRowSparseMatrixOld<TBloc>                                          TMatrixOld;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA> TMatrixA;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB> TMatrixB;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC> TMatrixC;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD> TMatrixD;
+    typedef CompressedRowSparseMatrixOld<TBloc>                                 TMatrixOld;
 
     FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
 
@@ -315,24 +311,24 @@ void benchByStep(std::string& checkMatrixFile, const std::vector<std::string>& l
     std::vector<ctime_t> timesD;
 
     std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
     bool checkB = false;
     bool checkC = false;
     bool checkD = false;
     if (nbPolicy > 1)
     {
         std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 2)
     {
         std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 3)
     {
         std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
     }
 
     /// Old implementation
@@ -504,11 +500,11 @@ template<class TBloc>
 void benchAll(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
               const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
 {
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA<TBloc>> TMatrixA;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB<TBloc>> TMatrixB;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC<TBloc>> TMatrixC;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD<TBloc>> TMatrixD;
-    typedef CompressedRowSparseMatrixOld<TBloc>                                          TMatrixOld;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA> TMatrixA;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB> TMatrixB;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC> TMatrixC;
+    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD> TMatrixD;
+    typedef CompressedRowSparseMatrixOld<TBloc>                                 TMatrixOld;
 
     FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
 
@@ -534,24 +530,24 @@ void benchAll(std::string& checkMatrixFile, const std::vector<std::string>& list
     std::vector<std::vector<ctime_t>> timesD;
 
     std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
     bool checkB = false;
     bool checkC = false;
     bool checkD = false;
     if (nbPolicy > 1)
     {
         std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 2)
     {
         std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
     }
     if (nbPolicy > 3)
     {
         std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD<TBloc>>(checkMatrixFile, listOfBinFiles, verbose);
+        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
     }
 
     /// Old implementation
