@@ -72,7 +72,9 @@ public:
     Data<VecValue> f_in;
     Data<VecIndex> f_indices;
     Data<VecValue> f_out;
+    Data<Value>    f_singleOut;
     Data<std::string> f_outStr;
+    Data<bool>     f_checkSize;
 
     virtual std::string getTemplateName() const
     {

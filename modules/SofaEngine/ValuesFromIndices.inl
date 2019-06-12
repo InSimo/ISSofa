@@ -43,7 +43,9 @@ ValuesFromIndices<T>::ValuesFromIndices()
     : f_in( initData (&f_in, "in", "input values") )
     , f_indices( initData(&f_indices, "indices","Indices of the values") )
     , f_out( initData (&f_out, "out", "Output values corresponding to the indices"))
+    , f_singleOut( initData (&f_singleOut, "singleOut", "Output single value selected if indices is of size 1"))
     , f_outStr( initData (&f_outStr, "outStr", "Output values corresponding to the indices, converted as a string"))
+    , f_checkSize( initData (&f_checkSize, true, "checkSize", "If false, do not show error message"))
 {
     this->addAlias(&f_in, "input"); // 'in' is a reserved word in Python
 }
@@ -60,6 +62,7 @@ void ValuesFromIndices<T>::init()
     addInput(&f_in);
     addInput(&f_indices);
     addOutput(&f_out);
+    addOutput(&f_singleOut);
     setDirtyValue();
 }
 
@@ -84,7 +87,12 @@ void ValuesFromIndices<T>::update()
         if ((unsigned)indices[i] < in.size())
             out.push_back(in[indices[i]]);
         else
-            serr << "Invalid input index " << i <<": " << indices[i] << " >= " << in.size() << sendl;
+            if (f_checkSize.getValue()) serr << "Invalid input index " << i <<": " << indices[i] << " >= " << in.size() << sendl;
+    }
+
+    if (indices.size() == 1 && indices[0] < in.size())
+    {
+        f_singleOut.setValue(in[indices[0]]);
     }
 }
 
