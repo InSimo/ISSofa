@@ -94,6 +94,14 @@ int IdentityMappingClass = core::RegisterObject("Special case of mapping where t
         .add< IdentityMapping< Rigid2fTypes, Vec2fTypes > >()
         .add< IdentityMapping< Rigid3fTypes, ExtVec3fTypes > >()
 #endif
+
+// Vec -> Rigid
+#ifndef SOFA_FLOAT
+        .add< IdentityMapping< Vec3dTypes, Rigid3dTypes > >()
+#endif
+#ifndef SOFA_DOUBLE
+        .add< IdentityMapping< Vec3fTypes, Rigid3fTypes > >()
+#endif
         ;
 
 
