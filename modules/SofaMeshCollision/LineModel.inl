@@ -54,7 +54,7 @@ TLineModel<DataTypes>::TLineModel()
     : mstate(NULL), topology(NULL), meshRevision(-1), m_lmdFilter(NULL)
     , LineActiverPath(initData(&LineActiverPath,"LineActiverPath", "path of a component LineActiver that activates or deactivates collision line during execution") )
     , m_displayFreePosition(initData(&m_displayFreePosition, false, "displayFreePosition", "Display Collision Model Points free position(in green)") )
-    , d_classificationSampling(initData(&d_classificationSampling, (unsigned int)1, "classificationSampling", "Line sub sampling factor to create additional contacts for classification") )
+    , d_classificationSampling(initData(&d_classificationSampling, "classificationSampling", "Line sub sampling factor per edge to create additional contacts for classification"))
     , myActiver(NULL)
 {
     enum_type = LINE_TYPE;
@@ -395,6 +395,20 @@ void TLineModel<DataTypes>::updateFromTopology()
 
         meshRevision = revision;
     }
+}
+
+template<class DataTypes>
+unsigned int TLineModel<DataTypes>::getClassificationSampling(const unsigned int index) const
+{
+    sofa::helper::ReadAccessor< sofa::Data<sofa::helper::vector<unsigned> > > classificationSampling = d_classificationSampling;
+    unsigned int sampling(1u);
+
+    if (!classificationSampling.empty())
+    {
+        sampling = (elems.size() == classificationSampling.size()) ? classificationSampling[index] : classificationSampling[0];
+    }
+
+    return sampling;
 }
 
 template<class DataTypes>

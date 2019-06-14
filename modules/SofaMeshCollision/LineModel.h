@@ -81,7 +81,7 @@ public:
 
     bool activated(core::CollisionModel *cm = 0) const;
 
-    unsigned int getClassificationSampling() const { return this->model->getClassificationSampling(); }
+    unsigned int getClassificationSampling(unsigned int index) const { return this->model->getClassificationSampling(index); }
 
     // Return respectively the Vertex composing the neighbor Rigt and Left Triangle
 //	const Vector3* tRight() const;
@@ -203,7 +203,7 @@ public:
         return DataTypes::Name();
     }
 
-    unsigned int getClassificationSampling() const { return d_classificationSampling.getValue(); }
+    unsigned int getClassificationSampling(const unsigned int index) const;
 
 protected:
 
@@ -215,7 +215,7 @@ protected:
 
     Data< std::string  > LineActiverPath;
     Data< bool > m_displayFreePosition;
-    Data< unsigned int > d_classificationSampling;
+    Data< sofa::helper::vector<unsigned int> > d_classificationSampling;
 
     LineActiver *myActiver;
 };
