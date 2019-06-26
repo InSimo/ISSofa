@@ -170,7 +170,7 @@ objectmodel::BaseObject::SPtr ObjectFactory::createObject(objectmodel::BaseConte
             {
                 w += std::string("\n\t* ") + creators[i].first; //creatorsobjectmodel::Base::decodeTemplateName(creators[i]->type());
             }
-            object->serr<<w<<object->sendl;
+            object->sout<<w<<object->sendl;
         }
     }
     return object;
