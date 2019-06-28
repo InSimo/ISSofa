@@ -81,7 +81,7 @@ public:
 
     bool activated(core::CollisionModel *cm = 0) const;
 
-    unsigned int getClassificationSampling(unsigned int index) const { return this->model->getClassificationSampling(index); }
+    unsigned int getClassificationSampling() const { return this->model->getClassificationSampling(this->index); }
 
     // Return respectively the Vertex composing the neighbor Rigt and Left Triangle
 //	const Vector3* tRight() const;

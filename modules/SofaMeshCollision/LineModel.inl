@@ -151,6 +151,9 @@ void TLineModel<DataTypes>::init()
         }
     }
 
+    const std::size_t nbSamplingValues = d_classificationSampling.getValue().size();
+    if (nbSamplingValues > 1u && nbSamplingValues != this->elems.size())
+        serr << "Size mismatch in classification sampling values, the first will be used for all edges" << sendl;
 }
 
 template<class DataTypes>
