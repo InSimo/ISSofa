@@ -399,7 +399,7 @@ void Base::processStream(std::ostream& out)
             std::cout<<" [INFO] ";
             SetConsoleTextAttribute(winConsole, winConsoleInfo.wAttributes);
 #else
-            std::cerr<< SOFA_CONSOLE_GREEN <<"[INFO]"<< SOFA_CONSOLE_ENDL;
+            std::cout<< SOFA_CONSOLE_GREEN <<"[INFO]"<< SOFA_CONSOLE_ENDL;
 #endif
             std::cout<< str << std::flush;
         }
