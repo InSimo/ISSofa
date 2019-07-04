@@ -1307,6 +1307,65 @@ public:
 /// @name Matrix operators
 /// @{
 
+    /// Transpose the matrix into res, works only for 3 array variant ("full rows") matrices, ie which can be expressed using the rowBegin, colsIndex and colsValue arrays solely
+    template<typename TBloc2, typename TPolicy2>
+    void transposeFullRows(CompressedRowSparseMatrix<TBloc2, TPolicy2>& res) const
+    {
+        res.nBlocCol = nBlocRow;
+        res.nBlocRow = nBlocCol;
+
+        res.rowBegin.clear();
+        res.rowBegin.resize(res.nBlocRow+1,0);
+
+        res.colsIndex.clear();
+        res.colsIndex.resize(this->colsIndex.size(),0);
+
+        res.colsValue.clear();
+        res.colsValue.resize(this->colsValue.size());
+
+        res.rowIndex.clear();
+
+        for (unsigned i = 0; i<rowIndex.size(); ++i)
+        {
+            for (int p = rowBegin[i]; p<rowBegin[i+1]; ++p)
+            {
+                ++res.rowBegin[colsIndex[p]];
+            }
+        }
+
+        Index count = 0;
+        VecIndex positions(res.nBlocRow);
+
+        for (int i=0; i<res.nBlocRow; ++i)
+        {
+            Index tmp = res.rowBegin[i];
+            res.rowBegin[i] = count;
+            positions[i] = count;
+            count += tmp;
+        }
+        res.rowBegin[ res.nBlocRow ] = count;
+
+        for (unsigned i=0; i<rowIndex.size(); ++i)
+        {
+            int row = rowIndex[i];
+
+            for (int p=rowBegin[i]; p<rowBegin[i+1]; ++p)
+            {
+                Index col                 = colsIndex[p];
+                Index pos                 = positions[col];
+                res.colsIndex[pos]        = row;
+                res.colsValue[pos]        = colsValue[p];
+                ++positions[col];
+             }
+        }
+
+        res.rowIndex.resize(res.rowBegin.size()-1);
+        for (unsigned i=0; i<res.rowIndex.size(); ++i)
+        {
+            res.rowIndex[i] = i;
+        }
+    }
+
     /** Compute res = this * m
       @warning The block sizes must be compatible, i.e. this::NC==m::NR and res::NR==this::NR and res::NC==m::NC.
       The basic algorithm consists in accumulating rows of m to rows of res: foreach row { foreach col { res[row] += this[row,col] * m[col] } }

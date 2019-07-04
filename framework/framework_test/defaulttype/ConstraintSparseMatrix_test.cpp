@@ -2013,6 +2013,41 @@ TYPED_TEST(CompressedRowSparseMatrixConstraintTest, checkRowDeletionUntilMatrixI
 
 }
 
+TEST(CompressedRowSparseMatrixTest, checkTransposition)
+{
+    using Bloc      = sofa::defaulttype::Mat3x3d;
+    using BSRMatrix = sofa::defaulttype::CompressedRowSparseMatrix< Bloc >;
+
+
+    Bloc b;
+    for (std::size_t i=0; i<3; ++i)
+    {
+        b(i, 0) = i+1;
+        b(i, 1) = i+1;
+        b(i, 2) = i+1;
+    }
+    
+
+    BSRMatrix matrix;
+
+    matrix.resizeBloc(4, 5);
+
+    matrix.addBloc(1, 1, b);
+    matrix.addBloc(1, 2, b);
+    matrix.addBloc(2, 2, b);
+    
+    matrix.compress();
+    matrix.fullRows();
+    BSRMatrix matrixTranspose;
+    matrix.transposeFullRows(matrixTranspose);
+
+    ASSERT_EQ(matrixTranspose.nBlocRow, 5);
+    ASSERT_EQ(matrixTranspose.nBlocCol, 4);
+    
+    ASSERT_EQ(matrixTranspose.getBloc(1, 1), b);
+    ASSERT_EQ(matrixTranspose.getBloc(2, 1), b);
+    ASSERT_EQ(matrixTranspose.getBloc(2, 2), b);
+}
 
 } // namespace test
 
