@@ -142,11 +142,6 @@ void BeamFEMForceField<DataTypes>::init()
     }
     else
     {
-        if(_topology->getNbEdges()==0)
-        {
-            serr << "ERROR(BeamFEMForceField): topology is empty."<<sendl;
-            return;
-        }
         _indexedElements = &_topology->getEdges();
         if (_list_segment.getValue().size() == 0)
         {
