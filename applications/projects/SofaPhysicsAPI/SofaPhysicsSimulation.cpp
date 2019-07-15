@@ -55,9 +55,9 @@ void SofaPhysicsSimulation::stop()
     impl->stop();
 }
 
-bool SofaPhysicsSimulation::step()
+bool SofaPhysicsSimulation::step( double stepDuration )
 {
-    return impl->step();
+    return impl->step( stepDuration );
 }
 
 void SofaPhysicsSimulation::reset()
@@ -453,7 +453,7 @@ void SofaPhysicsSimulation::Impl::update()
 {
 }
 
-bool SofaPhysicsSimulation::Impl::step()
+bool SofaPhysicsSimulation::Impl::step( double stepDuration )
 {
     bool sofa_gui_open = false;
     sofa::simulation::Node* groot = getScene();

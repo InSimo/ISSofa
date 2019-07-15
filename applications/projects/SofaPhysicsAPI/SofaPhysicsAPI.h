@@ -43,8 +43,9 @@ public:
     void stop();
 
     /// Compute one simulation time-step
+    /// stepDuration : clock time for current simulation step
     /// \return True if the GUI is open or false if it has been closed 
-    bool step();
+    bool step( double stepDuration = 0 );
 
     /// Reset the simulation to its initial state
     void reset();
