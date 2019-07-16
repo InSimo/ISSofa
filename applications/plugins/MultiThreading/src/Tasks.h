@@ -54,6 +54,8 @@ class TaskScheduler;
 class SOFA_MULTITHREADING_PLUGIN_API Task
 {
 public:
+    virtual ~Task();
+
     // Task Status class definition
     class Status
     {
@@ -106,8 +108,6 @@ protected:
     virtual bool run(WorkerThread* thread) = 0;
 
     Task();
-
-    virtual ~Task();
 
     inline Task::Status* getStatus(void) const;
 
