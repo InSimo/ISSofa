@@ -688,7 +688,7 @@ public:
     }
 
     /// Return the normalized the vector.
-    Vec<N,real> normalized()
+    Vec<N,real> normalized() const
     {
         Vec<N,real> r(*this);
         r.normalize();
