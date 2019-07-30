@@ -122,6 +122,12 @@ protected:
     Real computeMeshVolume(const VecDeriv& f,const VecCoord& x);
 
     /**
+    * @brief get topo element indices
+    */
+    void getTrianglesIndices(VecIndex& indices);
+    void getQuadsIndices(VecIndex& indices);
+
+    /**
      * @brief Triangle based surface pressure computation method.
      * Each vertice receives a force equal to 1/3 of the pressure applied on its belonging triangle.
      */

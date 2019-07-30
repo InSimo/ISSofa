@@ -32,6 +32,7 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include <numeric>
 
 namespace sofa
 {
@@ -170,7 +171,7 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
             derivTriNormalIndices[i].clear();
         }
 
-        if (m_triangleIndices.getValue().size() > 0)
+        if (m_triangleIndices.isSet())
         {
             for (unsigned int i = 0; i < m_triangleIndices.getValue().size(); i++)
             {
@@ -213,7 +214,7 @@ void SurfacePressureForceField<DataTypes>::addForce(const core::MechanicalParams
 
         // Quads
 
-        if (m_quadIndices.getValue().size() > 0)
+        if (m_quadIndices.isSet())
         {
             for (unsigned int i = 0; i < m_quadIndices.getValue().size(); i++)
             {
@@ -328,65 +329,60 @@ void SurfacePressureForceField<DataTypes>::addKToMatrix(const core::MechanicalPa
 }
 
 template <class DataTypes>
+void SurfacePressureForceField<DataTypes>::getTrianglesIndices(VecIndex& trianglesIndices)
+{
+    if (m_topology->getTriangles().empty()) return;
+
+    if (m_triangleIndices.isSet())
+    {
+        trianglesIndices = m_triangleIndices.getValue();
+    }
+    else
+    {
+        trianglesIndices.resize(m_topology->getNbTriangles());
+        std::iota(trianglesIndices.begin(), trianglesIndices.end(), 0);
+    }
+}
+
+template <class DataTypes>
+void SurfacePressureForceField<DataTypes>::getQuadsIndices(VecIndex& quadsIndices)
+{
+    if (m_topology->getQuads().empty()) return;
+    if (m_quadIndices.isSet())
+    {
+        quadsIndices = m_quadIndices.getValue();
+    }
+    else
+    {
+        quadsIndices.resize(m_topology->getNbQuads());
+        std::iota(quadsIndices.begin(), quadsIndices.end(), 0);
+    }
+}
+
+template <class DataTypes>
 typename SurfacePressureForceField<DataTypes>::Real SurfacePressureForceField<DataTypes>::computeMeshVolume(const VecDeriv& /*f*/, const VecCoord& x)
 {
     typedef core::topology::BaseMeshTopology::Triangle Triangle;
     typedef core::topology::BaseMeshTopology::Quad Quad;
 
     Real volume = 0;
+    VecIndex trianglesIndices, quadsIndices;
 
-    unsigned int nTriangles = 0;
-    const VecIndex& triangleIndices = m_triangleIndices.getValue();
-    if (!triangleIndices.empty())
+    getTrianglesIndices(trianglesIndices);
+    for (unsigned int index : trianglesIndices)
     {
-        nTriangles = triangleIndices.size();
-    }
-    else
-    {
-        nTriangles = m_topology->getNbTriangles();
-    }
-
-    unsigned int triangleIdx = 0;
-    for (unsigned int i = 0; i < nTriangles; i++)
-    {
-        if (!triangleIndices.empty())
-        {
-            triangleIdx = triangleIndices[i];
-        }
-        else
-        {
-            triangleIdx = i;
-        }
-        Triangle t = m_topology->getTriangle(triangleIdx);
+        Triangle t = m_topology->getTriangle(index);
         const Coord a = x[t[0]];
         const Coord b = x[t[1]];
         const Coord c = x[t[2]];
         volume += dot(cross(a,b),c);
     }
 
-    unsigned int nQuads = 0;
-    const VecIndex& quadIndices = m_quadIndices.getValue();
-    if (!quadIndices.empty())
-    {
-        nQuads = quadIndices.size();
-    }
-    else
-    {
-        nQuads = m_topology->getNbQuads();
-    }
 
-    unsigned int quadIdx = 0;
-    for (unsigned int i = 0; i < nQuads; i++)
+    getQuadsIndices(quadsIndices);
+    for (unsigned int index : quadsIndices)
     {
-        if (!quadIndices.empty())
-        {
-            quadIdx = quadIndices[i];
-        }
-        else
-        {
-            quadIdx = i;
-        }
-        Quad q = m_topology->getQuad(quadIdx);
+        Quad q = m_topology->getQuad(index);
         const Coord a = x[q[0]];
         const Coord b = x[q[1]];
         const Coord c = x[q[2]];
@@ -573,58 +569,22 @@ SurfacePressureForceField<defaulttype::Rigid3dTypes>::Real SurfacePressureForceF
 
     Real volume = 0;
 
-    unsigned int nTriangles = 0;
-    const VecIndex& triangleIndices = m_triangleIndices.getValue();
-    if (!triangleIndices.empty())
-    {
-        nTriangles = triangleIndices.size();
-    }
-    else
-    {
-        nTriangles = m_topology->getNbTriangles();
-    }
+    VecIndex trianglesIndices, quadsIndices;
 
-    unsigned int triangleIdx = 0;
-    for (unsigned int i = 0; i < nTriangles; i++)
+    getTrianglesIndices(trianglesIndices);
+    for (unsigned int index : trianglesIndices)
     {
-        if (!triangleIndices.empty())
-        {
-            triangleIdx = triangleIndices[i];
-        }
-        else
-        {
-            triangleIdx = i;
-        }
-        Triangle t = m_topology->getTriangle(triangleIdx);
+        Triangle t = m_topology->getTriangle(index);
         const defaulttype::Rigid3dTypes::CPos a = x[t[0]].getCenter();
         const defaulttype::Rigid3dTypes::CPos b = x[t[1]].getCenter();
         const defaulttype::Rigid3dTypes::CPos c = x[t[2]].getCenter();
         volume += dot(cross(a,b),c);
     }
 
-    unsigned int nQuads = 0;
-    const VecIndex& quadIndices = m_quadIndices.getValue();
-    if (!quadIndices.empty())
+    getQuadsIndices(quadsIndices);
+    for (unsigned int index : quadsIndices)
     {
-        nQuads = quadIndices.size();
-    }
-    else
-    {
-        nQuads = m_topology->getNbQuads();
-    }
-
-    unsigned int quadIdx = 0;
-    for (unsigned int i = 0; i < nQuads; i++)
-    {
-        if (!quadIndices.empty())
-        {
-            quadIdx = quadIndices[i];
-        }
-        else
-        {
-            quadIdx = i;
-        }
-        Quad q = m_topology->getQuad(quadIdx);
+        Quad q = m_topology->getQuad(index);
         const defaulttype::Rigid3dTypes::CPos a = x[q[0]].getCenter();
         const defaulttype::Rigid3dTypes::CPos b = x[q[1]].getCenter();
         const defaulttype::Rigid3dTypes::CPos c = x[q[2]].getCenter();
@@ -763,58 +723,22 @@ SurfacePressureForceField<defaulttype::Rigid3fTypes>::Real SurfacePressureForceF
 
     Real volume = 0;
 
-    unsigned int nTriangles = 0;
-    const VecIndex& triangleIndices = m_triangleIndices.getValue();
-    if (!triangleIndices.empty())
-    {
-        nTriangles = triangleIndices.size();
-    }
-    else
-    {
-        nTriangles = m_topology->getNbTriangles();
-    }
+    VecIndex trianglesIndices, quadsIndices;
 
-    unsigned int triangleIdx = 0;
-    for (unsigned int i = 0; i < nTriangles; i++)
+    getTrianglesIndices(trianglesIndices);
+    for (unsigned int index : trianglesIndices)
     {
-        if (!triangleIndices.empty())
-        {
-            triangleIdx = triangleIndices[i];
-        }
-        else
-        {
-            triangleIdx = i;
-        }
-        Triangle t = m_topology->getTriangle(triangleIdx);
+        Triangle t = m_topology->getTriangle(index);
         const defaulttype::Rigid3fTypes::CPos a = x[t[0]].getCenter();
         const defaulttype::Rigid3fTypes::CPos b = x[t[1]].getCenter();
         const defaulttype::Rigid3fTypes::CPos c = x[t[2]].getCenter();
         volume += dot(cross(a,b),c);
     }
 
-    unsigned int nQuads = 0;
-    const VecIndex& quadIndices = m_quadIndices.getValue();
-    if (!quadIndices.empty())
+    getQuadsIndices(quadsIndices);
+    for (unsigned int index : quadsIndices)
     {
-        nQuads = quadIndices.size();
-    }
-    else
-    {
-        nQuads = m_topology->getNbQuads();
-    }
-
-    unsigned int quadIdx = 0;
-    for (unsigned int i = 0; i < nQuads; i++)
-    {
-        if (!quadIndices.empty())
-        {
-            quadIdx = quadIndices[i];
-        }
-        else
-        {
-            quadIdx = i;
-        }
-        Quad q = m_topology->getQuad(quadIdx);
+        Quad q = m_topology->getQuad(index);
         const defaulttype::Rigid3fTypes::CPos a = x[q[0]].getCenter();
         const defaulttype::Rigid3fTypes::CPos b = x[q[1]].getCenter();
         const defaulttype::Rigid3fTypes::CPos c = x[q[2]].getCenter();
