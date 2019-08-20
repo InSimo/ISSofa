@@ -50,6 +50,18 @@ public:
     static constexpr int matrixType = 1;
 };
 
+class CRSMechanicalUpperTriPolicy : public sofa::defaulttype::CRSDefaultPolicy
+{
+public:
+
+    static constexpr bool IsAlwaysSquare = true;
+    static constexpr bool IsAlwaysSymmetric = true;
+    static constexpr bool OrderedInsertion = true;
+    static constexpr bool StoreLowerTriangularBloc = false;
+
+    static constexpr int matrixType = 1;
+};
+
 template<typename TBloc, typename TPolicy = CRSMechanicalPolicy >
 class CompressedRowSparseMatrixMechanical final // final is used to allow the compiler to inline virtual methods
     : public CompressedRowSparseMatrix<TBloc, TPolicy>, public sofa::defaulttype::BaseMatrix
