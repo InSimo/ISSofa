@@ -825,6 +825,7 @@ protected:
                 }
                 else if (j > colsIndex[rowRange.second - 1]) /// Optimization we are trying to write on last line et upper of last column, directly create it.
                 {
+                    if (!create) return nullptr;
                     colsIndex.push_back(j);
                     colsValue.push_back(Bloc());
                     rowBegin.back()++;
