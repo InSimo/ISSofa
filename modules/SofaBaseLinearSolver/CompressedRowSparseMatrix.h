@@ -995,6 +995,14 @@ public:
         compressed = true;
     }
 
+    std::size_t countEmptyBlocs() const
+    {
+        return std::count_if(this->colsValue.cbegin(), this->colsValue.cend(), [] (const Bloc& b)
+        {
+            return traits::empty(b);
+        });
+    }
+
     /// @name Get information about the content and structure of this matrix (diagonal, band, sparse, full, block size, ...)
     /// @{
 
