@@ -983,6 +983,12 @@ public:
         *wbloc(i,j,rowId,colId,true) += v;
     }
 
+    Bloc* getWBloc(Index i, Index j, bool create = false)
+    {
+        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (i > j) return nullptr;
+        return wbloc(i,j,create);
+    }
+
     /**
     * \brief Clear row bloc method. Clear all col of this line.
     * @param i : Line index considering size of matrix in bloc.
