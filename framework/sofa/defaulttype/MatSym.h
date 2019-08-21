@@ -689,6 +689,30 @@ inline real scalarProduct(const Mat<D,D,real>& left, const MatSym<D,real>& right
     return scalarProduct(right, left);
 }
 
+template<class real>
+inline MatSym<3, real> extractMatSymLower(const Mat<3, 3, real>& m)
+{
+    return MatSym<3, real>(m(0, 0), m(1, 0), m(1, 1), m(2, 0), m(2, 1), m(2, 2));
+}
+
+template<class real>
+inline MatSym<2, real> extractMatSymLower(const Mat<2, 2, real>& m)
+{
+    return MatSym<2, real>(m(0, 0), m(1, 0), m(1, 1));
+}
+
+template<class real>
+inline MatSym<1, real> extractMatSymLower(const Mat<1, 1, real>& m)
+{
+    return MatSym<1, real>(m(0, 0));
+}
+
+template<int D, class real>
+inline Mat<D, D, real> operator*(const MatSym<D, real>& a, const Mat<D, D, real>& b)
+{
+    return a.SymMatMultiply(b);
+}
+
 } // namespace defaulttype
 
 } // namespace sofa
