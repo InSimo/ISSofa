@@ -429,7 +429,7 @@ public :
 #if ZLIB_VERNUM >= 0x1290
             return gzfread(buf, size, nitems, m_matrixFileGZ);
 #else
-            return gzread(m_matrixFileGZ; buf, (unsigned)nitems*size)/size;
+            return gzread(m_matrixFileGZ, buf, (unsigned)nitems*size)/size;
 #endif
         }
 #endif
