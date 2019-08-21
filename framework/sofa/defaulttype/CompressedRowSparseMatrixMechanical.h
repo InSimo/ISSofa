@@ -504,13 +504,13 @@ public:
 /// @name BlocMatrixWriter operators
 /// @{
     /// Override CRSMatrix add method to avoid mis-understanding by compilator with other add method overriding BaseMatrix.
-    void add(unsigned int bi, unsigned int bj, const Bloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void add(unsigned int bi, unsigned int bj, const Bloc& b)
     {
-        CRSMatrix::add(bi, bj, b, boffsetL, boffsetC);
+        CRSMatrix::add(bi, bj, b);
     }
-    void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Bloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Bloc& b)
     {
-        CRSMatrix::add(bi, bj, rowId, colId, b, boffsetL, boffsetC);
+        CRSMatrix::add(bi, bj, rowId, colId, b);
     }
 /// @}
 

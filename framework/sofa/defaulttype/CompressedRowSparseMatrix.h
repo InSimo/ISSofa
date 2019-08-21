@@ -1201,111 +1201,145 @@ public:
 /// @name BlocMatrixWriter operators
 /// @{
 
-    void add(unsigned int bi, unsigned int bj, const Bloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void add(unsigned int bi, unsigned int bj, const Bloc& b)
     {
-        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::add, bi, bj, b, boffsetL, boffsetC);
-        addBloc(boffsetL + bi, boffsetC + bj, b);
+        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::add, bi, bj, b);
+        addBloc(bi, bj, b);
     }
 
-    void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Bloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Bloc& b)
     {
-        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addId, bi, bj, rowId, colId, b, boffsetL, boffsetC);
-        addBloc(boffsetL + bi, boffsetC + bj, rowId, colId, b);
+        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addId, bi, bj, rowId, colId, b);
+        addBloc(bi, bj, rowId, colId, b);
     }
 
-    void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
     {
-        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addDBloc, bi, bj, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (boffsetL + bi > boffsetC + bj) return;
-        Bloc* mb = wbloc(boffsetL + bi, boffsetC + bj, true);
+        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addDBloc, bi, bj, b);
+        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (bi > bj) return;
+        Bloc* mb = wbloc(bi, bj, true);
 
         for (unsigned int i = 0; i < NL; ++i)
             traits::vadd(*mb, i, i, b[i] );
     }
 
-    void addDValue(unsigned int bi, unsigned int bj, const Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDValue(unsigned int bi, unsigned int bj, const Real b)
     {
-        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addDValue, bi, bj, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (boffsetL + bi > boffsetC + bj) return;
-        Bloc* mb = wbloc(boffsetL + bi, boffsetC + bj, true);
+        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addDValue, bi, bj, b);
+        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (bi > bj) return;
+        Bloc* mb = wbloc(bi, bj, true);
 
         for (unsigned int i = 0; i < NL; ++i)
             traits::vadd(*mb, i, i, b);
     }
 
-    void addDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Real b)
     {
-        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addDValueId, bi, bj, rowId, colId, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (boffsetL + bi > boffsetC + bj) return;
-        Bloc* mb = wbloc(boffsetL + bi, boffsetC + bj, rowId, colId, true);
+        SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::addDValueId, bi, bj, rowId, colId, b);
+        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (bi > bj) return;
+        Bloc* mb = wbloc(bi, bj, rowId, colId, true);
 
         for (unsigned int i = 0; i < NL; ++i)
             traits::vadd(*mb, i, i, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSquare> >
-    void addDiag(unsigned int bi, const Bloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDiag(unsigned int bi, const Bloc& b)
     {
-        add(bi, bi, b, boffsetL, boffsetC);
+        add(bi, bi, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSquare> >
-    void addDiag(unsigned int bi, int& rowId, int& colId, const Bloc &b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDiag(unsigned int bi, int& rowId, int& colId, const Bloc &b)
     {
-        add(bi, bi, rowId, colId, b, boffsetL, boffsetC);
+        add(bi, bi, rowId, colId, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSquare> >
-    void addDiagDBloc(unsigned int bi, const DBloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDiagDBloc(unsigned int bi, const DBloc& b)
     {
-        addDBloc(bi, bi, b, boffsetL, boffsetC);
+        addDBloc(bi, bi, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSquare> >
-    void addDiagDValue(unsigned int bi, const Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDiagDValue(unsigned int bi, const Real b)
     {
-        addDValue(bi, bi, b, boffsetL, boffsetC);
+        addDValue(bi, bi, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSquare> >
-    void addDiagDValue(unsigned int bi, int& rowId, int& colId, const Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addDiagDValue(unsigned int bi, int& rowId, int& colId, const Real b)
     {
-        addDValue(bi, bi, rowId, colId, b, boffsetL, boffsetC);
+        addDValue(bi, bi, rowId, colId, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSymmetric> >
-    void addSym(unsigned int bi, unsigned int bj, const Bloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSym(unsigned int bi, unsigned int bj, const Bloc& b)
     {
-        add(bi, bj, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) add(bj, bi, b.transposed(), boffsetC, boffsetL);
+        SOFA_IF_CONSTEXPR(Policy::StoreLowerTriangularBloc)
+        {
+            add(bi, bj, b);
+            add(bj, bi, b.transposed());
+        }
+        else
+        {
+            if (bi > bj) // the block we received is in the lower triangular
+            {
+                add(bj, bi, b.transposed());
+            }
+            else
+            {
+                add(bi, bj, b);
+            }
+        }
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSymmetric> >
-    void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, const Bloc &b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, const Bloc &b)
     {
-        add(bi, bj, rowId, colId, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) add(bj, bi, rowIdT, colIdT, b.transposed(), boffsetC, boffsetL);
+        SOFA_IF_CONSTEXPR(Policy::StoreLowerTriangularBloc)
+        {
+            add(bi, bj, rowId, colId, b);
+            add(bj, bi, rowIdT, colIdT, b.transposed());
+        }
+        else
+        {
+            if (bi > bj) // the block we received is in the lower triangular
+            {
+                add(bj, bi, rowIdT, colIdT, b.transposed());
+            }
+            else
+            {
+                add(bi, bj, rowId, colId, b);
+            }
+        }
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSymmetric> >
-    void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
     {
-        addDBloc(bi, bj, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) addDBloc(bj, bi, b, boffsetC, boffsetL);
+        unsigned int i = std::min(bi, bj);
+        unsigned int j = std::max(bi, bj);
+        addDBloc(i, j, b);
+        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) addDBloc(j, i, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSymmetric> >
-    void addSymDValue(unsigned int bi, unsigned int bj, const Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
     {
-        addDValue(bi, bj, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) addDValue(bj, bi, b, boffsetC, boffsetL);
+        unsigned int i = std::min(bi, bj);
+        unsigned int j = std::max(bi, bj);
+        addDValue(i, j, b);
+        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) addDValue(j, i, b);
     }
 
     template< typename = typename std::enable_if< Policy::IsAlwaysSymmetric> >
-    void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, Real b)
     {
-        addDValue(bi, bj, rowId, colId, b, boffsetL, boffsetC);
-        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) addDValue(bj, bi, rowIdT, colIdT, b, boffsetC, boffsetL);
+        unsigned int i = std::min(bi, bj);
+        unsigned int j = std::max(bi, bj);
+        addDValue(i, j, rowId, colId, b);
+        SOFA_IF_CONSTEXPR (Policy::StoreLowerTriangularBloc) addDValue(j, i, rowIdT, colIdT, b);
     }
 
 /// @}
