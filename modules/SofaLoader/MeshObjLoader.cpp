@@ -399,6 +399,9 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
         }
     }
 
+    const bool hasTexCoords = my_texCoords.size() > 0 ;
+    const bool hasNormals = my_normals.size() > 0 ;
+
     if (!d_handleSeams.getValue())
     { // default mode, vertices are never duplicated, only one texcoord and normal is used per vertex
         helper::vector<sofa::defaulttype::Vector2>& vTexCoords = *texCoords.beginEdit();
@@ -407,24 +410,9 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
         helper::vector<sofa::defaulttype::Vector3>& vVertices  = *positions.beginEdit();
         vVertices = my_positions;
         size_t vertexCount = my_positions.size();
-        if( my_texCoords.size() > 0 )
-        {
-            vTexCoords.resize(vertexCount);
-            vTexCoordsInFace.resize(vertexCount);
-        }
-        else
-        {
-            vTexCoords.resize(0);
-            vTexCoordsInFace.resize(vertexCount);
-        }
-        if( my_normals.size() > 0 )
-        {
-            vNormals.resize(vertexCount);
-        }
-        else
-        {
-            vNormals.resize(0);
-        }
+        vTexCoords.resize(hasTexCoords ? vertexCount : 0);
+        vTexCoordsInFace.resize(vertexCount);
+        vNormals.resize(hasNormals ? vertexCount : 0);
         for (size_t fi=0; fi<my_faceList.size(); ++fi)
         {
             const helper::SVector<int>& nodes = my_faceList[fi];
@@ -480,16 +468,18 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
         helper::WriteAccessor<Data<helper::vector<sofa::defaulttype::Vector3>>> vertices2 = positions;
         helper::WriteAccessor<Data<helper::vector<sofa::defaulttype::Vector3>>> vnormals = normals;
         helper::WriteAccessor<Data<helper::vector<sofa::defaulttype::Vector2>>> vtexcoords = texCoords;
+        helper::WriteAccessor<Data<helper::vector<MapFaceTexCoord>>> vTexCoordsInFace = texCoordsInFace;
         helper::WriteAccessor<Data<helper::vector<int>>> vertPosIdx = d_vertPosIdx;
         helper::WriteAccessor<Data<helper::vector<int>>> vertNormIdx = d_vertNormIdx;
 
         vertices2.resize(nbVOut);
-        vnormals.resize(nbVOut);
-        vtexcoords.resize(nbVOut);
+        vtexcoords.resize(hasTexCoords ? nbVOut : 0);
+        vTexCoordsInFace.resize(nbVOut);
+        vnormals.resize(hasNormals ? nbVOut : 0);
         if (vsplit)
         {
             vertPosIdx.resize(nbVOut);
-            vertNormIdx.resize(nbVOut);
+            vertNormIdx.resize(hasNormals ? nbVOut : 0);
         }
 
         int nbNOut = 0; /// Number of different normals
@@ -501,21 +491,24 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
             {
                 int t = it->first.first;
                 int n = it->first.second;
-                if ( (unsigned)n < my_normals.size())
+                if ( n >= 0 && (unsigned)n < my_normals.size())
                     vnormals[j] = my_normals[n];
-                if ((unsigned)t < my_texCoords.size())
+                if ( t >= 0 && (unsigned)t < my_texCoords.size())
                     vtexcoords[j] = my_texCoords[t];
                 
                 vertices2[j] = my_positions[i];
                 if (vsplit)
                 {
                     vertPosIdx[j] = i;
-                    if (normMap.count(n))
-                        vertNormIdx[j] = normMap[n];
-                    else
+                    if (hasNormals)
                     {
-                        vertNormIdx[j] = nbNOut;
-                        normMap[n] = nbNOut++;
+                        if (normMap.count(n))
+                            vertNormIdx[j] = normMap[n];
+                        else
+                        {
+                            vertNormIdx[j] = nbNOut;
+                            normMap[n] = nbNOut++;
+                        }
                     }
                 }
                 it->second = j++;
@@ -545,6 +538,8 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
                     serr << this->getName()<<" index "<<nodes[i]<<" out of range"<<sendl;
                     nodes[i] = 0;
                 }
+                if (ti < my_texCoords.size())
+                    vTexCoordsInFace[nodes[i]].setTexCoord(fi, my_texCoords[ti]);
             }
 
             if (nodes.size() == 2) // Edge
