@@ -56,6 +56,8 @@ TransformEngine<DataTypes>::TransformEngine()
     addInput(&f_inputX);
     addInput(&translation);
     addInput(&rotation);
+    addInput(&rotationAxis);
+    addInput(&rotationAngle);
     addInput(&quaternion);
     addInput(&scale);
     addInput(&inverse);
