@@ -58,6 +58,7 @@ public:
     typedef typename DataTypes::MatrixDeriv MatrixDeriv;
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
+    typedef typename DataTypes::DPos DPos;
     typedef typename Coord::value_type Real;
     typedef typename MatrixDeriv::RowIterator MatrixDerivRowIterator;
     typedef typename MatrixDeriv::RowType MatrixDerivRowType;
@@ -68,7 +69,7 @@ public:
     typedef sofa::component::topology::PointSubsetData< SetIndexArray > SetIndex;
 public:
     /// direction on which the constraint applies
-    Data<Coord> direction;
+    Data<DPos> direction;
 
     Data<Real> dmin; // coordinates min of the plane for the vertex selection
     Data<Real> dmax;// coordinates max of the plane for the vertex selection
@@ -104,7 +105,7 @@ public:
 
     virtual void init();
 
-    void setDirection (Coord dir);
+    void setDirection(DPos dir);
     void selectVerticesAlongPlane();
     void setDminAndDmax(const Real _dmin,const Real _dmax) {dmin=_dmin; dmax=_dmax; selectVerticesFromPlanes=true;}
 
@@ -137,31 +138,12 @@ protected:
     /// Handler for subset Data
     FCPointHandler* pointHandler;
 
-    bool isPointInPlane(Coord p)
+    bool isPointInPlane(Coord p) const
     {
-        Real d=dot(p,direction.getValue());
-        if ((d>dmin.getValue())&& (d<dmax.getValue()))
-            return true;
-        else
-            return false;
+        Real d=dot(DataTypes::getCPos(p),direction.getValue());
+        return ((d>dmin.getValue()) && (d<dmax.getValue()));
     }
 };
-
-#ifndef SOFA_FLOAT
-template <> template <class DataDeriv>
-void FixedPlaneConstraint<defaulttype::Rigid3dTypes>::projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& /*res*/);
-
-template <>
-bool FixedPlaneConstraint<defaulttype::Rigid3dTypes>::isPointInPlane(Coord /*p*/);
-#endif
-
-#ifndef SOFA_DOUBLE
-template <> template <class DataDeriv>
-void FixedPlaneConstraint<defaulttype::Rigid3fTypes>::projectResponseT(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataDeriv& /*res*/);
-
-template <>
-bool FixedPlaneConstraint<defaulttype::Rigid3fTypes>::isPointInPlane(Coord /*p*/);
-#endif
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_PROJECTIVECONSTRAINTSET_FIXEDPLANECONSTRAINT_CPP)
 #ifndef SOFA_FLOAT

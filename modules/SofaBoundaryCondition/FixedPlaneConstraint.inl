@@ -99,18 +99,20 @@ void FixedPlaneConstraint<DataTypes>::removeConstraint(int index)
     indices.endEdit();
 }
 
-// -- Mass interface
+// -- Constraint interface
 
 
-template <class DataTypes> template <class DataDeriv>
+template <class DataTypes>
+template <class DataDeriv>
 void FixedPlaneConstraint<DataTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res)
 {
-    Coord dir=direction.getValue();
-
-    for (helper::vector< unsigned int >::const_iterator it = this->indices.getValue().begin(); it != this->indices.getValue().end(); ++it)
+    const DPos dir=direction.getValue();
+    for (unsigned int index : this->indices.getValue())
     {
         /// only constraint one projection of the displacement to be zero
-        res[*it]-= dir*dot(res[*it],dir);
+        DPos val = DataTypes::getDPos(res[index]);
+        val -= dir*dot(val,dir);
+        DataTypes::setDPos(res[index], val);
     }
 }
 
@@ -118,7 +120,7 @@ template <class DataTypes>
 void FixedPlaneConstraint<DataTypes>::projectResponse(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& resData)
 {
     helper::WriteAccessor<DataVecDeriv> res = resData;
-    projectResponseT<VecDeriv>(mparams /* PARAMS FIRST */, res.wref());
+    projectResponseT<VecDeriv>(mparams, res.wref());
 }
 
 /// project dx to constrained space (dx models a velocity)
@@ -163,7 +165,7 @@ void FixedPlaneConstraint<DataTypes>::projectJacobianMatrix(const core::Mechanic
 }
 
 template <class DataTypes>
-void FixedPlaneConstraint<DataTypes>::setDirection(Coord dir)
+void FixedPlaneConstraint<DataTypes>::setDirection(DPos dir)
 {
     if (dir.norm2()>0)
     {

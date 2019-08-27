@@ -69,54 +69,6 @@ template class SOFA_BOUNDARY_CONDITION_API FixedPlaneConstraint<Vec3fTypes>;
 template class SOFA_BOUNDARY_CONDITION_API FixedPlaneConstraint<Vec6fTypes>;
 #endif
 
-#ifndef SOFA_FLOAT
-template <> template <class DataDeriv>
-void FixedPlaneConstraint<Rigid3dTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res)
-{
-    Vec<Coord::spatial_dimensions,Real> dir=direction.getValue().getCenter();
-
-    for (helper::vector< unsigned int > ::const_iterator it = this->indices.getValue().begin(); it != this->indices.getValue().end(); ++it)
-    {
-        getVCenter(res[*it]) -= dir*(dir*(getVCenter(res[*it])));
-    }
-}
-
-template <>
-bool FixedPlaneConstraint<Rigid3dTypes>::isPointInPlane(Rigid3dTypes::Coord p)
-{
-    Vec<Coord::spatial_dimensions,Real> pos = p.getCenter();
-    Real d=pos*direction.getValue().getCenter();
-    if ((d>dmin.getValue())&& (d<dmax.getValue()))
-        return true;
-    else
-        return false;
-}
-#endif
-
-#ifndef SOFA_DOUBLE
-template <> template <class DataDeriv>
-void FixedPlaneConstraint<Rigid3fTypes>::projectResponseT(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataDeriv& res)
-{
-    Vec<Coord::spatial_dimensions,Real> dir=direction.getValue().getCenter();
-
-    for (helper::vector< unsigned int > ::const_iterator it = this->indices.getValue().begin(); it != this->indices.getValue().end(); ++it)
-    {
-        getVCenter(res[*it]) -= dir*(dir*(getVCenter(res[*it])));
-    }
-}
-
-template <>
-bool FixedPlaneConstraint<Rigid3fTypes>::isPointInPlane(Coord p)
-{
-    Vec<Coord::spatial_dimensions,Real> pos = p.getCenter();
-    Real d=pos*direction.getValue().getCenter();
-    if ((d>dmin.getValue())&& (d<dmax.getValue()))
-        return true;
-    else
-        return false;
-}
-#endif
-
 } // namespace projectiveconstraintset
 
 } // namespace component
