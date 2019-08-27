@@ -64,6 +64,7 @@ set(SOFACORE_HEADERS
 	behavior/ProjectiveConstraintSet.inl
 	behavior/OdeSolver.h
 	behavior/RotationFinder.h
+    collision/BaseCollisionElementShape.h
 	collision/BroadPhaseDetection.h
 	collision/CollisionAlgorithm.h
 	collision/CollisionGroupManager.h
