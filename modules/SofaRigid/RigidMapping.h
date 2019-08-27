@@ -151,6 +151,9 @@ public:
     void setRepartition(unsigned int value);
     void setRepartition(sofa::helper::vector<unsigned int> values);
 
+    /// get the index of the rigid frame mapping the given output point
+    unsigned int getRigidIndexFromOutIndex(unsigned int pout) const;
+
 protected:
     class Loader;
 

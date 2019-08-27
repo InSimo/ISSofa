@@ -326,6 +326,34 @@ const typename RigidMapping<TIn, TOut>::VecCoord & RigidMapping<TIn, TOut>::getP
     return points.getValue();
 }
 
+/// get the index of the rigid frame mapping the given output point
+template <class TIn, class TOut>
+unsigned int RigidMapping<TIn, TOut>::getRigidIndexFromOutIndex(unsigned int pout) const
+{
+    helper::ReadAccessor< Data< vector<unsigned int> > > rep = this->pointsPerFrame;
+    if (rep.empty())
+    {
+        return index.getValue();
+    }
+    else if (rep.size() == 1) // N points per frame (with N the same for all frames)
+    {
+        return pout / rep[0];
+    }
+    else // each frame has different number of points
+    {
+        unsigned int pout0 = 0;
+        for (unsigned int pin = 0; pin < (unsigned int)rep.size(); ++pin)
+        {
+            pout0 += rep[pin];
+            if (pout < pout0)
+            {
+                return pin;
+            }
+        }
+        return (unsigned int)-1;
+    }
+}
+
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparams*/ /* PARAMS FIRST */, Data<VecCoord>& dOut, const Data<InVecCoord>& dIn)
 {
