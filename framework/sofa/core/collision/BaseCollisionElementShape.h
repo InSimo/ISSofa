@@ -74,6 +74,11 @@ public:
     virtual bool hasNormal() const { return false; }
     /// \brief Interpolate the normal on the shape at the given barycentric coordinates
     virtual Vec3 normal(const BaryCoords& /*bary*/) const { return {}; }
+
+    /// \brief Returns true iff tangents are defined on the shape
+    virtual bool hasTangent() const { return false; }
+    /// \brief Interpolate the tangent on the shape at the given barycentric coordinates
+    virtual Vec3 tangent(const BaryCoords& /*bary*/) const { return {}; }
 protected:
     virtual ~BaseCollisionElementShape() = default;
 };
