@@ -47,7 +47,7 @@ class SOFA_CORE_API BaseCollisionElementShape
 {
 public:
     using Vec3 = sofa::defaulttype::Vector3;
-    using BaryCoords = sofa::helper::fixed_array<SReal, 3>; // 3 is enough because we simulate a three-dimensional space
+    using BaryCoords = Vec3; // 3 is enough because we simulate a three-dimensional space
 
     /// \brief Interpolate the position on the shape at the given barycentric coordinates
     virtual Vec3 interpolateX(const BaryCoords& bary) const = 0;
