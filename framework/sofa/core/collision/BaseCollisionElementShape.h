@@ -43,7 +43,7 @@ namespace collision
  *  Collision element shapes contain functions used to interpolate state vectors onto the collision element
  *  using barycentric coordinates.
  */
-class SOFA_CORE_API BaseCollisionElementShape
+class BaseCollisionElementShape
 {
 public:
     using Vec3 = sofa::defaulttype::Vector3;
