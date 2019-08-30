@@ -22,42 +22,42 @@ class GenericTriangleIterator : public sofa::core::TCollisionElementIterator<Tri
 {
 public:
     typedef typename TriangleCollisionModel::DataTypes DataTypes;
-    typedef typename DataTypes::Coord Coord;
-    typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::CPos CPos;
     typedef typename DataTypes::DPos DPos;
     typedef TriangleCollisionModel ParentModel;
     typedef typename DataTypes::Real Real;
 
-    GenericTriangleIterator(ParentModel* model, int index);
     GenericTriangleIterator() {}
+    GenericTriangleIterator(ParentModel* model, int index);
     explicit GenericTriangleIterator(const sofa::core::CollisionElementIterator& i);
     GenericTriangleIterator(ParentModel* model, int index, sofa::helper::ReadAccessor<typename DataTypes::VecCoord>& /*x*/);
 
-    CPos p1() const;
-    CPos p2() const;
-    CPos p3() const;
+    const CPos& p1() const;
+    const CPos& p2() const;
+    const CPos& p3() const;
 
-    CPos p(int i)const;
-    CPos p0(int i)const;
+    const CPos& p(int i)const;
+    const CPos& p0(int i)const;
 
     int p1Index() const;
     int p2Index() const;
     int p3Index() const;
 
-    CPos p1Free() const;
-    CPos p2Free() const;
-    CPos p3Free() const;
+    const CPos& p1Free() const;
+    const CPos& p2Free() const;
+    const CPos& p3Free() const;
 
     CPos operator[](int i) const;
 
-    DPos v1() const;
-    DPos v2() const;
-    DPos v3() const;
-    DPos v(int i) const;
+    const DPos& v1() const;
+    const DPos& v2() const;
+    const DPos& v3() const;
+    const DPos& v(int i) const;
 
-
-    DPos n() const;
+    const DPos& n1() const;
+    const DPos& n2() const;
+    const DPos& n3() const;
+    const DPos n() const;
 
     /// Return true if the element stores a free position vector
     bool hasFreePosition() const;
@@ -69,17 +69,6 @@ public:
 
     GenericTriangleIterator& shape() { return *this; }
     const GenericTriangleIterator& shape() const { return *this; }
-
-    CPos interpX(sofa::defaulttype::Vec<2, Real> bary) const
-    {
-        return (p1()*(1 - bary[0] - bary[1])) + (p2()*bary[0]) + (p3()*bary[1]);
-    }
-
-    CPos interpX(Real bary0, Real bary1) const
-    {
-        return (p1()*(1 - bary0 - bary1)) + (p2()*bary0) + (p3()*bary1);
-    }
-
 };
 
 
@@ -98,50 +87,125 @@ inline GenericTriangleIterator<TriangleCollisionModel>::GenericTriangleIterator(
     : sofa::core::TCollisionElementIterator<ParentModel>(model, index)
 {}
 
+
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p1() const -> CPos { return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][0]]); }
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p2() const -> CPos { return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][1]]); }
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p3() const -> CPos { return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][2]]); }
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p(int i) const -> CPos {
-    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][i]]);
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p1() const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][0]]);
 }
+
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p0(int i) const -> CPos {
-    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::restPosition())->getValue()[this->model->getTriangles()[this->index][i]]);
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p2() const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][1]]);
 }
+
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::operator[](int i) const -> CPos {
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p3() const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][2]]);
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p(int i) const
+{
     return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][i]]);
 }
 
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p1Free() const -> CPos { return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->getTriangles()[this->index][0]]); }
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p0(int i) const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::restPosition())->getValue()[this->model->getTriangles()[this->index][i]]);
+}
+
+
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p2Free() const -> CPos { return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->getTriangles()[this->index][1]]); }
+inline typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos GenericTriangleIterator<TriangleCollisionModel>::operator[](int i) const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->getTriangles()[this->index][i]]);
+}
+
+
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::p3Free() const -> CPos { return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->getTriangles()[this->index][2]]); }
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p1Free() const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->getTriangles()[this->index][0]]);
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p2Free() const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->getTriangles()[this->index][1]]);
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::CPos& GenericTriangleIterator<TriangleCollisionModel>::p3Free() const
+{
+    return DataTypes::getCPos(this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->getTriangles()[this->index][2]]);
+}
+
 
 template<class DataTypes>
 inline int GenericTriangleIterator<DataTypes>::p1Index() const { return this->model->getTriangles()[this->index][0]; }
+
 template<class DataTypes>
 inline int GenericTriangleIterator<DataTypes>::p2Index() const { return this->model->getTriangles()[this->index][1]; }
+
 template<class DataTypes>
 inline int GenericTriangleIterator<DataTypes>::p3Index() const { return this->model->getTriangles()[this->index][2]; }
 
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::v1() const -> DPos { return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][0]]); }
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::v2() const -> DPos { return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][1]]); }
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::v3() const -> DPos { return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][2]]); }
-template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::v(int i) const -> DPos { return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][i]]); }
 
 template<class TriangleCollisionModel>
-inline auto GenericTriangleIterator<TriangleCollisionModel>::n() const -> DPos { return this->index < (int)this->model->getNormals().size() ? DataTypes::getDPos(this->model->getNormals()[this->index]) : DPos(); }
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::v1() const
+{
+    return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][0]]);
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::v2() const
+{
+    return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][1]]);
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::v3() const
+{
+    return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][2]]);
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::v(int i) const
+{
+    return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][i]]);
+}
+
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::n1() const
+{
+    const typename DataTypes::Coord& normalO = this->model->getXNormal()[this->model->getTriangles()[this->index][0]];
+    return normalO.getOrientation();
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::n2() const
+{
+    const typename DataTypes::Coord& normalO = this->model->getXNormal()[this->model->getTriangles()[this->index][1]];
+    return normalO.getOrientation();
+}
+
+template<class TriangleCollisionModel>
+inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::n3() const
+{
+    const typename DataTypes::Coord& normalO = this->model->getXNormal()[this->model->getTriangles()[this->index][2]];
+    return normalO.getOrientation();
+}
+
+template<class TriangleCollisionModel>
+inline auto GenericTriangleIterator<TriangleCollisionModel>::n() const -> DPos
+{
+    return this->index < (int)this->model->getNormals().size() ? DataTypes::getDPos(this->model->getNormals()[this->index]) : DPos();
+}
 
 template<class DataTypes>
 inline int GenericTriangleIterator<DataTypes>::flags() const { return this->model->getTriangleFlags(this->index); }
@@ -156,7 +220,11 @@ template<class DataTypes>
 inline bool GenericTriangleIterator<DataTypes>::getTrianglePointProjectionRule() const { return false; }
 
 template<class DataTypes>
-inline bool GenericTriangleIterator<DataTypes>::hasFreePosition() const { return this->model->getMechanicalState()->read(core::ConstVecCoordId::freePosition())->isSet(); }
+inline bool GenericTriangleIterator<DataTypes>::hasFreePosition() const
+{
+    return this->model->getMechanicalState()->read(core::ConstVecCoordId::freePosition())->isSet();
+}
+
 
 } // namespace collision
 } // namespace component
