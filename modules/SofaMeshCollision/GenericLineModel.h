@@ -69,7 +69,7 @@ protected:
 
     virtual ~GenericLineModel() {};
 
-    /// \brief Update TriangleFlags computed only from topology.
+    /// \brief Update LineFlags computed only from topology.
     virtual void updateTopologicalLineFlags();
 
     core::behavior::MechanicalState<TDataTypes>* m_mstate = nullptr;
