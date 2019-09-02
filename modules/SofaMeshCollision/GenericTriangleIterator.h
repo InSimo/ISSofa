@@ -54,9 +54,6 @@ public:
     const DPos& v3() const;
     const DPos& v(int i) const;
 
-    const DPos& n1() const;
-    const DPos& n2() const;
-    const DPos& n3() const;
     const DPos n() const;
 
     /// Return true if the element stores a free position vector
@@ -177,28 +174,6 @@ template<class TriangleCollisionModel>
 inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::v(int i) const
 {
     return DataTypes::getDPos(this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->getTriangles()[this->index][i]]);
-}
-
-
-template<class TriangleCollisionModel>
-inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::n1() const
-{
-    const typename DataTypes::Coord& normalO = this->model->getXNormal()[this->model->getTriangles()[this->index][0]];
-    return normalO.getOrientation();
-}
-
-template<class TriangleCollisionModel>
-inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::n2() const
-{
-    const typename DataTypes::Coord& normalO = this->model->getXNormal()[this->model->getTriangles()[this->index][1]];
-    return normalO.getOrientation();
-}
-
-template<class TriangleCollisionModel>
-inline const typename GenericTriangleIterator<TriangleCollisionModel>::DataTypes::DPos& GenericTriangleIterator<TriangleCollisionModel>::n3() const
-{
-    const typename DataTypes::Coord& normalO = this->model->getXNormal()[this->model->getTriangles()[this->index][2]];
-    return normalO.getOrientation();
 }
 
 template<class TriangleCollisionModel>
