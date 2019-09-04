@@ -298,6 +298,16 @@ public:
             {
                 dispatch(BlocCRSMatrixWriter<float>(mat, boffsetL, boffsetC));
             }
+            else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL, NC, double>, sofa::defaulttype::CRSMechanicalUpperTriPolicy > * mat = 
+                     sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL, NC, double>, sofa::defaulttype::CRSMechanicalUpperTriPolicy >::DynamicCast(m))
+            {
+                dispatch(BlocCRSMatrixWriter<double, sofa::defaulttype::CRSMechanicalUpperTriPolicy >(mat, boffsetL, boffsetC));
+            }
+            else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL, NC, float>, sofa::defaulttype::CRSMechanicalUpperTriPolicy > * mat = 
+                     sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL, NC, float>, sofa::defaulttype::CRSMechanicalUpperTriPolicy >::DynamicCast(m))
+            {
+                dispatch(BlocCRSMatrixWriter<float, sofa::defaulttype::CRSMechanicalUpperTriPolicy>(mat, boffsetL, boffsetC));
+            }
             else
             {
                 assert(false);
@@ -312,6 +322,16 @@ public:
             else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<float> * mat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<float>::DynamicCast(m))
             {
                 dispatch(CRSMatrixWriter<float>(mat, offsetL, offsetC));
+            }
+            else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<double, sofa::defaulttype::CRSMechanicalUpperTriPolicy > * mat =
+                sofa::defaulttype::CompressedRowSparseMatrixMechanical<double, sofa::defaulttype::CRSMechanicalUpperTriPolicy >::DynamicCast(m))
+            {
+                dispatch(CRSMatrixWriter<double, sofa::defaulttype::CRSMechanicalUpperTriPolicy >(mat, offsetL, offsetC));
+            }
+            else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<float, sofa::defaulttype::CRSMechanicalUpperTriPolicy > * mat =
+                     sofa::defaulttype::CompressedRowSparseMatrixMechanical<float, sofa::defaulttype::CRSMechanicalUpperTriPolicy >::DynamicCast(m))
+            {
+                dispatch(CRSMatrixWriter<float, sofa::defaulttype::CRSMechanicalUpperTriPolicy>(mat, offsetL, offsetC));
             }
             else
             {
