@@ -57,82 +57,120 @@ public:
 
     typedef sofa::defaulttype::Vec<NL,Real> DBloc;
 
-    template<class MReal>
+    template<class MReal, class TPolicy = sofa::defaulttype::CRSMechanicalPolicy >
     class BlocCRSMatrixWriter
     {
-        sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal> >* m;
+        sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal>, TPolicy >* m;
         const unsigned int boffsetL, boffsetC;
     public:
-        BlocCRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal> >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
+        BlocCRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal>, TPolicy >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
-            m->add(bi, bj, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->add(i, j, b);
         }
         void add(unsigned int bi, unsigned int bj, int& rowId, int& colId, const MatBloc& b)
         {
-            m->add(bi, bj, rowId, colId, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->add(i, j, rowId, colId, b);
         }
         void addDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
-            m->addDBloc(bi, bj, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addDBloc(i, j, b);
         }
         void addDValue(unsigned int bi, unsigned int bj, const Real b)
         {
-            m->addDValue(bi, bj, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addDValue(i, j, b);
         }
          void addDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, const Real b)
         {
-            m->addDValue(bi, bj, rowId, colId, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addDValue(i, j, rowId, colId, b);
         }
         void addDiag(unsigned int bi, const MatBloc& b)
         {
-            m->addDiag(bi, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bi;
+            if (i == j)
+            {
+                m->addDiag(i, b);
+            }
+            else
+            {
+                m->add(i, j, b);
+            }
         }
         void addDiag(unsigned int bi, int& rowId, int& colId, const MatBloc &b)
         {
-            m->addDiag(bi, rowId, colId, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bi;
+            if (i == j)
+            {
+                m->addDiag(i, b);
+            }
+            else
+            {
+                m->add(i, j, rowId, colId, b);
+            }
         }
         void addDiagDBloc(unsigned int bi, const DBloc& b)
         {
-            m->addDiagDBloc(bi, b, boffsetL, boffsetC);
+            addDBloc(bi, bi, b);
         }
         void addDiagDValue(unsigned int bi, const Real b)
         {
-            m->addDiagDValue(bi, b, boffsetL, boffsetC);
+            addDValue(bi, bi, b);
         }
         void addDiagDValue(unsigned int bi, int& rowId, int& colId, const Real b)
         {
-            m->addDiagDValue(bi, rowId, colId, b, boffsetL, boffsetC);
+            addDValue(bi, bi, rowId, colId, b);
         }
         void addSym(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
-            m->addSym(bi, bj, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addSym(i, j, b);
         }
         void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, const MatBloc &b)
         {
-            m->addSym(bi, bj, rowId, colId, rowIdT, colIdT, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addSym(i, j, rowId, colId, rowIdT, colIdT, b);
         }
         void addSymDBloc(unsigned int bi, unsigned int bj, const DBloc& b)
         {
-            m->addSymDBloc(bi, bj, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addSymDBloc(i, j, b);
         }
         void addSymDValue(unsigned int bi, unsigned int bj, const Real b)
         {
-            m->addSymDValue(bi, bj, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addSymDValue(i, j, b);
         }
         void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, Real b)
         {
-            m->addSymDValue(bi, bj, rowId, colId, rowIdT, colIdT, b, boffsetL, boffsetC);
+            unsigned int i = boffsetL + bi;
+            unsigned int j = boffsetC + bj;
+            m->addSymDValue(i, j, rowId, colId, rowIdT, colIdT, b);
         }
     };
 
-    template<class MReal>
+    template<class MReal, class TPolicy = sofa::defaulttype::CRSMechanicalPolicy >
     class CRSMatrixWriter
     {
-        sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal>* m;
+        sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal, TPolicy>* m;
         const unsigned int offsetL, offsetC;
     public:
-        CRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
+        CRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal, TPolicy>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i0 = offsetL + bi*NL;
