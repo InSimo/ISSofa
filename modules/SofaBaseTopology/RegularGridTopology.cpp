@@ -389,6 +389,7 @@ void RegularGridTopology::createTexCoords()
 
     if (_n[ axes[2] ] != 0)
     {
+        if (_n[ axes[2] ] > 1) serr << "Unresolved bug when computing texcoords of 3d grid" << sendl;
         Uscale = 1/(SReal)(_n[ axes[0] ]-1);
         Vscale = 1/(SReal)(_n[ axes[2] ]-1);
 
@@ -414,7 +415,7 @@ void RegularGridTopology::createTexCoords()
                 unsigned int pt1 = n2 + _n[ axes[2] ] * n1;
                 unsigned int pt2 = n2 + _n[ axes[2] ] * (n1 + _n[ axes[1] ] * (_n[ axes[0] ])-1);
                 _texCoords[pt1] = Vector2(n2*Uscale, n1*Vscale);
-                _texCoords[pt2] = Vector2(1- n2*Uscale, 1 - n1*Vscale);
+                _texCoords[pt2] = Vector2(1- n2*Uscale, 1 - n1*Vscale); // FIXME pt2 >= nPts when using 3 axes
             }
         }
     }
