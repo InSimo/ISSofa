@@ -11,6 +11,8 @@ set(HEADER_FILES
     BarycentricPenalityContact.inl
     BarycentricContactMapper.h
     BarycentricContactMapper.inl
+    BaseLineModel.h
+    BaseTriangleModel.h
     IdentityContactMapper.h
     IdentityContactMapper.inl
     RigidContactMapper.h
@@ -61,14 +63,14 @@ set(SOURCE_FILES
     MeshNewProximityIntersection.cpp
     BarycentricPenalityContact.cpp
     BarycentricContactMapper.cpp
+    BaseLineModel.cpp
+    BaseTriangleModel.cpp
     IdentityContactMapper.cpp
     SubsetContactMapper.cpp
     MeshDiscreteIntersection.cpp
     MeshMinProximityIntersection.cpp
     PointModel.cpp
     LineModel.cpp
-    GenericLineModel.cpp
-    GenericTriangleModel.cpp
     TriangleModel.cpp
     TriangleOctree.cpp
     TriangleOctreeModel.cpp

@@ -8,8 +8,8 @@
 #define SOFA_COMPONENT_COLLISION_GENERICLINEMODEL_H
 
 #include "initMeshCollision.h"
-#include <sofa/core/CollisionModel.h>
-#include <sofa/defaulttype/RigidTypes.h>
+#include "BaseLineModel.h"
+#include <sofa/defaulttype/BoundingBox.h>
 
 namespace sofa
 {
@@ -29,11 +29,14 @@ namespace component
 namespace collision
 {
 
-template<class TDataTypes>
-class GenericLineModel : public sofa::core::CollisionModel
+template<class TCollisionModel, class TDataTypes = typename TCollisionModel::DataTypes>
+class GenericLineModel : public BaseLineModel
 {
 public:
-    SOFA_ABSTRACT_CLASS_UNIQUE((GenericLineModel<TDataTypes>), ((sofa::core::CollisionModel)));
+    SOFA_ABSTRACT_CLASS_UNIQUE((GenericLineModel<TCollisionModel, TDataTypes>), ((BaseLineModel)));
+
+    typedef TCollisionModel FinalCollisionModel;
+    typedef TDataTypes DataTypes;
 
     enum LineFlag
     {
@@ -47,50 +50,23 @@ public:
 
     void init() override;
 
-    void resize(int size) override;
-
-    void handleTopologyChange(sofa::core::topology::Topology* t) override;
-
     virtual void computeBoundingTree(int maxDepth = 0) override;
     virtual void computeContinuousBoundingTree(double dt, int maxDepth = 0) override;
 
     /// \brief Returns the bounding box of an element.
-    virtual defaulttype::BoundingBox computeElementBBox(int index, SReal distance) = 0;
+    //virtual defaulttype::BoundingBox computeElementBBox(int index, SReal distance) = 0;
     /// \brief Returns the bounding box of an element, accounting for motions within the given timestep.
-    virtual defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt) = 0;
+    //virtual defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt) = 0;
 
     sofa::core::behavior::MechanicalState<TDataTypes>* getMechanicalState() const { return this->m_mstate; }
-    sofa::core::topology::BaseMeshTopology* getTopology() const { return this->m_topology; }
-
-    int getLineFlags(int index) const { return m_lineFlags[index]; }
 
 protected:
     GenericLineModel();
 
-    virtual ~GenericLineModel() {};
-
-    /// \brief Update LineFlags computed only from topology.
-    virtual void updateTopologicalLineFlags();
+    virtual ~GenericLineModel();
 
     core::behavior::MechanicalState<TDataTypes>* m_mstate = nullptr;
-    sofa::core::topology::BaseMeshTopology* m_topology = nullptr;
-
-    bool m_hasTopologicalChange = true;
-
-    sofa::helper::vector<int> m_lineFlags;
 };
-
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_MESH_COLLISION)
-#ifndef SOFA_FLOAT
-extern template class SOFA_MESH_COLLISION_API GenericLineModel<defaulttype::Vec3dTypes>;
-extern template class SOFA_MESH_COLLISION_API GenericLineModel<defaulttype::Rigid3dTypes>;
-#endif
-
-#ifndef SOFA_DOUBLE
-extern template class SOFA_MESH_COLLISION_API GenericLineModel<defaulttype::Vec3fTypes>;
-extern template class SOFA_MESH_COLLISION_API GenericLineModel<defaulttype::Rigid3fTypes>;
-#endif
-#endif
 
 } // namespace collision
 

@@ -106,10 +106,10 @@ public:
 };
 
 template<class TDataTypes>
-class TTriangleModel : public component::collision::GenericTriangleModel<TDataTypes>
+class TTriangleModel : public component::collision::GenericTriangleModel<TTriangleModel<TDataTypes>, TDataTypes>
 {
 public:
-    SOFA_CLASS(SOFA_TEMPLATE(TTriangleModel, TDataTypes), SOFA_TEMPLATE(component::collision::GenericTriangleModel, TDataTypes));
+    SOFA_CLASS_UNIQUE((TTriangleModel<TDataTypes>), ((component::collision::GenericTriangleModel<TTriangleModel<TDataTypes>, TDataTypes>)));
 
     typedef TDataTypes DataTypes;
     typedef DataTypes InDataTypes;
@@ -182,8 +182,8 @@ public:
 
     virtual void resize(int size);
 
-    defaulttype::BoundingBox computeElementBBox(int index, SReal distance) override;
-    defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt) override;
+    defaulttype::BoundingBox computeElementBBox(int index, SReal distance);
+    defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt);
 
     virtual void computeBoundingTree(int maxDepth=0) override;
     virtual void computeContinuousBoundingTree(double dt, int maxDepth=0) override;

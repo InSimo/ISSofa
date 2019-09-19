@@ -26,6 +26,7 @@
 #define SOFA_COMPONENT_COLLISION_TRIANGLEMODEL_INL
 
 #include <SofaMeshCollision/TriangleModel.h>
+#include <SofaMeshCollision/GenericTriangleModel.inl>
 #include <sofa/core/visual/VisualParams.h>
 #include <SofaMeshCollision/TriangleLocalMinDistanceFilter.h>
 #include <SofaMeshCollision/Triangle.h>
@@ -94,17 +95,6 @@ void TTriangleModel<DataTypes>::reinit()
     this->updateTopologicalTriangleFlags();
     this->updateMechanicalTriangleFlags();
 }
-
-template< class DataTypes> 
-inline typename DataTypes::Deriv computeTriangleNormal(const typename DataTypes::Coord& p0,
-    const typename DataTypes::Coord& p1,
-    const typename DataTypes::Coord& p2)
-{
-    typename DataTypes::Deriv n;
-    DataTypes::setDPos(n,cross(DataTypes::getCPos(p1-p0), DataTypes::getCPos(p2-p0)).normalized());
-    return n;
-}
-
 
 template<class DataTypes>
 void TTriangleModel<DataTypes>::updateNormals()

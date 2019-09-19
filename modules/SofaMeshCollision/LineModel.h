@@ -97,10 +97,10 @@ public:
 };
 
 template<class TDataTypes>
-class TLineModel : public GenericLineModel<TDataTypes>
+class TLineModel : public GenericLineModel<TLineModel<TDataTypes>, TDataTypes>
 {
 public :
-    SOFA_CLASS(SOFA_TEMPLATE(TLineModel, TDataTypes), SOFA_TEMPLATE(GenericLineModel, TDataTypes));
+    SOFA_CLASS_UNIQUE((TLineModel<TDataTypes>), ((GenericLineModel<TLineModel<TDataTypes>, TDataTypes>)));
     
 protected:
     struct LineData
@@ -130,8 +130,8 @@ public:
 
     virtual void resize(int size) override;
 
-    defaulttype::BoundingBox computeElementBBox(int index, SReal distance) override;
-    defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt) override;
+    defaulttype::BoundingBox computeElementBBox(int index, SReal distance);
+    defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt);
 
     virtual void computeBoundingTree(int maxDepth=0) override;
 

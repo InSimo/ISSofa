@@ -8,7 +8,6 @@
 #define SOFA_COMPONENT_COLLISION_GENERICPOINTITERATOR_H
 
 #include <sofa/core/CollisionModel.h>
-#include <SofaMeshCollision/GenericTriangleModel.h>
 #include <sofa/core/VecId.h>
 
 namespace sofa
@@ -86,16 +85,6 @@ inline bool GenericPointIterator<DataTypes>::activated(sofa::core::CollisionMode
 {
     return this->model->myActiver->activePoint(this->index, cm);
 }
-
-using namespace sofa::defaulttype;
-#ifndef SOFA_FLOAT
-template class SOFA_MESH_COLLISION_API GenericTriangleModel<Vec3dTypes>;
-template class SOFA_MESH_COLLISION_API GenericTriangleModel<Rigid3dTypes>;
-#endif
-#ifndef SOFA_DOUBLE
-template class SOFA_MESH_COLLISION_API GenericTriangleModel<Vec3fTypes>;
-template class SOFA_MESH_COLLISION_API GenericTriangleModel<Rigid3fTypes>;
-#endif
 
 } // namespace collision
 
