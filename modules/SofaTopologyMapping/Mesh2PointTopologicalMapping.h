@@ -184,12 +184,12 @@ protected:
 };
 
 
-template<> const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Point>() const { return getPointsMappedFromPoint(); }
-template<> const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Edge>() const { return getPointsMappedFromEdge(); }
-template<> const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Triangle>() const { return getPointsMappedFromTriangle(); }
-template<> const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Quad>() const { return getPointsMappedFromQuad(); }
-template<> const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Tetrahedron>() const { return getPointsMappedFromTetra(); }
-template<> const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Hexahedron>() const { return getPointsMappedFromHexa(); }
+template<> inline const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Point>() const { return getPointsMappedFromPoint(); }
+template<> inline const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Edge>() const { return getPointsMappedFromEdge(); }
+template<> inline const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Triangle>() const { return getPointsMappedFromTriangle(); }
+template<> inline const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Quad>() const { return getPointsMappedFromQuad(); }
+template<> inline const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Tetrahedron>() const { return getPointsMappedFromTetra(); }
+template<> inline const helper::vector< helper::vector<int> >& Mesh2PointTopologicalMapping::getPointsMappedFromElem<sofa::core::topology::Topology::Hexahedron>() const { return getPointsMappedFromHexa(); }
 
 
 } // namespace topology
