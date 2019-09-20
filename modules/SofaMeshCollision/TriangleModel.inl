@@ -61,6 +61,11 @@ TTriangleModel<DataTypes>::TTriangleModel()
 }
 
 template<class DataTypes>
+TTriangleModel<DataTypes>::~TTriangleModel()
+{
+}
+
+template<class DataTypes>
 void TTriangleModel<DataTypes>::resize(int size)
 {
     Inherit1::resize(size);

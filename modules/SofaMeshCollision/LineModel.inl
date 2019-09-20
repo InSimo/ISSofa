@@ -61,6 +61,11 @@ TLineModel<DataTypes>::TLineModel()
 }
 
 template<class DataTypes>
+TLineModel<DataTypes>::~TLineModel()
+{
+}
+
+template<class DataTypes>
 void TLineModel<DataTypes>::init()
 {
     Inherit1::init();

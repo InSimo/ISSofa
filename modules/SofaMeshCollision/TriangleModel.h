@@ -172,6 +172,7 @@ protected:
 protected:
 
     TTriangleModel();
+    ~TTriangleModel();
 
 public:
     virtual void init() override;

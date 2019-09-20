@@ -112,6 +112,7 @@ protected:
 
     sofa::helper::vector<LineData> elems;
     TLineModel();
+    ~TLineModel();
 
 public:
     typedef TDataTypes DataTypes;
