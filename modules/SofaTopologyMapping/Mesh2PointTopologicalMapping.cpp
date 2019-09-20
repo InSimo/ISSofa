@@ -888,31 +888,35 @@ void Mesh2PointTopologicalMapping::updateTopologicalMappingTopDown()
             case core::topology::ENDING_EVENT:
             {
 //			    sout << "ENDING EVENT" << sendl;
+                
                 pointsToRemove.erase(BaseMeshTopology::InvalidID);
-                if (toPointMod != NULL && !pointsToRemove.empty())
+                if (toPointMod != NULL)
                 {
-                    // TODO: This will fail to work if add and
-                    // remove changes are combined and removes are
-                    // signaled prior to adds! The indices will mix
-                    // up.
+                    if (!pointsToRemove.empty())
+                    {
+                        // TODO: This will fail to work if add and
+                        // remove changes are combined and removes are
+                        // signaled prior to adds! The indices will mix
+                        // up.
 
-                    sofa::helper::vector<unsigned int> vitems;
-                    vitems.reserve(pointsToRemove.size());
-                    vitems.insert(vitems.end(), pointsToRemove.rbegin(), pointsToRemove.rend());
+                        sofa::helper::vector<unsigned int> vitems;
+                        vitems.reserve(pointsToRemove.size());
+                        vitems.insert(vitems.end(), pointsToRemove.rbegin(), pointsToRemove.rend());
 
-                    toPointMod->removePointsWarning(vitems);
-                    toPointMod->propagateTopologicalChanges();
+                        toPointMod->removePointsWarning(vitems);
+                        toPointMod->propagateTopologicalChanges();
 
-                    removeOutputPoints(vitems);
+                        removeOutputPoints(vitems);
 
-                    toPointMod->removePointsProcess(vitems);
+                        toPointMod->removePointsProcess(vitems);
+                        pointsToRemove.clear();
+                    }
 
                     toPointMod->propagateTopologicalChanges();
                     toPointMod->notifyEndingEvent();
                     toPointMod->propagateTopologicalChanges();
-
-                    pointsToRemove.clear();
                 }
+
                 check = true;
                 break;
             }
