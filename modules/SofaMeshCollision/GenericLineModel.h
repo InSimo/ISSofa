@@ -38,16 +38,6 @@ public:
     typedef TCollisionModel FinalCollisionModel;
     typedef TDataTypes DataTypes;
 
-    enum LineFlag
-    {
-        FLAG_P1  = 1<<0, ///< Point 1  is attached to this line
-        FLAG_P2  = 1<<1, ///< Point 2  is attached to this line
-        FLAG_BP1 = 1<<2, ///< Point 1  is attached to this line and is a boundary
-        FLAG_BP2 = 1<<3, ///< Point 2  is attached to this line and is a boundary
-        FLAG_POINTS  = FLAG_P1|FLAG_P2,
-        FLAG_BPOINTS = FLAG_BP1|FLAG_BP2
-    };
-
     void init() override;
 
     virtual void computeBoundingTree(int maxDepth = 0) override;
