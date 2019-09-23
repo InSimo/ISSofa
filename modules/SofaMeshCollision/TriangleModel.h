@@ -60,48 +60,25 @@ public:
     typedef TTriangleModel<DataTypes> ParentModel;
 	typedef typename DataTypes::Real Real;
 
-    TTriangle(ParentModel* model, int index);
-    TTriangle() {}
-    explicit TTriangle(const core::CollisionElementIterator& i);
-	TTriangle(ParentModel* model, int index, helper::ReadAccessor<typename DataTypes::VecCoord>& /*x*/);
+    using GenericTriangleIterator<TTriangleModel<TDataTypes>>::GenericTriangleIterator;
 
     const Coord& p1() const;
     const Coord& p2() const;
     const Coord& p3() const;
 
-    const Coord& p(int i)const;
-	const Coord& p0(int i)const;
-
-    int p1Index() const;
-    int p2Index() const;
-    int p3Index() const;
-
-    const Coord& p1Free() const;
-    const Coord& p2Free() const;
-    const Coord& p3Free() const;
-
-    const Coord& operator[](int i) const;
-
     const Deriv& v1() const;
     const Deriv& v2() const;
     const Deriv& v3() const;
-    const Deriv& v(int i) const;
-
 
     const Deriv& n() const;
     Deriv& n();
-
-    /// Return true if the element stores a free position vector
-    bool hasFreePosition() const;
-
-    int flags() const;
 
 	TTriangle& shape() { return *this; }
     const TTriangle& shape() const { return *this; }
 
     Coord interpX(defaulttype::Vec<2,Real> bary) const
     {
-		return (p1()*(1-bary[0]-bary[1])) + (p2()*bary[0]) + (p3()*bary[1]);
+        return (this->p1()*(1-bary[0]-bary[1])) + (this->p2()*bary[0]) + (this->p3()*bary[1]);
 	}
 };
 
@@ -240,52 +217,11 @@ public:
 };
 
 template<class DataTypes>
-inline TTriangle<DataTypes>::TTriangle(ParentModel* model, int index)
-    : sofa::component::collision::GenericTriangleIterator<ParentModel>(model, index)
-{}
-
-template<class DataTypes>
-inline TTriangle<DataTypes>::TTriangle(const core::CollisionElementIterator& i)
-    : sofa::component::collision::GenericTriangleIterator<ParentModel>(static_cast<ParentModel*>(i.getCollisionModel()), i.getIndex())
-{}
-
-template<class DataTypes>
-inline TTriangle<DataTypes>::TTriangle(ParentModel* model, int index, helper::ReadAccessor<typename DataTypes::VecCoord>& /*x*/)
-    : sofa::component::collision::GenericTriangleIterator<ParentModel>(model, index)
-{}
-
-template<class DataTypes>
 inline const typename DataTypes::Coord& TTriangle<DataTypes>::p1() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[(*(this->model->triangles))[this->index][0]]; }
 template<class DataTypes>
 inline const typename DataTypes::Coord& TTriangle<DataTypes>::p2() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[(*(this->model->triangles))[this->index][1]]; }
 template<class DataTypes>
 inline const typename DataTypes::Coord& TTriangle<DataTypes>::p3() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[(*(this->model->triangles))[this->index][2]]; }
-template<class DataTypes>
-inline const typename DataTypes::Coord& TTriangle<DataTypes>::p(int i) const {
-    return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[(*(this->model->triangles))[this->index][i]];
-}
-template<class DataTypes>
-inline const typename DataTypes::Coord& TTriangle<DataTypes>::p0(int i) const {
-    return this->model->m_mstate->read(core::ConstVecCoordId::restPosition())->getValue()[(*(this->model->triangles))[this->index][i]];
-}
-template<class DataTypes>
-inline const typename DataTypes::Coord& TTriangle<DataTypes>::operator[](int i) const {
-    return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[(*(this->model->triangles))[this->index][i]];
-}
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TTriangle<DataTypes>::p1Free() const { return (this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue())[(*(this->model->triangles))[this->index][0]]; }
-template<class DataTypes>
-inline const typename DataTypes::Coord& TTriangle<DataTypes>::p2Free() const { return (this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue())[(*(this->model->triangles))[this->index][1]]; }
-template<class DataTypes>
-inline const typename DataTypes::Coord& TTriangle<DataTypes>::p3Free() const { return (this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue())[(*(this->model->triangles))[this->index][2]]; }
-
-template<class DataTypes>
-inline int TTriangle<DataTypes>::p1Index() const { return (*(this->model->triangles))[this->index][0]; }
-template<class DataTypes>
-inline int TTriangle<DataTypes>::p2Index() const { return (*(this->model->triangles))[this->index][1]; }
-template<class DataTypes>
-inline int TTriangle<DataTypes>::p3Index() const { return (*(this->model->triangles))[this->index][2]; }
 
 template<class DataTypes>
 inline const typename DataTypes::Deriv& TTriangle<DataTypes>::v1() const { return (this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue())[(*(this->model->triangles))[this->index][0]]; }
@@ -293,19 +229,11 @@ template<class DataTypes>
 inline const typename DataTypes::Deriv& TTriangle<DataTypes>::v2() const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[(*(this->model->triangles))[this->index][1]]; }
 template<class DataTypes>
 inline const typename DataTypes::Deriv& TTriangle<DataTypes>::v3() const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[(*(this->model->triangles))[this->index][2]]; }
-template<class DataTypes>
-inline const typename DataTypes::Deriv& TTriangle<DataTypes>::v(int i) const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[(*(this->model->triangles))[this->index][i]]; }
 
 template<class DataTypes>
 inline const typename DataTypes::Deriv& TTriangle<DataTypes>::n() const { return this->model->normals[this->index]; }
 template<class DataTypes>
-inline       typename DataTypes::Deriv& TTriangle<DataTypes>::n()       { return this->model->normals[this->index]; }
-
-template<class DataTypes>
-inline int TTriangle<DataTypes>::flags() const { return this->model->getTriangleFlags(this->index); }
-
-template<class DataTypes>
-inline bool TTriangle<DataTypes>::hasFreePosition() const { return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->isSet(); }
+inline typename DataTypes::Deriv& TTriangle<DataTypes>::n() { return this->model->normals[this->index]; }
 
 template<class DataTypes>
 inline typename DataTypes::Deriv TTriangleModel<DataTypes>::velocity(int index) const
