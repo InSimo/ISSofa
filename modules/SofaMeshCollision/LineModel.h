@@ -27,6 +27,7 @@
 
 #include <sofa/core/CollisionModel.h>
 #include <SofaMeshCollision/GenericLineModel.h>
+#include <SofaMeshCollision/GenericLineIterator.h>
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
 #include <sofa/defaulttype/Vec3Types.h>
@@ -47,7 +48,7 @@ class TLineModel;
 class LineLocalMinDistanceFilter;
 
 template<class TDataTypes>
-class TLine : public core::TCollisionElementIterator<TLineModel<TDataTypes> >
+class TLine : public GenericLineIterator<TLineModel<TDataTypes>>
 {
 public:
     typedef TDataTypes DataTypes;
@@ -55,36 +56,7 @@ public:
     typedef typename DataTypes::Deriv Deriv;
     typedef TLineModel<DataTypes> ParentModel;
 
-    TLine(ParentModel* model, int index);
-    TLine() {}
-
-    explicit TLine(const core::CollisionElementIterator& i);
-
-    unsigned i1() const;
-    unsigned i2() const;
-    int flags() const;
-
-    const Coord& p1() const;
-    const Coord& p2() const;
-    const Coord& p(int i) const;
-	const Coord& p0(int i) const;
-
-    const Coord& p1Free() const;
-    const Coord& p2Free() const;
-
-    const Deriv& v1() const;
-    const Deriv& v2() const;
-
-    /// Return true if the element stores a free position vector
-    bool hasFreePosition() const;
-
-    bool activated(core::CollisionModel *cm = 0) const;
-
-    unsigned int getClassificationSampling() const { return this->model->getClassificationSampling(this->index); }
-
-    // Return respectively the Vertex composing the neighbor Rigt and Left Triangle
-//	const Vector3* tRight() const;
-//	const Vector3* tLeft() const;
+    using GenericLineIterator<TLineModel<TDataTypes>>::GenericLineIterator;
 };
 
 class LineActiver
@@ -124,6 +96,7 @@ public:
     typedef typename DataTypes::Deriv Deriv;
     typedef TLine<DataTypes> Element;
     friend class TLine<DataTypes>;
+    friend class GenericLineIterator<TLineModel<DataTypes>>;
 
     virtual void init() override;
 
@@ -188,81 +161,7 @@ protected:
 };
 
 template<class DataTypes>
-inline TLine<DataTypes>::TLine(ParentModel* model, int index)
-    : core::TCollisionElementIterator<ParentModel>(model, index)
-{
-//	activated = model->myActiver->activeLine(index);
-}
-
-template<class DataTypes>
-inline TLine<DataTypes>::TLine(const core::CollisionElementIterator& i)
-    : core::TCollisionElementIterator<ParentModel>(static_cast<ParentModel*>(i.getCollisionModel()), i.getIndex())
-{
-//	LineModel* CM = static_cast<LineModel*>(i.getCollisionModel());
-//	activated = CM->myActiver->activeLine(i.getIndex());
-}
-
-template<class DataTypes>
-inline unsigned TLine<DataTypes>::i1() const { return this->model->elems[this->index].p[0]; }
-
-template<class DataTypes>
-inline unsigned TLine<DataTypes>::i2() const { return this->model->elems[this->index].p[1]; }
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p1() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[0]]; }
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p2() const { return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[1]]; }
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p(int i) const {
-    return this->model->m_mstate->read(core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[i]];
-}
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p0(int i) const {
-    return this->model->m_mstate->read(core::ConstVecCoordId::restPosition())->getValue()[this->model->elems[this->index].p[i]];
-}
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p1Free() const
-{
-    if (hasFreePosition())
-        return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[0]];
-    else
-        return p1();
-}
-
-template<class DataTypes>
-inline const typename DataTypes::Coord& TLine<DataTypes>::p2Free() const
-{
-    if (hasFreePosition())
-        return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[1]];
-    else
-        return p2();
-}
-
-template<class DataTypes>
-inline const typename DataTypes::Deriv& TLine<DataTypes>::v1() const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[0]]; }
-
-template<class DataTypes>
-inline const typename DataTypes::Deriv& TLine<DataTypes>::v2() const { return this->model->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[1]]; }
-
-
-template<class DataTypes>
 inline typename TLineModel<DataTypes>::Deriv TLineModel<DataTypes>::velocity(int index) const { return (this->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[0]] + this->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[1]]) /((core::CollisionModel::Real)(2.0)); }
-
-template<class DataTypes>
-inline int TLine<DataTypes>::flags() const { return this->model->getLineFlags(this->index); }
-
-template<class DataTypes>
-inline bool TLine<DataTypes>::hasFreePosition() const { return this->model->m_mstate->read(core::ConstVecCoordId::freePosition())->isSet(); }
-
-template<class DataTypes>
-inline bool TLine<DataTypes>::activated(core::CollisionModel *cm) const
-{
-    return this->model->myActiver->activeLine(this->index, cm);
-}
 
 typedef TLineModel<sofa::defaulttype::Vec3Types> LineModel;
 typedef TLine<sofa::defaulttype::Vec3Types> Line;
