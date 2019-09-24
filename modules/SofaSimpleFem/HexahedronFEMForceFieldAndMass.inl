@@ -29,7 +29,7 @@
 #include "HexahedronFEMForceFieldAndMass.h"
 #include "HexahedronFEMForceField.inl"
 #include <SofaBaseTopology/SparseGridTopology.h>
-
+#include <SofaBaseTopology/CommonAlgorithms.h>
 
 namespace sofa
 {
@@ -40,6 +40,29 @@ namespace component
 namespace forcefield
 {
 
+template< typename Coord >
+typename Coord::value_type volumeHexa(const helper::fixed_array<Coord, 8> &nodes)
+{
+    typedef typename Coord::value_type Real;
+    // we assume the hexa is parallelipedic, the volume is then given by the scalar triple product of the edges at a hexa corner
+
+    const Coord& p0 = nodes[0];
+    const Coord& p1 = nodes[1];
+    const Coord& p2 = nodes[2];
+    const Coord& p3 = nodes[3];
+    const Coord& p4 = nodes[4];
+    const Coord& p5 = nodes[5];
+    const Coord& p6 = nodes[6];
+    const Coord& p7 = nodes[7];
+
+    const Real averageFactor = Real(1.0 / 4.0);
+    const Real averageFactor3 = averageFactor*averageFactor*averageFactor;
+    Coord eX4 = (p1 + p2 + p5 + p6) - (p0 + p3 + p4 + p7);
+    Coord eY4 = (p3 + p2 + p6 + p7) - (p0 + p1 + p5 + p4);
+    Coord eZ4 = (p4 + p5 + p6 + p7) - (p0 + p1 + p2 + p3);
+
+    return std::abs(sofa::component::topology::tripleProduct(eX4, eY4, eZ4)) * averageFactor3;
+}
 
 template<class DataTypes>
 HexahedronFEMForceFieldAndMass<DataTypes>::HexahedronFEMForceFieldAndMass()
@@ -47,7 +70,10 @@ HexahedronFEMForceFieldAndMass<DataTypes>::HexahedronFEMForceFieldAndMass()
     , HexahedronFEMForceFieldT()
     ,_elementMasses(initData(&_elementMasses,"massMatrices", "Mass matrices per element (M_i)"))
     , _density(initData(&_density,(Real)1.0,"density","density == volumetric mass in english (kg.m-3)"))
+    , _totalVolume(initData(&_totalVolume,Real(0),"totalVolume","OUT: Total volume",true,true))
+    , _totalMass(initData(&_totalMass, Real(0), "totalMass", "OUT: Total mass", true, true))
     , _lumpedMass(initData(&_lumpedMass,(bool)false,"lumpedMass","Does it use lumped masses?"))
+
 {
 }
 
@@ -67,6 +93,7 @@ void HexahedronFEMForceFieldAndMass<DataTypes>::init( )
     _particleMasses.resize( this->_initialPoints.getValue().size() );
 
     int i=0;
+    Real totalVolume = Real(0);
     for(typename VecElement::const_iterator it = this->getIndexedElements()->begin() ; it != this->getIndexedElements()->end() ; ++it, ++i)
     {
         defaulttype::Vec<8,Coord> nodes;
@@ -76,9 +103,8 @@ void HexahedronFEMForceFieldAndMass<DataTypes>::init( )
 #else
             nodes[w] = this->_initialPoints.getValue()[(*it)[w]];
 #endif
-
-        // volume of a element
-        Real volume = (nodes[1]-nodes[0]).norm()*(nodes[3]-nodes[0]).norm()*(nodes[4]-nodes[0]).norm();
+        Real volume = volumeHexa<Coord>(nodes);
+        totalVolume += volume;
 
         if( this->_sparseGrid ) // if sparseGrid -> the filling ratio is taken into account
             volume *= this->_sparseGrid->getMassCoef(i);
@@ -92,7 +118,7 @@ void HexahedronFEMForceFieldAndMass<DataTypes>::init( )
             _particleMasses[ (*it)[w] ] += mass;
     }
 
-
+    _totalVolume.setValue(totalVolume);
 
     if( _lumpedMass.getValue() )
     {
@@ -117,12 +143,13 @@ void HexahedronFEMForceFieldAndMass<DataTypes>::init( )
 
 
 
-    // 		Real totalmass = 0.0;
-    // 		for( unsigned i=0;i<_particleMasses.size();++i)
-    // 		{
-    // 			totalmass+=_particleMasses[i];
-    // 		}
-    // 		serr<<"TOTAL MASS = "<<totalmass<<sendl;
+    Real totalMass = 0.0;
+    for (unsigned i = 0; i < _particleMasses.size(); ++i)
+    {
+        totalMass += _particleMasses[i];
+    }
+    _totalMass.setValue(totalMass);
+
 }
 
 
@@ -169,8 +196,7 @@ void HexahedronFEMForceFieldAndMass<DataTypes>::computeElementMasses(  )
 template<class DataTypes>
 void HexahedronFEMForceFieldAndMass<DataTypes>::computeElementMass( ElementMass &Mass, const helper::fixed_array<Coord,8> &nodes, const int /*elementIndice*/, double stiffnessFactor)
 {
-    Real vol = (nodes[1]-nodes[0]).norm()*(nodes[3]-nodes[0]).norm()*(nodes[4]-nodes[0]).norm();
-
+    const Real vol = volumeHexa<Coord>(nodes);
     Coord l = nodes[6] - nodes[0];
 
     Mass.clear();
@@ -294,33 +320,48 @@ void HexahedronFEMForceFieldAndMass<DataTypes>::addMToMatrix(const core::Mechani
 
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
 
-    for(it = this->getIndexedElements()->begin(), e=0 ; it != this->getIndexedElements()->end() ; ++it,++e)
-    {
-        const ElementMass &Me = _elementMasses.getValue()[e];
+    Real mFactor = (Real)mparams->mFactorIncludingRayleighDamping(this->rayleighMass.getValue());
 
-        Real mFactor = (Real)mparams->mFactorIncludingRayleighDamping(this->rayleighMass.getValue());
-        // find index of node 1
-        for (n1=0; n1<8; n1++)
+    if (!_lumpedMass.getValue())
+    {
+
+        for (it = this->getIndexedElements()->begin(), e = 0; it != this->getIndexedElements()->end(); ++it, ++e)
         {
-#ifndef SOFA_NEW_HEXA
-            node1 = (*it)[_indices[n1]];
-#else
-            node1 = (*it)[n1];
-#endif
-            // find index of node 2
-            for (n2=0; n2<8; n2++)
+            const ElementMass &Me = _elementMasses.getValue()[e];
+
+            // find index of node 1
+            for (n1 = 0; n1 < 8; n1++)
             {
 #ifndef SOFA_NEW_HEXA
-                node2 = (*it)[_indices[n2]];
+                node1 = (*it)[_indices[n1]];
 #else
-                node2 = (*it)[n2];
+                node1 = (*it)[n1];
 #endif
-                Mat33 tmp = Mat33(Coord(Me[3*n1+0][3*n2+0],Me[3*n1+0][3*n2+1],Me[3*n1+0][3*n2+2]),
-                        Coord(Me[3*n1+1][3*n2+0],Me[3*n1+1][3*n2+1],Me[3*n1+1][3*n2+2]),
-                        Coord(Me[3*n1+2][3*n2+0],Me[3*n1+2][3*n2+1],Me[3*n1+2][3*n2+2]));
-                for(i=0; i<3; i++)
-                    for (j=0; j<3; j++)
-                        r.matrix->add(r.offset+3*node1+i, r.offset+3*node2+j, tmp[i][j]*mFactor);
+                // find index of node 2
+                for (n2 = 0; n2 < 8; n2++)
+                {
+#ifndef SOFA_NEW_HEXA
+                    node2 = (*it)[_indices[n2]];
+#else
+                    node2 = (*it)[n2];
+#endif
+                    Mat33 tmp = Mat33(Coord(Me[3 * n1 + 0][3 * n2 + 0], Me[3 * n1 + 0][3 * n2 + 1], Me[3 * n1 + 0][3 * n2 + 2]),
+                        Coord(Me[3 * n1 + 1][3 * n2 + 0], Me[3 * n1 + 1][3 * n2 + 1], Me[3 * n1 + 1][3 * n2 + 2]),
+                        Coord(Me[3 * n1 + 2][3 * n2 + 0], Me[3 * n1 + 2][3 * n2 + 1], Me[3 * n1 + 2][3 * n2 + 2]));
+                    for (i = 0; i < 3; i++)
+                        for (j = 0; j < 3; j++)
+                            r.matrix->add(r.offset + 3 * node1 + i, r.offset + 3 * node2 + j, tmp[i][j] * mFactor);
+                }
+            }
+        }
+    }
+    else // lumped matrices
+    {
+        for (unsigned i = 0; i < _lumpedMasses.size(); ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                r.matrix->add(r.offset + 3 * i + j, r.offset + 3 * i + j, _lumpedMasses[i][j] * mFactor);
             }
         }
     }

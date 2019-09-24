@@ -130,7 +130,8 @@ protected :
     Data<VecElementMass> _elementMasses; ///< mass matrices per element
     Data<Real> _density;
     Data<bool> _lumpedMass;
-
+    Data<Real> _totalVolume;
+    Data<Real> _totalMass;
     MassVector _particleMasses; ///< masses per particle in order to compute gravity
     helper::vector<Coord> _lumpedMasses; ///< masses per particle computed by lumping mass matrices
 
