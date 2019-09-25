@@ -191,7 +191,7 @@ public:
         return _q[index];
     }
 
-    Quater inverse() const;
+    Quater inverse(bool normalize=false, Real epsilon = Real(1e-6)) const;
 
     /// @deprecated
     defaulttype::Vec<3,Real> toEulerVector() const;

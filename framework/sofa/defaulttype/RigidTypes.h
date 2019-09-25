@@ -966,14 +966,9 @@ public:
 
     static Deriv coordDifference(const Coord& c1, const Coord& c2)
     {
-        defaulttype::Vector3 vCenter = c1.getCenter() - c2.getCenter();
-        defaulttype::Quat quat, quat1(c1.getOrientation()), quat2(c2.getOrientation());
-        // Transformation between c2 and c1 frames
-        quat = quat1*quat2.inverse();
-        quat.normalize();
-        defaulttype::Vector3 axis; defaulttype::Quat::value_type angle; quat.quatToAxis(axis, angle);
-        axis*=angle;
-        return Deriv(vCenter, axis);
+        defaulttype::Vector3 dCenter = c1.getCenter() - c2.getCenter();
+        defaulttype::Quat dQuat = c1.getOrientation()*c2.getOrientation().inverse();
+        return Deriv(dCenter, dQuat.getLog());
     }
 
     static Coord interpolate(const helper::vector< Coord > & ancestors, const helper::vector< Real > & coefs)

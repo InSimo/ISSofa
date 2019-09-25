@@ -218,28 +218,12 @@ Quater<Real> Quater<Real>::vectQuatMult(const defaulttype::Vec<3,Real>& vect)
 }
 
 template<class Real>
-Quater<Real> Quater<Real>::inverse() const
+Quater<Real> Quater<Real>::inverse(bool normalize, Real epsilon) const
 {
-    Quater<Real>    ret;
-    const Real _norm = norm();
-
-    if (_norm != Real(0.0))
-    {
-        ret._q[3] = _q[3] / _norm;
-        for (int i = 0; i < 3; i++)
-        {
-            ret._q[i] = -_q[i] / _norm;
-        }
-    }
-    else
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            ret._q[i] = 0.0;
-        }
-    }
-
-    return ret;
+    Quater<Real> result = Quater<Real>(-_q[0],-_q[1],-_q[2],_q[3]);
+    if(normalize) result.normalize();
+    assert(std::abs(result.norm() - 1) <= epsilon); // make sure we are dealing with a unit quaternion.
+    return result;
 }
 
 
