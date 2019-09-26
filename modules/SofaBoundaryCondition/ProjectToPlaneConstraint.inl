@@ -25,22 +25,21 @@
 #ifndef SOFA_COMPONENT_PROJECTIVECONSTRAINTSET_ProjectToPlaneConstraint_INL
 #define SOFA_COMPONENT_PROJECTIVECONSTRAINTSET_ProjectToPlaneConstraint_INL
 
-#include <sofa/core/topology/BaseMeshTopology.h>
-#include <sofa/core/behavior/ProjectiveConstraintSet.inl>
-#include <SofaBoundaryCondition/ProjectToPlaneConstraint.h>
-#include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <sofa/core/visual/VisualParams.h>
-#include <sofa/simulation/common/Simulation.h>
-#include <sofa/helper/gl/template.h>
-//#include <sofa/defaulttype/RigidTypes.h>
+#include "ProjectToPlaneConstraint.h"
+
 #include <iostream>
 
-#include <SofaBaseTopology/TopologySubsetData.inl>
-
-
+#include <sofa/core/topology/BaseMeshTopology.h>
+#include <sofa/core/behavior/ProjectiveConstraintSet.inl>
+#include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/behavior/MultiMatrixAccessor.h>
+#include <sofa/helper/gl/template.h>
 #include <sofa/helper/gl/BasicShapes.h>
 
+#include <SofaBaseTopology/TopologyData.h>
+#include <SofaBaseTopology/TopologySubsetData.inl>
 
+#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
 
 namespace sofa
@@ -52,237 +51,294 @@ namespace component
 namespace projectiveconstraintset
 {
 
-// Define TestNewPointFunction
-template< class DataTypes>
-bool ProjectToPlaneConstraint<DataTypes>::FCPointHandler::applyTestCreateFunction(unsigned int, const sofa::helper::vector<unsigned int> &, const sofa::helper::vector<double> &)
-{
-    if (fc)
-    {
-        return false;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-// Define RemovalFunction
-template< class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::FCPointHandler::applyDestroyFunction(unsigned int pointIndex, core::objectmodel::Data<value_type> &)
-{
-    if (fc)
-    {
-        fc->removeConstraint((unsigned int) pointIndex);
-    }
-}
-
 template <class DataTypes>
 ProjectToPlaneConstraint<DataTypes>::ProjectToPlaneConstraint()
     : core::behavior::ProjectiveConstraintSet<DataTypes>(NULL)
-    , f_indices( initData(&f_indices,"indices","Indices of the fixed points") )
-    , f_origin( initData(&f_origin,CPos(),"origin","A point in the plane"))
-    , f_normal( initData(&f_normal,CPos(),"normal","Normal vector to the plane"))
+    , f_indices(initData(&f_indices, "indices", "Indices of the fixed points"))
+    , f_origin(initData(&f_origin, CPos(), "origin", "A point in the plane"))
+    , f_normal(initData(&f_normal, CPos(), "normal", "Normal vector to the plane"))
+    , f_stiffness(initData(&f_stiffness, Real(1.0), "stiffness","Stiffness of the plane, added to the diagonal of the mechanical matrix to keep it definite" ))
     , f_drawSize( initData(&f_drawSize,0.0,"drawSize","0 -> point based rendering, >0 -> radius of spheres") )
-    , data(new ProjectToPlaneConstraintInternalData<DataTypes>())
 {
-    // default to index 0
-    f_indices.beginEdit()->push_back(0);
-    f_indices.endEdit();
-
-    pointHandler = new FCPointHandler(this, &f_indices);
 }
 
 
 template <class DataTypes>
 ProjectToPlaneConstraint<DataTypes>::~ProjectToPlaneConstraint()
 {
-    if (pointHandler)
-        delete pointHandler;
-
-    delete data;
+ 
 }
 
 template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::clearConstraints()
+void ProjectToPlaneConstraint<DataTypes>::computeIndices(const VecCoord& x)
 {
-    f_indices.beginEdit()->clear();
+
+    Indices& indices = *f_indices.beginEdit();
+    indices.clear();
+
+    const auto& o = f_origin.getValue();
+    const auto& n = f_normal.getValue();
+
+    for (std::size_t i = 0; i < x.size(); ++i)
+    {
+
+        const CPos& p = DataTypes::getCPos(x[i]);
+
+        const double d = sofa::defaulttype::dot(p - o, n);
+
+        if (d < 0)
+        {
+            indices.push_back(i);
+        }
+    }
+
     f_indices.endEdit();
 }
-
-template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::addConstraint(unsigned int index)
-{
-    f_indices.beginEdit()->push_back(index);
-    f_indices.endEdit();
-}
-
-template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::removeConstraint(unsigned int index)
-{
-    removeValue(*f_indices.beginEdit(),index);
-    f_indices.endEdit();
-}
-
-// -- Constraint interface
-
 
 template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::init()
 {
     this->core::behavior::ProjectiveConstraintSet<DataTypes>::init();
-
-    topology = this->getContext()->getMeshTopology();
-
-    //  if (!topology)
-    //    serr << "Can not find the topology." << sendl;
-
-    // Initialize functions and parameters
-    f_indices.createTopologicalEngine(topology, pointHandler);
-    f_indices.registerTopologicalData();
-
-    const Indices & indices = f_indices.getValue();
-
-    unsigned int maxIndex=this->mstate->getSize();
-    for (unsigned int i=0; i<indices.size(); ++i)
-    {
-        const unsigned int index=indices[i];
-        if (index >= maxIndex)
-        {
-            serr << "Index " << index << " not valid!" << sendl;
-            removeConstraint(index);
-        }
-    }
-
     reinit();
-
-//  cerr<<"ProjectToPlaneConstraint<DataTypes>::init(), getJ = " << *getJ(0) << endl;
-
 }
 
 template <class DataTypes>
 void  ProjectToPlaneConstraint<DataTypes>::reinit()
 {
-//    cerr<<"ProjectToPlaneConstraint<DataTypes>::getJ, numblocs = "<< numBlocks << ", block size = " << blockSize << endl;
-
     // normalize the normal vector
     CPos n = f_normal.getValue();
-    if( n.norm()==0 )
-        n[1]=0;
-    else n *= 1/n.norm();
+    n.normalize();
     f_normal.setValue(n);
 
-    // create the matrix blocks corresponding to the projection to the plane: I-nn^t or to the identity
-    Block bProjection;
-    for(unsigned i=0; i<bsize; i++)
-        for(unsigned j=0; j<bsize; j++)
+    // plane normal direction projection matrix : nn^t  
+    // plane normal direction rejection matrix ( ie projection of a vector to the plane) : I-nn^t
+
+    for (unsigned i = 0; i < bsize; i++)
+    {
+        for (unsigned j = 0; j < bsize; j++)
         {
-            if(i==j)
+
+            m_projection(i, j) = n[i] * n[j];
+
+            if (i == j)
             {
-                bProjection[i][j] = 1 - n[i]*n[j];
+                m_rejection(i,j) = 1 - m_projection(i,j);
             }
             else
             {
-                bProjection[i][j] =    - n[i]*n[j];
+                m_rejection(i,j) = -m_projection(i,j);
             }
         }
-//    cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit() bProjection[0] = " << endl << bProjection[0] << endl;
-
-    // get the indices sorted
-    Indices tmp = f_indices.getValue();
-    std::sort(tmp.begin(),tmp.end());
-//    cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit(), indices = " << tmp << endl;
-
-    // resize the jacobian
-    unsigned numBlocks = this->mstate->getSize();
-    unsigned blockSize = DataTypes::deriv_total_size;
-    jacobian.resize( numBlocks*blockSize,numBlocks*blockSize );
-
-    // fill the jacobian in ascending order
-    unsigned i=0;
-    Indices::const_iterator it = tmp.begin();
-    while( i<numBlocks )
-    {
-        if(  it!=tmp.end() && i==*it )  // constrained particle: set diagonal to projection block, and  the cursor to the next constraint
-        {
-            jacobian.insertBackBlock(i,i,bProjection); // only one block to create
-//            cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit(), constrain index " << i << endl;
-            it++;
-        }
-        else           // unconstrained particle: set diagonal to identity block
-        {
-            jacobian.insertBackBlock(i,i,Block::s_identity); // only one block to create
-        }
-        i++;
     }
-    jacobian.compress();
-//    cerr<<"ProjectToPlaneConstraint<DataTypes>::reinit(), jacobian = " << jacobian << endl;
+
+    // the rejection matrix is symmetric, so equal to its transpose. 
+    // Kept a distinct member variable for clarity
+    m_rejectionT = m_rejection.transposed();
+}
+
+template <class DataTypes>
+void ProjectToPlaneConstraint<DataTypes>::projectMatrix( sofa::defaulttype::BaseMatrix* /*M*/, unsigned /*offset*/ )
+{
+    serr << "projectMatrix( sofa::defaulttype::BaseMatrix* M, unsigned offset ) is not implemented " << sendl;
 
 }
 
 template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::projectMatrix( sofa::defaulttype::BaseMatrix* M, unsigned offset )
+void ProjectToPlaneConstraint<DataTypes>::project(Deriv& v) const
 {
-    J.copy(jacobian, M->colSize(), offset); // projection matrix for an assembled state
-    BaseSparseMatrix* E = BaseSparseMatrix::DynamicCast(M);
-    assert(E);
-    E->compressedMatrix = J.compressedMatrix * E->compressedMatrix * J.compressedMatrix;
-}
-
-
-
-template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::projectResponse(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& resData)
-{
-    helper::WriteAccessor<DataVecDeriv> res ( mparams, resData );
-//    cerr<< "ProjectToPlaneConstraint<DataTypes>::projectResponse input  = "<< endl << res.ref() << endl;
-    jacobian.mult(res.wref(),res.ref());
-//    cerr<< "ProjectToPlaneConstraint<DataTypes>::projectResponse output = "<< endl << res.wref() << endl;
+    v = m_rejection*v;
 }
 
 template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* /*mparams*/ , DataMatrixDeriv& /*cData*/)
+void ProjectToPlaneConstraint<DataTypes>::projectResponse(const core::MechanicalParams* mparams, DataVecDeriv& resData)
 {
-    serr<<"projectJacobianMatrix(const core::MechanicalParams*, DataMatrixDeriv& ) is not implemented" << sendl;
+
+    const auto* d_x = mparams->readX(this->mstate);
+
+    if (d_x)
+    {
+        computeIndices(d_x->getValue(mparams));
+    }
+
+    auto res = sofa::helper::write( resData, mparams );
+    const Indices& indices  = f_indices.getValue(mparams);
+
+    for (std::size_t i = 0; i < indices.size(); ++i)
+    {
+        unsigned index     = indices[i];
+        Deriv& f     = res[index];
+        project(f);
+    }
+}
+
+template <class DataTypes>
+void ProjectToPlaneConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams , DataMatrixDeriv& cData)
+{
+
+    auto cWrite = sofa::helper::write(cData, mparams);
+    const Indices& indices = f_indices.getValue(mparams);
+    const auto&           n = f_normal.getValue();
+
+    MatrixDeriv& c = cWrite.wref();
+    c.compress();
+
+    if (c.rowBegin.size() == 0)
+    {
+        return;
+    }
+
+
+    for (unsigned iRow = 0; iRow < c.rowBegin.size() - 1; ++iRow)
+    {
+        unsigned colBegin = c.rowBegin[iRow];
+        unsigned colEnd = c.rowBegin[iRow + 1];
+
+        for (unsigned p = colBegin; p < colEnd; ++p)
+        {
+            unsigned colIndex = c.colsIndex[p];
+
+            auto itFind = std::find(indices.begin(), indices.end(), colIndex);
+            const bool found = itFind != indices.end();
+
+            if (found)
+            {
+                project(c.colsValue[p]);
+            }
+        }
+    }
+
 }
 
 template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::projectVelocity(const core::MechanicalParams* mparams, DataVecDeriv& vdata)
 {
-    projectResponse(mparams,vdata);
+    auto res = sofa::helper::write(vdata, mparams);
+    const Indices& indices = f_indices.getValue(mparams);
+    const auto&           n = f_normal.getValue();
+
+    for (std::size_t i = 0; i < indices.size(); ++i)
+    {
+        unsigned index = indices[i];
+        Deriv& f = res[index];
+        project(f);
+    }
 }
 
 template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::projectPosition(const core::MechanicalParams* /*mparams*/ , DataVecCoord& xData)
+void ProjectToPlaneConstraint<DataTypes>::projectPosition(const core::MechanicalParams* mparams , DataVecCoord& xData)
 {
-    VecCoord& x = *xData.beginEdit();
-
-    const CPos& n = f_normal.getValue();
-    const CPos& o = f_origin.getValue();
-
-    const Indices& indices = f_indices.getValue();
-    for(unsigned i=0; i<indices.size(); i++ )
-    {
-        // replace the point with its projection to the plane
-//        x[indices[i]] -= n * ((x[indices[i]]-o)*n);
-        const CPos xi = DataTypes::getCPos( x[indices[i]] );
-        DataTypes::setCPos( x[indices[i]], xi - n * ((xi-o)*n) );
-//        cerr<<"ProjectToPlaneConstraint<DataTypes>::projectPosition particle  "<<indices[i]<<endl;
-    }
-
-    xData.endEdit();
 }
 
 // Matrix Integration interface
 template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseMatrix * /*mat*/, unsigned int /*offset*/)
+void ProjectToPlaneConstraint<DataTypes>::applyConstraint(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
-    serr << "applyConstraint is not implemented " << sendl;
+    // compute PAP^t with P being the projection matrix
+    // Highly unoptimized since we consider A like a dense matrix
+
+    using BlockMatrix = sofa::defaulttype::Mat<bsize, bsize, Real>;
+
+    core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate.get(mparams));
+    const Real kFactor          = mparams->kFactor();
+    const Real stiffness        = f_stiffness.getValue(mparams)*kFactor;
+    BlockMatrix stiffnessDBlock = m_projection*stiffness;
+
+    if (r)
+    {
+        const Indices& indices = f_indices.getValue(mparams);
+
+        for (unsigned i = 0; i < indices.size(); ++i)
+        {
+            unsigned index = indices[i];
+
+            {
+                // project all the blocks on each column
+                const unsigned bColIndex = r.offset + index*bsize;
+
+                for (int j = 0; j < r.matrix->rowSize(); j += bsize)
+                {
+                    const int bRowIndex = r.offset + j;
+
+                    BlockMatrix block;
+
+                    for (int bi = 0; bi < bsize; ++bi)
+                    {
+                        for (int bj = 0; bj < bsize; ++bj)
+                        {
+                            block(bi, bj) = r.matrix->element(bRowIndex + bi, bColIndex + bj);
+                        }
+                    }
+
+                    if (sofa::defaulttype::matrix_bloc_traits<BlockMatrix>::empty(block))
+                    {
+                        continue;
+                    }
+
+
+                    block = block*m_rejection;
+
+                    for (int bi = 0; bi < bsize; ++bi)
+                    {
+                        for (int bj = 0; bj < bsize; ++bj)
+                        {
+                            r.matrix->set(bRowIndex + bi, bColIndex + bj, block(bi, bj));
+                        }
+                    }
+                }
+            }
+
+            {
+                // project all the blocks on each row
+                const int bRowIndex = r.offset + index*bsize;
+                
+                for (int j = 0; j < r.matrix->colSize(); j += bsize)
+                {
+                    const int bColIndex = r.offset + j;
+
+                    BlockMatrix block;
+
+                    for (int bi = 0; bi < bsize; ++bi)
+                    {
+                        for (int bj = 0; bj < bsize; ++bj)
+                        {
+                            block(bi, bj) = r.matrix->element(bRowIndex + bi, bColIndex + bj);
+                        }
+                    }
+
+                    if (sofa::defaulttype::matrix_bloc_traits<BlockMatrix>::empty(block))
+                    {
+                        continue;
+                    }
+
+                    block = m_rejectionT*block;
+
+                    if (bRowIndex == bColIndex)
+                    {
+                        // add stiffness on the diagonal to keep the matrix (positive) definite
+                        block += stiffnessDBlock;
+                    }
+
+                    for (int bi = 0; bi < bsize; ++bi)
+                    {
+                        for (int bj = 0; bj < bsize; ++bj)
+                        {
+                            r.matrix->set(bRowIndex + bi, bColIndex + bj, block(bi, bj));
+                        }
+                    }
+
+                }
+
+
+
+            }
+        }
+    }
 }
 
 template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseVector * /*vect*/, unsigned int /*offset*/)
 {
-    serr<<"ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseVector *vect, unsigned int offset) is not implemented "<< sendl;
+    serr<<"applyConstraint(defaulttype::BaseVector *vect, unsigned int offset) is not implemented "<< sendl;
 }
 
 

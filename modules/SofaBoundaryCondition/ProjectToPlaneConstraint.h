@@ -29,15 +29,15 @@
 #include <sofa/core/behavior/ProjectiveConstraintSet.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
-#include <sofa/core/objectmodel/Event.h>
 #include <sofa/defaulttype/BaseMatrix.h>
 #include <sofa/defaulttype/BaseVector.h>
 #include <sofa/defaulttype/VecTypes.h>
-//#include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/helper/vector.h>
 #include <sofa/defaulttype/Mat.h>
 #include <SofaBaseTopology/TopologySubsetData.h>
-#include <SofaEigen2Solver/EigenSparseMatrix.h>
+
+#include <Eigen/Core>
+
 #include <set>
 
 namespace sofa
@@ -72,39 +72,25 @@ public:
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::CPos CPos;
+    typedef typename DataTypes::Real Real;
     typedef typename MatrixDeriv::RowIterator MatrixDerivRowIterator;
     typedef Data<VecCoord> DataVecCoord;
     typedef Data<VecDeriv> DataVecDeriv;
     typedef Data<MatrixDeriv> DataMatrixDeriv;
     typedef helper::vector<unsigned int> Indices;
-    typedef sofa::component::topology::PointSubsetData< Indices > IndexSubsetData;
-    typedef linearsolver::EigenBaseSparseMatrix<SReal> BaseSparseMatrix;
-    typedef linearsolver::EigenSparseMatrix<DataTypes,DataTypes> SparseMatrix;
-    typedef typename SparseMatrix::Block Block;                                       ///< projection matrix of a particle displacement to the plane
-    enum {bsize=SparseMatrix::Nin};                                                   ///< size of a block
     typedef sofa::defaulttype::Vector3 Vector3;
 
-protected:
-    ProjectToPlaneConstraint();
+    enum { bsize = DataTypes::deriv_total_size };
 
-    virtual ~ProjectToPlaneConstraint();
-
-public:
-    IndexSubsetData f_indices;  ///< the particles to project
-    Data<CPos> f_origin;       ///< A point in the plane
-    Data<CPos> f_normal;       ///< The normal to the plane. Will be normalized by init().
-    Data<double> f_drawSize;    ///< The size of the display of the constrained particles
-
-
-protected:
-    ProjectToPlaneConstraintInternalData<DataTypes>* data;
     friend class ProjectToPlaneConstraintInternalData<DataTypes>;
 
+    Data<Indices>    f_indices;  ///< the particles to project
+    Data<CPos>       f_origin;  ///< A point in the plane
+    Data<CPos>       f_normal;  ///< The normal to the plane. Will be normalized by init().
+    Data<Real>       f_stiffness; ///< plane stiffnes to use for the constrained particles, to keep the mechanical matrix definite
+    Data<double>     f_drawSize;  ///< The size of the display of the constrained particles
 
-public:
-    void clearConstraints();
-    void addConstraint(unsigned int index);
-    void removeConstraint(unsigned int index);
+    void computeIndices(const VecCoord& x);
 
     // -- Constraint interface
     virtual void init();
@@ -115,9 +101,8 @@ public:
     void projectPosition(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecCoord& xData);
     void projectJacobianMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataMatrixDeriv& cData);
 
-
-    void applyConstraint(defaulttype::BaseMatrix *mat, unsigned int offset);
-    void applyConstraint(defaulttype::BaseVector *vect, unsigned int offset);
+    void applyConstraint(defaulttype::BaseVector * /*vect*/, unsigned int /*offset*/);
+    void applyConstraint(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix);
 
     /** Project the the given matrix (Experimental API).
       Replace M with PMP, where P is the projection matrix corresponding to the projectResponse method, shifted by the given offset, i.e. P is the identity matrix with a block on the diagonal replaced by the projection matrix.
@@ -127,36 +112,17 @@ public:
 
     virtual void draw(const core::visual::VisualParams* vparams);
 
+protected:
+    ProjectToPlaneConstraint();
 
-    class FCPointHandler : public component::topology::TopologySubsetDataHandler<component::topology::Point, Indices >
-    {
-    public:
-        typedef typename ProjectToPlaneConstraint<DataTypes>::Indices Indices;
-        typedef typename sofa::core::topology::Point Point;
-        FCPointHandler(ProjectToPlaneConstraint<DataTypes>* _fc, component::topology::PointSubsetData<Indices>* _data)
-            : sofa::component::topology::TopologySubsetDataHandler<sofa::core::topology::Point, Indices >(_data), fc(_fc) {}
+    virtual ~ProjectToPlaneConstraint();
 
+    void project(Deriv& v) const;
 
+    sofa::defaulttype::Mat< bsize, bsize, Real  > m_projection;
+    sofa::defaulttype::Mat < bsize, bsize, Real > m_rejection;
+    sofa::defaulttype::Mat < bsize, bsize, Real > m_rejectionT;
 
-        void applyDestroyFunction(unsigned int /*index*/, core::objectmodel::Data<value_type>& /*T*/);
-
-
-        bool applyTestCreateFunction(unsigned int /*index*/,
-                const sofa::helper::vector< unsigned int > & /*ancestors*/,
-                const sofa::helper::vector< double > & /*coefs*/);
-    protected:
-        ProjectToPlaneConstraint<DataTypes> *fc;
-    };
-
-protected :
-    /// Pointer to the current topology
-    sofa::core::topology::BaseMeshTopology* topology;
-
-    /// Handler for subset Data
-    FCPointHandler* pointHandler;
-
-    SparseMatrix jacobian; ///< projection matrix in local state
-    SparseMatrix J;        ///< auxiliary variable
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_PROJECTIVECONSTRAINTSET_ProjectToPlaneConstraint_CPP)
