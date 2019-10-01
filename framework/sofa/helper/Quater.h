@@ -92,6 +92,8 @@ public:
         *this = identity();
     }
 
+    bool isUnit() const;
+
     void fromFrame(const defaulttype::Vec<3,Real>& x, const defaulttype::Vec<3,Real>&y, const defaulttype::Vec<3,Real>&z);
 
     void fromMatrix(const defaulttype::Matrix3 &m);
@@ -166,7 +168,7 @@ public:
     }
 
     // integrate using exponential map parametrization
-    void integrateExponentialMap(const Vec3& omega, Real epsilon = Real(1e-6));
+    void integrateExponentialMap(const Vec3& omega);
 
     // euler integration using quaternion derivative
     void integrate(const Vec3& omega);

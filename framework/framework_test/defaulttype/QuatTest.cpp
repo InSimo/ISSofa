@@ -20,6 +20,16 @@ typedef sofa::defaulttype::RigidDeriv<3, Real> RigidDeriv;
 typedef sofa::defaulttype::Vec<3,Real> Vec3d;
 typedef sofa::defaulttype::Mat<3,3,Real> Mat3x3;
 
+
+TEST(QuaternionTest, testEpsilonSetupForUnitQuaternion)
+{
+    Quat q(0, -0.707, 0, 0.707);// rotation of -90 degrees on the y axis
+    Real qnorm2 = q.norm2();
+
+    EXPECT_FALSE( std::abs(qnorm2-1) < 1e-6);
+    EXPECT_TRUE ( std::abs(qnorm2-1) < 1e-3);
+}
+
 TEST(QuaternionTest, integrateRigidCompareLargeDisplacementIntegrationWithSmallIncrements)
 {
     const std::size_t factor = 1000;

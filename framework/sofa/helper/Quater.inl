@@ -38,6 +38,8 @@ namespace sofa
 namespace helper
 {
 
+#define QUATER_UNIT_NORM2_THRESHOLD 1e-3 // threshold used to determine if a quaternion magnitude is close enough to a unit quaternion
+
 #define RENORMCOUNT 50
 
 // Constructor
@@ -261,15 +263,21 @@ void Quater<Real>::normalize()
     }
 }
 
+template<class Real>
+bool Quater<Real>::isUnit() const
+{
+    return std::abs(norm2() - 1) < QUATER_UNIT_NORM2_THRESHOLD;
+}
+
 
 /// integrate quaternion using exponential map parametrisation
 template<class Real>
-void Quater<Real>::integrateExponentialMap(const Vec3& omega, Real epsilon)
+void Quater<Real>::integrateExponentialMap(const Vec3& omega)
 {
     Quater<Real>& qThis       = *this;
-    Quater<Real> exp_omega    = exponentialMap(omega, epsilon);
+    Quater<Real> exp_omega    = exponentialMap(omega);
     qThis = exp_omega * qThis;
-    assert(std::abs(norm() -1) < epsilon); 
+    assert( isUnit() );
 }
 
 template<class Real>
@@ -561,7 +569,7 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
         q.normalize();
     }
 
-    assert(std::abs(q.norm() - 1) <= epsilon); // make sure we are dealing with a unit quaternion.
+    assert( isUnit() ); // make sure we are dealing with a unit quaternion.
 
     defaulttype::Vec<3,Real> v(q[0], q[1], q[2]);
 
@@ -575,10 +583,6 @@ defaulttype::Vec<3,Real> Quater<Real>::getLog(bool normalize, Real epsilon) cons
 
     // even if we are dealing with the unit quaternion
     // these values can be slightly "off" from one
-    // just make sure they are still very close
-    assert(q_w-Real(1.0) < epsilon ); 
-    assert(norm-Real(1.0) < epsilon);
-
     q_w = std::min(q_w, Real(1.0) ); 
     norm = std::min(norm, Real(1.0) );
     
