@@ -683,6 +683,7 @@ public:
     inline friend std::istream& operator >> ( std::istream& in, RigidCoord<3,real>& v )
     {
         in>>v.center>>v.orientation;
+        v.orientation.normalize();
         return in;
     }
     static int max_size()
