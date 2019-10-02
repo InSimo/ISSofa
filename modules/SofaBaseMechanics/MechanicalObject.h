@@ -50,10 +50,18 @@ namespace component
 namespace container
 {
 
-
 /// This class can be overridden if needed for additionnal storage within template specializations.
 template <class DataTypes>
 class MechanicalObject;
+
+
+namespace internal
+{
+
+template< class DataTypes >
+void reinit(MechanicalObject<DataTypes>* obj);
+
+}
 
 template<class DataTypes>
 class MechanicalObjectInternalData

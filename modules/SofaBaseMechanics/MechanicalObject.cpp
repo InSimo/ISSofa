@@ -43,6 +43,41 @@ namespace container
 using namespace core::behavior;
 using namespace defaulttype;
 
+namespace internal
+{
+
+template< typename Real >
+void reinit(MechanicalObject< sofa::defaulttype::StdRigidTypes<3, Real> >* obj)
+{
+    for (unsigned int id = 1; id < sofa::core::VecCoordId::V_FIRST_DYNAMIC_INDEX; ++id)
+    {
+        sofa::core::VecCoordId vId(id);
+
+        const bool skip = vId == sofa::core::VecCoordId::resetPosition() &&
+                          !obj->isIndependent();
+
+        if (skip)
+        {
+            /// make sure we do not write the resetPosition to be compatbile with the current 
+            /// logic in the reset() method
+            continue;
+        }
+
+        auto* d_x = obj->write(vId);
+
+        if (d_x)
+        {
+            auto xWrite = sofa::helper::write(*d_x);
+            for (auto& x : xWrite)
+            {
+                x.getOrientation().normalize();
+            }
+        }
+    }
+}
+
+}
+
 //template <>
 //bool MechanicalObject<Vec3dTypes>::addBBox(double* minBBox, double* maxBBox)
 //{

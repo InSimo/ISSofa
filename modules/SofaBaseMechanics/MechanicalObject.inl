@@ -80,6 +80,17 @@ namespace component
 namespace container
 {
 
+namespace internal
+{
+
+// internal reinit method specialized version for rigid types ensures that each quaternion is normalized
+template< class DataTypes >
+void reinit( MechanicalObject<DataTypes>* obj ) 
+{
+}
+
+}
+
 template <class DataTypes>
 MechanicalObject<DataTypes>::MechanicalObject()
     : x(initData(&x, "position", "position coordinates of the degrees of freedom"))
@@ -1304,6 +1315,8 @@ void MechanicalObject<DataTypes>::reinit()
 
     if (grid)
         grid->setP0(p0);
+
+    internal::reinit(this);
 }
 
 template <class DataTypes>
