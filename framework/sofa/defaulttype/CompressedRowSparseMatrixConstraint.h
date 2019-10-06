@@ -174,6 +174,16 @@ public:
             m_internal--;
         }
 
+        void operator+=(int i)
+        {
+            m_internal += i;
+        }
+
+        void operator-=(int i)
+        {
+            m_internal -= i;
+        }
+
         bool operator==(const ColConstIterator& it2) const
         {
             return (m_internal == it2.m_internal);
@@ -235,6 +245,11 @@ public:
             return m_matrix->rowIndex[m_internal];
         }
 
+        Index getInternal() const
+        {
+            return m_internal;
+        }
+
         ColConstIterator begin() const
         {
             Range r = m_matrix->getRowRange(m_internal);
@@ -252,6 +267,12 @@ public:
             Range r = m_matrix->getRowRange(m_internal);
             return RowType(ColConstIterator(m_internal, r.begin(), m_matrix),
                            ColConstIterator(m_internal, r.end(), m_matrix));
+        }
+
+        bool empty() const
+        {
+            Range r = m_matrix->getRowRange(m_internal);
+            return r.empty();
         }
 
         void operator++() // prefix
@@ -272,6 +293,35 @@ public:
         void operator--(int) // postfix
         {
             m_internal--;
+        }
+
+        void operator+=(int i)
+        {
+            m_internal += i;
+        }
+
+        void operator-=(int i)
+        {
+            m_internal -= i;
+        }
+
+        int operator-(const RowConstIterator& it2) const
+        {
+            return m_internal - it2.m_internal;
+        }
+
+        RowConstIterator operator+(int i) const
+        {
+            RowConstIterator res = *this;
+            res += i;
+            return res;
+        }
+
+        RowConstIterator operator-(int i) const
+        {
+            RowConstIterator res = *this;
+            res -= i;
+            return res;
         }
 
         bool operator==(const RowConstIterator& it2) const
@@ -529,6 +579,80 @@ public:
         static std::string name = std::string("CompressedRowSparseMatrixConstraint") + std::string(traits::Name());
         return name.c_str();
     }
+};
+
+/// As it is no longer thread-safe to write to different pre-created rows in CompressedRowSparseMatrixConstraint,
+/// this helper class allows to create a per-row buffer vector that can be filled in parallel and then copied sequentially
+/// to the output matrix.
+///
+/// Usage (processing values from inMatrix to outMatrix):
+///    CompressedRowSparseMatrixConstraintRowsBuffer outRows;
+///    outRows.initRows(inMatrix.begin(),inMatrix.end());
+///    for_each(inMatrix.begin(), inMatrix.end(), [auto rowIt] { my_compute_fn(rowIt, outRows.writeLine(rowIt))}); // parallelized loop
+///    outRows.addToMatrix(outMatrix); // sequential copy to output matrix
+template <class TBloc>
+class SparseMatrixRowsBuffer
+{
+    using Index = int;
+    using Bloc = TBloc;
+    using VecBloc  = typename CRSBlocTraits<Bloc>::VecBloc;
+    using VecIndex = typename CRSBlocTraits<Bloc>::VecIndex;
+public:
+    class RowBuffer
+    {
+    public:
+        void init(Index row)
+        {
+            m_row = row;
+            m_cols.clear();
+            m_values.clear();
+        }
+        void addCol(Index col, const TBloc& val)
+        {
+            m_cols.push_back(col);
+            m_values.push_back(val);
+        }
+        template <class OutMatrix>
+        void addToMatrix(OutMatrix& out)
+        {
+            if (!m_cols.empty())
+            {
+                auto rowOut = out.writeLine(m_row);
+                for (std::size_t i = 0; i < m_cols.size(); ++i)
+                {
+                    rowOut.addCol(m_cols[i], m_values[i]);
+                }
+            }
+        }
+    protected:
+        Index m_row;
+        VecIndex m_cols;
+        VecBloc m_values;
+    };
+    template<class RowConstIterator>
+    void initRows(const RowConstIterator& rowBegin, const RowConstIterator& rowEnd)
+    {
+        m_rows.resize(rowBegin-rowEnd);
+        for (RowConstIterator rowIt = rowBegin; rowIt != rowEnd; ++rowIt)
+        {
+            m_rows[rowIt.getInternal()].init(rowIt.index());
+        }
+    }
+    template <class RowConstIterator>
+    RowBuffer& writeLine(const RowConstIterator& rowIt)
+    {
+        return m_rows[rowIt.getInternal()];
+    }
+    template <class OutMatrix>
+    void addToMatrix(OutMatrix& out)
+    {
+        for (auto& row : m_rows)
+        {
+            row.addToMatrix(out);
+        }
+    }
+protected:
+    helper::vector<RowBuffer> m_rows;
 };
 
 } // namespace defaulttype
