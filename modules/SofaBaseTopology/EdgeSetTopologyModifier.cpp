@@ -761,7 +761,7 @@ void EdgeSetTopologyModifier::swapEdge(const EdgeID id0, const EdgeID id1)
     ancestorsArray.push_back(ancestors);
 
     /// Do not use add edge process to avoid error on duplication edges
-    const unsigned int edgeId = m_container->getNumberOfEdges();
+    //const unsigned int edgeId = m_container->getNumberOfEdges();
 
     sofa::helper::vector< unsigned int > &shellv0p0 = m_container->getEdgesAroundVertexForModification(v[0][0]);
     sofa::helper::vector< unsigned int > &shellv0p1 = m_container->getEdgesAroundVertexForModification(v[0][1]);

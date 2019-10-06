@@ -219,7 +219,7 @@ void PartialFixedConstraint<DataTypes>::projectJacobianMatrix(const core::Mechan
                 {
                     for (auto colIt = itRow.begin(); colIt != itRow.end(); colIt++)
                     {
-                        if (index == colIt.index())
+                        if (index == (unsigned int)colIt.index())
                         {
                             Deriv b = colIt.val();
                             for (unsigned int j = 0; j < btype.size(); j++) if (btype[j]) b[j] = 0.0;

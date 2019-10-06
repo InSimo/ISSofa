@@ -752,7 +752,7 @@ void RigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cparams*/
 
         for (typename Out::MatrixDeriv::RowConstIterator rowIt = in.begin(); rowIt != rowItEnd; ++rowIt)
         {
-            unsigned int cpt = 0;
+            int cpt = 0;
 
             typename Out::MatrixDeriv::ColConstIterator colIt = rowIt.begin();
             typename Out::MatrixDeriv::ColConstIterator colItEnd = rowIt.end();
@@ -796,7 +796,7 @@ void RigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cparams*/
 
         for (typename Out::MatrixDeriv::RowConstIterator rowIt = in.begin(); rowIt != rowItEnd; ++rowIt)
         {
-            unsigned int cpt = 0;
+            int cpt = 0;
 
             typename Out::MatrixDeriv::ColConstIterator colIt = rowIt.begin();
             typename Out::MatrixDeriv::ColConstIterator colItEnd = rowIt.end();

@@ -112,7 +112,7 @@ void SkeletalMotionConstraint<DataTypes>::findKeyTimes()
 }
 
 template <class DataTypes>
-void SkeletalMotionConstraint<DataTypes>::projectResponse(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& resData)
+void SkeletalMotionConstraint<DataTypes>::projectResponse(const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, DataVecDeriv& resData)
 {
     if( !active.getValue() ) return;
 

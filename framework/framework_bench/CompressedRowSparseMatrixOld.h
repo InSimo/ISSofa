@@ -481,7 +481,7 @@ public:
     {
         compress();
         Index ndiag = 0;
-        for (Index r=0; r<rowIndex.size(); ++r)
+        for (Index r=0; r<(Index)rowIndex.size(); ++r)
         {
             Index i = rowIndex[r];
             Index b = rowBegin[r];
@@ -510,7 +510,7 @@ public:
         Index nv = 0;
         for (Index i=0; i<nBlocRow; ++i) rowIndex[i] = i;
         Index j = 0;
-        for (Index i=0; i<oldRowIndex.size(); ++i)
+        for (Index i=0; i<(Index)oldRowIndex.size(); ++i)
         {
             for (; j<oldRowIndex[i]; ++j)
             {
