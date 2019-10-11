@@ -23,7 +23,6 @@ namespace collision
 template<class TCollisionModel, class TDataTypes>
 GenericLineModel<TCollisionModel,TDataTypes>::GenericLineModel()
 {
-    enum_type = LINE_TYPE;
 }
 
 template<class TCollisionModel, class TDataTypes>
