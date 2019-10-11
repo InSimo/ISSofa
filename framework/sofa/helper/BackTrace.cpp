@@ -150,12 +150,14 @@ void BackTrace::autodump()
     sigaction(SIGPIPE, &action, NULL);
     sigaction(SIGINT, &action, NULL);
     sigaction(SIGTERM, &action, NULL);
+    sigaction(SIGABRT, &action, NULL);
 #else
     signal(SIGSEGV, BackTrace::sig);
     signal(SIGILL, BackTrace::sig);
     signal(SIGFPE, BackTrace::sig);
     signal(SIGINT, BackTrace::sig);
     signal(SIGTERM, BackTrace::sig);
+    signal(SIGABRT, BackTrace::sig);
 #endif
 #endif   
 }
