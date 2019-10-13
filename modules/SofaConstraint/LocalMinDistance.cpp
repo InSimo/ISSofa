@@ -835,7 +835,7 @@ int LocalMinDistance::computeIntersection(Line& e2, Point& e1, OutputContainer<L
         return 0;
 
     ///// debug
-    //BaseMeshTopology* topology = e2.getCollisionModel()->getMeshTopology();
+    //BaseMeshTopology* topology = e2.getCollisionModel()->getTopology();
     //const sofa::helper::vector<unsigned int>& trianglesAroundEdge = topology->getTrianglesAroundEdge(e2.getIndex());
     //if (trianglesAroundEdge.size() == 0)
     //	std::cout<<"intersection line / point active while triangle Edge Shell = 0"<<std::endl;
@@ -1008,7 +1008,7 @@ int LocalMinDistance::computeIntersection(Line& e2, Sphere& e1, OutputContainer<
         return 0;
 
     ///// debug
-    //BaseMeshTopology* topology = e2.getCollisionModel()->getMeshTopology();
+    //BaseMeshTopology* topology = e2.getCollisionModel()->getTopology();
     //const sofa::helper::vector<unsigned int>& trianglesAroundEdge = topology->getTrianglesAroundEdge(e2.getIndex());
     //if (trianglesAroundEdge.size() == 0)
     //	std::cout<<"intersection line / point active while triangle Edge Shell = 0"<<std::endl;
@@ -1593,7 +1593,7 @@ bool LocalMinDistance::testValidity(Point &p, const Vector3 &PQ)
     if ( !(node->get< LineModel >()) )
         return true;
 
-    BaseMeshTopology* topology = p.getCollisionModel()->getMeshTopology();
+    BaseMeshTopology* topology = p.getCollisionModel()->getTopology();
     const helper::vector<Vector3>& x =(p.getCollisionModel()->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue());
 
     const helper::vector <unsigned int>& trianglesAroundVertex = topology->getTrianglesAroundVertex(p.getIndex());
@@ -1700,7 +1700,7 @@ bool LocalMinDistance::testValidity(Line &l, const Vector3 &PQ)
     Vector3 AB = pt2 - pt1;
     AB.normalize();
 
-    BaseMeshTopology* topology = l.getCollisionModel()->getMeshTopology();
+    BaseMeshTopology* topology = l.getCollisionModel()->getTopology();
     const helper::vector<Vector3>& x =(l.getCollisionModel()->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue());
     const sofa::helper::vector<unsigned int>& trianglesAroundEdge = topology->getTrianglesAroundEdge(l.getIndex());
 

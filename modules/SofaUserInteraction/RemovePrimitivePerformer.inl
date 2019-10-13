@@ -319,7 +319,7 @@ bool RemovePrimitivePerformer<DataTypes>::createElementList()
             }
 
             // Switching variables to initial topology (topotype, topology) clear list of surfacique elements selected
-            topo_curr = picked.body->getMeshTopology();
+            topo_curr = picked.body->getTopology();
             topoType = topoTypeTmp;
             selectedElem.clear();
 
@@ -665,7 +665,7 @@ void RemovePrimitivePerformer<DataTypes>::draw(const core::visual::VisualParams*
 
 
     const VecCoord& X = mstateCollision->read(core::ConstVecCoordId::position())->getValue();
-    //core::topology::BaseMeshTopology* topo = picked.body->getMeshTopology();
+    //core::topology::BaseMeshTopology* topo = picked.body->getTopology();
 
     glDisable(GL_LIGHTING);
     glColor3f(0.3f,0.8f,0.3f);

@@ -74,20 +74,20 @@ void TCapsuleModel<DataTypes>::init()
         return;
     }
 
-    core::topology::BaseMeshTopology *bmt = getContext()->getMeshTopology();
-    if (!bmt)
+    m_topology = getContext()->getMeshTopology();
+    if (!m_topology)
     {
         serr <<"CapsuleModel requires a MeshTopology" << sendl;
         return;
     }
 
-    int nbEdges = bmt->getNbEdges();
+    int nbEdges = m_topology->getNbEdges();
     resize( nbEdges );
 
     for(int i = 0; i < nbEdges; ++i)
     {
-        _capsule_points[i].first = bmt->getEdge(i)[0];
-        _capsule_points[i].second= bmt->getEdge(i)[1];
+        _capsule_points[i].first = m_topology->getEdge(i)[0];
+        _capsule_points[i].second= m_topology->getEdge(i)[1];
     }
 }
 
@@ -102,7 +102,7 @@ void TCapsuleModel<DataTypes>::computeBoundingTree(int maxDepth)
 {
     using namespace sofa::defaulttype;
     CubeModel* cubeModel = createPrevious<CubeModel>();
-    const int ncap = getContext()->getMeshTopology()->getNbEdges();
+    const int ncap = m_topology->getNbEdges();
     bool updated = false;
     if (ncap != size)
     {

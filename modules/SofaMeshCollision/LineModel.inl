@@ -199,7 +199,7 @@ bool TLineModel<DataTypes>::canCollideWithElement(int index, core::CollisionMode
 {
     if (!this->bSelfCollision.getValue()) return true;
     if (this->getContext() != model2->getContext()) return true;
-    sofa::core::topology::BaseMeshTopology* topology = this->getMeshTopology();
+    sofa::core::topology::BaseMeshTopology* topology = this->getTopology();
     /*
     	TODO : separate 2 case: the model is only composed of lines or is composed of triangles
     	bool NoTriangles = true;

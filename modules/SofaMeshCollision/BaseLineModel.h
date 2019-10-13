@@ -39,7 +39,7 @@ public:
     void resize(int size) override;
 
     void handleTopologyChange(sofa::core::topology::Topology* t) override;
-    sofa::core::topology::BaseMeshTopology* getTopology() const { return this->m_topology; }
+    sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
 
     int getLineFlags(int index) const { return m_lineFlags[index]; }
 

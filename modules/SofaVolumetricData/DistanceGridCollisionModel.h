@@ -467,7 +467,7 @@ public:
     // alias used by ContactMapper
 
     core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return ffd; }
-    core::topology::BaseMeshTopology* getMeshTopology() { return ffdMesh; }
+    core::topology::BaseMeshTopology* getTopology() const final { return ffdMesh; }
 
     void init();
 

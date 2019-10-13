@@ -37,7 +37,7 @@ public:
     void init() override;
 
     void handleTopologyChange(sofa::core::topology::Topology* t) override;
-    sofa::core::topology::BaseMeshTopology* getTopology() const { return this->m_topology; }
+    sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
 
 protected:
     BasePointModel();

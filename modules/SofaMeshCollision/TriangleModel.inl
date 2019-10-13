@@ -295,7 +295,7 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             if (drawBEdges)
             {
                 const int f = t.flags();
-                sofa::core::topology::BaseMeshTopology* topo = t.getCollisionModel()->getMeshTopology();
+                sofa::core::topology::BaseMeshTopology* topo = t.getCollisionModel()->getTopology();
                 const sofa::core::topology::BaseMeshTopology::EdgesInTriangle& eit = topo->getEdgesInTriangle(t.getIndex());
                 sofa::helper::fixed_array< sofa::defaulttype::Vector3, 3> tpv;
                 tpv[0] = DataTypes::getCPos(t.p1());

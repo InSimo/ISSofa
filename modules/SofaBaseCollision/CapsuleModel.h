@@ -129,6 +129,7 @@ public:
 
 
     core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return _mstate; }
+    sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
 
     Real radius(int index) const;
 
@@ -186,6 +187,7 @@ public:
     Data<VecReal > & writeRadii();
 protected:
     core::behavior::MechanicalState<DataTypes>* _mstate;    
+    sofa::core::topology::BaseMeshTopology* m_topology = nullptr;
 };
 
 template<class DataTypes>

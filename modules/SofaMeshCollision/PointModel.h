@@ -127,6 +127,8 @@ public:
 
     DPos getNormal(int index){ return (normals.size()) ? normals[index] : DPos();}
 
+    sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
+
     PointLocalMinDistanceFilter *getFilter() const;
 
     //template< class TFilter >

@@ -72,7 +72,7 @@ typename BarycentricContactMapper<TCollisionModel,DataTypes>::MMechanicalState* 
 
     typename MMechanicalObject::SPtr mstate = sofa::core::objectmodel::New<MMechanicalObject>();
     mstate->resize(0);
-    mapping = sofa::core::objectmodel::New<MMapping>(model->getMechanicalState(), mstate.get(), model->getMeshTopology());
+    mapping = sofa::core::objectmodel::New<MMapping>(model->getMechanicalState(), mstate.get(), model->getTopology());
 
     child->addObject(mstate);
     child->addObject(mapping);

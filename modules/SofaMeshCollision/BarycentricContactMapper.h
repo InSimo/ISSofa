@@ -177,13 +177,13 @@ public:
     typedef typename DataTypes::Coord Coord;
     int addPoint(const Coord& P, int index, Real&)
     {
-        int nbt = this->model->getMeshTopology()->getNbTriangles();
+        int nbt = this->model->getTopology()->getNbTriangles();
         if (index < nbt)
             return this->mapper->createPointInTriangle(P, index, &this->model->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue());
         else
         {
             int qindex = (index - nbt)/2;
-            int nbq = this->model->getMeshTopology()->getNbQuads();
+            int nbq = this->model->getTopology()->getNbQuads();
             if (qindex < nbq)
                 return this->mapper->createPointInQuad(P, qindex, &this->model->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue());
             else
@@ -199,14 +199,14 @@ public:
     int addPointB(const typename DataTypes::CPos& P, int index, Real& /*r*/, const defaulttype::Vector3& baryP)
     {
 
-        int nbt = this->model->getMeshTopology()->getNbTriangles();
+        int nbt = this->model->getTopology()->getNbTriangles();
         if (index < nbt)
             return this->mapper->addPointInTriangle(index, baryP.ptr());
         else
         {
             // TODO: barycentric coordinates usage for quads
             int qindex = (index - nbt)/2;
-            int nbq = this->model->getMeshTopology()->getNbQuads();
+            int nbq = this->model->getTopology()->getNbQuads();
             if (qindex < nbq)
             {
                 typename DataTypes::Coord pc;

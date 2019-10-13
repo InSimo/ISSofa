@@ -51,7 +51,7 @@ public:
 
     void handleTopologyChange(sofa::core::topology::Topology* t) override;
 
-    sofa::core::topology::BaseMeshTopology* getTopology() const { return this->m_topology; }
+    sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
 
     int getTriangleFlags(int index) const { return m_triangleFlags[index]; }
 

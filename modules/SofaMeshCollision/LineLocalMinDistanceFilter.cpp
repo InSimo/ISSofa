@@ -73,7 +73,7 @@ void LineInfo::buildFilter(unsigned int edge_index)
     m_lineVector = pt2 - pt1;
     m_lineVector.normalize();
 
-    //BaseMeshTopology* topology = l.getCollisionModel()->getMeshTopology();
+    //BaseMeshTopology* topology = l.getCollisionModel()->getTopology();
 
 
 

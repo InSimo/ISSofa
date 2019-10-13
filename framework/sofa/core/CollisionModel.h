@@ -423,10 +423,14 @@ public:
 
 
     /// Topology associated to the collision model
-    virtual Topology* getTopology() { return getContext()->getMeshTopology(); }
+    virtual Topology* getTopology() const { return getContext()->getMeshTopology(); }
 
-    /// BaseMeshTopology associated to the collision model
-    virtual sofa::core::topology::BaseMeshTopology* getMeshTopology() { return getContext()->getMeshTopology(); }
+    // make sure no derived class overrides the deprecated non-const version
+    virtual Topology* getTopology() final { const CollisionModel* cm = this; return cm->getTopology(); }
+private:
+    // getMeshTopology() is an unnecessary alias
+    virtual Topology* getMeshTopology() final { const CollisionModel* cm = this; return cm->getTopology(); }
+public:
 
     /// Get a color that can be used to display this CollisionModel
     const float* getColor4f();
