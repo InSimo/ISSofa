@@ -98,7 +98,6 @@ public:
 
     PointLocalMinDistanceFilter *getFilter() const { return m_lmdFilter; }
     void setFilter(PointLocalMinDistanceFilter *lmdFilter) { m_lmdFilter = lmdFilter; }
-    sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
 
 
     /// Pre-construction check method called by ObjectFactory.
