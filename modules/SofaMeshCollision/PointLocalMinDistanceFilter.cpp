@@ -24,16 +24,10 @@
 ******************************************************************************/
 
 #include <SofaMeshCollision/PointLocalMinDistanceFilter.h>
-#include <sofa/core/visual/VisualParams.h>
-
 #include <SofaMeshCollision/LineModel.h>
 #include <SofaBaseTopology/TopologyData.inl>
-
+#include <SofaBaseMechanics/MechanicalObject.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
-#include <sofa/core/topology/Topology.h>
-
-#include <sofa/simulation/common/Node.h>
-
 #include <sofa/core/ObjectFactory.h>
 
 
@@ -49,7 +43,6 @@ namespace collision
 
 void PointInfo::buildFilter(unsigned int p_index)
 {
-    using sofa::simulation::Node;
     using sofa::helper::vector;
     using sofa::core::topology::BaseMeshTopology;
 

@@ -29,7 +29,6 @@
 #include <SofaMeshCollision/PointModel.h>
 #include <SofaSphFluid/SpatialGridContainer.h>
 #include <sofa/defaulttype/Vec3Types.h>
-#include <vector>
 
 namespace sofa
 {
@@ -53,11 +52,11 @@ public:
 protected:
     SpatialGridPointModel();
 public:
-    virtual void init();
+    void init() override;
 
     // -- CollisionModel interface
 
-    virtual void computeBoundingTree(int maxDepth=0);
+    void computeBoundingTree(int maxDepth = 0) override;
 
     Grid* getGrid() { return grid->getGrid(); }
 protected:
