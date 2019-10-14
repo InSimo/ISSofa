@@ -61,15 +61,12 @@ template<class DataTypes>
 inline GenericLineIterator<DataTypes>::GenericLineIterator(ParentModel* model, int index)
     : sofa::core::TCollisionElementIterator<ParentModel>(model, index)
 {
-    //    activated = model->myActiver->activeLine(index);
 }
 
 template<class DataTypes>
 inline GenericLineIterator<DataTypes>::GenericLineIterator(const sofa::core::CollisionElementIterator& i)
     : sofa::core::TCollisionElementIterator<ParentModel>(static_cast<ParentModel*>(i.getCollisionModel()), i.getIndex())
 {
-    //    LineModel* CM = static_cast<LineModel*>(i.getCollisionModel());
-    //    activated = CM->myActiver->activeLine(i.getIndex());
 }
 
 template<class DataTypes>
