@@ -632,10 +632,10 @@ public:
     template<class RowConstIterator>
     void initRows(const RowConstIterator& rowBegin, const RowConstIterator& rowEnd)
     {
-        m_rows.resize(rowBegin-rowEnd);
+        m_rows.resize(rowEnd-rowBegin);
         for (RowConstIterator rowIt = rowBegin; rowIt != rowEnd; ++rowIt)
         {
-            m_rows[rowIt.getInternal()].init(rowIt.index());
+            m_rows[std::distance(rowBegin, rowIt)].init(rowIt.index());
         }
     }
     template <class RowConstIterator>
