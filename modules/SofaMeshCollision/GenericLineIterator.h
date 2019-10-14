@@ -46,7 +46,7 @@ public:
     const Deriv& v1() const;
     const Deriv& v2() const;
 
-    Deriv n() const;
+    Deriv n() const { return Deriv(); } // TODO: remove this once no code uses it anymore
 
     /// Return true if the element stores a free position vector
     bool hasFreePosition() const;
@@ -117,9 +117,6 @@ inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv&
 
 template<class LineCollisionModel>
 inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv& GenericLineIterator<LineCollisionModel>::v2() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[1]]; }
-
-template<class LineCollisionModel>
-inline typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv GenericLineIterator<LineCollisionModel>::n() const { return (this->model->mpoints->getNormal(this->i1()) + this->model->mpoints->getNormal(this->i2())).normalized(); }
 
 
 template<class DataTypes>
