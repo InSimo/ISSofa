@@ -188,42 +188,6 @@ void TPointModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 }
 
 template<class DataTypes>
-bool TPointModel<DataTypes>::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
-{
-
-    if (!this->bSelfCollision.getValue()) return true; // we need to perform this verification process only for the selfcollision case.
-    if (this->getContext() != model2->getContext()) return true;
-
-    if (model2 == this)
-    {
-        if (index <= index2) // to avoid to have two times the same auto-collision we only consider the case when index > index2
-        {
-            return false;
-        }
-        
-        // in the neighborhood, if we find a point in common, we cancel the collision
-        const helper::vector <unsigned int>& verticesAroundVertex1 = this->m_topology->getVerticesAroundVertex(index);
-        const helper::vector <unsigned int>& verticesAroundVertex2 = this->m_topology->getVerticesAroundVertex(index2);
-
-        for (unsigned int v1 : verticesAroundVertex1)
-        {
-            for (unsigned int v2 : verticesAroundVertex2)
-            {
-                if (v1 == v2 || static_cast<int>(v1) == index2 || static_cast<int>(v2) == index)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    else
-    {
-        return model2->canCollideWithElement(index2, this, index);
-    }
-}
-
-template<class DataTypes>
 void TPointModel<DataTypes>::updateNormals()
 {
     const VecCoord& x = this->m_mstate->read(core::ConstVecCoordId::position())->getValue();

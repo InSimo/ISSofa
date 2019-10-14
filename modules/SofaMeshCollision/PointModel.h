@@ -94,8 +94,6 @@ public:
     void draw(const core::visual::VisualParams*, int index);
     void draw(const core::visual::VisualParams* vparams) override;
 
-    virtual bool canCollideWithElement(int index, core::CollisionModel* model2, int index2);
-
     DPos getNormal(int index) const { return !m_normals.empty() ? m_normals[index] : DPos(); }
 
     PointLocalMinDistanceFilter *getFilter() const { return m_lmdFilter; }

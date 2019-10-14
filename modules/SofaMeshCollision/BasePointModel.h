@@ -26,6 +26,8 @@ public:
 
     void init() override;
 
+    bool canCollideWithElement(int index, core::CollisionModel* model2, int index2) override;
+
     void handleTopologyChange(sofa::core::topology::Topology* t) override;
     sofa::core::topology::BaseMeshTopology* getTopology() const final { return this->m_topology; }
 
