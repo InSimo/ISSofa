@@ -47,6 +47,58 @@ void BaseTriangleModel::resize(int size)
     Inherit1::resize(size);
 }
 
+bool BaseTriangleModel::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
+{
+    if (!this->getSelfCollision() || this->getContext() != model2->getContext())
+    {
+        // Not a self-collision
+        return true;
+    }
+
+    const core::topology::Topology::Triangle& t1 = this->m_topology->getTriangle(index);
+    int p11 = t1[0];
+    int p12 = t1[1];
+    int p13 = t1[2];
+
+    if (model2->getEnumType() == sofa::core::CollisionModel::TRIANGLE_TYPE)
+    {
+        // do not collide if the triangles have a point in common
+        const core::topology::Topology::Triangle& t2 = this->m_topology->getTriangle(index2);
+        int p21 = t2[0];
+        int p22 = t2[1];
+        int p23 = t2[2];
+
+        if (p11 == p21 || p11 == p22 || p11 == p23 ||
+            p12 == p21 || p12 == p22 || p12 == p23 ||
+            p13 == p21 || p13 == p22 || p13 == p23)
+            return false;
+
+        return true;
+    }
+    else if (model2->getEnumType() == sofa::core::CollisionModel::LINE_TYPE)
+    {
+        // do not collide if the edge shares a point with the triangle
+        const core::topology::BaseMeshTopology::Edge& e2 = this->m_topology->getEdge(index2);
+        int e21 = e2[0];
+        int e22 = e2[1];
+
+        if (p11 == e21 || p11 == e22 || p12 == e21 || p12 == e22)
+            return false;
+
+        return true;
+    }
+    else if (model2->getEnumType() == sofa::core::CollisionModel::POINT_TYPE)
+    {
+        // do not collide if the point belongs to the triangle
+        if (index2 == p11 || index2 == p12 || index2 == p13)
+            return false;
+
+        return true;
+    }
+
+    return true;
+}
+
 void BaseTriangleModel::handleTopologyChange(sofa::core::topology::Topology* t)
 {
     sofa::core::topology::BaseMeshTopology* topology = sofa::core::topology::BaseMeshTopology::DynamicCast(t);

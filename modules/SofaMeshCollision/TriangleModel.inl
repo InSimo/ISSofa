@@ -77,8 +77,6 @@ void TTriangleModel<DataTypes>::init()
 {
     Inherit1::init();
 
-    this->getContext()->get(mpoints);
-
     simulation::Node* node = simulation::Node::DynamicCast(this->getContext());
     if (node != 0)
     {
@@ -347,55 +345,6 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
     {
         this->getPrevious()->draw(vparams);
     }
-}
-
-
-template<class DataTypes>
-bool TTriangleModel<DataTypes>::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
-{
-    if (!this->bSelfCollision.getValue()) return true; // we need to perform this verification process only for the selfcollision case.
-    if (this->getContext() != model2->getContext()) return true;
-
-    //if (model2 == mpoints && index2==4)
-    //{
-    //	std::cout<<"Triangle model : at index ["<<index<<"] can collide with point 4 ?"<<std::endl;
-    //}
-
-
-    //return true;
-
-    Element t(this,index);
-    if (model2 == mpoints)
-    {
-        // if point belong to the triangle, return false
-        if ( index2==t.p1Index() || index2==t.p2Index() || index2==t.p3Index())
-            return false;
-
-        //const helper::vector <unsigned int>& EdgesAroundVertex11 =topology->getEdgesAroundVertex(p11);
-        //const helper::vector <unsigned int>& EdgesAroundVertex12 =topology->getEdgesAroundVertex(p12);
-
-        //// if the point belong to the the neighborhood of the triangle, return false
-        //for (unsigned int i1=0; i1<EdgesAroundVertex11.size(); i1++)
-        //{
-        //	unsigned int e11 = EdgesAroundVertex11[i1];
-        //	p11 = elems[e11].i1;
-        //	p12 = elems[e11].i2;
-        //	if (index2==p11 || index2==p12)
-        //		return false;
-        //}
-        //for (unsigned int i1=0; i1<EdgesAroundVertex11.size(); i1++)
-        //{
-        //	unsigned int e12 = EdgesAroundVertex12[i1];
-        //	p11 = elems[e12].i1;
-        //	p12 = elems[e12].i2;
-        //	if (index2==p11 || index2==p12)
-        //		return false;
-    }
-
-    //// TODO : case with auto-collis with segment and auto-collis with itself
-
-    return true;
-
 }
 
 template< class Real >

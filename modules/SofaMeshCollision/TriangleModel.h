@@ -139,8 +139,6 @@ protected:
     Data<bool> d_drawBoundaryEdges;
     int meshRevision = -1;
 
-    PointModel* mpoints = nullptr;
-
     TriangleLocalMinDistanceFilter *m_lmdFilter = nullptr;
 
     int m_countBadShape = 0; ///< how many triangles were below the minTriangleArea threshold
@@ -170,8 +168,6 @@ public:
 
     void draw(const core::visual::VisualParams* vparams) override;
      
-    virtual bool canCollideWithElement(int index, core::CollisionModel* model2, int index2) override;
-
     virtual void handleTopologyChange(sofa::core::topology::Topology* t) override;
 
     const VecCoord& getX() const { return this->getMechanicalState()->read(core::ConstVecCoordId::position())->getValue(); }
@@ -180,15 +176,6 @@ public:
     const Deriv& getNormal(unsigned int i) const { return normals[i]; }
 
     TriangleLocalMinDistanceFilter *getFilter() const;
-
-    //template< class TFilter >
-    //TFilter *getFilter() const
-    //{
-    //	if (m_lmdFilter != 0)
-    //		return m_lmdFilter;
-    //	else
-    //		return &m_emptyFilter;
-    //}
 
     void setFilter(TriangleLocalMinDistanceFilter * /*lmdFilter*/);
 
