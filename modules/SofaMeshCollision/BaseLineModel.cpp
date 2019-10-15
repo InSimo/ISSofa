@@ -48,6 +48,43 @@ void BaseLineModel::resize(int size)
     Inherit1::resize(size);
 }
 
+bool BaseLineModel::canCollideWithElement(int index, CollisionModel* model2, int index2)
+{
+    if (!this->getSelfCollision() || this->getContext() != model2->getContext())
+    {
+        // Not a self-collision
+        return true;
+    }
+
+    const core::topology::Topology::Edge& e1 = this->m_topology->getEdge(index);
+    int p11 = e1[0];
+    int p12 = e1[1];
+
+    if (model2->getEnumType() == sofa::core::CollisionModel::LINE_TYPE)
+    {
+        // do not collide if the edges have a point in common
+        const core::topology::Topology::Edge& e2 = this->m_topology->getEdge(index2);
+        int p21 = e2[0];
+        int p22 = e2[1];
+
+        if (p11 == p21 || p11 == p22 || p12 == p21 || p12 == p22)
+            return false;
+
+        return true;
+    }
+    else if (model2->getEnumType() == sofa::core::CollisionModel::POINT_TYPE)
+    {
+        // do not collide if the point belongs to the edge
+        if (index2 == p11 || index2 == p12)
+            return false;
+
+        return true;
+    }
+    else
+    {
+        return model2->canCollideWithElement(index2, this, index);
+    }
+}
 
 void BaseLineModel::handleTopologyChange(sofa::core::topology::Topology* t)
 {
