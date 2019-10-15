@@ -70,8 +70,6 @@ void TLineModel<DataTypes>::init()
 {
     Inherit1::init();
 
-    this->getContext()->get(mpoints);
-
     simulation::Node* node = simulation::Node::DynamicCast(this->getContext());
     if (node != 0)
     {
@@ -197,116 +195,95 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 template<class DataTypes>
 bool TLineModel<DataTypes>::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
 {
-    if (!this->bSelfCollision.getValue()) return true;
-    if (this->getContext() != model2->getContext()) return true;
-    sofa::core::topology::BaseMeshTopology* topology = this->getTopology();
-    /*
-    	TODO : separate 2 case: the model is only composed of lines or is composed of triangles
-    	bool NoTriangles = true;
-        if( this->getContext()->get<TriangleModel>  != nullptr)
-    		NoTriangles = false;
-    */
+    // NOTE: same as BaseLineModel, but also looking for common points in the neighborhood
+
+    if (!this->getSelfCollision() || this->getContext() != model2->getContext())
+    {
+        // Not a self-collision
+        return true;
+    }
+
     const core::topology::Topology::Edge& e1 = this->m_topology->getEdge(index);
     int p11 = e1[0];
     int p12 = e1[1];
 
-    if (!topology)
-    {
-        serr<<"no topology found"<<sendl;
-        return true;
-    }
-    const helper::vector <unsigned int>& eav11 =topology->getEdgesAroundVertex(p11);
-    const helper::vector <unsigned int>& eav12 =topology->getEdgesAroundVertex(p12);
+    const helper::vector <unsigned int>& eav11 = this->m_topology->getEdgesAroundVertex(p11);
+    const helper::vector <unsigned int>& eav12 = this->m_topology->getEdgesAroundVertex(p12);
 
-    if (model2 == this)
+    if (model2->getEnumType() == sofa::core::CollisionModel::LINE_TYPE)
     {
-        // if point in common, return false:
+        // do not collide if the edges have a point in common
         const core::topology::Topology::Edge& e2 = this->m_topology->getEdge(index2);
         int p21 = e2[0];
         int p22 = e2[1];
 
-        if (p11==p21 || p11==p22 || p12==p21 || p12==p22)
+        if (p11 == p21 || p11 == p22 || p12 == p21 || p12 == p22)
             return false;
 
+        // do not collide if a common point is found in the neighborhood
+        const helper::vector<unsigned int>& eav21 = this->m_topology->getEdgesAroundVertex(p21);
+        const helper::vector<unsigned int>& eav22 = this->m_topology->getEdgesAroundVertex(p22);
 
-        // in the neighborhood, if we find a segment in common, we cancel the collision
-        const helper::vector <unsigned int>& eav21 =topology->getEdgesAroundVertex(p21);
-        const helper::vector <unsigned int>& eav22 =topology->getEdgesAroundVertex(p22);
-
-        for (unsigned int i1=0; i1<eav11.size(); i1++)
+        for (unsigned int e11 : eav11)
         {
-            unsigned int e11 = eav11[i1];
-            unsigned int i2;
-            for (i2=0; i2<eav21.size(); i2++)
+            for (unsigned int e21 : eav21)
             {
-                if (e11==eav21[i2])
+                if (e11 == e21)
                     return false;
             }
-            for (i2=0; i2<eav22.size(); i2++)
+            for (unsigned int e22 : eav22)
             {
-                if (e11==eav22[i2])
+                if (e11 == e22)
                     return false;
             }
         }
 
-        for (unsigned int i1=0; i1<eav12.size(); i1++)
+        for (unsigned int e12 : eav12)
         {
-            unsigned int e11 = eav12[i1];
-            unsigned int i2;
-            for (i2=0; i2<eav21.size(); i2++)
+            for (unsigned int e21 : eav21)
             {
-                if (e11==eav21[i2])
+                if (e12 == e21)
                     return false;
             }
-            for (i2=0; i2<eav22.size(); i2++)
+            for (unsigned int e22 : eav22)
             {
-                if (e11==eav22[i2])
+                if (e12 == e22)
                     return false;
             }
-
         }
+
         return true;
     }
-    else if (model2 == mpoints)
+    else if (model2->getEnumType() == sofa::core::CollisionModel::POINT_TYPE)
     {
-        //std::cerr<<" point Model"<<std::endl;
-
-        // if point belong to the segment, return false
-        if (index2==p11 || index2==p12)
+        // do not collide if the point belongs to the edge
+        if (index2 == p11 || index2 == p12)
             return false;
 
-        // if the point belong to the a segment in the neighborhood, return false
-        for (unsigned int i1=0; i1<eav11.size(); i1++)
+        // do not collide if the point belongs to the neighborhood of the edge
+        for (unsigned int e11 : eav11)
         {
-            const core::topology::Topology::Edge& e11 = this->m_topology->getEdge(eav11[i1]);
-            int p11 = e11[0];
-            int p12 = e11[1];
-            if (index2==p11 || index2==p12)
+            const core::topology::Topology::Edge& edge11 = this->m_topology->getEdge(e11);
+            int p111 = edge11[0];
+            int p112 = edge11[1];
+            if (index2 == p111 || index2 == p112)
                 return false;
         }
-        for (unsigned int i1=0; i1<eav12.size(); i1++)
+        for (unsigned int e12 : eav12)
         {
-            const core::topology::Topology::Edge& e12 = this->m_topology->getEdge(eav12[i1]);
-            int p11 = e12[0];
-            int p12 = e12[1];
-            if (index2==p11 || index2==p12)
+            const core::topology::Topology::Edge& edge12 = this->m_topology->getEdge(e12);
+            int p121 = edge12[0];
+            int p122 = edge12[1];
+            if (index2 == p121 || index2 == p122)
                 return false;
         }
+
         return true;
-
-        //sout << "line-point self test "<<index<<" - "<<index2<<sendl;
-        //std::cout << "line-point self test "<<index<<" - "<<index2<<"   - elems[index].p[0]-1"<<elems[index].p[0]-1<<"   elems[index]..p[1]+1 "<<elems[index].p[1]+1<<std::endl;
-
-
-        // case1: only lines (aligned lines !!)
-        //return index2 < p11-1 || index2 > p12+1;
-
-        // only removes collision with the two vertices of the segment
-        // TODO: neighborhood search !
-        //return !(index2==p11 || index2==p12);
     }
     else
+    {
         return model2->canCollideWithElement(index2, this, index);
+    }
 }
 
 template<class DataTypes>

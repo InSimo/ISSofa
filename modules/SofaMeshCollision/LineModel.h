@@ -149,8 +149,6 @@ public:
     unsigned int getClassificationSampling(const unsigned int index) const;
 
 protected:
-
-    PointModel* mpoints;
     LineLocalMinDistanceFilter *m_lmdFilter;
 
     Data< std::string  > LineActiverPath;
