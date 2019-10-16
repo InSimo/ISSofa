@@ -153,8 +153,14 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
     if (vparams->displayFlags().getShowCollisionModels())
     {
-        if (vparams->displayFlags().getShowWireFrame())
-            vparams->drawTool()->setPolygonMode(0,true);
+        const defaulttype::Vec<4, float> color(this->getColor4f());
+        const SReal proximity = this->getProximity();
+        const bool drawCapsule = !(vparams->displayFlags().getShowWireFrame()) && proximity > 0;
+
+        if (drawCapsule)
+        {
+            vparams->drawTool()->setLightingEnabled(true);
+        }
 
         sofa::helper::vector< defaulttype::Vector3 > points;
         for (int i = 0; i < this->size; i++)
@@ -162,31 +168,46 @@ void TLineModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
             TLine<DataTypes> l(this,i);
             if(l.activated())
             {
-                points.push_back(l.p1());
-                points.push_back(l.p2());
+                if (drawCapsule)
+                {
+                    vparams->drawTool()->drawCapsule(l.p1(), l.p2(), proximity, color);
+                }
+                else
+                {
+                    points.push_back(l.p1());
+                    points.push_back(l.p2());
+                }
             }
         }
-
-        vparams->drawTool()->drawLines(points, 1, defaulttype::Vec<4,float>(this->getColor4f()));
+        vparams->drawTool()->drawLines(points, 1, color);
 
         if (m_displayFreePosition.getValue())
         {
             sofa::helper::vector< defaulttype::Vector3 > pointsFree;
+            const defaulttype::Vec<4, float> colorFree(0.0f, 1.0f, 0.2f, 1.0f);
             for (int i = 0; i < this->size; i++)
             {
                 TLine<DataTypes> l(this,i);
                 if(l.activated())
                 {
-                    pointsFree.push_back(l.p1Free());
-                    pointsFree.push_back(l.p2Free());
+                    if (drawCapsule)
+                    {
+                        vparams->drawTool()->drawCapsule(l.p1Free(), l.p2Free(), proximity, colorFree);
+                    }
+                    else
+                    {
+                        pointsFree.push_back(l.p1Free());
+                        pointsFree.push_back(l.p2Free());
+                    }
                 }
             }
-
-            vparams->drawTool()->drawLines(pointsFree, 1, defaulttype::Vec<4,float>(0.0f,1.0f,0.2f,1.0f));
+            vparams->drawTool()->drawLines(pointsFree, 1, colorFree);
         }
 
-        if (vparams->displayFlags().getShowWireFrame())
-            vparams->drawTool()->setPolygonMode(0,false);
+        if (drawCapsule)
+        {
+            vparams->drawTool()->setLightingEnabled(false);
+        }
     }
     if (this->getPrevious()!=nullptr && vparams->displayFlags().getShowBoundingCollisionModels())
         this->getPrevious()->draw(vparams);
