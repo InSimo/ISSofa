@@ -101,6 +101,22 @@ public:
             container.push_back(it->first);
     }
 
+    ///// Get list of attributes with the same access flag as the one passed as a parameter
+    ////  For example getAttributeList( container, false ) will return all the attributes that have not been accessed (yet)
+    ////  whereas getAttributeList( container, true ) will return all the attributes that have already been accessed
+    template<class T> void getAttributeList(T& container, bool accessedFlag)
+    {
+        for (AttributeMap::iterator it = attributes.begin();
+             it != attributes.end(); ++it)
+        {
+            if (it->second.isAccessed() == accessedFlag)
+            {
+                container.push_back(it->first);
+            }
+        }
+    }
+
+
     /// Find an object description given its name (relative to this object)
     virtual BaseObjectDescription* find(const char* nodeName, bool absolute=false);
 
