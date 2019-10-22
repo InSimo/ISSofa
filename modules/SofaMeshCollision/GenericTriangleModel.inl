@@ -116,7 +116,7 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangle
                     {
                         const sofa::core::topology::Topology::Triangle tri_k = triangles[tae[k]];
                         const DPos n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]], x0[tri_k[1]], x0[tri_k[2]]);
-                        const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
+                        const Real cos = dot(n_0, n_k);
                         const bool isAngleAboveThreshold = cos <= cosAngleThreshold;
                         if (isAngleAboveThreshold)
                         {
@@ -189,7 +189,7 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangle
                     {
                         const sofa::core::topology::Topology::Quad q_k = quads[qae[k]];
                         const DPos n_k = computeTriangleNormal<DataTypes>(x0[q_k[0]], x0[q_k[1]], x0[q_k[2]]);
-                        const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
+                        const Real cos = dot(n_0, n_k);
                         const bool isAngleAboveThreshold = cos < cosAngleThreshold;
                         if (isAngleAboveThreshold)
                         {
