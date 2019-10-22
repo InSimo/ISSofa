@@ -26,6 +26,8 @@ GenericTriangleModel<TCollisionModel, TDataTypes>::GenericTriangleModel()
 //                                                                                                       0    -> All edges/points are flagged as boundary.
 //                                                                                                       180  -> Only edges with a single adjacent triangle are marked as boundary
 //                                                                                                               and only points attached to these boundary edges are marked as boundary."))
+    , d_minEdgeLength(initData(&d_minEdgeLength, Real(0.0), "minEdgeLength", "Edge length threshold below with elements are considered as badly shaped"))
+    , d_minTriangleArea(initData(&d_minTriangleArea, Real(0.0), "minTriangleArea", "Triangle area threshold below which elements are considered as badly shaped"))
 {
     d_boundaryAngleThreshold.setGroup("TriangleFlags_");
 }
@@ -67,14 +69,21 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::computeContinuousBoundin
     m_hasTopologicalChange = false;
 }
 
-template< class DataTypes>
+template<class TCollisionModel, class TDataTypes>
+void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangleFlags()
+{
+    updateBoundaryFlags();
+    updateBadShapeFlag();
+}
+
+template<class DataTypes>
 typename DataTypes::DPos computeTriangleNormal(const typename DataTypes::Coord& p0, const typename DataTypes::Coord& p1, const typename DataTypes::Coord& p2)
 {
     return cross(DataTypes::getCPos(p1-p0), DataTypes::getCPos(p2-p0)).normalized();
 }
 
 template<class TCollisionModel, class TDataTypes>
-void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangleFlags()
+void GenericTriangleModel<TCollisionModel, TDataTypes>::updateBoundaryFlags()
 {
     using DPos = typename DataTypes::DPos;
 
@@ -202,7 +211,71 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangle
     }
 }
 
+template<class DataTypes>
+typename DataTypes::Real computeTriangleAreaSquared(const typename DataTypes::CPos& p0, const typename DataTypes::CPos& p1, const typename DataTypes::CPos& p2)
+{
+    using Real = typename DataTypes::Real;
+    return Real(0.25) * cross(p1-p0, p2-p0).norm2();
+}
 
+template<class TCollisionModel, class TDataTypes>
+void GenericTriangleModel<TCollisionModel, TDataTypes>::updateBadShapeFlag()
+{
+    using CPos = typename DataTypes::CPos;
+
+    auto x  = m_mstate->readPositions();
+
+    const Real minTriangleArea = d_minTriangleArea.getValue();
+    const Real minEdgeLength = d_minEdgeLength.getValue();
+    if (minTriangleArea <= 0.0 && minEdgeLength <= 0.0) return;
+
+    const Real minTriangleArea2 = minTriangleArea * minTriangleArea;
+    const Real minEdgeLength2 = minEdgeLength * minEdgeLength;
+
+    const unsigned int ntris = m_topology->getNbTriangles();
+    const auto& triangles = m_topology->getTriangles();
+
+    for (sofa::core::topology::BaseMeshTopology::TriangleID tid = 0; tid < ntris; ++tid)
+    {
+        int& f = m_triangleFlags[tid];
+
+        const sofa::core::topology::Topology::Triangle t = triangles[tid];
+        const CPos& pt0 = DataTypes::getCPos(x[t[0]]);
+        const CPos& pt1 = DataTypes::getCPos(x[t[1]]);
+        const CPos& pt2 = DataTypes::getCPos(x[t[2]]);
+
+        bool badShape = false;
+        if (minTriangleArea > 0.0)
+        {
+            const Real triangleArea2 = computeTriangleAreaSquared<DataTypes>(pt0, pt1, pt2);
+            badShape = triangleArea2 < minTriangleArea2;
+            if (badShape && !(f&FLAG_BADSHAPE))
+            {
+                serr << "Triangle " << tid << " is badly shaped (area = " << std::sqrt(triangleArea2) << ")" << sendl;
+            }
+        }
+        if (minEdgeLength > 0.0)
+        {
+            const Real edge01Length2 = (pt1-pt0).norm2();
+            const Real edge02Length2 = (pt2-pt0).norm2();
+            const Real edge12Length2 = (pt2-pt1).norm2();
+            badShape = edge01Length2 < minEdgeLength2 || edge02Length2 < minEdgeLength2 || edge12Length2 < minEdgeLength2;
+            if (badShape && !(f&FLAG_BADSHAPE))
+            {
+                serr << "Triangle " << tid << " is badly shaped (edge lengths = " << std::sqrt(edge01Length2) << ", " << std::sqrt(edge02Length2) << ", " << std::sqrt(edge12Length2) << ")" << sendl;
+            }
+        }
+
+        if (badShape)
+        {
+            f |= FLAG_BADSHAPE;
+        }
+        else
+        {
+            f &= ~FLAG_BADSHAPE;
+        }
+    }
+}
 
 } // namespace collision
 

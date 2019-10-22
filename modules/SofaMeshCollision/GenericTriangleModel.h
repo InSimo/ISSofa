@@ -50,6 +50,8 @@ public:
     sofa::core::behavior::MechanicalState<DataTypes>* getMechanicalState() const { return this->m_mstate; }
 
     Data<Real> d_boundaryAngleThreshold;
+    Data<Real> d_minTriangleArea;
+    Data<Real> d_minEdgeLength;
 
 protected:
     GenericTriangleModel();
@@ -60,6 +62,10 @@ protected:
     virtual void updateMechanicalTriangleFlags();
 
     core::behavior::MechanicalState<DataTypes>* m_mstate = nullptr;
+
+private:
+    void updateBoundaryFlags();
+    void updateBadShapeFlag();
 };
 
 } // namespace collision

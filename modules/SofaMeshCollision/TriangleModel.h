@@ -99,11 +99,6 @@ public:
     friend class TTriangle<DataTypes>;
     friend class GenericTriangleIterator<TTriangleModel<DataTypes>>;
 
-    enum TriangleFlag
-    {
-        FLAG_BADSHAPE = Inherit1::FLAG_FIRST_CUSTOM << 0, ///< Triangle has a bad shape and should be ignored
-    };
-
 	enum { NBARY = 2 };
 
 protected:
@@ -118,15 +113,11 @@ protected:
     virtual void updateNormals();
 
     Data<bool> computeNormals;
-    Data<Real> d_minTriangleArea;
     Data<bool> d_drawBoundaryPoints;
     Data<bool> d_drawBoundaryEdges;
     int meshRevision = -1;
 
     TriangleLocalMinDistanceFilter *m_lmdFilter = nullptr;
-
-    int m_countBadShape = 0; ///< how many triangles were below the minTriangleArea threshold
-
 
 protected:
 

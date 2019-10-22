@@ -53,11 +53,11 @@ namespace collision
 template<class DataTypes>
 TTriangleModel<DataTypes>::TTriangleModel()
     : computeNormals(initData(&computeNormals, true, "computeNormals", "set to false to disable computation of triangles normal"))
-    , d_minTriangleArea(initData(&d_minTriangleArea, Real(1.0e-6), "minTriangleArea", "Triangle area threshold below which elements are considered as badly shaped and collisions are disabled"))
     , d_drawBoundaryPoints(initData(&d_drawBoundaryPoints, false, "drawBoundaryPoints", "Draw triangle points that are classified as boundary."))
     , d_drawBoundaryEdges(initData(&d_drawBoundaryEdges, false, "drawBoundaryEdges", "Draw triangle edges that are classified as boundary."))
 {
     triangles = &mytriangles;
+    this->d_minTriangleArea.setValue(Real(1.0e-6));
 }
 
 template<class DataTypes>
@@ -347,12 +347,6 @@ void TTriangleModel<DataTypes>::draw(const core::visual::VisualParams* vparams)
     }
 }
 
-template< class Real >
-Real computeTriangleAreaSquared(const sofa::defaulttype::Vec<3, Real>& p0, const sofa::defaulttype::Vec<3, Real>& p1, const sofa::defaulttype::Vec<3, Real>& p2)
-{
-    return (Real(0.25)*((p1-p0).cross(p2-p0)).norm2());
-}
-
 template<class DataTypes>
 defaulttype::BoundingBox TTriangleModel<DataTypes>::computeElementBBox(int index, SReal distance)
 {
@@ -405,37 +399,12 @@ void TTriangleModel<DataTypes>::computeBoundingTree(int maxDepth)
         const VecCoord& x = this->m_mstate->read(core::ConstVecCoordId::position())->getValue();
 
         const bool calcNormals = computeNormals.getValue();
-        const Real minTriangleArea = d_minTriangleArea.getValue();
-        const Real minTriangleArea2 = minTriangleArea*minTriangleArea;
-        const bool updateBadShape = minTriangleArea != Real(0.0);
-
-        for (int i = 0; i < this->size; i++)
+        if (calcNormals)
         {
-            Element t(this,i);
-            const defaulttype::Vector3& pt1 = DataTypes::getCPos(x[t.p1Index()]);
-            const defaulttype::Vector3& pt2 = DataTypes::getCPos(x[t.p2Index()]);
-            const defaulttype::Vector3& pt3 = DataTypes::getCPos(x[t.p3Index()]);
-
-            if (updateBadShape)
-            {
-                const Real triangleArea2 = computeTriangleAreaSquared(pt1,pt2,pt3);
-                if (triangleArea2 < minTriangleArea2)
-                {
-                    this->m_triangleFlags[i] |= FLAG_BADSHAPE;
-                    if (m_countBadShape++ == 0)
-                    { // show a warning, but only the first time a triangle is flagged in this model
-                        serr << "Triangle with index " << i << " (area = " << sqrt(triangleArea2)
-                             << ") is badly shaped: collision detection within this triangle will be disabled." << sendl;
-                    }
-                }
-                else
-                {
-                    this->m_triangleFlags[i] &= ~FLAG_BADSHAPE;
-                }
-            }
-            if (calcNormals)
+            for (int i = 0; i < this->size; i++)
             {
                 // Also recompute normal vector
+                Element t(this,i);
                 t.n() = computeTriangleNormal<DataTypes>(x[t.p1Index()], x[t.p2Index()], x[t.p3Index()]);
             }
         }
