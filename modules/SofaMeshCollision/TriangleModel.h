@@ -107,22 +107,6 @@ public:
 	enum { NBARY = 2 };
 
 protected:
-#if 0
-        /// Output stream
-        inline friend std::ostream& operator<< (std::ostream& os, const TriangleInfo& ti)
-        {
-            return os << ti.normal;
-        }
-
-        /// Input stream
-        inline friend std::istream& operator >> (std::istream& in, TriangleInfo& ti)
-        {
-            return in >> ti.normal;
-        }
-    };
-#endif
-
-    //topology::TriangleData<TriangleInfo> elems;
     VecDeriv normals;
 
     const sofa::core::topology::BaseMeshTopology::SeqTriangles* triangles = nullptr;
