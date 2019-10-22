@@ -68,17 +68,15 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::computeContinuousBoundin
 }
 
 template< class DataTypes>
-typename DataTypes::Deriv computeTriangleNormal(const typename DataTypes::Coord& p0, const typename DataTypes::Coord& p1, const typename DataTypes::Coord& p2)
+typename DataTypes::DPos computeTriangleNormal(const typename DataTypes::Coord& p0, const typename DataTypes::Coord& p1, const typename DataTypes::Coord& p2)
 {
-    typename DataTypes::Deriv n;
-    DataTypes::setDPos(n,cross(DataTypes::getCPos(p1-p0), DataTypes::getCPos(p2-p0)).normalized());
-    return n;
+    return cross(DataTypes::getCPos(p1-p0), DataTypes::getCPos(p2-p0)).normalized();
 }
 
 template<class TCollisionModel, class TDataTypes>
 void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangleFlags()
 {
-    using Deriv = typename DataTypes::Deriv;
+    using DPos = typename DataTypes::DPos;
 
     auto x0 = m_mstate->readRestPositions();
     auto x  = m_mstate->readPositions();
@@ -113,15 +111,11 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangle
                 if (tae.size() > 1) // if tae.size() == 1, FLAG_BE23 was already set by updateTopologicalTriangleFlags
                 {
                     const sofa::core::topology::Topology::Triangle tri_0 = triangles[tae[0]];
-                    const Deriv n_0 = computeTriangleNormal<DataTypes>(x0[tri_0[0]],
-                                                                       x0[tri_0[1]],
-                                                                       x0[tri_0[2]]);
+                    const DPos n_0 = computeTriangleNormal<DataTypes>(x0[tri_0[0]], x0[tri_0[1]], x0[tri_0[2]]);
                     for (std::size_t k=1; k<tae.size(); ++k)
                     {
                         const sofa::core::topology::Topology::Triangle tri_k = triangles[tae[k]];
-                        const Deriv n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]],
-                                                                           x0[tri_k[1]],
-                                                                           x0[tri_k[2]]);
+                        const DPos n_k = computeTriangleNormal<DataTypes>(x0[tri_k[0]], x0[tri_k[1]], x0[tri_k[2]]);
                         const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
                         const bool isAngleAboveThreshold = cos <= cosAngleThreshold;
                         if (isAngleAboveThreshold)
@@ -190,11 +184,11 @@ void GenericTriangleModel<TCollisionModel, TDataTypes>::updateMechanicalTriangle
                 if (qae.size() > 1) // if qae.size() == 1, FLAG_BE23 was already set by updateTopologicalTriangleFlags
                 {
                     const sofa::core::topology::Topology::Quad q_0 = quads[qae[0]];
-                    const Deriv n_0 = computeTriangleNormal<DataTypes>(x0[q_0[0]], x0[q_0[1]], x0[q_0[2]]);
+                    const DPos n_0 = computeTriangleNormal<DataTypes>(x0[q_0[0]], x0[q_0[1]], x0[q_0[2]]);
                     for (std::size_t k=1; k<qae.size(); ++k)
                     {
                         const sofa::core::topology::Topology::Quad q_k = quads[qae[k]];
-                        const Deriv n_k = computeTriangleNormal<DataTypes>(x0[q_k[0]], x0[q_k[1]], x0[q_k[2]]);
+                        const DPos n_k = computeTriangleNormal<DataTypes>(x0[q_k[0]], x0[q_k[1]], x0[q_k[2]]);
                         const Real cos = dot(DataTypes::getDPos(n_0), DataTypes::getDPos(n_k));
                         const bool isAngleAboveThreshold = cos < cosAngleThreshold;
                         if (isAngleAboveThreshold)
