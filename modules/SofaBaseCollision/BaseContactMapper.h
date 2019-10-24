@@ -124,6 +124,9 @@ public:
 
     virtual void updateXfree() = 0;
 
+    virtual unsigned int getFromElem( unsigned int /*pid*/) const {std::cout << "WARNING[BaseContactMapper] getFromElem is called but not implemented" << std::endl; return -1;}
+    virtual sofa::defaulttype::Vector3 getFromBary( unsigned int /*pid*/) const {std::cout << "WARNING[BaseContactMapper] getFromBary is called but not implemented" << std::endl; return sofa::defaulttype::Vector3(0, 0, 0);};
+
     virtual sofa::core::BaseMapping* getMapping() = 0;
 
     typedef helper::Factory< std::string, BaseContactMapper<DataTypes>, core::CollisionModel* > ContactMapperFactory;
