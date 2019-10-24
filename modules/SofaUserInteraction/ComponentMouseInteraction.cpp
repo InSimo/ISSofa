@@ -29,6 +29,7 @@
 #include <SofaUserInteraction/ComponentMouseInteraction.h>
 #include <SofaUserInteraction/ComponentMouseInteraction.inl>
 #include <sofa/simulation/common/Node.h>
+#include <sofa/simulation/common/MechanicalVisitor.h>
 #include <sofa/simulation/common/DeleteVisitor.h>
 #include <sofa/defaulttype/Vec3Types.h>
 #include <sofa/defaulttype/RigidTypes.h>
@@ -74,6 +75,8 @@ void ComponentMouseInteraction::attach(Node* parentNode)
         {
             nodeRayPick = parentNode->createChild("MouseInteraction");
             createInteractionComponents(parentNode,nodeRayPick.get());
+            sofa::simulation::MechanicalVInitVisitor< core::V_COORD >(sofa::core::ExecParams::defaultInstance(), core::VecCoordId::freePosition(), core::ConstVecCoordId::position(), true).execute(parentNode->getContext());
+            sofa::simulation::MechanicalVInitVisitor< core::V_DERIV >(sofa::core::ExecParams::defaultInstance(), core::VecDerivId::freeVelocity(), core::ConstVecDerivId::velocity(), true).execute(parentNode->getContext());
             nodeRayPick->detachFromGraph();
         }
         parentNode->addChild(nodeRayPick);
