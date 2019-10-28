@@ -194,6 +194,16 @@ public:
     {
     }
 
+    virtual unsigned int getFromElem( unsigned int pid) const override
+    {
+        return pid;
+    }
+
+    virtual sofa::defaulttype::Vector3 getFromBary( unsigned int pid) const override
+    {
+        return sofa::defaulttype::Vector3(0, 0, 0);
+    }
+
     virtual sofa::core::BaseMapping* getMapping()
     {
         return NULL;

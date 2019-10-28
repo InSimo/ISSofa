@@ -139,6 +139,12 @@ public:
     {
         return mapping.get();
     }
+
+    virtual unsigned int getFromElem( unsigned int pid) const override
+    {
+        return mapper->getFromTopologyIndex(pid);
+    }
+
 };
 
 /// Mapper for LineModel
@@ -158,6 +164,7 @@ public:
     }
 
     inline int addPointB(const Coord& P, int index, Real& r ){return addPoint(P,index,r);}
+
 };
 
 
