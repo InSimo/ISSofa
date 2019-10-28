@@ -219,6 +219,9 @@ public:
     virtual int createPointInCube(const typename Out::Coord& /*p*/, int /*cubeIndex*/, const typename In::VecCoord* /*points*/) {return 0;}
 
     virtual void setToTopology( topology::PointSetTopologyContainer* toTopology) {this->toTopology = toTopology;}
+
+    virtual int getFromTopologyIndex(int toId) {std::cout<<"WARNING[TopologyBarycentricMapper] getFromTopologyIndex is called but not implemented"<<std::endl; return -1;}
+
     const topology::PointSetTopologyContainer *getToTopology() const {return toTopology;}
 
     core::topology::BaseMeshTopology* getFromTopology() const { return fromTopology; }
@@ -308,6 +311,9 @@ public:
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
 	sofa::helper::vector< MappingData3D > const* getMap3d() const { return &map3d; }
+
+    virtual int getFromTopologyIndex(int toId);
+
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperMeshTopology<In, Out> &b )
     {
@@ -572,6 +578,8 @@ public:
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
+    virtual int getFromTopologyIndex(int toId);
+
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperEdgeSetTopology<In, Out> &b )
     {
         unsigned int size_vec;
@@ -757,6 +765,7 @@ public:
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
 
     virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
+    virtual int getFromTopologyIndex(int toId);
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 

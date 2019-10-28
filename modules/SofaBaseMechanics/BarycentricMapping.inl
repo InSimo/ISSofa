@@ -423,6 +423,23 @@ int BarycentricMapperMeshTopology<In,Out>::createPointInQuad ( const typename Ou
 }
 
 template <class In, class Out>
+int BarycentricMapperMeshTopology<In,Out>::getFromTopologyIndex(int toId)
+{
+    if (map1d.size() != 0)
+    {
+        return map1d[toId].in_index;
+    }
+    else if (map2d.size() != 0)
+    {
+        return map2d[toId].in_index;
+    }
+    else if (map3d.size() != 0)
+    {
+        return map3d[toId].in_index;
+    }
+}
+
+template <class In, class Out>
 void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
     int outside = 0;
@@ -641,6 +658,13 @@ int BarycentricMapperEdgeSetTopology<In,Out>::createPointInLine ( const typename
     return this->addPointInLine ( edgeIndex, baryCoords );
 }
 
+
+template <class In, class Out>
+int BarycentricMapperEdgeSetTopology<In,Out>::getFromTopologyIndex(int toId)
+{
+    return map.getValue()[toId].in_index;
+}
+
 template <class In, class Out>
 void BarycentricMapperEdgeSetTopology<In,Out>::init ( const typename Out::VecCoord& /*out*/, const typename In::VecCoord& /*in*/ )
 {
@@ -699,6 +723,12 @@ int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int
         triangleInfo[triangleIndex].vPointsIncluded.insert(indexLast);
     }
     return indexLast;
+}
+
+template <class In, class Out>
+int BarycentricMapperTriangleSetTopology<In,Out>::getFromTopologyIndex(int toId)
+{
+    return map.getValue()[toId].in_index;
 }
 
 template <class In, class Out>
