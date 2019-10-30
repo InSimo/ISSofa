@@ -143,7 +143,6 @@ void Tetra2TriangleTopologicalMapping::init()
                 }
 
                 to_tstm->addTrianglesProcess(trianglesToAdd);
-
                 to_tstm->notifyEndingEvent();
 
                 Loc2GlobDataVec.endEdit();
@@ -295,6 +294,7 @@ void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
                         }
                         else
                         {
+                            sout << "TRIANGLESREMOVED" << sendl;
                             sout << "INFO_print : Tetra2TriangleTopologicalMapping - Glob2LocMap should have the visible triangle " << tab[i] << sendl;
                             sout << "INFO_print : Tetra2TriangleTopologicalMapping - nb triangles = " << ind_last << sendl;
 
@@ -468,6 +468,7 @@ void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
                                 TriangleSetTopologyModifier *triangleMod;
                                 toModel->getContext()->get(triangleMod);
                                 triangleMod->removeTriangles(triangle_to_remove, true, false);
+                                sout << "Removed triangle " << triangle_to_remove << " from " << k << sendl;
 
                                 for(unsigned int i=0; i<addedTriangleIndex.size(); i++)
                                 {
@@ -480,6 +481,7 @@ void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
                             }
                             else
                             {
+                                sout << "TETRAHEDRAADDED" << sendl;
                                 sout << "INFO_print : Tetra2TriangleTopologicalMapping - Glob2LocMap should have the visible triangle " << triangles_to_remove[i] << sendl;
                                 sout << "INFO_print : Tetra2TriangleTopologicalMapping - nb triangles = " << ind_last << sendl;
                             }
@@ -639,8 +641,35 @@ void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
                 case core::topology::EDGESADDED:
                 {
                     const EdgesAdded *ea=static_cast< const EdgesAdded * >( *itBegin );
-                    to_tstm->addEdgesProcess(ea->edgeArray);
-                    to_tstm->addEdgesWarning(ea->nEdges,ea->edgeArray,ea->edgeIndexArray);
+                    const helper::vector<EdgeID>& eab = ea->getIndexArray();
+
+                    sofa::helper::vector< Edge > edges_to_create;
+                    sofa::helper::vector< unsigned int > edgesIndexList;
+                    int nb_elems = toModel->getNbEdges();
+
+                    for (unsigned int i = 0; i <eab.size(); ++i)
+                    {
+                        Edge e;
+                        e=fromModel->getEdge(eab[i]);
+                        if (e[0] != ea->getArray()[i][0] && e[1] != ea->getArray()[i][1]) serr << "PROBLEM edge " << e << " mismatches " << ea->getArray()[i] << sendl;
+
+                        const TrianglesAroundEdge taeId = fromModel->getTrianglesAroundEdge(eab[i]);
+                        bool to_next = false;
+
+                        for (TriangleID tid : taeId)
+                        {
+                            const TetrahedraAroundTriangle tetraId=fromModel->getTetrahedraAroundTriangle(tid);
+                            if (tetraId.size() > 1 || to_next) continue;
+
+                            edges_to_create.push_back(e);
+                            edgesIndexList.push_back(nb_elems);
+                            nb_elems+=1;
+                            to_next = true;
+                        }
+                    }
+
+                    to_tstm->addEdgesProcess(edges_to_create) ;
+                    to_tstm->addEdgesWarning(edges_to_create.size(), edges_to_create, edgesIndexList) ;
                     break;
                 }
 
