@@ -72,6 +72,8 @@ private:
 	BaseAnimationLoop& operator=(const BaseAnimationLoop& n) ;
 
 public:
+    sofa::Data< bool > d_exit;
+
     /// Main computation method.
     ///
     /// Specify and execute all computations for computing a timestep, such

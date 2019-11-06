@@ -40,6 +40,7 @@ SOFA_ABSTRACT_CLASS_IMPL((BaseAnimationLoop));
 
 BaseAnimationLoop::BaseAnimationLoop()
     : m_resetTime(0.)
+    , d_exit(initData(&d_exit, false, "exit", "If set to true, gui will stop execution"))
 {}
 
 BaseAnimationLoop::~BaseAnimationLoop()
