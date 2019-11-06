@@ -114,6 +114,9 @@ public:
     /// Returns the desired frequency of calls to idle() when the simulation is stopped/paused
     virtual double getIdleFrequency(Node* root);
 
+    /// Returns value of data exit of animation loop
+    virtual bool getExitStatus(Node* root) const {return root->getAnimationLoop()->d_exit.getValue();}
+
     /// Method to be called when the animation is paused, at the frequency given by getIdleFrequency(), if it is greater than 0
     virtual void idle(Node* root);
 
