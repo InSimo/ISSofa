@@ -27,6 +27,10 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <cstring>
 
+
+SOFA_WARNING_PUSH()
+SOFA_WARNING_DISABLE_GCC(class-memaccess)
+
 namespace sofa
 {
 
@@ -1113,3 +1117,4 @@ void Grid3D::step_project(const Grid3D* prev, Grid3D* temp, real dt, real /*diff
 
 } // namespace sofa
 
+SOFA_WARNING_POP()

@@ -83,10 +83,10 @@ protected:
     class EdgeRestInformation
     {
     public:
-        Real  restLength;	// the rest length
-        Real  currentLength; 	// the current edge length
-        Real  dl;  // the current unit direction
-        Real stiffness;
+        Real  restLength = 0;	// the rest length
+        Real  currentLength = 0; 	// the current edge length
+        Real  dl = 0;  // the current unit direction
+        Real stiffness = 0;
 
         EdgeRestInformation()
         {
@@ -108,8 +108,8 @@ protected:
     class TriangleRestInformation
     {
     public:
-        Real  gamma[3];	// the angular stiffness
-        Real stiffness[3]; // the elongation stiffness
+        Real  gamma[3] = { 0 };	// the angular stiffness
+        Real stiffness[3] = { 0 }; // the elongation stiffness
         Mat3 DfDx[3]; /// the edge stiffness matrix
 
         TriangleRestInformation()

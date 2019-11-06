@@ -177,7 +177,6 @@ void ProjectToPlaneConstraint<DataTypes>::projectJacobianMatrix(const core::Mech
 
     auto cWrite = sofa::helper::write(cData, mparams);
     const Indices& indices = f_indices.getValue(mparams);
-    const auto&           n = f_normal.getValue();
 
     MatrixDeriv& c = cWrite.wref();
     c.compress();
@@ -214,7 +213,6 @@ void ProjectToPlaneConstraint<DataTypes>::projectVelocity(const core::Mechanical
 {
     auto res = sofa::helper::write(vdata, mparams);
     const Indices& indices = f_indices.getValue(mparams);
-    const auto&           n = f_normal.getValue();
 
     for (std::size_t i = 0; i < indices.size(); ++i)
     {
@@ -225,7 +223,7 @@ void ProjectToPlaneConstraint<DataTypes>::projectVelocity(const core::Mechanical
 }
 
 template <class DataTypes>
-void ProjectToPlaneConstraint<DataTypes>::projectPosition(const core::MechanicalParams* mparams , DataVecCoord& xData)
+void ProjectToPlaneConstraint<DataTypes>::projectPosition(const core::MechanicalParams* /*mparams*/ , DataVecCoord& /*xData*/)
 {
 }
 

@@ -84,10 +84,10 @@ protected:
     class EdgeRestInformation
     {
     public:
-        Real  restSquareLength;	// the rest length
-        Real  currentSquareLength; 	// the current edge length
-        Real  deltaL2;  // the current unit direction
-        Real stiffness;
+        Real  restSquareLength = 0;	// the rest length
+        Real  currentSquareLength = 0; 	// the current edge length
+        Real  deltaL2 = 0;  // the current unit direction
+        Real stiffness = 0;
 
         EdgeRestInformation()
         {
@@ -109,17 +109,17 @@ protected:
     class TriangleRestInformation
     {
     public:
-        Real  gamma[3];	// the angular stiffness
-        Real stiffness[3]; // the elongation stiffness
+        Real  gamma[3] = { 0 };	// the angular stiffness
+        Real stiffness[3] = { 0 }; // the elongation stiffness
         Mat3 DfDx[3]; /// the edge stiffness matrix
 
         Coord currentNormal;
         Coord lastValidNormal;
-        Real area;
-        Real restArea;
+        Real area = 0;
+        Real restArea = 0;
         Coord areaVector[3];
         Deriv dp[3];
-        Real J;
+        Real J = 0;
 
         TriangleRestInformation()
         {

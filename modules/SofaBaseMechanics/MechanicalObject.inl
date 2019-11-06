@@ -85,7 +85,7 @@ namespace internal
 
 // internal reinit method specialized version for rigid types ensures that each quaternion is normalized
 template< class DataTypes >
-void reinit( MechanicalObject<DataTypes>* obj ) 
+void reinit( MechanicalObject<DataTypes>* /*obj*/ ) 
 {
 }
 

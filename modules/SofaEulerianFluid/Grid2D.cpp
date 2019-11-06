@@ -27,6 +27,9 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <cstring>
 
+SOFA_WARNING_PUSH()
+SOFA_WARNING_DISABLE_GCC(class-memaccess)
+
 namespace sofa
 {
 
@@ -137,6 +140,7 @@ void Grid2D::clear(int _nx, int _ny)
         if (ncell>0)  fmm_heap = new int[ncell];
         else          fmm_heap = NULL;
     }
+
     if (ncell>0)
         memset(fdata,0,ncell*sizeof(Cell));
     if (ncell>0)
@@ -986,3 +990,4 @@ void Grid2D::step_project(const Grid2D* prev, Grid2D* temp, real dt, real /*diff
 
 } // namespace sofa
 
+SOFA_WARNING_POP()
