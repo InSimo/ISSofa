@@ -361,11 +361,11 @@ public :
     {
         switch (fnId)
         {
-            case FnEnum::add             : m_CRSmatrix->add(args.bi, args.bj, args.b, args.boffsetL, args.boffsetC); break;
-            case FnEnum::addId           : m_CRSmatrix->add(args.bi, args.bj, args.rowId, args.colId, args.b, args.boffsetL, args.boffsetC); break;
-            case FnEnum::addDBloc        : m_CRSmatrix->addDBloc(args.bi, args.bj, args.bdiag, args.boffsetL, args.boffsetC); break;
-            case FnEnum::addDValue       : m_CRSmatrix->addDValue(args.bi, args.bj, args.v, args.boffsetL, args.boffsetC); break;
-            case FnEnum::addDValueId     : m_CRSmatrix->addDValue(args.bi, args.bj, args.rowId, args.colId, args.v, args.boffsetL, args.boffsetC); break;
+            case FnEnum::add             : m_CRSmatrix->add(args.boffsetL + args.bi, args.boffsetC + args.bj, args.b); break;
+            case FnEnum::addId           : m_CRSmatrix->add(args.boffsetL + args.bi, args.boffsetC + args.bj, args.rowId, args.colId, args.b); break;
+            case FnEnum::addDBloc        : m_CRSmatrix->addDBloc(args.boffsetL + args.bi, args.boffsetC + args.bj, args.bdiag); break;
+            case FnEnum::addDValue       : m_CRSmatrix->addDValue(args.boffsetL + args.bi, args.boffsetC + args.bj, args.v); break;
+            case FnEnum::addDValueId     : m_CRSmatrix->addDValue(args.boffsetL + args.bi, args.boffsetC + args.bj, args.rowId, args.colId, args.v); break;
 
             case FnEnum::fullDiagonal    : m_CRSmatrix->fullDiagonal();  break;
             case FnEnum::setVal          : m_CRSmatrix->set(args.i, args.j, args.v); break;
