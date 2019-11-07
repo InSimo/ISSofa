@@ -97,11 +97,11 @@ struct InterpX
 template< class QBCollisionModel >
 struct InterpV
 {
-    typedef typename CollisionModelTraits<QBCollisionModel>::Coord     Coord;
+    typedef typename CollisionModelTraits<QBCollisionModel>::Deriv     Deriv;
     typedef typename CollisionModelTraits<QBCollisionModel>::BaryCoord BaryCoord;
     typedef typename QBCollisionModel::Element Element;
     
-    static Coord eval( const Element& e, const BaryCoord& baryCoords)
+    static Deriv eval( const Element& e, const BaryCoord& baryCoords)
     {
         return e.shape().interpD(baryCoords, e.shape().cpV() ); 
     }
@@ -118,7 +118,7 @@ struct CollisionPointModelTraits
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::Real  Real;
-    typedef sofa::defaulttype::Vec<1,Real>  BaryCoord;
+    typedef std::array<Real, NBARY>  BaryCoord;
     typedef sofa::core::topology::Topology::Point TopologyElementType;
     typedef typename CollisionTopologyTagTraits<TopologyElementType>::collision_topology_category collision_topology_category;
 };
