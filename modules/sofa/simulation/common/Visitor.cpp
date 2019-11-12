@@ -49,6 +49,10 @@ Visitor::~Visitor()
 
 void Visitor::execute(sofa::core::objectmodel::BaseContext* c, bool precomputedOrder)
 {
+    if(!params->isVisitorAllowed())
+    {
+        std::cerr<<"WARNING: visitor are not allowed;  "<<this->getClassName()<<std::endl;
+    }
     c->executeVisitor(this, precomputedOrder);
 }
 
