@@ -239,6 +239,45 @@ void DefaultPipeline::doCollisionResponse()
     }
 }
 
+void DefaultPipeline::doRemoveContacts()
+{
+    contactManager->removeContacts(contactManager->getInactiveContacts());
+}
+
+void DefaultPipeline::doUpdateMappers()
+{
+    const sofa::helper::vector<Contact::SPtr>& contacts = contactManager->getContacts();
+
+    if (groupManager==NULL)
+    {
+        for (sofa::helper::vector<Contact::SPtr>::const_iterator it = contacts.begin(); it!=contacts.end(); ++it)
+        {
+            Contact* c = it->get();
+            c->updateContactsMappers();
+        }
+    }
+    else
+    {
+        // First we remove all contacts with non-simulated objects and directly add them
+        sofa::helper::vector<Contact::SPtr> notStaticContacts;
+
+        for (sofa::helper::vector<Contact::SPtr>::const_iterator it = contacts.begin(); it!=contacts.end(); ++it)
+        {
+            Contact::SPtr c = *it;
+            if (!c->getCollisionModels().first->isSimulated())
+            {
+                 c->updateContactsMappers();
+            }
+            else if (!c->getCollisionModels().second->isSimulated())
+            {
+                 c->updateContactsMappers();
+            }
+            else
+                notStaticContacts.push_back(c);
+        }
+    }
+}
+
 helper::set< std::string > DefaultPipeline::getResponseList() const
 {
     helper::set< std::string > listResponse;

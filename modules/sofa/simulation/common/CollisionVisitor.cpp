@@ -68,6 +68,8 @@ void CollisionVisitor::processCollisionPipeline(simulation::Node*
     t0=begin(node, obj);
 #endif
     obj->computeCollisionResponse();
+    obj->computeCollisionRemoveContacts();
+    obj->computeCollisionUpdateMappers();
 #ifdef SOFA_DUMP_VISITOR_INFO
     end(node, obj,t0);
 #endif
@@ -116,6 +118,8 @@ void CollisionResponseVisitor::processCollisionPipeline(simulation::Node*
     ctime_t t0=begin(node, obj);
 #endif
     obj->computeCollisionResponse();
+    obj->computeCollisionRemoveContacts();
+    obj->computeCollisionUpdateMappers();
 #ifdef SOFA_DUMP_VISITOR_INFO
     end(node, obj,t0);
 #endif

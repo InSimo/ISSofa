@@ -84,6 +84,9 @@ public:
     /// Finalize the response (multi-threaded API, third step, after parallel tasks, graph changes allowed)
     virtual void finalizeResponse(objectmodel::BaseContext* /*group*/) {}
 
+    /// apply contact mappers xfree (multi-threaded API, last step, to run after freeMotionPropagation tasks, graph changes allowed)
+    virtual void updateContactsMappers() { serr << "ERROR: " << getClassName() << " don't implement updateContactsMappers" << sendl;}
+
     /// Remove the response from the graph
     virtual void removeResponse() = 0;
     

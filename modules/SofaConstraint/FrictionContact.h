@@ -99,6 +99,8 @@ public:
 
     void createResponse(core::objectmodel::BaseContext* group) override;
 
+    virtual void updateContactsMappers() override;
+
     void removeResponse() override;
     
     void resetResponse() override;

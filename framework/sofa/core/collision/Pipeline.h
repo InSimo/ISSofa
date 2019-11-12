@@ -96,12 +96,18 @@ public:
     virtual void computeCollisionDetection()=0;
     /// Add collision response in the simulation graph
     virtual void computeCollisionResponse()=0;
+    /// remove inactive contacts
+    virtual void computeCollisionRemoveContacts()=0;
+    /// update mapper xfree
+    virtual void computeCollisionUpdateMappers()=0;
 
     void computeCollisions()
     {
         computeCollisionReset();
         computeCollisionDetection();
         computeCollisionResponse();
+        computeCollisionRemoveContacts();
+        computeCollisionUpdateMappers();
     }
 
     //sofa::helper::vector<DetectionOutput*>& getDetectionOutputs() { return detectionOutputs; }
@@ -121,6 +127,10 @@ protected:
     virtual void doCollisionDetection(const sofa::helper::vector<core::CollisionModel*>& collisionModels) = 0;
     /// Add collision response in the simulation graph
     virtual void doCollisionResponse() = 0;
+    /// remove inactive contacts
+    virtual void doRemoveContacts() = 0;
+    /// update mapper xfree
+    virtual void doUpdateMappers() = 0;
 };
 
 } // namespace collision

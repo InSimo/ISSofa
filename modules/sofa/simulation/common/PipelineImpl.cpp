@@ -121,6 +121,21 @@ void PipelineImpl::computeCollisionResponse()
     sofa::helper::AdvancedTimer::stepEnd("CollisionResponse");
 }
 
+void PipelineImpl::computeCollisionRemoveContacts()
+{
+    doRemoveContacts();
+}
+
+
+void PipelineImpl::computeCollisionUpdateMappers()
+{
+    simulation::Node* root = simulation::Node::DynamicCast(getContext());
+    if(root == NULL) return;
+    sofa::helper::AdvancedTimer::stepBegin("CollisionUpdateMapper");
+    doUpdateMappers();
+    sofa::helper::AdvancedTimer::stepEnd("CollisionUpdateMapper");
+}
+
 } // namespace simulation
 
 } // namespace sofa

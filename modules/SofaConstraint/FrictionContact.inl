@@ -273,6 +273,18 @@ void FrictionContact<TCollisionModel1,TCollisionModel2>::createResponse(core::ob
     }
 }
 
+
+template < class TCollisionModel1, class TCollisionModel2 >
+void FrictionContact<TCollisionModel1,TCollisionModel2>::updateContactsMappers()
+{
+     mapper1.updateXfree();
+     if (!selfCollision)
+     {
+         mapper2.updateXfree();
+     }
+}
+
+
 template < class TCollisionModel1, class TCollisionModel2>
 void FrictionContact<TCollisionModel1,TCollisionModel2>::removeResponse()
 {

@@ -66,13 +66,14 @@ public:
     virtual void createContacts(const DetectionOutputMap& outputs) = 0;
 
     virtual const ContactVector& getContacts() { return contacts; }
+    virtual ContactVector& getInactiveContacts() { return inactiveContacts; }
 
     /// virtual methods used for cleaning the pipeline after a dynamic graph node deletion.
     /**
      * Contacts can be attached to a deleted node and their deletion is a problem for the pipeline.
      * @param c is the list of deleted contacts.
      */
-    virtual void removeContacts(const ContactVector& c) { SOFA_UNUSED(c); }
+    virtual void removeContacts(ContactVector& c) = 0;
 
     /// virtual because subclasses might do precomputations based on intersection algorithms
     virtual void setIntersectionMethod(Intersection* v) { intersectionMethod = v;    }
@@ -85,6 +86,7 @@ protected:
     Intersection* intersectionMethod;
 
     ContactVector contacts;
+    ContactVector inactiveContacts;
 
 
     /// All intersection methods

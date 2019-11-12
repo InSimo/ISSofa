@@ -189,6 +189,8 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 
 	// Then look at previous contacts
 	// and remove inactive contacts
+    inactiveContacts.clear();
+
 	for (ContactMap::iterator contactIt = contactMap.begin(), contactItEnd = contactMap.end();
 		contactIt != contactItEnd;)
 	{
@@ -211,13 +213,13 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 		{
 			if (contactIt->second)
 			{
-                contactIt->second->removeResponse();
-                contactIt->second->cleanup();
-                contactIt->second.reset();
+                inactiveContacts.push_back(contactIt->second);
 			}
 			ContactMap::iterator eraseIt = contactIt;
 			++contactIt;
+
 			contactMap.erase(eraseIt);
+
 		}
 		else
 		{
@@ -267,60 +269,13 @@ void DefaultContactManager::draw(const core::visual::VisualParams* vparams)
     }
 }
 
-void DefaultContactManager::removeContacts(const ContactVector &c)
+void DefaultContactManager::removeContacts(ContactVector &c)
 {
-    ContactVector::const_iterator remove_it = c.begin();
-    ContactVector::const_iterator remove_itEnd = c.end();
-
-    ContactVector::iterator it;
-    ContactVector::iterator itEnd;
-
-    ContactMap::iterator map_it;
-    ContactMap::iterator map_itEnd;
-
-    while (remove_it != remove_itEnd)
+    for (ContactVector::iterator contactIt = c.begin(); contactIt != c.end(); contactIt++)
     {
-        // Whole scene contacts
-        it = contacts.begin();
-        itEnd = contacts.end();
-
-        while (it != itEnd)
-        {
-            if (*it == *remove_it)
-            {
-                (*it)->removeResponse();
-                (*it)->cleanup();
-                it->reset();
-                contacts.erase(it);
-                break;
-            }
-
-            ++it;
-        }
-
-        // Stored contacts (keeping alive)
-        map_it = contactMap.begin();
-        map_itEnd = contactMap.end();
-
-        while (map_it != map_itEnd)
-        {
-            if (map_it->second == *remove_it)
-            {
-                ContactMap::iterator erase_it = map_it;
-                ++map_it;
-
-                erase_it->second->removeResponse();
-                erase_it->second->cleanup();
-                erase_it->second.reset();
-                contactMap.erase(erase_it);
-            }
-            else
-            {
-                ++map_it;
-            }
-        }
-
-        ++remove_it;
+        (*contactIt)->removeResponse();
+        (*contactIt)->cleanup();
+        (*contactIt).reset();
     }
 }
 

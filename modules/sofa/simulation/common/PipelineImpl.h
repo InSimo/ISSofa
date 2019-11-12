@@ -55,6 +55,10 @@ public:
     virtual void computeCollisionDetection();
     /// Add collision response in the simulation graph
     virtual void computeCollisionResponse();
+    /// remove inactive contacts
+    virtual void computeCollisionRemoveContacts();
+    /// update mapper xfree
+    virtual void computeCollisionUpdateMappers();
 };
 
 

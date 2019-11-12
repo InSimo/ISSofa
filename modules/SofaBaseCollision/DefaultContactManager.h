@@ -96,7 +96,7 @@ public:
      * Contacts can be attached to a deleted node and their deletion is a problem for the pipeline.
      * @param c is the list of deleted contacts.
      */
-    virtual void removeContacts(const ContactVector &/*c*/) override;
+    virtual void removeContacts(ContactVector &c) override;
     void setDefaultResponseType(const std::string &responseT)
     {
         if (response.getValue().size() == 0)
