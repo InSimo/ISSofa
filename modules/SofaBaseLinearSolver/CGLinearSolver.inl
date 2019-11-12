@@ -66,6 +66,7 @@ CGLinearSolver<TMatrix,TVector>::CGLinearSolver()
 	f_maxIter.setRequired(true);
 	f_tolerance.setRequired(true);
 	f_smallDenominatorThreshold.setRequired(true);
+    this->isIterativeSolver = true;
 }
 
 template<class TMatrix, class TVector>

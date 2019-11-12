@@ -73,24 +73,37 @@ void EulerImplicitSolver::cleanup()
     vop.v_free( x.id(), true, true );
 }
 
+
+
 void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST */, double dt, sofa::core::MultiVecCoordId xResult, sofa::core::MultiVecDerivId vResult)
 {
+
+    assemble(params, dt);
+    integrate(params);
+    updateXandV(params, dt, xResult, vResult);
+}
+
+
+void EulerImplicitSolver::assemble(const core::ExecParams* params /* PARAMS FIRST */, double dt)
+{
+
 #ifdef SOFA_DUMP_VISITOR_INFO
     sofa::simulation::Visitor::printNode("SolverVectorAllocation");
 #endif
-    sofa::simulation::common::VectorOperations vop( params, this->getContext() );
+
     sofa::simulation::common::MechanicalOperations mop( params, this->getContext() );
+    sofa::simulation::common::VectorOperations vop( params, this->getContext() );
+    core::behavior::MultiMatrix<simulation::common::MechanicalOperations> matrix(&mop);
     MultiVecCoord pos(&vop, core::VecCoordId::position() );
     MultiVecDeriv vel(&vop, core::VecDerivId::velocity() );
     MultiVecDeriv f(&vop, core::VecDerivId::force() );
-    MultiVecDeriv b(&vop);
-    MultiVecCoord newPos(&vop, xResult );
-    MultiVecDeriv newVel(&vop, vResult );
 
     // dx is no longer allocated by default (but it will be deleted automatically by the mechanical objects)
     MultiVecDeriv dx(&vop, core::VecDerivId::dx() ); dx.realloc( &vop, true, true );
 
     x.realloc( &vop, true, true );
+    b.realloc( &vop, true, true );
+
 
 
 #ifdef SOFA_DUMP_VISITOR_INFO
@@ -145,8 +158,6 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
 
     sofa::helper::AdvancedTimer::stepNext ("ComputeRHTerm", "MBKBuild");
 
-    core::behavior::MultiMatrix<simulation::common::MechanicalOperations> matrix(&mop);
-
     if (firstOrder)
         matrix = MechanicalMatrix::K * (-h) + MechanicalMatrix::M;
     else
@@ -158,16 +169,60 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
         serr<<this->getContext()->getTime() << ": Matrix K = " << MechanicalMatrix::K << sendl;
     }*/
 
+    sofa::helper::AdvancedTimer::stepNext ("MBKBuild", "MBKSetSystem");
+    matrix.setSystem(x, b); //Call to ODE resolution.
+    sofa::helper::AdvancedTimer::stepEnd  ("MBKSetSystem");
+
+    sofa::helper::AdvancedTimer::stepBegin ("MBKSetSystem", "MBKIterativeSolve");
+    matrix.iterativeSolveSystem(); //Call to ODE resolution.
+    sofa::helper::AdvancedTimer::stepEnd  ("MBKIterativeSolve");
+}
+
+
+void EulerImplicitSolver::integrate(const core::ExecParams* params /* PARAMS FIRST */)
+{
+    sofa::simulation::common::MechanicalOperations mop( params, this->getContext() );
+    core::behavior::MultiMatrix<simulation::common::MechanicalOperations> matrix(&mop);
+
 #ifdef SOFA_DUMP_VISITOR_INFO
     simulation::Visitor::printNode("SystemSolution");
 #endif
-    sofa::helper::AdvancedTimer::stepNext ("MBKBuild", "MBKSolve");
-    matrix.solve(x, b); //Call to ODE resolution.
+
+    sofa::helper::AdvancedTimer::stepBegin ("MBKSetSystem", "MBKSolve");
+    matrix.directSolveSystem(); //Call to ODE resolution.
     sofa::helper::AdvancedTimer::stepEnd  ("MBKSolve");
+
+
 #ifdef SOFA_DUMP_VISITOR_INFO
     simulation::Visitor::printCloseNode("SystemSolution");
 #endif
+}
 
+
+void EulerImplicitSolver::updateXandV(const core::ExecParams* params /* PARAMS FIRST */, double dt, sofa::core::MultiVecCoordId xResult, sofa::core::MultiVecDerivId vResult)
+{
+
+#ifdef SOFA_DUMP_VISITOR_INFO
+    sofa::simulation::Visitor::printNode("SolverVectorAllocation");
+#endif
+    sofa::simulation::common::MechanicalOperations mop( params, this->getContext() );
+    sofa::simulation::common::VectorOperations vop( params, this->getContext() );
+    MultiVecCoord pos(&vop, core::VecCoordId::position() );
+    MultiVecDeriv vel(&vop, core::VecDerivId::velocity() );
+    MultiVecDeriv f(&vop, core::VecDerivId::force() );
+    MultiVecCoord newPos(&vop, xResult );
+    MultiVecDeriv newVel(&vop, vResult );
+
+#ifdef SOFA_DUMP_VISITOR_INFO
+    sofa::simulation::Visitor::printCloseNode("SolverVectorAllocation");
+#endif
+
+    core::behavior::MultiMatrix<simulation::common::MechanicalOperations> matrix(&mop);
+    matrix.writeSolution();
+
+    double h = dt;
+    const bool verbose  = f_verbose.getValue();
+    const bool firstOrder = f_firstOrder.getValue();
     // mop.projectResponse(x);
     // x is the solution of the system
 
@@ -180,15 +235,15 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
 
     const bool solveConstraint = f_solveConstraint.getValue();
 
-#ifndef SOFA_NO_VMULTIOP // unoptimized version
+    #ifndef SOFA_NO_VMULTIOP // unoptimized version
     if (solveConstraint)
-#endif
+    #endif
     {
     if (firstOrder)
     {
         const char* prevStep = "UpdateV";
         sofa::helper::AdvancedTimer::stepBegin(prevStep);
-#define SOFATIMER_NEXTSTEP(s) { sofa::helper::AdvancedTimer::stepNext(prevStep,s); prevStep=s; }
+    #define SOFATIMER_NEXTSTEP(s) { sofa::helper::AdvancedTimer::stepNext(prevStep,s); prevStep=s; }
         newVel.eq(x);                         // vel = x
         if (solveConstraint)
         {
@@ -202,14 +257,14 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
             SOFATIMER_NEXTSTEP("CorrectX");
             mop.solveConstraint(newPos,core::ConstraintParams::POS);
         }
-#undef SOFATIMER_NEXTSTEP
+    #undef SOFATIMER_NEXTSTEP
         sofa::helper::AdvancedTimer::stepEnd  (prevStep);
     }
     else
     {
         const char* prevStep = "UpdateV";
         sofa::helper::AdvancedTimer::stepBegin(prevStep);
-#define SOFATIMER_NEXTSTEP(s) { sofa::helper::AdvancedTimer::stepNext(prevStep,s); prevStep=s; }
+    #define SOFATIMER_NEXTSTEP(s) { sofa::helper::AdvancedTimer::stepNext(prevStep,s); prevStep=s; }
         //vel.peq( x );                       // vel = vel + x
         newVel.eq(vel, x);
         if (solveConstraint)
@@ -225,11 +280,11 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
             SOFATIMER_NEXTSTEP("CorrectX");
             mop.solveConstraint(newPos,core::ConstraintParams::POS);
         }
-#undef SOFATIMER_NEXTSTEP
+    #undef SOFATIMER_NEXTSTEP
         sofa::helper::AdvancedTimer::stepEnd  (prevStep);
     }
     }
-#ifndef SOFA_NO_VMULTIOP
+    #ifndef SOFA_NO_VMULTIOP
     else
     {
         typedef core::behavior::BaseMechanicalState::VMultiOp VMultiOp;
@@ -258,7 +313,7 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
         vop.v_multiop(ops);
         sofa::helper::AdvancedTimer::stepEnd("UpdateVAndX");
     }
-#endif
+    #endif
 
     mop.addSeparateGravity(dt, newVel);	// v += dt*g . Used if mass wants to added G separately from the other forces to v.
     if (f_velocityDamping.getValue()!=0.0)
@@ -278,6 +333,7 @@ void EulerImplicitSolver::solve(const core::ExecParams* params /* PARAMS FIRST *
     }
 
 }
+
 
 SOFA_DECL_CLASS(EulerImplicitSolver)
 

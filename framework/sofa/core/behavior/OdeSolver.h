@@ -87,6 +87,14 @@ public:
     virtual void solve (const core::ExecParams* params /* PARAMS FIRST */, double dt) { solve(params /* PARAMS FIRST */, dt, VecCoordId::position(), VecDerivId::velocity()); }
 
 
+    virtual void assemble(const core::ExecParams* /*params*/ /* PARAMS FIRST */, double /*dt*/) { serr << "ERROR: " << getClassName() << " don't implement assemble methode" << sendl; }
+
+    virtual void integrate(const core::ExecParams* /*params*/ /* PARAMS FIRST */) { serr << "ERROR: " << getClassName() << " don't implement integrate methode" << sendl; }
+
+    virtual void updateXandV(const core::ExecParams* /*params*/ /* PARAMS FIRST */,  double /*dt*/, MultiVecCoordId /*xResult*/, MultiVecDerivId /*vResult*/) { serr << "ERROR: " << getClassName() << " don't implement updateXandV methode" << sendl; }
+
+
+
     /// Compute the residual of the newton iteration
     ///
     /// pos_t and vel_t are the position and velocities at the begining of the time step

@@ -233,30 +233,40 @@ void MatrixLinearSolver<Matrix,Vector>::setSystemLHVector(core::MultiVecDerivId 
 }
 
 template<class Matrix, class Vector>
-void MatrixLinearSolver<Matrix,Vector>::solveSystem()
+void MatrixLinearSolver<Matrix,Vector>::writeSolution()
 {
     for (unsigned int g=0, nbg = getNbGroups(); g < nbg; ++g)
     {
-        setGroup(g);
-        if (currentGroup->needInvert)
-        {
-            this->invert(*currentGroup->systemMatrix);
-            currentGroup->needInvert = false;
-        }
-        this->solve(*currentGroup->systemMatrix, *currentGroup->systemLHVector, *currentGroup->systemRHVector);
         if (!currentGroup->solutionVecId.isNull())
         {
             //v_clear(currentGroup->solutionVecId);
             //multiVectorPeqBaseVector(currentGroup->solutionVecId, currentGroup->systemLHVector, &(currentGroup->matrixAccessor));
             executeVisitor( simulation::MechanicalMultiVectorFromBaseVectorVisitor(core::ExecParams::defaultInstance(), currentGroup->solutionVecId, currentGroup->systemLHVector, &(currentGroup->matrixAccessor)) );
 
-                if (d_dumpSystem.getValue())
-                {
-                    std::cout << "\n[ step " << this->getContext()->getTime() / this->getContext()->getDt() << " ] ====  Mechanical system : ==== "  << std::endl;
-                    std::cout << *currentGroup << std::endl;
-                }
+            if (d_dumpSystem.getValue())
+            {
+                std::cout << "\n[ step " << this->getContext()->getTime() / this->getContext()->getDt() << " ] ====  Mechanical system : ==== "  << std::endl;
+                std::cout << *currentGroup << std::endl;
+            }
         }
     }
+}
+
+
+
+template<class Matrix, class Vector>
+void MatrixLinearSolver<Matrix,Vector>::solveSystem()
+{
+        for (unsigned int g=0, nbg = getNbGroups(); g < nbg; ++g)
+        {
+            setGroup(g);
+            if (currentGroup->needInvert)
+            {
+                this->invert(*currentGroup->systemMatrix);
+                currentGroup->needInvert = false;
+            }
+            this->solve(*currentGroup->systemMatrix, *currentGroup->systemLHVector, *currentGroup->systemRHVector);
+        }
 }
 
 /*

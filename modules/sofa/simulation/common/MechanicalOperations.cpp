@@ -438,8 +438,7 @@ void MechanicalOperations::m_setSystemLHVector(core::MultiVecDerivId v)
     s->setSystemLHVector(v);
 
 }
-
-void MechanicalOperations::m_solveSystem()
+void MechanicalOperations::m_iterativeSolveSystem()
 {
     LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
     if (!s)
@@ -447,7 +446,28 @@ void MechanicalOperations::m_solveSystem()
         ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
         return;
     }
-    s->solveSystem();
+    s->iterativeSolveSystem();
+}
+void MechanicalOperations::m_directSolveSystem()
+{
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
+    if (!s)
+    {
+        ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
+        return;
+    }
+    s->directSolveSystem();
+}
+
+void MechanicalOperations::m_writeSolution()
+{
+    LinearSolver* s = ctx->get<LinearSolver>(BaseContext::SearchDown);
+    if (!s)
+    {
+        ctx->serr << "ERROR:  requires a LinearSolver."<<ctx->sendl;
+        return;
+    }
+    s->writeSolution();
 }
 
 void MechanicalOperations::m_print( std::ostream& out )

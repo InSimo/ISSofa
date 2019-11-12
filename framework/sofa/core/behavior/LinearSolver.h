@@ -107,8 +107,29 @@ public:
     /// This vector will be replaced by the solution of the system once solveSystem is called
     virtual void setSystemLHVector(core::MultiVecDerivId v) = 0;
 
+
     /// Solve the system as constructed using the previous methods
     virtual void solveSystem() = 0;
+
+    /// call of solveSystem during ode integrated step when graph propagation are forbiden; Default behavior
+    virtual void directSolveSystem(){
+                                        if (!isIterativeSolver)
+                                        {
+                                            solveSystem();
+                                        }
+                                    }
+
+    /// call of solveSystem during ode assemble step when graph propagation is allowed; need to be override
+    virtual void iterativeSolveSystem() {
+                                            if (isIterativeSolver)
+                                            {
+                                                solveSystem();
+                                            }
+                                        }
+
+    /// write system resolution in mstates
+    virtual void writeSolution() = 0;
+
 
     ///
     virtual void init_partial_solve() {serr<<"WARNING : partial_solve is not implemented yet"<<sendl; }
@@ -205,6 +226,7 @@ public:
 protected:
 
     bool frozen;
+    bool isIterativeSolver = false;
 };
 
 } // namespace behavior
