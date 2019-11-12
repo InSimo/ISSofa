@@ -32,11 +32,6 @@ void BasePointModel::init()
     Inherit1::init();
 
     m_topology = this->getContext()->getMeshTopology();
-
-    if (!m_topology)
-    {
-        serr << "No BaseMeshTopology found" << sendl;
-    }
 }
 
 bool BasePointModel::canCollideWithElement(int index, core::CollisionModel* model2, int index2)
