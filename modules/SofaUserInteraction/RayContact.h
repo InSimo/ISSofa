@@ -57,7 +57,7 @@ protected:
 public:
     const sofa::helper::vector<core::collision::DetectionOutput*>& getDetectionOutputs() const { return collisions; }
 
-    void createResponse(core::objectmodel::BaseContext* /*group*/)
+    void createResponse(core::objectmodel::BaseContext* /*group*/) override
     {
     }
 
@@ -96,7 +96,9 @@ public:
         //collisions = outputs;
         collisions.resize(o->size());
         for (unsigned int i=0; i< o->size(); ++i)
-            collisions[i] = &(*o)[typename OutputContainer::DetectionOutputID(i)];
+        {
+            assert(o->getDetectionOutput(i, collisions[i]) == true);
+        }
     }
 
     std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }
