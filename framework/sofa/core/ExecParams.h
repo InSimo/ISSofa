@@ -76,6 +76,9 @@ private:
         /// Aspect index for the current thread
         int aspectID;
 
+        /// visitorAllowed
+        bool visitorAllowed = true;
+
         ExecParamsThreadStorage(int tid);
     };
 
@@ -91,6 +94,14 @@ private:
 
 public:
     bool checkValidStorage() const;
+
+    bool isVisitorAllowed() const
+    {
+    #ifdef SOFA_DEBUG_THREAD
+            checkValidStorage();
+    #endif
+        return storage->visitorAllowed;
+    }
 
     /// Mode of execution requested
     ExecMode execMode() const
@@ -162,6 +173,17 @@ public:
         storage->aspectID = v;
         return *this;
     }
+
+    /// Specify the aspect index of the current thread
+    ExecParams& setVisitorAllowed(bool v)
+    {
+#ifdef SOFA_DEBUG_THREAD
+        checkValidStorage();
+#endif
+        storage->visitorAllowed = v;
+        return *this;
+    }
+
 
     static int currentAspect()
     {
