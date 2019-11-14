@@ -147,9 +147,10 @@ public:
 
 };
 
-/// Mapper for LineModel
-template<class DataTypes>
-class ContactMapper<LineModel, DataTypes> : public BarycentricContactMapper<LineModel, DataTypes>
+
+/// Generic Mapper for Line based collision Model
+template<class LineCollisionModel, class DataTypes>
+class LineContactMapper : public BarycentricContactMapper<LineCollisionModel, DataTypes>
 {
 public:
     typedef typename DataTypes::Real Real;
@@ -165,6 +166,12 @@ public:
 
     inline int addPointB(const Coord& P, int index, Real& r ){return addPoint(P,index,r);}
 
+};
+
+/// Mapper for flat LineModel
+template<class DataTypes>
+class ContactMapper<LineModel, DataTypes> : public LineContactMapper<LineModel, DataTypes>
+{
 };
 
 
@@ -226,14 +233,11 @@ public:
 
 };
 
-
 /// Mapper for flat TriangleModel
 template<class DataTypes>
 class ContactMapper<TriangleModel, DataTypes> : public TriangleContactMapper<TriangleModel, DataTypes>
 {
 };
-
-
 
 
 template <class DataTypes>
