@@ -38,9 +38,6 @@ public:
 
     /// Return true if the element stores a free position vector
     bool hasFreePosition() const;
-
-    bool activated(sofa::core::CollisionModel *cm = 0) const;
-
 };
 
 template<class DataTypes>
@@ -75,12 +72,6 @@ inline typename GenericPointIterator<PointCollisionModel>::DataTypes::Deriv Gene
 
 template<class DataTypes>
 inline bool GenericPointIterator<DataTypes>::hasFreePosition() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->isSet(); }
-
-template<class DataTypes>
-inline bool GenericPointIterator<DataTypes>::activated(sofa::core::CollisionModel *cm) const
-{
-    return this->model->m_myActiver->activePoint(this->index, cm);
-}
 
 } // namespace collision
 

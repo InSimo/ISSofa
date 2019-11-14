@@ -7,7 +7,7 @@
 #ifndef SOFA_COMPONENT_COLLISION_GENERICLINEITERATOR_H
 #define SOFA_COMPONENT_COLLISION_GENERICLINEITERATOR_H
 
-#include <sofa/core/CollisionModel.h>
+#include <sofa/core/CollisionElement.h>
 #include <sofa/core/VecId.h>
 
 namespace sofa
@@ -77,18 +77,20 @@ template<class DataTypes>
 inline unsigned GenericLineIterator<DataTypes>::i2() const { return getLinePointIndex(1); }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p1() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[getLinePointIndex(0)]; }
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p1() const { return p(0); }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p2() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[getLinePointIndex(1)]; }
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p2() const { return p(1); }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p(int i) const {
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p(int i) const
+{
     return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[getLinePointIndex(i)];
 }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p0(int i) const {
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p0(int i) const
+{
     return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::restPosition())->getValue()[getLinePointIndex(i)];
 }
 

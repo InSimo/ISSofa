@@ -54,6 +54,8 @@ public:
     typedef TPointModel<DataTypes> ParentModel;
 
     using GenericPointIterator<TPointModel<TDataTypes>>::GenericPointIterator;
+
+    bool activated(sofa::core::CollisionModel *cm = nullptr) const { return this->model->m_myActiver->activePoint(this->index, cm); }
 };
 
 class PointActiver
@@ -61,7 +63,7 @@ class PointActiver
 public:
     PointActiver() {}
     virtual ~PointActiver() {}
-    virtual bool activePoint(int /*index*/, core::CollisionModel * /*cm*/ = 0) {return true;}
+    virtual bool activePoint(int /*index*/, core::CollisionModel* = nullptr) { return true; }
     static PointActiver* getDefaultActiver() { static PointActiver defaultActiver; return &defaultActiver; }
 };
 
