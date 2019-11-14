@@ -19,8 +19,11 @@ namespace collision
 SOFA_ABSTRACT_CLASS_IMPL((BaseTriangleModel));
 
 BaseTriangleModel::BaseTriangleModel()
+    : d_intersectOnlyBoundaryEdges(initData(&d_intersectOnlyBoundaryEdges, false, "intersectOnlyBoundaryEdges", "If true, compute intersections only with boundary edges instead of all edges"))
 {
     enum_type = TRIANGLE_TYPE;
+
+    d_intersectOnlyBoundaryEdges.setGroup("IntersectionParams");
 }
 
 BaseTriangleModel::~BaseTriangleModel()

@@ -58,6 +58,8 @@ public:
 
     int getTriangleFlags(int index) const { return m_triangleFlags[index]; }
 
+    bool intersectOnlyBoundaryEdges() const { return d_intersectOnlyBoundaryEdges.getValue(); }
+
 protected:
     BaseTriangleModel();
 
@@ -71,6 +73,8 @@ protected:
     bool m_hasTopologicalChange = true;
 
     sofa::helper::vector<int> m_triangleFlags;
+
+    Data<bool> d_intersectOnlyBoundaryEdges;
 };
 
 } // namespace collision

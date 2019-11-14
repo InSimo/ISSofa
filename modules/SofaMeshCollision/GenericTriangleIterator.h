@@ -189,7 +189,7 @@ template<class DataTypes>
 inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryPoints() const { return false; }
 
 template<class DataTypes>
-inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryEdges() const { return false; }
+inline bool GenericTriangleIterator<DataTypes>::intersectOnlyBoundaryEdges() const { return this->model->intersectOnlyBoundaryEdges(); }
 
 template<class DataTypes>
 inline bool GenericTriangleIterator<DataTypes>::getTrianglePointProjectionRule() const { return false; }
