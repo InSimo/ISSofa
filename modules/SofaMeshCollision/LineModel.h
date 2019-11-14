@@ -57,6 +57,8 @@ public:
     typedef TLineModel<DataTypes> ParentModel;
 
     using GenericLineIterator<TLineModel<TDataTypes>>::GenericLineIterator;
+
+    bool activated(sofa::core::CollisionModel *cm = nullptr) const { return this->model->myActiver->activeLine(this->index, cm); }
 };
 
 class LineActiver
@@ -64,7 +66,7 @@ class LineActiver
 public:
     LineActiver() {}
     virtual ~LineActiver() {}
-    virtual bool activeLine(int /*index*/, core::CollisionModel * /*cm*/ = 0) {return true;}
+    virtual bool activeLine(int /*index*/, core::CollisionModel* = nullptr) { return true; }
 	static LineActiver* getDefaultActiver() { static LineActiver defaultActiver; return &defaultActiver; }
 };
 
@@ -75,14 +77,6 @@ public :
     SOFA_CLASS_UNIQUE((TLineModel<TDataTypes>), ((GenericLineModel<TLineModel<TDataTypes>, TDataTypes>)));
     
 protected:
-    struct LineData
-    {
-        int p[2];
-        // Triangles neighborhood
-//		int tRight, tLeft;
-    };
-
-    sofa::helper::vector<LineData> elems;
     TLineModel();
     ~TLineModel();
 
@@ -102,8 +96,6 @@ public:
 
     // -- CollisionModel interface
 
-    virtual void resize(int size) override;
-
     defaulttype::BoundingBox computeElementBBox(int index, SReal distance);
     defaulttype::BoundingBox computeElementBBox(int index, SReal distance, double dt);
 
@@ -114,10 +106,6 @@ public:
     void draw(const core::visual::VisualParams* vparams) override;
 
     bool canCollideWithElement(int index, core::CollisionModel* model2, int index2) override;
-
-    void updateTopologicalLineFlags() override;
-
-    Deriv velocity(int index) const;
 
     LineLocalMinDistanceFilter *getFilter() const;
 
@@ -157,9 +145,6 @@ protected:
 
     LineActiver *myActiver;
 };
-
-template<class DataTypes>
-inline typename TLineModel<DataTypes>::Deriv TLineModel<DataTypes>::velocity(int index) const { return (this->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[0]] + this->m_mstate->read(core::ConstVecDerivId::velocity())->getValue()[elems[index].p[1]]) /((core::CollisionModel::Real)(2.0)); }
 
 typedef TLineModel<sofa::defaulttype::Vec3Types> LineModel;
 typedef TLine<sofa::defaulttype::Vec3Types> Line;

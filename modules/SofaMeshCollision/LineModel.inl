@@ -76,7 +76,7 @@ void TLineModel<DataTypes>::init()
         m_lmdFilter = node->getNodeObject< LineLocalMinDistanceFilter >();
     }
 
-    resize(this->m_topology->getNbEdges());
+    this->resize(this->m_topology->getNbEdges());
 
     const std::string path = LineActiverPath.getValue();
 
@@ -109,15 +109,10 @@ void TLineModel<DataTypes>::init()
     }
 
     const std::size_t nbSamplingValues = d_classificationSampling.getValue().size();
-    if (nbSamplingValues > 1u && nbSamplingValues != this->elems.size())
+    if (nbSamplingValues > 1u && nbSamplingValues != static_cast<std::size_t>(this->size))
+    {
         serr << "Size mismatch in classification sampling values, the first will be used for all edges" << sendl;
-}
-
-template<class DataTypes>
-void TLineModel<DataTypes>::resize(int size)
-{
-    Inherit1::resize(size);
-    elems.resize(size);
+    }
 }
 
 template<class DataTypes>
@@ -128,7 +123,7 @@ unsigned int TLineModel<DataTypes>::getClassificationSampling(const unsigned int
 
     if (!classificationSampling.empty())
     {
-        sampling = (elems.size() == classificationSampling.size()) ? classificationSampling[index] : classificationSampling[0];
+        sampling = (static_cast<std::size_t>(this->size) == classificationSampling.size()) ? classificationSampling[index] : classificationSampling[0];
     }
 
     return sampling;
@@ -349,22 +344,6 @@ void TLineModel<DataTypes>::computeBoundingTree(int maxDepth)
     if (m_lmdFilter != 0)
     {
         m_lmdFilter->invalidate();
-    }
-}
-
-template<class DataTypes>
-void TLineModel<DataTypes>::updateTopologicalLineFlags()
-{
-    Inherit1::updateTopologicalLineFlags();
-
-    const int nbEdges = this->m_topology->getNbEdges();
-    elems.resize(nbEdges);
-    for (int i = 0u; i < nbEdges; ++i)
-    {
-        LineData& elem = elems[i];
-        const core::topology::Topology::Edge& e = this->m_topology->getEdge(i);
-        elem.p[0] = e[0];
-        elem.p[1] = e[1];
     }
 }
 

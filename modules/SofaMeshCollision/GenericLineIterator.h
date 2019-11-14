@@ -51,9 +51,10 @@ public:
     /// Return true if the element stores a free position vector
     bool hasFreePosition() const;
 
-    bool activated(sofa::core::CollisionModel *cm = 0) const;
-
     unsigned int getClassificationSampling() const;
+
+protected:
+    unsigned int getLinePointIndex(int i) const;
 };
 
 
@@ -70,32 +71,32 @@ inline GenericLineIterator<DataTypes>::GenericLineIterator(const sofa::core::Col
 }
 
 template<class DataTypes>
-inline unsigned GenericLineIterator<DataTypes>::i1() const { return this->model->elems[this->index].p[0]; }
+inline unsigned GenericLineIterator<DataTypes>::i1() const { return getLinePointIndex(0); }
 
 template<class DataTypes>
-inline unsigned GenericLineIterator<DataTypes>::i2() const { return this->model->elems[this->index].p[1]; }
+inline unsigned GenericLineIterator<DataTypes>::i2() const { return getLinePointIndex(1); }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p1() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[0]]; }
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p1() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[getLinePointIndex(0)]; }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p2() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[1]]; }
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p2() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[getLinePointIndex(1)]; }
 
 template<class LineCollisionModel>
 inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p(int i) const {
-    return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[this->model->elems[this->index].p[i]];
+    return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::position())->getValue()[getLinePointIndex(i)];
 }
 
 template<class LineCollisionModel>
 inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p0(int i) const {
-    return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::restPosition())->getValue()[this->model->elems[this->index].p[i]];
+    return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::restPosition())->getValue()[getLinePointIndex(i)];
 }
 
 template<class LineCollisionModel>
 inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p1Free() const
 {
     if (hasFreePosition())
-        return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[0]];
+        return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[getLinePointIndex(0)];
     else
         return p1();
 }
@@ -104,16 +105,16 @@ template<class LineCollisionModel>
 inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Coord& GenericLineIterator<LineCollisionModel>::p2Free() const
 {
     if (hasFreePosition())
-        return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[this->model->elems[this->index].p[1]];
+        return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->getValue()[getLinePointIndex(1)];
     else
         return p2();
 }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv& GenericLineIterator<LineCollisionModel>::v1() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[0]]; }
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv& GenericLineIterator<LineCollisionModel>::v1() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[getLinePointIndex(0)]; }
 
 template<class LineCollisionModel>
-inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv& GenericLineIterator<LineCollisionModel>::v2() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[this->model->elems[this->index].p[1]]; }
+inline const typename GenericLineIterator<LineCollisionModel>::DataTypes::Deriv& GenericLineIterator<LineCollisionModel>::v2() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecDerivId::velocity())->getValue()[getLinePointIndex(1)]; }
 
 
 template<class DataTypes>
@@ -123,15 +124,15 @@ template<class DataTypes>
 inline bool GenericLineIterator<DataTypes>::hasFreePosition() const { return this->model->getMechanicalState()->read(sofa::core::ConstVecCoordId::freePosition())->isSet(); }
 
 template<class DataTypes>
-inline bool GenericLineIterator<DataTypes>::activated(sofa::core::CollisionModel *cm) const
-{
-    return this->model->myActiver->activeLine(this->index, cm);
-}
-
-template<class DataTypes>
 inline unsigned int GenericLineIterator<DataTypes>::getClassificationSampling() const
 {
     return this->model->getClassificationSampling(this->index);
+}
+
+template<class DataTypes>
+inline unsigned int GenericLineIterator<DataTypes>::getLinePointIndex(int i) const
+{
+    return this->model->getTopology()->getEdge(this->index)[i];
 }
 
 } // namespace collision 
