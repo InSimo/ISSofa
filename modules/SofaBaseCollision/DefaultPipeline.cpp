@@ -241,11 +241,15 @@ void DefaultPipeline::doCollisionResponse()
 
 void DefaultPipeline::doRemoveContacts()
 {
-    contactManager->removeContacts(contactManager->getInactiveContacts());
+    if (contactManager != NULL)
+        contactManager->removeContacts(contactManager->getInactiveContacts());
 }
 
 void DefaultPipeline::doUpdateMappers()
 {
+    if (contactManager == NULL)
+        return;
+    
     const sofa::helper::vector<Contact::SPtr>& contacts = contactManager->getContacts();
 
     if (groupManager==NULL)
