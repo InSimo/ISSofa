@@ -423,20 +423,15 @@ int BarycentricMapperMeshTopology<In,Out>::createPointInQuad ( const typename Ou
 }
 
 template <class In, class Out>
-int BarycentricMapperMeshTopology<In,Out>::getFromTopologyIndex(int toId)
+unsigned int BarycentricMapperMeshTopology<In,Out>::getFromTopologyIndex(unsigned int toId)
 {
-    if (map1d.size() != 0)
-    {
-        return map1d[toId].in_index;
-    }
-    else if (map2d.size() != 0)
-    {
-        return map2d[toId].in_index;
-    }
-    else if (map3d.size() != 0)
-    {
-        return map3d[toId].in_index;
-    }
+    if (toId <   map1d.size()) return (unsigned int)map1d[toId].in_index;
+    else toId -= map1d.size();
+    if (toId <   map2d.size()) return (unsigned int)map2d[toId].in_index;
+    else toId -= map2d.size();
+    if (toId <   map3d.size()) return (unsigned int)map3d[toId].in_index;
+    else toId -= map3d.size();
+    return sofa::core::topology::Topology::InvalidID;
 }
 
 template <class In, class Out>
@@ -660,9 +655,9 @@ int BarycentricMapperEdgeSetTopology<In,Out>::createPointInLine ( const typename
 
 
 template <class In, class Out>
-int BarycentricMapperEdgeSetTopology<In,Out>::getFromTopologyIndex(int toId)
+unsigned int BarycentricMapperEdgeSetTopology<In,Out>::getFromTopologyIndex(unsigned int toId)
 {
-    return map.getValue()[toId].in_index;
+    return (unsigned int)map.getValue()[toId].in_index;
 }
 
 template <class In, class Out>
@@ -726,9 +721,9 @@ int BarycentricMapperTriangleSetTopology<In,Out>::addPointInTriangle ( const int
 }
 
 template <class In, class Out>
-int BarycentricMapperTriangleSetTopology<In,Out>::getFromTopologyIndex(int toId)
+unsigned int BarycentricMapperTriangleSetTopology<In,Out>::getFromTopologyIndex(unsigned int toId)
 {
-    return map.getValue()[toId].in_index;
+    return (unsigned int)map.getValue()[toId].in_index;
 }
 
 template <class In, class Out>
