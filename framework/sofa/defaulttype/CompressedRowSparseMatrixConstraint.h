@@ -109,6 +109,7 @@ public:
     {
     public:
         friend class RowConstIterator;
+        friend class RowType;
     protected:
 
         ColConstIterator(const Index _rowIt, int _internal, const CompressedRowSparseMatrixConstraint* _matrix)
@@ -437,12 +438,26 @@ public:
         RowType(ColConstIterator begin, ColConstIterator end) : Inherit(begin,end) {}
         ColConstIterator begin() const { return this->first; }
         ColConstIterator end() const { return this->second; }
+        ColConstIterator cbegin() const { return this->first; }
+        ColConstIterator cend() const { return this->second; }
         void setBegin(ColConstIterator i) { this->first = i; }
         void setEnd(ColConstIterator i) { this->second = i; }
         bool empty() const { return begin() == end(); }
         Index size() const { return end().getInternal() - begin().getInternal(); }
         void operator++() { ++this->first; }
         void operator++(int) { ++this->first; }
+        ColConstIterator find(Index col) const
+        {
+            const CompressedRowSparseMatrixConstraint* matrix = this->first.m_matrix;
+            Range r(this->first.m_internal, this->second.m_internal);
+            Index index = 0;
+            if (!matrix->sortedFind(matrix->colsIndex, r, col, index))
+            {
+                index = r.end(); // not found -> return end
+            }
+            return ColConstIterator(this->first.m_rowIt, index, matrix);
+        }
+
     };
 
     /// Get the number of constraint
