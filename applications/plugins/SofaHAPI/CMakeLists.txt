@@ -155,6 +155,7 @@ set(SOFAHAPI_INCLUDE_DIR "${SOFAHAPI_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaHAPIConfig.cmake.in
                               ${SOFAHAPI_BUILD_CMAKE_DIR}/SofaHAPIConfig.cmake
                               INSTALL_DESTINATION ${SOFAHAPI_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAHAPI_INCLUDE_DIR)
 
 # SofaHAPIConfig.cmake (installed)

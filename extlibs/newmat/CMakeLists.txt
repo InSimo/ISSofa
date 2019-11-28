@@ -90,6 +90,7 @@ set(NEWMAT_INCLUDE_DIR "${NEWMAT_BUILD_INCLUDE_DIR}")
 configure_package_config_file(NewmatConfig.cmake.in
                               ${NEWMAT_BUILD_CMAKE_DIR}/NewmatConfig.cmake
                               INSTALL_DESTINATION ${NEWMAT_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS NEWMAT_INCLUDE_DIR)
 
 # NewmatConfig.cmake (installed)

@@ -107,6 +107,7 @@ set(SOFAPHYSICSAPI_INCLUDE_DIR "${SOFAPHYSICSAPI_BUILD_INCLUDE_DIR}")
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/SofaPhysicsAPIConfig.cmake.in
                               ${SOFAPHYSICSAPI_BUILD_CMAKE_DIR}/SofaPhysicsAPIConfig.cmake
                               INSTALL_DESTINATION ${SOFAPHYSICSAPI_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAPHYSICSAPI_INCLUDE_DIR)
 
 # SofaPhysicsAPIConfig.cmake (installed)

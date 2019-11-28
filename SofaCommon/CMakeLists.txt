@@ -64,6 +64,7 @@ set(SOFACOMMON_INCLUDE_DIR "${SOFACOMMON_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaCommonConfig.cmake.in
                               ${SOFACOMMON_BUILD_CMAKE_DIR}/SofaCommonConfig.cmake
                               INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFACOMMON_INCLUDE_DIR)
 
 # SofaCommonConfig.cmake (installed)

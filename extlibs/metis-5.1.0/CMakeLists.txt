@@ -40,6 +40,7 @@ set(METIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 configure_package_config_file(MetisConfig.cmake.in
                               ${CMAKE_CURRENT_BINARY_DIR}/MetisConfig.cmake
                               INSTALL_DESTINATION metis
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS METIS_INCLUDE_DIR)
 
 # MetisConfig.cmake (installed)

@@ -108,6 +108,7 @@ set(CPU_FEATURES_INCLUDE_DIR "${CPU_FEATURES_BUILD_INCLUDE_DIR}")
 configure_package_config_file(CpuFeaturesConfig.cmake.in 
                               ${CPU_FEATURES_BUILD_CMAKE_DIR}/CpuFeaturesConfig.cmake
                               INSTALL_DESTINATION ${CPU_FEATURES_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS CPU_FEATURES_INCLUDE_DIR)
 
 # CpuFeaturesConfig.cmake (installed)

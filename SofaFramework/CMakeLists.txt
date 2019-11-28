@@ -195,6 +195,7 @@ set(SOFAFRAMEWORK_INCLUDE_DIR "${SOFAFRAMEWORK_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaFrameworkConfig.cmake.in
                               ${SOFAFRAMEWORK_BUILD_CMAKE_DIR}/SofaFrameworkConfig.cmake
                               INSTALL_DESTINATION ${SOFAFRAMEWORK_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAFRAMEWORK_INCLUDE_DIR)
 
 # SofaFrameworkConfig.cmake (installed)

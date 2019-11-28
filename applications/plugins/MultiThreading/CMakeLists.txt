@@ -71,6 +71,7 @@ install(FILES ${MULTITHREADING_BUILD_CMAKE_DIR}/MultiThreadingConfigVersion.cmak
 set(MULTITHREADING_INCLUDE_DIR "${MULTITHREADING_BUILD_INCLUDE_DIR}")
 configure_package_config_file(MultiThreadingConfig.cmake.in
                               ${MULTITHREADING_BUILD_CMAKE_DIR}/MultiThreadingConfig.cmake
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
                               PATH_VARS MULTITHREADING_INCLUDE_DIR)
 

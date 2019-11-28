@@ -50,6 +50,7 @@ set(CSPARSE_INCLUDE_DIR "${CSPARSE_BUILD_INCLUDE_DIR}")
 configure_package_config_file(CsparseConfig.cmake.in
                               ${CSPARSE_BUILD_CMAKE_DIR}/CsparseConfig.cmake
                               INSTALL_DESTINATION ${CSPARSE_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS CSPARSE_INCLUDE_DIR)
 
 # CsparseConfig.cmake (installed)

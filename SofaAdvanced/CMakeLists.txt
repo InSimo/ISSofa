@@ -66,6 +66,7 @@ set(SOFAADVANCED_INCLUDE_DIR "${SOFAADVANCED_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaAdvancedConfig.cmake.in
                               ${SOFAADVANCED_BUILD_CMAKE_DIR}/SofaAdvancedConfig.cmake
                               INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAADVANCED_INCLUDE_DIR)
 
 # SofaAdvancedConfig.cmake (installed)

@@ -67,6 +67,7 @@ set(TINYXML_INCLUDE_DIR "${TINYXML_BUILD_INCLUDE_DIR}")
 configure_package_config_file(TinyXMLConfig.cmake.in 
                               ${TINYXML_BUILD_CMAKE_DIR}/TinyXMLConfig.cmake
                               INSTALL_DESTINATION ${TINYXML_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS TINYXML_INCLUDE_DIR )
 
 # TinyXMLConfig.cmake (installed)

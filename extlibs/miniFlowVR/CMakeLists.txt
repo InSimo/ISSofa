@@ -97,6 +97,7 @@ set(MINIFLOWVR_INCLUDE_DIR "${MINIFLOWVR_BUILD_INCLUDE_DIR}")
 configure_package_config_file(MiniFlowVRConfig.cmake.in 
                               ${MINIFLOWVR_BUILD_CMAKE_DIR}/MiniFlowVRConfig.cmake
                               INSTALL_DESTINATION ${MINIFLOWVR_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS MINIFLOWVR_INCLUDE_DIR )
 
 # MiniFlowVRConfig.cmake (installed)

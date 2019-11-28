@@ -97,6 +97,7 @@ set(QWT_INCLUDE_DIR "${QWT_BUILD_INCLUDE_DIR}")
 configure_package_config_file(QwtConfig.cmake.in 
                               ${QWT_BUILD_CMAKE_DIR}/QwtConfig.cmake
                               INSTALL_DESTINATION ${QWT_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS QWT_INCLUDE_DIR )
 
 # QwtConfig.cmake (installed)

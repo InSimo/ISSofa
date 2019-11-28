@@ -216,6 +216,7 @@ set(SOFAPYTHON_INCLUDE_DIR "${SOFAPYTHON_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaPythonConfig.cmake.in
                               ${SOFAPYTHON_BUILD_CMAKE_DIR}/SofaPythonConfig.cmake
                               INSTALL_DESTINATION ${SOFAPYTHON_BUILD_CMAKE_DIR}
+                              INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAPYTHON_INCLUDE_DIR)
 
 # SofaPythonConfig.cmake (installed)
