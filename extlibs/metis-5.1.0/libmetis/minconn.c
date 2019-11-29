@@ -200,7 +200,7 @@ void EliminateSubDomainEdges(ctrl_t *ctrl, graph_t *graph)
   idx_t *nads, **adids, **adwgts;
   ikv_t *cand, *cand2;
   ipq_t queue;
-  real_t *tpwgts, badfactor=1.4;
+  real_t *tpwgts, badfactor=1.4f;
   idx_t *pptr, *pind;
   idx_t *vmarker=NULL, *pmarker=NULL, *modind=NULL;  /* volume specific work arrays */
 

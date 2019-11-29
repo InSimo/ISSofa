@@ -28,7 +28,9 @@
 #include <cstring>
 
 SOFA_WARNING_PUSH()
+#if defined(__GNUC__) && __GNUC__ >= 8
 SOFA_WARNING_DISABLE_GCC(class-memaccess)
+#endif
 
 namespace sofa
 {

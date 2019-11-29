@@ -46,7 +46,7 @@ namespace loader
 
 bool SOFA_CORE_API canLoad(const char* filename);
 
-class BaseLoader : public virtual objectmodel::BaseObject
+class SOFA_CORE_API BaseLoader : public virtual objectmodel::BaseObject
 {
 public:
     SOFA_ABSTRACT_CLASS_UNIQUE((BaseLoader), ((objectmodel::BaseObject)));

@@ -51,7 +51,7 @@ void RefineKWay(ctrl_t *ctrl, graph_t *orggraph, graph_t *graph)
 
     IFSET(ctrl->dbglvl, METIS_DBG_TIME, gk_startcputimer(ctrl->RefTmr));
 
-    if (2*i >= nlevels && !IsBalanced(ctrl, graph, .02)) {
+    if (2*i >= nlevels && !IsBalanced(ctrl, graph, .02f)) {
       ComputeKWayBoundary(ctrl, graph, BNDTYPE_BALANCE);
       Greedy_KWayOptimize(ctrl, graph, 1, 0, OMODE_BALANCE); 
       ComputeKWayBoundary(ctrl, graph, BNDTYPE_REFINE);
@@ -66,7 +66,7 @@ void RefineKWay(ctrl_t *ctrl, graph_t *orggraph, graph_t *graph)
       if (FindPartitionInducedComponents(graph, graph->where, NULL, NULL) > ctrl->nparts) {
         EliminateComponents(ctrl, graph);
 
-        if (!IsBalanced(ctrl, graph, .02)) {
+        if (!IsBalanced(ctrl, graph, .02f)) {
           ctrl->contig = 1;
           ComputeKWayBoundary(ctrl, graph, BNDTYPE_BALANCE);
           Greedy_KWayOptimize(ctrl, graph, 5, 0, OMODE_BALANCE); 

@@ -46,7 +46,7 @@ class CollisionElementIterator;
  *  \brief Base class for reference to an collision element defined by its <i>index</i>
  *
  */
-class BaseCollisionElementIterator
+class SOFA_CORE_API BaseCollisionElementIterator
 {
 public:
     typedef std::vector<int>::const_iterator VIterator;
@@ -129,7 +129,7 @@ protected:
     int index;      ///< index of the referenced element inside the CollisionModel.
     VIterator it; ///< current position in a vector of indices, in case this iterator traverse a non-contiguous set of indices
     VIterator itend; ///< end position in a vector of indices, in case this iterator traverse a non-contiguous set of indices
-    static std::vector<int> SOFA_CORE_API emptyVector; ///< empty vector to be able to initialize the iterator to an empty pair
+    static std::vector<int> emptyVector; ///< empty vector to be able to initialize the iterator to an empty pair
 };
 
 /**

@@ -1462,7 +1462,7 @@ void gk_csr_Scale(gk_csr_t *mat, int type)
         for (i=0; i<nrows; i++) {
           for (j=rowptr[i]; j<rowptr[i+1]; j++) { 
             if (rowval[j] != 0.0)
-              rowval[j] = .1+sign(rowval[j], powf(fabs(rowval[j]), .65));
+              rowval[j] = .1+sign(rowval[j], powf(fabs(rowval[j]), .65f));
           }
         }
       }
@@ -1488,7 +1488,7 @@ void gk_csr_Scale(gk_csr_t *mat, int type)
         for (i=0; i<nrows; i++) {
           for (j=rowptr[i]; j<rowptr[i+1]; j++) { 
             if (rowval[j] != 0.0)
-              rowval[j] = .1+sign(rowval[j], powf(fabs(rowval[j]), .85));
+              rowval[j] = .1+sign(rowval[j], powf(fabs(rowval[j]), .85f));
           }
         }
       }

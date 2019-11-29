@@ -113,7 +113,7 @@ ctrl_t *SetupCtrl(moptype_et optype, idx_t *options, idx_t ncon, idx_t nparts,
   if (ubvec)
     rcopy(ctrl->ncon, ubvec, ctrl->ubfactors);
   for (i=0; i<ctrl->ncon; i++)
-    ctrl->ubfactors[i] += 0.0000499;
+    ctrl->ubfactors[i] += 0.0000499f;
 
   /* Allocate memory for balance multipliers. 
      Note that for PMETIS/OMETIS routines the memory allocated is more 
