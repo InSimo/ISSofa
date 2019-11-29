@@ -90,7 +90,7 @@ install(FILES ${SOFAGENERAL_BUILD_CMAKE_DIR}/SofaGeneralConfigVersion.cmake
 set(SOFAGENERAL_INCLUDE_DIR "${SOFAGENERAL_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaGeneralConfig.cmake.in
                               ${SOFAGENERAL_BUILD_CMAKE_DIR}/SofaGeneralConfig.cmake
-                              INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+                              INSTALL_DESTINATION ${SOFAGENERAL_BUILD_CMAKE_DIR}
                               INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFAGENERAL_INCLUDE_DIR)
 

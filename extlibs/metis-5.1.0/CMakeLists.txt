@@ -37,9 +37,10 @@ include(CMakePackageConfigHelpers)
 
 # MetisConfig.cmake (build tree)
 set(METIS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(METIS_BUILD_CMAKE_DIR "${CMAKE_BINARY_DIR}/metis")
 configure_package_config_file(MetisConfig.cmake.in
-                              ${CMAKE_CURRENT_BINARY_DIR}/MetisConfig.cmake
-                              INSTALL_DESTINATION metis
+                              ${METIS_BUILD_CMAKE_DIR}/MetisConfig.cmake
+                              INSTALL_DESTINATION ${METIS_BUILD_CMAKE_DIR}
                               INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS METIS_INCLUDE_DIR)
 

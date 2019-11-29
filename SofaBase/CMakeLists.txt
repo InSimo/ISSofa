@@ -61,7 +61,7 @@ install(FILES ${SOFABASE_BUILD_CMAKE_DIR}/SofaBaseConfigVersion.cmake
 set(SOFABASE_INCLUDE_DIR "${SOFABASE_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaBaseConfig.cmake.in
                               ${SOFABASE_BUILD_CMAKE_DIR}/SofaBaseConfig.cmake
-                              INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+                              INSTALL_DESTINATION ${SOFABASE_BUILD_CMAKE_DIR}
                               INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFABASE_INCLUDE_DIR)
 

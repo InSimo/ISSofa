@@ -65,7 +65,7 @@ install(FILES ${SOFASIMULATION_BUILD_CMAKE_DIR}/SofaSimulationConfigVersion.cmak
 set(SOFASIMULATION_INCLUDE_DIR "${SOFASIMULATION_BUILD_INCLUDE_DIR}")
 configure_package_config_file(SofaSimulationConfig.cmake.in
                               ${SOFASIMULATION_BUILD_CMAKE_DIR}/SofaSimulationConfig.cmake
-                              INSTALL_DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+                              INSTALL_DESTINATION ${SOFASIMULATION_BUILD_CMAKE_DIR}
                               INSTALL_PREFIX ${CMAKE_BINARY_DIR}
                               PATH_VARS SOFASIMULATION_INCLUDE_DIR)
 
