@@ -199,7 +199,7 @@ public:
         return pid;
     }
 
-    virtual sofa::defaulttype::Vector3 getFromBary( unsigned int pid) const override
+    virtual sofa::defaulttype::Vector3 getFromBary( unsigned int /*pid*/) const override
     {
         return sofa::defaulttype::Vector3(0, 0, 0);
     }

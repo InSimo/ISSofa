@@ -220,7 +220,7 @@ public:
 
     virtual void setToTopology( topology::PointSetTopologyContainer* toTopology) {this->toTopology = toTopology;}
 
-    virtual unsigned int getFromTopologyIndex(unsigned int toId) {std::cout<<"WARNING[TopologyBarycentricMapper] getFromTopologyIndex is called but not implemented"<<std::endl; return -1;}
+    virtual unsigned int getFromTopologyIndex(unsigned int /*toId*/) {std::cout<<"WARNING[TopologyBarycentricMapper] getFromTopologyIndex is called but not implemented"<<std::endl; return -1;}
 
     const topology::PointSetTopologyContainer *getToTopology() const {return toTopology;}
 

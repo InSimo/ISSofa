@@ -367,7 +367,7 @@ sofa::helper::vector< double > EdgeSetGeometryAlgorithms<DataTypes>::computePoin
     sofa::defaulttype::Vec<3,double> ortho_ABC = cross (AB, AC)*1000;
     sofa::defaulttype::Vec<3,double> coef_CH = cross (ortho_ABC, AB)*1000;
 
-    for (unsigned int i = 0; i<Coord::spatial_dimensions; i++)
+    for (unsigned int i = 0; i<std::min(3U,(unsigned int)Coord::spatial_dimensions); i++)
         coord_edge2[1][i] = coord_edge2[0][i] + (float)coef_CH[i];
 
     // Compute Coord of projection point H:
