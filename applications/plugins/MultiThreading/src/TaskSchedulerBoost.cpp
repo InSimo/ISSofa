@@ -270,7 +270,6 @@ WorkerThread::WorkerThread(TaskScheduler* const& pScheduler, int index)
 :mTaskScheduler(pScheduler)
 ,mStealableTaskCount(0)
 ,mSpecificTaskCount(0)
-,mCurrentStatus(nullptr)
 ,mThreadIndex(index)
 ,mTaskLogEnabled(false)
 {
@@ -338,27 +337,30 @@ void WorkerThread::doWork(Task::Status* status)
     //
     do
     {
-        Task*		    pTask       = nullptr;
+        Task* pTask = nullptr;
         while (popTask(&pTask))
         {
             // run
-            Task::Status*	pPrevStatus = mCurrentStatus;
-            mCurrentStatus = pTask->getStatus();
+            Task::Status* currentStatus = pTask->getStatus();
+            mCurrentStatuses.push_back(currentStatus);
+            mCurrentTasks.push_back(pTask);
             
             if (mTaskLogEnabled)
                 mTaskLog.push_back(pTask);
 
             pTask->runTask(this);
-            mCurrentStatus->MarkBusy(false);
-            mCurrentStatus = pPrevStatus;
+            currentStatus->MarkBusy(false);
+
+            mCurrentStatuses.pop_back();
+            mCurrentTasks.pop_back();
 
             // check if work we're expecting is done
-            if ( status && !status->IsBusy() ) 
+            if (status && !status->IsBusy())
                 return;
         }
 
         /* check if root work is finished */ 
-        if (!mTaskScheduler->getRootTaskStatus() )
+        if (!mTaskScheduler->getRootTaskStatus())
             return;
 
     } while (stealTasks());
@@ -370,6 +372,19 @@ void WorkerThread::doWork(Task::Status* status)
 
 void WorkerThread::workUntilDone(Task::Status* status)
 {
+    if (std::find(mCurrentStatuses.cbegin(), mCurrentStatuses.cend(), status) != mCurrentStatuses.cend())
+    {
+        std::cerr << "==================================================================" << std::endl;
+        std::cerr << "Task scheduling error: waiting for self on thread " << mThreadIndex << std::endl;
+        std::cerr << "Waiting until completion of status " << status << std::endl;
+        std::cerr << "Current stack:" << std::endl;
+        assert(mCurrentStatuses.size() == mCurrentTasks.size());
+        for (int i = static_cast<int>(mCurrentStatuses.size()); i >= 0; --i)
+        {
+            std::cerr << "Task " << mCurrentTasks[i]->getName() << " with status " << mCurrentStatuses[i] << std::endl;
+        }
+        std::cerr << "==================================================================" << std::endl;
+    }
 
     while (status->IsBusy())
     {

@@ -93,7 +93,8 @@ public:
     
     const std::vector<Task*>& getTaskLog() const;
 
-    Task::Status* getCurrentStatus() const { return mCurrentStatus; }
+    const Task::Status* getCurrentStatus() const { return mCurrentStatuses.back(); }
+    const Task* getCurrentTask() const { return mCurrentTasks.back(); }
 
     const TaskScheduler* getTaskScheduler() { return mTaskScheduler; }
 
@@ -137,7 +138,8 @@ private:
     Task*                             mSpecificTask[Max_TasksPerThread];///< thread specific task list, not stealable. They have a higher priority compared to the shared task list
     unsigned			              mStealableTaskCount;///< current size of the shared task list
     unsigned                          mSpecificTaskCount;///< current size of the specific task list								
-    Task::Status*	                  mCurrentStatus;	
+    std::vector<const Task::Status*>  mCurrentStatuses;///< current statuses stack (grows each time a task is run within another)
+    std::vector<const Task*>          mCurrentTasks;///< current task stack (grows each time a task is run within another)
     unsigned                          mThreadIndex;
     bool                              mTaskLogEnabled;
     std::vector<Task*>                mTaskLog;
