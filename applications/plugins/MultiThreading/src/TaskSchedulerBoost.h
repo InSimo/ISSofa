@@ -93,8 +93,8 @@ public:
     
     const std::vector<Task*>& getTaskLog() const;
 
-    const Task::Status* getCurrentStatus() const { return mCurrentStatuses.back(); }
-    const Task* getCurrentTask() const { return mCurrentTasks.back(); }
+    const Task::Status* getCurrentStatus() const { return mCurrentStatuses.empty() ? nullptr : mCurrentStatuses.back(); }
+    const Task* getCurrentTask() const { return mCurrentTasks.empty() ? nullptr : mCurrentTasks.back(); }
 
     const TaskScheduler* getTaskScheduler() { return mTaskScheduler; }
 
