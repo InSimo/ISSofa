@@ -161,7 +161,11 @@ public:
         this->rowBegin.resize(this->nBlocRow + 1);
         this->colsIndex.resize(this->oldColsIndex.size() + this->nBlocRow-ndiag);
         this->colsValue.resize(this->oldColsValue.size() + this->nBlocRow-ndiag);
-        SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) this->touchedBloc.resize(this->oldColsValue.size() + this->nBlocRow-ndiag);
+        SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags)
+        {
+            this->touchedBloc.resize(this->oldColsValue.size() + this->nBlocRow - ndiag);
+            std::fill(this->touchedBloc.begin(), this->touchedBloc.end(), false);
+        }
         Index nv = 0;
         for (Index i = 0; i < this->nBlocRow; ++i) this->rowIndex[i] = i;
         Index j = 0;
@@ -171,7 +175,6 @@ public:
             {
                 this->rowBegin[j] = nv;
                 this->colsIndex[nv] = j;
-                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) this->touchedBloc[nv] = true;
                 traits::clear(this->colsValue[nv]);
                 ++nv;
             }
@@ -182,7 +185,6 @@ public:
             {
                 this->colsIndex[nv] = this->oldColsIndex[b];
                 this->colsValue[nv] = this->oldColsValue[b];
-                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) this->touchedBloc[nv] = true;
                 ++nv;
             }
             if (b >= e || this->oldColsIndex[b] > j)
@@ -195,7 +197,6 @@ public:
             {
                 this->colsIndex[nv] = this->oldColsIndex[b];
                 this->colsValue[nv] = this->oldColsValue[b];
-                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) this->touchedBloc[nv] = true;
                 ++nv;
             }
             ++j;
@@ -204,7 +205,6 @@ public:
         {
             this->rowBegin[j] = nv;
             this->colsIndex[nv] = j;
-            SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) this->touchedBloc[nv] = true;
             traits::clear(this->colsValue[nv]);
             ++nv;
         }
@@ -488,18 +488,31 @@ public:
                 for (Index xj = rowRange.begin(); xj < rowRange.end(); ++xj)
                 {
                     Bloc* b = &this->colsValue[xj];
-                    // first clear line i
+                    // first clear (i,j)
                     for (Index bj = 0; bj < NC; ++bj)
                         traits::vset(*b, bi, bj, 0);
-                    // then clean column i
+
+                    SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags) this->touchedBloc[xj] = true;
+
+                    // then clear (j,i) 
                     Index j = this->colsIndex[xj];
+                    
                     if (j != i)
                     {
-                        // non diagonal bloc
-                        b = this->wbloc(j,i,false);
+                        Range jrowRange(this->rowBegin[j], this->rowBegin[j + 1]);
+                        Index colId = 0;
+
+                        // look for column i
+                        if (this->sortedFind(this->colsIndex, jrowRange, i, colId))
+                        {
+                            SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags) this->touchedBloc[colId] = true;
+                            b = &this->colsValue[colId];
+                        }
                     }
+
                     for (Index bj = 0; bj < NL; ++bj)
                         traits::vset(*b, bj, bi, 0);
+             
                 }
             }
         }

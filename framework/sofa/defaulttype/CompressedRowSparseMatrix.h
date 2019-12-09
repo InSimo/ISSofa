@@ -223,7 +223,6 @@ public :
     VecIndex oldRowBegin;
     VecIndex oldColsIndex;
     VecBloc  oldColsValue;
-    VecFlag  oldTouchedBloc;
 
     CompressedRowSparseMatrix()
         : nBlocRow(0), nBlocCol(0), skipCompressZero(true)
@@ -297,7 +296,7 @@ protected:
             {
                 colsIndex.push_back(colId);
                 colsValue.push_back(bvalue);
-                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
+                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(false);
                 added = true;
             }
         }
@@ -305,7 +304,7 @@ protected:
         {
             colsIndex.push_back(colId);
             colsValue.push_back(bvalue);
-            SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
+            SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(false);
             added = true;
         }
         return added;
@@ -463,7 +462,11 @@ public:
 
     void compress()
     {
-        if (skipCompressZero && btemp.empty()) return;
+        if (skipCompressZero && btemp.empty())
+        {
+            return;
+        }
+
         if (!btemp.empty())
         {
             compressBtemp();
@@ -472,6 +475,13 @@ public:
         {
             compressCSR();
         }
+
+        SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags)
+        {
+            touchedBloc.clear();
+            touchedBloc.resize(colsValue.size(), false);
+        }
+
         skipCompressZero = true;
         SOFA_IF_CONSTEXPR (Policy::LogTrace) logCall(FnEnum::compress);
     }
@@ -500,7 +510,6 @@ protected:
         oldRowBegin.swap(rowBegin);
         oldColsIndex.swap(colsIndex);
         oldColsValue.swap(colsValue);
-        oldTouchedBloc.swap(touchedBloc);
 
         /// New Matrix status with new bloc added by btemp will be stored here
         rowIndex.clear();
@@ -543,9 +552,7 @@ protected:
                 Range inRow( oldRowBegin[oldRowIndexCount], oldRowBegin[oldRowIndexCount + 1] );
                 while (!inRow.empty())
                 {
-                    bool avoidRegister = false;
-                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) if (oldTouchedBloc[inRow.begin()]) avoidRegister = true;
-                    if (!avoidRegister && registerNewCol(oldColsIndex[inRow.begin()], oldColsValue[inRow.begin()])) ++rowBeginCount;
+                    if (registerNewCol(oldColsIndex[inRow.begin()], oldColsValue[inRow.begin()])) ++rowBeginCount;
                     ++inRow;
                 }
                 ++oldRowIndexCount;
@@ -571,9 +578,7 @@ protected:
                 {
                     if (oldColID < curentBtempColID) /// In this case, we only add old column
                     {
-                        bool avoidRegister = false;
-                        SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) if (oldTouchedBloc[inRow.begin()]) avoidRegister = true;
-                        if (!avoidRegister && registerNewCol(oldColID, oldColsValue[inRow.begin()])) ++rowBeginCount;
+                        if (registerNewCol(oldColID, oldColsValue[inRow.begin()])) ++rowBeginCount;
                         ++inRow;
                         oldColID = (!inRow.empty()) ? oldColsIndex[inRow.begin()] : maxColID;
                     }
@@ -807,7 +812,7 @@ protected:
                 colsValue.push_back(Bloc());
                 rowBegin.push_back(colsIndex.size());
 
-                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
+                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(false);
                 SOFA_IF_CONSTEXPR (Policy::AutoSize)
                 {
                     nBlocRow = i + 1;
@@ -829,7 +834,7 @@ protected:
                     colsIndex.push_back(j);
                     colsValue.push_back(Bloc());
                     rowBegin.back()++;
-                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(true);
+                    SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc.push_back(false);
                     SOFA_IF_CONSTEXPR (Policy::AutoSize)
                     {
                         if (j > nBlocCol) nBlocCol = j + 1;
@@ -865,7 +870,6 @@ protected:
                 colId = (nBlocCol == 0) ? 0 : rowRange.begin() + j * rowRange.size() / nBlocCol;
                 if (!sortedFind(colsIndex, rowRange, j, colId)) return create ? insertBtemp(i,j) : nullptr;
             }
-            SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc[colId] = true;
             return &colsValue[colId];
         }
         else
@@ -875,7 +879,11 @@ protected:
             {
                 Range rowRange(rowBegin[rowId], rowBegin[rowId+1]);
                 Index colId = (nBlocCol == 0) ? 0 : rowRange.begin() + j * rowRange.size() / nBlocCol;
-                if (sortedFind(colsIndex, rowRange, j, colId)) return &colsValue[colId];
+                if (sortedFind(colsIndex, rowRange, j, colId))
+                {
+                    SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags) touchedBloc[colId] = true;
+                    return &colsValue[colId];
+                }
             }
             if (create)
             {
@@ -926,7 +934,6 @@ protected:
             }
             if (colFound)
             {
-                SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) touchedBloc[colId] = true;
                 return &colsValue[colId];
             }
         }
