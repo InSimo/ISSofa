@@ -521,6 +521,9 @@ public:
 
 };
 
+template<class Real>
+struct BMBaryElementInfo;
+
 /// Class allowing barycentric mapping computation on a EdgeSetTopology
 template<class In, class Out>
 class BarycentricMapperEdgeSetTopology : public TopologyBarycentricMapper<In,Out>
@@ -534,28 +537,76 @@ public:
     typedef typename Inherit::OutDeriv  OutDeriv;
     typedef typename Inherit::InDeriv  InDeriv;
     typedef typename Inherit::MappingData1D MappingData;
+    typedef BMBaryElementInfo<Real> BaryElementInfo; // only used for vPointsIncluded, another structure could be used instead
+
+    typedef topology::Topology::EdgeID EdgeID;
+    typedef topology::Topology::Edge Edge;
+    typedef topology::Topology::PointID PointID;
 
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
     typedef typename Inherit::MatrixType MatrixType;
 
+    // topologyData mechanism to handle topology changes (public)
+    typedef typename sofa::helper::vector<BaryElementInfo> VecBaryEdgeInfo;
+    sofa::component::topology::EdgeData<VecBaryEdgeInfo> d_vBaryEdgeInfo;
+    // END topologyData mechanism (public)
+
 protected:
     topology::PointData< sofa::helper::vector<MappingData > > map;
-    topology::EdgeSetTopologyContainer*			_fromContainer;
-    topology::EdgeSetGeometryAlgorithms<In>*	_fromGeomAlgo;
+    topology::EdgeSetTopologyContainer*         _fromContainer;
+    topology::EdgeSetGeometryAlgorithms<In>*    _fromGeomAlgo;
+
+    bool m_useRestPosition;
+    core::State< In >* m_stateFrom = nullptr;
+    core::State< Out >* m_stateTo  = nullptr;
+
     MatrixType* matrixJ;
     bool updateJ;
 
+    // topologyData mechanism to handle topology changes (protected)
+    class EdgeInfoHandler : public sofa::component::topology::TopologyDataHandler<Edge, VecBaryEdgeInfo>
+    {
+    public:
+        typedef topology::Topology::Edge Edge;
+
+        typedef typename sofa::component::topology::TopologyDataHandler<Edge, VecBaryEdgeInfo> TopologyDataHandler;
+        EdgeInfoHandler(BarycentricMapperEdgeSetTopology* o, sofa::component::topology::EdgeData<VecBaryEdgeInfo>* d)
+            : TopologyDataHandler(d), obj(o)
+        {}
+
+        virtual void applyCreateFunction(unsigned int t,
+            BaryElementInfo& baryEdgeInfo,
+            const Edge& edge,
+            const sofa::helper::vector< unsigned int >& ancestors,
+            const sofa::helper::vector< double >& coeffs) override;
+        virtual void applyDestroyFunction(unsigned int t, BaryElementInfo& baryEdgeInfo) override;
+        virtual void swap(unsigned int i1, unsigned int i2) override;
+
+        protected:
+        BarycentricMapperEdgeSetTopology* obj;
+    };
+
+    std::unique_ptr<EdgeInfoHandler> m_edgeInfoHandler;
+    std::set< PointID > m_dirtyPoints;
+    // END topologyData mechanism (protected)
+
     BarycentricMapperEdgeSetTopology(topology::EdgeSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology)
+            topology::PointSetTopologyContainer* _toTopology, core::State< In >* stateFrom = nullptr, core::State< Out >* stateTo = nullptr, bool useRestPosition = false)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
+          d_vBaryEdgeInfo(initData(&d_vBaryEdgeInfo, "vBaryEdgeInfo", "Vector of edge information dedicated to topological changes")),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
           _fromGeomAlgo(NULL),
+          m_useRestPosition(useRestPosition),
+          m_stateFrom(stateFrom),
+          m_stateTo(stateTo),
           matrixJ(NULL),
           updateJ(true)
-    {}
+    {
+        m_edgeInfoHandler = std::unique_ptr<EdgeInfoHandler>(new EdgeInfoHandler(this, &d_vBaryEdgeInfo));
+    }
 
     virtual ~BarycentricMapperEdgeSetTopology() {}
 public:
@@ -568,6 +619,8 @@ public:
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
     /// Called if the mapper should setup handling of topological changes
     void initTopologyChange();
+
+    void projectDirtyPoints(const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
     void apply( typename Out::VecCoord& out, const typename In::VecCoord& in );
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
@@ -608,9 +661,6 @@ public:
         return out;
     }
 };
-
-template<class Real>
-struct BMBaryElementInfo;
 
 /// Class allowing barycentric mapping computation on a TriangleSetTopology
 template<class In, class Out>

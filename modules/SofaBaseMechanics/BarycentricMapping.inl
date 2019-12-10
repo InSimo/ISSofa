@@ -623,34 +623,48 @@ void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord&
 template <class In, class Out>
 void BarycentricMapperEdgeSetTopology<In,Out>::clear ( int reserve )
 {
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
-    vectorData.clear(); if ( reserve>0 ) vectorData.reserve ( reserve );
+    helper::vector<MappingData>& vectorData = *( map.beginEdit() );
+    vectorData.clear();
+    if ( reserve > 0 )
+        vectorData.reserve( reserve );
     map.endEdit();
-}
 
+    auto edgeInfo = sofa::helper::write( d_vBaryEdgeInfo );
+    for ( auto& eInfo : edgeInfo )
+        eInfo.vPointsIncluded.clear();
+
+    m_dirtyPoints.clear();
+}
 
 template <class In, class Out>
 int BarycentricMapperEdgeSetTopology<In,Out>::addPointInLine ( const int edgeIndex, const SReal* baryCoords )
 {
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
-    vectorData.resize ( map.getValue().size() +1 );
+    helper::vector<MappingData>& vectorData = *( map.beginEdit() );
+    vectorData.resize( map.getValue().size() + 1 );
     map.endEdit();
     MappingData& data = *vectorData.rbegin();
     data.in_index = edgeIndex;
     data.baryCoords[0] = ( Real ) baryCoords[0];
-    return map.getValue().size()-1;
+
+    const std::size_t indexLast = map.getValue().size() - 1;
+    auto edgeInfo = sofa::helper::write( d_vBaryEdgeInfo );
+
+    if ( edgeIndex < ( int ) edgeInfo.size() )
+        edgeInfo[edgeIndex].vPointsIncluded.insert( indexLast );
+
+    return indexLast;
 }
 
 template <class In, class Out>
 int BarycentricMapperEdgeSetTopology<In,Out>::createPointInLine ( const typename Out::Coord& p, int edgeIndex, const typename In::VecCoord* points )
 {
     SReal baryCoords[1];
-    const topology::Edge& elem = this->fromTopology->getEdge ( edgeIndex );
+    const topology::Edge& elem = this->fromTopology->getEdge( edgeIndex );
     const typename In::CPos p0 = In::getCPos( ( *points ) [elem[0]] );
     const typename In::CPos pA = In::getCPos( ( *points ) [elem[1]] ) - p0;
-    typename In::CPos pos = Out::getCPos(p) - p0;
-    baryCoords[0] = dot ( pA, pos ) /dot ( pA, pA );
-    return this->addPointInLine ( edgeIndex, baryCoords );
+    typename In::CPos pos = Out::getCPos( p ) - p0;
+    baryCoords[0] = dot( pA, pos ) / dot( pA, pA );
+    return this->addPointInLine( edgeIndex, baryCoords );
 }
 
 
@@ -661,19 +675,193 @@ unsigned int BarycentricMapperEdgeSetTopology<In,Out>::getFromTopologyIndex(unsi
 }
 
 template <class In, class Out>
-void BarycentricMapperEdgeSetTopology<In,Out>::init ( const typename Out::VecCoord& /*out*/, const typename In::VecCoord& /*in*/ )
+void BarycentricMapperEdgeSetTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    _fromContainer->getContext()->get ( _fromGeomAlgo );
+    if ( !_fromContainer )
+    {
+        serr << "BarycentricMapperEdgeSetTopology - Link to the topology failed" << sendl;
+        return;
+    }
+
+    if ( !m_stateFrom )
+    {
+        serr << "BarycentricMapperEdgeSetTopology - Link to the mechanical state in failed" << sendl;
+        return;
+    }
+
+    if ( !m_stateTo )
+    {
+        serr << "BarycentricMapperEdgeSetTopology - Link to the mechanical state out failed" << sendl;
+        return;
+    }
+
+    _fromContainer->getContext()->get( _fromGeomAlgo );
+
+    if ( _fromContainer )
+    {
+        // initialize d_vBaryEdgeInfo
+        clear( out.size() );
+        helper::WriteAccessor<Data<VecBaryEdgeInfo> > vBaryEdgeInfo = d_vBaryEdgeInfo;
+
+        const sofa::helper::vector<topology::Edge>& edges = this->_fromContainer->getEdges();
+        vBaryEdgeInfo.resize( edges.size() );
+
+        sofa::helper::vector< unsigned int > ancestorsIndex;
+        const sofa::helper::vector< double > ancestorsCoeff;
+
+        for ( unsigned int i = 0; i < edges.size(); i++ )
+            m_edgeInfoHandler->applyCreateFunction( i, vBaryEdgeInfo[i], edges[i], ancestorsIndex, ancestorsCoeff );
+
+        for ( unsigned int i = 0; i < out.size(); ++i )
+            m_dirtyPoints.emplace( i );
+
+        projectDirtyPoints( out, in );
+    }
 }
 
 template <class In, class Out>
-void BarycentricMapperEdgeSetTopology<In,Out>::initTopologyChange()
+void BarycentricMapperEdgeSetTopology<In,Out>::initTopologyChange ()
 {
-    if (this->toTopology)
+    if ( this->toTopology )
     {
-        map.createTopologicalEngine(this->toTopology);
+        map.createTopologicalEngine( this->toTopology );
         map.registerTopologicalData();
     }
+
+    d_vBaryEdgeInfo.createTopologicalEngine( _fromContainer, m_edgeInfoHandler.get() );
+    d_vBaryEdgeInfo.registerTopologicalData();
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
+{
+    if ( m_dirtyPoints.empty() )
+        return;
+
+    const bool printLog = this->f_printLog.getValue();
+
+    if ( printLog )
+    {
+        serr << "ProjectDirtyPoints" << sendl;
+        serr << "\t- Dirty points(" << m_dirtyPoints.size() << ")" << sendl;
+        serr << "\t";
+
+        std::ostream_iterator<unsigned int> serr_it( serr, ", " );
+        std::copy( m_dirtyPoints.begin(), m_dirtyPoints.end(), serr_it );
+        serr << sendl;
+    }
+
+    // get restPositions
+    const typename In::VecCoord& pIn = m_stateFrom->read( sofa::core::ConstVecCoordId::restPosition() )->getValue();
+    helper::ReadAccessor< Data< typename core::State< Out >::VecCoord > > pOut = m_stateTo->read( sofa::core::ConstVecCoordId::restPosition() );
+
+    const auto& edges = this->_fromContainer->getEdgeArray();
+
+    // evaluate dirty projections : fill in d_vBaryEdgeInfo and map
+    helper::WriteAccessor< Data< VecBaryEdgeInfo > > vBaryEdgeInfo = d_vBaryEdgeInfo;
+    helper::WriteAccessor< Data< sofa::helper::vector< MappingData > > > vectorData = map;
+    vectorData.resize( out.size() );
+
+    assert( edges.size() == vBaryEdgeInfo.size() );
+
+    std::size_t numDirtyEdges = 0; // only used for logging
+
+    if ( printLog )
+    {
+        for ( const auto& edgeElemInfo : vBaryEdgeInfo )
+            if ( edgeElemInfo.dirty )
+                ++numDirtyEdges;
+
+        serr << "\t- DirtyEdges(" << numDirtyEdges << ")" << sendl;
+    }
+
+    if ( !edges.empty() )
+    {
+        for ( EdgeID eid = 0; eid < edges.size(); ++eid )
+            auto& edgeElemInfo = vBaryEdgeInfo[eid].dirty = false;
+
+        for ( auto dirtyPoint : m_dirtyPoints )
+        {
+            const typename In::CPos pos = ( m_useRestPosition && pOut.size() > 0 ) ? Out::getCPos( pOut[dirtyPoint] ) : Out::getCPos( out[dirtyPoint] );
+            Real coef = 0;
+            int index = -1;
+            double distance = std::numeric_limits<double>::max();
+
+            for ( unsigned int e = 0; e < edges.size(); e++ )
+            {
+                const BaryElementInfo& baryEdgeInfo = vBaryEdgeInfo[e];
+                assert(baryEdgeInfo.dirty == false);
+
+                const typename In::CPos p0 = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][0]] ) : In::getCPos( in[edges[e][0]] );
+                const typename In::CPos pA = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][1]] ) : In::getCPos( in[edges[e][1]] ) - p0;
+                const typename In::CPos p0_pos = pos - p0;
+                const Real b = dot ( pA, p0_pos ) / dot (pA, pA);
+                const typename In::CPos pos_proj = ( p0 + b * pA ) - pos;
+                const Real d = pos_proj.norm2();
+
+                if ( d < distance )
+                {
+                    coef = b;
+                    distance = d;
+                    index = e;
+                }
+            }
+
+            vBaryEdgeInfo[index].vPointsIncluded.insert( dirtyPoint );
+
+            assert( dirtyPoint < vectorData.size() );
+            MappingData& mapData = vectorData[dirtyPoint];
+            mapData.in_index = index;
+            mapData.baryCoords[0] = coef;
+
+            if ( printLog )
+                serr << "\tProjecting point (out): " << dirtyPoint << " on edge (in): " << index << " baryCoords: (" << mapData.baryCoords[0] << ")" << sendl;
+        }
+    }
+
+    m_dirtyPoints.clear();
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyCreateFunction ( unsigned int /*t*/, BaryElementInfo& baryEdgeInfo,
+    const Edge& /*edge*/,
+    const sofa::helper::vector< unsigned int >& /*ancestors*/,
+    const sofa::helper::vector< double >& /*coeffs*/ )
+{
+    baryEdgeInfo.dirty = true;
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyDestroyFunction ( unsigned int /*t*/, BaryElementInfo& baryEdgeInfo )
+{
+    auto mapData = sofa::helper::write( obj->map );
+
+    for ( auto pid : baryEdgeInfo.vPointsIncluded )
+    {
+        obj->m_dirtyPoints.insert( pid );
+        mapData[pid].in_index = -1; // unfortunately NOT sofa::core::topology::Topology::InvalidID because in_index is signed
+    }
+
+    baryEdgeInfo.vPointsIncluded.clear();
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::swap( unsigned int i1, unsigned int i2 )
+{
+    helper::ReadAccessor< Data< VecBaryEdgeInfo> > vBaryEdgeInfo = obj->d_vBaryEdgeInfo;
+
+    helper::WriteAccessor< Data< sofa::helper::vector< MappingData> > > vectorData = obj->map;
+
+    const BaryElementInfo& baryEdgeInfo1 = vBaryEdgeInfo[i1];
+    const BaryElementInfo& baryEdgeInfo2 = vBaryEdgeInfo[i2];
+
+    for ( auto pointIncluded : baryEdgeInfo1.vPointsIncluded )
+        vectorData[pointIncluded].in_index = i2;
+
+    for ( auto pointIncluded : baryEdgeInfo2.vPointsIncluded )
+        vectorData[pointIncluded].in_index = i1;
+
+    component::topology::TopologyDataHandler<Edge, VecBaryEdgeInfo >::swap(i1, i2);
 }
 
 template <class In, class Out>
@@ -1584,7 +1772,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ( BaseMeshTopology 
                         if ( t5 != NULL )
                         {
                             typedef BarycentricMapperEdgeSetTopology<InDataTypes, OutDataTypes> EdgeSetMapper;
-                            mapper = sofa::core::objectmodel::New<EdgeSetMapper>(t5, toTopoCont);
+                            mapper = sofa::core::objectmodel::New<EdgeSetMapper>(t5, toTopoCont, this->fromModel, this->toModel, useRestPosition.getValue());
                         }
                     }
                 }
@@ -1892,18 +2080,22 @@ void BarycentricMapperSparseGridTopology<In,Out>::apply ( typename Out::VecCoord
 template <class In, class Out>
 void BarycentricMapperEdgeSetTopology<In,Out>::apply ( typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    out.resize ( map.getValue().size() );
-    const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
-    // 2D elements
-    helper::vector<MappingData>& vectorData = *(map.beginEdit());
+    out.resize( map.getValue().size() );
 
-    for ( unsigned int i=0; i<map.getValue().size(); i++ )
+    if ( !m_dirtyPoints.empty() )
+        projectDirtyPoints(out, in);
+
+    const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
+    if ( !edges.empty() )
     {
-        const Real fx = vectorData[i].baryCoords[0];
-        int index = vectorData[i].in_index;
-        const topology::Edge& edge = edges[index];
-        Out::setCPos(out[i] , In::getCPos(in[edge[0]]) * ( 1-fx )
-                + In::getCPos(in[edge[1]]) * fx );
+        for ( unsigned int i = 0; i < map.getValue().size(); i++ )
+        {
+            const Real fx = map.getValue()[i].baryCoords[0];
+            const int index = map.getValue()[i].in_index;
+            const topology::Edge& edge = edges[index];
+            Out::setCPos( out[i] , In::getCPos( in[edge[0]] ) * ( 1 - fx )
+                    + In::getCPos( in[edge[1]] ) * fx );
+        }
     }
 }
 
@@ -2225,6 +2417,8 @@ void BarycentricMapperEdgeSetTopology<In,Out>::applyJ ( typename Out::VecDeriv& 
 
     out.resize ( map.getValue().size() );
     const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
+
+    if ( !edges.empty() )
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -2524,7 +2718,7 @@ template <class In, class Out>
 void BarycentricMapperEdgeSetTopology<In,Out>::applyJT ( typename In::VecDeriv& out, const typename Out::VecDeriv& in )
 {
     const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
-
+    if ( !edges.empty() )
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -2893,7 +3087,7 @@ const sofa::defaulttype::BaseMatrix* BarycentricMapperEdgeSetTopology<In,Out>::g
     //         std::cerr << "BarycentricMapperEdgeSetTopology<In,Out>::getJ() \n";
 
     const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
-
+    if ( !edges.empty() )
     {
         for ( unsigned int outId=0; outId<map.getValue().size(); outId++ )
         {
@@ -3336,6 +3530,7 @@ void BarycentricMapperEdgeSetTopology<In,Out>::draw  (const core::visual::Visual
     const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
 
     sofa::helper::vector< sofa::defaulttype::Vector3 > points;
+    if ( !edges.empty() )
     {
         for ( unsigned int i=0; i<map.getValue().size(); i++ )
         {
@@ -3775,25 +3970,28 @@ void BarycentricMapperEdgeSetTopology<In,Out>::applyJT ( typename In::MatrixDeri
     typename Out::MatrixDeriv::RowConstIterator rowItEnd = in.end();
     const sofa::helper::vector<topology::Edge>& edges = this->fromTopology->getEdges();
 
-    for (typename Out::MatrixDeriv::RowConstIterator rowIt = in.begin(); rowIt != rowItEnd; ++rowIt)
+    if ( !edges.empty() )
     {
-        typename Out::MatrixDeriv::ColConstIterator colItEnd = rowIt.end();
-        typename Out::MatrixDeriv::ColConstIterator colIt = rowIt.begin();
-
-        if (colIt != colItEnd)
+        for (typename Out::MatrixDeriv::RowConstIterator rowIt = in.begin(); rowIt != rowItEnd; ++rowIt)
         {
-            typename In::MatrixDeriv::RowIterator o = out.writeLine(rowIt.index());
-            for ( ; colIt != colItEnd; ++colIt)
+            typename Out::MatrixDeriv::ColConstIterator colItEnd = rowIt.end();
+            typename Out::MatrixDeriv::ColConstIterator colIt = rowIt.begin();
+
+            if (colIt != colItEnd)
             {
-                unsigned indexIn = colIt.index();
-                InDeriv data;
-                In::setDPos(data, Out::getDPos(colIt.val()));
+                typename In::MatrixDeriv::RowIterator o = out.writeLine(rowIt.index());
+                for ( ; colIt != colItEnd; ++colIt)
+                {
+                    unsigned indexIn = colIt.index();
+                    InDeriv data;
+                    In::setDPos(data, Out::getDPos(colIt.val()));
 
-                const topology::Edge edge = edges[this->map.getValue()[indexIn].in_index];
-                const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
+                    const topology::Edge edge = edges[this->map.getValue()[indexIn].in_index];
+                    const OutReal fx = ( OutReal ) map.getValue()[indexIn].baryCoords[0];
 
-                o.addCol ( edge[0], data * ( 1-fx ) );
-                o.addCol ( edge[1], data * ( fx ) );
+                    o.addCol ( edge[0], data * ( 1-fx ) );
+                    o.addCol ( edge[1], data * ( fx ) );
+                }
             }
         }
     }
