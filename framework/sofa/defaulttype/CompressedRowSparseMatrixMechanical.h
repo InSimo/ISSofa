@@ -50,16 +50,16 @@ public:
     static constexpr int matrixType = 1;
 };
 
-class CRSMechanicalUpperTriPolicy : public sofa::defaulttype::CRSDefaultPolicy
+class CRSMechanicalStoreTouchedPolicy : public sofa::defaulttype::CRSDefaultPolicy
 {
 public:
 
-    static constexpr bool IsAlwaysSquare = true;
-    static constexpr bool IsAlwaysSymmetric = true;
-    static constexpr bool OrderedInsertion = true;
-    static constexpr bool StoreLowerTriangularBloc = false;
-
-    static constexpr int matrixType = 1;
+    static constexpr bool IsAlwaysSquare           = true;
+    static constexpr bool IsAlwaysSymmetric        = true;
+    static constexpr bool OrderedInsertion         = true;
+    static constexpr bool StoreLowerTriangularBloc = true;
+    static constexpr bool StoreTouchFlags          = true;
+    static constexpr int  matrixType               = 1;
 };
 
 template<typename TBloc, typename TPolicy = CRSMechanicalPolicy >
