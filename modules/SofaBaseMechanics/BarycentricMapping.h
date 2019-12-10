@@ -576,19 +576,41 @@ protected:
             : TopologyDataHandler(d), obj(o)
         {}
 
-        virtual void applyCreateFunction(unsigned int t,
+        virtual void applyCreateFunction(unsigned int e,
             BaryElementInfo& baryEdgeInfo,
             const Edge& edge,
             const sofa::helper::vector< unsigned int >& ancestors,
             const sofa::helper::vector< double >& coeffs) override;
-        virtual void applyDestroyFunction(unsigned int t, BaryElementInfo& baryEdgeInfo) override;
+        virtual void applyDestroyFunction(unsigned int e, BaryElementInfo& baryEdgeInfo) override;
         virtual void swap(unsigned int i1, unsigned int i2) override;
 
         protected:
         BarycentricMapperEdgeSetTopology* obj;
     };
 
+    class MapPointInfoHandler : public sofa::component::topology::TopologyDataHandler<topology::Topology::Point, sofa::helper::vector<MappingData> >
+    {
+    public:
+        typedef topology::Topology::Point Point;
+
+        typedef typename sofa::component::topology::TopologyDataHandler<Point, sofa::helper::vector<MappingData>> TopologyDataHandler;
+        MapPointInfoHandler(BarycentricMapperEdgeSetTopology* o, sofa::component::topology::PointData<sofa::helper::vector<MappingData>>* d)
+            : TopologyDataHandler(d), obj(o)
+        {}
+
+        virtual void applyCreateFunction(unsigned int p, MappingData& poinInfo,
+            const Point & point,
+            const sofa::helper::vector< unsigned int >& ancestors,
+            const sofa::helper::vector< double >& coeffs) override;
+        virtual void applyDestroyFunction(unsigned int p, MappingData& pointInfo) override;
+        virtual void swap(unsigned int i1, unsigned int i2) override;
+
+    protected:
+        BarycentricMapperEdgeSetTopology* obj;
+    };
+
     std::unique_ptr<EdgeInfoHandler> m_edgeInfoHandler;
+    std::unique_ptr<MapPointInfoHandler> m_vMapInfoHandler;
     std::set< PointID > m_dirtyPoints;
     // END topologyData mechanism (protected)
 
@@ -606,6 +628,7 @@ protected:
           updateJ(true)
     {
         m_edgeInfoHandler = std::unique_ptr<EdgeInfoHandler>(new EdgeInfoHandler(this, &d_vBaryEdgeInfo));
+        m_vMapInfoHandler = std::unique_ptr<MapPointInfoHandler>(new MapPointInfoHandler(this, &map));
     }
 
     virtual ~BarycentricMapperEdgeSetTopology() {}

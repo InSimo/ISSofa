@@ -724,7 +724,7 @@ void BarycentricMapperEdgeSetTopology<In,Out>::initTopologyChange ()
 {
     if ( this->toTopology )
     {
-        map.createTopologicalEngine( this->toTopology );
+        map.createTopologicalEngine( this->toTopology, m_vMapInfoHandler.get() );
         map.registerTopologicalData();
     }
 
@@ -823,7 +823,7 @@ void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typen
 }
 
 template <class In, class Out>
-void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyCreateFunction ( unsigned int /*t*/, BaryElementInfo& baryEdgeInfo,
+void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyCreateFunction ( unsigned int /*e*/, BaryElementInfo& baryEdgeInfo,
     const Edge& /*edge*/,
     const sofa::helper::vector< unsigned int >& /*ancestors*/,
     const sofa::helper::vector< double >& /*coeffs*/ )
@@ -832,7 +832,7 @@ void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyCreateFunc
 }
 
 template <class In, class Out>
-void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyDestroyFunction ( unsigned int /*t*/, BaryElementInfo& baryEdgeInfo )
+void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::applyDestroyFunction ( unsigned int /*e*/, BaryElementInfo& baryEdgeInfo )
 {
     auto mapData = sofa::helper::write( obj->map );
 
@@ -861,7 +861,75 @@ void BarycentricMapperEdgeSetTopology<In, Out>::EdgeInfoHandler::swap( unsigned 
     for ( auto pointIncluded : baryEdgeInfo2.vPointsIncluded )
         vectorData[pointIncluded].in_index = i1;
 
-    component::topology::TopologyDataHandler<Edge, VecBaryEdgeInfo >::swap(i1, i2);
+    component::topology::TopologyDataHandler< Edge, VecBaryEdgeInfo >::swap( i1, i2 );
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::MapPointInfoHandler::applyCreateFunction ( unsigned int p, MappingData& pointInfo,
+      const Point & /*point*/,
+      const sofa::helper::vector< unsigned int >& /*ancestors*/,
+      const sofa::helper::vector< double >& /*coeffs*/ )
+{
+    obj->m_dirtyPoints.insert( p );
+    pointInfo.in_index = -1; // unfortunately NOT sofa::core::topology::Topology::InvalidID because in_index is signed
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::MapPointInfoHandler::applyDestroyFunction ( unsigned int pointIndex, MappingData& pointInfo )
+{
+     sofa::helper::WriteAccessor< sofa::Data< VecBaryEdgeInfo > > vBaryEdgeInfo = sofa::helper::write( obj->d_vBaryEdgeInfo );
+
+     const auto& eid = pointInfo.in_index;
+     if ( eid != -1 )
+        vBaryEdgeInfo[eid].vPointsIncluded.erase( pointIndex );
+
+     obj->m_dirtyPoints.erase( pointIndex );
+     pointInfo.in_index = -1;
+}
+
+template <class In, class Out>
+void BarycentricMapperEdgeSetTopology<In, Out>::MapPointInfoHandler::swap ( unsigned int i1, unsigned int i2 )
+{
+    helper::WriteAccessor< Data< VecBaryEdgeInfo > > vBaryEdgeInfo = obj->d_vBaryEdgeInfo;
+
+    helper::ReadAccessor< Data< sofa::helper::vector< MappingData > > > mapData = obj->map;
+
+    const MappingData& pointInfo1 = mapData[i1];
+    const MappingData& pointInfo2 = mapData[i2];
+    const auto& eid1 = pointInfo1.in_index;
+    const auto& eid2 = pointInfo2.in_index;
+
+    if ( eid1 != -1 )
+    {
+        assert( vBaryEdgeInfo[eid1].vPointsIncluded.find( i1 ) != vBaryEdgeInfo[eid1].vPointsIncluded.end() );
+        vBaryEdgeInfo[eid1].vPointsIncluded.erase( i1 );
+        vBaryEdgeInfo[eid1].vPointsIncluded.insert( i2 );
+    }
+
+    if ( eid2 != -1 )
+    {
+        assert( vBaryEdgeInfo[eid2].vPointsIncluded.find( i2 ) != vBaryEdgeInfo[eid2].vPointsIncluded.end() );
+        vBaryEdgeInfo[eid2].vPointsIncluded.erase( i2 );
+        vBaryEdgeInfo[eid2].vPointsIncluded.insert( i1 );
+    }
+
+    auto findIt = obj->m_dirtyPoints.find( i1 );
+    if ( findIt != obj->m_dirtyPoints.end() )
+    {
+        // if i1 and i2 are both dirty then the swap is useless
+        if ( obj->m_dirtyPoints.find( i2 ) == obj->m_dirtyPoints.end() )
+        {
+            obj->m_dirtyPoints.erase( findIt );
+            obj->m_dirtyPoints.insert( i2 );
+        }
+    }
+    else
+    {
+        if ( obj->m_dirtyPoints.erase( i2 ) )
+            obj->m_dirtyPoints.insert( i1 );
+    }
+
+    component::topology::TopologyDataHandler< Point, sofa::helper::vector< MappingData > >::swap( i1, i2 );
 }
 
 template <class In, class Out>
