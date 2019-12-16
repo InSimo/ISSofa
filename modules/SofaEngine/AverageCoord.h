@@ -72,9 +72,6 @@ public:
     Data<unsigned> f_vecId;  ///< index of the vector (default value corresponds to core::VecCoordId::position() )
     Data<Coord> f_average;       ///< result
 
-    void handleEvent(core::objectmodel::Event *event);
-    void onBeginAnimationStep(const double /*dt*/);
-
     virtual std::string getTemplateName() const
     {
         return templateName(this);

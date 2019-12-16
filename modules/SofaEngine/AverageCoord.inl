@@ -58,6 +58,7 @@ void AverageCoord<DataTypes>::init()
     mstate = sofa::core::behavior::MechanicalState<DataTypes>::DynamicCast(getContext()->getMechanicalState());
     addInput(&f_indices);
     addInput(&f_vecId);
+    addInput(mstate->baseWrite(core::VecCoordId(f_vecId.getValue())));
     addOutput(&f_average);
     setDirtyValue();
 }
@@ -89,19 +90,6 @@ void AverageCoord<DataTypes>::update()
 //    cerr<<"AverageCoord<DataTypes>::update, c= "<< c << endl;
 
     f_average.setValue(c);
-}
-
-template<class DataTypes>
-void AverageCoord<DataTypes>::handleEvent(core::objectmodel::Event *event)
-{
-    if (sofa::simulation::AnimateBeginEvent::DynamicCast(event))
-        this->onBeginAnimationStep(this->getContext()->getDt());
-}
-
-template <class DataTypes>
-void AverageCoord<DataTypes>::onBeginAnimationStep(const double /*dt*/)
-{
-    this->requestUpdate();
 }
 
 } // namespace engine
