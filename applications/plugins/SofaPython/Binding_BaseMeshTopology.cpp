@@ -59,6 +59,18 @@ extern "C" PyObject * BaseMeshTopology_getNbHexahedra(PyObject *self, PyObject *
     return PyInt_FromLong(obj->getNbHexahedra());
 }
 
+extern "C" PyObject * BaseMeshTopology_getTrianglesAroundVertex(PyObject *self, PyObject * args)
+{
+    BaseMeshTopology* obj=BaseMeshTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
+    int pointId;
+    if (!PyArg_ParseTuple(args, "i",&pointId))
+        Py_RETURN_NONE;
+    const BaseMeshTopology::TrianglesAroundVertex& trianglesAroundVertex = obj->getTrianglesAroundVertex(BaseMeshTopology::PointID(pointId));
+    PyObject *list = PyList_New(trianglesAroundVertex.size());
+    for (unsigned int i=0; i<trianglesAroundVertex.size(); i++)
+        PyList_SetItem(list,i,PyInt_FromLong(trianglesAroundVertex[i]));
+    return list;
+}
 
 SP_CLASS_METHODS_BEGIN(BaseMeshTopology)
 SP_CLASS_METHOD(BaseMeshTopology,getNbEdges)
@@ -66,6 +78,7 @@ SP_CLASS_METHOD(BaseMeshTopology,getNbTriangles)
 SP_CLASS_METHOD(BaseMeshTopology,getNbQuads)
 SP_CLASS_METHOD(BaseMeshTopology,getNbTetrahedra)
 SP_CLASS_METHOD(BaseMeshTopology,getNbHexahedra)
+SP_CLASS_METHOD(BaseMeshTopology,getTrianglesAroundVertex)
 SP_CLASS_METHODS_END
 
 
