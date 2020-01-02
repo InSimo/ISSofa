@@ -267,6 +267,32 @@ public:
         return getType() != v.getType() || getIndex() != v.getIndex();
     }
 
+    template<VecType vtype2, VecAccess vaccess2>
+    bool operator<(const TVecId<vtype2, vaccess2>& rhs) const
+    {
+        // similar to std pair operator less
+        return (   getType() < rhs.getType()) || 
+               ( (!getType() < rhs.getType()) &&  (getIndex() < rhs.getIndex()) );
+    }
+
+    template<VecType vtype2, VecAccess vaccess2>
+    bool operator<=(const TVecId<vtype2, vaccess2>& rhs) const
+    {
+        return !(rhs < *this);
+    }
+
+    template<VecType vtype2, VecAccess vaccess2>
+    bool operator>(const TVecId<vtype2, vaccess2>& rhs) const
+    {
+        return rhs < *this;
+    }
+
+    template<VecType vtype2, VecAccess vaccess2>
+    bool operator>=(const TVecId<vtype2, vaccess2>& rhs) const
+    {
+        return !(*this < rhs);
+    }
+
     static TVecId null() { return TVecId(0);}
     bool isNull() const { return this->index == 0; }
 
