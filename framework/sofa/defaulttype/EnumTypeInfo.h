@@ -30,6 +30,7 @@
 #include <type_traits>
 #include <sstream>
 #include <typeinfo>
+#include <cctype>
 
 #include <tuple>
 #include <sofa/helper/preprocessor.h>
@@ -276,12 +277,10 @@ struct EnumTypeInfo
     template<typename DataTypeRef>
     static void getDataEnumeratorString(const DataTypeRef& data, std::string& valueToFill)   // get the enumerator name as a string
     {
-        const char* value;
+        const char* value = "";
         auto functor = GetDataEnumeratorName(value);
         for_each(data, functor);
-                
-        std::ostringstream o; o << value; valueToFill = o.str();
-
+        valueToFill = value;
     }
 
     template<typename DataTypeRef>
@@ -361,9 +360,20 @@ struct EnumTypeInfo
 
     static void setDataValueStream(DataType& data, std::istream& is)
     {
-        std::string enumeratorName;
-        is >> enumeratorName;
-        setDataValueString(data, enumeratorName);
+        while (std::isspace(is.peek())) is.get();
+        int c = is.peek();
+        if (c == '-' || (c >= '0' && c <= '9')) // number -> parse to underlying type
+        {
+            MappedType value;
+            is >> value;
+            setDataValue(data, value);
+        }
+        else // other values -> name
+        {
+            std::string enumeratorName;
+            is >> enumeratorName;
+            setDataValueString(data, enumeratorName);
+        }
     }
 
     // end of to/from stream
@@ -394,25 +404,58 @@ struct EnumTypeInfo
 #define SOFA_STRUCTURIZE(...) SOFA_FOR_EACH(SOFA_STRUCTURIZE_1 , SOFA_EMPTY_DELIMITER , __VA_ARGS__)
 
 #define SOFA_ENUM_DECL(myEnum, ...)                                                                                         \
-    typedef myEnum myEnum##myEnumT;                                                                                         \
     namespace myEnum##nspace {                                                                                              \
-        typedef myEnum myEnumT;                                                                                             \
+        using myEnumT = myEnum;                                                                                             \
         typedef typename std::underlying_type<myEnumT>::type  myEnumType;                                                   \
         SOFA_STRUCTURIZE(__VA_ARGS__)                                                                                       \
-        typedef std::tuple<SOFA_TO_STRING_STRUCT_NAMES(__VA_ARGS__)>  myEnumTuple;   }                                  SOFA_REQUIRE_SEMICOLON
+        typedef std::tuple<SOFA_TO_STRING_STRUCT_NAMES(__VA_ARGS__)>  myEnumTuple; }                                        \
+    inline sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple> getDefaultDataTypeInfo(myEnum*)             \
+    { return {}; }                                                                                                          \
+    SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_ENUM_DEFINE_TYPEINFO(myEnum)                                                                                                          \
-    namespace sofa { namespace defaulttype {                                                                                              \
-    template<> struct DataTypeInfo<myEnum##myEnumT> : public EnumTypeInfo<myEnum##myEnumT, myEnum##nspace::myEnumTuple> {    };           \
-    template<> struct DataTypeName<myEnum##myEnumT> { static const char* name() { return "enum"; } };                                     \
-    }}                                                                                                                                SOFA_REQUIRE_SEMICOLON
+#define SOFA_ENUM_DECL_IN_CLASS(myEnum, ...)                                                                                         \
+    struct myEnum##nspace {                                                                                                 \
+        using myEnumT = myEnum;                                                                                             \
+        typedef typename std::underlying_type<myEnumT>::type  myEnumType;                                                   \
+        SOFA_STRUCTURIZE(__VA_ARGS__)                                                                                       \
+        typedef std::tuple<SOFA_TO_STRING_STRUCT_NAMES(__VA_ARGS__)>  myEnumTuple; };                                       \
+    inline friend sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple> getDefaultDataTypeInfo(myEnum*)      \
+    { return {}; }                                                                                                          \
+    SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_ENUM_STREAM_METHODS(myEnum)                                                                                                            \
-    typedef myEnum myEnum##myEnumT;                                                                                                                 \
-    typedef typename std::underlying_type<myEnum##myEnumT>::type  myEnum##myEnumType;                                                               \
-    inline std::ostream& operator << (std::ostream& os, const myEnum##myEnumT& s) { os << static_cast<myEnum##myEnumType>(s); return os; }          \
-    inline std::istream& operator >> (std::istream& in, myEnum##myEnumT& s) {                                                                       \
-        sofa::defaulttype::EnumTypeInfo<myEnum##myEnumT, myEnum##nspace::myEnumTuple>::setDataValueStream(s, in); return in; }                  SOFA_REQUIRE_SEMICOLON
+#define SOFA_ENUM_DEFINE_TYPEINFO(myEnum)   SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_STREAM_METHODS(myEnum)                                                                                    \
+    inline std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                                    \
+        os << static_cast<myEnum##nspace::myEnumType>(s); return os; }                                                      \
+    inline std::istream& operator>>(std::istream& is, myEnum& s) {                                                          \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_STREAM_METHODS_IN_CLASS(myEnum)                                                                           \
+    inline friend std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                             \
+        os << static_cast<myEnum##nspace::myEnumType>(s); return os; }                                                      \
+    inline friend std::istream& operator>>(std::istream& is, myEnum& s) {                                                   \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_STREAM_METHODS_NAME(myEnum)                                                                               \
+    inline std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                                    \
+        std::string v;                                                                                                      \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::getDataEnumeratorString(s, v);                \
+        os << v; return os; }                                                                                               \
+    inline std::istream& operator>>(std::istream& is, myEnum& s) {                                                          \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_STREAM_METHODS_NAME_IN_CLASS(myEnum)                                                                      \
+    inline friend std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                             \
+        std::string v;                                                                                                      \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::getDataEnumeratorString(s, v);                \
+        os << v; return os; }                                                                                               \
+    inline friend std::istream& operator>>(std::istream& is, myEnum& s) {                                                   \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+    SOFA_REQUIRE_SEMICOLON
 
 // end of enum macro definition
 ////////////////////////

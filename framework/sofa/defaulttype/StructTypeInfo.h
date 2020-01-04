@@ -500,20 +500,35 @@ protected:
 ////////////////////////
 // Define tuple typed on struct::members' types inside structure (macro required for reflection)
 
-#define SOFA_STRUCT_DECL(TStruct, ...)                                  \
- using StructType = TStruct;                                            \
- SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)   \
- using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>;    SOFA_REQUIRE_SEMICOLON
+#define SOFA_STRUCT_DECL(TStruct, ...)                                                        \
+ using StructType = TStruct;                                                                  \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                         \
+ using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>; \
+ inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
+ { return {}; }                                                                               \
+ SOFA_REQUIRE_SEMICOLON
+
+// Version for empty structs (macro above issues warnings about no arguments matching ...)
+#define SOFA_STRUCT_DECL_EMPTY(TStruct)                                                       \
+ using StructType = TStruct;                                                                  \
+ using MembersTuple = std::tuple<>;                                                           \
+ inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
+ { return {}; }                                                                               \
+ SOFA_REQUIRE_SEMICOLON
 
 ////////////////////////
 // Define tuple typed on struct::members' types inside structure for inheriting structures (macro required for reflection)
 
-#define SOFA_STRUCT_DECL_W_BASECLASS(TStruct, TBaseStruct, ...)                                                                                             \
- using StructType = TStruct;                                                                                                                                \
- using BaseStructType = TBaseStruct;                                                                                                                        \
- SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                                                       \
- using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(), BaseStructType::MembersTuple()));   \
-      SOFA_REQUIRE_SEMICOLON
+#define SOFA_STRUCT_DECL_W_BASECLASS(TStruct, TBaseStruct, ...)                                                         \
+ using StructType = TStruct;                                                                                            \
+ using BaseStructType = TBaseStruct;                                                                                    \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                   \
+ using BaseMembersTuple = typename BaseStructType::MembersTuple;                                                        \
+ using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(), \
+      BaseMembersTuple()));                                                                                             \
+ inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
+ { return {}; }                                                                               \
+ SOFA_REQUIRE_SEMICOLON
 
 #define SOFA_STRUCT_DECL_W2_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, ...)                                          \
  using StructType = TStruct;                                                                                            \
@@ -521,16 +536,23 @@ protected:
  using BaseStruct2Type = TBaseStruct2;                                                                                  \
  SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                   \
  using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(), \
-      BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple()));    SOFA_REQUIRE_SEMICOLON
+      BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple()));                                                \
+ inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
+ { return {}; }                                                                               \
+ SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_STRUCT_DECL_W3_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, TBaseStruct3, ...)                                        \
- using StructType = TStruct;                                                                                                        \
- using BaseStructType = TBaseStruct;                                                                                                \
- using BaseStruct2Type = TBaseStruct2;                                                                                              \
- using BaseStruct3Type = TBaseStruct3;                                                                                              \
- SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                               \
- using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(),             \
-      BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple(), BaseStruct3Type::MembersTuple()));    SOFA_REQUIRE_SEMICOLON
+#define SOFA_STRUCT_DECL_W3_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, TBaseStruct3, ...)                            \
+ using StructType = TStruct;                                                                                            \
+ using BaseStructType = TBaseStruct;                                                                                    \
+ using BaseStruct2Type = TBaseStruct2;                                                                                  \
+ using BaseStruct3Type = TBaseStruct3;                                                                                  \
+ SOFA_FOR_EACH(SOFA_STRUCT_MEMBER, SOFA_EMPTY_DELIMITER, __VA_ARGS__)                                                   \
+ using MembersTuple = decltype(std::tuple_cat(std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>(), \
+      BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple(), BaseStruct3Type::MembersTuple()));               \
+ template<class TDummy>                                                                       \
+ inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
+ { return {}; }                                                                               \
+ SOFA_REQUIRE_SEMICOLON
 
 
 ////////////////////////
@@ -538,7 +560,20 @@ protected:
 
 #define SOFA_STRUCT_STREAM_METHODS(TStruct) \
   inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::getDataValueStream(s, os); return os; } \
-  inline friend std::istream& operator >> (std::istream& in, TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
+  inline friend std::istream& operator>>(std::istream& in, TStruct& s) { sofa::defaulttype::StructTypeInfo<TStruct>::setDataValueStream(s, in); return in; } SOFA_REQUIRE_SEMICOLON
+
+// Version relying on a registered DataParser.
+#define SOFA_STRUCT_STREAM_METHODS_PARSER(TStruct,DataParserName)                                    \
+    inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) {                     \
+        static auto* parser = sofa::core::dataparser::DataParserRegistry::getParser(DataParserName); \
+        parser->fromData(os, &s, sofa::defaulttype::VirtualTypeInfo<TStruct>::get());                \
+        return os;                                                                                   \
+    }                                                                                                \
+    inline friend std::istream& operator>>(std::istream& is, TStruct& s) {                           \
+        static auto* parser = sofa::core::dataparser::DataParserRegistry::getParser(DataParserName); \
+        parser->toData(is, &s, sofa::defaulttype::VirtualTypeInfo<TStruct>::get());                  \
+        return is;                                                                                   \
+    } SOFA_REQUIRE_SEMICOLON
 
 ////////////////////////
 // Define comparison operators inside structures (macro not required for reflection)
@@ -549,13 +584,9 @@ inline bool operator==(const TStruct& rhs) const { return sofa::defaulttype::Str
 
 ////////////////////////
 // Declares DataTypeInfo for a previously defined structure outside structures (macro required for reflection),
-//    it is a variadic macro to handle templated arguments like T<int, int> 
-//    (otherwise, there is an issue with semicolons being considered separators for macro)
+//    THIS IS NO LONGER NECESSARY.
 
-#define SOFA_STRUCT_DEFINE_TYPEINFO(...)                                          \
-namespace sofa { namespace defaulttype {                                     \
-template<> struct DataTypeInfo<__VA_ARGS__> : public StructTypeInfo<__VA_ARGS__> {}; \
-}} SOFA_REQUIRE_SEMICOLON
+#define SOFA_STRUCT_DEFINE_TYPEINFO(...) SOFA_REQUIRE_SEMICOLON
 
 
 } // namespace defaulttype

@@ -1308,27 +1308,6 @@ struct BMBaryElementInfo
 } // namespace sofa
 
 
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 1,2>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 2,3>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 2,4>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 3,4>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 3,8>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 1,0>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 2,0>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<double, 3,0>);
-
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 1,2>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 2,3>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 2,4>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 3,4>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 3,8>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 1,0>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 2,0>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMMappingData<float, 3,0>);
-
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMBaryElementInfo<double>);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::mapping::BMBaryElementInfo<float>);
-
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_MAPPING_BARYCENTRICMAPPING_CPP)
 #ifndef SOFA_FLOAT
 extern template class SOFA_BASE_MECHANICS_API sofa::component::mapping::BarycentricMapping< sofa::defaulttype::Vec3dTypes, sofa::defaulttype::Vec3dTypes >;

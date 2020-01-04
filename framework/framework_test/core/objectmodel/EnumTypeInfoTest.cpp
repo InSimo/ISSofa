@@ -47,14 +47,32 @@ enum unscopedEnum : unsigned int
 SOFA_ENUM_DECL(unscopedEnum, uns, sco, ped);
 SOFA_ENUM_STREAM_METHODS(unscopedEnum);
 
+class ContainingClass
+{
+public:
+enum class enumInClass : int
+{
+    eic1 = 10,
+    eic2 = 100
+};
+
+SOFA_ENUM_DECL_IN_CLASS(enumInClass, eic1, eic2);
+SOFA_ENUM_STREAM_METHODS_IN_CLASS(enumInClass);
+
+enum unscopedEnumInClass : int
+{
+    ueic1 = 10,
+    ueic2 = 100
+};
+
+SOFA_ENUM_DECL_IN_CLASS(unscopedEnumInClass, ueic1, ueic2);
+SOFA_ENUM_STREAM_METHODS_NAME_IN_CLASS(unscopedEnumInClass);
+
+};
+
 
 } // namespace enumTypeInfoTest
 } // namespace sofa
-
-SOFA_ENUM_DEFINE_TYPEINFO(sofa::enumTypeInfoTest::uIntEnum2);
-SOFA_ENUM_DEFINE_TYPEINFO(sofa::enumTypeInfoTest::charEnum2);
-SOFA_ENUM_DEFINE_TYPEINFO(sofa::enumTypeInfoTest::unscopedEnum);
-
 
 namespace sofa
 {
@@ -73,7 +91,9 @@ struct DataEnumTypeInfoTest : public ::testing::Test
 using EnumTypes = testing::Types<
     uIntEnum2,
     charEnum2,
-    unscopedEnum
+    unscopedEnum,
+    ContainingClass::enumInClass,
+    ContainingClass::unscopedEnumInClass
 >;
 
 TYPED_TEST_CASE(DataEnumTypeInfoTest, EnumTypes);
@@ -125,6 +145,11 @@ TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
     std::string value2;
     defaulttype::DataTypeInfo<uIntEnum2>::getDataValueString(dataTest, value2);
     ASSERT_EQ(value2, "10");
+
+    std::istringstream iVal2("100");
+    iVal2 >> dataTestW;
+    defaulttype::DataTypeInfo<uIntEnum2>::getDataValueString(dataTest, value2);
+    ASSERT_EQ(value2, "100");
 
 }
 
@@ -239,6 +264,88 @@ TEST(DataEnumTypeInfoTest2, checkAbstractTypeInfoEnum)
 
 }
 
+
+TEST(DataEnumTypeInfoTest2, checkEnumIO)
+{
+    typedef ContainingClass::enumInClass Enum;
+    Data<Enum> dataTest("Enum");
+    dataTest.setValue(Enum::eic2);
+    
+    //ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::name(), "");
+
+    ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::enumSize(), 2u);
+    ASSERT_EQ(std::string(defaulttype::DataTypeInfo<Enum>::getEnumeratorName<0>()), std::string("eic1"));
+    ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::getEnumeratorValue<1>(), 100u);
+    ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::getEnumerator<1>(), Enum::eic2);
+
+    helper::WriteAccessor<Data<Enum> > dataTestW = dataTest;
+    defaulttype::DataTypeInfo<Enum>::resetValue(dataTestW);
+    EXPECT_EQ(dataTest, Enum::eic1);   // for now, the reset change the data to the first value of the enum
+
+    Data<Enum> dataTest2("Enum2");
+    dataTest2.setValue(Enum::eic2);
+    helper::WriteAccessor<Data<Enum> > dataTest2W = dataTest2;
+    std::string value2;
+
+    std::ostringstream oVal;
+    oVal << dataTest << " " << dataTest2;
+    EXPECT_EQ(oVal.str(), "10 100");
+
+    std::istringstream iVal("100 10");
+    iVal >> dataTestW >> dataTest2W;
+    defaulttype::DataTypeInfo<Enum>::getDataEnumeratorString(dataTestW, value2);
+    EXPECT_EQ(value2, "eic2");
+    defaulttype::DataTypeInfo<Enum>::getDataEnumeratorString(dataTest2W, value2);
+    EXPECT_EQ(value2, "eic1");
+
+    std::istringstream iVal2("eic1 eic2");
+    iVal2 >> dataTestW >> dataTest2W;
+    defaulttype::DataTypeInfo<Enum>::getDataValueString(dataTest, value2);
+    EXPECT_EQ(value2, "10");
+    defaulttype::DataTypeInfo<Enum>::getDataValueString(dataTest2, value2);
+    EXPECT_EQ(value2, "100");
+}
+
+TEST(DataEnumTypeInfoTest2, checkEnumIOName)
+{
+    typedef ContainingClass::unscopedEnumInClass Enum;
+    Data<Enum> dataTest("Enum");
+    dataTest.setValue(Enum::ueic2);
+    
+    //ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::name(), "");
+
+    ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::enumSize(), 2u);
+    ASSERT_EQ(std::string(defaulttype::DataTypeInfo<Enum>::getEnumeratorName<0>()), std::string("ueic1"));
+    ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::getEnumeratorValue<1>(), 100u);
+    ASSERT_EQ(defaulttype::DataTypeInfo<Enum>::getEnumerator<1>(), Enum::ueic2);
+
+    helper::WriteAccessor<Data<Enum> > dataTestW = dataTest;
+    defaulttype::DataTypeInfo<Enum>::resetValue(dataTestW);
+    EXPECT_EQ(dataTest, Enum::ueic1);   // for now, the reset change the data to the first value of the enum
+
+    Data<Enum> dataTest2("Enum2");
+    dataTest2.setValue(Enum::ueic2);
+    helper::WriteAccessor<Data<Enum> > dataTest2W = dataTest2;
+    std::string value2;
+
+    std::ostringstream oVal;
+    oVal << dataTest << " " << dataTest2;
+    EXPECT_EQ(oVal.str(), "ueic1 ueic2");
+
+    std::istringstream iVal("100 10");
+    iVal >> dataTestW >> dataTest2W;
+    defaulttype::DataTypeInfo<Enum>::getDataEnumeratorString(dataTestW, value2);
+    EXPECT_EQ(value2, "ueic2");
+    defaulttype::DataTypeInfo<Enum>::getDataEnumeratorString(dataTest2W, value2);
+    EXPECT_EQ(value2, "ueic1");
+
+    std::istringstream iVal2("ueic1 ueic2");
+    iVal2 >> dataTestW >> dataTest2W;
+    defaulttype::DataTypeInfo<Enum>::getDataValueString(dataTest, value2);
+    EXPECT_EQ(value2, "ueic1");
+    defaulttype::DataTypeInfo<Enum>::getDataValueString(dataTest2, value2);
+    EXPECT_EQ(value2, "ueic2");
+}
 
 }// namespace enumTypeInfoTest
 } // namespace sofa

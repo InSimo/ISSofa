@@ -297,8 +297,14 @@ struct InvalidDataTypeInfo
 };
 
 #ifdef DEFAULT_DataTypeInfo
+// using Argument-Dependent Lookup; it is possible to override getDefaultDataTypeInfo
+// within type declarations to specify other DataTypeInfo as return types
 template<class TDataType>
-struct DataTypeInfo : public InvalidDataTypeInfo<TDataType>
+sofa::defaulttype::InvalidDataTypeInfo<TDataType> getDefaultDataTypeInfo(TDataType*)
+{ return {}; }
+
+template<class TDataType>
+struct DataTypeInfo : public decltype(getDefaultDataTypeInfo((TDataType*)nullptr))
 {
 };
 #endif

@@ -227,32 +227,4 @@ public:
 } // namespace sofa
 
 
-//////////////////////////// Introspection //////////////////////////////
-
-// introspection of the Property structs
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::ReadOnly);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Displayed);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::ForDebug);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::HelpMsg);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::meta::Units);
-
-namespace sofa
-{
-namespace defaulttype
-{
-
-template<typename T>
-struct DataTypeInfo<sofa::meta::Range<T> > : public StructTypeInfo<sofa::meta::Range<T> > {};
-
-template<typename T>
-struct DataTypeInfo<sofa::meta::PossibleValues<T> > : public StructTypeInfo<sofa::meta::PossibleValues<T> > {};
-
-} // namespace defaulttype
-
-} // namespace sofa
-
-
-
-
-
 #endif // SOFA_DEFAULTTYPE_DATAMETADATA_H

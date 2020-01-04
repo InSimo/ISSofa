@@ -223,6 +223,5 @@ struct DataTypeName< sofa::core::topology::Topology::Hexahedron > { static const
 
 } // namespace sofa
 
-SOFA_ENUM_DEFINE_TYPEINFO(sofa::core::topology::TopologyObjectType);
 
 #endif

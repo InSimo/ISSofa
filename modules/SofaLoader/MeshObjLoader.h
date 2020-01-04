@@ -164,24 +164,6 @@ public:
     SOFA_STRUCT_COMPARE_METHOD(MapFaceTexCoord);
 };
 
-} // namespace loader
-
-} // namespace component
-
-} // namespace sofa
-
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::component::loader::MapFaceTexCoord);
-
-
-namespace sofa
-{
-
-namespace component
-{
-
-namespace loader
-{
-
 class SOFA_LOADER_API MeshObjLoader : public sofa::core::loader::MeshLoader
 {
 public:

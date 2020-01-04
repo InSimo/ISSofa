@@ -44,15 +44,7 @@ struct SimpleStruct
     SOFA_STRUCT_STREAM_METHODS(SimpleStruct);
     SOFA_STRUCT_COMPARE_METHOD(SimpleStruct);
 };
-} // namespace test_struct
-} // namespace sofa
 
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::SimpleStruct);
-
-namespace sofa
-{
-namespace test_struct
-{
 struct PairStruct
 {
     sofa::helper::pair<int, int> myIntPair = {1, 2};
@@ -107,6 +99,18 @@ struct NoDefaultConstrStruct
     NoDefaultConstrStruct(int value) : myInt(value) {}
 };
 
+struct ContainingClass
+{
+struct JsonStruct
+{
+    SimpleStruct simple;
+    ContainerStruct container;
+    SOFA_STRUCT_DECL(JsonStruct, simple, container);
+    SOFA_STRUCT_STREAM_METHODS_PARSER(JsonStruct, "json_data_parser");
+    SOFA_STRUCT_COMPARE_METHOD(JsonStruct);
+};
+};
+
 /*struct PointerStruct
 {
     double *myDoublePointer;
@@ -116,13 +120,6 @@ struct NoDefaultConstrStruct
 } // namespace test_struct
 } // namespace sofa
 
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::EmptyStruct);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::PairStruct);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::NestedStruct);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::InheritingStruct);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::ContainerStruct);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::test_struct::TemplatedStruct<int, test_struct::SimpleStruct>);
-//SOFA_STRUCT_DEFINE(sofa::test_struct::PointerStruct);
 
 namespace sofa
 {
@@ -136,7 +133,8 @@ using StructTypes = testing::Types<
     test_struct::NestedStruct,
     test_struct::InheritingStruct,
     test_struct::ContainerStruct,
-    test_struct::TemplatedStruct<int, test_struct::SimpleStruct>//,
+    test_struct::TemplatedStruct<int, test_struct::SimpleStruct>,
+    test_struct::ContainingClass::JsonStruct
 //    test_struct::PointerStruct
 >;
 
@@ -434,7 +432,7 @@ TEST(DataStructTypeInfoTest2, ostreamTest)
 
     std::ostringstream stringStream;
     stringStream << testValue;
-    EXPECT_EQ("{ 0; { 10; -0.1; c; 1 } }", stringStream.str());
+    EXPECT_EQ(stringStream.str(), "{ 0; { 10; -0.1; c; 1 } }");
 }
 
 TEST(DataStructTypeInfoTest2, istreamTest)
@@ -446,6 +444,20 @@ TEST(DataStructTypeInfoTest2, istreamTest)
     test_struct::TemplatedStruct<int, test_struct::SimpleStruct> compareValue{};
     compareValue.myMemberT2.myInt = 15;
     compareValue.myMemberT2.myUChar = 'f';
+    EXPECT_EQ(testValue, compareValue);
+}
+
+TEST(DataStructTypeInfoTest2, jsonTest)
+{
+    test_struct::ContainingClass::JsonStruct testValue{};
+
+    std::ostringstream ostringStream;
+    ostringStream << testValue;
+    EXPECT_EQ(ostringStream.str(), "{\"simple\":{\"myInt\":10,\"myFloat\":-0.10000000149011612,\"myUChar\":99,\"myBool\":1},\"container\":{\"myIntVector\":[1,2,3],\"myFloatSet\":[7.0,8.0,9.0],\"myStructVector\":[]}}");
+
+    std::istringstream istringStream("{\"simple\":{\"myInt\":100,\"myFloat\":-0.2,\"myUChar\":9,\"myBool\":0},\"container\":{\"myIntVector\":[4,5],\"myFloatSet\":[],\"myStructVector\":[{\"myInt\":1000,\"myFloat\":0.2,\"myUChar\":8,\"myBool\":0}]}}");
+    istringStream >> testValue;
+    test_struct::ContainingClass::JsonStruct compareValue{{100,-0.2f,9,false},{{4,5},{},{{1000,0.2f,8,false}}}};
     EXPECT_EQ(testValue, compareValue);
 }
 

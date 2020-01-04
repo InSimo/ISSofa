@@ -194,10 +194,4 @@ public:
 } // namespace sofa
 
 
-typedef sofa::component::interactionforcefield::TContact<sofa::defaulttype::Vec3dTypes> ContactVec3d;
-typedef sofa::component::interactionforcefield::TContact<sofa::defaulttype::Vec3fTypes> ContactVec3f;
-SOFA_STRUCT_DEFINE_TYPEINFO(ContactVec3d);
-SOFA_STRUCT_DEFINE_TYPEINFO(ContactVec3f);
-
-
 #endif

@@ -550,18 +550,6 @@ struct TVecEdgeSpring
 } // namespace sofa
 
 
-typedef sofa::component::forcefield::TEdgeSpring<sofa::defaulttype::Vec3dTypes> EdgeSpringVec3d;
-typedef sofa::component::forcefield::TEdgeSpring<sofa::defaulttype::Vec3fTypes> EdgeSpringVec3f;
-
-typedef sofa::component::forcefield::TVecEdgeSpring<sofa::defaulttype::Vec3dTypes> VecEdgeSpringVec3d;
-typedef sofa::component::forcefield::TVecEdgeSpring<sofa::defaulttype::Vec3fTypes> VecEdgeSpringVec3f;
-
-SOFA_ENUM_DEFINE_TYPEINFO(sofa::component::forcefield::BendingShellQuadrant);
-SOFA_STRUCT_DEFINE_TYPEINFO(EdgeSpringVec3d);
-SOFA_STRUCT_DEFINE_TYPEINFO(EdgeSpringVec3f);
-SOFA_STRUCT_DEFINE_TYPEINFO(VecEdgeSpringVec3d);
-SOFA_STRUCT_DEFINE_TYPEINFO(VecEdgeSpringVec3f);
-
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_FastTriangularBendingSprings_CPP)
 #ifndef SOFA_FLOAT
 extern template class SOFA_DEFORMABLE_API sofa::component::forcefield::FastTriangularBendingSprings<sofa::defaulttype::Vec3dTypes>;

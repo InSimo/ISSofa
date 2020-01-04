@@ -40,7 +40,6 @@ enum class uIntEnum : unsigned int
     third = 100u
 };
 SOFA_ENUM_DECL(uIntEnum, first, second, third);
-SOFA_ENUM_DEFINE_TYPEINFO(uIntEnum);
 SOFA_ENUM_STREAM_METHODS(uIntEnum);
 
 struct SimpleStruct
@@ -52,7 +51,6 @@ struct SimpleStruct
     SOFA_STRUCT_STREAM_METHODS(SimpleStruct);
     SOFA_STRUCT_COMPARE_METHOD(SimpleStruct);
 };
-SOFA_STRUCT_DEFINE_TYPEINFO(SimpleStruct);
 
 template <typename _StructType>
 struct JsonDataParserTest : public ::testing::Test

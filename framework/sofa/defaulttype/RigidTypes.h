@@ -2089,14 +2089,5 @@ static void rigidTransform ( V1& points, V2& velocities, SReal tx, SReal ty, SRe
 
 } // namespace sofa
 
-#ifndef SOFA_FLOAT
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid2dMass);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid3dMass);
-#endif
-#ifndef SOFA_DOUBLE
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid2fMass);
-SOFA_STRUCT_DEFINE_TYPEINFO(sofa::defaulttype::Rigid3fMass);
-#endif
-
 
 #endif
