@@ -22,6 +22,7 @@ set(SOURCE_FILES
     #defaulttype/MatTypesTest.cpp
     defaulttype/RigidMass_test.cpp
     helper/DataParserRegistryTest.cpp
+    core/CppDataParserTest.cpp
     core/JsonDataParserTest.cpp
     helper/map_ptr_stable_compare_test.cpp
     helper/FactoryTest.cpp

@@ -78,6 +78,7 @@ set(SOFACORE_HEADERS
 	collision/NarrowPhaseDetection.h
 	collision/Pipeline.h
 	collision/IntersectorFactory.h
+	dataparser/CppDataParser.h
 	dataparser/DataParser.h
 	dataparser/DataParserError.h
 	dataparser/DataParserRegistry.h
@@ -210,6 +211,7 @@ set(SOFACORE_SOURCES
 	collision/Contact.cpp
 	collision/Intersection.cpp
 	collision/Pipeline.cpp
+	dataparser/CppDataParser.cpp
 	dataparser/DataParserError.cpp
 	dataparser/DataParserRegistry.cpp
 	dataparser/JsonDataParser.cpp
