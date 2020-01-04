@@ -310,6 +310,14 @@ public:
         Inherit::push_back(v);
         return i;
     }
+
+    template <typename... Args>
+    index_type emplace_back(Args&&... args)
+    {
+        index_type i(this->size());
+        Inherit::emplace_back(std::forward<Args>(args)...);
+        return i;
+    }
 protected:
     
     /// Read/write random access with regular index type, protected to force use of explicit index_type
