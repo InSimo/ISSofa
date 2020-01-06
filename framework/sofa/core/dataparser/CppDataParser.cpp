@@ -70,7 +70,6 @@ bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out,
     switch(typeInfo->FinalValueKind())
     {
     case defaulttype::ValueKindEnum::Void:
-    case defaulttype::ValueKindEnum::Enum:
     case defaulttype::ValueKindEnum::Pointer:
     {
         result = make_error_code(DataParserError::incorrect_type_info);
@@ -101,13 +100,19 @@ bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out,
     case defaulttype::ValueKindEnum::String:
     {
         std::string value = typeInfo->getFinalValueString(data, id);
-        out << std::quoted(typeInfo->getFinalValueString(data, id));
+        out << std::quoted(value);
         return true;
     }
     case defaulttype::ValueKindEnum::Bool:
     {
         bool value = (bool)typeInfo->getFinalValueInteger(data, id);
         out << (value ? "true":"false");
+        return true;
+    }
+    case defaulttype::ValueKindEnum::Enum:
+    {
+        std::string value = typeInfo->getFinalValueString(data, id);
+        out << value;
         return true;
     }
     }
@@ -253,6 +258,11 @@ std::error_code CppDataParser::fromData(std::ostream& os, const void* data, cons
 {
     std::error_code result{};
     fromDataDispatch(result, os, data, typeInfo);
+    if (result)
+    {
+        std::cerr << "CppDataParser fromData FAILED for " << typeInfo->name() << ": "
+            << result.category().name() << ' ' << result.value() << ' ' << result.message() << std::endl;
+    }
     return result;
 }
 
@@ -287,7 +297,6 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
     switch(typeInfo->FinalValueKind())
     {
     case defaulttype::ValueKindEnum::Void:
-    case defaulttype::ValueKindEnum::Enum:
     case defaulttype::ValueKindEnum::Pointer:
     {
         result = make_error_code(DataParserError::incorrect_type_info);
@@ -347,6 +356,13 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
             value = (c != 0);
         }
         typeInfo->setFinalValueInteger(data, id, value);
+        return true;
+    }
+    case defaulttype::ValueKindEnum::Enum:
+    {
+        std::string value;
+        in >> value;
+        typeInfo->setFinalValueString(data, id, value);
         return true;
     }
     }
