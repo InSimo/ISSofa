@@ -45,9 +45,10 @@ public:
     static bool addParser(std::unique_ptr<DataParser> parser);
     static DataParser* getParser(std::string parserName);
     static DataParser* getParser(DataParser::ParserId id);
+    static const std::vector<std::unique_ptr<DataParser>>& getParsers();
 
 private:
-    static std::vector<std::unique_ptr<DataParser>> m_parsers;
+    static std::vector<std::unique_ptr<DataParser>>& parsers();
 };
 
 } // namespace dataparser

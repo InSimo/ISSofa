@@ -60,6 +60,7 @@ public:
 
     virtual ~DataParser() = default;
 
+    const std::string& getName() const;
     ParserId getId() const;
 
     // Read input stream or string into the Data
@@ -84,11 +85,17 @@ public:
 
 private:
     ParserId m_id;
+    std::string m_name;
 };
 
-static inline DataParser::ParserId generateDataParserId(std::string name)
+static inline DataParser::ParserId generateDataParserId(const std::string& name)
 {
-    return std::hash<std::string>{}(std::move(name));
+    return std::hash<std::string>{}(name);
+}
+
+inline const std::string& DataParser::getName() const
+{
+    return m_name;
 }
 
 inline DataParser::ParserId DataParser::getId() const
@@ -96,8 +103,10 @@ inline DataParser::ParserId DataParser::getId() const
     return m_id;
 }
 
-inline DataParser::DataParser(std::string name) : m_id(generateDataParserId(std::move(name)))
+inline DataParser::DataParser(std::string name)
+: m_name(std::move(name))
 {
+    m_id = generateDataParserId(m_name);
 }
 
 // toDataRange and fromDataRange default to returning an "unsupported_operation" error

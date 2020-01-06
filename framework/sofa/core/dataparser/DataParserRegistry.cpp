@@ -34,13 +34,22 @@ namespace core
 namespace dataparser
 {
 
-std::vector<std::unique_ptr<DataParser>> DataParserRegistry::m_parsers = {};
+const std::vector<std::unique_ptr<DataParser>>& DataParserRegistry::getParsers()
+{
+    return parsers();
+}
+std::vector<std::unique_ptr<DataParser>>& DataParserRegistry::parsers()
+{
+    static std::vector<std::unique_ptr<DataParser>> instance = {};
+    return instance;
+}
+
 
 bool DataParserRegistry::addParser(std::unique_ptr<DataParser> parser)
 {
     assert([&]()
     {
-        for (auto& existingParser : m_parsers)
+        for (auto& existingParser : parsers())
         {
             if (existingParser->getId() == parser->getId())
                 return false;
@@ -48,19 +57,30 @@ bool DataParserRegistry::addParser(std::unique_ptr<DataParser> parser)
         return true;
     }());
 
-    m_parsers.emplace_back(std::move(parser));
+    parsers().emplace_back(std::move(parser));
     return true;
 }
 
 
 DataParser* DataParserRegistry::getParser(std::string parserName)
 {
-    return getParser(generateDataParserId(parserName));
+    DataParser* parser = getParser(generateDataParserId(parserName));
+    if (parser == nullptr)
+    {
+        std::cerr << "DataParserRegistry: ERROR parser \"" << parserName << "\" NOT FOUND." << std::endl;
+        std::cerr << "DataParserRegistry: Available parsers are:";
+        for (const auto& existingParser : parsers())
+        {
+            std::cerr << " " << existingParser->getName();
+        }
+        std::cerr << std::endl;
+    }
+    return parser;
 }
 
 DataParser* DataParserRegistry::getParser(DataParser::ParserId id)
 {
-    for (auto& parser : m_parsers)
+    for (auto& parser : parsers())
     {
         if (parser->getId() == id)
             return parser.get();
