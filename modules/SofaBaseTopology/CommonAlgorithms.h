@@ -125,7 +125,7 @@ Real binomial(const size_t p, const size_t q) {
 	}
 }
 template <class Real>
-Real multinomial(const size_t n,vector<unsigned char> valArray)
+Real multinomial(const size_t n, sofa::helper::vector<unsigned char> valArray)
  {
 	
 	size_t i,ival,N;
@@ -156,7 +156,7 @@ Real multinomialVector(const sofa::helper::vector< sofa::defaulttype::Vec<N,unsi
 {
 	size_t i,j;
 	Real result=(Real)1;
-	vector<unsigned char> valArray;
+    sofa::helper::vector<unsigned char> valArray;
 	size_t totalDegree;
 	for (j=0;j<N;++j) {
 		valArray.clear();
