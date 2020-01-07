@@ -127,6 +127,7 @@ public:
     Data< double > scale;
     Data< defaulttype::Vector3 > translation;
     Data< defaulttype::Vector3 > rotation;
+    Data< defaulttype::Vector3 > scale3D;
     Data< double > sampling;
     Data< helper::fixed_array<DistanceGrid::Coord,2> > box;
     Data< int > nx;
@@ -177,12 +178,13 @@ public:
         SReal x = rotation.getValue()[0] * M_PI / 180;
         SReal y = rotation.getValue()[1] * M_PI / 180;
         SReal z = rotation.getValue()[2] * M_PI / 180;
-
+        defaulttype::Vector3 intial_scaling = scale3D.getValue();
+        defaulttype::Matrix3 S(defaulttype::Vector3(intial_scaling[0], 0, 0), defaulttype::Vector3(0, intial_scaling[1], 0), defaulttype::Vector3(0, 0, intial_scaling[2]));
         defaulttype::Matrix3 X(defaulttype::Vector3(1,0,0), defaulttype::Vector3(0, cos(x), -sin(x)), defaulttype::Vector3(0, sin(x), cos(x)));
         defaulttype::Matrix3 Y(defaulttype::Vector3(cos(y), 0, sin(y)), defaulttype::Vector3(0, 1, 0), defaulttype::Vector3(-sin(y), 0, cos(y)));
         defaulttype::Matrix3 Z(defaulttype::Vector3(cos(z), -sin(z), 0), defaulttype::Vector3(sin(z), cos(z), 0), defaulttype::Vector3(0, 0, 1));
         
-        return X * Y * Z;
+        return  X * Y * Z * S;
     }
 
     bool isFlipped() const
@@ -571,8 +573,8 @@ public:
 
     int addPoint(const Coord& P, int index, Real& r)
     {
-        Coord trans = this->model->getInitRotation() * this->model->getInitTranslation();
-        int i = Inherit::addPoint(P+trans, index, r);
+        const Coord Pglobal = this->model->getInitTranslation() + this->model->getInitRotation() * P;
+        int i = Inherit::addPoint(Pglobal, index, r);
         if (!this->mapping)
         {
             MCollisionModel* model = this->model;

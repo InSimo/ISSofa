@@ -76,6 +76,7 @@ RigidDistanceGridCollisionModel::RigidDistanceGridCollisionModel()
     , scale( initData( &scale, 1.0, "scale", "scaling factor for input file"))
     , translation( initData( &translation, "translation", "translation to apply to input file"))
     , rotation( initData( &rotation, "rotation", "rotation to apply to input file"))
+    , scale3D( initData( &scale3D, defaulttype::Vector3(1.0,1.0,1.0), "scale3D", "3d scaling to apply to input file") )
     , sampling( initData( &sampling, 0.0, "sampling", "if not zero: sample the surface with points approximately separated by the given sampling distance (expressed in voxels if the value is negative)"))
     , box( initData( &box, "box", "Field bounding box defined by xmin,ymin,zmin, xmax,ymax,zmax") )
     , nx( initData( &nx, 64, "nx", "number of values on X axis") )
@@ -178,8 +179,9 @@ void RigidDistanceGridCollisionModel::updateState()
 {
     const Vector3& initTranslation = this->translation.getValue();
     const Vector3& initRotation = this->rotation.getValue();
+    const Vector3& initScaling = this->scale3D.getValue();
     bool useInitTranslation = (initTranslation != DistanceGrid::Coord());
-    bool useInitRotation = (initRotation != Vector3(0,0,0));
+    bool useInitRotation = (initRotation != Vector3(0,0,0)||initScaling != Vector3(1.0,1.0,1.0));
 
     for (int i=0; i<size; i++)
     {
@@ -190,11 +192,15 @@ void RigidDistanceGridCollisionModel::updateState()
             const RigidTypes::Coord& xform = (rigid->read(core::ConstVecCoordId::position())->getValue())[i];
             elems[i].translation = xform.getCenter();
             xform.getOrientation().toMatrix(elems[i].rotation);
-            if (useInitRotation)
-                elems[i].rotation = getInitRotation();
-            if (useInitTranslation)
-                elems[i].translation += elems[i].rotation * initTranslation;
-            elems[i].isTransformed = true;
+            if (useInitRotation) {
+              elems[i].rotation = getInitRotation();
+              elems[i].isTransformed = true;
+            }
+                
+            if (useInitTranslation) {
+              elems[i].translation += elems[i].rotation * initTranslation;
+              elems[i].isTransformed = true;
+            }
         }
         else
         {
@@ -206,6 +212,7 @@ void RigidDistanceGridCollisionModel::updateState()
             if(useInitTranslation)
             {
                 elems[i].translation = initTranslation;
+                elems[i].isTransformed = true;
             }
             
         }
