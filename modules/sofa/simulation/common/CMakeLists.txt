@@ -75,6 +75,7 @@ set(HEADER_FILES
 	SceneLoaderXML.h
 	SceneLoaderPHP.h
 	SceneLoaderFactory.h
+	ScriptEvent.h
 	)
 
 set(SOURCE_FILES
@@ -145,6 +146,7 @@ set(SOURCE_FILES
 	SceneLoaderFactory.cpp
 	SceneLoaderXML.cpp
 	SceneLoaderPHP.cpp
+	ScriptEvent.cpp
 	)
 
 if(SOFA-MISC_SMP)

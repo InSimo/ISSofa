@@ -55,7 +55,7 @@ set(SOFA_LIBRARIES_TARGETS ${SOFA_LIBRARIES_TARGETS_DEFAULT} CACHE STRING "An or
 
 # Sofa plugins
 set(SOFA_PLUGINS_DIR "${SOFA_ACTUAL_SOURCE_DIR}/applications/plugins")
-set(SOFA_PLUGINS_TARGETS_DEFAULT SofaPython;MultiThreading)
+set(SOFA_PLUGINS_TARGETS_DEFAULT MultiThreading)
 set(SOFA_PLUGINS_TARGETS ${SOFA_PLUGINS_TARGETS_DEFAULT} CACHE STRING "An ordered list (semicolon separated) of sofa plugins to add to the build.")
 
 # Sofa projects
