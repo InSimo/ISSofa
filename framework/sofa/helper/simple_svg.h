@@ -104,6 +104,7 @@ namespace svg
     struct Point
     {
         Point(double x = 0, double y = 0) : x(x), y(y) { }
+        template <class T> explicit Point(const T& p) : x(p[0]), y(p[1]) {}
         double x;
         double y;
     };
@@ -182,8 +183,8 @@ namespace svg
     class Color : public Serializeable
     {
     public:
-        enum Defaults { Transparent = -1, Aqua, Black, Blue, Brown, Cyan, Fuchsia,
-            Green, Lime, Magenta, Orange, Purple, Red, Silver, White, Yellow };
+        enum Defaults { Transparent = -1, Black, Cyan, Aqua=Cyan, Blue, Brown,
+            Green, Lime, Magenta, Orange, Purple, Silver, Fuchsia, Red, Yellow, White };
 
         Color(int r, int g, int b) : transparent(false), red(r), green(g), blue(b) { }
         Color(Defaults color)
@@ -191,21 +192,20 @@ namespace svg
         {
             switch (color)
             {
-                case Aqua: assign(0, 255, 255); break;
                 case Black: assign(0, 0, 0); break;
+                case Cyan: assign(0, 255, 255); break;
                 case Blue: assign(0, 0, 255); break;
                 case Brown: assign(165, 42, 42); break;
-                case Cyan: assign(0, 255, 255); break;
-                case Fuchsia: assign(255, 0, 255); break;
                 case Green: assign(0, 128, 0); break;
                 case Lime: assign(0, 255, 0); break;
                 case Magenta: assign(255, 0, 255); break;
                 case Orange: assign(255, 165, 0); break;
                 case Purple: assign(128, 0, 128); break;
-                case Red: assign(255, 0, 0); break;
                 case Silver: assign(192, 192, 192); break;
-                case White: assign(255, 255, 255); break;
+                case Fuchsia: assign(255, 0, 255); break;
+                case Red: assign(255, 0, 0); break;
                 case Yellow: assign(255, 255, 0); break;
+                case White: assign(255, 255, 255); break;
                 default: transparent = true; break;
             }
         }
@@ -292,9 +292,17 @@ namespace svg
         virtual ~Shape() { }
         virtual std::string toString(Layout const & layout) const = 0;
         virtual void offset(Point const & offset) = 0;
+        // Utility XML/String Functions.
+        template <typename T>
+        void attr(std::string const & attribute_name,
+            T const & value, std::string const & unit = "")
+        {
+            attrs[attribute_name] = attribute(attribute_name, value, unit);
+        }
     protected:
         Fill fill;
         Stroke stroke;
+        std::map<std::string, std::string> attrs;
     };
     template <typename T>
     std::string vectorToString(std::vector<T> collection, Layout const & layout)
@@ -318,7 +326,9 @@ namespace svg
             ss << elemStart("circle") << attribute("cx", translateX(center.x, layout))
                 << attribute("cy", translateY(center.y, layout))
                 << attribute("r", translateScale(radius, layout)) << fill.toString(layout)
-                << stroke.toString(layout) << emptyElemEnd();
+                << stroke.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss << emptyElemEnd();
             return ss.str();
         }
         void offset(Point const & offset)
@@ -345,7 +355,9 @@ namespace svg
                 << attribute("cy", translateY(center.y, layout))
                 << attribute("rx", translateScale(radius_width, layout))
                 << attribute("ry", translateScale(radius_height, layout))
-                << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
+                << fill.toString(layout) << stroke.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss << emptyElemEnd();
             return ss.str();
         }
         void offset(Point const & offset)
@@ -373,7 +385,9 @@ namespace svg
                 << attribute("y", translateY(edge.y, layout))
                 << attribute("width", translateScale(width, layout))
                 << attribute("height", translateScale(height, layout))
-                << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
+                << fill.toString(layout) << stroke.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss << emptyElemEnd();
             return ss.str();
         }
         void offset(Point const & offset)
@@ -401,7 +415,9 @@ namespace svg
                 << attribute("y1", translateY(start_point.y, layout))
                 << attribute("x2", translateX(end_point.x, layout))
                 << attribute("y2", translateY(end_point.y, layout))
-                << stroke.toString(layout) << emptyElemEnd();
+                << stroke.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss << emptyElemEnd();
             return ss.str();
         }
         void offset(Point const & offset)
@@ -423,6 +439,12 @@ namespace svg
         Polygon(Fill const & fill = Fill(), Stroke const & stroke = Stroke())
             : Shape(fill, stroke) { }
         Polygon(Stroke const & stroke = Stroke()) : Shape(Color::Transparent, stroke) { }
+        template <class T>
+        Polygon & operator<<(T const & point)
+        {
+            points.push_back(Point(point));
+            return *this;
+        }
         Polygon & operator<<(Point const & point)
         {
             points.push_back(point);
@@ -438,7 +460,9 @@ namespace svg
                 ss << translateX(points[i].x, layout) << "," << translateY(points[i].y, layout) << " ";
             ss << "\" ";
 
-            ss << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
+            ss << fill.toString(layout) << stroke.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss << emptyElemEnd();
             return ss.str();
         }
         void offset(Point const & offset)
@@ -476,7 +500,9 @@ namespace svg
                 ss << translateX(points[i].x, layout) << "," << translateY(points[i].y, layout) << " ";
             ss << "\" ";
 
-            ss << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
+            ss << fill.toString(layout) << stroke.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss << emptyElemEnd();
             return ss.str();
         }
         void offset(Point const & offset)
@@ -500,8 +526,9 @@ namespace svg
             std::stringstream ss;
             ss << elemStart("text") << attribute("x", translateX(origin.x, layout))
                 << attribute("y", translateY(origin.y, layout))
-                << fill.toString(layout) << stroke.toString(layout) << font.toString(layout)
-                << ">" << content << elemEnd("text");
+                << fill.toString(layout) << stroke.toString(layout) << font.toString(layout);
+            for (const auto& a : attrs) ss << a.second;
+            ss  << ">" << content << elemEnd("text");
             return ss.str();
         }
         void offset(Point const & offset)
