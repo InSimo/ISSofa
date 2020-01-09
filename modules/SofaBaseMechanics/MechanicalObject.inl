@@ -184,6 +184,8 @@ MechanicalObject<DataTypes>::MechanicalObject()
     // not to allocate plenty of 0 everywhere...
     write(core::VecCoordId::null())->forceSet();
     write(core::VecDerivId::null())->forceSet();
+    write(core::MatrixDerivId::null())->forceSet();
+
 
     // default size is 1
     resize(1);
@@ -211,6 +213,11 @@ MechanicalObject<DataTypes>::~MechanicalObject()
 
     for(unsigned i=core::MatrixDerivId::V_FIRST_DYNAMIC_INDEX; i<vectorsMatrixDeriv.size(); i++)
         if( vectorsMatrixDeriv[i] != NULL )  { delete vectorsMatrixDeriv[i]; vectorsMatrixDeriv[i]=NULL; }
+
+    if (vectorsMatrixDeriv[core::MatrixDerivId::null().getIndex()] != nullptr) {
+        delete vectorsMatrixDeriv[core::MatrixDerivId::null().getIndex()]; 
+        vectorsMatrixDeriv[core::MatrixDerivId::null().getIndex()] = nullptr;
+    }
 }
 
 #ifdef SOFA_HAVE_NEW_TOPOLOGYCHANGES
@@ -2031,7 +2038,7 @@ void MechanicalObject<DataTypes>::vOp(const core::ExecParams* params /* PARAMS F
         if(v.isNull())
         {
             // ERROR
-            serr << "Invalid vOp operation 1 ("<<v<<','<<a<<','<<b<<','<<f<<")" << sendl;
+            serr << this->getName() << " Invalid vOp operation 1 ("<<v<<','<<a<<','<<b<<','<<f<<")" << sendl;
             return;
         }
         if (a.isNull())
