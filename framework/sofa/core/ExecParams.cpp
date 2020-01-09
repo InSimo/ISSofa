@@ -40,6 +40,7 @@ ExecParams::ExecParamsThreadStorage::ExecParamsThreadStorage(int tid)
     : execMode(EXEC_DEFAULT)
     , threadID(tid)
     , aspectID(0)
+    , visitorAllowed(true)
 {
 }
 

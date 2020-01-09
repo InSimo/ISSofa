@@ -77,7 +77,7 @@ private:
         int aspectID;
 
         /// visitorAllowed
-        bool visitorAllowed = true;
+        bool visitorAllowed;
 
         ExecParamsThreadStorage(int tid);
     };
