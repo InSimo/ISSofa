@@ -457,7 +457,22 @@ TEST(DataStructTypeInfoTest2, jsonTest)
 
     std::istringstream istringStream("{\"simple\":{\"myInt\":100,\"myFloat\":-0.2,\"myUChar\":9,\"myBool\":0},\"container\":{\"myIntVector\":[4,5],\"myFloatSet\":[],\"myStructVector\":[{\"myInt\":1000,\"myFloat\":0.2,\"myUChar\":8,\"myBool\":0}]}}");
     istringStream >> testValue;
-    test_struct::ContainingClass::JsonStruct compareValue{{100,-0.2f,9,false},{{4,5},{},{{1000,0.2f,8,false}}}};
+    // TODO: The following fails with visual c++ 2015 :(
+    //test_struct::ContainingClass::JsonStruct compareValue{{100,-0.2f,9,false},{{4,5},{},{{1000,0.2f,8,false}}}};
+    test_struct::ContainingClass::JsonStruct compareValue;
+    compareValue.simple.myInt = 100;
+    compareValue.simple.myFloat = -0.2f;
+    compareValue.simple.myUChar = 9;
+    compareValue.simple.myBool = false;
+    compareValue.container.myIntVector.clear();
+    compareValue.container.myIntVector.push_back(4);
+    compareValue.container.myIntVector.push_back(5);
+    compareValue.container.myFloatSet.clear();
+    compareValue.container.myStructVector.resize(1);
+    compareValue.container.myStructVector[0].myInt = 1000;
+    compareValue.container.myStructVector[0].myFloat = 0.2f;
+    compareValue.container.myStructVector[0].myUChar = 8;
+    compareValue.container.myStructVector[0].myBool = false;
     EXPECT_EQ(testValue, compareValue);
 }
 

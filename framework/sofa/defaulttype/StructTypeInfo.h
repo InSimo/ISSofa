@@ -497,6 +497,10 @@ protected:
 
 #define SOFA_MEMBERINFO_TYPE_NAME(MemberName)  MemberInfo_##MemberName
 
+#define SOFA_STRUCT_ASSERT_MEMBER_TYPE_INFO(MemberName)                                       \
+    static_assert(sofa::defaulttype::DataTypeInfo<typename MemberInfo_##MemberName::type>     \
+        ::ValidInfo, "struct member " #MemberName " needs to have valid type infos");
+
 ////////////////////////
 // Define tuple typed on struct::members' types inside structure (macro required for reflection)
 
@@ -506,6 +510,7 @@ protected:
  using MembersTuple = std::tuple<SOFA_FOR_EACH(SOFA_MEMBERINFO_TYPE_NAME, (,), __VA_ARGS__)>; \
  inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
  { return {}; }                                                                               \
+ SOFA_FOR_EACH(SOFA_STRUCT_ASSERT_MEMBER_TYPE_INFO, SOFA_EMPTY_DELIMITER, __VA_ARGS__)        \
  SOFA_REQUIRE_SEMICOLON
 
 // Version for empty structs (macro above issues warnings about no arguments matching ...)
@@ -528,6 +533,7 @@ protected:
       BaseMembersTuple()));                                                                                             \
  inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
  { return {}; }                                                                               \
+ SOFA_FOR_EACH(SOFA_STRUCT_ASSERT_MEMBER_TYPE_INFO, SOFA_EMPTY_DELIMITER, __VA_ARGS__)        \
  SOFA_REQUIRE_SEMICOLON
 
 #define SOFA_STRUCT_DECL_W2_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, ...)                \
@@ -539,6 +545,7 @@ protected:
       BaseStructType::MembersTuple(), BaseStruct2Type::MembersTuple()));                                                \
  inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
  { return {}; }                                                                               \
+ SOFA_FOR_EACH(SOFA_STRUCT_ASSERT_MEMBER_TYPE_INFO, SOFA_EMPTY_DELIMITER, __VA_ARGS__)        \
  SOFA_REQUIRE_SEMICOLON
 
 #define SOFA_STRUCT_DECL_W3_BASECLASS(TStruct, TBaseStruct, TBaseStruct2, TBaseStruct3, ...)  \
@@ -552,6 +559,7 @@ protected:
  template<class TDummy>                                                                       \
  inline friend sofa::defaulttype::StructTypeInfo<TStruct> getDefaultDataTypeInfo(TStruct*)    \
  { return {}; }                                                                               \
+ SOFA_FOR_EACH(SOFA_STRUCT_ASSERT_MEMBER_TYPE_INFO, SOFA_EMPTY_DELIMITER, __VA_ARGS__)        \
  SOFA_REQUIRE_SEMICOLON
 
 
@@ -567,8 +575,6 @@ protected:
 
 // Version relying on a registered DataParser.
 #define SOFA_STRUCT_STREAM_METHODS_PARSER(TStruct,DataParserName)                                    \
-    static_assert(sofa::defaulttype::DataTypeInfo<TStruct>::ValidInfo,                               \
-        #TStruct " members should all have valid type infos");                                       \
     inline friend std::ostream& operator<<(std::ostream& os, const TStruct& s) {                     \
         static sofa::core::dataparser::DataParser* parser = nullptr;                                 \
         if (!parser) parser = sofa::core::dataparser::DataParserRegistry::getParser(DataParserName); \
