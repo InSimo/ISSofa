@@ -98,7 +98,7 @@ public:
     virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID predecessorID, SyncPointID successorID, SyncPointWorkFunctor work, std::string taskName);
     
     /// Register work functor that will be executed synchronously when syncPointID is reached .
-    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName);
+    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName, sofa::defaulttype::Vec4f color = sofa::defaulttype::Vec4f());
     
     /// Register work functor that will be executed asynchronously when syncPointID is reached.
     virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName);
