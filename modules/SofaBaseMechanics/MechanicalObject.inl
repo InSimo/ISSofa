@@ -1972,13 +1972,22 @@ void MechanicalObject<DataTypes>::vInit(const core::ExecParams* params /* PARAMS
                                         , core::ConstVecCoordId vSrcId)
 {
     Data< VecCoord >* vec_d = this->write(vId);
+    const Data<VecCoord>* vec_s = this->read(vSrcId);
 
-    if (!vec_d->isSet(params))
+    if (vec_d != nullptr && vec_s != nullptr)
     {
-        vec_d->forceSet(params);
+        auto dest = sofa::helper::write(*vec_d, params);
+        auto src = sofa::helper::read(*vec_s, params);
 
-        if (vSrcId != core::ConstVecCoordId::null())
-            vOp(params, vId, vSrcId);
+        const bool needInit = !vec_d->isSet(params) || dest.size() != src.size();
+        
+        if (needInit)
+        {
+            vec_d->forceSet(params);
+
+            if (vSrcId != core::ConstVecCoordId::null())
+                vOp(params, vId, vSrcId);
+        }
     }
 }
 
@@ -1988,13 +1997,22 @@ void MechanicalObject<DataTypes>::vInit(const core::ExecParams* params /* PARAMS
                                         core::ConstVecDerivId vSrcId)
 {
     Data< VecDeriv >* vec_d = this->write(vId);
+    const Data<VecDeriv>* vec_s = this->read(vSrcId);
 
-    if (!vec_d->isSet(params))
+    if (vec_d != nullptr && vec_s != nullptr)
     {
-        vec_d->forceSet(params);
+        auto dest = sofa::helper::write(*vec_d, params);
+        auto src  = sofa::helper::read(*vec_s, params);
 
-        if (vSrcId != core::ConstVecDerivId::null())
-            vOp(params, vId, vSrcId);
+        const bool needInit = !vec_d->isSet(params) || dest.size() != src.size();
+
+        if (needInit)
+        {
+            vec_d->forceSet(params);
+
+            if (vSrcId != core::ConstVecDerivId::null())
+                vOp(params, vId, vSrcId);
+        }
     }
 }
 
