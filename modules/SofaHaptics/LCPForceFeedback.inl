@@ -273,7 +273,6 @@ void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *ev
 
     // Compute constraints, id_buf lcp and val for the current lcp.
 
-    MatrixDeriv& constraints = mConstraints[buf_index];
 
     //	std::vector<int>& id_buf = mId_buf[buf_index];
     VecCoord& val = mVal[buf_index];
@@ -284,18 +283,12 @@ void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *ev
     // Update Val
     val = mState->read(sofa::core::VecCoordId::freePosition())->getValue();
 
-    // Update constraints and id_buf
-    constraints.clear();
+
     //	id_buf.clear();
 
+    MatrixDeriv& constraints = mConstraints[buf_index];
     const MatrixDeriv& c = mState->read(core::ConstMatrixDerivId::constraintJacobian())->getValue()   ;
-
-    MatrixDerivRowConstIterator rowItEnd = c.end();
-
-    for (MatrixDerivRowConstIterator rowIt = c.begin(); rowIt != rowItEnd; ++rowIt)
-    {
-        constraints.addLine(rowIt.index(), rowIt.row());
-    }
+    constraints = c;
 
     // valid buffer
 
