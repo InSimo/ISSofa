@@ -118,8 +118,6 @@ public:
         "IsAlwaysSymmetric can only be true if IsAlwaysSquare is true");
     static_assert(!(!Policy::StoreLowerTriangularBloc && !Policy::IsAlwaysSymmetric),
         "StoreLowerTriangularBloc can only be false if IsAlwaysSymmetric is true");
-    static_assert(!(Policy::ClearByZeros && !Policy::CompressZeros),
-        "ClearByZeros can only be false if CompressZeros is false");
 
     struct IndexedBloc
     {
