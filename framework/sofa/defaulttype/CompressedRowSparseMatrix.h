@@ -826,6 +826,7 @@ protected:
                 Range rowRange(rowBegin[rowId], rowBegin[rowId+1]);
                 if (j == colsIndex[rowRange.second - 1]) /// In this case, we are trying to write on last registered column, directly return ref on it
                 {
+                    SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags) touchedBloc[rowRange.second - 1] = true;
                     return &colsValue[rowRange.second - 1];
                 }
                 else if (j > colsIndex[rowRange.second - 1]) /// Optimization we are trying to write on last line et upper of last column, directly create it.
@@ -870,6 +871,8 @@ protected:
                 colId = (nBlocCol == 0) ? 0 : rowRange.begin() + j * rowRange.size() / nBlocCol;
                 if (!sortedFind(colsIndex, rowRange, j, colId)) return create ? insertBtemp(i,j) : nullptr;
             }
+
+            SOFA_IF_CONSTEXPR(Policy::StoreTouchFlags) touchedBloc[colId] = true;
             return &colsValue[colId];
         }
         else
