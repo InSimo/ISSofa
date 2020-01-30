@@ -70,7 +70,7 @@ void CubeModel::resize(int size)
     this->elems.resize(size);
     this->parentOf.resize(size);
     // set additional indices
-    for (int i=size0; i<size; ++i)
+    for (int i=0; i<size; ++i)
     {
         this->elems[i].children.first=core::CollisionElementIterator(getNext(), i);
         this->elems[i].children.second=core::CollisionElementIterator(getNext(), i+1);
