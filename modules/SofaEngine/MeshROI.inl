@@ -219,32 +219,29 @@ void MeshROI<DataTypes>::init()
         }
     }
     // Bounding Box computation
-    if (!f_box.isSet())
+    Vec6 b=f_box.getValue();
+    helper::ReadAccessor< Data<VecCoord > > points_i = f_X0_i;
+    if(points_i.size()>0)
     {
-        Vec6 b=f_box.getValue();
-        helper::ReadAccessor< Data<VecCoord > > points_i = f_X0_i;
-        if(points_i.size()>0)
+        CPos p = DataTypes::getCPos(points_i[0]);
+        b[0] = p[0]; b[1] = p[1]; b[2] = p[2];
+        b[3] = p[0]; b[4] = p[1]; b[5] = p[2];
+        for (unsigned int i=1; i<points_i.size() ; ++i)
         {
-            CPos p = DataTypes::getCPos(points_i[0]);
-            b[0] = p[0]; b[1] = p[1]; b[2] = p[2];
-            b[3] = p[0]; b[4] = p[1]; b[5] = p[2];
-            for (unsigned int i=1; i<points_i.size() ; ++i)
-            {
-                p = DataTypes::getCPos(points_i[i]);
-                if (b[0] < p[0]) b[0] = p[0];
-                if (b[1] < p[1]) b[1] = p[1];
-                if (b[2] < p[2]) b[2] = p[2];
-                if (b[3] > p[0]) b[3] = p[0];
-                if (b[4] > p[1]) b[4] = p[1];
-                if (b[5] > p[2]) b[5] = p[2];
-            }
+            p = DataTypes::getCPos(points_i[i]);
+            if (b[0] < p[0]) b[0] = p[0];
+            if (b[1] < p[1]) b[1] = p[1];
+            if (b[2] < p[2]) b[2] = p[2];
+            if (b[3] > p[0]) b[3] = p[0];
+            if (b[4] > p[1]) b[4] = p[1];
+            if (b[5] > p[2]) b[5] = p[2];
         }
-        if (b[0] > b[3]) std::swap(b[0],b[3]);
-        if (b[1] > b[4]) std::swap(b[1],b[4]);
-        if (b[2] > b[5]) std::swap(b[2],b[5]);
-        f_box.setValue(b);
-        sout << "Bounding Box " << b << sendl;
     }
+    if (b[0] > b[3]) std::swap(b[0],b[3]);
+    if (b[1] > b[4]) std::swap(b[1],b[4]);
+    if (b[2] > b[5]) std::swap(b[2],b[5]);
+    f_box.setValue(b);
+    sout << "Bounding Box " << b << sendl;
 
     // fin perso : init de la mesh template
     first.setValue(1); // perso
