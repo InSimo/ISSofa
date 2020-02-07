@@ -298,6 +298,7 @@ void LinearSolverConstraintCorrection< DataTypes >::computeMotionCorrection(cons
         linearsolvers[0]->setSystemRHVector(f);
         linearsolvers[0]->setSystemLHVector(dx);
         linearsolvers[0]->solveSystem();
+        linearsolvers[0]->writeSolution();
     }
 }
 
