@@ -565,6 +565,13 @@ protected:
     MatrixType* matrixJ;
     bool updateJ;
 
+    struct Jacobian
+    {
+        std::vector< std::array<InDeriv,2> > jacobianVector; /// only used in template VecNormal3Types
+    };
+
+    Jacobian   J;          ///< Jacobian of the mapping, in a vector
+
     // topologyData mechanism to handle topology changes (protected)
     class EdgeInfoHandler : public sofa::component::topology::TopologyDataHandler<Edge, VecBaryEdgeInfo>
     {
@@ -614,8 +621,9 @@ protected:
     std::set< PointID > m_dirtyPoints;
     // END topologyData mechanism (protected)
 
-    BarycentricMapperEdgeSetTopology(topology::EdgeSetTopologyContainer* fromTopology,
-            topology::PointSetTopologyContainer* _toTopology, core::State< In >* stateFrom = nullptr, core::State< Out >* stateTo = nullptr, bool useRestPosition = false)
+    BarycentricMapperEdgeSetTopology(topology::EdgeSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
+                                     core::State< In >* stateFrom = nullptr, core::State< Out >* stateTo = nullptr,
+                                     bool useRestPosition = false)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           d_vBaryEdgeInfo(initData(&d_vBaryEdgeInfo, "vBaryEdgeInfo", "Vector of edge information dedicated to topological changes")),
           map(initData(&map,"map", "mapper data")),
@@ -637,6 +645,7 @@ public:
     void clear(int reserve=0);
 
     int addPointInLine(const int edgeIndex, const SReal* baryCoords);
+    int setPointInLine(const int pointIndex, const int lineIndex, const SReal* baryCoords) override;
     int createPointInLine(const typename Out::Coord& p, int edgeIndex, const typename In::VecCoord* points);
 
     void init(const typename Out::VecCoord& out, const typename In::VecCoord& in);
@@ -651,6 +660,12 @@ public:
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
 
     virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
+
+    helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > > readPoint2EdgeMap(){ return helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
+    helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > > writePoint2EdgeMap() { return helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
+
+    helper::ReadAccessor< Data< VecBaryEdgeInfo > > readEdge2PointsMap(){ return helper::ReadAccessor< Data< VecBaryEdgeInfo > >(d_vBaryEdgeInfo);}
+    helper::WriteAccessor< Data< VecBaryEdgeInfo > > writeEdge2PointsMap() { return helper::WriteAccessor< Data< VecBaryEdgeInfo > >(d_vBaryEdgeInfo);}
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
@@ -1247,7 +1262,6 @@ protected:
 public:
 
     Data< bool > useRestPosition;
-
     Data < bool > d_handleTopologyChange;
 
 #ifdef SOFA_DEV

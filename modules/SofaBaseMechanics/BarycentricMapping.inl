@@ -656,6 +656,40 @@ int BarycentricMapperEdgeSetTopology<In,Out>::addPointInLine ( const int edgeInd
 }
 
 template <class In, class Out>
+int BarycentricMapperEdgeSetTopology<In,Out>::setPointInLine(const int pointIndex, const int lineIndex, const SReal* baryCoords)
+{
+    auto vectorData = sofa::helper::write(map);
+    auto edgeInfo = sofa::helper::write(d_vBaryEdgeInfo);
+
+    assert(pointIndex < vectorData.size());
+    MappingData& data = vectorData[pointIndex];
+    data.baryCoords[0] = ( Real ) baryCoords[0];
+
+    if (data.in_index == -1)
+    {
+        data.in_index = lineIndex;
+        edgeInfo[lineIndex].vPointsIncluded.insert(pointIndex);
+    }
+    else if (data.in_index == lineIndex)
+    {
+        const BaryElementInfo& eInfo = edgeInfo[data.in_index]; SOFA_UNUSED(eInfo);
+        assert(eInfo.vPointsIncluded.find(pointIndex) != eInfo.vPointsIncluded.end() );
+    }
+    else
+    {
+          BaryElementInfo& eInfo = edgeInfo[data.in_index];
+          assert(eInfo.vPointsIncluded.find(pointIndex) != eInfo.vPointsIncluded.end());
+          eInfo.vPointsIncluded.erase(pointIndex);
+          data.in_index = lineIndex;
+          edgeInfo[lineIndex].vPointsIncluded.insert(pointIndex);
+    }
+
+    m_dirtyPoints.erase(pointIndex);
+
+    return pointIndex;
+}
+
+template <class In, class Out>
 int BarycentricMapperEdgeSetTopology<In,Out>::createPointInLine ( const typename Out::Coord& p, int edgeIndex, const typename In::VecCoord* points )
 {
     SReal baryCoords[1];
@@ -735,12 +769,11 @@ void BarycentricMapperEdgeSetTopology<In,Out>::initTopologyChange ()
 template <class In, class Out>
 void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
-    if ( m_dirtyPoints.empty() )
-        return;
+    if (m_dirtyPoints.empty()) return;
 
     const bool printLog = this->f_printLog.getValue();
 
-    if ( printLog )
+    if (printLog)
     {
         serr << "ProjectDirtyPoints" << sendl;
         serr << "\t- Dirty points(" << m_dirtyPoints.size() << ")" << sendl;
@@ -755,7 +788,7 @@ void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typen
     const typename In::VecCoord& pIn = m_stateFrom->read( sofa::core::ConstVecCoordId::restPosition() )->getValue();
     helper::ReadAccessor< Data< typename core::State< Out >::VecCoord > > pOut = m_stateTo->read( sofa::core::ConstVecCoordId::restPosition() );
 
-    const auto& edges = this->_fromContainer->getEdgeArray();
+    const auto& edges = this->_fromContainer->getEdges();
 
     // evaluate dirty projections : fill in d_vBaryEdgeInfo and map
     helper::WriteAccessor< Data< VecBaryEdgeInfo > > vBaryEdgeInfo = d_vBaryEdgeInfo;
@@ -779,7 +812,6 @@ void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typen
     {
         for ( EdgeID eid = 0; eid < edges.size(); ++eid )
             auto& edgeElemInfo = vBaryEdgeInfo[eid].dirty = false;
-
         for ( auto dirtyPoint : m_dirtyPoints )
         {
             const typename In::CPos pos = ( m_useRestPosition && pOut.size() > 0 ) ? Out::getCPos( pOut[dirtyPoint] ) : Out::getCPos( out[dirtyPoint] );
@@ -792,12 +824,18 @@ void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typen
                 const BaryElementInfo& baryEdgeInfo = vBaryEdgeInfo[e];
                 assert(baryEdgeInfo.dirty == false);
 
-                const typename In::CPos p0 = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][0]] ) : In::getCPos( in[edges[e][0]] );
-                const typename In::CPos pA = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][1]] ) : In::getCPos( in[edges[e][1]] ) - p0;
-                const typename In::CPos p0_pos = pos - p0;
-                const Real b = dot ( pA, p0_pos ) / dot (pA, pA);
-                const typename In::CPos pos_proj = ( p0 + b * pA ) - pos;
-                const Real d = pos_proj.norm2();
+                const typename In::CPos e0 = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][0]] ) : In::getCPos( in[edges[e][0]] );
+                const typename In::CPos e1 = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][1]] ) : In::getCPos( in[edges[e][1]] );
+
+                typename In::DPos dir0    = pos - e0;
+                typename In::DPos dirEdge = e1 - e0;
+                dir0.normalize();
+                dirEdge.normalize();
+                Real b = dot(dir0, dirEdge);
+                if (b < 0.0) b = 0.0;
+                else if (b > 1.0) b = 1.0;
+                const typename In::CPos proj = (1 - b) * e0 + b * e1;
+                Real d = (pos - proj).norm();
 
                 if ( d < distance )
                 {
