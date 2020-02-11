@@ -1322,6 +1322,9 @@ public:
         return mapper.get();
     }
 
+    sofa::core::topology::BaseMeshTopology* getFromTopo() { return topology_from; }
+    sofa::core::topology::BaseMeshTopology* getToTopo() { return topology_to; }
+
 protected:
     sofa::core::topology::BaseMeshTopology* topology_from;
     sofa::core::topology::BaseMeshTopology* topology_to;
