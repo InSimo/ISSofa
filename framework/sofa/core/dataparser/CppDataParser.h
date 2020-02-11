@@ -52,19 +52,24 @@ public:
 protected:
     const bool m_useNamed;
 
-    bool fromDataDispatch(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const;
-    bool fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const;
-    bool fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const;
-    bool fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const;
-    bool fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const;
-    bool fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const;
+    struct FromDataState;
+    struct ToDataState;
 
-    bool toDataDispatch(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const;
-    bool toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const;
-    bool toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const;
-    bool toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const;
-    bool toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const;
-    bool toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const;
+    bool fromDataDispatch(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const;
+    bool fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const;
+    bool fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const;
+    bool fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const;
+    bool fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const;
+    bool fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const;
+
+    bool toDataDispatch(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const;
+    bool toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const;
+    bool toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const;
+    bool toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const;
+    bool toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const;
+    bool toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const;
+
+    bool isLargeType(const defaulttype::AbstractTypeInfo* typeInfo) const;
 
 };
 

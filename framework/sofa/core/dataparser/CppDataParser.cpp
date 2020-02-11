@@ -50,11 +50,67 @@ CppDataParser::CppDataParser(std::string name, bool useNamed)
 , m_useNamed(useNamed)
 {}
 
+struct CppDataParser::FromDataState
+{
+    std::error_code result {};
+    int level = 0;
+    int indent = 4;
+};
+struct CppDataParser::ToDataState
+{
+    std::error_code result {};
+};
+
+bool CppDataParser::isLargeType(const defaulttype::AbstractTypeInfo* typeInfo) const
+{
+    bool result = false;
+    if (typeInfo->ValidInfo())
+    {
+        if (typeInfo->IsSingleValue())
+        {
+            return false;
+        }
+        else if (typeInfo->IsContainer())
+        {
+            auto t = typeInfo->ContainerType();
+            const bool fixedContainerSize = t->FixedContainerSize();
+            auto keyTypeInfo = t->getKeyType();
+            auto mappedTypeInfo = t->getMappedType();
+            result |= !fixedContainerSize;
+            if (!result)
+            { // recurse only if we don't already know this is a large type
+                result |= isLargeType(keyTypeInfo);
+                result |= isLargeType(mappedTypeInfo);
+            }
+        }
+        else if (typeInfo->IsMultiValue())
+        {
+            auto t = typeInfo->MultiValueType();
+            const bool fixedFinalSize = t->FixedFinalSize();
+            const size_t rowWidth = t->FinalSize();
+            result |= !fixedFinalSize;
+            result |= (rowWidth >= 10);
+        }
+        else if (typeInfo->IsStructure())
+        {
+            auto t = typeInfo->StructureType();
+            const std::size_t ssize = t->structSize();
+            result |= (ssize >= 10);
+            // recurse only if we don't already know this is a large type
+            for (size_t i = 0u; i < ssize && !result; i++)
+            {
+                result |= isLargeType(t->getMemberTypeForIndex(i));
+            }
+        }
+    }
+    return result;
+}
+
 ////////////////////////////////////////
-//////////    READ TO DATA    //////////
+//////////   READ FROM DATA   //////////
 ////////////////////////////////////////
 
-bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const
+bool CppDataParser::fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const
 {
     if (typeInfo->IsEnum())
     {
@@ -62,17 +118,17 @@ bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out,
         out << enumTypeInfo->getDataEnumeratorString(data);
         return true;
     }
-    else return fromDataInternal(result, out, data, typeInfo, 0); // AbstractValueTypeInfo derives from AbstractMultiValueTypeInfo
+    else return fromDataInternal(state, out, data, typeInfo, 0); // AbstractValueTypeInfo derives from AbstractMultiValueTypeInfo
 }
 
-bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const
+bool CppDataParser::fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const
 {
     switch(typeInfo->FinalValueKind())
     {
     case defaulttype::ValueKindEnum::Void:
     case defaulttype::ValueKindEnum::Pointer:
     {
-        result = make_error_code(DataParserError::incorrect_type_info);
+        state.result = make_error_code(DataParserError::incorrect_type_info);
         return false;
     }
     case defaulttype::ValueKindEnum::Integer:
@@ -116,11 +172,11 @@ bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out,
         return true;
     }
     }
-    result = make_error_code(DataParserError::incorrect_type_info);
+    state.result = make_error_code(DataParserError::incorrect_type_info);
     return false;
 }
 
-bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const
+bool CppDataParser::fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const
 {
     const size_t rowWidth = typeInfo->FinalSize();
     const size_t dataFinalSize = typeInfo->finalSize(data);
@@ -131,139 +187,151 @@ bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out,
         out << "{}";
         return true;
     }
-
-    out << "{ ";
+    bool newlines = (state.level <= 1 && rowWidth >= 10 && nbRows > 1);
+    out << (newlines ? std::string("\n") + std::string( state.level*state.indent, ' ') + std::string("{") + std::string( state.indent-1, ' ') : std::string("{ "));
+    ++state.level;
+    std::string separator = (newlines ? std::string(",\n") + std::string( state.level*state.indent, ' ') : std::string(", "));
     if (nbRows == 1 || rowWidth == 1)
     {
         for (size_t i = 0; i < dataFinalSize; i++)
         {
-            if (i) out << ", ";
-            if (!fromDataInternal(result, out, data, typeInfo, i)) return false;
+            if (i) out << (newlines ? ",\n  " : ", ");
+            if (!fromDataInternal(state, out, data, typeInfo, i)) return false;
         }
     }
     else
     {
         for (size_t i = 0; i < nbRows; i++)
         {
-            if (i) out << ", ";
+            if (i) out << separator;
             out << "{ ";
+            ++state.level;
             for (size_t j = 0; j < rowWidth; j++)
             {
                 if (j) out << ", ";
-                if (!fromDataInternal(result, out, data, typeInfo, i * rowWidth + j)) return false;
+                if (!fromDataInternal(state, out, data, typeInfo, i * rowWidth + j)) return false;
             }
+            --state.level;
             out << " }";
         }
     }
-    out << " }";
+    --state.level;
+    out << (newlines ? std::string("\n") + std::string( state.level*state.indent, ' ') + std::string("}") : std::string(" }"));
     return true;
 }
 
-bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const
+bool CppDataParser::fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const
 {
-    if (typeInfo->containerSize(data) == 0)
+    std::size_t csize = typeInfo->containerSize(data);
+    bool isMap = (typeInfo->ContainerKind() == sofa::defaulttype::ContainerKindEnum::Map);
+    if (csize == 0)
     {
         out << "{}";
         return true;
 
-    }
-    else if (typeInfo->ContainerKind() == sofa::defaulttype::ContainerKindEnum::Map)
-    {
-        out << "{ ";
-        const sofa::defaulttype::AbstractTypeInfo *keyTypeInfo = typeInfo->getKeyType();
-        const sofa::defaulttype::AbstractTypeInfo *mappedTypeInfo = typeInfo->getMappedType();
-        size_t i = 0;
-        for (sofa::defaulttype::AbstractContainerTypeInfo::const_iterator it = typeInfo->cbegin(data); it != typeInfo->cend(data); ++it, ++i)
-        {
-            const void* keyData = typeInfo->getItemKey(it);
-            const void* mappedData = typeInfo->getItemValue(it);
-            if (i) out << ", ";
-
-            out << "{ ";
-            if (!fromDataDispatch(result, out, keyData, keyTypeInfo)) return false;
-            out << ", ";
-            if (!fromDataDispatch(result, out, mappedData, mappedTypeInfo)) return false;
-            out << " }";
-        }
-        out << " }";
     }
     else
     {
-        out << "{ ";
+        const sofa::defaulttype::AbstractTypeInfo *keyTypeInfo = typeInfo->getKeyType();
         const sofa::defaulttype::AbstractTypeInfo *mappedTypeInfo = typeInfo->getMappedType();
-        if (typeInfo->containerSize(data) != 0)
+        bool newlines = (state.level <= 1 && (isLargeType(keyTypeInfo) || isLargeType(mappedTypeInfo)));
+        out << (newlines ? std::string("\n") + std::string( state.level*state.indent, ' ') + std::string("{") + std::string( state.indent-1, ' ') : std::string("{ "));
+        ++state.level;
+        std::string separator = (newlines ? std::string(",\n") + std::string( state.level*state.indent, ' ') : std::string(", "));
+        size_t i = 0;
+        for (sofa::defaulttype::AbstractContainerTypeInfo::const_iterator it = typeInfo->cbegin(data); it != typeInfo->cend(data); ++it, ++i)
         {
-            int i = 0;
-            for (sofa::defaulttype::AbstractContainerTypeInfo::const_iterator it = typeInfo->cbegin(data); it != typeInfo->cend(data); ++it, ++i)
+            if (i) out << separator;
+            const void* mappedData = typeInfo->getItemValue(it);
+            if (isMap)
             {
-                if (i) out << ", ";
-                const void* mappedData = typeInfo->getItemValue(it);
-                if (!fromDataDispatch(result, out, mappedData, mappedTypeInfo)) return false;
+                const void* keyData = typeInfo->getItemKey(it);
+                out << "{ ";
+                ++state.level;
+                if (!fromDataDispatch(state, out, keyData, keyTypeInfo)) return false;
+                out << ", ";
+                if (!fromDataDispatch(state, out, mappedData, mappedTypeInfo)) return false;
+                --state.level;
+                out << " }";
+            }
+            else
+            {
+                if (!fromDataDispatch(state, out, mappedData, mappedTypeInfo)) return false;
             }
         }
-        out << " }";
+        --state.level;
+        out << (newlines ? std::string("\n") + std::string( state.level*state.indent, ' ') + std::string("}") : std::string(" }"));
     }
     return true;
 }
 
-bool CppDataParser::fromDataInternal(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const
+bool CppDataParser::fromDataInternal(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const
 {
-    if (typeInfo->structSize() == 0)
+    const std::size_t ssize = typeInfo->structSize();
+    if (ssize == 0)
     {
         out << "{}";
         return true;
 
     }
-    out << "{ ";
-    for (size_t i = 0u; i < typeInfo->structSize(); i++)
+    bool newlines = (state.level <= 1 && isLargeType(typeInfo));
+    out << (newlines ? std::string("\n") + std::string( state.level*state.indent, ' ') + std::string("{") + std::string( state.indent-1, ' ') : std::string("{ "));
+    ++state.level;
+    std::string separator = (newlines ? std::string(",\n") + std::string( state.level*state.indent, ' ') : std::string(", "));
+    for (size_t i = 0u; i < ssize; i++)
     {
-        if (i) out << ", ";
+        if (i) out << separator;
         const sofa::defaulttype::AbstractTypeInfo* memberTypeInfo = typeInfo->getMemberTypeForIndex(i);
         if (m_useNamed)
         {
             out << "." << typeInfo->getMemberName(data, i) << "=";
         }
-        if (!fromDataDispatch(result, out, typeInfo->getMemberValue(data, i), memberTypeInfo)) return false;
+        if (!fromDataDispatch(state, out, typeInfo->getMemberValue(data, i), memberTypeInfo)) return false;
     }
-    out << " }";
+    --state.level;
+    out << (newlines ? std::string("\n") + std::string( state.level*state.indent, ' ') + std::string("}") : std::string(" }"));
     return true;
 }
 
-bool CppDataParser::fromDataDispatch(std::error_code& result, std::ostream& out, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+bool CppDataParser::fromDataDispatch(FromDataState& state, std::ostream& out, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
 {
     if (typeInfo->ValidInfo())
     {
         if (typeInfo->IsSingleValue())
         {
-            return fromDataInternal(result, out, data, typeInfo->SingleValueType());
+            return fromDataInternal(state, out, data, typeInfo->SingleValueType());
         }
         else if (typeInfo->IsContainer())
         {
-            return fromDataInternal(result, out, data, typeInfo->ContainerType());
+            return fromDataInternal(state, out, data, typeInfo->ContainerType());
         }
         else if (typeInfo->IsMultiValue())
         {
-            return fromDataInternal(result, out, data, typeInfo->MultiValueType());
+            return fromDataInternal(state, out, data, typeInfo->MultiValueType());
         }
         else if (typeInfo->IsStructure())
         {
-            return fromDataInternal(result, out, data, typeInfo->StructureType());
+            return fromDataInternal(state, out, data, typeInfo->StructureType());
         }
     }
-    result = make_error_code(DataParserError::incorrect_type_info);
+    state.result = make_error_code(DataParserError::incorrect_type_info);
     return false;
 }
 
 std::error_code CppDataParser::fromData(std::ostream& os, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
 {
-    std::error_code result{};
-    fromDataDispatch(result, os, data, typeInfo);
-    if (result)
+    FromDataState state;
+    fromDataDispatch(state, os, data, typeInfo);
+    if (state.result)
     {
         std::cerr << "CppDataParser fromData FAILED for " << typeInfo->name() << ": "
-            << result.category().name() << ' ' << result.value() << ' ' << result.message() << std::endl;
+            << state.result.category().name() << ' ' << state.result.value() << ' ' << state.result.message() << std::endl;
     }
-    return result;
+    else if (state.level != 0)
+    {
+        std::cerr << "CppDataParser fromData recursion level MISMATCHED for " << typeInfo->name() << std::endl;
+    }
+    return state.result;
 }
 
 std::error_code CppDataParser::fromData(std::string& output, const void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
@@ -278,7 +346,7 @@ std::error_code CppDataParser::fromData(std::string& output, const void* data, c
 //////////   WRITE TO DATA    //////////
 ////////////////////////////////////////
 
-bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const
+bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractValueTypeInfo* typeInfo) const
 {
     if (typeInfo->IsEnum())
     {
@@ -289,17 +357,17 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         enumTypeInfo->setDataEnumeratorString(data, value);
         return true;
     }
-    else return toDataInternal(result, in, data, typeInfo, 0); // AbstractValueTypeInfo derives from AbstractMultiValueTypeInfo
+    else return toDataInternal(state, in, data, typeInfo, 0); // AbstractValueTypeInfo derives from AbstractMultiValueTypeInfo
 }
 
-bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const
+bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo, size_t id) const
 {
     switch(typeInfo->FinalValueKind())
     {
     case defaulttype::ValueKindEnum::Void:
     case defaulttype::ValueKindEnum::Pointer:
     {
-        result = make_error_code(DataParserError::incorrect_type_info);
+        state.result = make_error_code(DataParserError::incorrect_type_info);
         return false;
     }
     case defaulttype::ValueKindEnum::Integer:
@@ -345,7 +413,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
                 c = in.get();
                 if (c != *text && c != (*text + ('A'-'a')))
                 {
-                    result = make_error_code(DataParserError::invalid_json);
+                    state.result = make_error_code(DataParserError::invalid_json);
                     return false;
                 }
             }
@@ -354,6 +422,11 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         {
             in >> c;
             value = (c != 0);
+        }
+        else
+        {
+            state.result = make_error_code(DataParserError::invalid_json);
+            return false;
         }
         typeInfo->setFinalValueInteger(data, id, value);
         return true;
@@ -366,11 +439,11 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         return true;
     }
     }
-    result = make_error_code(DataParserError::incorrect_type_info);
+    state.result = make_error_code(DataParserError::incorrect_type_info);
     return false;
 }
 
-bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const
+bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractMultiValueTypeInfo* typeInfo) const
 {
     typeInfo->resetValue(data);
     const bool fixedFinalSize = typeInfo->FixedFinalSize();
@@ -378,7 +451,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
     in.ignore(std::numeric_limits<std::streamsize>::max(), '{');
     if (in.eof())
     {
-        result = make_error_code(DataParserError::invalid_json);
+        state.result = make_error_code(DataParserError::invalid_json);
         return false;
     }
     int index = 0;
@@ -393,7 +466,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         }
         if (in.eof())
         {
-            result = make_error_code(DataParserError::invalid_json);
+            state.result = make_error_code(DataParserError::invalid_json);
             return false;
         }
         if (in.peek() == '}')
@@ -403,7 +476,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         }
         if (fixedFinalSize && index >= rowWidth)
         {
-            result = make_error_code(DataParserError::multivalue_size_mismatch);
+            state.result = make_error_code(DataParserError::multivalue_size_mismatch);
             return false;
         }
 
@@ -421,14 +494,14 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
             typeInfo->setFinalSize(data, (rowWidth <= 1) ? index + 1 : ((index + rowWidth)/rowWidth) * rowWidth); // Not optimal
         }
 
-        if (!toDataInternal(result, in, data, typeInfo, index)) return false;
+        if (!toDataInternal(state, in, data, typeInfo, index)) return false;
         ++index;
         if (!fixedFinalSize && rowWidth > 1 && index % rowWidth == 0 && rowOpen)
         {
             while (std::isspace(in.peek())) { in.get(); }
             if (in.get() != '}')
             {
-                result = make_error_code(DataParserError::invalid_json);
+                state.result = make_error_code(DataParserError::invalid_json);
                 return false;
             }
             rowOpen = false;
@@ -437,7 +510,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
     return true;
 }
 
-bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const
+bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractContainerTypeInfo* typeInfo) const
 {
     const sofa::defaulttype::ContainerKindEnum containerKind = typeInfo->ContainerKind();
     const bool fixedContainerSize = typeInfo->FixedContainerSize();
@@ -457,7 +530,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         }
         if (in.eof())
         {
-            result = make_error_code(DataParserError::invalid_json);
+            state.result = make_error_code(DataParserError::invalid_json);
             return false;
         }
         if (in.peek() == '}')
@@ -471,34 +544,34 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
             in >> c;
             if (c != '{')
             {
-                result = make_error_code(DataParserError::invalid_json);
+                state.result = make_error_code(DataParserError::invalid_json);
                 return false;
             }
 
             void* keyData = typeInfo->newKey(data, keyBuffer);
-            if (!toDataDispatch(result, in, keyData, keyTypeInfo)) return false;
+            if (!toDataDispatch(state, in, keyData, keyTypeInfo)) return false;
 
             in >> c;
             if (c != ',')
             {
-                result = make_error_code(DataParserError::invalid_json);
+                state.result = make_error_code(DataParserError::invalid_json);
                 return false;
             }
 
             void* mappedData = typeInfo->insertItem(data, keyData);
-            if (!toDataDispatch(result, in, mappedData, mappedTypeInfo)) return false;
+            if (!toDataDispatch(state, in, mappedData, mappedTypeInfo)) return false;
 
             in >> c;
             if (c != '}')
             {
-                result = make_error_code(DataParserError::invalid_json);
+                state.result = make_error_code(DataParserError::invalid_json);
                 return false;
             }
         }
         else if (containerKind == sofa::defaulttype::ContainerKindEnum::Set)
         {
             void* keyData = typeInfo->newKey(data, keyBuffer);
-            if (!toDataDispatch(result, in, keyData, keyTypeInfo)) return false;
+            if (!toDataDispatch(state, in, keyData, keyTypeInfo)) return false;
             typeInfo->insertItem(data, keyData);
         }
         else //if (containerKind == sofa::defaulttype::ContainerKindEnum::Array )
@@ -509,23 +582,23 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
             }
             else if (index >= typeInfo->containerSize(data))
             {
-                result = make_error_code(DataParserError::container_size_mismatch);
+                state.result = make_error_code(DataParserError::container_size_mismatch);
                 return false;
             }
             void* mappedData = typeInfo->editItemValue(data, index);
             if (mappedData == nullptr)
             {
-                result = make_error_code(DataParserError::container_size_mismatch);
+                state.result = make_error_code(DataParserError::container_size_mismatch);
                 return false;
             }
-            if (!toDataDispatch(result, in, mappedData, mappedTypeInfo)) return false;
+            if (!toDataDispatch(state, in, mappedData, mappedTypeInfo)) return false;
         }
         ++index;
     }
     return true;
 }
 
-bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const
+bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractStructureTypeInfo* typeInfo) const
 {
     const size_t structSize = typeInfo->structSize();
     typeInfo->resetValue(data);
@@ -541,7 +614,7 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         }
         if (in.eof())
         {
-            result = make_error_code(DataParserError::invalid_json);
+            state.result = make_error_code(DataParserError::invalid_json);
             return false;
         }
         if (in.peek() == '}')
@@ -564,45 +637,45 @@ bool CppDataParser::toDataInternal(std::error_code& result, std::istream& in, vo
         }
         if (memberIndex >= structSize)
         {
-            result = make_error_code(DataParserError::structure_size_mismatch);
+            state.result = make_error_code(DataParserError::structure_size_mismatch);
             return false;
         }
-        if (!toDataDispatch(result, in, typeInfo->editMemberValue(data, memberIndex), typeInfo->getMemberTypeForIndex(memberIndex))) return false;
+        if (!toDataDispatch(state, in, typeInfo->editMemberValue(data, memberIndex), typeInfo->getMemberTypeForIndex(memberIndex))) return false;
         ++index;
     }
     return true;
 }
 
-bool CppDataParser::toDataDispatch(std::error_code& result, std::istream& in, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
+bool CppDataParser::toDataDispatch(ToDataState& state, std::istream& in, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
 {
     if (typeInfo->ValidInfo())
     {
         if (typeInfo->IsSingleValue())
         {
-            return toDataInternal(result, in, data, typeInfo->SingleValueType());
+            return toDataInternal(state, in, data, typeInfo->SingleValueType());
         }
         else if (typeInfo->IsContainer())
         {
-            return toDataInternal(result, in, data, typeInfo->ContainerType());
+            return toDataInternal(state, in, data, typeInfo->ContainerType());
         }
         else if (typeInfo->IsMultiValue())
         {
-            return toDataInternal(result, in, data, typeInfo->MultiValueType());
+            return toDataInternal(state, in, data, typeInfo->MultiValueType());
         }
         else if (typeInfo->IsStructure())
         {
-            return toDataInternal(result, in, data, typeInfo->StructureType());
+            return toDataInternal(state, in, data, typeInfo->StructureType());
         }
     }
-    result = make_error_code(DataParserError::incorrect_type_info);
+    state.result = make_error_code(DataParserError::incorrect_type_info);
     return false;
 }
 
 std::error_code CppDataParser::toData(std::istream& is, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
 {
-    std::error_code result{};
-    toDataDispatch(result, is, data, typeInfo);
-    return result;
+    ToDataState state;
+    toDataDispatch(state, is, data, typeInfo);
+    return state.result;
 }
 
 std::error_code CppDataParser::toData(const std::string& input, void* data, const defaulttype::AbstractTypeInfo* typeInfo) const
