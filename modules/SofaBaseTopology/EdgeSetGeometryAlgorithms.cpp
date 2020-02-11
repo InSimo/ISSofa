@@ -61,6 +61,7 @@ int EdgeSetGeometryAlgorithmsClass = core::RegisterObject("Edge set geometry alg
         .add< EdgeSetGeometryAlgorithms<Rigid3fTypes> >()
         .add< EdgeSetGeometryAlgorithms<Rigid2fTypes> >()
 #endif
+        .add< EdgeSetGeometryAlgorithms<ExtVec3fTypes> >()
         ;
 
 #ifndef SOFA_FLOAT
@@ -79,6 +80,7 @@ template class SOFA_BASE_TOPOLOGY_API EdgeSetGeometryAlgorithms<Rigid3fTypes>;
 template class SOFA_BASE_TOPOLOGY_API EdgeSetGeometryAlgorithms<Rigid2fTypes>;
 #endif
 
+template class SOFA_BASE_TOPOLOGY_API EdgeSetGeometryAlgorithms<ExtVec3fTypes>;
 } // namespace topology
 
 } // namespace component

@@ -182,6 +182,7 @@ extern template class SOFA_BASE_TOPOLOGY_API EdgeSetGeometryAlgorithms<defaultty
 #endif
 #endif
 
+extern template class SOFA_BASE_TOPOLOGY_API EdgeSetGeometryAlgorithms<defaulttype::ExtVec3fTypes>;
 } // namespace topology
 
 } // namespace component

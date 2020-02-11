@@ -53,6 +53,7 @@ int PointSetGeometryAlgorithmsClass = core::RegisterObject("Point set geometry a
         .add< PointSetGeometryAlgorithms<Vec2fTypes> >()
         .add< PointSetGeometryAlgorithms<Vec1fTypes> >()
 #endif
+        .add< PointSetGeometryAlgorithms<ExtVec3fTypes> >()
         ;
 
 #ifndef SOFA_FLOAT
@@ -71,6 +72,7 @@ template class SOFA_BASE_TOPOLOGY_API PointSetGeometryAlgorithms<Rigid3fTypes>;
 template class SOFA_BASE_TOPOLOGY_API PointSetGeometryAlgorithms<Rigid2fTypes>;
 #endif
 
+template class SOFA_BASE_TOPOLOGY_API PointSetGeometryAlgorithms<ExtVec3fTypes>;
 } // namespace topology
 
 } // namespace component

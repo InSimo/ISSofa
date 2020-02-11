@@ -46,7 +46,8 @@ namespace topology
 template <class DataTypes>
 void PointSetGeometryAlgorithms< DataTypes >::init()
 {
-    object = this->getContext()->core::objectmodel::BaseContext::template get< core::behavior::MechanicalState< DataTypes > >();
+    object = this->getContext()->core::objectmodel::BaseContext::template get< core::State< DataTypes > >();
+    if (!this->object) serr<< " could not find state container in local context" << sendl;
     core::topology::GeometryAlgorithms::init();
     this->m_topology = this->getContext()->getMeshTopology();
 }

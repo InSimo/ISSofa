@@ -55,6 +55,7 @@ int TriangleSetGeometryAlgorithmsClass = core::RegisterObject("Triangle set geom
         .add< TriangleSetGeometryAlgorithms<Vec2fTypes> >()
         .add< TriangleSetGeometryAlgorithms<Vec1fTypes> >()
 #endif
+        .add< TriangleSetGeometryAlgorithms<ExtVec3fTypes> >()
         ;
 
 #ifndef SOFA_FLOAT
@@ -69,6 +70,7 @@ template class SOFA_BASE_TOPOLOGY_API TriangleSetGeometryAlgorithms<Vec2fTypes>;
 template class SOFA_BASE_TOPOLOGY_API TriangleSetGeometryAlgorithms<Vec1fTypes>;
 #endif
 
+template class SOFA_BASE_TOPOLOGY_API TriangleSetGeometryAlgorithms<ExtVec3fTypes>;
 
 void SOFA_BASE_TOPOLOGY_API snapping_test_triangle(double epsilon, double alpha0, double alpha1, double alpha2,
         bool& is_snap_0, bool& is_snap_1, bool& is_snap_2)

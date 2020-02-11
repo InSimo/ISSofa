@@ -342,6 +342,8 @@ extern template class SOFA_BASE_TOPOLOGY_API TriangleSetGeometryAlgorithms<defau
 #endif
 #endif
 
+extern template class SOFA_BASE_TOPOLOGY_API TriangleSetGeometryAlgorithms<defaulttype::ExtVec3fTypes>;
+
 } // namespace topology
 
 } // namespace component

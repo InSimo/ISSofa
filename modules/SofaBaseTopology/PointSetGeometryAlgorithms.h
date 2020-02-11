@@ -100,7 +100,7 @@ public:
     const Coord& getPointRestPosition(const PointID pointId) const;
 
     /** \brief Returns the object where the mechanical DOFs are stored */
-    sofa::core::behavior::MechanicalState<DataTypes> *getDOF() const { return object;	}
+    sofa::core::State<DataTypes> *getDOF() const { return object;	}
 
     //float PointIndicesScale;
     float getIndicesScale() const;
@@ -135,7 +135,7 @@ public:
 
 protected:
     /** the object where the mechanical DOFs are stored */
-    sofa::core::behavior::MechanicalState<DataTypes> *object;
+    sofa::core::State<DataTypes> *object = nullptr;
     sofa::core::topology::BaseMeshTopology* m_topology;
     Data<float> showIndicesScale;
     Data<bool> showPointIndices;
@@ -158,6 +158,8 @@ extern template class SOFA_BASE_TOPOLOGY_API PointSetGeometryAlgorithms<defaultt
 extern template class SOFA_BASE_TOPOLOGY_API PointSetGeometryAlgorithms<defaulttype::Rigid2fTypes>;
 #endif
 #endif
+
+extern template class SOFA_BASE_TOPOLOGY_API PointSetGeometryAlgorithms<defaulttype::ExtVec3fTypes>;
 
 } // namespace topology
 
