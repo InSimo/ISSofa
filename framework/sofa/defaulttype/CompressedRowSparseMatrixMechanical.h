@@ -460,16 +460,6 @@ public:
     void clearRowCol(Index i)
     {
         SOFA_IF_CONSTEXPR (Policy::Verbose) std::cout << this->Name()  << "("<<rowSize()<<","<<colSize()<<"): row("<<i<<") = 0 and col("<<i<<") = 0"<<std::endl;
-        SOFA_IF_CONSTEXPR (Policy::Check)
-        {
-            if (i >= rowSize() || i >= colSize())
-            {
-                std::cerr << "ERROR: invalid write access to row and column "<<i<<" in "<< this->Name() << " of size ("<<rowSize()<<","<<colSize()<<")"<<std::endl;
-                return;
-            }
-        }
-        /// If AutoCompress policy is activated, we neeed to be sure not missing btemp registered value.
-        SOFA_IF_CONSTEXPR (Policy::AutoCompress) this->compress();
 
         SOFA_IF_CONSTEXPR (!Policy::IsAlwaysSquare || !Policy::StoreLowerTriangularBloc)
         {
@@ -478,6 +468,18 @@ public:
         }
         else
         {
+            SOFA_IF_CONSTEXPR (Policy::Check)
+            {
+                if (i >= rowSize() || i >= colSize())
+                {
+                    std::cerr << "ERROR: invalid write access to row and column "<<i<<" in "<< this->Name() << " of size ("<<rowSize()<<","<<colSize()<<")"<<std::endl;
+                    return;
+                }
+            }
+
+            /// If AutoCompress policy is activated, we need to be sure that we are not missing btemp registered value.
+            SOFA_IF_CONSTEXPR (Policy::AutoCompress) this->compress();
+
             SOFA_IF_CONSTEXPR (Policy::LogTrace) this->logCall(FnEnum::clearRowCol, i);
 
             Index bi=0; split_row_index(i, bi);
