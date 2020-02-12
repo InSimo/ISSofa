@@ -41,8 +41,7 @@ namespace defaulttype
 class CRSMechanicalPolicy : public CRSDefaultPolicy
 {
 public:
-
-    static constexpr bool CompressZeros = false;
+    static constexpr bool CompressZeros = true;
     static constexpr bool IsAlwaysSquare = true;
     static constexpr bool IsAlwaysSymmetric = true;
     static constexpr bool OrderedInsertion = true;
@@ -54,7 +53,7 @@ public:
 class CRSMechanicalStoreTouchedPolicy : public sofa::defaulttype::CRSDefaultPolicy
 {
 public:
-    static constexpr bool CompressZeros            = false;
+    static constexpr bool CompressZeros            = true;
     static constexpr bool IsAlwaysSquare           = true;
     static constexpr bool IsAlwaysSymmetric        = true;
     static constexpr bool OrderedInsertion         = true;
