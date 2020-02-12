@@ -284,12 +284,16 @@ void FixedConstraint<DataTypes>::applyConstraint(const core::MechanicalParams* m
         //TODO take f_fixAll into account
 
 
+        // Reset Fixed Row and Col
         for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
         {
-            // Reset Fixed Row and Col
             for (unsigned int c=0; c<N; ++c)
                 r.matrix->clearRowCol(r.offset + N * (*it) + c);
-            // Set Fixed Vertex
+        }
+        // Set Fixed Vertex (separated from clearRowCol to avoid multiple recompression of the matrix if matrix->set
+        // actually creates a new bloc which can be the case if no other action was built on this dof)
+        for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
+        {
             for (unsigned int c=0; c<N; ++c)
                 r.matrix->set(r.offset + N * (*it) + c, r.offset + N * (*it) + c, 1.0);
         }

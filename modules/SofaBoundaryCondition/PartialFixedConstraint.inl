@@ -253,21 +253,24 @@ void PartialFixedConstraint<DataTypes>::applyConstraint(const sofa::core::Mechan
     const SetIndexArray & indices = f_indices.getValue();
 
     const VecBool& blockedDirection = fixedDirections.getValue();
+
+    // Reset Fixed Row and Col
     for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
     {
-        // Reset Fixed Row and Col
         for (unsigned int c=0; c<N; ++c)
         {
             if( blockedDirection[c] ) mat->clearRowCol(offset + N * (*it) + c);
         }
-        // Set Fixed Vertex
+    }
+    // Set Fixed Vertex(separated from clearRowCol to avoid multiple recompression of the matrix if matrix->set
+    // actually creates a new bloc which can be the case if no other action was built on this dof)
+    for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
+    {
         for (unsigned int c=0; c<N; ++c)
         {
             if( blockedDirection[c] ) mat->set(offset + N * (*it) + c, offset + N * (*it) + c, 1.0);
         }
     }
-
-    
 }
 
 template <class DataTypes>
