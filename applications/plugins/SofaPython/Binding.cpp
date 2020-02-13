@@ -33,6 +33,7 @@
 #include "Binding_BaseObject.h"
 #include "Binding_BaseState.h"
 #include "Binding_BaseContext.h"
+#include "Binding_CollisionModel.h"
 #include "Binding_Context.h"
 #include "Binding_Node.h"
 #include "Binding_Vector.h"
@@ -92,6 +93,7 @@ void bindSofaPythonModule()
                         SP_ADD_CLASS(SofaPythonModule,MechanicalObject)
                     SP_ADD_CLASS(SofaPythonModule,VisualModel)
                 SP_ADD_CLASS(SofaPythonModule,BaseMapping)
+                SP_ADD_CLASS(SofaPythonModule,CollisionModel)
 //                    SP_ADD_CLASS(SofaPythonModule,Mapping)
 //                        SP_ADD_CLASS(SofaPythonModule,RigidMapping)
 //                    SP_ADD_CLASS(SofaPythonModule,MultiMapping3_to_3)
@@ -110,7 +112,3 @@ void bindSofaPythonModule()
         */
                         SP_ADD_CLASS(SofaPythonModule,PythonScriptController)
 }
-
-
-
-

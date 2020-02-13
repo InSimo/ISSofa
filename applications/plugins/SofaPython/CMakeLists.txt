@@ -56,6 +56,7 @@ set(HEADER_FILES
     PythonEnvironment.h
     Binding.h
     Binding_Base.h
+    Binding_CollisionModel.h
     Binding_SofaModule.h
     Binding_Node.h
     Binding_Context.h
@@ -102,6 +103,7 @@ set(SOURCE_FILES
     Binding.cpp
     Binding_SofaModule.cpp
     Binding_Base.cpp
+    Binding_CollisionModel.cpp
     Binding_Context.cpp
     Binding_BaseContext.cpp
     Binding_Node.cpp

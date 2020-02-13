@@ -19,6 +19,7 @@
 #include <SofaMiscMapping/SubsetMultiMapping.h>
 #include <SofaBaseTopology/TriangleSetTopologyModifier.h>
 #include <sofa/core/BaseMapping.h>
+#include <sofa/core/CollisionModel.h>
 #include "PythonScriptController.h"
 
 #include "Binding_Base.h"
@@ -27,6 +28,7 @@
 #include "Binding_BaseMechanicalState.h"
 #include "Binding_MechanicalObject.h"
 #include "Binding_BaseContext.h"
+#include "Binding_CollisionModel.h"
 #include "Binding_Context.h"
 #include "Binding_Node.h"
 #include "Binding_BaseLoader.h"
@@ -95,6 +97,9 @@ PyObject* SP_BUILD_PYSPTR(Base* obj)
         return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(SubsetMultiMapping3_to_3));
     if (sofa::core::BaseMapping::DynamicCast(obj))
         return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(BaseMapping));
+
+    if (sofa::core::CollisionModel::DynamicCast(obj))
+        return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(CollisionModel));
 
     if( sofa::component::topology::TriangleSetTopologyModifier::DynamicCast(obj) )
         return BuildPySPtr<Base>(obj,&SP_SOFAPYTYPEOBJECT(TriangleSetTopologyModifier));
