@@ -40,6 +40,21 @@ extern "C" PyObject * BaseMapping_apply(PyObject *self, PyObject * /*args*/)
     Py_RETURN_NONE;
 }
 
+extern "C" PyObject * BaseMapping_applyJ(PyObject *self, PyObject * /*args*/)
+{
+    BaseMapping* mapping = dynamic_cast<BaseMapping*>(((PySPtr<Base>*)self)->object.get());
+    mapping->applyJ();
+    Py_RETURN_NONE;
+}
+
+extern "C" PyObject * BaseMapping_processMapping(PyObject *self, PyObject * /*args*/)
+{
+    BaseMapping* mapping = dynamic_cast<BaseMapping*>(((PySPtr<Base>*)self)->object.get());
+    mapping->apply(core::MechanicalParams::defaultInstance(), core::VecCoordId::position(), core::ConstVecCoordId::position());
+    mapping->applyJ(core::MechanicalParams::defaultInstance(), core::VecDerivId::velocity(), core::ConstVecDerivId::velocity());
+    Py_RETURN_NONE;
+}
+
 extern "C" PyObject * BaseMapping_getFrom(PyObject * self, PyObject * /*args*/)
 {
     BaseMapping* mapping = dynamic_cast<BaseMapping*>(((PySPtr<Base>*)self)->object.get());
@@ -117,6 +132,8 @@ extern "C" PyObject * BaseMapping_setTo(PyObject * self, PyObject * args)
 
 SP_CLASS_METHODS_BEGIN(BaseMapping)
 SP_CLASS_METHOD(BaseMapping,apply)
+SP_CLASS_METHOD(BaseMapping,applyJ)
+SP_CLASS_METHOD(BaseMapping,processMapping)
 SP_CLASS_METHOD(BaseMapping,getFrom)
 SP_CLASS_METHOD(BaseMapping,getTo)
 SP_CLASS_METHOD(BaseMapping,setFrom)
