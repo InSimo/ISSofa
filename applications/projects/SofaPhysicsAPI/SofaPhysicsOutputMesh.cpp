@@ -176,7 +176,14 @@ const Real* SofaPhysicsOutputMesh::Impl::getVPositions()  ///< vertices position
 const Real* SofaPhysicsOutputMesh::Impl::getVNormals()    ///< vertices normals   (Vec3)
 {
     Data<ResizableExtVector<Deriv> > * data = &(sObj->m_vnormals);
-    return (const Real*) data->getValue().getData();
+    Data<ResizableExtVector<Coord> > * data_pos =
+        (!sObj->m_vertPosIdx.getValue().empty()) ?
+        &(sObj->m_vertices2) : &(sObj->m_positions);
+    if( data->getValue().size() >= data_pos->getValue().size() ) {
+        return (const Real*) data->getValue().getData();
+    } else {
+        return NULL;
+    }
 }
 
 const Real* SofaPhysicsOutputMesh::Impl::getVTexCoords()  ///< vertices UVs       (Vec2)
