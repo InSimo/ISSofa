@@ -45,7 +45,8 @@ public:
 
     /// Enable dump of backtrace when a signal is received.
     /// Useful to have information about crashes without starting a debugger (as it is not always easy to do, i.e. for parallel/distributed applications).
-    static void autodump();
+    /// If stopProcess is true, automatically pause the process when it crashes to enable just-in-time debugging on Linux
+    static void autodump(bool stopProcess = true);
 
 protected:
 

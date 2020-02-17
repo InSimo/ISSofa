@@ -135,8 +135,44 @@ void BackTrace::dump()
 #endif
 }
 
-void BackTrace::autodump()
+#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+bool& getStopProcess()
 {
+    static bool stopProcess = false;
+    return stopProcess;
+}
+#endif
+
+void BackTrace::autodump(bool stopProcess)
+{
+    // Read mode from environment variable named SOFA_DEBUG_SIGNAL_MODE
+    // Effects of each mode when a signal is received by the process:
+    //  - OFF : no effect
+    //  - TRACE : dump a backtrace
+    //  - STOP : dump a backtrace and stop the process (only supported on Linux)
+    // The default mode is TRACE
+
+    const char* mode = "TRACE";
+    if (const char* modeFromEnv = std::getenv("SOFA_DEBUG_SIGNAL_MODE"))
+    {
+        mode = modeFromEnv;
+    }
+
+    if (std::strcmp(mode, "OFF") == 0)
+    {
+        return;
+    }
+#if !defined(WIN32) && !defined(_XBOX) && !defined(PS3)
+    else if (std::strcmp(mode, "STOP") == 0)
+    {
+        getStopProcess() = stopProcess;
+    }
+#endif
+    else if (std::strcmp(mode, "TRACE") != 0)
+    {
+        fprintf(stderr, "Invalid SOFA_DEBUG_SIGNAL_MODE environment variable: %s\n", mode);
+    }
+
 #if !defined(_XBOX) && !defined(PS3)
 #if !defined(WIN32)
     struct sigaction action;
@@ -173,6 +209,15 @@ void BackTrace::sig(int sig, siginfo_t *siginfo, void *)
     }
 
     dump();
+
+    // support for just-in-time debugging on Linux
+#ifdef SOFA_CHECK_CONTAINER_ACCESS // for some reason NDEBUG is set when building in RelWithDebInfo, so use another macro
+    if (getStopProcess() && (sig == SIGSEGV || sig == SIGFPE || sig == SIGILL)) // only pause the process when the program crashes so it is still possible to kill it via other signals
+    {
+        raise(SIGSTOP);
+    }
+#endif
+
     signal(sig, SIG_DFL);
     raise(sig);
 }

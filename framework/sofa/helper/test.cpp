@@ -32,7 +32,9 @@ namespace helper
 // This setup the environment for optimal testing (logger, backtrace)
 SOFA_HELPER_API void initBeforeTests()
 {
-    sofa::helper::BackTrace::autodump();
+    // Some tests are designed to crash the program
+    // Therefore, disable stopping the current process when this happens to prevent the tests from hanging indefinitely
+    sofa::helper::BackTrace::autodump(false);
 }
 
 // Should be called after any tests using Sofa is executed.
