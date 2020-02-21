@@ -781,11 +781,11 @@ Quater<Real> Quater<Real>::slerp(Quater<Real> &q1, Real t)
 
     q0_1.quatToAxis(axis, angle);
 
-    temp = axis * sin(t * angle);
+    temp = axis * sin(t * (angle / 2));
     for (unsigned int i = 0 ; i<3 ; i++)
         q0_1[i] = temp[i];
 
-    q0_1[3] = cos(t * angle);
+    q0_1[3] = cos(t * (angle / 2));
     q0_1 = q0_1 * (*this);
     return q0_1;
 }
