@@ -337,4 +337,62 @@ TEST(QuaternionTest, checkRotationsAndMatrices)
     }
 }
 
+TEST(QuaternionTest, CheckSlerpConservativeness)
+{
+    Quat a = {0,0,0,1};
+    Quat b;
+
+    const Vec3d& axis = {0,0,1};
+    const SReal& angle = 10;
+
+    b.axisToQuat(axis, angle*M_PI/180., 0.);
+
+    //ensure both a and b are unit
+    Quat c = a*b;
+    EXPECT_EQ(true, c.isUnit());
+
+    //ensure slerp(a,b) is conservative for small angles
+    SReal t = 0.8;
+    Quat s0;
+    s0.slerp(a,b,t);
+    EXPECT_EQ(true, s0.isUnit());
+
+    //ensure a.slerp(b) is conservative for small angles
+    //since it is not the same implementation as slerp(a,b)
+    Quat s1;
+    s1 = a.slerp(b,t);
+    EXPECT_EQ(true, s1.isUnit());
+
+    //ensure a.slerp2(b) is conservative for small angles
+    Quat s2;
+    s2 = a.slerp2(b,t);
+    EXPECT_EQ(true, s2.isUnit());
+}
+
+TEST(QuaternionTest, CheckSlerpsConsistency)
+{
+    Quat a = {0,0,0,1};
+    Quat b = a;
+
+    const Vec3d& axis = {0,0,1};
+    const SReal& angle = 10;
+
+    b.axisToQuat(axis, angle*M_PI/180., 0.);
+
+    //ensure both a and b are unit
+    Quat c = a*b;
+    EXPECT_EQ(true, c.isUnit());
+
+    //ensure all 3 slerp methods return the same value
+    SReal t = 1;
+    Quat s0, s1, s2;
+    s0.slerp(a,b,t);
+    s1 = a.slerp(b,t);
+    s2 = a.slerp2(b,t);
+
+    EXPECT_EQ(s0, s2);
+    EXPECT_EQ(s1, s2);
+}
+
+
 }
