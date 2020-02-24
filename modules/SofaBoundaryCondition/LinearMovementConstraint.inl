@@ -285,7 +285,7 @@ void LinearMovementConstraint<DataTypes>::interpolatePosition(Real cT, typename 
     for (SetIndexArray::const_iterator it = indices.begin(); it != indices.end(); ++it)
     {
         x[*it].getCenter() = x0[*it].getCenter() + getVCenter(m) ;
-        x[*it].getOrientation() = x0[*it].getOrientation() * prevOrientation.slerp2(nextOrientation, dt);
+        x[*it].getOrientation() = x0[*it].getOrientation() * prevOrientation.slerp(nextOrientation, dt);
     }
 }
 
