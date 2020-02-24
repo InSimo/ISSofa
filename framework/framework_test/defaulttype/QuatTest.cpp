@@ -339,60 +339,31 @@ TEST(QuaternionTest, checkRotationsAndMatrices)
 
 TEST(QuaternionTest, CheckSlerpConservativeness)
 {
+    constexpr std::size_t nTests = NITERATIONS;
+    std::ranlux48_base rgen;
+    std::uniform_real_distribution<Real> rrnd_t(0.0f,1.0f);
+
     Quat a = {0,0,0,1};
-    Quat b;
+    Quat b, c;
+    Quat s0 = a, s1 = a;
 
     const Vec3d& axis = {0,0,1};
-    const SReal& angle = 10;
+    const Real& maxAngleLinearised = std::acos(0.999)*180./M_PI*2.;
 
-    b.axisToQuat(axis, angle*M_PI/180., 0.);
+    std::uniform_real_distribution<Real> rrnd_a(-maxAngleLinearised,maxAngleLinearised);
+    Real angle = maxAngleLinearised;
 
-    //ensure both a and b are unit
-    Quat c = a*b;
-    EXPECT_EQ(true, c.isUnit());
+    // loop many times, but stop after the first failure to not spam the log with thousands of errors
+    for (std::size_t ti = 0; ti < nTests && !::testing::Test::HasNonfatalFailure(); ++ti)
+    {
+        angle = rrnd_a(rgen);
+        b.axisToQuat(axis, angle*M_PI/180., 0.);
 
-    //ensure slerp(a,b) is conservative for small angles
-    SReal t = 0.8;
-    Quat s0;
-    s0.slerp(a,b,t);
-    EXPECT_EQ(true, s0.isUnit());
-
-    //ensure a.slerp(b) is conservative for small angles
-    //since it is not the same implementation as slerp(a,b)
-    Quat s1;
-    s1 = a.slerp(b,t);
-    EXPECT_EQ(true, s1.isUnit());
-
-    //ensure a.slerp2(b) is conservative for small angles
-    Quat s2;
-    s2 = a.slerp2(b,t);
-    EXPECT_EQ(true, s2.isUnit());
+        //ensure slerp(a,b) is conservative for small angles
+        const Real& t = rrnd_t(rgen);
+        s0.slerp(b,t);
+        EXPECT_TRUE(s0.isUnit());
+    }
 }
-
-TEST(QuaternionTest, CheckSlerpsConsistency)
-{
-    Quat a = {0,0,0,1};
-    Quat b = a;
-
-    const Vec3d& axis = {0,0,1};
-    const SReal& angle = 10;
-
-    b.axisToQuat(axis, angle*M_PI/180., 0.);
-
-    //ensure both a and b are unit
-    Quat c = a*b;
-    EXPECT_EQ(true, c.isUnit());
-
-    //ensure all 3 slerp methods return the same value
-    SReal t = 1;
-    Quat s0, s1, s2;
-    s0.slerp(a,b,t);
-    s1 = a.slerp(b,t);
-    s2 = a.slerp2(b,t);
-
-    EXPECT_EQ(s0, s2);
-    EXPECT_EQ(s1, s2);
-}
-
 
 }

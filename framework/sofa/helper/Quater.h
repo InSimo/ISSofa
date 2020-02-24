@@ -221,6 +221,7 @@ public:
      between the Quaternions' orientations, by "flipping" the source Quaternion if needed (see
      negate()). */
     void slerp(const Quater& a, const Quater& b, Real t, bool allowFlip=true);
+    Quater<Real> slerp(const Quater<Real>& q1, Real t);
 
     // A useful function, builds a rotation matrix in Matrix based on
     // given quaternion.
@@ -301,8 +302,6 @@ public:
 
     // Print the quaternion (C style)
     void print();
-    Quater<Real> slerp(Quater<Real> &q1, Real t);
-    Quater<Real> slerp2(Quater<Real> &q1, Real t);
 
     Quater<Real>& operator+=(const Quater& q2);
     Quater<Real>& operator*=(const Quater& q2);
