@@ -489,7 +489,7 @@ protected:
 
 #define SOFA_STRUCT_MEMBER(MemberName)                                       \
     struct MemberInfo_##MemberName{                                          \
-    typedef decltype(MemberName) type;                                       \
+    typedef decltype(StructType::MemberName) type;                           \
     static const char* name() { return SOFA_TO_STRING_1(MemberName); }       \
     static const type& readRef(const StructType& s) { return s.MemberName; } \
     static type& writeRef(StructType& s) { return s.MemberName; }            \
