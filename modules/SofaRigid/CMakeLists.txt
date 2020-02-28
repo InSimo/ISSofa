@@ -16,6 +16,8 @@ set(HEADER_FILES
     RigidMapping.inl
     RigidRigidMapping.h
     RigidRigidMapping.inl
+    ShapeMatchingMapping.h
+    ShapeMatchingMapping.inl
     SkinningMapping.h
     SkinningMapping.inl
     JointSpringForceField.h
@@ -32,6 +34,7 @@ set(SOURCE_FILES
     LineSetSkinningMapping.cpp
     RigidMapping.cpp
     RigidRigidMapping.cpp
+    ShapeMatchingMapping.cpp
     SkinningMapping.cpp
     JointSpringForceField.cpp
 
