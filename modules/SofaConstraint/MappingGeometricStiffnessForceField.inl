@@ -46,19 +46,27 @@ void MappingGeometricStiffnessForceField<DataTypes>::addKToMatrix(const sofa::co
         return;
     }
 
-    sofa::core::behavior::MultiMatrixAccessor::MatrixRef mref = matrix->getMatrix(this->mstate);
-    sofa::defaulttype::BaseMatrix* mat = mref.matrix;
-    unsigned int offset = mref.offset;
-
     const sofa::defaulttype::BaseMatrix* mappingK = l_mapping->getK();
-
-    for (int i = 0; i < mappingK->rowSize(); ++i)
+    if(!mappingK)
     {
-        for (int j = 0; j < mappingK->colSize(); ++j)
+        sofa::core::behavior::MultiMatrixAccessor::MatrixRef mref = matrix->getMatrix(this->mstate);
+        l_mapping->addGeometricStiffnessToMatrix(mref.matrix, mref.offset, kFact);
+    }
+    else
+    {
+        sofa::core::behavior::MultiMatrixAccessor::MatrixRef mref = matrix->getMatrix(this->mstate);
+        sofa::defaulttype::BaseMatrix* mat = mref.matrix;
+        unsigned int offset = mref.offset;
+        for (int i = 0; i < mappingK->rowSize(); ++i)
         {
-            mat->add(offset + i, offset + j, mappingK->element(i, j)*kFact);
+            for (int j = 0; j < mappingK->colSize(); ++j)
+            {
+                mat->add(offset + i, offset + j, mappingK->element(i, j)*kFact);
+            }
         }
     }
+
+
 
     //typedef typename DataTypes::Deriv TBloc;
     //sofa::component::linearsolver::BlocMatrixWriter< TBloc > writer;

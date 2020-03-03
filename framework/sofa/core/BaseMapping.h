@@ -172,6 +172,11 @@ public:
     /// For efficiency concerns, please return a pointer to a defaulttype::EigenBaseSparseMatrix
     virtual const defaulttype::BaseMatrix* getK() { return NULL; }
 
+    /// use this method for fast addition of geometric stiffness matrix to the mechanical matrix,
+    ///         in this scheme, BaseMappping::getK() returns Null and BaseMappping::updateK()
+    ///         only stores the child force vector for use in this method
+    virtual void addGeometricStiffnessToMatrix(sofa::defaulttype::BaseMatrix* matrix, const unsigned int matrixOffset, const double factor) {}
+
     /// @}
 
 protected:
