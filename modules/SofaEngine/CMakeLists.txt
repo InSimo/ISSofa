@@ -6,8 +6,11 @@ set(HEADER_FILES
     initEngine.h
     AverageCoord.h
     AverageCoord.inl
+    BaseBoxROI.h
     BoxROI.h
     BoxROI.inl
+    OrientedBoxROI.h
+    OrientedBoxROI.inl
     PairBoxRoi.h
     PairBoxRoi.inl
     PlaneROI.h
@@ -96,7 +99,9 @@ set(SOURCE_FILES
 
     initEngine.cpp
     AverageCoord.cpp
+    BaseBoxROI.cpp
     BoxROI.cpp
+    OrientedBoxROI.cpp
     PairBoxRoi.cpp
     PlaneROI.cpp
     SphereROI.cpp

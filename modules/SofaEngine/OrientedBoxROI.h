@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_ENGINE_BOXROI_H
-#define SOFA_COMPONENT_ENGINE_BOXROI_H
+#ifndef SOFA_COMPONENT_ENGINE_ORIENTEDBOXROI_H
+#define SOFA_COMPONENT_ENGINE_ORIENTEDBOXROI_H
 
 #if !defined(__GNUC__) || (__GNUC__ > 3 || (_GNUC__ == 3 && __GNUC_MINOR__ > 3))
 #pragma once
@@ -44,25 +44,69 @@ namespace component
 namespace engine
 {
 
+struct OrientedBoxROIType
+{
+    typedef sofa::defaulttype::Vector3 Vec3;
+    typedef sofa::helper::Quater<double> Quater;
+
+    OrientedBoxROIType()
+    {
+        center = sofa::defaulttype::Vector3(0, 0, 0);
+        dimensions = sofa::defaulttype::Vector3(1, 1, 1);
+        quat = sofa::helper::Quater<double>(0, 0, 0, 1);
+    }
+
+    OrientedBoxROIType(Vec3 pos, Vec3 dims, Quater quater)
+        : center(pos), dimensions(dims), quat(quater)
+    {}
+
+    Vec3 center;
+    Vec3 dimensions;
+    Quater quat;
+
+    inline friend std::ostream& operator<< (std::ostream& os, const OrientedBoxROIType& b)
+    {
+        os << b.center << " ";
+        os << b.dimensions << " ";
+        os << b.quat << " ";
+        return os;
+    }
+
+    inline friend std::istream& operator>> (std::istream& in, OrientedBoxROIType& b)
+    {
+        in >> b.center;
+        in >> b.dimensions;
+        in >> b.quat;
+        return in;
+    }
+};
+
 /**
- * This class find all the points/edges/triangles/tetrahedra located inside a given box.
+ * This class find all the points/edges/triangles/tetrahedra located inside given boxes
+ * given by 3 packed parameters : a center, 3 width and a quaternion
  */
 template <class DataTypes>
-class BoxROI : public BaseBoxROI<DataTypes, defaulttype::Vec<6,typename DataTypes::Real>>
+class OrientedBoxROI : public BaseBoxROI<DataTypes, OrientedBoxROIType>
 {
 public:
-    typedef typename DataTypes::Real Real;
-    typedef defaulttype::Vec<6,Real> Vec6;
-    typedef typename DataTypes::CPos CPos;
+    SOFA_CLASS(SOFA_TEMPLATE(OrientedBoxROI,DataTypes), SOFA_TEMPLATE2(BaseBoxROI,DataTypes,OrientedBoxROIType));
 
-    SOFA_CLASS(SOFA_TEMPLATE(BoxROI,DataTypes), SOFA_TEMPLATE2(BaseBoxROI,DataTypes,Vec6));
+    typedef typename DataTypes::Real Real;
+    typedef typename DataTypes::CPos CPos;
+    typedef sofa::defaulttype::Vector3 Vec3;
+    typedef typename sofa::helper::Quater<Real> Quat;
+
+    typedef typename Inherit1::Boxes Boxes;
+
 
 protected:
-    BoxROI();
+    OrientedBoxROI();
 
-    ~BoxROI() {}
+    ~OrientedBoxROI() {}
 
 public:
+    virtual void init() override;
+
     virtual void updateBoxes() override;
 
     virtual void computeBBox(const core::ExecParams*  params ) override;
@@ -95,26 +139,31 @@ public:
         return templateName(this);
     }
 
-    static std::string templateName(const BoxROI<DataTypes>* = NULL)
+    static std::string templateName(const OrientedBoxROI<DataTypes>* = NULL)
     {
         return DataTypes::Name();
     }
 
 protected:
-    virtual bool isPointInBox(const CPos& p, const Vec6& b) override;
+    virtual bool isPointInBox(const CPos& p, const OrientedBoxROIType& b) override;
 
+public:
+    sofa::Data< sofa::helper::vector<Vec3> > d_centers;
+    sofa::Data< sofa::helper::vector<Vec3>> d_dimensions;
+    sofa::Data< sofa::helper::vector<Quat>> d_quaternions;
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_ENGINE_BOXROI_CPP)
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_ENGINE_ORIENTEDBOXROI_CPP)
 #ifndef SOFA_FLOAT
-extern template class SOFA_ENGINE_API BoxROI<defaulttype::Vec3dTypes>;
-extern template class SOFA_ENGINE_API BoxROI<defaulttype::Rigid3dTypes>;
-extern template class SOFA_ENGINE_API BoxROI<defaulttype::Vec6dTypes>; //Phuoc
+extern template class SOFA_ENGINE_API OrientedBoxROI<defaulttype::Vec3dTypes>;
+extern template class SOFA_ENGINE_API OrientedBoxROI<defaulttype::Rigid3dTypes>;
+extern template class SOFA_ENGINE_API OrientedBoxROI<defaulttype::Vec6dTypes>;
 #endif //SOFA_FLOAT
 #ifndef SOFA_DOUBLE
-extern template class SOFA_ENGINE_API BoxROI<defaulttype::Vec3fTypes>;
-extern template class SOFA_ENGINE_API BoxROI<defaulttype::Rigid3fTypes>;
-extern template class SOFA_ENGINE_API BoxROI<defaulttype::Vec6fTypes>; //Phuoc
+extern template class SOFA_ENGINE_API OrientedBoxROI<defaulttype::Vec3fTypes>;
+extern template class SOFA_ENGINE_API OrientedBoxROI<defaulttype::Rigid3fTypes>;
+extern template class SOFA_ENGINE_API OrientedBoxROI<defaulttype::Vec6fTypes>;
 #endif //SOFA_DOUBLE
 #endif
 
