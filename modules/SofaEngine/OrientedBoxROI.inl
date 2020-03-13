@@ -80,8 +80,8 @@ template <class DataTypes>
 bool OrientedBoxROI<DataTypes>::isPointInBox(const typename DataTypes::CPos& p, const OrientedBoxROIType& b)
 {
     const auto invRotp = b.quat.inverseRotate(Vec3(p) - b.center);
-    if (std::fabs(invRotp[0]) < b.dimensions[0]*0.5 && std::fabs(invRotp[1]) < b.dimensions[1]*0.5 &&
-        std::fabs(invRotp[2]) < b.dimensions[2]*0.5)
+    if (std::fabs(invRotp[0]) <= b.dimensions[0]*0.5 && std::fabs(invRotp[1]) <= b.dimensions[1]*0.5 &&
+        std::fabs(invRotp[2]) <= b.dimensions[2]*0.5)
     {
         return true;
     }
