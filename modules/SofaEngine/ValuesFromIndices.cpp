@@ -41,6 +41,7 @@ SOFA_DECL_CLASS(ValuesFromIndices)
 
 int ValuesFromIndicesClass = core::RegisterObject("Find the values given a list of indices")
         .add< ValuesFromIndices<std::string> >()
+        .add< ValuesFromIndices<bool> >()
         .add< ValuesFromIndices<int> >()
         .add< ValuesFromIndices<unsigned int> >()
         .add< ValuesFromIndices<helper::vector<int> > >()
@@ -74,6 +75,7 @@ int ValuesFromIndicesClass = core::RegisterObject("Find the values given a list 
         ;
 
 template class SOFA_ENGINE_API ValuesFromIndices<std::string>;
+template class SOFA_ENGINE_API ValuesFromIndices<bool>;
 template class SOFA_ENGINE_API ValuesFromIndices<int>;
 template class SOFA_ENGINE_API ValuesFromIndices<unsigned int>;
 template class SOFA_ENGINE_API ValuesFromIndices< helper::fixed_array<unsigned int, 2> >;
