@@ -66,7 +66,7 @@ void OrientedBoxROI<DataTypes>::init()
     helper::ReadAccessor<Data<sofa::helper::vector<Vec3>>> dimensions = d_dimensions;
     helper::ReadAccessor<Data<sofa::helper::vector<Quat>>> quaternions = d_quaternions;
 
-    assert((centers.size() == dimension.size()) && (centers.size() == quaternions.size()));
+    assert((centers.size() == dimensions.size()) && (centers.size() == quaternions.size()));
     for (unsigned int i=0; i<centers.size(); ++i)
     {
         vb.push_back(OrientedBoxROIType(centers[i], dimensions[i], quaternions[i]));
