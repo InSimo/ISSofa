@@ -205,9 +205,9 @@ void OrientedBoxROI<DataTypes>::computeBBox(const core::ExecParams*  params)
             if (vertex[0] < minBBox[0]) minBBox[0] = vertex[0];
             if (vertex[1] < minBBox[1]) minBBox[1] = vertex[1];
             if (vertex[2] < minBBox[2]) minBBox[2] = vertex[2];
-            if (vertex[3] > maxBBox[0]) maxBBox[0] = vertex[3];
-            if (vertex[4] > maxBBox[1]) maxBBox[1] = vertex[4];
-            if (vertex[5] > maxBBox[2]) maxBBox[2] = vertex[5];
+            if (vertex[0] > maxBBox[0]) maxBBox[0] = vertex[0];
+            if (vertex[1] > maxBBox[1]) maxBBox[1] = vertex[1];
+            if (vertex[2] > maxBBox[2]) maxBBox[2] = vertex[2];
         }
     }
     this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
