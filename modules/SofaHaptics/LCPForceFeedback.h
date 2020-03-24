@@ -162,6 +162,8 @@ public:
 
     // Enable/disable constraint haptic influence from all frames
     Data< bool > d_localHapticConstraintAllFrames;
+    Data< bool > localHapticConstraintRigidBilateral;
+
 
     sofa::MultiLink< LCPForceFeedback<DataTypes>, core::behavior::PairInteractionConstraint<DataTypes>, sofa::BaseLink::FLAG_STRONGLINK > l_rigidRigidConstraints;
     bool registerRigidRigidBilateralConstraint(typename core::behavior::PairInteractionConstraint<DataTypes>::SPtr c);

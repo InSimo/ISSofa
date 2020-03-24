@@ -48,6 +48,7 @@ LCPForceFeedback<DataTypes>::LCPForceFeedback()
     , solverTimeout(initData(&solverTimeout, 0.0008, "solverTimeout","max time to spend solving constraints."))
     , d_derivRotations(initData(&d_derivRotations, false, "derivRotations", "if true, deriv the rotations when updating the violations"))
     , d_localHapticConstraintAllFrames(initData(&d_localHapticConstraintAllFrames, false, "localHapticConstraintAllFrames", "Flag to enable/disable constraint haptic influence from all frames"))
+    , localHapticConstraintRigidBilateral(initData(&localHapticConstraintRigidBilateral, true, "localHapticConstraintRigidBilateral", "Flag to enable/disable haptic on rigid/rigid bilateral constraints created in grasp actions"))
     , l_rigidRigidConstraints(initLink("RigidRigidConstraints","Stores active rigid/rigid constraints corresponding to linked grasped objects"))
     , mState(NULL)
     , mNextBufferId(0)
@@ -60,6 +61,8 @@ LCPForceFeedback<DataTypes>::LCPForceFeedback()
     , haptic_freq(0.0)
     , num_constraints(0)
 {
+    localHapticConstraintRigidBilateral.setGroup("LocalHapticConstraints");
+
     this->f_listening.setValue(true);
     mCP[0] = NULL;
     mCP[1] = NULL;
@@ -175,11 +178,6 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
         return;
     }
 
-    /*VecDeriv dx;
-    derivVectors< DataTypes >(dx, val, state, d_derivRotations.getValue());
-    m_dxRotation = dx[0];
-    m_valRotation = val[0];*/
-
     if(!constraints.empty())
     {
         VecDeriv dx;
@@ -286,9 +284,46 @@ void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *ev
 
     //	id_buf.clear();
 
+    const bool   skipRigidBilateral = !localHapticConstraintRigidBilateral.getValue();
+    
+    const MatrixDeriv& c     = mState->read(core::ConstMatrixDerivId::constraintJacobian())->getValue()   ;
     MatrixDeriv& constraints = mConstraints[buf_index];
-    const MatrixDeriv& c = mState->read(core::ConstMatrixDerivId::constraintJacobian())->getValue()   ;
-    constraints = c;
+
+    if (skipRigidBilateral)
+    {
+        constraints.clear();
+        std::set<int> rigidBilateralConstraints;
+
+        for (unsigned int rrci = 0; rrci < this->l_rigidRigidConstraints.size(); ++rrci)
+        {
+            core::behavior::MechanicalState<DataTypes> *toolMappedState = this->l_rigidRigidConstraints[rrci]->getMState2();
+            const MatrixDeriv& c = toolMappedState->read(core::ConstMatrixDerivId::holonomicC())->getValue();
+
+            for (MatrixDerivRowConstIterator rowIt = c.begin(), rowItEnd = c.end(); rowIt != rowItEnd; ++rowIt)
+            {
+                rigidBilateralConstraints.insert(rowIt.index());
+            }
+        }
+
+        for (MatrixDerivRowConstIterator rowIt = c.begin(), rowItEnd = c.end();
+             rowIt != rowItEnd; ++rowIt)
+        {
+            const int cIndex = rowIt.index();
+
+            if (rigidBilateralConstraints.find(cIndex) != rigidBilateralConstraints.end())
+            {
+                continue;
+            }
+            
+            constraints.addLine(cIndex, rowIt.row());
+        }
+
+        constraints.compress();
+    }
+    else
+    {
+        constraints = c;
+    }
 
     // valid buffer
 
