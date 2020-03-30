@@ -59,17 +59,39 @@ extern "C" PyObject * BaseMeshTopology_getNbHexahedra(PyObject *self, PyObject *
     return PyInt_FromLong(obj->getNbHexahedra());
 }
 
+PyObject * indicesVectorToPyList(const sofa::helper::vector<BaseMeshTopology::index_type>& vector)
+{
+    PyObject *list = PyList_New(vector.size());
+    for (unsigned int i = 0u; i < vector.size(); i++)
+        PyList_SetItem(list, i, PyInt_FromLong(vector[i]));
+    return list;
+}
+
+extern "C" PyObject * BaseMeshTopology_getVerticesAroundVertex(PyObject *self, PyObject * args)
+{
+    BaseMeshTopology* obj=BaseMeshTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
+    int pointId;
+    if (!PyArg_ParseTuple(args, "i",&pointId))
+        Py_RETURN_NONE;
+    return indicesVectorToPyList(obj->getVerticesAroundVertex(BaseMeshTopology::PointID(pointId)));
+}
+
+extern "C" PyObject * BaseMeshTopology_getEdgesAroundVertex(PyObject *self, PyObject * args)
+{
+    BaseMeshTopology* obj=BaseMeshTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
+    int pointId;
+    if (!PyArg_ParseTuple(args, "i",&pointId))
+        Py_RETURN_NONE;
+    return indicesVectorToPyList(obj->getEdgesAroundVertex(BaseMeshTopology::PointID(pointId)));
+}
+
 extern "C" PyObject * BaseMeshTopology_getTrianglesAroundVertex(PyObject *self, PyObject * args)
 {
     BaseMeshTopology* obj=BaseMeshTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
     int pointId;
     if (!PyArg_ParseTuple(args, "i",&pointId))
         Py_RETURN_NONE;
-    const BaseMeshTopology::TrianglesAroundVertex& trianglesAroundVertex = obj->getTrianglesAroundVertex(BaseMeshTopology::PointID(pointId));
-    PyObject *list = PyList_New(trianglesAroundVertex.size());
-    for (unsigned int i=0; i<trianglesAroundVertex.size(); i++)
-        PyList_SetItem(list,i,PyInt_FromLong(trianglesAroundVertex[i]));
-    return list;
+    return indicesVectorToPyList(obj->getTrianglesAroundVertex(BaseMeshTopology::PointID(pointId)));
 }
 
 SP_CLASS_METHODS_BEGIN(BaseMeshTopology)
@@ -78,6 +100,8 @@ SP_CLASS_METHOD(BaseMeshTopology,getNbTriangles)
 SP_CLASS_METHOD(BaseMeshTopology,getNbQuads)
 SP_CLASS_METHOD(BaseMeshTopology,getNbTetrahedra)
 SP_CLASS_METHOD(BaseMeshTopology,getNbHexahedra)
+SP_CLASS_METHOD(BaseMeshTopology,getVerticesAroundVertex)
+SP_CLASS_METHOD(BaseMeshTopology,getEdgesAroundVertex)
 SP_CLASS_METHOD(BaseMeshTopology,getTrianglesAroundVertex)
 SP_CLASS_METHODS_END
 
