@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SCRIPTEVENT_H
-#define SCRIPTEVENT_H
+#ifndef SOFA_SIMULATION_SCRIPTEVENT_H
+#define SOFA_SIMULATION_SCRIPTEVENT_H
 
 #include <sofa/SofaFramework.h>
 #include <sofa/core/objectmodel/Event.h>
@@ -34,10 +34,7 @@
 namespace sofa
 {
 
-namespace core
-{
-
-namespace objectmodel
+namespace simulation
 {
 
 /**
@@ -75,10 +72,8 @@ private:
 
 };
 
-} // namespace objectmodel
-
-} // namespace core
+} // namespace simulation
 
 } // namespace sofa
 
-#endif // SCRIPTEVENT_H
+#endif // SOFA_SIMULATION_SCRIPTEVENT_H

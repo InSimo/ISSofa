@@ -276,7 +276,7 @@ void PythonScriptController::script_onGUIEvent(const char* controlID, const char
     SP_CALL_OBJECTFUNC(const_cast<char*>("onGUIEvent"),const_cast<char*>("(sss)"),controlID,valueName,value)
 }
 
-void PythonScriptController::script_onScriptEvent(core::objectmodel::ScriptEvent* event)
+void PythonScriptController::script_onScriptEvent(simulation::ScriptEvent* event)
 {
     core::objectmodel::PythonScriptEvent *pyEvent = core::objectmodel::PythonScriptEvent::DynamicCast(event);
     if (!pyEvent)

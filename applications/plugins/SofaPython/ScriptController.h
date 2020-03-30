@@ -29,7 +29,7 @@
 #include <sofa/core/objectmodel/Context.h>
 #include <sofa/core/objectmodel/BaseObjectDescription.h>
 #include <sofa/simulation/common/Node.h>
-#include "ScriptEvent.h"
+#include <sofa/simulation/common/ScriptEvent.h>
 
 namespace sofa
 {
@@ -161,7 +161,7 @@ protected:
     virtual void script_onGUIEvent(const char* controlID, const char* valueName, const char* value) = 0;
 
     /// Script events; user data is implementation-dependant
-    virtual void script_onScriptEvent(core::objectmodel::ScriptEvent *) = 0;
+    virtual void script_onScriptEvent(simulation::ScriptEvent *) = 0;
 
 	/// drawing
 	virtual void script_draw(const core::visual::VisualParams*) = 0;

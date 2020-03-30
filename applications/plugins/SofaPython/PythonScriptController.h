@@ -81,7 +81,7 @@ protected:
     virtual void script_onGUIEvent(const char* controlID, const char* valueName, const char* value);
 
     /// Script events; user data is implementation-dependant
-    virtual void script_onScriptEvent(core::objectmodel::ScriptEvent* event);
+    virtual void script_onScriptEvent(simulation::ScriptEvent* event);
 
 	/// drawing
 	virtual void script_draw(const core::visual::VisualParams*);

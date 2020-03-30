@@ -67,7 +67,6 @@ set(HEADER_FILES
     Binding_BaseState.h
     PythonVisitor.h
     Binding_DisplayFlagsData.h
-    ScriptEvent.h
     PythonScriptEvent.h
     Binding_BaseLoader.h
     Binding_MeshLoader.h
@@ -114,7 +113,6 @@ set(SOURCE_FILES
     PythonMacros.cpp
     PythonVisitor.cpp
     Binding_DisplayFlagsData.cpp
-    ScriptEvent.cpp
     PythonScriptEvent.cpp
     Binding_BaseLoader.cpp
     Binding_MeshLoader.cpp

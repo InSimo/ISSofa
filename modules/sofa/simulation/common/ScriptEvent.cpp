@@ -27,10 +27,7 @@
 namespace sofa
 {
 
-namespace core
-{
-
-namespace objectmodel
+namespace simulation
 {
 
 SOFA_EVENT_CLASS_IMPL((ScriptEvent));
@@ -48,9 +45,7 @@ ScriptEvent::~ScriptEvent()
 
 }
 
-} // namespace objectmodel
-
-} // namespace core
+} // namespace simulation
 
 } // namespace sofa
 

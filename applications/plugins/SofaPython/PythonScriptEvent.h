@@ -28,7 +28,7 @@
 #include "PythonCommon.h"
 
 #include <sofa/SofaPython.h>
-#include "ScriptEvent.h"
+#include <sofa/simulation/common/ScriptEvent.h>
 
 
 namespace sofa
@@ -43,10 +43,10 @@ namespace objectmodel
 /**
  * @brief This event notifies about GUI interaction.
  */
-class SOFA_SOFAPYTHON_API PythonScriptEvent : public sofa::core::objectmodel::ScriptEvent
+class SOFA_SOFAPYTHON_API PythonScriptEvent : public sofa::simulation::ScriptEvent
 {
 public:
-    SOFA_EVENT_CLASS_EXTERNAL((PythonScriptEvent),((sofa::core::objectmodel::ScriptEvent)));
+    SOFA_EVENT_CLASS_EXTERNAL((PythonScriptEvent),((sofa::simulation::ScriptEvent)));
 
     /**
      * @brief Constructor.
