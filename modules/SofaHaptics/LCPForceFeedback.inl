@@ -159,7 +159,7 @@ bool LCPForceFeedback<DataTypes>::updateConstraintProblem()
 template <class DataTypes>
 void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeriv& forces)
 {
-    const unsigned int stateSize = state.size();
+    const int stateSize = int(state.size());
     forces.resize(stateSize);
     for (unsigned int i = 0; i < forces.size(); ++i)
     {
@@ -173,14 +173,24 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
     VecCoord &val = mVal[mCurBufferId];
     component::constraintset::ConstraintProblem* cp = mCP[mCurBufferId];
 
+    const std::set<int>& constraintToSkip = mConstraintToSkip[mCurBufferId];
+
     if(!cp)
     {
         return;
     }
 
-    if(!constraints.empty())
+    std::vector<double> localF;
+    localF.resize(cp->getDimension());
+
+    const double forceScale = forceCoef.getValue();
+
+    if(!constraints.empty() &&
+       constraints.size() != constraintToSkip.size() )
     {
         VecDeriv dx;
+
+        std::fill(localF.begin(), localF.end(), 0);
 
         derivVectors< DataTypes >(dx, val, state, d_derivRotations.getValue());
 
@@ -203,6 +213,36 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
         // Solving constraints
         cp->solveTimed(cp->tolerance * 0.001, 100, solverTimeout.getValue());	// tol, maxIt, timeout
 
+        if (!constraintToSkip.empty())
+        {
+            auto it = constraintToSkip.begin();
+
+            while (it != constraintToSkip.end())
+            {
+                int cIndex = *it;
+                auto* cr = cp->constraintsResolutions[cIndex];
+                if (cr == nullptr)
+                {
+                    serr << "constraintsResolutions[" << cIndex << "] == nullptr ! Dimension: " << cp->getDimension() << sendl;
+                    break;
+                }
+                else
+                {
+                    // get the local force for this constraint resolution, 
+                    // neglecting the coupling with other constraints
+                    for (unsigned i = 0; i < cr->getNbLines(); ++i)
+                    {
+                        cp->_d[cIndex + i] = cp->getDfree()[cIndex + i];
+                    }
+                    cr->resolution(cIndex, cp->getW(), cp->_d.ptr(), &localF[0], cp->getDfree());
+
+                    cIndex += cr->getNbLines();
+                    std::advance(it, cr->getNbLines());
+                }
+            }
+        }
+
+
         // Restore Dfree
         for (MatrixDerivRowConstIterator rowIt = constraints.begin(); rowIt != rowItEnd; ++rowIt)
         {
@@ -214,28 +254,26 @@ void LCPForceFeedback<DataTypes>::doComputeForce(const VecCoord& state,  VecDeri
             }
         }
 
-        VecDeriv tempForces;
-        tempForces.resize(val.size());
-
         for (MatrixDerivRowConstIterator rowIt = constraints.begin(); rowIt != rowItEnd; ++rowIt)
         {
             if (cp->getF()[rowIt.index()] != 0.0)
             {
                 MatrixDerivColConstIterator colItEnd = rowIt.end();
+                cp->getF()[rowIt.index()] -= localF[rowIt.index()];
 
                 for (MatrixDerivColConstIterator colIt = rowIt.begin(); colIt != colItEnd; ++colIt)
                 {
-                    tempForces[localHapticConstraintAllFrames ? 0 : colIt.index()] += colIt.val() * cp->getF()[rowIt.index()];
+                    const Deriv f   = colIt.val() * cp->getF()[rowIt.index()] * forceScale;
+                    const int index = localHapticConstraintAllFrames ? 0 : colIt.index();
+                    if (index < stateSize)
+                    {
+                        forces[index] += f;
+                    }
                 }
             }
         }
 
-        for(unsigned int i = 0; i < stateSize; ++i)
-        {
-            forces[i] = tempForces[i] * forceCoef.getValue();
-        }
     }
-
     mIsCuBufferInUse = false;
 }
 
@@ -276,24 +314,27 @@ void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *ev
     VecCoord& val = mVal[buf_index];
 
     // Update LCP
-    mCP[buf_index] = new_cp;
-
+    component::constraintset::ConstraintProblem*& cp = mCP[buf_index];
+    cp = new_cp;
     // Update Val
     val = mState->read(sofa::core::VecCoordId::freePosition())->getValue();
 
 
     //	id_buf.clear();
 
-    const bool   skipRigidBilateral = !localHapticConstraintRigidBilateral.getValue();
+    const bool skipRigidBilateral = !localHapticConstraintRigidBilateral.getValue();
     
-    const MatrixDeriv& c     = mState->read(core::ConstMatrixDerivId::constraintJacobian())->getValue()   ;
-    MatrixDeriv& constraints = mConstraints[buf_index];
+    const MatrixDeriv& c            = mState->read(core::ConstMatrixDerivId::constraintJacobian())->getValue()   ;
+    MatrixDeriv& constraints        = mConstraints[buf_index];
+    MatrixDeriv& localConstraints   = mLocalConstraints[buf_index];
+    std::set<int>& constraintToSkip = mConstraintToSkip[buf_index];
 
+    constraints = c;
+    constraintToSkip.clear();
+    
     if (skipRigidBilateral)
     {
-        constraints.clear();
-        std::set<int> rigidBilateralConstraints;
-
+        localConstraints.clear();
         for (unsigned int rrci = 0; rrci < this->l_rigidRigidConstraints.size(); ++rrci)
         {
             core::behavior::MechanicalState<DataTypes> *toolMappedState = this->l_rigidRigidConstraints[rrci]->getMState2();
@@ -301,32 +342,30 @@ void LCPForceFeedback<DataTypes>::handleEvent(sofa::core::objectmodel::Event *ev
 
             for (MatrixDerivRowConstIterator rowIt = c.begin(), rowItEnd = c.end(); rowIt != rowItEnd; ++rowIt)
             {
-                rigidBilateralConstraints.insert(rowIt.index());
+                constraintToSkip.insert(rowIt.index());
             }
         }
 
-        for (MatrixDerivRowConstIterator rowIt = c.begin(), rowItEnd = c.end();
-             rowIt != rowItEnd; ++rowIt)
+        for (MatrixDerivRowConstIterator row = constraints.begin(); row != constraints.end(); ++row)
         {
-            const int cIndex = rowIt.index();
-
-            if (rigidBilateralConstraints.find(cIndex) != rigidBilateralConstraints.end())
+            const int cIndex = row.index();
+            if (constraintToSkip.count(cIndex) > 0)
             {
                 continue;
             }
-            
-            constraints.addLine(cIndex, rowIt.row());
-        }
 
-        constraints.compress();
+            localConstraints.addLine(cIndex, row.row());
+        }
+        
+        localConstraints.compress();
     }
     else
     {
-        constraints = c;
+        localConstraints = c;
     }
 
+    
     // valid buffer
-
     {
         // TODO: Lock and/or memory barrier HERE
         mNextBufferId = buf_index;

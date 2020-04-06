@@ -222,6 +222,8 @@ protected:
     core::behavior::MechanicalState<DataTypes> *mState; ///< The device try to follow this mechanical state.
     VecCoord mVal[3];
     MatrixDeriv mConstraints[3];
+    MatrixDeriv mLocalConstraints[3];
+    std::set<int> mConstraintToSkip[3];
     std::vector<int> mId_buf[3];
     component::constraintset::ConstraintProblem* mCP[3];
     /* 	std::vector<int> *id_buf; */
