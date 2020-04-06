@@ -43,7 +43,21 @@ ConstraintProblem::ConstraintProblem()
 
 ConstraintProblem::~ConstraintProblem()
 {
+    freeConstraintResolutions();
 }
+
+void ConstraintProblem::freeConstraintResolutions()
+{
+    for (unsigned int i = 0; i<constraintsResolutions.size(); i++)
+    {
+        if (constraintsResolutions[i] != nullptr)
+        {
+            delete constraintsResolutions[i];
+            constraintsResolutions[i] = nullptr;
+        }
+    }
+}
+
 
 void ConstraintProblem::clear(int nbConstraints)
 {
@@ -51,6 +65,10 @@ void ConstraintProblem::clear(int nbConstraints)
     W.resize(nbConstraints, nbConstraints);
     dFree.resize(nbConstraints);
     f.resize(nbConstraints);
+    _d.resize(nbConstraints);
+
+    freeConstraintResolutions();
+    constraintsResolutions.resize(nbConstraints,nullptr);
 
     static unsigned int counter = 0;
     problemId = ++counter;

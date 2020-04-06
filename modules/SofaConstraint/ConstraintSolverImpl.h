@@ -45,6 +45,8 @@ class SOFA_CONSTRAINT_API ConstraintProblem
 public:
     sofa::component::linearsolver::LPtrFullMatrix<double> W;
     sofa::defaulttype::FullVector<double> dFree, f;
+    sofa::defaulttype::FullVector<double> _d;
+    std::vector<core::behavior::ConstraintResolution*> constraintsResolutions;
 
     ConstraintProblem();
     virtual ~ConstraintProblem();
@@ -53,6 +55,9 @@ public:
     int maxIterations;
 
     virtual void clear(int nbConstraints);
+    
+    void freeConstraintResolutions();
+    
     int getDimension() const { return dimension; }
           double**              getW()       { return W.lptr(); }
     const double* const *       getW() const { return W.lptr(); }
@@ -69,6 +74,8 @@ public:
     virtual std::pair<int,double> solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const = 0;
 
     unsigned int getProblemId();
+
+    const std::vector<core::behavior::ConstraintResolution*>& getConstraintResolutions() const { return constraintsResolutions; }
 
 protected:
     int dimension;

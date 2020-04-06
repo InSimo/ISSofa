@@ -58,8 +58,6 @@ public:
     typedef core::behavior::ConstraintResolution ConstraintResolution;
     typedef std::function<void(ConstraintResolution*, int, double**, double*, double*, double *)> ConstraintResolutionFunctor;
 
-    sofa::defaulttype::FullVector<double> _d;
-	std::vector<core::behavior::ConstraintResolution*> constraintsResolutions;
     bool   useInfiniteNorm; 
     bool   unbuilt;
 	double sor;
@@ -81,10 +79,8 @@ public:
 	GenericConstraintProblem() : useInfiniteNorm(false), sor(1.0)
         , sceneTime(0.0), currentError(0.0), currentIterations(0)
 		, change_sequence(false) {}
-	~GenericConstraintProblem() { freeConstraintResolutions(); }
 
 	void clear(int nbConstraints);
-	void freeConstraintResolutions();
 	void solveTimed(double tol, int maxIt, double timeout) override;
     std::pair<int,double> solveTimed(double tolerance, int maxIt, double timeout, const double* localDFree, double* localD, double* localF) const override;
 

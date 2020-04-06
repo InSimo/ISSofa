@@ -570,23 +570,8 @@ void GenericConstraintSolver::lockConstraintProblem(sofa::core::objectmodel::Bas
 void GenericConstraintProblem::clear(int nbC)
 {
 	ConstraintProblem::clear(nbC);
-
-	freeConstraintResolutions();
-	constraintsResolutions.resize(nbC);
-	_d.resize(nbC);
 }
 
-void GenericConstraintProblem::freeConstraintResolutions()
-{
-	for(unsigned int i=0; i<constraintsResolutions.size(); i++)
-	{
-		if (constraintsResolutions[i] != NULL)
-		{
-			delete constraintsResolutions[i];
-			constraintsResolutions[i] = NULL;
-		}
-	}
-}
 int GenericConstraintProblem::getNumConstraints()
 {
     return dimension;
