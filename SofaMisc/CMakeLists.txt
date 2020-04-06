@@ -29,7 +29,9 @@ set(SOFAMISC_INSTALL_CMAKE_DIR   ${SOFAMISC_INSTALL_LIB_DIR}/cmake/SofaMisc)
 
 ## SofaMisc dependencies
 ##
-find_package(SofaGeneral REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
 set(SOFAMISC_DEPENDENCY_DIR ${SOFAMISC_BUILD_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS})
 
 configure_file( ${SofaMisc_SOURCE_DIR}/SofaMisc.h.in
@@ -78,3 +80,8 @@ install(FILES ${SOFAMISC_BUILD_CMAKE_DIR}/SofaMiscConfigInstall.cmake
 # SofaMiscTargets.cmake (installed)
 install(EXPORT SofaMiscTargets
         DESTINATION ${SOFAMISC_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaMisc_LIBRARIES SofaComponentMisc CACHE INTERNAL "")
+set(SOFAMISC_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAMISC_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAMISC_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaMisc_INCLUDE_DIRS ${SOFAMISC_INCLUDE_DIR} ${SofaAdvanced_INCLUDE_DIRS} CACHE INTERNAL "")

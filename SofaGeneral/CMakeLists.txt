@@ -29,14 +29,29 @@ set(SOFAGENERAL_INSTALL_CMAKE_DIR   ${SOFAGENERAL_INSTALL_LIB_DIR}/cmake/SofaGen
 
 ## SofaGeneral dependencies
 ##
-find_package(SofaCommon REQUIRED)
-find_package(Newmat)
-find_package(Csparse)
-find_package(METIS)
+if( NOT TARGET SofaComponentCommon )
+    find_package(SofaCommon REQUIRED)
+endif()
 
-set(SOFA_HAVE_NEWMAT ${Newmat_FOUND} )
-set(SOFA_HAVE_CSPARSE ${Csparse_FOUND} )
-set(SOFA_HAVE_METIS ${METIS_FOUND} )
+if( TARGET newmat )
+    set(Newmat_FOUND TRUE)
+else()
+    find_package(Newmat)
+endif()
+if( TARGET csparse )
+    set(Csparse_FOUND TRUE)
+else()
+    find_package(Csparse)
+endif()
+if( TARGET metis )
+    set(METIS_FOUND TRUE)
+else()
+    find_package(METIS)
+endif()
+
+set(SOFA_HAVE_NEWMAT ${Newmat_FOUND} CACHE INTERNAL "")
+set(SOFA_HAVE_CSPARSE ${Csparse_FOUND} CACHE INTERNAL "")
+set(SOFA_HAVE_METIS ${METIS_FOUND} CACHE INTERNAL "")
 
 set(SOFAGENERAL_DEPENDENCY_INCLUDE_DIR ${SofaCommon_INCLUDE_DIRS})
 
@@ -108,3 +123,8 @@ install(FILES ${SOFAGENERAL_BUILD_CMAKE_DIR}/SofaGeneralConfigInstall.cmake
 # SofaGeneralTargets.cmake (installed)
 install(EXPORT SofaGeneralTargets
         DESTINATION ${SOFAGENERAL_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaGeneral_LIBRARIES SofaComponentGeneral CACHE INTERNAL "")
+set(SOFAGENERAL_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAGENERAL_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAGENERAL_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaGeneral_INCLUDE_DIRS ${SOFAGENERAL_INCLUDE_DIR} ${SofaCommon_INCLUDE_DIRS} CACHE INTERNAL "")

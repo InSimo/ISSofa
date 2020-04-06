@@ -37,8 +37,12 @@ set(SOURCE_FILES
     src/initMultiThreading.cpp
     )
 
-find_package(SofaFramework REQUIRED)
-find_package(Threads REQUIRED)
+if(NOT TARGET SofaHelper)
+    find_package(SofaFramework REQUIRED)
+endif()
+if(NOT TARGET Threads::Threads)
+    find_package(Threads REQUIRED)
+endif()
 
 set(MULTITHREADING_DEPENDENCY_INCLUDE_DIR ${SofaFramework_INCLUDE_DIRS})
 set(MULTITHREADING_DEPENDENCIES_LINK SofaHelper SofaDefaultType)
@@ -96,3 +100,7 @@ install(TARGETS ${PROJECT_NAME}
 # MultiThreadingTargets.cmake (installed)
 install(EXPORT MultiThreadingTargets
         DESTINATION ${MULTITHREADING_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(MULTITHREADING_INCLUDE_DIR "$<BUILD_INTERFACE:${MULTITHREADING_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${MULTITHREADING_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(MultiThreading_INCLUDE_DIRS ${MULTITHREADING_INCLUDE_DIR} ${SofaFramework_INCLUDE_DIRS} CACHE INTERNAL "")

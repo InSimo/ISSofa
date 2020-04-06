@@ -37,7 +37,9 @@ set(SOURCE_FILES
     SofaHAPIForceFeedbackEffect.cpp
     )
 
-find_package(SofaGeneral REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
 
 if(NOT TARGET H3DUtil)
     find_package(H3DUtil REQUIRED)
@@ -177,3 +179,7 @@ install(TARGETS ${PROJECT_NAME}
 # SofaHAPITargets.cmake (installed)
 # install(EXPORT SofaHAPITargets
         # DESTINATION ${SOFAHAPI_INSTALL_CMAKE_DIR} )
+# compatibility with find_package
+set(SofaHAPI_LIBRARIES SofaHAPI CACHE INTERNAL "")
+set(SOFAHAPI_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAHAPI_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAHAPI_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaHAPI_INCLUDE_DIRS ${SOFAHAPI_INCLUDE_DIR} CACHE INTERNAL "")

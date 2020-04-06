@@ -44,9 +44,15 @@ set(SOURCE_FILES
     SofaPhysicsOutputMesh_Tetrahedron.cpp
     )
 
-find_package(SofaGeneral  REQUIRED)
-find_package(SofaAdvanced REQUIRED)
-find_package(SofaMisc     REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral  REQUIRED)
+endif()
+if( NOT TARGET SofaComponentAdvanced )
+    find_package(SofaAdvanced REQUIRED)
+endif()
+if( NOT TARGET SofaComponentMisc )
+    find_package(SofaMisc     REQUIRED)
+endif()
 set(SOFAPHYSICSAPI_DEPENDENCY_INCLUDE_DIR ${SofaGeneral_INCLUDE_DIRS}) 
     
 
@@ -128,3 +134,8 @@ install(TARGETS ${PROJECT_NAME}
     )
 
 install(EXPORT SofaPhysicsAPITargets DESTINATION ${SOFAPHYSICSAPI_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaPhysicsAPI_LIBRARIES SofaPhysicsAPI CACHE INTERNAL "")
+set(SOFAPHYSICSAPI_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAPHYSICSAPI_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAPHYSICSAPI_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaPhysicsAPI_INCLUDE_DIRS ${SOFAPYTHON_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} CACHE INTERNAL "")

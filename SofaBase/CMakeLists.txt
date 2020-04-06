@@ -30,7 +30,10 @@ set(SOFABASE_DEPENDENCY_INCLUDE_DIR)
 
 ## SofaBase dependencies
 ##
-find_package(SofaSimulation REQUIRED)
+if( NOT TARGET SofaSimulationCommon )
+    find_package(SofaSimulation REQUIRED)
+endif()
+
 list(APPEND SOFABASE_DEPENDENCY_INCLUDE_DIR ${SofaSimulation_INCLUDE_DIRS})
 
 configure_file( ${SofaBase_SOURCE_DIR}/SofaBase.h.in
@@ -79,3 +82,8 @@ install(FILES ${SOFABASE_BUILD_CMAKE_DIR}/SofaBaseConfigInstall.cmake
 # SofaBaseTargets.cmake (installed)
 install(EXPORT SofaBaseTargets
         DESTINATION ${SOFABASE_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaBase_LIBRARIES SofaComponentBase CACHE INTERNAL "")
+set(SOFABASE_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFABASE_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFABASE_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaBase_INCLUDE_DIRS ${SOFABASE_INCLUDE_DIR} ${SofaSimulation_INCLUDE_DIRS} CACHE INTERNAL "")

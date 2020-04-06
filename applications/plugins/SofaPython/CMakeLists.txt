@@ -41,11 +41,15 @@ if(UNIX)
   list(APPEND PYTHON_LIBRARIES dl)
 endif()
 
-find_package(SofaGeneral REQUIRED)
-find_package(SofaMisc REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
+if( NOT TARGET SofaComponentMisc )
+    find_package(SofaMisc REQUIRED)
+endif()
 set(SOFAPYTHON_DEPENDENCY_INCLUDE_DIR ${SofaGeneral_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} )
 
-set(SOFA_HAVE_PYTHON 1)
+set(SOFA_HAVE_PYTHON 1 CACHE INTERNAL "")
 
 set(HEADER_FILES
 
@@ -239,3 +243,8 @@ install(TARGETS ${PROJECT_NAME}
 # SofaPythonTargets.cmake (installed)
 install(EXPORT SofaPythonTargets
         DESTINATION ${SOFAPYTHON_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaPython_LIBRARIES SofaPython CACHE INTERNAL "")
+set(SOFAPYTHON_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAPYTHON_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAPYTHON_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaPython_INCLUDE_DIRS ${SOFAPYTHON_INCLUDE_DIR} CACHE INTERNAL "")

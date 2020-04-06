@@ -9,9 +9,11 @@ set(SOFAADVANCED_INCLUDE_DIR "@PACKAGE_SOFAADVANCED_INCLUDE_DIR@")
 set(SofaAdvanced_TARGETS @SOFAADVANCED_TARGETS@)
 
 # required for transitive dependencies
-find_package(SofaGeneral REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
 
-set(SOFA_HAVE_MINIFLOWVR @SOFA_HAVE_MINIFLOWVR@)
+set(SOFA_HAVE_MINIFLOWVR @SOFA_HAVE_MINIFLOWVR@ CACHE INTERNAL "")
 
 if(SOFA_HAVE_MINIFLOWVR)
     find_package(MiniFlowVR REQUIRED)
@@ -24,5 +26,6 @@ endif()
 check_required_components(${SofaAdvanced_TARGETS})
  
 # For compatibility only
-set(SofaAdvanced_LIBRARIES SofaComponentAdvanced)
-set(SofaAdvanced_INCLUDE_DIRS ${SOFAADVANCED_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} )
+set(SofaAdvanced_LIBRARIES SofaComponentAdvanced CACHE INTERNAL "")
+set(SofaAdvanced_INCLUDE_DIRS ${SOFAADVANCED_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} CACHE INTERNAL "")
+#get_property(SofaAdvanced_INCLUDE_DIRS TARGET SofaComponentAdvanced PROPERTY INTERFACE_INCLUDE_DIRECTORIES)

@@ -3,8 +3,12 @@ cmake_minimum_required(VERSION 2.8)
 # Offer the user the choice of overriding the installation directories
 set(RUNSOFA_INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Installation directory for executables relative to CMAKE_INSTALL_PREFIX variable")
 
-find_package(SofaGeneral REQUIRED)
-find_package(SofaMisc    REQUIRED)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
+if( NOT TARGET SofaComponentMisc )
+    find_package(SofaMisc    REQUIRED)
+endif()
 
 project(runSofa)
 

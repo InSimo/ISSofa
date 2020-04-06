@@ -31,7 +31,9 @@ set(SOFASIMULATION_INSTALL_CMAKE_DIR   ${SOFASIMULATION_INSTALL_LIB_DIR}/cmake/S
 set(SOFASIMULATION_DEPENDENCY_INCLUDE_DIRS )
 ## SofaSimulation dependencies
 ##
-find_package(SofaFramework REQUIRED)
+if( NOT TARGET SofaHelper )
+    find_package(SofaFramework REQUIRED)
+endif()
 
 list(APPEND SOFASIMULATION_DEPENDENCY_INCLUDE_DIRS ${SofaFramework_INCLUDE_DIRS})
 #include_directories( ${SofaFramework_INCLUDE_DIRS} )
@@ -83,3 +85,8 @@ install(FILES ${SOFASIMULATION_BUILD_CMAKE_DIR}/SofaSimulationConfigInstall.cmak
 # SofaSimulationTargets.cmake (installed)
 install(EXPORT SofaSimulationTargets
         DESTINATION ${SOFASIMULATION_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaSimulation_LIBRARIES SofaSimulationCommon SofaSimulationTree SofaSimulationGraph CACHE INTERNAL "")
+set(SOFASIMULATION_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFASIMULATION_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFASIMULATION_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaSimulation_INCLUDE_DIRS ${SOFASIMULATION_INCLUDE_DIR} ${SofaFramework_INCLUDE_DIRS} CACHE INTERNAL "")

@@ -7,7 +7,9 @@
 
 set_and_check(MULTITHREADING_INCLUDE_DIR  "@PACKAGE_MULTITHREADING_INCLUDE_DIR@")
 
-find_package(SofaFramework REQUIRED)
+if( NOT TARGET SofaHelper )
+    find_package(SofaFramework REQUIRED)
+endif()
 
 if( NOT TARGET MultiThreading)
     include("${CMAKE_CURRENT_LIST_DIR}/MultiThreadingTargets.cmake")
@@ -16,4 +18,5 @@ endif()
 check_required_components(MultiThreading)
 
 set(MultiThreading_LIBRARIES MultiThreading)
-set(MultiThreading_INCLUDE_DIRS ${MULTITHREADING_INCLUDE_DIR} ${SofaFramework_INCLUDE_DIRS} )
+set(MultiThreading_INCLUDE_DIRS ${MULTITHREADING_INCLUDE_DIR} ${SofaFramework_INCLUDE_DIRS} CACHE INTERNAL "")
+#get_property(MultiThreading_INCLUDE_DIRS TARGET MultiThreading PROPERTY INTERFACE_INCLUDE_DIRECTORIES)

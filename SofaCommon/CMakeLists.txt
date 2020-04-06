@@ -29,7 +29,10 @@ set(SOFACOMMON_INSTALL_CMAKE_DIR   ${SOFACOMMON_INSTALL_LIB_DIR}/cmake/SofaCommo
 
 ## SofaCommon dependencies
 ##
-find_package(SofaBase REQUIRED)
+if( NOT TARGET SofaComponentBase )
+    find_package(SofaBase REQUIRED)
+endif()
+
 set(SOFACOMMON_DEPENDENCY_INCLUDE_DIR ${SofaBase_INCLUDE_DIRS})
 
 configure_file( ${SofaCommon_SOURCE_DIR}/SofaCommon.h.in
@@ -81,3 +84,8 @@ install(FILES ${SOFACOMMON_BUILD_CMAKE_DIR}/SofaCommonConfigInstall.cmake
 # SofaCommonTargets.cmake (installed)
 install(EXPORT SofaCommonTargets
         DESTINATION ${SOFACOMMON_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaCommon_LIBRARIES SofaComponentCommon CACHE INTERNAL "")
+set(SOFACOMMON_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFACOMMON_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFACOMMON_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaCommon_INCLUDE_DIRS ${SOFACOMMON_INCLUDE_DIR} ${SofaBase_INCLUDE_DIRS} CACHE INTERNAL "")

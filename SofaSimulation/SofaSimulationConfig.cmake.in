@@ -9,7 +9,9 @@ set(SOFASIMULATION_INCLUDE_DIR "@PACKAGE_SOFASIMULATION_INCLUDE_DIR@")
 set(SofaSimulation_TARGETS SofaSimulationCommon SofaSimulationTree SofaSimulationGraph)
 
 # required for transitive dependencies
-find_package(SofaFramework REQUIRED )
+if( NOT TARGET SofaHelper )
+    find_package(SofaFramework REQUIRED)
+endif()
 
 if( NOT TARGET SofaSimulationCommon )
 	include("${CMAKE_CURRENT_LIST_DIR}/SofaSimulationTargets.cmake")
@@ -18,5 +20,6 @@ endif()
 check_required_components(${SofaSimulation_TARGETS})
  
 # For compatibility only
-set(SofaSimulation_LIBRARIES SofaSimulationCommon SofaSimulationTree SofaSimulationGraph)
-set(SofaSimulation_INCLUDE_DIRS ${SOFASIMULATION_INCLUDE_DIR} ${SofaFramework_INCLUDE_DIRS})
+set(SofaSimulation_LIBRARIES SofaSimulationCommon SofaSimulationTree SofaSimulationGraph CACHE INTERNAL "")
+set(SofaSimulation_INCLUDE_DIRS ${SOFASIMULATION_INCLUDE_DIR} ${SofaFramework_INCLUDE_DIRS} CACHE INTERNAL "")
+#get_property(SofaSimulation_INCLUDE_DIRS TARGET SofaSimulationCommon PROPERTY INTERFACE_INCLUDE_DIRECTORIES)

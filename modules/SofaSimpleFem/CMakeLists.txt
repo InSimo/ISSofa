@@ -46,7 +46,11 @@ set(SOURCE_FILES
     TriangularFEMForceFieldOptim.cpp
     )
 
-find_package(Newmat)
+if( TARGET newmat )
+    set(Newmat_FOUND TRUE)
+else()
+    find_package(Newmat)
+endif()
 
 if(Newmat_FOUND)
   list(APPEND HEADER_FILES TriangularAnisotropicFEMForceField.h)

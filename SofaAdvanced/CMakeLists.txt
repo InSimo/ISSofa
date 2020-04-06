@@ -29,10 +29,16 @@ set(SOFAADVANCED_INSTALL_CMAKE_DIR   ${SOFAADVANCED_INSTALL_LIB_DIR}/cmake/SofaA
 
 ## SofaAdvanced dependencies
 ##
-find_package(SofaGeneral REQUIRED)
-find_package(MiniFlowVR)
+if( NOT TARGET SofaComponentGeneral )
+    find_package(SofaGeneral REQUIRED)
+endif()
+if( TARGET miniflowvr )
+    set(MiniFlowVR_FOUND TRUE)
+else()
+    find_package(MiniFlowVR)
+endif()
 
-set(SOFA_HAVE_MINIFLOWVR ${MiniFlowVR_FOUND} )
+set(SOFA_HAVE_MINIFLOWVR ${MiniFlowVR_FOUND} CACHE INTERNAL "")
 
 set(SOFAADVANCED_DEPENDENCY_DIR ${SofaGeneral_INCLUDE_DIRS} ${MiniFlowVR_INCLUDE_DIRS} )
 set(SOFAADVANCED_DEPENDENCY_LINK ${MiniFlowVR_LIBRARIES})
@@ -83,3 +89,8 @@ install(FILES ${SOFAADVANCED_BUILD_CMAKE_DIR}/SofaAdvancedConfigInstall.cmake
 # SofaAdvancedTargets.cmake (installed)
 install(EXPORT SofaAdvancedTargets
         DESTINATION ${SOFAADVANCED_INSTALL_CMAKE_DIR} )
+
+# compatibility with find_package
+set(SofaAdvanced_LIBRARIES SofaComponentAdvanced CACHE INTERNAL "")
+set(SOFAADVANCED_INCLUDE_DIR "$<BUILD_INTERFACE:${SOFAADVANCED_BUILD_INCLUDE_DIR}>$<INSTALL_INTERFACE:${SOFAADVANCED_INSTALL_INCLUDE_DIR}>" CACHE INTERNAL "")
+set(SofaAdvanced_INCLUDE_DIRS ${SOFAADVANCED_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} CACHE INTERNAL "")
