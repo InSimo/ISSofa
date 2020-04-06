@@ -83,7 +83,7 @@ public:
     /// run the given task directly
     void runTask(Task* pTask);
 
-    void workUntilDone(Task::Status* status);
+    void workUntilDone(const Task::Status* status);
         
     unsigned getThreadIndex() const;
     
@@ -117,7 +117,7 @@ private:
     // give an idle thread some work
     bool giveUpSomeWork(WorkerThread* pIdleThread);	 
 
-    void doWork(Task::Status* status);		
+    void doWork(const Task::Status* status);
 
     void idle();
 

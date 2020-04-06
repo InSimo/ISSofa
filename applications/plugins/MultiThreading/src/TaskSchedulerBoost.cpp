@@ -318,7 +318,7 @@ void WorkerThread::idle()
     mTaskScheduler->idleWorkerUntilNotified(this);
 }
 
-void WorkerThread::doWork(Task::Status* status)
+void WorkerThread::doWork(const Task::Status* status)
 {
     //NOTE:
     //If status is nullptr, then we'll work until there is nothing left to do. This
@@ -370,7 +370,7 @@ void WorkerThread::doWork(Task::Status* status)
 }
 
 
-void WorkerThread::workUntilDone(Task::Status* status)
+void WorkerThread::workUntilDone(const Task::Status* status)
 {
     if (std::find(mCurrentStatuses.cbegin(), mCurrentStatuses.cend(), status) != mCurrentStatuses.cend())
     {
