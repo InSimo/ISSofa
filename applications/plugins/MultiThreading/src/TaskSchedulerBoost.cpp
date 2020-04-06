@@ -349,10 +349,11 @@ void WorkerThread::doWork(const Task::Status* status)
                 mTaskLog.push_back(pTask);
 
             pTask->runTask(this);
-            currentStatus->MarkBusy(false);
 
             mCurrentStatuses.pop_back();
             mCurrentTasks.pop_back();
+
+            currentStatus->MarkBusy(false);
 
             // check if work we're expecting is done
             if (status && !status->IsBusy())
