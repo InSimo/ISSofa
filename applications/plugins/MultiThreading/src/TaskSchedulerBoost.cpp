@@ -393,11 +393,31 @@ void WorkerThread::workUntilDone(const Task::Status* status)
     
     if (mTaskScheduler->getRootTaskStatus() == status)
     {
-        // This is the root task status. As this is finished, the scheduler can go idle.		
-        // What happens next: (eventually,) each worker thread will see that there		
+        // This is the root task status. As this is finished, the scheduler can go idle.
+        // What happens next: (eventually,) each worker thread will see that there
         // is no main task status any more and go idle until they are notified
         // that new work needs to be done or that we are closing (see WorkerThread::run)
         mTaskScheduler->goIdle();
+
+        // Check that no WorkerThread is still processing a task
+        const TaskScheduler* taskScheduler = getTaskScheduler();
+        bool error = false;
+        for (unsigned int i = 0; i < taskScheduler->getThreadCount(); i++)
+        {
+            const sofa::simulation::WorkerThread* workerThread = taskScheduler->getWorkerThread(i);
+            const sofa::simulation::Task* currentTask = workerThread->getCurrentTask();
+            if (currentTask)
+            {
+                if (!error)
+                {
+                    std::cerr << "==================================================================" << std::endl;
+                    std::cerr << "Task scheduling error: task(s) running after work has been completed on the root task status" << std::endl;
+                    error = true;
+                }
+                std::cerr << "WorkerThread " << i << " is running task " << currentTask->getName() << std::endl;
+            }
+        }
+        if (error) std::cerr << "==================================================================" << std::endl;
     }
 }
 
