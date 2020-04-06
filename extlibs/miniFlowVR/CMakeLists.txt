@@ -14,8 +14,6 @@ set(MINIFLOWVR_INSTALL_BIN_DIR     ${CMAKE_INSTALL_BINDIR}     CACHE PATH "Insta
 set(MINIFLOWVR_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for header files")
 set(MINIFLOWVR_INSTALL_CMAKE_DIR   ${MINIFLOWVR_INSTALL_LIB_DIR}/cmake/MiniFlowVR )
 
-find_package(Boost REQUIRED)
-
 set(HEADER_FILES
 
 	include/ftl/cmdline.h 
@@ -52,7 +50,6 @@ set(SOURCE_FILES
  
 add_library(${PROJECT_NAME} STATIC ${HEADER_FILES} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
-target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:${MINIFLOWVR_INSTALL_INCLUDE_DIR}>")
 
