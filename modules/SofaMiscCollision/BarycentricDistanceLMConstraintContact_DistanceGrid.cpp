@@ -24,6 +24,7 @@
 ******************************************************************************/
 #include <SofaConstraint/BarycentricDistanceLMConstraintContact.inl>
 #include <SofaMeshCollision/BarycentricContactMapper.h>
+#include <SofaVolumetricData/DistanceGridCollisionModel.h>
 
 
 using namespace sofa::defaulttype;

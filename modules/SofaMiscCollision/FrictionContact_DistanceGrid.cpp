@@ -25,6 +25,7 @@
 #include <SofaConstraint/FrictionContact.inl>
 #include <SofaMeshCollision/RigidContactMapper.inl>
 #include <SofaMeshCollision/BarycentricContactMapper.inl>
+#include <SofaVolumetricData/DistanceGridCollisionModel.h>
 
 
 using namespace sofa::core::collision;

@@ -32,7 +32,10 @@ set(SOFAMISC_INSTALL_CMAKE_DIR   ${SOFAMISC_INSTALL_LIB_DIR}/cmake/SofaMisc)
 if( NOT TARGET SofaComponentGeneral )
     find_package(SofaGeneral REQUIRED)
 endif()
-set(SOFAMISC_DEPENDENCY_DIR ${SOFAMISC_BUILD_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS})
+if( NOT TARGET SofaComponentAdvanced )
+    find_package(SofaAdvanced REQUIRED)
+endif()
+set(SOFAMISC_DEPENDENCY_DIR ${SOFAMISC_BUILD_INCLUDE_DIR} ${SofaGeneral_INCLUDE_DIRS} ${SofaAdvanced_INCLUDE_DIRS})
 
 configure_file( ${SofaMisc_SOURCE_DIR}/SofaMisc.h.in
                 ${SOFAMISC_BUILD_INCLUDE_DIR}/sofa/SofaMisc.h )
