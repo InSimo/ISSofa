@@ -31,3 +31,6 @@ check_required_components( ${SofaGeneral_TARGETS} )
 set(SofaGeneral_LIBRARIES SofaComponentGeneral CACHE INTERNAL "")
 set(SofaGeneral_INCLUDE_DIRS ${SOFAGENERAL_INCLUDE_DIR} ${SofaCommon_INCLUDE_DIRS} CACHE INTERNAL "")
 #get_property(SofaGeneral_INCLUDE_DIRS TARGET SofaComponentGeneral PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+
+# Workaround for bad check in SofaH3DBaseNodes (@TODO: remove when fixed there)
+set(SofaBase_FOUND TRUE)
