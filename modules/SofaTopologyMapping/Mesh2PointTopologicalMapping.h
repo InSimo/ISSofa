@@ -155,10 +155,10 @@ protected:
 
     std::set<unsigned int> pointsToRemove;
 
-    void addInputPoints(const sofa::core::topology::PointsAdded * pAdd, PointSetTopologyModifier* toPointMod=NULL); ///< Returns the number of points added inside the output topology. 
-    void addInputEdge(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
-    void addInputTriangle(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
-    void addInputTetrahedron(unsigned int i, PointSetTopologyModifier* toPointMod=NULL);
+    void addInputPoints(const sofa::core::topology::PointsAdded *pAdd, PointSetTopologyModifier* toPointMod = nullptr);
+    void addInputEdges(const sofa::core::topology::EdgesAdded* eAdd, PointSetTopologyModifier* toPointMod = nullptr);
+    void addInputTriangles(const sofa::core::topology::TrianglesAdded* tAdd, PointSetTopologyModifier* toPointMod = nullptr);
+    void addInputTetrahedra(const sofa::core::topology::TetrahedraAdded* tAdd, PointSetTopologyModifier* toPointMod = nullptr);
 
     void swapInput(Element elem, int i1, int i2);
     void removeInput(Element elem, const sofa::helper::vector<unsigned int>& tab );
