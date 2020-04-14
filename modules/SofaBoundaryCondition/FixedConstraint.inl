@@ -80,6 +80,7 @@ FixedConstraint<DataTypes>::FixedConstraint()
     , f_fixAll( initData(&f_fixAll,false,"fixAll","filter all the DOF to implement a fixed object") )
     , f_drawSize( initData(&f_drawSize,0.0,"drawSize","0 -> point based rendering, >0 -> radius of spheres") )
     , d_projectVelocity(initData(&d_projectVelocity,false,"projectVelocity","if true, project velocity") )
+    , d_handleTopologyChange(initData(&d_handleTopologyChange, true, "handleTopologyChange", "Enable support of topological changes for point indices (disable if another component takes care of this)"))
     , data(new FixedConstraintInternalData<DataTypes>())
 {
     // default to indice 0
@@ -134,8 +135,11 @@ void FixedConstraint<DataTypes>::init()
     //    serr << "Can not find the topology." << sendl;
 
     // Initialize functions and parameters
-    f_indices.createTopologicalEngine(topology, pointHandler);
-    f_indices.registerTopologicalData();
+    if (topology && d_handleTopologyChange.getValue())
+    {
+        f_indices.createTopologicalEngine(topology, pointHandler);
+        f_indices.registerTopologicalData();
+    }
 
     const SetIndexArray & indices = f_indices.getValue();
 

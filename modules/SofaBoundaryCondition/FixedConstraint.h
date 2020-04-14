@@ -89,7 +89,7 @@ public:
     Data<bool> f_fixAll;
     Data<double> f_drawSize;
     Data<bool> d_projectVelocity;
-
+    Data<bool> d_handleTopologyChange;
 
 
 protected:
