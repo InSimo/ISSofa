@@ -434,8 +434,8 @@ void MechanicalObject<DataTypes>::handleStateChange()
                 }
             }
 
-            vector< vector< unsigned int > > ancestors = pointsAdded.ancestorsList;
-            vector< vector< double       > > coefs     = pointsAdded.coefs;
+            const vector<vector<unsigned int>>& ancestors = pointsAdded.ancestorsList;
+            const vector<vector<double      >>& coefs     = pointsAdded.coefs;
 
             resize(prevSizeMechObj + nbPoints);
 
@@ -451,7 +451,7 @@ void MechanicalObject<DataTypes>::handleStateChange()
                     for (unsigned int j = 0; j < ancestors[i].size(); ++j)
                     {
                         // constructng default coefs if none were defined
-                        if (coefs == (const vector< vector< double > >)0 || coefs[i].size() == 0)
+                        if (coefs.empty() || coefs[i].empty())
                             coefs2[i][j] = 1.0f / ancestors[i].size();
                         else
                             coefs2[i][j] = coefs[i][j];
