@@ -250,3 +250,5 @@ set(GLEW_INCLUDE_DIR "${GLEW_DIR}/include" CACHE STRING "" FORCE)
 #else()
 #  set(GLEW_LIBRARY "glew_s" CACHE STRING "" FORCE)
 #endif()
+# Add GLEW::GLEW alias for compatibility with FindGLEW
+add_library(GLEW::GLEW ALIAS glew)
