@@ -38,6 +38,32 @@ namespace engine
 {
 
 template<typename T>
+struct MathOpEq
+{
+    static const char* Name() { return "="; }
+    void operator()(T* out, const helper::vector<T>& in)
+    {
+        bool equal = true;
+        for (unsigned int i=1;i<in.size();++i)
+            equal &= (in[i] == in[i-1]);
+        *out = T(equal);
+    }
+};
+
+template<typename T>
+struct MathOpDiff
+{
+    static const char* Name() { return "!="; }
+    void operator()(T* out, const helper::vector<T>& in)
+    {
+        bool equal = true;
+        for (unsigned int i=1;i<in.size();++i)
+            equal &= (in[i] == in[i-1]);
+        *out = T(!equal);
+    }
+};
+
+template<typename T>
 struct MathOpAdd
 {
     static const char* Name() { return "+"; }
@@ -272,11 +298,14 @@ struct MathOpTraits
 template<typename T>
 struct MathOpTraitsReal
 {
-    typedef std::pair<std::pair<
-        std::pair< MathOpAdd <T>, MathOpSub <T> > ,
-        std::pair< MathOpMul <T>, MathOpDiv <T> > > ,
-        std::pair< MathOpMin <T>, MathOpMax <T> >   >
-        Ops;
+    typedef std::pair<
+                std::pair<
+                    std::pair< MathOpEq <T>, MathOpDiff <T> > ,
+                    std::pair< MathOpAdd <T>, MathOpSub <T> > >,
+                std::pair<
+                    std::pair< MathOpMul <T>, MathOpDiv <T> > ,
+                    std::pair< MathOpMin <T>, MathOpMax <T> > > >
+            Ops;
 };
 
 template<>
@@ -401,6 +430,7 @@ struct MathOpApply< std::pair<TOps1, TOps2> >
     {
         return  MathOpApply<TOps1>::isSupported(op) ||  MathOpApply<TOps2>::isSupported(op);
     }
+
     template<class VecValue>
     static bool apply(const std::string& op, Data<VecValue>* d_out, const helper::vector<Data<VecValue>*>& d_in)
     {
