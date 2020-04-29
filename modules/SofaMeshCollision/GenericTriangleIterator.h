@@ -54,7 +54,7 @@ public:
     const DPos& v3() const;
     const DPos& v(int i) const;
 
-    const DPos n() const;
+    DPos n() const;
 
     /// Return true if the element stores a free position vector
     bool hasFreePosition() const;

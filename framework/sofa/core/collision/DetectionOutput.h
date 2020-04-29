@@ -154,9 +154,9 @@ public:
     /// Swap the contents of both containers
     virtual void swap(DetectionOutputContainer& other) override
     {
-        TDetectionOutputContainer<CM1, CM2>& otherAsVector = dynamic_cast<TDetectionOutputContainer<CM1, CM2>&>(other);
+        TDetectionOutputContainer<CM1, CM2>* otherAsVector = dynamic_cast<TDetectionOutputContainer<CM1, CM2>*>(&other);
         assert(otherAsVector != nullptr);
-        Vector::swap(otherAsVector);
+        Vector::swap(*otherAsVector);
     }
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)

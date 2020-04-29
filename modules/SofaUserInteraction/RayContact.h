@@ -48,14 +48,14 @@ public:
 
 protected:
     CollisionModel1* model1;
-    sofa::helper::vector<core::collision::DetectionOutput*> collisions;
+    sofa::helper::vector<core::collision::DetectionOutput> collisions;
 
 
     BaseRayContact(CollisionModel1* model1, core::collision::Intersection* instersectionMethod);
 
     ~BaseRayContact();
 public:
-    const sofa::helper::vector<core::collision::DetectionOutput*>& getDetectionOutputs() const { return collisions; }
+    const sofa::helper::vector<core::collision::DetectionOutput>& getDetectionOutputs() const { return collisions; }
 
     void createResponse(core::objectmodel::BaseContext* /*group*/) override
     {

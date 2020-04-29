@@ -1016,7 +1016,7 @@ int BarycentricMapperTriangleSetTopology<In,Out>::setPointInTriangle ( const int
     auto vectorData = sofa::helper::write(map);
     auto triangleInfo = sofa::helper::write(d_vBaryTriangleInfo);
 
-    assert(pointIndex < vectorData.size());
+    assert((std::size_t)pointIndex < vectorData.size());
     MappingData& data = vectorData[pointIndex];
     data.baryCoords[0] = ( Real ) baryCoords[0];
     data.baryCoords[1] = ( Real ) baryCoords[1];
