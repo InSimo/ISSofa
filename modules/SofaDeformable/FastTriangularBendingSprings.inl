@@ -496,7 +496,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
             {
                 if (edgeInf[i].springs[j].is_activated)
                 {
-                    energy += edgeInf[i].springs[j].addForce(emptyVecDeriv, x, emptyVecDeriv, useCorotational);
+                    energy += edgeInf[i].springs[j].potentialEnergy;
                     is_activated = true;
                 }
             }

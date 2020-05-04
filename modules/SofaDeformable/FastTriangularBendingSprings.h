@@ -233,6 +233,7 @@ public:
     bool is_activated = false;
     bool is_initialized = false;
     bool invertNormal = false;
+    Real potentialEnergy;
     BendingShellQuadrant quadrant = BendingShellQuadrant::UNUSED;
 
     mutable std::array<std::array<int, 2>, 4> mwriterCacheD;
@@ -446,7 +447,9 @@ public:
         f[vid[QC]] -= R * (lambda * alpha[QC]);
         f[vid[QD]] -= R * (lambda * alpha[QD]);
 
-        return (R * R) * lambda * (Real)0.5;
+        potentialEnergy = (R * R) * lambda * (Real)0.5;
+
+        return potentialEnergy;
     }
 
     // Optimized version of addDForce
