@@ -86,20 +86,65 @@ void IdentityTopologicalMapping::init()
     if (d_createOutputTopologyAtInit.getValue() && fromModel && toModel)
     {
         toModel->clear();
-        for (int i = 0; i < fromModel->getNbPoints(); i++)
+
+        PointSetTopologyModifier *toPointMod = nullptr;
+        EdgeSetTopologyModifier *toEdgeMod   = nullptr;
+        TriangleSetTopologyModifier *toTriangleMod = nullptr;
+
+        toModel->getContext()->get(toPointMod);
+        toModel->getContext()->get(toEdgeMod);
+        toModel->getContext()->get(toTriangleMod);
+
+
+        if (!toPointMod)
         {
-            toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
+            for (int i = 0; i < fromModel->getNbPoints(); i++)
+            {
+                toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
+            }
         }
+        else
+        {
+            sofa::helper::vector<sofa::core::topology::PointAncestorElem> ancestors;
+            ancestors.resize(fromModel->getNbPoints());
+            for (int i = 0; i < fromModel->getNbPoints(); i++)
+            {
+                sofa::core::topology::PointAncestorElem anc;
+                anc.type = sofa::core::topology::TopologyObjectType::POINT;
+                anc.index = core::topology::Topology::InvalidID;
+                anc.localCoords = sofa::defaulttype::Vec3d(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
+                ancestors[i] = anc;
+            }
+            toPointMod->addPoints(fromModel->getNbPoints(), ancestors, true);
+        }
+
+
         const auto& edges = fromModel->getEdges();
-        for (auto e : edges)
+        if (toEdgeMod)
         {
-            toModel->addEdge(e[0], e[1]);
+            for (auto e : edges)
+            {
+                toModel->addEdge(e[0], e[1]);
+            }
         }
+        else
+        {
+            toEdgeMod->addEdges(edges);
+        }
+
         const auto& triangles = fromModel->getTriangles();
-        for (auto tri : triangles)
+        if (!toTriangleMod)
         {
-            toModel->addTriangle(tri[0], tri[1], tri[2]);
+            for (auto tri : triangles)
+            {
+                toModel->addTriangle(tri[0], tri[1], tri[2]);
+            }
         }
+        else
+        {
+            toTriangleMod->addTriangles(triangles);
+        }
+
         const auto& tetrahedra = fromModel->getTetrahedra();
         for (auto tetra : tetrahedra)
         {
