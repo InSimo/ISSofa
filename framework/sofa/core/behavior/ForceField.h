@@ -80,7 +80,7 @@ public:
     virtual void init();
 
     /// Retrieve the associated MechanicalState
-    MechanicalState<DataTypes>* getMState() { return mstate.get(); }
+    MechanicalState<DataTypes>* getMState() const { return mstate.get(); }
 
 
     /// @name Vector operations
