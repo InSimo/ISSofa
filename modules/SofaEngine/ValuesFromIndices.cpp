@@ -78,6 +78,8 @@ template class SOFA_ENGINE_API ValuesFromIndices<std::string>;
 template class SOFA_ENGINE_API ValuesFromIndices<bool>;
 template class SOFA_ENGINE_API ValuesFromIndices<int>;
 template class SOFA_ENGINE_API ValuesFromIndices<unsigned int>;
+template class SOFA_ENGINE_API ValuesFromIndices<helper::vector<int>>;
+template class SOFA_ENGINE_API ValuesFromIndices<helper::vector<unsigned int>>;
 template class SOFA_ENGINE_API ValuesFromIndices< helper::fixed_array<unsigned int, 2> >;
 template class SOFA_ENGINE_API ValuesFromIndices< helper::fixed_array<unsigned int, 3> >;
 template class SOFA_ENGINE_API ValuesFromIndices< helper::fixed_array<unsigned int, 4> >;
