@@ -4,6 +4,7 @@ project(SofaDefaultType)
 
 set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
+    BaseClass.h
     BoundingBox.h
     CompressedRowSparseMatrix.h
     CompressedRowSparseMatrixConstraint.h
@@ -47,6 +48,7 @@ set(SOFADEFAULTTYPE_HEADERS
 
 set(SOFADEFAULTTYPE_SOURCES
 	AbstractTypeInfo.cpp
+    BaseClass.cpp
 	BoundingBox.cpp
     CompressedRowSparseMatrixMechanical.inl
 	Frame.cpp

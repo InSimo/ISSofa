@@ -111,7 +111,6 @@ set(SOFACORE_HEADERS
 	objectmodel/AspectPool.h
 	objectmodel/SPtr.h
 	objectmodel/Base.h
-	objectmodel/BaseClass.h
 	objectmodel/BaseContext.h
 	objectmodel/BaseNode.h
 	objectmodel/BaseObject.h
@@ -163,7 +162,6 @@ set(SOFACORE_HEADERS
 set(SOFACORE_SOURCES
 	objectmodel/AspectPool.cpp
 	objectmodel/Base.cpp
-	objectmodel/BaseClass.cpp
 	objectmodel/BaseData.cpp
 	objectmodel/BaseLink.cpp
 	objectmodel/BaseContext.cpp
