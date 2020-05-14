@@ -56,6 +56,7 @@ public:
     unsigned int getFromIndex(unsigned int ind) override;
 
     sofa::Data<bool> d_createOutputTopologyAtInit;
+    sofa::Data<bool> d_initOnly;
 };
 
 } // namespace topology

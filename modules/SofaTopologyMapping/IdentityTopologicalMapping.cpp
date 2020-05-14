@@ -71,6 +71,7 @@ int IdentityTopologicalMappingClass = core::RegisterObject("This class is a spec
 
 IdentityTopologicalMapping::IdentityTopologicalMapping()
 : d_createOutputTopologyAtInit(initData(&d_createOutputTopologyAtInit, true, "createOutputTopologyAtInit", "If true, the output topology is create from input topology"))
+, d_initOnly(initData(&d_initOnly, false, "initOnly", "If true, only considere topo change at init"))
 {
 }
 
@@ -169,7 +170,7 @@ unsigned int IdentityTopologicalMapping::getFromIndex(unsigned int ind)
 
 void IdentityTopologicalMapping::updateTopologicalMappingTopDown()
 {
-    if (!fromModel || !toModel) return;
+    if (!fromModel || !toModel || d_initOnly.getValue()) return;
 
     std::list<const TopologyChange *>::const_iterator itBegin=fromModel->beginChange();
     std::list<const TopologyChange *>::const_iterator itEnd=fromModel->endChange();
