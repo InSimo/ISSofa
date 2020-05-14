@@ -195,7 +195,7 @@ typename DataTypes::Real TriangleSetGeometryAlgorithms< DataTypes >::computeTria
 {
     const Triangle &t = this->m_topology->getTriangle(i);
     const typename DataTypes::VecCoord& p =(this->object->read(core::ConstVecCoordId::position())->getValue());
-    Real area = (Real)(areaProduct(p[t[1]]-p[t[0]], p[t[2]]-p[t[0]]) * 0.5);
+    Real area = (Real)(areaProduct(DataTypes::getCPos(p[t[1]]-p[t[0]]), DataTypes::getCPos(p[t[2]]-p[t[0]])) * 0.5);
     return area;
 }
 
@@ -204,7 +204,7 @@ typename DataTypes::Real TriangleSetGeometryAlgorithms< DataTypes >::computeRest
 {
     const Triangle &t = this->m_topology->getTriangle(i);
     const typename DataTypes::VecCoord& p = (this->object->read(core::ConstVecCoordId::restPosition())->getValue());
-    Real area = (Real) (areaProduct(p[t[1]]-p[t[0]],p[t[2]]-p[t[0]]) * 0.5);
+    Real area = (Real) (areaProduct(DataTypes::getCPos(p[t[1]]-p[t[0]]),DataTypes::getCPos(p[t[2]]-p[t[0]])) * 0.5);
     return area;
 }
 
@@ -218,7 +218,7 @@ void TriangleSetGeometryAlgorithms<DataTypes>::computeTriangleArea( BasicArrayIn
     for (unsigned int i=0; i<ta.size(); ++i)
     {
         const Triangle &t=ta[i];
-        ai[i]=(Real)(areaProduct(p[t[1]]-p[t[0]],p[t[2]]-p[t[0]]) * 0.5);
+        ai[i]=(Real)(areaProduct(DataTypes::getCPos(p[t[1]]-p[t[0]]),DataTypes::getCPos(p[t[2]]-p[t[0]])) * 0.5);
     }
 }
 
@@ -228,8 +228,8 @@ sofa::defaulttype::Vec<3,double> TriangleSetGeometryAlgorithms< DataTypes >::com
 {
     const typename DataTypes::VecCoord& vect_c =(this->object->read(core::ConstVecCoordId::position())->getValue());
 
-    sofa::defaulttype::Vec<3,double> c0; c0 = vect_c[p0];
-    sofa::defaulttype::Vec<3,double> c1; c1 = vect_c[p1];
+    sofa::defaulttype::Vec<3,double> c0; c0 = DataTypes::getCPos(vect_c[p0]);
+    sofa::defaulttype::Vec<3,double> c1; c1 = DataTypes::getCPos(vect_c[p1]);
     return c0*(1-coord_p) + c1*coord_p;
 }
 
@@ -238,9 +238,9 @@ sofa::defaulttype::Vec<3,double> TriangleSetGeometryAlgorithms< DataTypes >::com
 {
     const typename DataTypes::VecCoord& vect_c =(this->object->read(core::ConstVecCoordId::position())->getValue());
 
-    sofa::defaulttype::Vec<3,double> c0; c0 = vect_c[p0];
-    sofa::defaulttype::Vec<3,double> c1; c1 = vect_c[p1];
-    sofa::defaulttype::Vec<3,double> c2; c2 = vect_c[p2];
+    sofa::defaulttype::Vec<3,double> c0; c0 = DataTypes::getCPos(vect_c[p0]);
+    sofa::defaulttype::Vec<3,double> c1; c1 = DataTypes::getCPos(vect_c[p1]);
+    sofa::defaulttype::Vec<3,double> c2; c2 = DataTypes::getCPos(vect_c[p2]);
     return c0*coord_p[0] + c1*coord_p[1] + c2*coord_p[2];
 }
 
@@ -752,10 +752,10 @@ bool TriangleSetGeometryAlgorithms< DataTypes >::isQuadDeulaunayOriented(const t
     //Test if one vertex is inside the triangle fromed by the the 3 others
     Coord CommonEdge[2], oppositeVertices[2];
 
-    oppositeVertices[0] = p1; sofa::defaulttype::Vec<3,double> A; A = p1;
-    CommonEdge[0] = p2;       sofa::defaulttype::Vec<3,double> C; C = p2;
-    CommonEdge[1] = p4;       sofa::defaulttype::Vec<3,double> B; B = p3;
-    oppositeVertices[1] = p3; sofa::defaulttype::Vec<3,double> D; D = p4;
+    oppositeVertices[0] = DataTypes::getCPos(p1); sofa::defaulttype::Vec<3,double> A; A = DataTypes::getCPos(p1);
+    CommonEdge[0] = DataTypes::getCPos(p2);       sofa::defaulttype::Vec<3,double> C; C = DataTypes::getCPos(p2);
+    CommonEdge[1] = DataTypes::getCPos(p4);       sofa::defaulttype::Vec<3,double> B; B = DataTypes::getCPos(p3);
+    oppositeVertices[1] = DataTypes::getCPos(p3); sofa::defaulttype::Vec<3,double> D; D = DataTypes::getCPos(p4);
 
     bool intersected = false;
 
