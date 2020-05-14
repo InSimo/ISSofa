@@ -120,8 +120,6 @@ void IndicesFromValues<T>::update()
             }
             if (index >= 0)
                 indices.push_back(index);
-            else
-                serr << "Input value " << i <<" not found : " << v << sendl;
         }
     }
 }
