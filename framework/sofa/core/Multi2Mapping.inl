@@ -66,8 +66,17 @@ void Multi2Mapping<In1,In2,Out>::addOutputModel(State<Out>* to, const std::strin
         this->toModels.add(to,path);
     else if (!path.empty())
         this->toModels.addPath(path);
-    if (to && isMechanical() && !testMechanicalState(to))
-        setNonMechanical();
+    if (to && isMechanical())
+    {
+        if (!testMechanicalState(to))
+        {
+            setNonMechanical();
+        }
+        else if (!this->isMechanical())
+        {
+            serr<<"MechanicalState should not be set under a non mechanical mapping"<<sendl;
+        }
+    }
 }
 
 ///<TO REMOVE>

@@ -44,8 +44,18 @@ Mapping<In,Out>::Mapping(State<In>* from, State<Out>* to)
     , toModel(initLink("output", "Output object to map"), to)
     , f_checkJacobian( initData( &f_checkJacobian, false, "checkJacobian", "set to true to compare results of applyJ/applyJT methods with multiplication with the matrix given by getJ()" ) )
 {
-    if(to != NULL && !testMechanicalState(to))
-        setNonMechanical();
+    if(to != NULL)
+    {
+        if(!testMechanicalState(to))
+        {
+            setNonMechanical();
+        }
+        else if (!this->isMechanical())
+        {
+            serr<<"MechanicalState should not be set under a non mechanical mapping"<<sendl;
+        }
+
+    }
 }
 
 template <class In, class Out>
@@ -106,8 +116,17 @@ helper::vector<behavior::BaseMechanicalState*> Mapping<In,Out>::getMechTo()
 template <class In, class Out>
 void Mapping<In,Out>::init()
 {
-    if(toModel && !testMechanicalState(toModel.get()))
-        setNonMechanical();
+    if(toModel)
+    {
+        if (!testMechanicalState(toModel.get()))
+        {
+            setNonMechanical();
+        }
+        else if (!this->isMechanical())
+        {
+            serr<<"MechanicalState should not be set under a non mechanical mapping"<<sendl;
+        }
+    }
 
 
     if (f_applyRestPosition.getValue())
@@ -288,8 +307,17 @@ void Mapping<In,Out>::setModels(State<In>* from, State<Out>* to)
 {
     this->fromModel.set( from );
     this->toModel.set( to );
-    if(to != NULL && !testMechanicalState(to))
-        setNonMechanical();
+    if(to != NULL)
+    {
+        if(!testMechanicalState(to))
+        {
+            setNonMechanical();
+        }
+        else if (!this->isMechanical())
+        {
+            serr<<"MechanicalState should not be set under a non mechanical mapping"<<sendl;
+        }
+    }
 }
 
 template <class In, class Out>
@@ -312,7 +340,14 @@ bool Mapping<In,Out>::setTo(BaseState* to)
     this->toModel.set( out );
 
     if( !testMechanicalState(out))
+    {
         setNonMechanical();
+    }
+    else if (!this->isMechanical())
+    {
+        serr<<"MechanicalState should not be set under a non mechanical mapping"<<sendl;
+    }
+
 
     return true;
 }
