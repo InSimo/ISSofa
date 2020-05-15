@@ -121,7 +121,7 @@ void IdentityTopologicalMapping::init()
 
 
         const auto& edges = fromModel->getEdges();
-        if (toEdgeMod)
+        if (!toEdgeMod)
         {
             for (auto e : edges)
             {
