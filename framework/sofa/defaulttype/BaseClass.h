@@ -22,8 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_CORE_OBJECTMODEL_BASECLASS_H
-#define SOFA_CORE_OBJECTMODEL_BASECLASS_H
+#ifndef SOFA_DEFAULTTYPE_BASECLASS_H
+#define SOFA_DEFAULTTYPE_BASECLASS_H
 
 #include <sofa/helper/system/config.h>
 #include <sofa/helper/vector.h>
@@ -37,25 +37,22 @@
 #include <memory>
 #include <type_traits>
 
+#ifdef SOFA_HAVE_BOOST_THREAD
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/lock_guard.hpp> 
+#endif
+
 namespace sofa
 {
 
-namespace core
+namespace defaulttype
 {
-
-namespace objectmodel
-{
-
-class Base;
-class Event;
-class BaseObjectDescription;
-
 #if !defined(NDEBUG) || defined(SOFA_CHECK_CONTAINER_ACCESS)
 //#define SOFA_CLASS_DCAST_COUNT
 #define SOFA_CLASS_DCAST_CHECK
 #endif
 
-class SOFA_CORE_API BaseClassInfo
+class SOFA_DEFAULTTYPE_API BaseClassInfo
 {
 public:
     const std::string fullTypeName;
@@ -180,7 +177,7 @@ public:
  *
  */
 template<class TRootType>
-class SOFA_CORE_API BaseRootClass : public BaseClassInfo
+class BaseRootClass : public BaseClassInfo
 {
 public:
     typedef TRootType RootType;
@@ -305,8 +302,6 @@ public:
         return p;
     }
 };
-
-typedef BaseRootClass<Base> BaseClass;
 
 class ClassFlag_External
 {
@@ -460,11 +455,11 @@ class ClassFlag_Unique
 
 #define SOFA_ROOT_CLASS_EXTERNAL(Root) \
     typedef SOFA_UNBUNDLE Root RootType; \
-    typedef ::sofa::core::objectmodel::BaseRootClass<RootType> RootClass; \
+    typedef ::sofa::defaulttype::BaseRootClass<RootType> RootClass; \
     typedef RootType MyType; \
     typedef std::tuple<> MyParents; \
-    typedef ::sofa::core::objectmodel::ClassFlag_External MyClassFlags; \
-    typedef ::sofa::core::objectmodel::TClass< MyType, MyParents, RootType, MyClassFlags > MyClass; \
+    typedef ::sofa::defaulttype::ClassFlag_External MyClassFlags; \
+    typedef ::sofa::defaulttype::TClass< MyType, MyParents, RootType, MyClassFlags > MyClass; \
     SOFA_ROOT_CLASS_DECL; \
     SOFA_CLASS_EXTERNAL_DECL
 
@@ -473,49 +468,16 @@ class ClassFlag_Unique
     SOFA_TYPEDEF_PARENTS(Parents); \
     typedef SOFA_UNBUNDLE Root RootType; \
     typedef SOFA_UNBUNDLE Flags MyClassFlags; \
-    typedef ::sofa::core::objectmodel::TClass< MyType, MyParents, RootType, MyClassFlags > MyClass; \
+    typedef ::sofa::defaulttype::TClass< MyType, MyParents, RootType, MyClassFlags > MyClass; \
     SOFA_SIMPLE_CLASS_DECL
 
 #define SOFA_SIMPLE_CLASS_EXTERNAL(Root,T,Parents) \
-    SOFA_SIMPLE_CLASS_FLAGS(Root,T,Parents,(::sofa::core::objectmodel::ClassFlag_External)); \
+    SOFA_SIMPLE_CLASS_FLAGS(Root,T,Parents,(::sofa::defaulttype::ClassFlag_External)); \
     SOFA_CLASS_EXTERNAL_DECL
 
 #define SOFA_SIMPLE_CLASS_UNIQUE(Root,T,Parents) \
-    SOFA_SIMPLE_CLASS_FLAGS(Root,T,Parents,(::sofa::core::objectmodel::ClassFlag_Unique)); \
+    SOFA_SIMPLE_CLASS_FLAGS(Root,T,Parents,(::sofa::defaulttype::ClassFlag_Unique)); \
     SOFA_CLASS_UNIQUE_DECL
-
-#define SOFA_ABSTRACT_CLASS_FLAGS(T,Parents,Flags) \
-    SOFA_SIMPLE_CLASS_FLAGS((::sofa::core::objectmodel::Base),T,Parents,Flags); \
-    SOFA_BASE_CLASS_DECL; \
-    SOFA_ABSTRACT_CLASS_DECL
-#define SOFA_CLASS_FLAGS(T,Parents,Flags) \
-    SOFA_SIMPLE_CLASS_FLAGS((::sofa::core::objectmodel::Base),T,Parents,Flags); \
-    SOFA_BASE_CLASS_DECL; \
-    SOFA_CLASS_DECL
-
-#define SOFA_ABSTRACT_CLASS_DEFAULT(T,Parents) \
-    SOFA_ABSTRACT_CLASS_FLAGS(T,Parents,(void)); \
-    SOFA_CLASS_DEFAULT_DECL
-#define SOFA_CLASS_DEFAULT(T,Parents) \
-    SOFA_CLASS_FLAGS(T,Parents,(void)); \
-    SOFA_CLASS_DEFAULT_DECL
-
-#define SOFA_ABSTRACT_CLASS_EXTERNAL(T,Parents) \
-    SOFA_ABSTRACT_CLASS_FLAGS(T,Parents,(::sofa::core::objectmodel::ClassFlag_External)); \
-    SOFA_CLASS_EXTERNAL_DECL
-#define SOFA_CLASS_EXTERNAL(T,Parents) \
-    SOFA_CLASS_FLAGS(T,Parents,(::sofa::core::objectmodel::ClassFlag_External)); \
-    SOFA_CLASS_EXTERNAL_DECL
-
-#define SOFA_ABSTRACT_CLASS_UNIQUE(T,Parents) \
-    SOFA_ABSTRACT_CLASS_FLAGS(T,Parents,(::sofa::core::objectmodel::ClassFlag_Unique)); \
-    SOFA_CLASS_UNIQUE_DECL
-#define SOFA_CLASS_UNIQUE(T,Parents) \
-    SOFA_CLASS_FLAGS(T,Parents,(::sofa::core::objectmodel::ClassFlag_Unique)); \
-    SOFA_CLASS_UNIQUE_DECL
-
-#define SOFA_EVENT_CLASS_EXTERNAL(T,Parents) SOFA_SIMPLE_CLASS_EXTERNAL((::sofa::core::objectmodel::Event),T,Parents)
-#define SOFA_EVENT_CLASS_UNIQUE(T,Parents) SOFA_SIMPLE_CLASS_UNIQUE((::sofa::core::objectmodel::Event),T,Parents)
 
 #define SOFA_CLASS_VIRTUAL_PARENTS(...) \
     SOFA_VIRTUAL_PARENTS((__VA_ARGS__))
@@ -588,8 +550,7 @@ class ClassFlag_Unique
     /* \code  std::string type = T::shortName((T*)nullptr); \endcode        */\
     /* This way derived classes can redefine the shortName method           */\
     template< class T>                                                        \
-    static std::string shortName( const T* ptr = nullptr,                     \
-        ::sofa::core::objectmodel::BaseObjectDescription* = nullptr )         \
+    static std::string shortName( const T* ptr = nullptr)                     \
     {                                                                         \
         std::string shortname = T::className(ptr);                            \
         if( !shortname.empty() )                                              \
@@ -602,7 +563,7 @@ class ClassFlag_Unique
 
 // Do not use this macro directly, use SOFA_*_CLASS instead
 #define SOFA_SIMPLE_CLASS_DECL                                                \
-    typedef ::sofa::core::objectmodel::BaseRootClass<RootType> RootClass;     \
+    typedef ::sofa::defaulttype::BaseRootClass<RootType> RootClass;     \
     template<class TPtr>                                                      \
     static MyType* DynamicCast(TPtr* p) { return MyClass::DynamicCast(p); }   \
     template<class TPtr>                                                      \
@@ -617,59 +578,7 @@ class ClassFlag_Unique
 	static const char* HeaderFileLocation() { return __FILE__; }              \
     typedef MyType* Ptr
 
-// Do not use this macro directly, use SOFA_*_CLASS instead
-#define SOFA_BASE_CLASS_DECL                                                  \
-    typedef boost::intrusive_ptr<MyType> SPtr;                                \
-    template<class SOFA_T> ::sofa::core::objectmodel::BaseData::BaseInitData  \
-    initData(::sofa::core::objectmodel::Data<SOFA_T>* field,                  \
-             const char* name, const char* help,                              \
-             ::sofa::core::objectmodel::BaseData::DataFlags dataflags)        \
-    {                                                                         \
-        ::sofa::core::objectmodel::BaseData::BaseInitData res;                \
-        this->initData0(field, res, name, help, dataflags);                   \
-        res.ownerClass = GetClass()->className.c_str();                       \
-        return res;                                                           \
-    }                                                                         \
-    template<class SOFA_T> ::sofa::core::objectmodel::BaseData::BaseInitData  \
-    initData(::sofa::core::objectmodel::Data<SOFA_T>* field,                  \
-             const char* name, const char* help,                              \
-             bool isDisplayed=true, bool isReadOnly=false)                    \
-    {                                                                         \
-        ::sofa::core::objectmodel::BaseData::BaseInitData res;                \
-        this->initData0(field, res, name, help,                               \
-                        isDisplayed, isReadOnly);                             \
-        res.ownerClass = GetClass()->className.c_str();                       \
-        return res;                                                           \
-    }                                                                         \
-    ::sofa::core::objectmodel::BaseData::BaseInitData                         \
-    initData(const char* name, const char* help)                              \
-    {                                                                         \
-        ::sofa::core::objectmodel::BaseData::BaseInitData res;                \
-        this->initData0(res, name, help);                                     \
-        res.ownerClass = GetClass()->className.c_str();                       \
-        return res;                                                           \
-    }                                                                         \
-    template<class SOFA_T>                                                    \
-    typename ::sofa::core::objectmodel::Data<SOFA_T>::InitData initData(      \
-        ::sofa::core::objectmodel::Data<SOFA_T>* field, const SOFA_T& value,  \
-        const char* name, const char* help,                                   \
-        bool isDisplayed=true, bool isReadOnly=false)                         \
-    {                                                                         \
-        typename ::sofa::core::objectmodel::Data<SOFA_T>::InitData res;       \
-        this->initData0(field, res, value, name, help,                        \
-                        isDisplayed, isReadOnly);                             \
-        res.ownerClass = GetClass()->className.c_str();                       \
-        return res;                                                           \
-    }                                                                         \
-    ::sofa::core::objectmodel::BaseLink::InitLink<MyType>                     \
-    initLink(const char* name, const char* help)                              \
-    {                                                                         \
-        return ::sofa::core::objectmodel::BaseLink::InitLink<MyType>          \
-            (this, name, help);                                               \
-    }                                                                         \
-    using Inherit1::sout;                                                     \
-    using Inherit1::serr;                                                     \
-    using Inherit1::sendl
+
 
 // Do not use this macro directly, use SOFA_ABSTRACT_CLASS instead
 #define SOFA_ABSTRACT_CLASS_DECL                                              \
@@ -1119,6 +1028,171 @@ public:
 
 };
 
+
+
+template<class RootType>
+struct BaseRootClass<RootType>::DerivedLock
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::mutex updateMutex;
+#endif
+    DerivedLock()
+    {}
+};
+
+template<class RootType>
+BaseRootClass<RootType>::BaseRootClass(BaseClassInfo&& info)
+    : BaseClassInfo(std::move(info))
+    , derivedLock(new DerivedLock)
+    , isExternalClass(false)
+    , classId(0)
+{
+}
+
+template<class RootType>
+BaseRootClass<RootType>::~BaseRootClass()
+{
+#ifdef SOFA_CLASS_DCAST_COUNT
+    if (dynamicCastCount>0)
+    {
+        std::cout << dynamicCastCount << " DynamicCast to " << RootType::className((RootType*)nullptr) << " " << className;
+        if (!templateName.empty()) std::cout << "<" << templateName << ">";
+        if (isExternalClass) std::cout << " ID " << classId;
+        std::cout << std::endl;
+    }
+#endif
+    delete derivedLock;
+}
+
+template<class RootType>
+std::size_t BaseRootClass<RootType>::NewClassId()
+{
+    static std::size_t lastId = 0;
+    ++lastId;
+    return lastId;
+}
+
+template<class RootType>
+void BaseRootClass<RootType>::dumpHierarchy(std::ostream& out, int indent) const
+{
+    dumpInfo(out, indent);
+    ++indent;
+    for (std::size_t i = 0; i < parents.size(); ++i)
+    {
+        parents[i]->dumpHierarchy(out, indent);
+    }
+}
+
+template<class RootType>
+void BaseRootClass<RootType>::dumpInfo(std::ostream& out, int indent) const
+{
+    for (; indent > 0; --indent) out << "    ";
+    if (isExternalClass)
+        out << "ID " << classId << " ";
+    out << "class " << className;
+    if (!templateName.empty()) out << '<' << templateName << '>';
+    if (!namespaceName.empty()) out << " in " << namespaceName;
+    if (!shortName.empty()) out << " short " << shortName;
+    out << std::endl;
+}
+
+template<class RootType>
+void BaseRootClass<RootType>::linkNewClass()
+{
+    for (std::size_t i = 0; i < parents.size(); ++i)
+    {
+        const_cast<RootClass*>(parents[i])->addDerived(this);
+    }
+    /*
+    if (isExternalClass)
+    {
+    std::cout << "NEW ";
+    dumpInfo(std::cout);
+    }
+    */
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::addDerived(const RootClass * c)
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    derived.push_back(c);
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::removeDerived(const RootClass * c)
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    auto it = std::find(derived.begin(), derived.end(), c);
+    if (it != derived.end())
+    {
+        derived.erase(it);
+    }
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::removeParent(const RootClass * c)
+{
+    auto it = std::find(parents.begin(), parents.end(), c);
+    if (it != parents.end())
+    {
+        *it = nullptr;
+    }
+}
+
+template<class TRootType>
+auto BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info) const -> const RootClass *
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+auto it = std::find_if(derived.begin(), derived.end(), [&info](const RootClass* c) -> bool
+{
+    return info == *c;
+});
+const RootClass* res = nullptr;
+if (it != derived.end())
+{
+    res = *it;
+}
+return res;
+}
+
+template<class TRootType>
+bool BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info, std::vector<const RootClass*>& result) const
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    bool res = false;
+    for (const RootClass* c : derived)
+    {
+        if (info == *c)
+        {
+            result.push_back(c);
+            res = true;
+        }
+    }
+    return res;
+}
+
+template<class TRootType>
+void BaseRootClass<TRootType>::insertTargetNames(const BaseClassInfo & info)
+{
+#ifdef SOFA_HAVE_BOOST_THREAD
+    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
+#endif
+    if (!info.targetNames.empty())
+    {
+        targetNames.insert(targetNames.end(), info.targetNames.cbegin(), info.targetNames.cend());
+    }
+}
+
+
 // DEPRECATED macros, use new syntax instead for new classes
 
 #define SOFA_ABSTRACT_CLASS(T,P1) SOFA_ABSTRACT_CLASS_DEFAULT((T),((P1)))
@@ -1134,9 +1208,7 @@ public:
 #define SOFA_CLASS5(T,P1,P2,P3,P4,P5) SOFA_CLASS_DEFAULT((T),((P1),(P2),(P3),(P4),(P5)))
 #define SOFA_CLASS6(T,P1,P2,P3,P4,P5,P6) SOFA_CLASS_DEFAULT((T),((P1),(P2),(P3),(P4),(P5),(P6)))
 
-} // namespace objectmodel
-
-} // namespace core
+} // namespace defaulttype
 
 } // namespace sofa
 
