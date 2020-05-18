@@ -51,7 +51,6 @@ SubsetMapping<TIn, TOut>::SubsetMapping()
     , f_handleTopologyChange( initData(&f_handleTopologyChange, true, "handleTopologyChange", "Enable support of topological changes for indices (disable if it is linked from SubsetTopologicalMapping::pointD2S)"))
     , f_ignoreNotFound( initData(&f_ignoreNotFound, false, "ignoreNotFound", "True to ignore points that are not found in the input model, they will be treated as fixed points"))
     , f_resizeToModel( initData(&f_resizeToModel, false, "resizeToModel", "True to resize the output MechanicalState to match the size of indices"))
-    , matrixJ()
     , updateJ(false)
     , m_indicesEditCounter(0)
 {
@@ -352,36 +351,12 @@ void SubsetMapping<TIn, TOut>::applyJT ( const core::ConstraintParams * /*cparam
 template<class TIn, class TOut>
 const sofa::defaulttype::BaseMatrix* SubsetMapping<TIn, TOut>::getJ()
 {
-    if (matrixJ.get() == 0 || updateJ)
-    {
-        const OutVecCoord& out =this->toModel->read(core::ConstVecCoordId::position())->getValue();
-        const InVecCoord& in =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
-        const IndexArray& indices = f_indices.getValue();
-        assert(indices.size() == out.size());
-        const unsigned int fromSize = in.size();
-
-        updateJ = false;
-        if (matrixJ.get() == 0 ||
-            (unsigned int)matrixJ->rowBSize() != out.size() ||
-            (unsigned int)matrixJ->colBSize() != in.size())
-        {
-            matrixJ.reset(new MatrixType(out.size() * NOut, in.size() * NIn));
-        }
-        else
-        {
-            matrixJ->clear();
-        }
-        for (unsigned i = 0; i < indices.size(); ++i)
-        {
-            if(indices[i] < fromSize)
-            {
-                MBloc tempbloc;
-                tempbloc.identity();
-                matrixJ->setBloc(i, indices[i], tempbloc);
-            }
-        }
-    }
-    return matrixJ.get();
+#ifdef SOFA_HAVE_EIGEN2
+    getJs();
+    return &eigen;
+#else
+    return nullptr;
+#endif
 }
 
 

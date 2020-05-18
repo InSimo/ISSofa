@@ -90,7 +90,6 @@ public:
 
     typedef defaulttype::Mat<N, N, Real> Mat;
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::defaulttype::CompressedRowSparseMatrixMechanical<MBloc> MatrixType;
 
     //enum { N=((int)Deriv::static_size < (int)InDeriv::static_size ? (int)Deriv::static_size : (int)InDeriv::static_size) };
 
@@ -101,7 +100,6 @@ protected:
         : Inherit(),
           stateFrom(NULL),
           stateTo(NULL),
-          matrixJ(),
           updateJ(false)
     {
     }
@@ -131,7 +129,6 @@ public:
     virtual void handleTopologyChange();
 
 protected:
-    std::unique_ptr<MatrixType> matrixJ;
     bool updateJ;
 
 #ifdef SOFA_HAVE_EIGEN2

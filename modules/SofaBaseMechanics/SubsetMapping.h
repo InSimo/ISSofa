@@ -146,7 +146,6 @@ public:
 #endif
 
 protected:
-    std::unique_ptr<MatrixType> matrixJ;
     bool updateJ;
 
     /// Pointer to the current topology

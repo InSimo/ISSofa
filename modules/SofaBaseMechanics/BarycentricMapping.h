@@ -126,15 +126,6 @@ public:
     enum { NIn = sofa::defaulttype::DataTypeInfo<InDeriv>::FinalSize };
     enum { NOut = sofa::defaulttype::DataTypeInfo<OutDeriv>::FinalSize };
     typedef defaulttype::Mat<NOut, NIn, Real> MBloc;
-    typedef sofa::defaulttype::CompressedRowSparseMatrixMechanical<MBloc> MatrixType;
-
-protected:
-
-    void addMatrixContrib(MatrixType* m, int row, int col, Real value)
-    {
-        for (int i=0; i < ((int)NIn < (int)NOut ? (int)NIn : (int)NOut); ++i)
-            m->add(row + i, col + i,value);
-    }
 
 public:
     typedef BMMappingData<Real, 1,2> LineData;
@@ -258,31 +249,21 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
 protected:
-    void addMatrixContrib(MatrixType* m, int row, int col, Real value)
-    {
-        Inherit::addMatrixContrib(m, row, col, value);
-    }
 
     sofa::helper::vector< MappingData1D >  map1d;
     sofa::helper::vector< MappingData2D >  map2d;
     sofa::helper::vector< MappingData3D >  map3d;
 
-    MatrixType* matrixJ;
-    bool updateJ;
-
     BarycentricMapperMeshTopology(core::topology::BaseMeshTopology* fromTopology,
             topology::PointSetTopologyContainer* toTopology)
-        : TopologyBarycentricMapper<In,Out>(fromTopology, toTopology),
-          matrixJ(NULL), updateJ(true)
+        : TopologyBarycentricMapper<In,Out>(fromTopology, toTopology)
     {
     }
 
     virtual ~BarycentricMapperMeshTopology()
     {
-        if (matrixJ) delete matrixJ;
     }
 public:
 
@@ -307,7 +288,6 @@ public:
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
-    const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
 	sofa::helper::vector< MappingData3D > const* getMap3d() const { return &map3d; }
@@ -390,31 +370,18 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
 protected:
-    void addMatrixContrib(MatrixType* m, int row, int col, Real value)
-    {
-        Inherit::addMatrixContrib(m, row, col, value);
-    }
 
     sofa::helper::vector<CubeData> map;
     topology::RegularGridTopology* fromTopology;
-
-    MatrixType* matrixJ;
-    bool updateJ;
-
+    
     BarycentricMapperRegularGridTopology(topology::RegularGridTopology* fromTopology,
             topology::PointSetTopologyContainer* toTopology)
-        : Inherit(fromTopology, toTopology),fromTopology(fromTopology),
-          matrixJ(NULL), updateJ(true)
+        : Inherit(fromTopology, toTopology),fromTopology(fromTopology)
     {
     }
 
-    virtual ~BarycentricMapperRegularGridTopology()
-    {
-        if (matrixJ) delete matrixJ;
-    }
 public:
 
     void clear(int reserve=0);
@@ -430,7 +397,6 @@ public:
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
-    const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperRegularGridTopology<In, Out> &b )
@@ -466,32 +432,19 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
 protected:
-    void addMatrixContrib(MatrixType* m, int row, int col, Real value)
-    {
-        Inherit::addMatrixContrib(m, row, col, value);
-    }
 
     sofa::helper::vector<CubeData> map;
     topology::SparseGridTopology* fromTopology;
 
-    MatrixType* matrixJ;
-    bool updateJ;
-
     BarycentricMapperSparseGridTopology(topology::SparseGridTopology* fromTopology,
             topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
-          fromTopology(fromTopology),
-          matrixJ(NULL), updateJ(true)
+          fromTopology(fromTopology)
     {
     }
 
-    virtual ~BarycentricMapperSparseGridTopology()
-    {
-        if (matrixJ) delete matrixJ;
-    }
 public:
 
     void clear(int reserve=0);
@@ -504,7 +457,6 @@ public:
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
-    const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperSparseGridTopology<In, Out> &b )
@@ -546,7 +498,6 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
     // topologyData mechanism to handle topology changes (public)
     typedef typename sofa::helper::vector<BaryElementInfo> VecBaryEdgeInfo;
@@ -561,9 +512,6 @@ protected:
     bool m_useRestPosition;
     core::State< In >* m_stateFrom = nullptr;
     core::State< Out >* m_stateTo  = nullptr;
-
-    MatrixType* matrixJ;
-    bool updateJ;
 
     struct Jacobian
     {
@@ -631,15 +579,12 @@ protected:
           _fromGeomAlgo(NULL),
           m_useRestPosition(useRestPosition),
           m_stateFrom(stateFrom),
-          m_stateTo(stateTo),
-          matrixJ(NULL),
-          updateJ(true)
+          m_stateTo(stateTo)
     {
         m_edgeInfoHandler = std::unique_ptr<EdgeInfoHandler>(new EdgeInfoHandler(this, &d_vBaryEdgeInfo));
         m_vMapInfoHandler = std::unique_ptr<MapPointInfoHandler>(new MapPointInfoHandler(this, &map));
     }
 
-    virtual ~BarycentricMapperEdgeSetTopology() {}
 public:
 
     void clear(int reserve=0);
@@ -658,8 +603,6 @@ public:
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
-
-    virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
 
     helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > > readPoint2EdgeMap(){ return helper::ReadAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
     helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > > writePoint2EdgeMap() { return helper::WriteAccessor< Data< sofa::helper::vector<MappingData> > >(map);}
@@ -721,8 +664,6 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
-
 
     // topologyData mechanism to handle topology changes (public)
     typedef typename sofa::helper::vector<BaryElementInfo> VecBaryTriangleInfo;
@@ -740,9 +681,6 @@ protected:
     core::State< Out >* m_stateTo = nullptr;
 
     topology::TriangleSetGeometryAlgorithms<In>*    _fromGeomAlgo;
-
-    MatrixType* matrixJ;
-    bool updateJ;
 
     struct Jacobian
     {
@@ -824,9 +762,7 @@ protected:
           m_useRestPosition(useRestPosition),
           m_stateFrom(stateFrom),
           m_stateTo(stateTo),
-          _fromGeomAlgo(NULL),
-          matrixJ(NULL),
-          updateJ(true)
+          _fromGeomAlgo(NULL)
     {
         m_vBTInfoHandler = std::unique_ptr<TriangleInfoHandler>(new TriangleInfoHandler(this, &d_vBaryTriangleInfo));
         m_vMapInfoHandler = std::unique_ptr<MapPointInfoHandler>(new MapPointInfoHandler(this, &map));
@@ -852,7 +788,6 @@ public:
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
 
-    virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
     virtual unsigned int getFromTopologyIndex(unsigned int toId) override;
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
@@ -911,23 +846,18 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
 protected:
     topology::PointData< sofa::helper::vector<MappingData> >  map;
     topology::QuadSetTopologyContainer*			_fromContainer;
     topology::QuadSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-    MatrixType* matrixJ;
-    bool updateJ;
 
     BarycentricMapperQuadSetTopology(topology::QuadSetTopologyContainer* fromTopology,
             topology::PointSetTopologyContainer* _toTopology)
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
-          _fromGeomAlgo(NULL),
-          matrixJ(NULL),
-          updateJ(true)
+          _fromGeomAlgo(NULL)
     {}
 
     virtual ~BarycentricMapperQuadSetTopology() {}
@@ -946,8 +876,6 @@ public:
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
-
-    virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
@@ -1000,7 +928,6 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
     typedef typename sofa::helper::vector<BaryElementInfo> VecBaryTetraInfo;
     topology::TetrahedronData<VecBaryTetraInfo> d_vBaryTetraInfo;
@@ -1015,8 +942,7 @@ protected:
     core::State< In >* m_stateFrom;
     core::State< Out >* m_stateTo;
 
-    MatrixType* matrixJ = nullptr;
-    bool updateJ;
+
     bool m_useRestPosition;
 
     BarycentricMapperTetrahedronSetTopology(topology::TetrahedronSetTopologyContainer* fromTopology, topology::PointSetTopologyContainer* _toTopology,
@@ -1028,7 +954,6 @@ protected:
           m_fromContainer(fromTopology),
           m_stateFrom(stateFrom),
           m_stateTo(stateTo),
-          updateJ(true),
           m_useRestPosition(useRestPosition),
           m_vertexInfoHandler(this, &map),
           m_tetraInfoHandler(this, &d_vBaryTetraInfo)
@@ -1108,8 +1033,6 @@ public:
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
 
-    virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
-
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
     const sofa::helper::vector<MappingData>& getMap() const {return this->map.getValue() ;}
@@ -1137,7 +1060,6 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
 protected:
     topology::PointData< sofa::helper::vector<MappingData> >  map;
@@ -1145,8 +1067,6 @@ protected:
     topology::HexahedronSetGeometryAlgorithms<In>*	_fromGeomAlgo;
 
     std::set<int>	_invalidIndex;
-    MatrixType* matrixJ;
-    bool updateJ;
 
     BarycentricMapperHexahedronSetTopology()
         : TopologyBarycentricMapper<In,Out>(NULL, NULL),
@@ -1159,9 +1079,7 @@ protected:
         : TopologyBarycentricMapper<In,Out>(fromTopology, _toTopology),
           map(initData(&map,"map", "mapper data")),
           _fromContainer(fromTopology),
-          _fromGeomAlgo(NULL),
-          matrixJ(NULL),
-          updateJ(true)
+          _fromGeomAlgo(NULL)
     {}
 
     virtual ~BarycentricMapperHexahedronSetTopology() {}
@@ -1181,8 +1099,6 @@ public:
     void applyJ( typename Out::VecDeriv& out, const typename In::VecDeriv& in );
     void applyJT( typename In::VecDeriv& out, const typename Out::VecDeriv& in );
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
-
-    virtual const sofa::defaulttype::BaseMatrix* getJ(int outSize, int inSize);
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
@@ -1289,24 +1205,6 @@ public:
     void applyJT(const core::MechanicalParams *mparams /* PARAMS FIRST */, Data< typename In::VecDeriv >& out, const Data< typename Out::VecDeriv >& in);
 
     void applyJT(const core::ConstraintParams *cparams /* PARAMS FIRST */, Data< typename In::MatrixDeriv >& out, const Data< typename Out::MatrixDeriv >& in);
-
-    virtual const sofa::defaulttype::BaseMatrix* getJ();
-
-
-#ifdef SOFA_HAVE_EIGEN2
-public:
-    virtual const vector<sofa::defaulttype::BaseMatrix*>* getJs();
-
-protected:
-    typedef linearsolver::EigenSparseMatrix<InDataTypes, OutDataTypes> eigen_type;
-
-    // eigen matrix for use with Compliant plugin
-    eigen_type eigen;
-    vector< defaulttype::BaseMatrix* > js;
-
-public:
-
-#endif
 
     void draw(const core::visual::VisualParams* vparams);
 

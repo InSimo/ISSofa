@@ -159,9 +159,7 @@ protected:
 
     void load(const char* filename);
     const VecCoord& getPoints();
-    void setJMatrixBlock(unsigned outIdx, unsigned inIdx);
 
-    std::unique_ptr<MatrixType> matrixJ;
     bool updateJ;
 
 #ifdef SOFA_HAVE_EIGEN2

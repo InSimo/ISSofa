@@ -264,30 +264,12 @@ void IdentityMapping<TIn, TOut>::handleTopologyChange()
 template <class TIn, class TOut>
 const sofa::defaulttype::BaseMatrix* IdentityMapping<TIn, TOut>::getJ()
 {
-    const unsigned int outStateSize = this->toModel->read(core::ConstVecCoordId::position())->getValue().size();
-    const unsigned int  inStateSize = this->fromModel->read(core::ConstVecCoordId::position())->getValue().size();
-    assert(outStateSize == inStateSize);
-
-    if (matrixJ.get() == 0 || updateJ)
-    {
-        updateJ = false;
-        if (matrixJ.get() == 0 || (unsigned int)matrixJ->rowBSize() != outStateSize || (unsigned int)matrixJ->colBSize() != inStateSize)
-        {
-            matrixJ.reset(new MatrixType(outStateSize * NOut, inStateSize * NIn));
-        }
-        else
-        {
-            matrixJ->clear();
-        }
-
-        MBloc tempBloc;
-        IdentityMappingMatrixHelper<NOut, NIn, Real>::setMatrix(tempBloc);
-        for(unsigned i = 0; i < outStateSize; i++)
-        {
-            matrixJ->setBloc(i, i, tempBloc);
-        }
-    }
-    return matrixJ.get();
+#ifdef SOFA_HAVE_EIGEN2
+    getJs();
+    return &eigen;
+#else
+    return nullptr;
+#endif
 }
 
 template<int N, int M, class Real>

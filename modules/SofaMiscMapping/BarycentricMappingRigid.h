@@ -60,7 +60,6 @@ public:
     enum { NIn = Inherit::NIn };
     enum { NOut = Inherit::NOut };
     typedef typename Inherit::MBloc MBloc;
-    typedef typename Inherit::MatrixType MatrixType;
 
 protected:
     topology::PointData< sofa::helper::vector<MappingData > >  map;
@@ -70,10 +69,7 @@ protected:
 
     topology::TetrahedronSetTopologyContainer*			_fromContainer;
     topology::TetrahedronSetGeometryAlgorithms<In>*	_fromGeomAlgo;
-
-    MatrixType* matrixJ;
-    bool updateJ;
-
+    
     /// TEMP
     VecDeriv actualOut;
     typename Out::VecCoord actualPos;
@@ -85,9 +81,7 @@ protected:
           map(initData(&map,"map", "mapper data")),
           mapOrient(initData(&mapOrient,"mapOrient", "mapper data for mapped frames")),
           _fromContainer(fromTopology),
-          _fromGeomAlgo(NULL),
-          matrixJ(NULL),
-          updateJ(true)
+          _fromGeomAlgo(NULL)
     {}
 
     virtual ~BarycentricMapperTetrahedronSetTopologyRigid() {}

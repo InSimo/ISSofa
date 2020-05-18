@@ -137,7 +137,6 @@ RigidMapping<TIn, TOut>::RigidMapping()
     , indexFromEnd(initData(&indexFromEnd, false, "indexFromEnd", "input DOF index starts from the end of input DOFs vector"))
     , pointsPerFrame(initData(&pointsPerFrame, "repartition", "number of dest dofs per entry dof"))
     , globalToLocalCoords(initData(&globalToLocalCoords, false, "globalToLocalCoords", "are the output DOFs initially expressed in global coordinates"))
-    , matrixJ()
     , updateJ(false)
 {
     //std::cout << "RigidMapping Creation\n";
@@ -983,78 +982,12 @@ const helper::vector<sofa::defaulttype::BaseMatrix*>* RigidMapping<TIn, TOut>::g
 template <class TIn, class TOut>
 const sofa::defaulttype::BaseMatrix* RigidMapping<TIn, TOut>::getJ()
 {
-    const VecCoord& out =this->toModel->read(core::ConstVecCoordId::position())->getValue();
-    const InVecCoord& in =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
-    const VecCoord& pts = this->getPoints();
-    assert(pts.size() == out.size());
-
-    if (matrixJ.get() == 0 || updateJ)
-    {
-        updateJ = false;
-        if (matrixJ.get() == 0 ||
-                (unsigned int)matrixJ->rowBSize() != out.size() ||
-                (unsigned int)matrixJ->colBSize() != in.size())
-        {
-            matrixJ.reset(new MatrixType(out.size() * NOut, in.size() * NIn));
-        }
-        else
-        {
-            matrixJ->clear();
-        }
-
-        unsigned repartitionCount = pointsPerFrame.getValue().size();
-
-        if (repartitionCount > 1 && repartitionCount != in.size())
-        {
-            serr << "Error : mapping dofs repartition is not correct" << sendl;
-            return 0;
-        }
-
-        unsigned inIdxBegin;
-        unsigned inIdxEnd;
-
-        if (repartitionCount == 0)
-        {
-            inIdxBegin = index.getValue();
-            if (indexFromEnd.getValue())
-            {
-                inIdxBegin = in.size() - 1 - inIdxBegin;
-            }
-            inIdxEnd = inIdxBegin + 1;
-        }
-        else
-        {
-            inIdxBegin = 0;
-            inIdxEnd = in.size();
-        }
-
-        unsigned outputPerInput;
-        if (repartitionCount == 0)
-        {
-            outputPerInput = pts.size();
-        }
-        else
-        {
-            outputPerInput = pointsPerFrame.getValue()[0];
-        }
-
-        for (unsigned inIdx = inIdxBegin, outIdx = 0; inIdx < inIdxEnd; ++inIdx)
-        {
-            if (repartitionCount > 1)
-            {
-                outputPerInput = pointsPerFrame.getValue()[inIdx];
-            }
-
-            for (unsigned iOutput = 0;
-                 iOutput < outputPerInput; // iOutput < outputPerInput;
-                 ++iOutput, ++outIdx)
-            {
-                setJMatrixBlock(outIdx, inIdx);
-            }
-        }
-    }
-    matrixJ->compress();
-    return matrixJ.get();
+#ifdef SOFA_HAVE_EIGEN2
+    getJs();
+    return &eigenJacobian;
+#else
+    return nullptr;
+#endif
 }
 
 template<class Real>
@@ -1088,14 +1021,6 @@ struct RigidMappingMatrixHelper<3, Real>
     }
 };
 
-template <class TIn, class TOut>
-void RigidMapping<TIn, TOut>::setJMatrixBlock(unsigned outIdx, unsigned inIdx)
-{
-    //    cerr<<"RigidMapping<TIn, TOut>::setJMatrixBlock, outIdx = " << outIdx << ", inIdx = " << inIdx << endl;
-    MBloc tempBloc;
-    RigidMappingMatrixHelper<N, Real>::setMatrix(tempBloc, rotatedPoints[outIdx]);
-    matrixJ->setBloc(outIdx, inIdx, tempBloc);
-}
 
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
