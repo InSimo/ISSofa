@@ -25,6 +25,8 @@
 #ifndef SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_H
 #define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIX_H
 
+#include <sofa/SofaFramework.h>
+
 #include <sofa/defaulttype/matrix_bloc_traits.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixTraceLogger.h>
 #include <algorithm>
@@ -102,6 +104,7 @@ public:
     typedef TBloc Bloc;
     typedef TPolicy Policy;
     typedef matrix_bloc_traits<Bloc> traits;
+    typedef typename traits::BlocTranspose BlocTranspose;
     typedef typename traits::Real Real;
 
     enum { NL = traits::NL };  ///< Number of rows of a block
@@ -959,9 +962,9 @@ public:
         return bloc(i,j);
     }
 
-    const Bloc getSymBloc(Index i, Index j) const
+    const BlocTranspose getSymBloc(Index i, Index j) const
     {
-        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (i > j) return bloc(i,j).transposed();
+        SOFA_IF_CONSTEXPR (!Policy::StoreLowerTriangularBloc) if (i > j) return traits::transposed( bloc(i,j) );
         return getBloc(i,j);
     }
 
@@ -1287,13 +1290,13 @@ public:
         SOFA_IF_CONSTEXPR(Policy::StoreLowerTriangularBloc)
         {
             add(bi, bj, b);
-            add(bj, bi, b.transposed());
+            add(bj, bi, traits::transposed(b) );
         }
         else
         {
             if (bi > bj) // the block we received is in the lower triangular
             {
-                add(bj, bi, b.transposed());
+                add(bj, bi, traits::transposed(b) );
             }
             else
             {
@@ -1308,13 +1311,13 @@ public:
         SOFA_IF_CONSTEXPR(Policy::StoreLowerTriangularBloc)
         {
             add(bi, bj, rowId, colId, b);
-            add(bj, bi, rowIdT, colIdT, b.transposed());
+            add(bj, bi, rowIdT, colIdT, traits::transposed(b) );
         }
         else
         {
             if (bi > bj) // the block we received is in the lower triangular
             {
-                add(bj, bi, rowIdT, colIdT, b.transposed());
+                add(bj, bi, rowIdT, colIdT, traits::transposed(b) );
             }
             else
             {
@@ -1519,19 +1522,6 @@ public:
             }
         }
         res.compress();
-    }
-
-    /** @returns this + m
-      @warning The block must be the same (same type and same size)
-      @warning The matrices must have the same mathematical size
-      @warning matrices this and m must be compressed
-      */
-    CompressedRowSparseMatrix<TBloc,TPolicy> operator+( const CompressedRowSparseMatrix<TBloc,TPolicy>& m ) const
-    {
-        CompressedRowSparseMatrix<TBloc,TPolicy> res = *this;
-        res += m;
-        SOFA_IF_CONSTEXPR (Policy::StoreTouchFlags) res.touchedBloc.resize(res.colsValue.size(), true);
-        return res;
     }
 
 /// @}
@@ -1742,6 +1732,13 @@ protected:
 #endif
 #ifdef SPARSEMATRIX_VERBOSE
 #undef SPARSEMATRIX_VERBOSE
+#endif
+
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrix<double>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrix<Mat1x1d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrix<Mat3x3d>;
 #endif
 
 } // namespace defaulttype

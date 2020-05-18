@@ -375,6 +375,8 @@ class matrix_bloc_traits < RigidDeriv<N, T> >
 public:
     typedef RigidDeriv<N, T> Bloc;
     typedef T Real;
+    typedef Bloc BlocTranspose;
+
     enum { NL = 1 };
     enum { NC = RigidDeriv<N, T>::total_size };
 
@@ -388,6 +390,10 @@ public:
             if (b[i] != 0) return false;
         return true;
     }
+
+    static BlocTranspose transposed(const Bloc& b) { return b; }
+
+    static void transpose(BlocTranspose& res, const Bloc& b) { res = b; }
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
     static const char* Name() { return DataTypeName<RigidDeriv<N, T>>::name(); }

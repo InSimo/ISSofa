@@ -434,6 +434,8 @@ class matrix_bloc_traits < LaparoscopicRigid3Types::Deriv >
 {
 public:
     typedef LaparoscopicRigid3Types::Deriv Bloc;
+    typedef Bloc BlocTranspose;
+
     typedef SReal Real;
     enum { NL = 1 };
     enum { NC = 4 };
@@ -447,6 +449,9 @@ public:
             if (b[i] != 0) return false;
         return true;
     }
+    static BlocTranspose transposed(const Bloc& b) { return b; }
+
+    static void transpose(BlocTranspose& res, const Bloc& b) { res = b; }
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
     static const char* Name() { return "LaparoscopicRigid3Types"; }

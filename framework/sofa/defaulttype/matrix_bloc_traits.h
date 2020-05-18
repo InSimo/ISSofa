@@ -95,6 +95,8 @@ class matrix_bloc_traits
 {
 public:
     typedef T Bloc;
+    typedef T BlocTranspose;
+
     typedef typename T::Real Real;
     enum { NL = T::nbLines };
     enum { NC = T::nbCols };
@@ -111,6 +113,10 @@ public:
     }
     static void invert(Bloc& result, const Bloc& b) { result.invert(b); }
 
+    static BlocTranspose transposed(const Bloc& b) { return b.transposed(); }
+
+    static void transpose(BlocTranspose& res, const Bloc& b) { res.transpose(b); }
+
     static void split_row_index(int& index, int& modulo) { bloc_index_func<NL>::split(index, modulo); }
     static void split_col_index(int& index, int& modulo) { bloc_index_func<NC>::split(index, modulo); }
 
@@ -123,6 +129,8 @@ class matrix_bloc_traits < defaulttype::Mat<L,C,real> >
 {
 public:
     typedef defaulttype::Mat<L,C,real> Bloc;
+    typedef defaulttype::Mat<C, L, real> BlocTranspose;
+
     typedef real Real;
     enum { NL = L };
     enum { NC = C };
@@ -138,6 +146,10 @@ public:
         return true;
     }
     static void invert(Bloc& result, const Bloc& b) { result.invert(b); }
+
+    static BlocTranspose transposed(const Bloc& b) { return b.transposed(); }
+
+    static void transpose(BlocTranspose& res, const Bloc& b) { res.transpose(b); }
 
     static void split_row_index(int& index, int& modulo) { bloc_index_func<NL>::split(index, modulo); }
     static void split_col_index(int& index, int& modulo) { bloc_index_func<NC>::split(index, modulo); }
@@ -177,6 +189,8 @@ class matrix_bloc_traits < float >
 public:
     typedef float Bloc;
     typedef float Real;
+    typedef Bloc BlocTranspose;
+
     enum { NL = 1 };
     enum { NC = 1 };
     static const Real& v(const Bloc& b, int, int) { return b; }
@@ -188,6 +202,10 @@ public:
         return b == 0;
     }
     static void invert(Bloc& result, const Bloc& b) { result = 1.0f/b; }
+
+    static Bloc transposed(const Bloc& b) { return b; }
+
+    static void transpose(Bloc& res, const Bloc& b) { res = b; }
 
     static void split_row_index(int& index, int& modulo) { bloc_index_func<NL>::split(index, modulo); }
     static void split_col_index(int& index, int& modulo) { bloc_index_func<NC>::split(index, modulo); }
@@ -203,6 +221,8 @@ class matrix_bloc_traits < double >
 public:
     typedef double Bloc;
     typedef double Real;
+    typedef Bloc BlocTranspose;
+
     enum { NL = 1 };
     enum { NC = 1 };
     static const Real& v(const Bloc& b, int, int) { return b; }
@@ -214,6 +234,10 @@ public:
         return b == 0;
     }
     static void invert(Bloc& result, const Bloc& b) { result = 1.0/b; }
+
+    static Bloc transposed(const Bloc& b) { return b; }
+
+    static void transpose(Bloc& res, const Bloc& b) { res = b; }
 
     static void split_row_index(int& index, int& modulo) { bloc_index_func<NL>::split(index, modulo); }
     static void split_col_index(int& index, int& modulo) { bloc_index_func<NC>::split(index, modulo); }
@@ -228,6 +252,8 @@ class matrix_bloc_traits < int >
 public:
     typedef float Bloc;
     typedef float Real;
+    typedef Bloc BlocTranspose;
+
     enum { NL = 1 };
     enum { NC = 1 };
     static const Real& v(const Bloc& b, int, int) { return b; }
@@ -239,6 +265,10 @@ public:
         return b == 0;
     }
     static void invert(Bloc& result, const Bloc& b) { result = 1.0f/b; }
+
+    static Bloc transposed(const Bloc& b) { return b; }
+
+    static void transpose(Bloc& res, const Bloc& b) { res = b; }
 
     static void split_row_index(int& index, int& modulo) { bloc_index_func<NL>::split(index, modulo); }
     static void split_col_index(int& index, int& modulo) { bloc_index_func<NC>::split(index, modulo); }
@@ -253,6 +283,8 @@ class matrix_bloc_traits < sofa::defaulttype::Vec<N, T> >
 public:
     typedef sofa::defaulttype::Vec<N, T> Bloc;
     typedef T Real;
+    typedef Bloc BlocTranspose;
+
     enum { NL = 1 };
     enum { NC = N };
 
@@ -266,6 +298,10 @@ public:
             if (b[i] != 0) return false;
         return true;
     }
+
+    static Bloc transposed(const Bloc& b) { return b; }
+
+    static void transpose(Bloc& res, const Bloc& b) { res = b; }
 
     static sofa::defaulttype::BaseMatrix::ElementType getElementType() { return matrix_bloc_traits<Real>::getElementType(); }
     static const char* Name();
