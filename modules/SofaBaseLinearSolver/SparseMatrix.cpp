@@ -35,7 +35,7 @@ namespace linearsolver
 {
 
 // FIXME: Quick and dirty way to ensure the class shared pointer creation (see TClass::CreateUnique) is not called in a multithreaded context
-const sofa::core::objectmodel::BaseClassInfo* SparseMatrixClasses[] = {
+const sofa::defaulttype::BaseClassInfo* SparseMatrixClasses[] = {
 #ifndef SOFA_FLOAT
     SparseMatrix<double>::GetClass(),
 #endif
