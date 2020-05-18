@@ -142,23 +142,6 @@ public:
     {
         return BaseClass::defaultTemplateName(ptr);
     }
-
-    /// Helper method to get the shortname of a type derived from this class.
-    /// The default implementation return the class name.
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = NULL; std::string type = T::shortName(ptr); \endcode
-    /// This way derived classes can redefine the shortName method
-    template< class T>
-    static std::string shortName( const T* ptr = NULL, BaseObjectDescription* = NULL )
-    {
-        std::string shortname = T::className(ptr);
-        if( !shortname.empty() )
-        {
-            *shortname.begin() = ::tolower(*shortname.begin());
-        }
-        return shortname;
-    }
     /// @}
 
     /// Add a new input to this node

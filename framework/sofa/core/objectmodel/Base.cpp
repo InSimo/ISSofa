@@ -34,6 +34,13 @@
 namespace sofa
 {
 
+namespace defaulttype
+{
+
+template class SOFA_CORE_API BaseRootClass< sofa::core::objectmodel::Base >;
+
+}
+
 namespace core
 {
 
@@ -41,6 +48,7 @@ namespace objectmodel
 {
 
 SOFA_ROOT_CLASS_IMPL((Base));
+
 
 using std::string;
 

@@ -7,7 +7,6 @@
 
 #include <sofa/defaulttype/DataMetadata.h>
 #include <sofa/defaulttype/QuantityTypeInfo.h>
-#include <sofa/core/objectmodel/BaseClass.h>
 #include <sofa/core/objectmodel/BaseObject.h>
 
 namespace sofa

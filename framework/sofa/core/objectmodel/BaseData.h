@@ -39,6 +39,7 @@
 #include <sofa/defaulttype/AbstractTypeInfo.h>
 #include <sofa/defaulttype/DataMetadata.h>
 #include <initializer_list>
+#include <sofa/core/objectmodel/BaseClass.h>
 
 namespace sofa
 {

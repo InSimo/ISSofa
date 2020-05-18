@@ -82,7 +82,7 @@ public:
         /// BaseClass structure associated with the type of intanciated objects.
         virtual const objectmodel::BaseClass* getClass() = 0;
 
-        virtual std::string shortName(objectmodel::BaseObjectDescription* arg) = 0;
+        virtual std::string shortName() = 0;
 
         /// The name of the library or executable containing the binary code for this component
         virtual const char* getTarget() = 0;
@@ -237,10 +237,10 @@ public:
         return RealObject::HeaderFileLocation();
     }
 
-    virtual std::string shortName(objectmodel::BaseObjectDescription* arg)
+    virtual std::string shortName()
     {
         RealObject* instance = NULL;
-        return RealObject::shortName(instance,arg);
+        return RealObject::shortName(instance);
     }
 
 };

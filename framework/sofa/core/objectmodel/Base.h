@@ -52,6 +52,7 @@ namespace core
 namespace objectmodel
 {
 
+
 /**
  *  \brief Base class for everything
  *
@@ -355,6 +356,15 @@ public:
 } // namespace objectmodel
 
 } // namespace core
+
+namespace defaulttype
+{
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_CORE) 
+extern template class SOFA_CORE_API BaseRootClass< sofa::core::objectmodel::Base >;
+#endif
+
+}
 
 } // namespace sofa
 

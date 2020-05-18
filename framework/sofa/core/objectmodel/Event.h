@@ -37,6 +37,10 @@ namespace core
 namespace objectmodel
 {
 
+#define SOFA_EVENT_CLASS_EXTERNAL(T,Parents) SOFA_SIMPLE_CLASS_EXTERNAL((::sofa::core::objectmodel::Event),T,Parents)
+#define SOFA_EVENT_CLASS_UNIQUE(T,Parents) SOFA_SIMPLE_CLASS_UNIQUE((::sofa::core::objectmodel::Event),T,Parents)
+#define SOFA_EVENT_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
+
 /**
  *  \brief Base class for all events received by the objects.
  *
@@ -68,6 +72,15 @@ protected:
 } // namespace objectmodel
 
 } // namespace core
+
+namespace defaulttype
+{
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_CORE) 
+extern template class SOFA_CORE_API BaseRootClass< sofa::core::objectmodel::Event >;
+#endif
+
+}
 
 } // namespace sofa
 

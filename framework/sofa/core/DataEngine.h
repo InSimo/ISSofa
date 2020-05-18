@@ -116,17 +116,6 @@ public:
         return core::objectmodel::BaseObject::templateName(ptr);
     }
 
-    /// Helper method to get the shortname of a type derived from this class.
-    /// The default implementation return the class name.
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = NULL; std::string type = T::shortName(ptr); \endcode
-    /// This way derived classes can redefine the shortName method
-    template< class T>
-    static std::string shortName( const T* ptr = NULL, core::objectmodel::BaseObjectDescription* desc = NULL )
-    {
-        return core::objectmodel::BaseObject::shortName(ptr,desc);
-    }
 
     template<class T>
     static void dynamicCast(T*& ptr, Base* b)

@@ -221,9 +221,9 @@ public:
     }
 
     template<class T>
-    static std::string shortName(const T* ptr = NULL, objectmodel::BaseObjectDescription* arg = NULL)
+    static std::string shortName(const T* ptr = NULL)
     {
-        std::string name = Inherit1::shortName(ptr, arg);
+        std::string name = Inherit1::shortName(ptr);
         sofa::helper::replaceAll(name, "ForceField", "FF");
         return name;
     }

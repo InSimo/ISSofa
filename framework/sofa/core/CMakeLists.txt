@@ -14,8 +14,6 @@ set(SOFACORE_HEADERS
 	BaseState.h
 	State.h
 	State.inl
-	../defaulttype/BaseMatrix.h
-	../defaulttype/BaseVector.h
 	BehaviorModel.h
 	CollisionElement.h
 	CollisionModel.h
@@ -111,6 +109,7 @@ set(SOFACORE_HEADERS
 	objectmodel/AspectPool.h
 	objectmodel/SPtr.h
 	objectmodel/Base.h
+    objectmodel/BaseClass.h
 	objectmodel/BaseContext.h
 	objectmodel/BaseNode.h
 	objectmodel/BaseObject.h
@@ -162,6 +161,7 @@ set(SOFACORE_HEADERS
 set(SOFACORE_SOURCES
 	objectmodel/AspectPool.cpp
 	objectmodel/Base.cpp
+    objectmodel/BaseClass.cpp
 	objectmodel/BaseData.cpp
 	objectmodel/BaseLink.cpp
 	objectmodel/BaseContext.cpp
@@ -192,7 +192,6 @@ set(SOFACORE_SOURCES
 	CategoryLibrary.cpp
 	ComponentLibrary.cpp
 	BaseMapping.cpp
-	../defaulttype/BaseMatrix.cpp
 	Mapping.cpp
 	MultiMapping.cpp
 	Multi2Mapping.cpp
