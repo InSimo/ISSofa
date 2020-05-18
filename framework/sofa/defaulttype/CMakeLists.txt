@@ -5,10 +5,13 @@ project(SofaDefaultType)
 set(SOFADEFAULTTYPE_HEADERS
 	AbstractTypeInfo.h
     BaseClass.h
+    BaseMatrix.h
+    BaseVector.h
     BoundingBox.h
     CompressedRowSparseMatrix.h
     CompressedRowSparseMatrixConstraint.h
     CompressedRowSparseMatrixMechanical.h
+    CompressedRowSparseMatrixMechanical.inl
     CompressedRowSparseMatrixTraceLogger.h
 	DataTypeInfo.h	
 	EnumTypeInfo.h	
@@ -16,6 +19,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	DataTypeKind.h	
 	Frame.h	 
     FullVector.h
+    FullVector.inl
 	LaparoscopicRigidTypes.h	
 	MapMapSparseMatrix.h	
     MapMapSparseMatrixEigenUtils.h
@@ -49,10 +53,14 @@ set(SOFADEFAULTTYPE_HEADERS
 set(SOFADEFAULTTYPE_SOURCES
 	AbstractTypeInfo.cpp
     BaseClass.cpp
+    BaseMatrix.cpp
+    BaseVector.cpp
 	BoundingBox.cpp
-    CompressedRowSparseMatrixMechanical.inl
+    CompressedRowSparseMatrix.cpp
+    CompressedRowSparseMatrixConstraint.cpp
+    CompressedRowSparseMatrixMechanical.cpp
 	Frame.cpp
-    FullVector.inl
+    FullVector.cpp    
 	#RigidInertia.cpp
 	SolidTypes.cpp
 	TemplatesAliases.cpp

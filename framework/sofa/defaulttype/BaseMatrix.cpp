@@ -34,7 +34,9 @@ namespace sofa
 namespace defaulttype
 {
 
-SOFA_ROOT_CLASS_IMPL((BaseVector));
+template class SOFA_DEFAULTTYPE_API BaseRootClass< BaseMatrix >;
+
+
 SOFA_ROOT_CLASS_IMPL((BaseMatrix));
 
 BaseMatrix::BaseMatrix() {}

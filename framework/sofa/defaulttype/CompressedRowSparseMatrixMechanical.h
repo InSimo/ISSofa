@@ -25,6 +25,8 @@
 #ifndef SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIXMECHANICAL_H
 #define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIXMECHANICAL_H
 
+#include <sofa/SofaFramework.h>
+
 #include <sofa/defaulttype/CompressedRowSparseMatrix.h>
 #include <sofa/defaulttype/BaseMatrix.h>
 #include <sofa/defaulttype/MatrixExpr.h>
@@ -68,7 +70,7 @@ class CompressedRowSparseMatrixMechanical final // final is used to allow the co
 {
 public:
     typedef CompressedRowSparseMatrixMechanical<TBloc, TPolicy> Matrix;
-    SOFA_MATRIX_CLASS_UNIQUE((Matrix),((defaulttype::BaseMatrix)));
+    SOFA_MATRIX_CLASS_EXTERNAL((Matrix),((defaulttype::BaseMatrix)));
 
     typedef CompressedRowSparseMatrix<TBloc, TPolicy> CRSMatrix;
     typedef typename CRSMatrix::Policy Policy;
@@ -1390,10 +1392,6 @@ public:
         return MatrixExpr< MatrixTranspose< Matrix > >(MatrixTranspose< Matrix >(*this));
     }
 
-    MatrixExpr< MatrixInverse< Matrix > > i() const
-    {
-        return MatrixExpr< MatrixInverse< Matrix > >(MatrixInverse< Matrix >(*this));
-    }
 
     MatrixExpr< MatrixNegative< Matrix > > operator-() const
     {
@@ -1416,6 +1414,41 @@ public:
         // return name.c_str();
     }
 };
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, float> >;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, float> >;
+
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<double>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, double> >;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, double> >;
+
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2f, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3f, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4f, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, float>, CRSMechanicalStoreTouchedPolicy >;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, float>, CRSMechanicalStoreTouchedPolicy >;
+
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<double, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1d, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2d, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3d, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4d, CRSMechanicalStoreTouchedPolicy>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, double>, CRSMechanicalStoreTouchedPolicy >;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, double>, CRSMechanicalStoreTouchedPolicy >;
+
+#endif
 
 } // namespace defaulttype
 

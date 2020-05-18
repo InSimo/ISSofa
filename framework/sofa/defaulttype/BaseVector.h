@@ -26,7 +26,7 @@
 #define SOFA_DEFAULTTYPE_BASEVECTOR_H
 
 #include <sofa/helper/system/config.h>
-#include <sofa/core/objectmodel/BaseClass.h>
+#include "BaseClass.h"
 #include <iostream>
 
 namespace sofa
@@ -43,7 +43,7 @@ namespace defaulttype
 ///
 /// Note that accessing values using this class is rather slow and should only be used in codes where the
 /// provided genericity is necessary.
-class SOFA_CORE_API BaseVector
+class SOFA_DEFAULTTYPE_API BaseVector
 {
 public:
     SOFA_ROOT_CLASS_EXTERNAL((BaseVector));
@@ -194,6 +194,11 @@ public:
     }
 
 };
+
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+extern template class SOFA_DEFAULTTYPE_API BaseRootClass< BaseVector >;
+#endif
 
 } // nampespace defaulttype
 

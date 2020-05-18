@@ -639,10 +639,18 @@ public:                                                                       \
     }                                                                         \
     std::size_t SOFA_UNBUNDLE T ::ExternalClassId = 0
 
+#define SOFA_TEMPLATE_CLASS_EXTERNAL_IMPL(T)                                  \
+    template<> auto SOFA_UNBUNDLE T::GetClass() -> const MyClass*             \
+    {                                                                         \
+        static MyClass singleton(&ExternalClassId);                           \
+        return &singleton;                                                    \
+    }                                                                         \
+    template<> std::size_t SOFA_UNBUNDLE T ::ExternalClassId = 0
+
+
 #define SOFA_ROOT_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
 #define SOFA_ABSTRACT_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
 #define SOFA_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
-#define SOFA_EVENT_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
 
 template <class T, class Parents, std::size_t N = std::tuple_size<Parents>::value>
 class TClassParents

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
-*                (c) 2006-2011 MGH, INRIA, USTL, UJF, CNRS                    *
+*                (c) 2006-2011 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This library is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -16,50 +16,27 @@
 * along with this library; if not, write to the Free Software Foundation,     *
 * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.          *
 *******************************************************************************
-*                               SOFA :: Modules                               *
+*                              SOFA :: Framework                              *
 *                                                                             *
-* Authors: The SOFA Team and external contributors (see Authors.txt)          *
+* Authors: The SOFA Team (see Authors.txt)                                    *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_DEFAULTTYPE_FULLVECTOR_INL
-#define SOFA_DEFAULTTYPE_FULLVECTOR_INL
-#include "FullVector.h"
+
+#include "BaseVector.h"
 
 namespace sofa
 {
-
 namespace defaulttype
 {
 
-template<> void FullVector<bool>::set(Index i, SReal v)
-{
-    data[i] = (v!=0);
+template class SOFA_DEFAULTTYPE_API BaseRootClass< BaseVector >;
+
+SOFA_ROOT_CLASS_IMPL((BaseVector));
+
 }
 
-template<> void FullVector<bool>::add(Index i, SReal v)
-{
-    data[i] |= (v!=0);
+
 }
-
-template<> bool FullVector<bool>::dot(const FullVector<Real>& a) const
-{
-    Real r = false;
-    for(Index i=0; i<cursize && !r; ++i)
-        r = (*this)[i] && a[i];
-    return r;
-}
-
-template<> double FullVector<bool>::norm() const
-{
-    double r = 0.0;
-    for(Index i=0; i<cursize; ++i)
-        r += (*this)[i] ? 1.0 : 0.0;
-    return helper::rsqrt(r);
-}
-
-} // namespace defaulttype
-
-} // namespace sofa
-
-#endif
+    
+    

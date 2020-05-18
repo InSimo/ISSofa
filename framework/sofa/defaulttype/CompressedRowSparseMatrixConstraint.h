@@ -26,6 +26,7 @@
 #define SOFA_DEFAULTTYPE_COMPRESSEDROWSPARSEMATRIXCONSTRAINT_H
 
 #include <sofa/defaulttype/CompressedRowSparseMatrix.h>
+#include <sofa/SofaFramework.h>
 
 namespace sofa
 {
@@ -126,11 +127,15 @@ public:
             , m_matrix(it2.m_matrix)
         {}
 
-        void operator=(const ColConstIterator& it2)
+        ColConstIterator& operator=(const ColConstIterator& other)
         {
-            m_rowIt = it2.m_rowIt;
-            m_internal = it2.m_internal;
-            m_matrix = it2.m_matrix;
+            if (this != &other)
+            {
+                m_rowIt = other.m_rowIt;
+                m_internal = other.m_internal;
+                m_matrix = other.m_matrix;
+            }
+            return *this;
         }
 
         Index row() const
@@ -207,7 +212,7 @@ public:
 
     private :
 
-        const Index m_rowIt;
+        Index m_rowIt;
         Index m_internal;
         const CompressedRowSparseMatrixConstraint* m_matrix;
     };
@@ -235,10 +240,14 @@ public:
         RowConstIterator()
         {}
 
-        void operator=(const RowConstIterator& it2)
+        RowConstIterator&  operator=(const RowConstIterator& other)
         {
-            m_matrix = it2.m_matrix;
-            m_internal = it2.m_internal;
+            if (this != &other)
+            {
+                m_matrix = other.m_matrix;
+                m_internal = other.m_internal;
+            }
+            return *this;
         }
 
         Index index() const
@@ -434,7 +443,6 @@ public:
     {
         typedef std::pair<ColConstIterator, ColConstIterator> Inherit;
     public:
-        RowType() : Inherit(0,0) {}
         RowType(ColConstIterator begin, ColConstIterator end) : Inherit(begin,end) {}
         ColConstIterator begin() const { return this->first; }
         ColConstIterator end() const { return this->second; }
@@ -669,6 +677,21 @@ public:
 protected:
     helper::vector<RowBuffer> m_rows;
 };
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec1f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec2f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec3f>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec6f>;
+
+
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec1d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec2d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec3d>;
+extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec6d>;
+
+#endif
 
 } // namespace defaulttype
 

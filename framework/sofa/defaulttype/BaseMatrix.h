@@ -28,6 +28,7 @@
 #include <sofa/helper/system/config.h>
 #include <sofa/SofaFramework.h>
 #include <sofa/defaulttype/BaseVector.h>
+#include "BaseClass.h"
 #include <utility> // for std::pair
 #include <cstddef> // for NULL and std::size_t
 #include <iostream>
@@ -44,12 +45,13 @@ namespace defaulttype
 #define SOFA_MATRIX_CLASS_UNIQUE(T,Parents) SOFA_SIMPLE_CLASS_UNIQUE((::sofa::defaulttype::BaseMatrix),T,Parents)
 #define SOFA_MATRIX_CLASS_EXTERNAL(T,Parents) SOFA_SIMPLE_CLASS_EXTERNAL((::sofa::defaulttype::BaseMatrix),T,Parents)
 #define SOFA_MATRIX_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
+#define SOFA_TEMPLATE_MATRIX_CLASS_IMPL(T) SOFA_TEMPLATE_CLASS_EXTERNAL_IMPL(T) 
 
 /// Generic matrix API, allowing to fill and use a matrix independently of the linear algebra library in use.
 ///
 /// Note that accessing values using this class is rather slow and should only be used in codes where the
 /// provided genericity is necessary.
-class SOFA_CORE_API BaseMatrix
+class SOFA_DEFAULTTYPE_API BaseMatrix
 {
 public:
     SOFA_ROOT_CLASS_EXTERNAL((BaseMatrix));
@@ -1256,6 +1258,10 @@ public:
     }
 
 };
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+extern template class SOFA_DEFAULTTYPE_API BaseRootClass< BaseMatrix >;
+#endif
 
 
 } // nampespace defaulttype

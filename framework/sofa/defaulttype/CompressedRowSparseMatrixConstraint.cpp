@@ -22,9 +22,9 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_DEFAULTTYPE_FULLVECTOR_INL
-#define SOFA_DEFAULTTYPE_FULLVECTOR_INL
-#include "FullVector.h"
+
+#include "CompressedRowSparseMatrixConstraint.h"
+#include "Vec.h"
 
 namespace sofa
 {
@@ -32,34 +32,20 @@ namespace sofa
 namespace defaulttype
 {
 
-template<> void FullVector<bool>::set(Index i, SReal v)
-{
-    data[i] = (v!=0);
-}
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec1f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec2f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec3f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec6f>;
 
-template<> void FullVector<bool>::add(Index i, SReal v)
-{
-    data[i] |= (v!=0);
-}
 
-template<> bool FullVector<bool>::dot(const FullVector<Real>& a) const
-{
-    Real r = false;
-    for(Index i=0; i<cursize && !r; ++i)
-        r = (*this)[i] && a[i];
-    return r;
-}
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec1d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec2d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec3d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixConstraint<Vec6d>;
 
-template<> double FullVector<bool>::norm() const
-{
-    double r = 0.0;
-    for(Index i=0; i<cursize; ++i)
-        r += (*this)[i] ? 1.0 : 0.0;
-    return helper::rsqrt(r);
-}
 
 } // namespace defaulttype
 
 } // namespace sofa
 
-#endif
+

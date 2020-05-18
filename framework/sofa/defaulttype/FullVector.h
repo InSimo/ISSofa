@@ -353,6 +353,13 @@ template<> SOFA_DEFAULTTYPE_API void FullVector<bool>::add(Index i, SReal v);
 template<> SOFA_DEFAULTTYPE_API bool FullVector<bool>::dot(const FullVector<Real>& a) const;
 template<> SOFA_DEFAULTTYPE_API double FullVector<bool>::norm() const;
 
+
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+extern template SOFA_DEFAULTTYPE_API class FullVector<bool>;
+extern template SOFA_DEFAULTTYPE_API class FullVector<float>;
+extern template SOFA_DEFAULTTYPE_API class FullVector<double>;
+#endif
+
 } // namespace defaulttype
 
 } // namespace sofa
