@@ -1015,7 +1015,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(GenericConstraintSolver* solve
 	for(i=0; i<maxIterations; i++)
 	{
 		//bool constraintsAreVerified = true;
-        if(sor != 1.0)
+		if(sor != 1.0)
 		{
 			for(j=0; j<dimension; j++)
 				tempForces[j] = force[j];

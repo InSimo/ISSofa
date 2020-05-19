@@ -477,7 +477,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
     sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<VecEdgeSpring>>> edgeInf = d_edgeSprings;
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
-    const bool useCorotational = d_useCorotational.getValue();
+    //const bool useCorotational = d_useCorotational.getValue();
     const Real drawSpringSize = d_drawSpringSize.getValue();
 
     VecDeriv emptyVecDeriv;

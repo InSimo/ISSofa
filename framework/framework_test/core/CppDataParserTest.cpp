@@ -96,8 +96,8 @@ TYPED_TEST_CASE(CppDataParserTest, StructTypes);
 
 namespace std
 {
-    static std::ostream& operator << (std::ostream& os, const std::vector<bool>& /*vec*/) { return os; }
-    static std::istream& operator >> (std::istream& is, const std::vector<bool>& /*vec*/) { return is; }
+    //static std::ostream& operator << (std::ostream& os, const std::vector<bool>& /*vec*/) { return os; }
+    //static std::istream& operator >> (std::istream& is, const std::vector<bool>& /*vec*/) { return is; }
     static std::ostream& operator << (std::ostream& os, const std::array<int, 3>& /*vec*/) { return os; }
     static std::istream& operator >> (std::istream& is, const std::array<int, 3>& /*vec*/) { return is; }
 }

@@ -811,7 +811,7 @@ void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typen
     if ( !edges.empty() )
     {
         for ( EdgeID eid = 0; eid < edges.size(); ++eid )
-            auto& edgeElemInfo = vBaryEdgeInfo[eid].dirty = false;
+            vBaryEdgeInfo[eid].dirty = false;
         for ( auto dirtyPoint : m_dirtyPoints )
         {
             const typename In::CPos pos = ( m_useRestPosition && pOut.size() > 0 ) ? Out::getCPos( pOut[dirtyPoint] ) : Out::getCPos( out[dirtyPoint] );
@@ -821,8 +821,7 @@ void BarycentricMapperEdgeSetTopology<In, Out>::projectDirtyPoints ( const typen
 
             for ( unsigned int e = 0; e < edges.size(); e++ )
             {
-                const BaryElementInfo& baryEdgeInfo = vBaryEdgeInfo[e];
-                assert(baryEdgeInfo.dirty == false);
+                assert(vBaryEdgeInfo[e].dirty == false);
 
                 const typename In::CPos e0 = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][0]] ) : In::getCPos( in[edges[e][0]] );
                 const typename In::CPos e1 = ( m_useRestPosition && pIn.size() > 0 ) ? In::getCPos( pIn[edges[e][1]] ) : In::getCPos( in[edges[e][1]] );

@@ -436,7 +436,7 @@ typename DataTypes::Coord EdgeSetGeometryAlgorithms<DataTypes>::compute2EdgesInt
     // Creating director vectors:
     Coord vec1 = edge1[1] - edge1[0];
     Coord vec2 = edge2[1] - edge2[0];
-    Coord X; X[0]=0; X[1]=0; X[2]=0;
+    Coord X;
 
     int ind1 = -1;
     int ind2 = -1;
@@ -451,7 +451,7 @@ typename DataTypes::Coord EdgeSetGeometryAlgorithms<DataTypes>::compute2EdgesInt
         {
             ind1 = i;
 
-            for (unsigned int j = 0; j<3; j++)
+            for (unsigned int j = 0; j<Coord::spatial_dimensions; j++)
                 if ( (vec2[j] > epsilon || vec2[j] < -epsilon) && (j != i))
                 {
                     ind2 = j;

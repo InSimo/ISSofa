@@ -64,7 +64,7 @@ BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointW
     return nullptr;
 }
 
-BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointSeqWork(SyncPointID /*syncPointID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/, defaulttype::Vec4f color)
+BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointSeqWork(SyncPointID /*syncPointID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/, defaulttype::Vec4f /*color*/)
 {
     return nullptr;
 }
