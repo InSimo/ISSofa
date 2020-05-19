@@ -223,7 +223,7 @@ if(PS3)
 	list(APPEND SOFAHELPER_SOURCES_OUTSIDE_UNITY "ps3/cxa_demangle.cpp")
 endif()
 
-option(SOFA_ENABLE_EASTL "Enable EASTL" OFF)
+option(SOFA_ENABLE_EASTL "Enable EASTL" ON)
 if(SOFA_ENABLE_EASTL)
     if(TARGET EASTL)
         list(APPEND SOFAHELPER_SOURCES_UNITY eastl_new.cpp)
