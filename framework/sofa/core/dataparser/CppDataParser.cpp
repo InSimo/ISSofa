@@ -454,7 +454,7 @@ bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* d
         state.result = make_error_code(DataParserError::invalid_json);
         return false;
     }
-    int index = 0;
+    std::size_t index = 0;
     bool rowOpen = false;
     for(;;)
     {
@@ -519,7 +519,7 @@ bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* d
     sofa::helper::SSOBuffer<> keyBuffer, mappedBuffer;
     typeInfo->resetValue(data);
     in.ignore(std::numeric_limits<std::streamsize>::max(), '{');
-    int index = 0;
+    std::size_t index = 0;
     for(;;)
     {
         while (std::isspace(in.peek())) { in.get(); }
@@ -622,7 +622,7 @@ bool CppDataParser::toDataInternal(ToDataState& state, std::istream& in, void* d
             in.get();
             break;
         }
-        int memberIndex = index;
+        std::size_t memberIndex = index;
         if (m_useNamed && in.peek() == '.')
         {
             in.get();

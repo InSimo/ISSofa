@@ -51,8 +51,8 @@ union Memory
 
 } // namespace
 
-void* operator new[](std::size_t size, std::size_t alignment, size_t alignmentOffset, const char* /*name*/,
-					 int flags, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
+void* operator new[](std::size_t size, std::size_t alignment, size_t /*alignmentOffset*/, const char* /*name*/,
+					 int /*flags*/, unsigned /*debugFlags*/, const char* /*file*/, int /*line*/)
 {
     // Allocate memory
     const Memory mem = { ::operator new[](size) };
