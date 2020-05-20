@@ -59,6 +59,40 @@ int BTDLinearSolverClass = core::RegisterObject("Linear system solver using Thom
 //.add< BTDLinearSolver<NewMatSymmetricBandMatrix,NewMatVector> >()
         ;
 
+
+#ifndef SOFA_FLOAT
+template<> const char* BlocFullMatrix<1, double>::Name() { return "BlocFullMatrix1d"; }
+template<> const char* BlocFullMatrix<2, double>::Name() { return "BlocFullMatrix2d"; }
+template<> const char* BlocFullMatrix<3, double>::Name() { return "BlocFullMatrix3d"; }
+template<> const char* BlocFullMatrix<4, double>::Name() { return "BlocFullMatrix4d"; }
+template<> const char* BlocFullMatrix<5, double>::Name() { return "BlocFullMatrix5d"; }
+template<> const char* BlocFullMatrix<6, double>::Name() { return "BlocFullMatrix6d"; }
+#endif
+
+#ifndef SOFA_DOUBLE
+template<> const char* BlocFullMatrix<1, float>::Name() { return "BlocFullMatrix1f"; }
+template<> const char* BlocFullMatrix<2, float>::Name() { return "BlocFullMatrix2f"; }
+template<> const char* BlocFullMatrix<3, float>::Name() { return "BlocFullMatrix3f"; }
+template<> const char* BlocFullMatrix<4, float>::Name() { return "BlocFullMatrix4f"; }
+template<> const char* BlocFullMatrix<5, float>::Name() { return "BlocFullMatrix5f"; }
+template<> const char* BlocFullMatrix<6, float>::Name() { return "BlocFullMatrix6f"; }
+#endif
+
+
+
+template class BlocFullMatrix<6, float>;
+template class BlocFullMatrix<6, double>;
+
+SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BlocFullMatrix<6, float>));
+SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BlocFullMatrix<6, double>));
+
+template class BTDMatrix<6, float>;
+template class BTDMatrix<6, double>;
+
+SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BTDMatrix<6, float>));
+SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BTDMatrix<6, double>));
+
+
 } // namespace linearsolver
 
 } // namespace component

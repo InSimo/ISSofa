@@ -47,7 +47,7 @@ template<int N, typename T>
 class BlocFullMatrix : public defaulttype::BaseMatrix
 {
 public:
-    SOFA_MATRIX_CLASS_UNIQUE((BlocFullMatrix<N,T>),((defaulttype::BaseMatrix)));
+    SOFA_MATRIX_CLASS_EXTERNAL((BlocFullMatrix<N,T>),((defaulttype::BaseMatrix)));
 
     enum { BSIZE = N };
     typedef T Real;
@@ -136,11 +136,6 @@ public:
     {
     }
 
-    BlocFullMatrix(Index nbRow, Index nbCol)
-        : data(new T[nbRow*nbCol]), nTRow(nbRow), nTCol(nbCol), nBRow(nbRow/BSIZE), nBCol(nbCol/BSIZE), allocsize((nbCol/BSIZE)*(nbRow/BSIZE))
-    {
-    }
-
     ~BlocFullMatrix()
     {
         if (allocsize>0)
@@ -216,37 +211,15 @@ public:
         return bloc(bi,bj);
     }
 
-    const Bloc& sub(Index i, Index j, Index, Index) const
-    {
-        return asub(i/BSIZE,j/BSIZE);
-    }
-
     Bloc& asub(Index bi, Index bj, Index, Index)
     {
         return bloc(bi,bj);
-    }
-
-    Bloc& sub(Index i, Index j, Index, Index)
-    {
-        return asub(i/BSIZE,j/BSIZE);
-    }
-
-    template<class B>
-    void getSubMatrix(Index i, Index j, Index nrow, Index ncol, B& m)
-    {
-        m = sub(i,j, nrow, ncol);
     }
 
     template<class B>
     void getAlignedSubMatrix(Index bi, Index bj, Index nrow, Index ncol, B& m)
     {
         m = asub(bi, bj, nrow, ncol);
-    }
-
-    template<class B>
-    void setSubMatrix(Index i, Index j, Index nrow, Index ncol, const B& m)
-    {
-        sub(i,j, nrow, ncol) = m;
     }
 
     template<class B>
@@ -419,7 +392,7 @@ template<int N, typename T>
 class BTDMatrix : public defaulttype::BaseMatrix
 {
 public:
-    SOFA_MATRIX_CLASS_UNIQUE((BTDMatrix<N,T>),((defaulttype::BaseMatrix)));
+    SOFA_MATRIX_CLASS_EXTERNAL((BTDMatrix<N,T>),((defaulttype::BaseMatrix)));
 
     enum { BSIZE = N };
     typedef T Real;
@@ -519,11 +492,6 @@ public:
     {
     }
 
-    BTDMatrix(Index nbRow, Index nbCol)
-        : data(new T[3*(nbRow/BSIZE)]), nTRow(nbRow), nTCol(nbCol), nBRow(nbRow/BSIZE), nBCol(nbCol/BSIZE), allocsize(3*(nbRow/BSIZE))
-    {
-    }
-
     ~BTDMatrix()
     {
         if (allocsize>0)
@@ -603,11 +571,6 @@ public:
         return data[bi*3+bindex];
     }
 
-    const Bloc& sub(Index i, Index j, Index, Index) const
-    {
-        return asub(i/BSIZE,j/BSIZE);
-    }
-
     Bloc& asub(Index bi, Index bj, Index, Index)
     {
         static Bloc b;
@@ -618,7 +581,7 @@ public:
 
     Bloc& sub(Index i, Index j, Index, Index)
     {
-        return asub(i/BSIZE,j/BSIZE);
+        return asub(i/BSIZE,j/BSIZE, 0, 0);
     }
 
     template<class B>
