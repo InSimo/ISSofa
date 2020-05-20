@@ -37,6 +37,8 @@ public:
     typedef TDataTypes DataTypes;
     typedef TCollisionModel FinalCollisionModel;
 
+    enum { NBARY = 2 };
+
     void init() override;
 
     virtual void computeBoundingTree(int maxDepth = 0) override;
