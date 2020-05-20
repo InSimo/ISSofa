@@ -97,14 +97,7 @@ void IdentityTopologicalMapping::init()
         toModel->getContext()->get(toTriangleMod);
 
 
-        if (!toPointMod)
-        {
-            for (int i = 0; i < fromModel->getNbPoints(); i++)
-            {
-                toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
-            }
-        }
-        else
+        if (toPointMod)
         {
             sofa::helper::vector<sofa::core::topology::PointAncestorElem> ancestors;
             ancestors.resize(fromModel->getNbPoints());
@@ -117,6 +110,13 @@ void IdentityTopologicalMapping::init()
                 ancestors[i] = anc;
             }
             toPointMod->addPoints(fromModel->getNbPoints(), ancestors, true);
+
+        }
+
+        // fill initPoints array
+        for (int i = 0; i < fromModel->getNbPoints(); i++)
+        {
+            toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
         }
 
 
