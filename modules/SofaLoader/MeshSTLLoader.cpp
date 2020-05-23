@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <string>
+#include <map>
 
 namespace sofa
 {
@@ -110,6 +111,7 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
     uint32_t nbrFacet;
     dataFile.read((char*)&nbrFacet, 4);
 
+    std::map<sofa::defaulttype::Vec3f, core::topology::Topology::PointID> pos2index;
     std::streampos position = 0;
     // Parsing facets
     std::cout << "Reading file...";
@@ -131,19 +133,17 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
             dataFile.read((char*)&vertex[1], 4);
             dataFile.read((char*)&vertex[2], 4);
 
-            bool find = false;
-            for (size_t k=0; k<my_positions.size(); ++k)
-                if ( (vertex[0] == my_positions[k][0]) && (vertex[1] == my_positions[k][1])  && (vertex[2] == my_positions[k][2]))
-                {
-                    find = true;
-                    the_tri[j] = static_cast<core::topology::Topology::PointID>(k);
-                    break;
-                }
-
-            if (!find)
+            auto it = pos2index.find(vertex);
+            if(it != pos2index.end())
             {
+                the_tri[j] = it->second;
+            }
+            else
+            {
+                core::topology::Topology::PointID index = my_positions.size();
                 my_positions.push_back(vertex);
-                the_tri[j] = my_positions.size()-1;
+                the_tri[j] = index;
+                pos2index.insert(std::make_pair(vertex, index));
             }
         }
 
@@ -156,7 +156,7 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
 
         // Security:
         position = dataFile.tellg();
-        if (position == length)
+        if (position >= length)
             break;
     }
     std::cout << "done!" << std::endl;
