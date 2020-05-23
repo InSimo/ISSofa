@@ -479,6 +479,7 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
     const Real maxValue = d_drawMaxSpringEnergy.getValue();
     //const bool useCorotational = d_useCorotational.getValue();
     const Real drawSpringSize = d_drawSpringSize.getValue();
+    const bool drawSpringBase = d_drawSpringBase.getValue();
 
     VecDeriv emptyVecDeriv;
     emptyVecDeriv.resize(x.size());
@@ -511,9 +512,12 @@ void FastTriangularBendingSprings<DataTypes>::draw(const core::visual::VisualPar
 
             if (is_activated)
             {
-                vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
+                if (drawSpringSize >= 0)
+                {
+                    vparams->drawTool()->drawLines(points, drawSpringSize, sofa::defaulttype::Vec4f(R, G, B, 1.f));
+                }
 
-                if (d_drawSpringBase.getValue())
+                if (drawSpringBase)
                 {
                     const Coord middle = (pa[0]+pa[1])*0.5;
                     for (unsigned int j = 0; j < edgeInf[i].springs.size(); j++)
