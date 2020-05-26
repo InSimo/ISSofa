@@ -87,7 +87,7 @@ bool ObjectElement::initNode()
         return false;
     }
     if (!getSourceFile().empty())
-        obj->setSourceFile(getSourceFile(), getSourcePos().first, getSourcePos().second);
+        obj->addSourceFile(getSourceFile(), getSourcePos().first, getSourcePos().second);
     setObject(obj);
     // display any unused attributes
     //std::string unused;

@@ -285,12 +285,15 @@ public:
     /// If this component was loaded from a file, indicate from where
     /// (this information is internal and is only meant to help developers,
     /// do not rely on its validity as it will not be provided in all cases).
+    /// Note: we now support a set of source files, to capture python back traces
+    /// (as the last method might be too generic).
     /// @{
 
-    void setSourceFile(const std::string& name, int line, int column);
-
-    const std::string& getSourceFileName() const;
-    std::pair<int,int> getSourceFilePos() const;
+    void clearSourceFiles();
+    void addSourceFile(const std::string& name, int line, int column);
+    std::size_t getNbSourceFiles() const;
+    const std::string& getSourceFileName(std::size_t index = 0) const;
+    std::pair<int,int> getSourceFilePos(std::size_t index = 0) const;
 
     /// @}
 
@@ -331,8 +334,7 @@ protected:
     /// If this component was loaded from a file, indicate from where
     /// (this information is internal and is only meant to help developers,
     /// do not rely on its validity as it will not be provided in all cases).
-    std::string m_sourceFileName;
-    std::pair<int,int> m_sourceFilePos;
+    sofa::helper::vector<std::pair<std::string,std::pair<int,int>>> m_sourceFiles;
 
 public:
     /// Name of the object.

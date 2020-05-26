@@ -62,7 +62,7 @@ bool NodeElement::initNode()
     if (obj != NULL)
     {
         if (!getSourceFile().empty())
-            obj->setSourceFile(getSourceFile(), getSourcePos().first, getSourcePos().second);
+            obj->addSourceFile(getSourceFile(), getSourcePos().first, getSourcePos().second);
         setObject(obj);
         if (getTypedObject()!=NULL && getParentElement()!=NULL && core::objectmodel::BaseNode::DynamicCast(getParentElement()->getObject())!=NULL)
         {

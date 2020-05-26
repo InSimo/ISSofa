@@ -61,8 +61,6 @@ BOOL winHasConsoleScreenBufferInfo = GetConsoleScreenBufferInfo(winConsole, &win
 
 Base::Base()
     : ref_counter(0)
-    , m_sourceFileName()
-    , m_sourceFilePos(0,0)
     , name(initData(&name,unnamed_label,"name","object name"))
     , f_printLog(initData(&f_printLog, false, "printLog", "if true, print logs at run-time"))
     , f_tags(initData( &f_tags, "tags", "list of the subsets the objet belongs to"))
@@ -754,20 +752,30 @@ void  Base::writeDatas (std::ostream& out, const std::string& separator)
     }
 }
 
-void Base::setSourceFile(const std::string& name, int line, int column)
+void Base::clearSourceFiles()
 {
-    m_sourceFileName = name;
-    m_sourceFilePos = std::make_pair(line,column);
+    m_sourceFiles.clear();
 }
 
-const std::string& Base::getSourceFileName() const
+void Base::addSourceFile(const std::string& name, int line, int column)
 {
-    return m_sourceFileName;
+    m_sourceFiles.emplace_back(name, std::make_pair(line,column));
 }
 
-std::pair<int,int> Base::getSourceFilePos() const
+std::size_t Base::getNbSourceFiles() const
 {
-    return m_sourceFilePos;
+    return m_sourceFiles.size();
+}
+
+const std::string& Base::getSourceFileName(std::size_t index) const
+{
+    static std::string empty;
+    return (index < m_sourceFiles.size()) ? m_sourceFiles[index].first : empty;
+}
+
+std::pair<int,int> Base::getSourceFilePos(std::size_t index) const
+{
+    return (index < m_sourceFiles.size()) ? m_sourceFiles[index].second : std::make_pair(0,0);
 }
 
 } // namespace objectmodel
