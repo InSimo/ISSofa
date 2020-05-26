@@ -278,7 +278,7 @@ public:
     void clearWarnings();
     void clearOutputs();
 
-    void processStream(std::ostream& out);
+    virtual void processStream(std::ostream& out);
 
     /// @}
 

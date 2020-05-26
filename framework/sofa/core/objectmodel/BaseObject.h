@@ -169,6 +169,12 @@ public:
 
     virtual void releaseAspect(int aspect);
 
+    virtual void processStream(std::ostream& out) override
+    {
+        out << " {t=" << std::lround(this->getTime() / this->getContext()->getDt()) << "}";
+        Base::processStream(out);
+    }
+
     /// @}
 
     /// @name Component accessors
