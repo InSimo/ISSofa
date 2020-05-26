@@ -198,7 +198,7 @@ extern "C" PyObject * Node_createChild(PyObject *self, PyObject * args)
         //const char *funcname = PyString_AsString(frame->f_code->co_name);
         //printf("    %s(%d): %s\n", filename, line, funcname);
         //frame = frame->f_back;
-        obj->setSourceFile(filename, line, 0);
+        obj->addSourceFile(filename, line, 0);
     }
 
     ScriptEnvironment::nodeCreatedByScript(child);
