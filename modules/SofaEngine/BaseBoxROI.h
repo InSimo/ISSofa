@@ -83,7 +83,7 @@ public:
 
     virtual void updateBoxes() = 0;
 
-    virtual void computeBBox(const core::ExecParams*  params ) {};
+    virtual void computeBBox(const core::ExecParams*  /*params*/ ) {}
 
     void draw(const core::visual::VisualParams*);
 
