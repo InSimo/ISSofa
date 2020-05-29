@@ -72,10 +72,6 @@ public:
     public:
         Index Nrows() const { return BSIZE; }
         Index Ncols() const { return BSIZE; }
-        void resize(Index, Index)
-        {
-            clear();
-        }
         const T& element(Index i, Index j) const { return (*this)[i][j]; }
         void set(Index i, Index j, const T& v) { (*this)[i][j] = v; }
         void add(Index i, Index j, const T& v) { (*this)[i][j] += v; }
