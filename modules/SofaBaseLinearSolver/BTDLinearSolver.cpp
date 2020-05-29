@@ -80,17 +80,17 @@ template<> const char* BlocFullMatrix<6, float>::Name() { return "BlocFullMatrix
 
 
 
-template class BlocFullMatrix<6, float>;
-template class BlocFullMatrix<6, double>;
-
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BlocFullMatrix<6, float>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BlocFullMatrix<6, double>));
 
-template class BTDMatrix<6, float>;
-template class BTDMatrix<6, double>;
+template class BlocFullMatrix<6, float>;
+template class BlocFullMatrix<6, double>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BTDMatrix<6, float>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((BTDMatrix<6, double>));
+
+template class BTDMatrix<6, float>;
+template class BTDMatrix<6, double>;
 
 
 } // namespace linearsolver

@@ -31,37 +31,6 @@ namespace sofa
 namespace defaulttype
 {
 
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2f>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3f>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4f>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6,6,float> >;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8,8,float> >;
-
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<double>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1d>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2d>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3d>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4d>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, double> >;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, double> >;
-
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2f, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3f, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4f, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, float>, CRSMechanicalStoreTouchedPolicy >;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, float>, CRSMechanicalStoreTouchedPolicy >;
-
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<double, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1d, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2d, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3d, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4d, CRSMechanicalStoreTouchedPolicy>;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, double>, CRSMechanicalStoreTouchedPolicy >;
-template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, double>, CRSMechanicalStoreTouchedPolicy >;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<float>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1f>));
@@ -94,6 +63,39 @@ SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat3x3d, CR
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat4x4d, CRSMechanicalStoreTouchedPolicy>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat<6, 6, double>, CRSMechanicalStoreTouchedPolicy >));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat<8, 8, double>, CRSMechanicalStoreTouchedPolicy >));
+
+
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4f>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6,6,float> >;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8,8,float> >;
+
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<double>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4d>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, double> >;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, double> >;
+
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2f, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3f, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4f, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, float>, CRSMechanicalStoreTouchedPolicy >;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, float>, CRSMechanicalStoreTouchedPolicy >;
+
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<double, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1d, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat2x2d, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat3x3d, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat4x4d, CRSMechanicalStoreTouchedPolicy>;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<6, 6, double>, CRSMechanicalStoreTouchedPolicy >;
+template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat<8, 8, double>, CRSMechanicalStoreTouchedPolicy >;
 
 }
 
