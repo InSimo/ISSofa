@@ -32,6 +32,7 @@
 #include <sofa/helper/rmath.h>
 #include <sofa/helper/system/gl.h>
 #include <sofa/helper/system/glut.h>
+#include <sofa/helper/gl/template.h>
 #include <assert.h>
 #include <iostream>
 
@@ -76,6 +77,7 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
 
     sofa::helper::ReadAccessor< sofa::Data< sofa::helper::vector<unsigned > > > indices = d_indices;
     const sofa::helper::vector<CPos> vcenter = this->center.getValue();
+    const sofa::helper::vector<Quat> vquat = this->orientations.getValue();
     const sofa::helper::vector<CPos> vr = this->vradius.getValue();
     const Real stiffness = this->stiffness.getValue();
     const Real stiffabs = helper::rabs(stiffness);
@@ -99,7 +101,8 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
 
             for (unsigned int e = 0; e < nelems; ++e)
             {
-                CPos dp = DataTypes::getCPos(p1[i]) - vcenter[e];
+                Quat quat = vquat.size() > e ? vquat[e] : Quat();
+                CPos dp = quat.inverseRotate(DataTypes::getCPos(p1[i]) - vcenter[e]);
                 for (int j = 0; j < N; j++)
                 {
                     inv_r2[e][j] = 1 / (vr[e][j] * vr[e][j]);
@@ -162,7 +165,8 @@ void EllipsoidForceField<DataTypes>::addForce(const sofa::core::MechanicalParams
 
             for (unsigned int e = 0; e < nelems; ++e)
             {
-                CPos dp = DataTypes::getCPos(p1[indices[ind]]) - vcenter[e];
+                Quat quat = vquat.size() > e ? vquat[e] : Quat();
+                CPos dp = quat.inverseRotate(DataTypes::getCPos(p1[indices[ind]]) - vcenter[e]);
                 for (int j = 0; j < N; j++)
                 {
                     inv_r2[e][j] = 1 / (vr[e][j] * vr[e][j]);
@@ -272,6 +276,7 @@ void EllipsoidForceField<DataTypes>::draw(const core::visual::VisualParams* vpar
     if (!bDraw.getValue()) return;
 
     const sofa::helper::vector<CPos> vcenter = this->center.getValue();
+    const sofa::helper::vector<Quat> vquat = this->orientations.getValue();
     const sofa::helper::vector<CPos> vr = this->vradius.getValue();
 
     unsigned int nelems = (vr.size() > vcenter.size()) ? vr.size() : vcenter.size();
@@ -279,6 +284,7 @@ void EllipsoidForceField<DataTypes>::draw(const core::visual::VisualParams* vpar
     for (unsigned int e = 0; e < nelems; ++e)
     {
         CPos c = vcenter[e];
+        Quat quat = vquat.size() > e ? vquat[e] : Quat();
         Real cx = c.size()>0 ? c[0] : 0;
         Real cy = c.size()>1 ? c[1] : 0;
         Real cz = c.size()>2 ? c[2] : 0;
@@ -294,6 +300,11 @@ void EllipsoidForceField<DataTypes>::draw(const core::visual::VisualParams* vpar
 
         glPushMatrix();
         glTranslated(cx, cy, cz);
+
+        Real R[4][4];
+
+        quat.inverse().buildRotationMatrix(R);
+        helper::gl::glMultMatrix( &(R[0][0]));
         glScaled(rx, ry, (stiffness.getValue() > 0 ? rz : -rz));
         glutSolidSphere(1,32,16);
         glPopMatrix();

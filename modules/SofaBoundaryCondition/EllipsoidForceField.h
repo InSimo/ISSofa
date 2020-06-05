@@ -29,6 +29,7 @@
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/defaulttype/RigidTypes.h>
+#include <sofa/helper/Quater.h>
 
 #include <sofa/SofaGeneral.h>
 
@@ -65,6 +66,7 @@ public:
     typedef typename DataTypes::DPos        DPos        ;
     typedef Data<VecCoord>                  DataVecCoord;
     typedef Data<VecDeriv>                  DataVecDeriv;
+    typedef sofa::helper::Quater<Real>      Quat;
 
     enum { N=DataTypes::spatial_dimensions };
     typedef defaulttype::Mat<N,N,Real> Mat;
@@ -101,6 +103,7 @@ protected:
 public:
 
     Data<sofa::helper::vector<CPos>> center;
+    Data<sofa::helper::vector<Quat>> orientations;
     Data<sofa::helper::vector<CPos>> vradius;
     Data<Real> stiffness;
     Data<Real> damping;
@@ -112,6 +115,7 @@ protected:
     EllipsoidForceField()
         : contacts(initData(&contacts,"contacts", "Contacts"))
         , center(initData(&center, "center", "ellipsoid center"))
+        , orientations(initData(&orientations, "orientations", "orientations of local frame"))
         , vradius(initData(&vradius, "vradius", "ellipsoid radius"))
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness (positive to repulse outward, negative inward)"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
