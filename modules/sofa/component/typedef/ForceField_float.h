@@ -134,8 +134,8 @@ typedef sofa::component::forcefield::DistanceGridForceField<sofa::defaulttype::S
 
 //---------------------------------------------------------------------------------------------
 //Typedef for EllipsoidForceField
-typedef sofa::component::forcefield::EllipsoidForceField<sofa::defaulttype::StdVectorTypes<sofa::defaulttype::Vec<1, float>, sofa::defaulttype::Vec<1, float>, float> > EllipsoidForceField1f;
-typedef sofa::component::forcefield::EllipsoidForceField<sofa::defaulttype::StdVectorTypes<sofa::defaulttype::Vec<2, float>, sofa::defaulttype::Vec<2, float>, float> > EllipsoidForceField2f;
+// typedef sofa::component::forcefield::EllipsoidForceField<sofa::defaulttype::StdVectorTypes<sofa::defaulttype::Vec<1, float>, sofa::defaulttype::Vec<1, float>, float> > EllipsoidForceField1f;
+// typedef sofa::component::forcefield::EllipsoidForceField<sofa::defaulttype::StdVectorTypes<sofa::defaulttype::Vec<2, float>, sofa::defaulttype::Vec<2, float>, float> > EllipsoidForceField2f;
 typedef sofa::component::forcefield::EllipsoidForceField<sofa::defaulttype::StdVectorTypes<sofa::defaulttype::Vec<3, float>, sofa::defaulttype::Vec<3, float>, float> > EllipsoidForceField3f;
 
 
@@ -415,8 +415,8 @@ typedef ConstantForceField2f ConstantForceField2;
 typedef ConstantForceField3f ConstantForceField3;
 typedef ConstantForceField6f ConstantForceField6;
 typedef DistanceGridForceField3f DistanceGridForceField3;
-typedef EllipsoidForceField1f EllipsoidForceField1;
-typedef EllipsoidForceField2f EllipsoidForceField2;
+// typedef EllipsoidForceField1f EllipsoidForceField1;
+// typedef EllipsoidForceField2f EllipsoidForceField2;
 typedef EllipsoidForceField3f EllipsoidForceField3;
 typedef FastTetrahedralCorotationalForceField3f FastTetrahedralCorotationalForceField3;
 typedef FrameSpringForceFieldRigid3f FrameSpringForceFieldRigid3;

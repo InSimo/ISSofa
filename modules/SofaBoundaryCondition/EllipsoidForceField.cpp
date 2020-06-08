@@ -43,6 +43,10 @@ SOFA_DECL_CLASS(EllipsoidForceField)
 
 int EllipsoidForceFieldClass = core::RegisterObject("Repulsion applied by an ellipsoid toward the exterior or the interior")
 
+
+// IMPORTANT: 1d and 2d templates are commented because they seemed to be unused in our simulations
+// and do not function at the moment with quaternions
+
 #ifndef SOFA_FLOAT
         .add< EllipsoidForceField<Vec3dTypes> >()
 //        .add< EllipsoidForceField<Vec2dTypes> >()

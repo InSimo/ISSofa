@@ -157,17 +157,17 @@ public:
 
 #ifndef SOFA_FLOAT
 extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec3dTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec2dTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec1dTypes>;
+//extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec2dTypes>;
+//extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec1dTypes>;
 extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Rigid3dTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Rigid2dTypes>;
+//extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Rigid2dTypes>;
 #endif
 #ifndef SOFA_DOUBLE
 extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec3fTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec2fTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec1fTypes>;
+//extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec2fTypes>;
+//extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Vec1fTypes>;
 extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Rigid3fTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Rigid2fTypes>;
+//extern template class SOFA_BOUNDARY_CONDITION_API EllipsoidForceField<defaulttype::Rigid2fTypes>;
 #endif
 
 #endif // defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_ELLIPSOIDFORCEFIELD_CPP)

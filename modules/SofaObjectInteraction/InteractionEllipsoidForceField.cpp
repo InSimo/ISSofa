@@ -38,13 +38,11 @@ namespace interactionforcefield
 
 using namespace sofa::defaulttype;
 
-//template class InteractionEllipsoidForceField<Vec3fTypes, Rigid3fTypes>;
-//template class InteractionEllipsoidForceField<Vec3dTypes, Vec3dTypes>;
-//template class InteractionEllipsoidForceField<Vec3fTypes, Vec3fTypes>;
-/*
-template class InteractionEllipsoidForceField<Vec2dTypes, Rigid2dTypes>;
-template class InteractionEllipsoidForceField<Vec2fTypes, Rigid2dTypes>;
-*/
+// template class InteractionEllipsoidForceField<Vec3fTypes, Rigid3fTypes>;
+// template class InteractionEllipsoidForceField<Vec3dTypes, Vec3dTypes>;
+// template class InteractionEllipsoidForceField<Vec3fTypes, Vec3fTypes>;
+// template class InteractionEllipsoidForceField<Vec2dTypes, Rigid2dTypes>;
+// template class InteractionEllipsoidForceField<Vec2fTypes, Rigid2dTypes>;
 
 SOFA_DECL_CLASS(InteractionEllipsoidForceField)
 
