@@ -639,14 +639,16 @@ public:                                                                       \
         return &singleton;                                                    \
     }
 
-#define SOFA_TEMPLATE_CLASS_EXTERNAL_IMPL(T)                                  \
-    template<> std::size_t SOFA_UNBUNDLE T ::ExternalClassId = 0;             \
-    template<> auto SOFA_UNBUNDLE T::GetClass() -> const MyClass*             \
-    {                                                                         \
-        static MyClass singleton(&ExternalClassId);                           \
-        return &singleton;                                                    \
+#define SOFA_TEMPLATE_CLASS_EXTERNAL_IMPL(T)                       \
+    template<> std::size_t SOFA_UNBUNDLE T ::ExternalClassId = 0;  \
+    template<> auto SOFA_UNBUNDLE T::GetClass() -> const MyClass*  \
+    {                                                              \
+        static MyClass singleton(&ExternalClassId);                \
+        return &singleton;                                         \
     }
 
+#define SOFA_TEMPLATE_CLASS_EXTERNAL_DECL_EXPORT(T, API_EXPORT_MACRO)               \
+    template<> API_EXPORT_MACRO auto SOFA_UNBUNDLE T::GetClass() -> const MyClass*; \
 
 #define SOFA_ROOT_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
 #define SOFA_ABSTRACT_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)

@@ -1415,6 +1415,40 @@ public:
     }
 };
 
+
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<float>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat1x1f>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat2x2f>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat3x3f>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat4x4f>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<6, 6, float> >), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<8, 8, float> >), SOFA_DEFAULTTYPE_API);
+
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<double>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat1x1d>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat2x2d>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat3x3d>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat4x4d>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<6, 6, double> >), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<8, 8, double> >), SOFA_DEFAULTTYPE_API);
+
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<float, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat1x1f, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat2x2f, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat3x3f, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat4x4f, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<6, 6, float>, CRSMechanicalStoreTouchedPolicy >), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<8, 8, float>, CRSMechanicalStoreTouchedPolicy >), SOFA_DEFAULTTYPE_API);
+
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<double, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat1x1d, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat2x2d, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat3x3d, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat4x4d, CRSMechanicalStoreTouchedPolicy>), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<6, 6, double>, CRSMechanicalStoreTouchedPolicy >), SOFA_DEFAULTTYPE_API);
+SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT((CompressedRowSparseMatrixMechanical<Mat<8, 8, double>, CRSMechanicalStoreTouchedPolicy >), SOFA_DEFAULTTYPE_API);
+
+
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
 extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<float>;
 extern template class SOFA_DEFAULTTYPE_API CompressedRowSparseMatrixMechanical<Mat1x1f>;

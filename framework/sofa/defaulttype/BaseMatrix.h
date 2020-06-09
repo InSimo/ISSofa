@@ -46,6 +46,7 @@ namespace defaulttype
 #define SOFA_MATRIX_CLASS_EXTERNAL(T,Parents) SOFA_SIMPLE_CLASS_EXTERNAL((::sofa::defaulttype::BaseMatrix),T,Parents)
 #define SOFA_MATRIX_CLASS_IMPL(T) SOFA_CLASS_EXTERNAL_IMPL(T)
 #define SOFA_TEMPLATE_MATRIX_CLASS_IMPL(T) SOFA_TEMPLATE_CLASS_EXTERNAL_IMPL(T) 
+#define SOFA_TEMPLATE_MATRIX_CLASS_DECL_EXPORT(T, API_EXPORT_MACRO ) SOFA_TEMPLATE_CLASS_EXTERNAL_DECL_EXPORT(T, API_EXPORT_MACRO) 
 
 /// Generic matrix API, allowing to fill and use a matrix independently of the linear algebra library in use.
 ///
