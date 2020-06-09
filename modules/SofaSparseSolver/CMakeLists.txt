@@ -69,7 +69,7 @@ endif()
 
 if( SOFA_HAVE_METIS)
   # target_include_directories(${PROJECT_NAME} PUBLIC ${METIS_INCLUDE_DIRS})
-  target_link_libraries( ${PROJECT_NAME} PUBLIC metis)
+  target_link_libraries( ${PROJECT_NAME} PRIVATE metis)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAGENERAL_SOURCE_INCLUDE_DIR}>")

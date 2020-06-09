@@ -27,7 +27,7 @@ target_sources(${PROJECT_NAME} INTERFACE ${BENCHMARKS_HEADERS})
 foreach(SOURCE_FILE ${BENCHMARKS_FILES})
     get_filename_component(TARGET_NAME ${SOURCE_FILE} NAME_WE)
     add_executable(${TARGET_NAME} ${SOURCE_FILE})
-    target_link_libraries(${TARGET_NAME} SofaSparseSolver Boost::filesystem)
+    target_link_libraries(${TARGET_NAME} Boost::filesystem SofaDefaultType)
     install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${SOFAFRAMEWORK_INSTALL_BIN_DIR} COMPONENT SofaFramework_bench)
 endforeach()
 

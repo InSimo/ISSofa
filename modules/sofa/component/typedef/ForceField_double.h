@@ -46,15 +46,21 @@
 #include <SofaBoundaryCondition/ConstantForceField.h>
 #include <SofaVolumetricData/DistanceGridForceField.h>
 #include <SofaBoundaryCondition/EllipsoidForceField.h>
-#include <SofaMiscFem/FastTetrahedralCorotationalForceField.h>
 #include <SofaDeformable/FrameSpringForceField.h>
+
+#ifdef SOFA_OPTIONAL
 #include <SofaMiscForceField/GearSpringForceField.h>
+#include <SofaMiscForceField/LennardJonesForceField.h>
+#include <SofaMiscForceField/LineBendingSprings.h>
+#include <SofaMiscFem/FastTetrahedralCorotationalForceField.h>
+#include <SofaMiscFem/TetrahedralTensorMassForceField.h>
+#include <SofaMiscForceField/WashingMachineForceField.h>
+#endif
+
 #include <SofaSimpleFem/HexahedralFEMForceField.h>
 #include <SofaSimpleFem/HexahedronFEMForceField.h>
 #include <SofaObjectInteraction/InteractionEllipsoidForceField.h>
 #include <SofaRigid/JointSpringForceField.h>
-#include <SofaMiscForceField/LennardJonesForceField.h>
-#include <SofaMiscForceField/LineBendingSprings.h>
 #include <SofaBoundaryCondition/LinearForceField.h>
 #include <SofaDeformable/MeshSpringForceField.h>
 #include <SofaSphFluid/ParticlesRepulsionForceField.h>
@@ -71,7 +77,6 @@
 #include <SofaDeformable/StiffSpringForceField.h>
 #include <SofaBoundaryCondition/SurfacePressureForceField.h>
 #include <SofaSimpleFem/TetrahedralCorotationalFEMForceField.h>
-#include <SofaMiscFem/TetrahedralTensorMassForceField.h>
 #include <SofaSimpleFem/TetrahedronFEMForceField.h>
 #include <SofaDeformable/TriangleBendingSprings.h>
 #include <SofaSimpleFem/TriangleFEMForceField.h>
@@ -83,7 +88,6 @@
 #include <SofaDeformable/TriangularTensorMassForceField.h>
 #include <SofaBoundaryCondition/VaccumSphereForceField.h>
 #include <SofaDeformable/VectorSpringForceField.h>
-#include <SofaMiscForceField/WashingMachineForceField.h>
 
 
 
@@ -155,8 +159,9 @@ typedef sofa::component::interactionforcefield::FrameSpringForceField<sofa::defa
 
 //---------------------------------------------------------------------------------------------
 //Typedef for GearSpringForceField
+#ifdef SOFA_OPTIONAL
 typedef sofa::component::interactionforcefield::GearSpringForceField<sofa::defaulttype::StdRigidTypes<3, double> > GearSpringForceFieldRigid3d;
-
+#endif
 
 
 //---------------------------------------------------------------------------------------------

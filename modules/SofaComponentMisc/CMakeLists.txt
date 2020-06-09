@@ -47,8 +47,17 @@ if( UNITY_BUILD_${PROJECT_NAME} )
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaMiscTopology SofaMiscMapping SofaMiscForceField SofaMiscFem SofaMiscEngine SofaMiscCollision SofaMiscSolver SofaMisc)
+
+set(TARGETLIB  SofaMiscMapping SofaMiscCollision SofaMisc)
+
+if(SOFA_OPTIONAL)
+    list(APPEND TARGETLIB SofaMiscTopology SofaMiscForceField SofaMiscFem SofaMiscEngine SofaMiscSolver)
+endif()
+
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${TARGETLIB})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISC_BUILD_INCLUDE_DIR}>")
+target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISC_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISC_DEPENDENCY_DIR}>")
 
 set( SOFACOMPONENTMISC_COMPILER_FLAGS "-DSOFA_BUILD_COMPONENT_MISC")

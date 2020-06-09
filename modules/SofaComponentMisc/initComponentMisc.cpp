@@ -24,13 +24,16 @@
 ******************************************************************************/
 #include <sofa/helper/system/config.h>
 #include <SofaComponentMisc/initComponentMisc.h>
+
+#ifdef SOFA_HAVE_OPTIONAL
 #include <SofaMiscTopology/initMiscTopology.h>
-#include <SofaMiscMapping/initMiscMapping.h>
+#include <SofaMiscSolver/initMiscSolver.h>
 #include <SofaMiscForceField/initMiscForcefield.h>
 #include <SofaMiscFem/initMiscFEM.h>
 #include <SofaMiscEngine/initMiscEngine.h>
+#endif
+#include <SofaMiscMapping/initMiscMapping.h>
 #include <SofaMiscCollision/initMiscCollision.h>
-#include <SofaMiscSolver/initMiscSolver.h>
 #include <SofaMisc/initMisc.h>
 
 namespace sofa
@@ -48,13 +51,15 @@ void initComponentMisc()
         first = false;
     }
 
+#ifdef SOFA_HAVE_OPTIONAL
     initMiscTopology();
-    initMiscMapping();
     initMiscForcefield();
     initMiscFEM();
     initMiscEngine();
-    initMiscCollision();
     initMiscSolver();
+#endif
+    initMiscCollision();
+    initMiscMapping();
     initMisc();
 }
 

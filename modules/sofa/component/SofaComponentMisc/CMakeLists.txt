@@ -46,7 +46,12 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 AddCompilerDefinitions("SOFA_BUILD_COMPONENT_MISC" )
-AddLinkerDependencies(SofaMiscTopology SofaMiscMapping SofaMiscForceField SofaMiscFem SofaMiscEngine SofaMiscCollision SofaMiscSolver SofaMisc )
 
+set(LINKDEP SofaMiscMapping SofaMiscCollision SofaMisc)
+if(SOFA_OPTIONAL)
+  set(LINKDEP ${LINKDEP} SofaMiscTopology SofaMiscForceField SofaMiscFem SofaMiscEngine SofaMiscSolver)
+endif()
+
+AddLinkerDependencies(${LINKDEP})
     
 include(${SOFA_CMAKE_DIR}/postProject.cmake)

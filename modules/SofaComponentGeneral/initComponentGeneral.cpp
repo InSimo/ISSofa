@@ -38,7 +38,10 @@
 #include <SofaDenseSolver/initDenseSolver.h>
 #endif
 
+#ifdef SOFA_HAVE_OPTIONAL
 #include <SofaSparseSolver/initSparseSolver.h>
+#include <SofaPreconditioner/initPreconditioner.h>
+#endif
 
 #ifdef SOFA_HAVE_TAUCS
 #include <SofaTaucsSolver/initTaucsSolver.h>
@@ -47,7 +50,6 @@
 #include <SofaEigen2Solver/initEigen2Solver.h>
 #endif
 
-#include <SofaPreconditioner/initPreconditioner.h>
 #include <SofaOpenglVisual/initOpenGLVisual.h>
 
 
@@ -78,7 +80,10 @@ void initComponentGeneral()
 #ifdef SOFA_HAVE_NEWMAT
     initDenseSolver();
 #endif
+#ifdef SOFA_HAVE_OPTIONAL
     initSparseSolver();
+    initPreconditioner();
+#endif
 #ifdef SOFA_HAVE_TAUCS
     initTaucsSolver();
 #endif
@@ -86,7 +91,6 @@ void initComponentGeneral()
     initEigen2Solver();
 #endif
 
-    initPreconditioner();
 #ifndef SOFA_NO_OPENGL
     initOpenGLVisual();
 #endif

@@ -54,7 +54,14 @@ if( UNITY_BUILD_${PROJECT_NAME} )
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaMeshCollision SofaMiscTopology SofaTopologyMapping)
+
+set(SOFAMISC_TARGETS SofaMeshCollision SofaTopologyMapping)
+
+if(SOFA_OPTIONAL)
+  set(SOFAMISC_TARGETS ${SOFAMISC_TARGETS} SofaMiscTopology)
+endif()
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAMISC_TARGETS})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISC_SOURCE_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISC_BUILD_INCLUDE_DIR}>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISC_DEPENDENCY_DIR}>")

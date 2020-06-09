@@ -142,6 +142,11 @@ if(SOFA_ENABLE_EASTL)
     set(SOFA_HAVE_EASTL 1 CACHE INTERNAL "")
 endif()
 
+
+if(SOFA_OPTIONAL)
+    set(SOFA_HAVE_OPTIONAL 1)
+endif()
+
 configure_file( ${SofaFramework_SOURCE_DIR}/SofaFramework.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaFramework.h )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/sofa/SofaFramework.h

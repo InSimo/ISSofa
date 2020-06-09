@@ -44,10 +44,13 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
 AddCompilerDefinitions("SOFA_BUILD_COMPONENT_GENERAL" )
-AddLinkerDependencies(SofaValidation SofaExporter SofaEngine SofaGraphComponent SofaTopologyMapping SofaBoundaryCondition SofaUserInteraction SofaConstraint SofaHaptics SofaDenseSolver ${SOFA_VISUAL_LIB} SofaPreconditioner)
+AddLinkerDependencies(SofaValidation SofaExporter SofaEngine SofaGraphComponent SofaTopologyMapping SofaBoundaryCondition SofaUserInteraction SofaConstraint SofaHaptics SofaDenseSolver ${SOFA_VISUAL_LIB})
 
-if(SOFA-EXTERNAL_CSPARSE)
-    AddLinkerDependencies(SofaSparseSolver)
+if(SOFA_OPTIONAL)
+  AddLinkerDependencies(SofaPreconditioner)
+  if(SOFA-EXTERNAL_CSPARSE)
+      AddLinkerDependencies(SofaSparseSolver)
+  endif()
 endif()
 
 include(${SOFA_CMAKE_DIR}/postProject.cmake)

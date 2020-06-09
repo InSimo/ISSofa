@@ -54,7 +54,12 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
+set(LINKDEP SofaMeshCollision SofaTopologyMapping)
+if(SOFA_OPTIONAL)
+  set(LINKDEP ${LINKDEP} SofaMiscTopology)
+endif()
+
 AddCompilerDefinitions("SOFA_BUILD_MISC" )
-AddLinkerDependencies(SofaMeshCollision SofaMiscTopology SofaTopologyMapping )
+AddLinkerDependencies(${LINKDEP})
         
 include(${SOFA_CMAKE_DIR}/postProject.cmake)

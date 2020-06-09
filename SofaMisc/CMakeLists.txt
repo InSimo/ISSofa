@@ -42,8 +42,11 @@ configure_file( ${SofaMisc_SOURCE_DIR}/SofaMisc.h.in
 install( FILES ${SOFAMISC_BUILD_INCLUDE_DIR}/sofa/SofaMisc.h
          DESTINATION "${SOFAMISC_INSTALL_INCLUDE_DIR}/sofa")
 
-set(SOFAMISC_TARGETS SofaMiscTopology SofaMiscMapping SofaMiscForceField SofaMiscFem SofaMiscEngine 
-    SofaMiscCollision SofaMiscSolver SofaMisc SofaComponentMisc)
+set(SOFAMISC_TARGETS SofaMiscMapping SofaMiscCollision SofaMisc SofaComponentMisc)
+
+if(SOFA_OPTIONAL)
+  set(SOFAMISC_TARGETS ${SOFAMISC_TARGETS} SofaMiscTopology SofaMiscForceField SofaMiscFem SofaMiscSolver SofaMiscEngine)
+endif()
 
 foreach(TARGET ${SOFAMISC_TARGETS})
   add_subdirectory(${SofaMisc_ACTUAL_SOURCE_DIR}/${TARGET} ${CMAKE_CURRENT_BINARY_DIR}/${TARGET})

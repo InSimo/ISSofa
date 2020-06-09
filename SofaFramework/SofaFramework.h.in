@@ -66,6 +66,8 @@
 
 #cmakedefine SOFA_HAVE_EASTL
 
+#cmakedefine SOFA_HAVE_OPTIONAL
+
 // Use of "extern template" is activated by the following macro
 // It must be used for DLLs on windows, and is now also activated
 // on other platforms (unless SOFA_NO_EXTERN_TEMPLATE is set), as
