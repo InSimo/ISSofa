@@ -113,10 +113,13 @@ void IdentityTopologicalMapping::init()
 
         }
 
-        // fill initPoints array
+        // fill initPoints array of container
+        topology::PointSetTopologyContainer* topoCont = topology::PointSetTopologyContainer::DynamicCast(toModel.get());
+        sofa::helper::WriteAccessor<Data<sofa::helper::vector<sofa::defaulttype::Vec3d>>> initPos = topoCont->d_initPoints;
+        initPos.clear();
         for (int i = 0; i < fromModel->getNbPoints(); i++)
         {
-            toModel->addPoint(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i));
+            initPos.push_back(sofa::defaulttype::Vec3d(fromModel->getPX(i), fromModel->getPY(i), fromModel->getPZ(i)));
         }
 
 
