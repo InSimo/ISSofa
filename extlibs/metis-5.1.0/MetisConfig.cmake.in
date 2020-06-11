@@ -11,8 +11,8 @@ if(NOT TARGET metis)
 	include("${CMAKE_CURRENT_LIST_DIR}/MetisTargets.cmake")
 endif()
 
-check_required_components(newmat)
+check_required_components(metis)
 
 # Variables for compatibility with MODULE mode find_package.
-set(Metis_LIBRARIES metis)
-set(Metis_INCLUDE_DIRS ${METIS_INCLUDE_DIR})
+set(METIS_LIBRARIES metis CACHE INTERNAL "")
+set(METIS_INCLUDE_DIRS ${METIS_INCLUDE_DIR} CACHE INTERNAL "")

@@ -46,7 +46,7 @@ endif()
 if( TARGET metis )
     set(METIS_FOUND TRUE)
 else()
-    find_package(METIS)
+    find_package(Metis)
 endif()
 
 set(SOFA_HAVE_NEWMAT ${Newmat_FOUND} CACHE INTERNAL "")

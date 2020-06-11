@@ -168,7 +168,8 @@ typedef __int64 int64_t;
 * Function prototypes 
 *-------------------------------------------------------------------------*/
 
-#ifdef _WINDLL
+// FIX: when METIS is compiled statically and then linked into a dll, it should not be exported
+#if 0 //def _WINDLL
 #define METIS_API(type) __declspec(dllexport) type __cdecl
 #elif defined(__cdecl)
 #define METIS_API(type) type __cdecl
