@@ -161,7 +161,7 @@ bool CppDataParser::fromDataInternal(FromDataState& state, std::ostream& out, co
     }
     case defaulttype::ValueKindEnum::Bool:
     {
-        bool value = (bool)typeInfo->getFinalValueInteger(data, id);
+        bool value = (typeInfo->getFinalValueInteger(data, id) != 0);
         out << (value ? "true":"false");
         return true;
     }
