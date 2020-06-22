@@ -454,6 +454,38 @@ void TTriangleModel<DataTypes>::setFilter(TriangleLocalMinDistanceFilter *lmdFil
     m_lmdFilter = lmdFilter;
 }
 
+template< class DataTypes> 
+typename DataTypes::Deriv
+TTriangleModel<DataTypes>::computeMeanNormalAtEdge(EdgeID eid) const
+{
+    const sofa::core::topology::BaseMeshTopology::TrianglesAroundEdge& tids = this->m_topology->getTrianglesAroundEdge(eid);
+    return computeMeanNormal(tids);
+}
+
+template< class DataTypes> 
+typename DataTypes::Deriv
+TTriangleModel<DataTypes>::computeMeanNormalAtVertex(PointID pid) const
+{
+    const sofa::core::topology::BaseMeshTopology::TrianglesAroundVertex& tids = this->m_topology->getTrianglesAroundVertex(pid);
+    return computeMeanNormal(tids);
+}
+
+template< class DataTypes> 
+typename DataTypes::Deriv
+TTriangleModel<DataTypes>::computeMeanNormal(const sofa::helper::vector<TriangleID>& tids) const
+{
+    const unsigned int size = tids.size();
+    if (size == 0u) return Deriv();
+   
+    Deriv meanNormal = Deriv();
+    for (TriangleID tID : tids)
+    {
+        meanNormal += getNormal(tID);
+    }
+    meanNormal /= size;
+    return meanNormal;
+}
+
 } // namespace collision
 
 } // namespace component

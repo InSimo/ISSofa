@@ -96,6 +96,9 @@ public:
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
     typedef TTriangle<DataTypes> Element;
+    typedef sofa::core::topology::Topology::PointID PointID;
+    typedef sofa::core::topology::Topology::EdgeID EdgeID;
+    typedef sofa::core::topology::Topology::TriangleID TriangleID;
     friend class TTriangle<DataTypes>;
     friend class GenericTriangleIterator<TTriangleModel<DataTypes>>;
 
@@ -124,6 +127,8 @@ protected:
     TTriangleModel();
     ~TTriangleModel();
 
+    Deriv computeMeanNormal(const sofa::helper::vector<TriangleID>& tids) const;
+
 public:
     virtual void init() override;
 
@@ -149,6 +154,8 @@ public:
     const sofa::core::topology::BaseMeshTopology::SeqTriangles& getTriangles() const { return *triangles; }
     const VecDeriv& getNormals() const { return normals; }
     const Deriv& getNormal(unsigned int i) const { return normals[i]; }
+    Deriv computeMeanNormalAtEdge(EdgeID eid) const;
+    Deriv computeMeanNormalAtVertex(PointID pid) const;
 
     TriangleLocalMinDistanceFilter *getFilter() const;
 
