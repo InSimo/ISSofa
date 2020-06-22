@@ -133,8 +133,8 @@ public:
             {
                 if (allocsize > 0)
                     delete[] data;
-                allocsize = dim;
-                data = new T[dim];
+                allocsize = dim*2;
+                data = new T[allocsize];
             }
         }
         else
@@ -157,13 +157,13 @@ public:
             if (dim > allocsize)
             {
                 // realloc
-                T* temp = new T[dim];
+                allocsize = dim*2;
+                T* temp = new T[allocsize];
                 if (allocsize > 0)
                 {
                     std::copy(data, data + cursize, temp);
                     delete [] data;
                 }
-                allocsize = dim;
                 data = temp;
             }
         }
