@@ -162,7 +162,7 @@ public:
                 {
                     if (allocsize > 0)
                         delete[] data;
-                    allocsize = nbRow*nbCol;
+                    allocsize = nbRow*nbCol*4;
                     data = new Real[allocsize];
                 }
             }
@@ -291,12 +291,7 @@ public:
 
     void clear()
     {
-        //if (pitch == nCol)
-        //    std::fill(data, data+nRow*pitch, (Real)0);
-        //else
-        for (Index i=0; i<nRow; ++i)
-            for (Index j=0; j<nCol; ++j)
-                data[i*pitch+j] = (Real)0;
+        std::fill(data, data + nRow*nCol, Real(0));
     }
 
     /// matrix-vector product
@@ -448,8 +443,8 @@ public:
             {
                 if (lallocsize > 0)
                     delete[] ldata;
-                ldata = new T*[nbRow];
-                lallocsize = nbRow;
+                lallocsize = nbRow*2;
+                ldata = new T*[lallocsize];
             }
             for (Index i=0; i<nbRow; ++i)
                 ldata[i] = this->data + i*this->pitch;
