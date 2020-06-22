@@ -25,6 +25,7 @@
 
 #include <SofaConstraint/ConstraintSolverImpl.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/helper/AdvancedTimer.h>
 
 namespace sofa
 {
@@ -58,23 +59,39 @@ void ConstraintProblem::freeConstraintResolutions()
     }
 }
 
-
-void ConstraintProblem::clear(int nbConstraints)
+void ConstraintProblem::setDimension(int nbConstraints)
 {
     dimension = nbConstraints;
-    W.resize(nbConstraints, nbConstraints);
-    dFree.resize(nbConstraints);
-    f.resize(nbConstraints);
-    _d.resize(nbConstraints);
+}
 
-    freeConstraintResolutions();
-    constraintsResolutions.resize(nbConstraints,nullptr);
-
+void ConstraintProblem::incrementProblemId()
+{
     static unsigned int counter = 0;
     problemId = ++counter;
 }
 
-unsigned int ConstraintProblem::getProblemId()
+void ConstraintProblem::clear(int nbConstraints)
+{
+    sofa::helper::AdvancedTimer::stepBegin("ConstraintProblem-Resize");
+    {
+        setDimension(nbConstraints);
+        W.resize(nbConstraints, nbConstraints);
+        dFree.resize(nbConstraints);
+        f.resize(nbConstraints);
+        _d.resize(nbConstraints);
+    }
+    sofa::helper::AdvancedTimer::stepEnd("ConstraintProblem-Resize");
+
+    sofa::helper::AdvancedTimer::stepBegin("ConstraintProblem-FreeCR");
+    {
+        freeConstraintResolutions();
+        constraintsResolutions.resize(nbConstraints, nullptr);
+        incrementProblemId();
+    }
+    sofa::helper::AdvancedTimer::stepEnd("ConstraintProblem-FreeCR");
+}
+
+unsigned int ConstraintProblem::getProblemId() const
 {
     return problemId;
 }
