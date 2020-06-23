@@ -46,6 +46,19 @@ void GenericPointModel<TCollisionModel,TDataTypes>::init()
 template<class TCollisionModel, class TDataTypes>
 void GenericPointModel<TCollisionModel,TDataTypes>::computeBoundingTree(int maxDepth)
 {
+    if (this->getSize() != this->getMechanicalState()->getSize())
+    {
+        if (m_hasTopologicalChange)
+        {
+            serr << "Something went wrong during topology changes, the size of the collision model does not match the size of the mechanical state" << sendl;
+        }
+        else
+        {
+            serr << "No complete set of topology changes detected, but the size of the collision model does not match the size of the mechanical state. Is something resizing the mechanical state directly or is the ending event missing ?" << sendl;
+        }
+        serr << "Collision model size = " << this->getSize() << ", mechanical state size = " << this->getMechanicalState()->getSize() << sendl;
+    }
+
     FinalCollisionModel* cm = static_cast<FinalCollisionModel*>(this);
     helpers::computeBoundingTree(cm, maxDepth, m_hasTopologicalChange);
     m_hasTopologicalChange = false;
