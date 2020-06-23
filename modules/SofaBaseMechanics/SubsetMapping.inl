@@ -226,13 +226,17 @@ template <class TIn, class TOut>
 void SubsetMapping<TIn, TOut>::apply ( const core::MechanicalParams* /*mparams*/ /* PARAMS FIRST */, OutDataVecCoord& dOut, const InDataVecCoord& dIn )
 {
     const IndexArray& indices = f_indices.getValue();
-    
-    if (f_resizeToModel.getValue() || this->toModel->getSize() < (int)indices.size())
+
+    if ((unsigned int)this->toModel->getSize() != indices.size())
     { 
-        if ((unsigned int)this->toModel->getSize() != indices.size())
-        { 
+        if (f_resizeToModel.getValue())
+        {
             this->toModel->resize(indices.size()); 
-        } 
+        }
+        else
+        {
+            serr << "Output topology size does not match number of indices, did you forget to add a topological mapping or to set resizeToModel to true ?" << sendl;
+        }
     }
     
     const InVecCoord& in = dIn.getValue();
