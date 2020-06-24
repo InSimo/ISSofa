@@ -236,6 +236,18 @@ struct MathOpOr
 };
 
 template<typename T>
+struct MathOpSelfOr
+{
+    //allow to consider output as part of the MathOp for a "or" operation
+    static const char* Name() { return "|="; }
+    void operator()(T* out, const helper::vector<T>& in)
+    {
+        for (unsigned int i = 0; i<in.size(); ++i)
+            *out |= in[i];
+    }
+};
+
+template<typename T>
 struct MathOpXor
 {
     static const char* Name() { return "^"; }
@@ -337,7 +349,8 @@ struct MathOpTraitsBool
     typedef std::pair<MathOpNot<T>, std::pair<std::pair<
         std::pair< MathOpOr  <T>, MathOpNOr <T> > ,
         std::pair< MathOpAnd <T>, MathOpNAnd<T> > > ,
-        std::pair< MathOpXor <T>, MathOpXNor<T> > > >
+        std::pair< MathOpXor <T>, 
+        std::pair< MathOpXNor<T>, MathOpSelfOr<T> > > > >
         Ops;
 };
 
@@ -410,7 +423,7 @@ struct MathOpApply
                 {
                     values[idin] = (*in[idin])[idv < in[idin]->size() ? idv : in[idin]->size()-1];
                 }
-                Value o;
+                Value o(out[idv]);
                 op(&o, values);
                 out[idv] = o;
             }
