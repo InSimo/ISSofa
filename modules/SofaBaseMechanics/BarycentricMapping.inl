@@ -426,6 +426,20 @@ unsigned int BarycentricMapperMeshTopology<In,Out>::getFromTopologyIndex(unsigne
     return sofa::core::topology::Topology::InvalidID;
 }
 
+
+template <class In, class Out>
+defaulttype::Vector3 BarycentricMapperMeshTopology<In,Out>::getFromTopologyBary(unsigned int toId)
+{
+    if (toId <   map1d.size()) return {map1d[toId].baryCoords[0], 0, 0};
+    else toId -= map1d.size();
+    if (toId <   map2d.size()) return {map2d[toId].baryCoords[0], map2d[toId].baryCoords[1], 0};
+    else toId -= map2d.size();
+    if (toId <   map3d.size()) return {map3d[toId].baryCoords[0], map3d[toId].baryCoords[1], map3d[toId].baryCoords[2]} ;
+    else toId -= map3d.size();
+    return {0, 0, 0};
+}
+
+
 template <class In, class Out>
 void BarycentricMapperMeshTopology<In,Out>::init ( const typename Out::VecCoord& out, const typename In::VecCoord& in )
 {
@@ -697,6 +711,13 @@ template <class In, class Out>
 unsigned int BarycentricMapperEdgeSetTopology<In,Out>::getFromTopologyIndex(unsigned int toId)
 {
     return (unsigned int)map.getValue()[toId].in_index;
+}
+
+
+template <class In, class Out>
+sofa::helper::Vector3 BarycentricMapperEdgeSetTopology<In,Out>::getFromTopologyBary(unsigned int toId)
+{
+    return {map.getValue()[toId].baryCoords[0], 0, 0};
 }
 
 template <class In, class Out>
@@ -1008,6 +1029,12 @@ template <class In, class Out>
 unsigned int BarycentricMapperTriangleSetTopology<In,Out>::getFromTopologyIndex(unsigned int toId)
 {
     return (unsigned int)map.getValue()[toId].in_index;
+}
+
+template <class In, class Out>
+sofa::helper::Vector3 BarycentricMapperTriangleSetTopology<In,Out>::getFromTopologyBary(unsigned int toId)
+{
+    return {map.getValue()[toId].baryCoords[0], map.getValue()[toId].baryCoords[1], 0};
 }
 
 template <class In, class Out>

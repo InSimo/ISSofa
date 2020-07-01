@@ -145,6 +145,11 @@ public:
         return mapper->getFromTopologyIndex(pid);
     }
 
+    virtual sofa::defaulttype::Vector3  getFromBary( unsigned int pid) const override
+    {
+        return mapper->getFromTopologyBary(pid);
+    }
+
 };
 
 

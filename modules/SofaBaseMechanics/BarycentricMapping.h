@@ -213,6 +213,8 @@ public:
 
     virtual unsigned int getFromTopologyIndex(unsigned int /*toId*/) {std::cout<<"WARNING[TopologyBarycentricMapper] getFromTopologyIndex is called but not implemented"<<std::endl; return -1;}
 
+    virtual defaulttype::Vector3 getFromTopologyBary(unsigned int /*toId*/) {std::cout<<"WARNING[TopologyBarycentricMapper] getFromTopologyBary is called but not implemented"<<std::endl; return {0, 0, 0};}
+
     const topology::PointSetTopologyContainer *getToTopology() const {return toTopology;}
 
     core::topology::BaseMeshTopology* getFromTopology() const { return fromTopology; }
@@ -293,6 +295,7 @@ public:
 	sofa::helper::vector< MappingData3D > const* getMap3d() const { return &map3d; }
 
     virtual unsigned int getFromTopologyIndex(unsigned int toId) override;
+    virtual defaulttype::Vector3 getFromTopologyBary(unsigned int toId) override;
 
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperMeshTopology<In, Out> &b )
@@ -613,6 +616,7 @@ public:
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
     virtual unsigned int getFromTopologyIndex(unsigned int toId) override;
+    virtual sofa::defaulttype::Vector3 getFromTopologyBary(unsigned int toId) override;
 
     inline friend std::istream& operator >> ( std::istream& in, BarycentricMapperEdgeSetTopology<In, Out> &b )
     {
@@ -789,6 +793,7 @@ public:
     void applyJT( typename In::MatrixDeriv& out, const typename Out::MatrixDeriv& in );
 
     virtual unsigned int getFromTopologyIndex(unsigned int toId) override;
+    virtual defaulttype::Vector3 getFromTopologyBary(unsigned int toId) override;
 
     void draw(const core::visual::VisualParams*,const typename Out::VecCoord& out, const typename In::VecCoord& in);
 
