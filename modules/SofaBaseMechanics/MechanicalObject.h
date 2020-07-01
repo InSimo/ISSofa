@@ -217,9 +217,13 @@ public:
     double getPY(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)y; }
     double getPZ(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)z; }
 
-    double getVX(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)x; }
-    double getVY(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)y; }
-    double getVZ(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)z; }
+    double getPX0(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecCoordId::restPosition())->getValue()[i]); return (SReal)x; }
+    double getPY0(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecCoordId::restPosition())->getValue()[i]); return (SReal)y; }
+    double getPZ0(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecCoordId::restPosition())->getValue()[i]); return (SReal)z; }
+
+    double getVX(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)x; }
+    double getVY(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)y; }
+    double getVZ(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)z; }
 
 
     /** \brief Overwrite values at index outputIndex by the ones at inputIndex.

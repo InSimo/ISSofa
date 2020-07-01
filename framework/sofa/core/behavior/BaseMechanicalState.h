@@ -92,6 +92,14 @@ public:
     virtual double getPY(int /*i*/) const { return 0.0; }
     virtual double getPZ(int /*i*/) const { return 0.0; }
 
+    virtual double getPX0(int /*i*/) const { return 0.0; }
+    virtual double getPY0(int /*i*/) const { return 0.0; }
+    virtual double getPZ0(int /*i*/) const { return 0.0; }
+
+    virtual double getVX(int /*i*/) const { return 0.0; }
+    virtual double getVY(int /*i*/) const { return 0.0; }
+    virtual double getVZ(int /*i*/) const { return 0.0; }
+
     /// @}
 
     /// @name Vectors allocation and generic operations (based on VecId)
