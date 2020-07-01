@@ -6,7 +6,7 @@
 #ifndef SOFA_CORE_COLLISIONMODELTRAITS_H
 #define SOFA_CORE_COLLISIONMODELTRAITS_H
 
-#include <sofa/core/topology/TopologyHandler.h>
+#include <sofa/core/topology/Topology.h>
 
 namespace sofa
 {
@@ -69,8 +69,8 @@ struct CollisionModelTraits
     typedef typename DataTypes::Coord Coord;
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::Real  Real;
-    typedef sofa::defaulttype::Vec<NBARY,Real>  BaryCoord;
-    typedef sofa::core::topology::Point         TopologyElementType;
+    typedef sofa::defaulttype::Vec<NBARY,Real>    BaryCoord;
+    typedef sofa::core::topology::Topology::Point TopologyElementType;
     typedef typename CollisionTopologyTagTraits<TopologyElementType>::collision_topology_category collision_topology_category;
 };
 
