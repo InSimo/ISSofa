@@ -279,7 +279,7 @@ void MechanicalObject<DataTypes>::initGnuplot(const std::string path)
 }
 
 template <class DataTypes>
-void MechanicalObject<DataTypes>::exportGnuplot(Real time)
+void MechanicalObject<DataTypes>::exportGnuplot(double time)
 {
     if( m_gnuplotFileX!=NULL )
     {
@@ -1491,7 +1491,7 @@ void MechanicalObject<DataTypes>::writeState(std::ostream& out)
 }
 
 template <class DataTypes>
-void MechanicalObject<DataTypes>::beginIntegration(Real /*dt*/)
+void MechanicalObject<DataTypes>::beginIntegration(double /*dt*/)
 {
 }
 
@@ -1500,7 +1500,7 @@ void MechanicalObject<DataTypes>::endIntegration(const core::ExecParams*
                                                  #ifdef SOFA_SMP
                                                  params
                                                  #endif
-                                                 /* PARAMS FIRST */, Real /*dt*/    )
+                                                 /* PARAMS FIRST */, double /*dt*/    )
 {
 #ifdef SOFA_SMP
     if (params->execMode() == core::ExecParams::EXEC_KAAPI)
@@ -1513,33 +1513,6 @@ void MechanicalObject<DataTypes>::endIntegration(const core::ExecParams*
     {
         this->externalForces.beginEdit()->clear();
         this->externalForces.endEdit();
-    }
-}
-
-template <class DataTypes>
-void MechanicalObject<DataTypes>::accumulateForce(const core::ExecParams* params)
-{
-#ifdef SOFA_SMP
-    if (params->execMode() == core::ExecParams::EXEC_KAAPI)
-    {
-        BaseObject::Task < vPEq2 <  VecDeriv, VecDeriv > >
-                (this, **defaulttype::getShared(*this->write(VecDerivId::force())),
-                 **defaulttype::getShared(*this->read(ConstVecDerivId::externalForce())));
-    }
-    else
-#endif /* SOFA_SMP */
-    {
-        helper::ReadAccessor< Data<VecDeriv> > extForces_rA( params, *this->read(core::ConstVecDerivId::externalForce()) );
-
-        if (!extForces_rA.empty())
-        {
-            helper::WriteAccessor< Data<VecDeriv> > f_wA ( params, *this->write(core::VecDerivId::force()) );
-
-            {
-                for (unsigned int i=0; i < extForces_rA.size(); i++)
-                    f_wA[i] += extForces_rA[i];
-            }
-        }
     }
 }
 
@@ -2715,7 +2688,7 @@ void MechanicalObject<DataTypes>::printDOF( core::ConstVecId v, std::ostream& ou
 #endif
 
 template <class DataTypes>
-unsigned MechanicalObject<DataTypes>::printDOFWithElapsedTime(core::VecId v, unsigned count, unsigned time, std::ostream& out)
+unsigned MechanicalObject<DataTypes>::printDOFWithElapsedTime(core::ConstVecId v, unsigned count, unsigned time, std::ostream& out) const
 {
     if (v.type == sofa::core::V_COORD)
     {
@@ -2749,48 +2722,6 @@ unsigned MechanicalObject<DataTypes>::printDOFWithElapsedTime(core::VecId v, uns
         out << "MechanicalObject<DataTypes>::printDOFWithElapsedTime, unknown v.type = " << v.type << std::endl;
 
     return 0;
-}
-
-template <class DataTypes>
-void MechanicalObject<DataTypes>::resetForce(const core::ExecParams* params)
-{
-#ifdef SOFA_SMP
-    if (params->execMode() == core::ExecParams::EXEC_KAAPI)
-    {
-        BaseObject::Task< vClear<VecDeriv, Deriv> >(this, **defaulttype::getShared(*this->write(core::VecDerivId::force())));
-    }
-    else
-#endif /* SOFA_SMP */
-    {
-        helper::WriteAccessor< Data<VecDeriv> > f( params, *this->write(core::VecDerivId::force()) );
-
-        {
-            for (unsigned i = 0; i < f.size(); ++i)
-            {
-                f[i] = Deriv();
-            }
-        }
-    }
-}
-
-template <class DataTypes>
-void MechanicalObject<DataTypes>::resetAcc(const core::ExecParams* params)
-{
-#ifdef SOFA_SMP
-    if (params->execMode() == core::ExecParams::EXEC_KAAPI)
-    {
-        BaseObject::Task< vClear<VecDeriv, Deriv> >(this, **defaulttype::getShared(*this->write(core::VecDerivId::dx())));
-    }
-    else
-#endif /* SOFA_SMP */
-    {
-        helper::WriteAccessor< Data<VecDeriv> > a( params, *this->write(core::VecDerivId::dx()) );
-
-        for (unsigned i = 0; i < a.size(); ++i)
-        {
-            a[i] = Deriv();
-        }
-    }
 }
 
 template <class DataTypes>

@@ -205,8 +205,8 @@ public:
 
     /// @}
 
-    virtual void initGnuplot(const std::string path);
-    virtual void exportGnuplot(Real time);
+    virtual void initGnuplot(const std::string path) override;
+    virtual void exportGnuplot(double time) override;
 
     virtual void resize( int vsize) override;
     virtual void reserve(int vsize);
@@ -321,11 +321,9 @@ public:
     /// @name Integration related methods
     /// @{
 
-    virtual void beginIntegration(Real dt);
+    virtual void beginIntegration(double dt) override;
 
-    virtual void endIntegration(const core::ExecParams* params /* PARAMS FIRST */, Real dt);
-
-    virtual void accumulateForce(const core::ExecParams* params); // see BaseMechanicalState::accumulateForce(const ExecParams*, VecId)
+    virtual void endIntegration(const core::ExecParams* params /* PARAMS FIRST */, double dt) override;
 
     /// Increment the index of the given VecCoordId, so that all 'allocated' vectors in this state have a lower index
     virtual void vAvail(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId& v) override;
@@ -384,10 +382,6 @@ public:
 
     virtual size_t vSize( const core::ExecParams* params, core::ConstVecId v ) override;
 
-    virtual void resetForce(const core::ExecParams* params);
-
-    virtual void resetAcc(const core::ExecParams* params);
-
     virtual void resetConstraint(const core::ConstraintParams* cparams) override;
 
     virtual void getConstraintJacobian(const core::ConstraintParams* cparams, sofa::defaulttype::BaseMatrix* J,unsigned int & off) override;
@@ -397,8 +391,8 @@ public:
     /// @name Debug
     /// @{
 
-    virtual void printDOF(core::ConstVecId, std::ostream& =std::cerr, int firstIndex=0, int range=-1 ) const ;
-    virtual unsigned printDOFWithElapsedTime(core::VecId, unsigned =0, unsigned =0, std::ostream& =std::cerr );
+    virtual void printDOF(core::ConstVecId, std::ostream& =std::cerr, int firstIndex=0, int range=-1 ) const override;
+    virtual unsigned printDOFWithElapsedTime(core::ConstVecId, unsigned =0, unsigned =0, std::ostream& =std::cerr ) const override;
 
     void draw(const core::visual::VisualParams* vparams) override;
 
