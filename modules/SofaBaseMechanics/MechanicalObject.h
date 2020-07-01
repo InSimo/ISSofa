@@ -102,7 +102,7 @@ public:
 protected:
     virtual ~MechanicalObject();
 public:
-    virtual void parse ( core::objectmodel::BaseObjectDescription* arg );
+    virtual void parse ( core::objectmodel::BaseObjectDescription* arg ) override;
 
 #ifdef SOFA_HAVE_NEW_TOPOLOGYCHANGES
     PointData< VecCoord > x;
@@ -174,30 +174,30 @@ public:
     Data< defaulttype::Vec4f > d_color;  ///< drawing color
     Data < bool > isToPrint; ///< ignore some Data for file export
 
-    virtual void init();
-    virtual void reinit();
+    virtual void init() override;
+    virtual void reinit() override;
 
-    virtual void storeResetState();
+    virtual void storeResetState() override;
 
-    virtual void reset();
+    virtual void reset() override;
 
-    virtual void writeVec(core::ConstVecId v, std::ostream &out);
-    virtual void readVec(core::VecId v, std::istream &in);
-    virtual double compareVec(core::ConstVecId v, std::istream &in);
+    virtual void writeVec(core::ConstVecId v, std::ostream &out) override;
+    virtual void readVec(core::VecId v, std::istream &in) override;
+    virtual double compareVec(core::ConstVecId v, std::istream &in) override;
 
-    virtual void writeState( std::ostream& out );
+    virtual void writeState( std::ostream& out ) override;
 
     /// @name New vectors access API based on VecId
     /// @{
 
-    virtual Data< VecCoord >* write(core::VecCoordId v);
-    virtual const Data< VecCoord >* read(core::ConstVecCoordId v) const;
+    virtual Data< VecCoord >* write(core::VecCoordId v) override;
+    virtual const Data< VecCoord >* read(core::ConstVecCoordId v) const override;
 
-    virtual Data< VecDeriv >* write(core::VecDerivId v);
-    virtual const Data< VecDeriv >* read(core::ConstVecDerivId v) const;
+    virtual Data< VecDeriv >* write(core::VecDerivId v) override;
+    virtual const Data< VecDeriv >* read(core::ConstVecDerivId v) const override;
 
-    virtual Data< MatrixDeriv >* write(core::MatrixDerivId v);
-    virtual const Data< MatrixDeriv >* read(core::ConstMatrixDerivId v) const;
+    virtual Data< MatrixDeriv >* write(core::MatrixDerivId v) override;
+    virtual const Data< MatrixDeriv >* read(core::ConstMatrixDerivId v) const override;
 
     core::ConstVecCoordId getCoordId(const Data< VecCoord >* d) const override;
     core::ConstVecDerivId getDerivId(const Data< VecDeriv >* d) const override;
@@ -208,14 +208,14 @@ public:
     virtual void initGnuplot(const std::string path);
     virtual void exportGnuplot(Real time);
 
-    virtual void resize( int vsize);
+    virtual void resize( int vsize) override;
     virtual void reserve(int vsize);
 
-    int getSize() const { return d_size.getValue(); }
+    int getSize() const override { return d_size.getValue(); }
 
-    double getPX(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)x; }
-    double getPY(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)y; }
-    double getPZ(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)z; }
+    double getPX(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)x; }
+    double getPY(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)y; }
+    double getPZ(int i) const override { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z,(read(core::ConstVecCoordId::position())->getValue())[i]); return (SReal)z; }
 
     double getVX(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)x; }
     double getVY(int i) const { Real x=0.0,y=0.0,z=0.0; DataTypes::get(x,y,z, read(core::ConstVecDerivId::velocity())->getValue()[i]); return (SReal)y; }
@@ -252,54 +252,54 @@ public:
     /// @{
 
     /// Apply translation vector to the position.
-    virtual void applyTranslation (const double dx, const double dy, const double dz);
+    virtual void applyTranslation (const double dx, const double dy, const double dz) override;
 
     /// Rotation using Euler Angles in degree.
-    virtual void applyRotation (const double rx, const double ry, const double rz);
+    virtual void applyRotation (const double rx, const double ry, const double rz) override;
 
-    virtual void applyRotation (const defaulttype::Quat q);
+    virtual void applyRotation (const defaulttype::Quat q) override;
 
-    virtual void applyScale (const double sx, const double sy, const double sz);
+    virtual void applyScale (const double sx, const double sy, const double sz) override;
 
     /// @}
 
     /// Get the indices of the particles located in the given bounding box
-    void getIndicesInSpace(sofa::helper::vector<unsigned>& indices, Real xmin, Real xmax, Real ymin, Real ymax, Real zmin, Real zmax) const;
+    void getIndicesInSpace(sofa::helper::vector<unsigned>& indices, Real xmin, Real xmax, Real ymin, Real ymax, Real zmin, Real zmax) const override;
 
     /// update the given bounding box, to include this
-    virtual bool addBBox(double* minBBox, double* maxBBox);
+    virtual bool addBBox(double* minBBox, double* maxBBox) override;
 
     /// @name Base Matrices and Vectors Interface
     /// @{
 
     /// Copy data to a global BaseVector the state stored in a local vector
     /// @param offset the offset in the BaseVector where the scalar values will be used. It will be updated to the first scalar value after the ones used by this operation when this method returns
-    virtual void copyToBaseVector(defaulttype::BaseVector* dest, core::ConstVecId src, unsigned int &offset);
+    virtual void copyToBaseVector(defaulttype::BaseVector* dest, core::ConstVecId src, unsigned int &offset) override;
 
     /// Copy data to a local vector the state stored in a global BaseVector
     /// @param offset the offset in the BaseVector where the scalar values will be used. It will be updated to the first scalar value after the ones used by this operation when this method returns
-    virtual void copyFromBaseVector(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset);
+    virtual void copyFromBaseVector(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset) override;
 
     /// Add data to a global BaseVector from the state stored in a local vector
     /// @param offset the offset in the BaseVector where the scalar values will be used. It will be updated to the first scalar value after the ones used by this operation when this method returns
-    virtual void addToBaseVector(defaulttype::BaseVector* dest, core::ConstVecId src, unsigned int &offset);
+    virtual void addToBaseVector(defaulttype::BaseVector* dest, core::ConstVecId src, unsigned int &offset) override;
 
     /// src and dest must have the same size.
     /// Performs: dest[i][j] += src[offset + i][j] 0<= i < src_entries  0<= j < 3 (for 3D objects) 0 <= j < 2 (for 2D objects)
     /// @param offset the offset in the BaseVector where the scalar values will be used. It will be updated to the first scalar value after the ones used by this operation when this method returns
-    virtual void addFromBaseVectorSameSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset);
+    virtual void addFromBaseVectorSameSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset) override;
 
     /// src size can be smaller or equal to dest size.
     /// Performs: dest[ offset + i ][j] += src[i][j]  0<= i < src_entries  0<= j < 3 (for 3D objects) 0 <= j < 2 (for 2D objects)
     /// @param offset the offset in the MechanicalObject local vector specified by VecId dest. It will be updated to the first scalar value after the ones used by this operation when this method returns.
-    virtual void addFromBaseVectorDifferentSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
+    virtual void addFromBaseVectorDifferentSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset ) override;
 
 
     /// @}
 
     /// Express the matrix L in term of block of matrices, using the indices of the lines in the MatrixDeriv container
-    virtual std::list<ConstraintBlock> constraintBlocks( const std::list<unsigned int> &indices) const;
-    virtual SReal getConstraintJacobianTimesVecDeriv( unsigned int line, core::ConstVecId id);
+    virtual std::list<ConstraintBlock> constraintBlocks( const std::list<unsigned int> &indices) const override;
+    virtual SReal getConstraintJacobianTimesVecDeriv( unsigned int line, core::ConstVecId id) override;
 
     /// @name Initial transformations accessors.
     /// @{
@@ -310,12 +310,12 @@ public:
 
     virtual Vector3 getTranslation() const {return translation.getValue();}
     virtual Vector3 getRotation() const {return rotation.getValue();}
-    virtual Vector3 getScale() const {return scale.getValue();}
+    virtual Vector3 getScale() const override {return scale.getValue();}
 
     /// @}
 
     /// Renumber the constraint ids with the given permutation vector
-    void renumberConstraintId(const sofa::helper::vector< unsigned >& renumbering);
+    void renumberConstraintId(const sofa::helper::vector< unsigned >& renumbering) override;
 
 
     /// @name Integration related methods
@@ -328,41 +328,41 @@ public:
     virtual void accumulateForce(const core::ExecParams* params); // see BaseMechanicalState::accumulateForce(const ExecParams*, VecId)
 
     /// Increment the index of the given VecCoordId, so that all 'allocated' vectors in this state have a lower index
-    virtual void vAvail(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId& v);
+    virtual void vAvail(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId& v) override;
     /// Increment the index of the given VecDerivId, so that all 'allocated' vectors in this state have a lower index
-    virtual void vAvail(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId& v);
+    virtual void vAvail(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId& v) override;
     /// Increment the index of the given MatrixDerivId, so that all 'allocated' vectors in this state have a lower index
     virtual void vAvail(const core::ExecParams* params, core::MatrixDerivId& v) override;
 
     /// Allocate a new temporary vector
-    virtual void vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v);
+    virtual void vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v) override;
     /// Allocate a new temporary vector
-    virtual void vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v);
+    virtual void vAlloc(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v) override;
     /// Allocate a new temporary vector
     virtual void vAlloc(const core::ExecParams* params, core::MatrixDerivId v) override;
 
     /// Reallocate a new temporary vector
-    virtual void vRealloc(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, core::VecCoordId v);
+    virtual void vRealloc(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, core::VecCoordId v) override;
     /// Reallocate a new temporary vector
-    virtual void vRealloc(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, core::VecDerivId v);
+    virtual void vRealloc(const core::ExecParams* params /* PARAMS FIRST  = ExecParams::defaultInstance()*/, core::VecDerivId v) override;
     /// Reallocate a new temporary vector
-    virtual void vRealloc(const core::ExecParams* params, core::MatrixDerivId v);
+    virtual void vRealloc(const core::ExecParams* params, core::MatrixDerivId v) override;
 
     /// Free a temporary vector
-    virtual void vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v);
+    virtual void vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v) override;
     /// Free a temporary vector
-    virtual void vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v);
+    virtual void vFree(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v) override;
     /// Free a temporary vector
     virtual void vFree(const core::ExecParams* params, core::MatrixDerivId v) override;
 
     /// Initialize an unset vector
-    virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v, core::ConstVecCoordId vSrc);
+    virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::VecCoordId v, core::ConstVecCoordId vSrc) override;
     /// Initialize an unset vector
-    virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v, core::ConstVecDerivId vSrc);
+    virtual void vInit(const core::ExecParams* params /* PARAMS FIRST */, core::VecDerivId v, core::ConstVecDerivId vSrc) override;
     /// Initialize an unset vector
     virtual void vInit(const core::ExecParams* params, core::MatrixDerivId v, core::ConstMatrixDerivId vSrc) override;
 
-    virtual void vOp(const core::ExecParams* params /* PARAMS FIRST = core::ExecParams::defaultInstance()*/, core::VecId v, core::ConstVecId a = core::ConstVecId::null(), core::ConstVecId b = core::ConstVecId::null(), double f=1.0);
+    virtual void vOp(const core::ExecParams* params /* PARAMS FIRST = core::ExecParams::defaultInstance()*/, core::VecId v, core::ConstVecId a = core::ConstVecId::null(), core::ConstVecId b = core::ConstVecId::null(), double f=1.0) override;
 
 #ifdef SOFA_SMP
     virtual void vOp(const core::ExecParams* params /* PARAMS FIRST */, core::VecId, core::ConstVecId, core::ConstVecId, double f, a1::Shared<double> *fSh);
@@ -370,27 +370,27 @@ public:
     virtual void vDot(const core::ExecParams* params /* PARAMS FIRST */, a1::Shared<double> *, core::ConstVecId , core::ConstVecId);
 #endif
 
-    virtual void vMultiOp(const core::ExecParams* params /* PARAMS FIRST */, const VMultiOp& ops);
+    virtual void vMultiOp(const core::ExecParams* params /* PARAMS FIRST */, const VMultiOp& ops) override;
 
-    virtual void vThreshold(core::VecId a, SReal threshold );
+    virtual void vThreshold(core::VecId a, SReal threshold ) override;
 
-    virtual double vDot(const core::ExecParams* params /* PARAMS FIRST */, core::ConstVecId a, core::ConstVecId b);
+    virtual double vDot(const core::ExecParams* params /* PARAMS FIRST */, core::ConstVecId a, core::ConstVecId b) override;
 
     /// Sum of the entries of state vector a at the power of l>0. This is used to compute the l-norm of the vector.
-    virtual double vSum(const core::ExecParams* params, core::ConstVecId a, unsigned l);
+    virtual double vSum(const core::ExecParams* params, core::ConstVecId a, unsigned l) override;
 
     /// Maximum of the absolute values of the entries of state vector a. This is used to compute the infinite-norm of the vector.
-    virtual double vMax(const core::ExecParams* params, core::ConstVecId a);
+    virtual double vMax(const core::ExecParams* params, core::ConstVecId a) override;
 
-    virtual size_t vSize( const core::ExecParams* params, core::ConstVecId v );
+    virtual size_t vSize( const core::ExecParams* params, core::ConstVecId v ) override;
 
     virtual void resetForce(const core::ExecParams* params);
 
     virtual void resetAcc(const core::ExecParams* params);
 
-    virtual void resetConstraint(const core::ConstraintParams* cparams);
+    virtual void resetConstraint(const core::ConstraintParams* cparams) override;
 
-    virtual void getConstraintJacobian(const core::ConstraintParams* cparams, sofa::defaulttype::BaseMatrix* J,unsigned int & off);
+    virtual void getConstraintJacobian(const core::ConstraintParams* cparams, sofa::defaulttype::BaseMatrix* J,unsigned int & off) override;
 
     /// @}
 
@@ -400,18 +400,18 @@ public:
     virtual void printDOF(core::ConstVecId, std::ostream& =std::cerr, int firstIndex=0, int range=-1 ) const ;
     virtual unsigned printDOFWithElapsedTime(core::VecId, unsigned =0, unsigned =0, std::ostream& =std::cerr );
 
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams* vparams) override;
 
     /// @}
 
     // handle state changes
-    virtual void handleStateChange();
+    virtual void handleStateChange() override;
 
     /// Find mechanical particles hit by the given ray.
     /// A mechanical particle is defined as a 2D or 3D, position or rigid DOF
     /// Returns false if this object does not support picking
     virtual bool pickParticles(const core::ExecParams* params /* PARAMS FIRST */, double rayOx, double rayOy, double rayOz, double rayDx, double rayDy, double rayDz, double radius0, double dRadius,
-            std::multimap< double, std::pair<sofa::core::behavior::BaseMechanicalState*, int> >& particles);
+            std::multimap< double, std::pair<sofa::core::behavior::BaseMechanicalState*, int> >& particles) override;
 
 
    /// if this mechanical object stores independent dofs (in opposition to mapped dofs)
