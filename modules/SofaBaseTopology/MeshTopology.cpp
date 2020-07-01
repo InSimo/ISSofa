@@ -295,9 +295,6 @@ MeshTopology::MeshTopology()
     addAlias(&seqEdges,"lines");
     addAlias(&seqTetrahedra,"tetras");
     addAlias(&seqHexahedra,"hexas");
-
-
-
 }
 
 void MeshTopology::init()
@@ -306,8 +303,6 @@ void MeshTopology::init()
     BaseMeshTopology::init();
     if (nbPoints==0)
     {
-
-
         // looking for upper topology
         if (!seqHexahedra.getValue().empty())
             UpperTopology = sofa::core::topology::HEXAHEDRON;
@@ -324,7 +319,7 @@ void MeshTopology::init()
     // compute the number of points, if the topology is charged from the scene or if it was loaded from a MeshLoader without any points data.
     if (nbPoints==0)
     {
-        unsigned int n = 0;
+        unsigned int n = seqPoints.getValue().size();
         for (unsigned int i=0; i<seqEdges.getValue().size(); i++)
         {
             for (unsigned int j=0; j<seqEdges.getValue()[i].size(); j++)
