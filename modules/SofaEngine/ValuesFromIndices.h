@@ -75,6 +75,7 @@ public:
     Data<Value>    f_singleOut;
     Data<std::string> f_outStr;
     Data<bool>     f_checkSize;
+    Data<bool>      d_mandatorySingleOut;
 
     virtual std::string getTemplateName() const
     {

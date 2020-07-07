@@ -46,6 +46,7 @@ ValuesFromIndices<T>::ValuesFromIndices()
     , f_singleOut( initData (&f_singleOut, "singleOut", "Output single value selected if indices is of size 1"))
     , f_outStr( initData (&f_outStr, "outStr", "Output values corresponding to the indices, converted as a string"))
     , f_checkSize( initData (&f_checkSize, true, "checkSize", "If false, do not show error message"))
+    , d_mandatorySingleOut(initData(&d_mandatorySingleOut, false, "mandatorySingleOut", "Have singleOut mandatory, display error message if no singleOut was set"))
 {
     this->addAlias(&f_in, "input"); // 'in' is a reserved word in Python
 }
@@ -93,6 +94,10 @@ void ValuesFromIndices<T>::update()
     if (indices.size() == 1 && indices[0] < in.size())
     {
         f_singleOut.setValue(in[indices[0]]);
+    }
+    else if (d_mandatorySingleOut.getValue()) //warn if no singleoutput if there: link to singleOut
+    {
+            serr << this->getName() << ": error, no single output was generated, potential use of deprecated information" << sendl;
     }
 }
 
