@@ -52,8 +52,6 @@ class TLine : public GenericLineIterator<TLineModel<TDataTypes>>
 {
 public:
     typedef TDataTypes DataTypes;
-    typedef typename DataTypes::Coord Coord;
-    typedef typename DataTypes::Deriv Deriv;
     typedef TLineModel<DataTypes> ParentModel;
 
     using GenericLineIterator<TLineModel<TDataTypes>>::GenericLineIterator;
@@ -84,10 +82,6 @@ public:
     typedef TDataTypes DataTypes;
     typedef DataTypes InDataTypes;
     typedef TLineModel<DataTypes> ParentModel;
-    typedef typename DataTypes::VecCoord VecCoord;
-    typedef typename DataTypes::VecDeriv VecDeriv;
-    typedef typename DataTypes::Coord Coord;
-    typedef typename DataTypes::Deriv Deriv;
     typedef TLine<DataTypes> Element;
     friend class TLine<DataTypes>;
     friend class GenericLineIterator<TLineModel<DataTypes>>;
