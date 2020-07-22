@@ -97,7 +97,11 @@ public:
         collisions.resize(o->size());
         for (unsigned int i=0; i< o->size(); ++i)
         {
-            assert(o->getDetectionOutput(i, collisions[i]) == true);
+            const bool ok = o->getDetectionOutput(i, collisions[i]);
+            assert(ok);
+#ifdef NDEBUG
+            SOFA_UNUSED(ok);
+#endif
         }
     }
 
