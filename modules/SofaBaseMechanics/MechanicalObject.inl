@@ -108,6 +108,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     , restScale(initData(&restScale, (SReal)1.0, "restScale", "optional scaling of rest position coordinates (to simulated pre-existing internal tension)"))
     , d_useTopology(initData(&d_useTopology, true, "useTopology", "Shall this object rely on any active topology to initialize its size and positions"))
     , showObject(initData(&showObject, (bool) false, "showObject", "Show objects"))
+    , showFreePositions(initData(&showFreePositions, (bool) false, "showFreePositions", "Display free positions instead of positions"))
     , showObjectScale(initData(&showObjectScale, (float) 0.1, "showObjectScale", "Scale for object display"))
     , showIndices(initData(&showIndices, (bool) false, "showIndices", "Show indices"))
     , showIndicesScale(initData(&showIndicesScale, (float) 0.0001, "showIndicesScale", "Scale for indices display"))
@@ -3036,10 +3037,13 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
     if (showObject.getValue())
     {
         const float scale = showObjectScale.getValue();
-        const int vsize = d_size.getValue();
-        sofa::helper::vector<Vector3> positions(vsize);
-        for (int i = 0; i < vsize; ++i)
-            positions[i] = Vector3(getPX(i), getPY(i), getPZ(i));
+        const VecCoord& inputPositions = showFreePositions.getValue() ? read(core::ConstVecCoordId::freePosition())->getValue()
+                                                                      : read(core::ConstVecCoordId::position())->getValue();
+        sofa::helper::vector<Vector3> positions(inputPositions.size());
+        for (int i = 0; i < positions.size(); ++i)
+        {
+            positions[i] = DataTypes::getCPos(inputPositions[i]);
+        }
 
         switch (drawMode.getValue())
         {

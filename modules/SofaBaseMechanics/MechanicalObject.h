@@ -164,6 +164,7 @@ public:
     Data< bool >  d_useTopology;
 
     Data< bool >  showObject;
+    Data< bool >  showFreePositions;
     Data< float > showObjectScale;
     Data< bool >  showIndices;
     Data< float > showIndicesScale;
