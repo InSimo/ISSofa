@@ -393,7 +393,7 @@ BaseElement* includeNode(TiXmlNode* root,const char *basefilename, ElementNameHe
     doc.Parse(fileContent.c_str());
     if (doc.Error())
     {
-        std::cerr << "ERROR: Failed to parse " << filename << std::endl;
+        std::cerr << "ERROR: Failed to parse the included file " << filename << ":" << doc.ErrorRow() << ":" << doc.ErrorCol() << ": " << doc.ErrorDesc() << std::endl;
         return NULL;
     }
     TiXmlElement* newroot = doc.RootElement();
