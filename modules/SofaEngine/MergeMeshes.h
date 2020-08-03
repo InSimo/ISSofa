@@ -42,6 +42,7 @@ namespace component
 namespace engine
 {
 
+
 /**
  * This class merge several meshes.
  */
@@ -53,24 +54,27 @@ public:
     typedef typename DataTypes::VecCoord VecCoord;
     typedef helper::vector<unsigned int> VecIndex;
 
+    typedef helper::pair<unsigned int, unsigned int> InputIDPointID;
+    typedef helper::pair<InputIDPointID, InputIDPointID> PointPairToMerge;
+
 protected:
     MergeMeshes();
 
     ~MergeMeshes();
 public:
     /// Parse the given description to assign values to this object's fields and potentially other parameters
-    void parse ( sofa::core::objectmodel::BaseObjectDescription* arg );
+    void parse ( sofa::core::objectmodel::BaseObjectDescription* arg ) override;
 
     /// Assign the field values stored in the given map of name -> value pairs
-    void parseFields ( const std::map<std::string,std::string*>& str );
+    void parseFields ( const std::map<std::string,std::string*>& str ) override;
 
-    void init();
+    void init() override;
 
-    void reinit();
+    void reinit() override;
 
-    void update();
+    void update() override;
 
-    virtual std::string getTemplateName() const
+    virtual std::string getTemplateName() const  override
     {
         return templateName(this);
     }
@@ -90,6 +94,9 @@ public:
     helper::vector< Data< helper::vector< helper::fixed_array<unsigned int,4> > >* > vf_tetrahedra;
     helper::vector< Data< helper::vector< helper::fixed_array<unsigned int,8> > >* > vf_hexahedra;
 
+    // Pairs of points to merge (first index will be replace by the second in topological outputs)
+    // Since points there are several inputs, pointIds are mapped with the topological input index
+    Data < helper::vector<PointPairToMerge> > d_pointListToMerge;
 
     Data<unsigned> f_output_npoints;
     Data<VecCoord> f_output_positions;
@@ -134,25 +141,43 @@ protected:
     void mergeInputDataVector(unsigned int nb, Data<T>& outF, const helper::vector< Data<T>* >& inVF, const helper::vector< Data<VecCoord>* >& inVFPos)
     {
         unsigned int nelems = 0;
+        helper::vector<unsigned int> shift;
         for (unsigned int i=0; i<nb; ++i)
+        {
             nelems += inVF[i]->getValue().size();
+            shift.push_back(i == 0 ? 0 : shift[i-1] + inVFPos[i-1]->getValue().size());
+        }
         helper::WriteOnlyAccessor< Data<T> > out = outF;
         out.clear();
         out.reserve(nelems);
-        unsigned int shift = 0;
         for (unsigned int i=0; i<nb; ++i)
         {
             helper::ReadAccessor< Data<T> > in = inVF[i];
             for (unsigned int j=0; j<in.size(); ++j)
             {
-                typename T::value_type outT = in[j];
-                for (unsigned int k=0; k<outT.size(); ++k)
-                    outT[k] += shift;
+                typename T::value_type outT;
+                for (unsigned int k=0; k<in[j].size(); ++k)
+                {
+                    // Check if the point id corresponding to the currently proccesed input is in the list of point to merge
+                    // If it is, replace it by its given substitute (pointId that can come from another input)
+                    InputIDPointID input = InputIDPointID(i, in[j][k]);
+                    helper::ReadAccessor< Data<helper::vector<PointPairToMerge>> > pointListToMerge = d_pointListToMerge;
+                    for (PointPairToMerge pptm : pointListToMerge)
+                    {
+                        if (pptm.first == input)
+                        {
+                            input = pptm.second;
+                            break;
+                        }
+                    }
+
+                    outT[k] = input.second + shift[input.first];
+                }
                 out.push_back(outT);
             }
-            shift += inVFPos[i]->getValue().size();
         }
     }
+
     void mergeInputDataVector(unsigned int nb, Data<VecCoord>& outF, const helper::vector< Data<VecCoord>* >& inVF)
     {
         unsigned int nelems = 0;

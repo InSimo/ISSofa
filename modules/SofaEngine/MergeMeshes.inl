@@ -41,6 +41,7 @@ namespace engine
 template <class DataTypes>
 MergeMeshes<DataTypes>::MergeMeshes()
     : f_nbMeshes( initData (&f_nbMeshes, (unsigned)2, "nbMeshes", "number of meshes to merge") )
+    , d_pointListToMerge( initData (&d_pointListToMerge, "pointListToMerge", "Pairs of <inputId, pointId> representing points that need to be merged in the output topology") )
     , f_output_npoints( initData (&f_output_npoints, (unsigned)0, "npoints", "Number Of out points") )
     , f_output_positions(initData(&f_output_positions,"position","Output Vertices of the merged mesh"))
     , f_output_edges(initData(&f_output_edges,"edges","Output Edges of the merged mesh"))
