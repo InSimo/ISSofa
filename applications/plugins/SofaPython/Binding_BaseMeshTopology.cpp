@@ -85,6 +85,15 @@ extern "C" PyObject * BaseMeshTopology_getEdgesAroundVertex(PyObject *self, PyOb
     return indicesVectorToPyList(obj->getEdgesAroundVertex(BaseMeshTopology::PointID(pointId)));
 }
 
+extern "C" PyObject * BaseMeshTopology_getTrianglesAroundEdge(PyObject *self, PyObject * args)
+{
+    BaseMeshTopology* obj = BaseMeshTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
+    int pointId;
+    if (!PyArg_ParseTuple(args, "i", &pointId))
+        Py_RETURN_NONE;
+    return indicesVectorToPyList(obj->getTrianglesAroundEdge(BaseMeshTopology::PointID(pointId)));
+}
+
 extern "C" PyObject * BaseMeshTopology_getTrianglesAroundVertex(PyObject *self, PyObject * args)
 {
     BaseMeshTopology* obj=BaseMeshTopology::DynamicCast(((PySPtr<Base>*)self)->object.get());
@@ -119,6 +128,7 @@ SP_CLASS_METHOD(BaseMeshTopology,getNbHexahedra)
 SP_CLASS_METHOD(BaseMeshTopology,getVerticesAroundVertex)
 SP_CLASS_METHOD(BaseMeshTopology,getEdgesAroundVertex)
 SP_CLASS_METHOD(BaseMeshTopology,getTrianglesAroundVertex)
+SP_CLASS_METHOD(BaseMeshTopology,getTrianglesAroundEdge)
 SP_CLASS_METHOD(BaseMeshTopology,getEdgesInTriangle)
 SP_CLASS_METHODS_END
 
