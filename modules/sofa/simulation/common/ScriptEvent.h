@@ -48,7 +48,7 @@ public:
     /**
      * @brief Constructor.
      */
-    ScriptEvent(sofa::simulation::Node::SPtr sender, const char* eventName);
+    ScriptEvent(sofa::simulation::Node::SPtr sender, const char* eventName, std::string value = std::string());
 
     /**
      * @brief Destructor.
@@ -65,10 +65,17 @@ public:
      */
     const std::string getEventName(void) const {return m_eventName;};
 
+
+    /**
+     * @brief Get the event name
+     */
+    const std::string getEventString(void) const {return m_value.c_str();};
+
 private:
 
     sofa::simulation::Node::SPtr m_sender;
     std::string m_eventName;
+    std::string m_value;
 
 };
 

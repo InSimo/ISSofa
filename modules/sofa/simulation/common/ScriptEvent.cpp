@@ -32,10 +32,11 @@ namespace simulation
 
 SOFA_EVENT_CLASS_IMPL((ScriptEvent));
 
-ScriptEvent::ScriptEvent(sofa::simulation::Node::SPtr sender, const char* eventName)
+ScriptEvent::ScriptEvent(sofa::simulation::Node::SPtr sender, const char* eventName, std::string value)
     : sofa::core::objectmodel::Event()
     , m_sender(sender)
     , m_eventName(eventName)
+    , m_value(value)
 {
 
 }
