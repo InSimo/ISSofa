@@ -309,7 +309,24 @@ struct EnumTypeInfo
         auto functor = GetDataEnumeratorsNames(enumNames);
         for_each(data, functor);
     }
-            
+
+    template <typename DataTypeRef>
+    static void getActiveFlagItems(const DataTypeRef& data, std::vector<std::string>& flag)   // get the enumerator string for all valid flags
+    {
+        std::vector<std::string> names;
+        getAvailableItems(data, names);
+        for (size_t i = 0; i < enumSize(); i++)
+        {
+            DataTypeRef test;
+            setDataValueString(test, names[i]);
+            MappedType test_value;
+            getDataValue(test, test_value);
+            if ((test | data) == data)
+            {
+                flag.push_back(names[i]);
+            }
+        }
+    }
 
 
     ///////////
@@ -413,13 +430,13 @@ struct EnumTypeInfo
     { return {}; }                                                                                                          \
     SOFA_REQUIRE_SEMICOLON
 
-#define SOFA_ENUM_DECL_IN_CLASS(myEnum, ...)                                                                                         \
+#define SOFA_ENUM_DECL_IN_CLASS(myEnum, ...)                                                                                \
     struct myEnum##nspace {                                                                                                 \
         using myEnumT = myEnum;                                                                                             \
         typedef typename std::underlying_type<myEnumT>::type  myEnumType;                                                   \
         SOFA_STRUCTURIZE(__VA_ARGS__)                                                                                       \
         typedef std::tuple<SOFA_TO_STRING_STRUCT_NAMES(__VA_ARGS__)>  myEnumTuple; };                                       \
-    inline friend sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple> getDefaultDataTypeInfo(myEnum*)      \
+    inline friend sofa::defaulttype::EnumTypeInfo<myEnum, typename myEnum##nspace::myEnumTuple> getDefaultDataTypeInfo(myEnum*)      \
     { return {}; }                                                                                                          \
     SOFA_REQUIRE_SEMICOLON
 
@@ -436,7 +453,7 @@ struct EnumTypeInfo
     inline friend std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                             \
         os << static_cast<myEnum##nspace::myEnumType>(s); return os; }                                                      \
     inline friend std::istream& operator>>(std::istream& is, myEnum& s) {                                                   \
-        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+        sofa::defaulttype::EnumTypeInfo<myEnum, typename myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
     SOFA_REQUIRE_SEMICOLON
 
 #define SOFA_ENUM_STREAM_METHODS_NAME(myEnum)                                                                               \
@@ -451,10 +468,70 @@ struct EnumTypeInfo
 #define SOFA_ENUM_STREAM_METHODS_NAME_IN_CLASS(myEnum)                                                                      \
     inline friend std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                             \
         std::string v;                                                                                                      \
-        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::getDataEnumeratorString(s, v);                \
+        sofa::defaulttype::EnumTypeInfo<myEnum, typename myEnum##nspace::myEnumTuple>::getDataEnumeratorString(s, v);       \
         os << v; return os; }                                                                                               \
     inline friend std::istream& operator>>(std::istream& is, myEnum& s) {                                                   \
+        sofa::defaulttype::EnumTypeInfo<myEnum, typename myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_STREAM_METHODS_FLAG(myEnum)                                                                               \
+    inline std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                                    \
+        sofa::helper::vector<std::string> names;                                                                            \
+        sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::getActiveFlagItems(s, names);                 \
+        os << names;                                                                                                        \
+        return os; }                                                                                                        \
+    inline std::istream& operator>>(std::istream& is, myEnum& s) {                                                          \
         sofa::defaulttype::EnumTypeInfo<myEnum, myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }       \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_STREAM_METHODS_FLAG_IN_CLASS(myEnum)                                                                      \
+    inline friend std::ostream& operator<<(std::ostream& os, const myEnum& s) {                                             \
+        sofa::helper::vector<std::string> names;                                                                            \
+        sofa::defaulttype::EnumTypeInfo<myEnum, typename myEnum##nspace::myEnumTuple>::getActiveFlagItems(s, names);        \
+        os << names;                                                                                                        \
+        return os; }                                                                                                        \
+    inline friend std::istream& operator>>(std::istream& is, myEnum& s) {                                                   \
+        sofa::defaulttype::EnumTypeInfo<myEnum, typename myEnum##nspace::myEnumTuple>::setDataValueStream(s, is); return is; }      \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_FLAG_OPERATORS(myEnum)                                                                                    \
+    inline myEnum operator | (myEnum lhs, myEnum rhs) {                                                                     \
+        return static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) | static_cast<typename std::underlying_type<myEnum>::type>(rhs));\
+    }                                                                                                                       \
+    inline myEnum& operator |= (myEnum& lhs, myEnum rhs) {                                                                  \
+        lhs = static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) | static_cast<typename std::underlying_type<myEnum>::type>(rhs));\
+        return lhs;                                                                                                         \
+    }                                                                                                                       \
+    inline myEnum operator & (myEnum lhs, myEnum rhs) {                                                                     \
+        return static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) & static_cast<typename std::underlying_type<myEnum>::type>(rhs)); \
+    }                                                                                                                       \
+    inline myEnum& operator &= (myEnum& lhs, myEnum rhs) {                                                                  \
+        lhs = static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) & static_cast<typename std::underlying_type<myEnum>::type>(rhs));\
+        return lhs;                                                                                                         \
+    }                                                                                                                       \
+    inline myEnum operator ~ (const myEnum lhs) {                                                                           \
+        return static_cast<myEnum>(~static_cast<typename std::underlying_type<myEnum>::type>(lhs));                         \
+    }                                                                                                                       \
+    SOFA_REQUIRE_SEMICOLON
+
+#define SOFA_ENUM_FLAG_OPERATORS_IN_CLASS(myEnum)                                                                           \
+    inline friend myEnum operator | (myEnum lhs, myEnum rhs) {                                                              \
+        return static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) | static_cast<typename std::underlying_type<myEnum>::type>(rhs));\
+    }                                                                                                                       \
+    inline friend myEnum& operator |= (myEnum& lhs, myEnum rhs) {                                                           \
+        lhs = static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) | static_cast<typename std::underlying_type<myEnum>::type>(rhs));\
+        return lhs;                                                                                                         \
+    }                                                                                                                       \
+    inline friend myEnum operator & (myEnum lhs, myEnum rhs) {                                                              \
+        return static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) & static_cast<typename std::underlying_type<myEnum>::type>(rhs)); \
+    }                                                                                                                       \
+    inline friend myEnum& operator &= (myEnum& lhs, myEnum rhs) {                                                           \
+        lhs = static_cast<myEnum>(static_cast<typename std::underlying_type<myEnum>::type>(lhs) & static_cast<typename std::underlying_type<myEnum>::type>(rhs));\
+        return lhs;                                                                                                         \
+    }                                                                                                                       \
+    inline friend myEnum operator ~ (const myEnum lhs) {                                                                    \
+        return static_cast<myEnum>(~static_cast<typename std::underlying_type<myEnum>::type>(lhs));                         \
+    }                                                                                                                       \
     SOFA_REQUIRE_SEMICOLON
 
 // end of enum macro definition

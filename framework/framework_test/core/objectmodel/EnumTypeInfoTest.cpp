@@ -47,6 +47,19 @@ enum unscopedEnum : unsigned int
 SOFA_ENUM_DECL(unscopedEnum, uns, sco, ped);
 SOFA_ENUM_STREAM_METHODS(unscopedEnum);
 
+enum  TestFlag
+{
+    NONE = 0,
+    ACTIVE = 1 << 0,
+    LOWER    = 1 << 1,
+    HIDDEN    = 1 << 2,
+};
+SOFA_ENUM_DECL(TestFlag, ACTIVE, LOWER, HIDDEN);
+SOFA_ENUM_STREAM_METHODS_FLAG(TestFlag);
+SOFA_ENUM_FLAG_OPERATORS(TestFlag);
+
+
+
 class ContainingClass
 {
 public:
@@ -68,7 +81,21 @@ enum unscopedEnumInClass : int
 SOFA_ENUM_DECL_IN_CLASS(unscopedEnumInClass, ueic1, ueic2);
 SOFA_ENUM_STREAM_METHODS_NAME_IN_CLASS(unscopedEnumInClass);
 
+enum  TestFlagInClass : unsigned int
+{
+    NONE = 0,
+    ACTIVE = 1 << 0,
+    LOWER    = 1 << 1,
+    HIDDEN    = 1 << 2,
 };
+SOFA_ENUM_DECL_IN_CLASS(TestFlagInClass, ACTIVE, LOWER, HIDDEN);
+SOFA_ENUM_STREAM_METHODS_FLAG_IN_CLASS(TestFlagInClass);
+SOFA_ENUM_FLAG_OPERATORS_IN_CLASS(TestFlagInClass);
+
+};
+
+
+
 
 
 } // namespace enumTypeInfoTest
@@ -117,6 +144,48 @@ TYPED_TEST(DataEnumTypeInfoTest, checkEnumAbstractTypeInfo)
     ASSERT_TRUE(typeInfo->IsSingleValue());
     ASSERT_TRUE(typeInfo->SingleValueType()->FixedFinalSize());
 }
+
+
+template <typename _EnumFlagType>
+struct DataEnumTypeInfoFlagTest : public ::testing::Test
+{
+    using EnumFlagType = _EnumFlagType;
+};
+
+using EnumFlagTypes = testing::Types<
+    TestFlag,
+    ContainingClass::TestFlagInClass
+>;
+
+TYPED_TEST_CASE(DataEnumTypeInfoFlagTest, EnumFlagTypes);
+
+
+TYPED_TEST(DataEnumTypeInfoFlagTest, checkFlagOperatorAndStream)
+{
+    using EnumFlagTypes = TypeParam;
+    EnumFlagTypes value1 = EnumFlagTypes::ACTIVE | EnumFlagTypes::LOWER;
+    EnumFlagTypes value2 = EnumFlagTypes::HIDDEN;
+    EnumFlagTypes value3 = EnumFlagTypes::LOWER | EnumFlagTypes::HIDDEN;
+
+    ASSERT_EQ((value1 | value2), (EnumFlagTypes::ACTIVE | EnumFlagTypes::LOWER | EnumFlagTypes::HIDDEN));
+
+    std::string valuestr;
+    defaulttype::DataTypeInfo<EnumFlagTypes>::getDataValueString(value1 | value2, valuestr);
+    ASSERT_EQ(valuestr, "HIDDEN LOWER ACTIVE");
+
+    ASSERT_EQ((value1 & value2), (EnumFlagTypes::NONE));
+    defaulttype::DataTypeInfo<EnumFlagTypes>::getDataValueString(value1 & value2, valuestr);
+    ASSERT_EQ(valuestr, "");
+
+    ASSERT_EQ((value2 & value3), (EnumFlagTypes::HIDDEN));
+    defaulttype::DataTypeInfo<EnumFlagTypes>::getDataValueString(value2 & value3, valuestr);
+    ASSERT_EQ(valuestr, "HIDDEN");
+
+    ASSERT_EQ((value1 | value3), (EnumFlagTypes::ACTIVE | EnumFlagTypes::LOWER | EnumFlagTypes::HIDDEN));
+    defaulttype::DataTypeInfo<EnumFlagTypes>::getDataValueString(value1 | value3, valuestr);
+    ASSERT_EQ(valuestr, "HIDDEN LOWER ACTIVE");
+}
+
 
 TEST(DataEnumTypeInfoTest2, checkuIntEnum2)
 {
