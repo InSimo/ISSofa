@@ -40,7 +40,8 @@ enum class uIntEnum : unsigned int
     third = 100u
 };
 SOFA_ENUM_DECL(uIntEnum, first, second, third);
-SOFA_ENUM_STREAM_METHODS(uIntEnum);
+SOFA_ENUM_STREAM_METHODS_NAME(uIntEnum);
+
 
 struct SimpleStruct
 {

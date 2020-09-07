@@ -95,8 +95,10 @@ std::error_code fromData(Writer<Stream>& writer, const void* data, const default
 {
     if (typeInfo->IsEnum())
     {
-        const sofa::defaulttype::AbstractEnumTypeInfo* enumeTypeInfo = typeInfo->EnumType();
-        writer.String(enumeTypeInfo->getDataEnumeratorString(data));
+        std::string names;
+        typeInfo->getDataValueString(data, names);
+        writer.String(names);
+
     }
     else if (typeInfo->String())
     {
