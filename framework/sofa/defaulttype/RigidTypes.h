@@ -2088,6 +2088,15 @@ static void rigidTransform ( V1& points, V2& velocities, SReal tx, SReal ty, SRe
 //@}
 
 
+template< typename TCoord >
+struct is_rigid_type : public std::false_type
+{
+};
+
+template < int Dimension, typename Real >
+struct is_rigid_type< sofa::defaulttype::RigidCoord< Dimension, Real> > : public std::true_type
+{
+};
 
 
 
