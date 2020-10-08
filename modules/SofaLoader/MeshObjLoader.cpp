@@ -337,10 +337,7 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
             {
                 if (!handleSeams) // we have to wait for renumbering vertices if we handle seams
                 {
-                    if (nodes[0]<nodes[1])
-                        addEdge(&my_edges, Edge(nodes[0], nodes[1]));
-                    else
-                        addEdge(&my_edges, Edge(nodes[1], nodes[0]));
+                    addEdge(&my_edges, Edge(nodes[0], nodes[1]));
                 }
                 ++nbFaces[MeshObjLoader::EDGE];
                 faceType = MeshObjLoader::EDGE;
