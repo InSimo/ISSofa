@@ -214,6 +214,10 @@ void UniformRigidMass<RigidDataTypes>::draw(const sofa::core::visual::VisualPara
     for (unsigned int i=0; i< x.size(); ++i)
     {
         const TRigidMass& mass = i<rigidMass.size() ? rigidMass[i] : rigidMass[0];
+        if (mass.mass == 0)
+        {
+            continue;
+        }
         Real m00 = mass.inertiaMatrix[0][0];
         Real m11 = mass.inertiaMatrix[1][1];
         Real m22 = mass.inertiaMatrix[2][2];
