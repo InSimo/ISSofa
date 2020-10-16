@@ -80,6 +80,8 @@ public:
     /// as one or more collisions and integrations stages.
     virtual void step(const core::ExecParams* params /* PARAMS FIRST =ExecParams::defaultInstance()*/, double dt) = 0;
 
+    virtual void setSimulationToSleep(bool sleep) {};
+
     /// Returns starting time of the simulation
     double getResetTime() const;
 
