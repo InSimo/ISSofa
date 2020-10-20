@@ -108,6 +108,7 @@ typedef double SReal;
 #else
 #define SOFA_IF_CONSTEXPR if
 #endif
+
 /// macros to locally disable warnings
 #if defined(__clang__) || defined(__GNUC__)
     #define SOFA_PRAGMA(x) _Pragma(sofa_tostring(x))
@@ -137,6 +138,13 @@ typedef double SReal;
     #define SOFA_WARNING_DISABLE_CLANG(x)
     #define SOFA_WARNING_DISABLE_GCC(x)
     #define SOFA_WARNING_DISABLE_MSC(x)
+#endif
+
+// Prevent the compiler from inlining a function
+#ifdef _MSC_VER
+    #define SOFA_NO_INLINE __declspec((noinline)
+#else
+    #define SOFA_NO_INLINE __attribute__((noinline))
 #endif
 
 #endif
