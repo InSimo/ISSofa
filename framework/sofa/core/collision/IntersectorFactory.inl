@@ -22,12 +22,10 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_CORE_COLLISION_INTERSECTORFACTORY_H
-#define SOFA_CORE_COLLISION_INTERSECTORFACTORY_H
+#ifndef SOFA_CORE_COLLISION_INTERSECTORFACTORY_INL
+#define SOFA_CORE_COLLISION_INTERSECTORFACTORY_INL
 
-#include <sofa/core/CollisionModel.h>
-#include <sofa/core/collision/DetectionOutput.h>
-#include <sofa/helper/FnDispatcher.h>
+#include "IntersectorFactory.h"
 
 namespace sofa
 {
@@ -39,62 +37,11 @@ namespace collision
 {
 
 template<class TIntersectionClass>
-class BaseIntersectorCreator
+IntersectorFactory<TIntersectionClass>* IntersectorFactory<TIntersectionClass>::getInstance()
 {
-public:
-    virtual ~BaseIntersectorCreator() {}
-
-    virtual void addIntersectors(TIntersectionClass* object) = 0;
-
-    virtual std::string name() const = 0;
-};
-
-template<class TIntersectionClass>
-class IntersectorFactory
-{
-protected:
-    typedef BaseIntersectorCreator<TIntersectionClass> Creator;
-    typedef std::vector<Creator*> CreatorVector;
-    CreatorVector creatorVector;
-
-public:
-
-    bool registerCreator(Creator* creator)
-    {
-        creatorVector.push_back(creator);
-        return true;
-    }
-
-    void addIntersectors(TIntersectionClass* object)
-    {
-        for (Creator* creator : creatorVector)
-        {
-            creator->addIntersectors(object);
-        }
-    }
-
-    static IntersectorFactory<TIntersectionClass>* getInstance();
-};
-
-template<class TIntersectionClass, class TIntersectorClass>
-class IntersectorCreator : public BaseIntersectorCreator<TIntersectionClass>
-{
-public:
-    IntersectorCreator(std::string name) : m_name(name)
-    {
-        IntersectorFactory<TIntersectionClass>::getInstance()->registerCreator(this);
-    }
-    virtual ~IntersectorCreator() {}
-
-    virtual void addIntersectors(TIntersectionClass* object)
-    {
-        new TIntersectorClass(object);
-    }
-
-    virtual std::string name() const { return m_name; }
-protected:
-    std::string m_name;
-};
+    static IntersectorFactory<TIntersectionClass> instance;
+    return &instance;
+}
 
 } // namespace collision
 

@@ -27,6 +27,7 @@
 #include <SofaBaseCollision/DiscreteIntersection.h>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/collision/Intersection.inl>
+#include <sofa/core/collision/IntersectorFactory.inl>
 #include <sofa/helper/proximity.h>
 #include <iostream>
 #include <algorithm>

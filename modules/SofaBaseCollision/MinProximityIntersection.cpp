@@ -30,6 +30,7 @@
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/core/collision/Intersection.inl>
+#include <sofa/core/collision/IntersectorFactory.inl>
 #include <iostream>
 #include <algorithm>
 #include <sofa/helper/gl/template.h>

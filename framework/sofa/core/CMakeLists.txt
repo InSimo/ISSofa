@@ -79,6 +79,7 @@ set(SOFACORE_HEADERS
 	collision/NarrowPhaseDetection.h
 	collision/Pipeline.h
 	collision/IntersectorFactory.h
+	collision/IntersectorFactory.inl
 	dataparser/CppDataParser.h
 	dataparser/DataParser.h
 	dataparser/DataParserError.h
