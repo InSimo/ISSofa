@@ -46,6 +46,7 @@ IndicesFromValues<T>::IndicesFromValues()
     , f_otherIndices( initData(&f_otherIndices, "otherIndices","Output indices of the other values, (NOT the given ones) searched in global") )
     , f_recursiveSearch( initData(&f_recursiveSearch, false, "recursiveSearch", "if set to true, output are indices of the \"global\" data matching with one of the values"))
 {
+    this->addAlias(&f_global, "globalInput"); // 'global' is a reserved word in Python
 }
 
 template <class T>
