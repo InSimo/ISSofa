@@ -60,6 +60,13 @@ template class Multi2Mapping< Vec1dTypes, Rigid3fTypes, Rigid3dTypes >;
 template class Multi2Mapping< Vec1fTypes, Rigid3dTypes, Rigid3fTypes >;
 template class Multi2Mapping< Vec1dTypes, Rigid3fTypes, Rigid3fTypes >;
 template class Multi2Mapping< Vec1dTypes, Rigid3dTypes, Rigid3fTypes >;
+
+template class Multi2Mapping< Rigid3fTypes, Vec3fTypes, Rigid3dTypes >;
+template class Multi2Mapping< Rigid3fTypes, Vec3dTypes, Rigid3fTypes >;
+template class Multi2Mapping< Rigid3fTypes, Vec3dTypes, Rigid3dTypes >;
+template class Multi2Mapping< Rigid3dTypes, Vec3fTypes, Rigid3fTypes >;
+template class Multi2Mapping< Rigid3dTypes, Vec3dTypes, Rigid3fTypes >;
+template class Multi2Mapping< Rigid3dTypes, Vec3fTypes, Rigid3dTypes >;
 #endif
 #endif
 
@@ -68,6 +75,7 @@ template class Multi2Mapping< Vec1dTypes, Rigid3dTypes, Rigid3dTypes >;
 template class Multi2Mapping< Vec3dTypes, Rigid3dTypes, Vec3dTypes >;
 template class Multi2Mapping< Vec3dTypes, Rigid3dTypes, Rigid3dTypes >;
 template class Multi2Mapping< Vec3dTypes, Vec3dTypes, Vec3dTypes >;
+template class Multi2Mapping< Rigid3dTypes, Vec3dTypes, Rigid3dTypes >;
 #endif
 
 #ifndef SOFA_DOUBLE
@@ -75,6 +83,7 @@ template class Multi2Mapping< Vec3fTypes, Rigid3fTypes, Rigid3fTypes >;
 template class Multi2Mapping< Vec3fTypes, Rigid3fTypes, Vec3fTypes >;
 template class Multi2Mapping< Vec1fTypes, Rigid3fTypes, Rigid3fTypes >;
 template class Multi2Mapping< Vec3fTypes, Vec3fTypes, Vec3fTypes >;
+template class Multi2Mapping< Rigid3fTypes, Vec3fTypes, Rigid3fTypes >;
 #endif
 
 }
