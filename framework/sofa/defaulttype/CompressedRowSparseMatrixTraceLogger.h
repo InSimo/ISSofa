@@ -91,6 +91,49 @@ public :
     typedef typename TMatrix::Real Real;
     typedef typename TMatrix::Policy Policy;
 
+    CRSTraceWriter();
+
+    CRSTraceWriter(const std::string& baseFileName, int step)
+    :m_printTraceFile(nullptr)
+    ,m_logTraceFile(nullptr)
+    {
+
+        std::ostringstream ss;
+        ss << std::setw(4) << std::setfill('0') << step;
+
+        std::string tbloc(traits::Name());
+
+        m_baseFilename = baseFileName  + "_" + tbloc + "_" + ss.str();
+
+        SOFA_IF_CONSTEXPR(Policy::PrintTrace)
+        {
+            std::string printTraceFileName = m_baseFilename + ".log";
+            m_printTraceFile = fopen(printTraceFileName.c_str(), "w");
+        }
+
+        SOFA_IF_CONSTEXPR(Policy::LogTrace)
+        {
+            std::string logTraceFileName = m_baseFilename + ".bin";
+            m_logTraceFile = fopen(logTraceFileName.c_str(), "wb" );
+        }
+    }
+
+
+
+    ~CRSTraceWriter()
+    {
+        if(m_printTraceFile != nullptr)
+        {
+            fclose( m_printTraceFile );
+        }
+
+        if(m_logTraceFile != nullptr)
+        {
+            fclose( m_logTraceFile );
+        }
+    }
+
+
     template <class F, class First, class... Rest>
     void do_for(F f, First first, Rest... rest)
     {
@@ -104,33 +147,33 @@ public :
     template <class... Args>
     void logCall_imp(const char fnId, Args... args)
     {
-        logT(fnId, m_matrixFile);
+        logT(fnId, m_logTraceFile);
 
         SOFA_IF_CONSTEXPR (Policy::PrintTrace)
         {
             std::string msg("Function ID : ");
             msg.append(std::to_string(static_cast<int>(fnId)));
-            fwrite(msg.c_str(), msg.length(), 1, m_matrixTextFile);
+            fwrite(msg.c_str(), msg.length(), 1, m_printTraceFile);
         }
 
         unsigned int count = 0;
         do_for([&](auto arg)
         {
-            logT(arg, m_matrixFile);
+            logT(arg, m_logTraceFile);
             SOFA_IF_CONSTEXPR (Policy::PrintTrace)
             {
                 std::string msg = " arg[";
                 msg.append(std::to_string(count));
                 msg.append("] = ");
                 msg.append(ToString(arg));
-                fwrite(msg.c_str(), msg.length(), 1, m_matrixTextFile);
+                fwrite(msg.c_str(), msg.length(), 1, m_printTraceFile);
             }
             count++;
         }, args...);
         SOFA_IF_CONSTEXPR (Policy::PrintTrace)
         {
             std::string msg = "\n";
-            fwrite(msg.c_str(), msg.length(), 1, m_matrixTextFile);
+            fwrite(msg.c_str(), msg.length(), 1, m_printTraceFile);
         }
     }
 
@@ -198,18 +241,24 @@ public :
         return fwrite(&(vals[0][0]),sizeof(vals),1, file);
     }
 
-    void setFile(FILE* file) { m_matrixFile = file; }
 
-    void setTextFile(const std::string fileName) { m_matrixTextFile = fopen(fileName.c_str(), "w"); }
+    void writeMatrixToFile(const TMatrix& m)
+    {
+        std::string matrixFileName = m_baseFilename + ".txt";
+        std::ofstream file(matrixFileName.c_str());
 
-    void endTrace() { if (m_matrixTextFile) fclose(m_matrixTextFile); }
+        m.write(file);
+
+        file.close();
+    }
 
 protected :
 
-    int m_numStep = -1;
+    FILE* m_logTraceFile; /// File where matrix trace is logged.
+    FILE* m_printTraceFile; /// File where matrix trace is logged as txt for debug purposes.
 
-    FILE* m_matrixFile = nullptr; /// File where matrix trace is logged.
-    FILE* m_matrixTextFile = nullptr; /// File where matrix trace is logged as txt for debug purposes.
+    std::string m_baseFilename;
+    int         m_step;
 };
 
 template<typename Bloc, typename DBloc>
@@ -235,32 +284,102 @@ public :
     typedef typename TMatrix::Real Real;
     typedef typename TMatrix::Policy Policy;
 
-    CRSTraceReader(TMatrix* m) : m_CRSmatrix(m) {}
+    CRSTraceReader() = default;
+
+    CRSTraceReader(const std::vector<int>& fnIds, const std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>>& fnArgs)
+    :m_fnIds(fnIds)
+    ,m_fnArgs(fnArgs)
+    {
+
+    }
+
+    const std::vector<int>& getFnIds() const
+    {
+        return m_fnIds;
+    }
+
+    const std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>>& getFnArgs() const
+    {
+        return m_fnArgs;
+    }
+
+    void readInstructions(const std::string& logTraceFileName)
+    {
+#ifdef SOFA_HAVE_ZLIB
+        if (logTraceFileName.substr(logTraceFileName.length() - 3) == ".gz")
+        {
+            auto currentFile = fileOpenGZ(logTraceFileName.c_str(), "rb");
+            if (currentFile == nullptr)
+            {
+                std::cout << "ERROR: when reading trace instructions from file : " << logTraceFileName << std::endl;
+            }
+            setFileGZ(currentFile);
+        }
+        else
+#endif
+        {
+            auto currentFile = fileOpen(logTraceFileName.c_str(), "rb");
+            if (currentFile == nullptr)
+            {
+                std::cout << "ERROR: when reading trace instructions from file : " << logTraceFileName << std::endl;
+            }
+            setFile(currentFile);
+        }
+
+        int fnId = -1;
+        while (readFn(fnId))
+        {
+            m_fnIds.push_back(fnId);
+            m_fnArgs.push_back(readArgs(m_fnIds.back()));
+        }
+
+        fileClose();
+    }
+
+    void playInstructions(TMatrix& m)
+    {
+        for (std::size_t j = 0; j < m_fnIds.size(); ++j)
+        {
+            callFn(m, m_fnIds[j], m_fnArgs[j]);
+        }
+    }
+
+    void openDebugLogFile(const std::string& fileName) 
+    { 
+        m_debugLogFile.open(fileName); 
+    }
+
+    void closeDebugLogFile()
+    {
+        if (m_debugLogFile.is_open()) m_debugLogFile.close();
+    }
+
+private:
 
     std::size_t readT(char& c, int argId = -1)
     {
         std::size_t processed = this->fileRead( &c, sizeof(char), 1);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
+        if(m_debugLogFile.is_open())
         {
-            if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << c;
+            if (argId != -1 && processed != 0) m_debugLogFile << " arg[" << argId << "] = " << c;
         }
         return processed;
     }
     std::size_t readT(unsigned int& i, int argId = -1)
     {
         std::size_t processed = this->fileRead( &i, sizeof(unsigned int), 1);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
+        if (m_debugLogFile.is_open())
         {
-            if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << + "] = " << i;
+            if (argId != -1 && processed != 0) m_debugLogFile << " arg[" << argId << + "] = " << i;
         }
         return processed;
     }
     std::size_t readT(int& i, int argId = -1)
     {
         std::size_t processed = this->fileRead( &i, sizeof(int), 1);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
+        if (m_debugLogFile.is_open())
         {
-            if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << i;
+            if (argId != -1 && processed != 0) m_debugLogFile << " arg[" << argId << "] = " << i;
         }
         return processed;
     }
@@ -275,9 +394,9 @@ public :
         for (int l = 0; l < traits::NL; ++l)
             for (int c = 0; c < traits::NC; ++c)
                 traits::vset(b,l,c,vals[l][c]);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
+        if (m_debugLogFile.is_open())
         {
-            if (argId != -1 && processed != 0) m_matrixTextFile << " arg[" << argId << "] = " << b;
+            if (argId != -1 && processed != 0) m_debugLogFile << " arg[" << argId << "] = " << b;
         }
         return processed;
     }
@@ -287,9 +406,9 @@ public :
         char tempFnId;
         std::size_t processed = readT(tempFnId);
         fnId = static_cast<int>(tempFnId);
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace)
+        if (m_debugLogFile.is_open())
         {
-            if (processed != 0) m_matrixTextFile << "Function ID : " << fnId;
+            if (processed != 0) m_debugLogFile << "Function ID : " << fnId;
         }
         return processed;
     }
@@ -307,11 +426,11 @@ public :
             case FnEnum::clearColBloc    : readT(args.i, 0); break;
             case FnEnum::clearRowColBloc : readT(args.i, 0); break;
             case FnEnum::clear           : break;
-            case FnEnum::add             : readT(args.bi, 0); readT(args.bj, 1); readT(args.b, 2); readT(args.boffsetL, 3); readT(args.boffsetC, 4); break;
-            case FnEnum::addId           : readT(args.bi, 0); readT(args.bj, 1); readT(args.rowId, 2); readT(args.colId, 3); readT(args.b, 4); readT(args.boffsetL, 5); readT(args.boffsetC, 6); break;
-            case FnEnum::addDBloc        : readT(args.bi, 0); readT(args.bj, 1); readT(args.bdiag, 2); readT(args.boffsetL, 3); readT(args.boffsetC, 4); break;
-            case FnEnum::addDValue       : readT(args.bi, 0); readT(args.bj, 1); readT(args.v, 2); readT(args.boffsetL, 3); readT(args.boffsetC, 4); break;
-            case FnEnum::addDValueId     : readT(args.bi, 0); readT(args.bj, 1); readT(args.rowId, 2); readT(args.colId, 3); readT(args.v, 4);readT(args.boffsetL, 5); readT(args.boffsetC, 6); break;
+            case FnEnum::add             : readT(args.bi, 0); readT(args.bj, 1); readT(args.b, 2); break;
+            case FnEnum::addId           : readT(args.bi, 0); readT(args.bj, 1); readT(args.rowId, 2); readT(args.colId, 3); readT(args.b, 4); break;
+            case FnEnum::addDBloc        : readT(args.bi, 0); readT(args.bj, 1); readT(args.bdiag, 2); break;
+            case FnEnum::addDValue       : readT(args.bi, 0); readT(args.bj, 1); readT(args.v, 2);  break;
+            case FnEnum::addDValueId     : readT(args.bi, 0); readT(args.bj, 1); readT(args.rowId, 2); readT(args.colId, 3); readT(args.v, 4); break;
             case FnEnum::fullRows        : break;
             case FnEnum::fullDiagonal    : break;
             case FnEnum::setVal          : readT(args.i, 0); readT(args.j, 1); readT(args.v, 2); break;
@@ -324,85 +443,89 @@ public :
             case FnEnum::clearRowCol     : readT(args.i, 0); break;
             case FnEnum::addCol          : readT(args.i, 0); readT(args.j, 1); readT(args.b, 2); break;
             case FnEnum::setCol          : readT(args.i, 0); readT(args.j, 1); readT(args.b, 2); break;
-            default                      : assert(false); break; /// unrecognized method id.
+            default                      : 
+            {
+                std::cout << "Unrecognized function id " << fnId << std::endl;
+                assert(false);
+                break;
+            }
         }
-        SOFA_IF_CONSTEXPR (Policy::PrintTrace) m_matrixTextFile << std::endl;
+        if (m_debugLogFile.is_open()) m_debugLogFile << std::endl;
         return args;
     }
 
 
-    void defaultcallFn(int fnId, FnArgs<Bloc, DBloc>& args)
+    void defaultcallFn(TMatrix& m, int fnId, FnArgs<Bloc, DBloc>& args)
     {
         switch (fnId)
         {
-            case FnEnum::resizeBloc      : m_CRSmatrix->resizeBloc(args.i, args.j); break;
-            case FnEnum::compress        : m_CRSmatrix->compress(); break;
-            case FnEnum::setBloc         : m_CRSmatrix->setBloc(args.i, args.j, args.b); break;
-            case FnEnum::setBlocId       : m_CRSmatrix->setBloc(args.i, args.j, args.rowId, args.colId, args.b); break;
-            case FnEnum::clearRowBloc    : m_CRSmatrix->clearRowBloc(args.i); break;
-            case FnEnum::clearColBloc    : m_CRSmatrix->clearColBloc(args.i); break;
-            case FnEnum::clearRowColBloc : m_CRSmatrix->clearRowColBloc(args.i); break;
-            case FnEnum::clear           : m_CRSmatrix->clear(); break;
-            case FnEnum::fullRows        : m_CRSmatrix->fullRows(); break;
-            default : assert(false); return; /// Unrocogized case
+            case FnEnum::resizeBloc      : m.resizeBloc(args.i, args.j); break;
+            case FnEnum::compress        : m.compress(); break;
+            case FnEnum::setBloc         : m.setBloc(args.i, args.j, args.b); break;
+            case FnEnum::setBlocId       : m.setBloc(args.i, args.j, args.rowId, args.colId, args.b); break;
+            case FnEnum::clearRowBloc    : m.clearRowBloc(args.i); break;
+            case FnEnum::clearColBloc    : m.clearColBloc(args.i); break;
+            case FnEnum::clearRowColBloc : m.clearRowColBloc(args.i); break;
+            case FnEnum::clear           : m.clear(); break;
+            case FnEnum::fullRows        : m.fullRows(); break;
+            default: 
+            {
+                std::cout << "Unrecognized function id " << fnId << std::endl;
+                assert(false);
+                return;
+            }
         }
     }
 
     template <int Type = matrixType>
     typename std::enable_if< Type == 0 >::type
-    callFn(int fnId, FnArgs<Bloc, DBloc>& args)
+    callFn(TMatrix& m, int fnId, FnArgs<Bloc, DBloc>& args)
     {
-        return defaultcallFn(fnId, args);
+        return defaultcallFn(m, fnId, args);
     }
 
     template <int Type = matrixType>
     typename std::enable_if< Type == 1 >::type
-    callFn(int fnId, FnArgs<Bloc, DBloc>& args)
+    callFn(TMatrix& m, int fnId, FnArgs<Bloc, DBloc>& args)
     {
         switch (fnId)
         {
-            case FnEnum::add             : m_CRSmatrix->add(args.boffsetL + args.bi, args.boffsetC + args.bj, args.b); break;
-            case FnEnum::addId           : m_CRSmatrix->add(args.boffsetL + args.bi, args.boffsetC + args.bj, args.rowId, args.colId, args.b); break;
-            case FnEnum::addDBloc        : m_CRSmatrix->addDBloc(args.boffsetL + args.bi, args.boffsetC + args.bj, args.bdiag); break;
-            case FnEnum::addDValue       : m_CRSmatrix->addDValue(args.boffsetL + args.bi, args.boffsetC + args.bj, args.v); break;
-            case FnEnum::addDValueId     : m_CRSmatrix->addDValue(args.boffsetL + args.bi, args.boffsetC + args.bj, args.rowId, args.colId, args.v); break;
+            case FnEnum::add             : m.add(args.bi, args.bj, args.b); break;
+            case FnEnum::addId           : m.add(args.bi, args.bj, args.rowId, args.colId, args.b); break;
+            case FnEnum::addDBloc        : m.addDBloc(args.bi, args.bj, args.bdiag); break;
+            case FnEnum::addDValue       : m.addDValue(args.bi, args.bj, args.v); break;
+            case FnEnum::addDValueId     : m.addDValue(args.bi, args.bj, args.rowId, args.colId, args.v); break;
 
-            case FnEnum::fullDiagonal    : m_CRSmatrix->fullDiagonal();  break;
-            case FnEnum::setVal          : m_CRSmatrix->set(args.i, args.j, args.v); break;
-            case FnEnum::addVal          : m_CRSmatrix->add(args.i, args.j, args.v); break;
-            case FnEnum::setValId        : m_CRSmatrix->set(args.i, args.j, args.rowId, args.colId, args.v); break;
-            case FnEnum::addValId        : m_CRSmatrix->add(args.i, args.j, args.rowId, args.colId, args.v); break;
-            case FnEnum::clearIndex      : m_CRSmatrix->clear(args.i, args.j); break;
-            case FnEnum::clearRow        : m_CRSmatrix->clearRow(args.i); break;
-            case FnEnum::clearCol        : m_CRSmatrix->clearCol(args.i); break;
-            case FnEnum::clearRowCol     : m_CRSmatrix->clearRowCol(args.i); break;
-            default : defaultcallFn(fnId, args); return;
+            case FnEnum::fullDiagonal    : m.fullDiagonal();  break;
+            case FnEnum::setVal          : m.set(args.i, args.j, args.v); break;
+            case FnEnum::addVal          : m.add(args.i, args.j, args.v); break;
+            case FnEnum::setValId        : m.set(args.i, args.j, args.rowId, args.colId, args.v); break;
+            case FnEnum::addValId        : m.add(args.i, args.j, args.rowId, args.colId, args.v); break;
+            case FnEnum::clearIndex      : m.clear(args.i, args.j); break;
+            case FnEnum::clearRow        : m.clearRow(args.i); break;
+            case FnEnum::clearCol        : m.clearCol(args.i); break;
+            case FnEnum::clearRowCol     : m.clearRowCol(args.i); break;
+            default: defaultcallFn(m, fnId, args); return;
         }
     }
 
     template <int Type = matrixType>
     typename std::enable_if< Type == 2 >::type
-    callFn(int fnId, FnArgs<Bloc, DBloc>& args)
+    callFn(TMatrix& m, int fnId, FnArgs<Bloc, DBloc>& args)
     {
         switch (fnId)
         {
-            case FnEnum::addCol          : m_CRSmatrix->writeLine(args.i).addCol(args.j, args.b); break;
-            case FnEnum::setCol          : m_CRSmatrix->writeLine(args.i).setCol(args.j, args.b); break;
-            default : defaultcallFn(fnId, args); return;
+            case FnEnum::addCol          : m.writeLine(args.i).addCol(args.j, args.b); break;
+            case FnEnum::setCol          : m.writeLine(args.i).setCol(args.j, args.b); break;
+            default : defaultcallFn(m, fnId, args); return;
         }
-    }
-
-    void setTextFile(const std::string fileName) { m_matrixTextFile.open(fileName); }
-
-    void endPrint()
-    {
-        if (m_matrixTextFile.is_open()) m_matrixTextFile.close();
     }
 
     static FILE* fileOpen(const char *path, const char *mode)
     {
         return fopen(path, mode);
     }
+    
     void setFile(FILE* file)
     {
         m_matrixFile = file;
@@ -410,6 +533,7 @@ public :
         m_matrixFileGZ = nullptr;
 #endif
     }
+
 #ifdef SOFA_HAVE_ZLIB
     static gzFile fileOpenGZ(const char *path, const char *mode)
     {
@@ -421,6 +545,7 @@ public :
         m_matrixFileGZ = file;
     }
 #endif
+
     std::size_t fileRead(void* buf, std::size_t size, std::size_t nitems)
     {
 #ifdef SOFA_HAVE_ZLIB
@@ -433,7 +558,12 @@ public :
 #endif
         }
 #endif
-        return fread(buf, size, nitems, m_matrixFile);
+        if (m_matrixFile)
+        {
+            return fread(buf, size, nitems, m_matrixFile);
+        }
+
+        return 0;
     }
     void fileClose()
     {
@@ -450,14 +580,16 @@ public :
             m_matrixFile = nullptr;
         }
     }
-protected :
+
     FILE* m_matrixFile = nullptr; /// File where matrix trace is logged.
 #ifdef SOFA_HAVE_ZLIB
     gzFile m_matrixFileGZ = nullptr; /// File where matrix trace is logged.
 #endif
-    std::ofstream m_matrixTextFile; /// File where matrix trace is logged as txt for debug purposes.
+    std::ofstream m_debugLogFile; /// File where matrix trace is logged as txt for debug purposes.
     TMatrix * m_CRSmatrix;
 
+    std::vector<int> m_fnIds;
+    std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>> m_fnArgs;
 };
 
 } // namespace defaulttype

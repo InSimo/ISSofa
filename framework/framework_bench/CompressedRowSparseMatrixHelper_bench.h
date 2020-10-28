@@ -41,80 +41,6 @@ std::vector<std::string> getAllFilesInDir(const std::string &dirPath, const std:
     return listOfFiles;
 }
 
-template<typename TMatrix>
-struct FnList
-{
-    std::vector<std::vector<int>> fnIdbyStep;
-    std::vector<std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>>> fnArgsbyStep;
-};
-
-template <typename TMatrix>
-FnList<TMatrix> readInstructionsFromFiles(const std::vector<std::string>& listOfFiles)
-{
-    TMatrix temp;
-    CRSTraceReader<TMatrix, TMatrix::Policy::matrixType> reader(&temp);
-    SOFA_IF_CONSTEXPR (TMatrix::Policy::PrintTrace) reader.setTextFile("BenchMatrixTrace.txt");
-
-    FnList<TMatrix> instructions;
-
-    for (auto str : listOfFiles)
-    {
-#ifdef SOFA_HAVE_ZLIB
-        if (str.substr(str.length()-3) == ".gz")
-        {
-            auto currentFile = reader.fileOpenGZ(str.c_str(), "rb");
-            if (currentFile == nullptr)
-            {
-                std::cout<<"ERROR: when reading trace instructions from file : "<<str<<std::endl;
-                continue;
-            }
-            reader.setFileGZ(currentFile);
-        }
-        else
-#endif
-        {
-            auto currentFile = reader.fileOpen(str.c_str(), "rb");
-            if (currentFile == nullptr)
-            {
-                std::cout<<"ERROR: when reading trace instructions from file : "<<str<<std::endl;
-                continue;
-            }
-            reader.setFile(currentFile);
-        }
-        std::vector<int> fnIds;
-        std::vector<FnArgs<typename TMatrix::Bloc, typename TMatrix::DBloc>> fnArgs;
-
-        int fnId;
-        while (reader.readFn(fnId))
-        {
-            fnIds.push_back(fnId);
-            fnArgs.push_back(reader.readArgs(fnIds.back()));
-        }
-        instructions.fnIdbyStep.push_back(fnIds);
-        instructions.fnArgsbyStep.push_back(fnArgs);
-        reader.fileClose();
-    }
-    reader.endPrint();
-    return instructions;
-}
-
-template <typename TMatrix>
-void playAllInstructions(TMatrix& m, FnList<TMatrix>& instructions)
-{
-    CRSTraceReader<TMatrix, TMatrix::Policy::matrixType> traceReader(&m);
-    for (std::size_t step = 0; step < instructions.fnIdbyStep.size(); step++)
-    {
-        std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-        auto& fnArgs = instructions.fnArgsbyStep[step];
-        std::size_t nbInstruction = fnIds.size();
-
-        for (std::size_t j = 0; j < nbInstruction; j++)
-        {
-            traceReader.callFn(fnIds[j], fnArgs[j]);
-        }
-    }
-}
-
 void readVecIndex(std::string& line, sofa::helper::vector<int>& d)
 {
     std::istringstream ss(line);
@@ -145,71 +71,45 @@ bool double_equals(double a, double b, double epsilon = 0.0001)
 }
 
 template< class TMatrixRef, class TMatrix>
-bool checkMatrixConsistency(const std::string& checkMatrixFileName, TMatrix& mToCheck, bool verbose = false)
+bool checkMatrixConsistency(const TMatrixRef& mReference, TMatrix& mToCheck, bool verbose = false)
 {
-    TMatrixRef mReference;
-
     enum { NL = TMatrixRef::NL };  ///< Number of rows of a block
     enum { NC = TMatrixRef::NC };  ///< Number of columns of a block
-
-    std::ifstream checkFile;
-    checkFile.open(checkMatrixFileName);
-
-    if (!checkFile.is_open())
-    {
-        std::cout<<"check matrix consistency cannot open check matrix file"<<std::endl;
-        return true;
-    }
-
-    /// Read check file and fill mReference;
-    std::string line;
-    mReference.resizeBloc(mToCheck.nBlocRow, mToCheck.nBlocCol);
-    getline(checkFile, line);
-    readVecIndex(line, mReference.rowIndex);
-    getline(checkFile, line);
-    readVecIndex(line, mReference.rowBegin);
-    getline(checkFile, line);
-    readVecIndex(line, mReference.colsIndex);
-    getline(checkFile, line);
-    readVecBloc(line, mReference.colsValue);
-    mReference.compress();
 
     for (std::size_t xi = 0; xi < mReference.rowIndex.size(); ++xi)
     {
         typename TMatrixRef::Range rowRange( mReference.rowBegin[xi], mReference.rowBegin[xi+1] );
+        
+        const int i = mReference.rowIndex[i];
+        
         for (typename TMatrixRef::Index xj = rowRange.begin() ; xj < rowRange.end() ; ++xj)
         {
-            SOFA_IF_CONSTEXPR (!TMatrix::StoreLowerTriangularBloc)
+            const int j = mReference.colsIndex[xj];
+            const typename TMatrixRef::Bloc& bRef = mReference.colsValue[xj];
+            const typename TMatrix::Bloc   bCheck = mToCheck.bloc(i, j);
+
+            for (int bi = 0; bi < NL; bi++)
             {
-                std::cout<<"For the moment check of matrix with StoreLowerTriangularBloc policy is not implemented"<<std::endl;
-                return true;
-            }
-            else
-            {
-                const typename TMatrixRef::Bloc bRef = mReference.colsValue[xj];
-                const typename TMatrix::Bloc bCheck = mToCheck.colsValue[xj];
-                for (int bi = 0; bi < NL; bi++)
+                for (int bj = 0; bj < NC; bj++)
                 {
-                    for (int bj = 0; bj < NC; bj++)
+                    if (!double_equals(TMatrixRef::traits::v(bRef, bi, bj), TMatrix::traits::v(bCheck, bi, bj)))
                     {
-                        if (!double_equals(TMatrixRef::traits::v(bRef, bi, bj), TMatrix::traits::v(bCheck, bi, bj)))
+                        std::cerr << "Check matrix error" << std::endl;
+                        if (verbose)
                         {
-                            std::cerr << "Check matrix error" << std::endl;
-                            if (verbose)
-                            {
-                                std::cout<<"RowIndex Ref   : "<<mReference.rowIndex<<std::endl;
-                                std::cout<<"RowIndex Check : "<<mToCheck.rowIndex<<std::endl;
-                                std::cout<<"ColIndex Ref   : "<<mReference.colsIndex<<std::endl;
-                                std::cout<<"ColIndex Check : "<<mToCheck.colsIndex<<std::endl;
-                            }
-                            return false;
+                            std::cerr << "RowIndex Ref   : " << mReference.rowIndex << std::endl;
+                            std::cerr << "RowIndex Check : " << mToCheck.rowIndex << std::endl;
+                            std::cerr << "ColIndex Ref   : " << mReference.colsIndex << std::endl;
+                            std::cerr << "ColIndex Check : " << mToCheck.colsIndex << std::endl;
                         }
+                        return false;
                     }
                 }
             }
+
         }
     }
 
-    std::cerr << "Check matrix consistency passed successfully" << std::endl;
+    std::cout << "Check matrix consistency passed successfully" << std::endl;
     return true;
 }

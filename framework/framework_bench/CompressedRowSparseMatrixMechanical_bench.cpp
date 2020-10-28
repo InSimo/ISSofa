@@ -14,12 +14,13 @@
 #include "CompressedRowSparseMatrixHelper_bench.h"
 #include "CompressedRowSparseMatrixOld.h"
 
+#include <chrono>
 
 using namespace sofa::defaulttype;
 using namespace sofa::helper::system::thread;
 
 /// Number of execution to pre load CPU
-static constexpr std::size_t nPreload = 100u;
+static constexpr std::size_t nPreload = 5u;
 
 /// Specific policy for benchmark on CRSMatrixMechanical
 class CRSBenchMechanicalPolicyA : public CRSMechanicalPolicy
@@ -139,214 +140,57 @@ SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1d, CR
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyD>));
 
 
-template <class TBloc, class TPolicy>
-bool checkMatrix(const std::string& checkMatrixFileName, const std::vector<std::string>& listOfBinFiles, const bool verbose)
+template<class TMatrix, int Type>
+double bench(CRSTraceReader<TMatrix, Type>& reader, const std::size_t nbExec)
 {
-    typedef CompressedRowSparseMatrixMechanical<TBloc> TMatrixRef;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, TPolicy> TMatrix;
+    for (unsigned int i = 0; i < nPreload; ++i)
+    {
+        TMatrix matrix;
+        reader.playInstructions(matrix);
+    }
 
-    FnList<TMatrix> instructions = readInstructionsFromFiles<TMatrix>(listOfBinFiles);
+    auto startTime = std::chrono::high_resolution_clock::now();
 
-    /// Check Matrix consistency
-    TMatrixRef mref;
-    TMatrix mloaded;
-    playAllInstructions<TMatrix>(mloaded, instructions);
-    return checkMatrixConsistency<TMatrixRef>(checkMatrixFileName, mloaded, verbose);
+    for (unsigned int i = 0; i < nbExec; ++i)
+    {
+        TMatrix matrix;
+        reader.playInstructions(matrix);
+    }
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = endTime - startTime;
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double milli = double(microseconds) / 1000.;
+
+    double time = milli / double(nbExec);
+
+    return time;
+
 }
 
-template<class TBloc>
-void benchFast(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
-               const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
+template<class TMatrix, int Type>
+double benchStep(const std::string& logTraceFileName, const std::size_t nbExec)
 {
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA> TMatrixA;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB> TMatrixB;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyC> TMatrixC;
-    typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD> TMatrixD;
-    typedef CompressedRowSparseMatrixOld<TBloc>                                   TMatrixOld;
+    CRSTraceReader<TMatrix, Type>  reader;   
+    reader.readInstructions(logTraceFileName);
 
-    FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
-
-    std::cout<<"Run benchFast on "<<nbExec<<" executions with "<<nbPolicy<<" policies between step "<<start<<" and step "<<stop<<std::endl;
-
-    std::cout<<std::endl;
-    std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
-    bool checkB = false;
-    bool checkC = false;
-    bool checkD = false;
-    if (nbPolicy > 1)
-    {
-        std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 2)
-    {
-        std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 3)
-    {
-        std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    std::cout<<std::endl;
-
-    // -----
-    // pre load cpu
-    // -----
-
-    for (unsigned int i = 0; i < nPreload; i ++)
-    {
-        TMatrixA matrixPreLoad;
-        playAllInstructions<TMatrixA>(matrixPreLoad, instructions);
-    }
-
-    // -----
-    // execute benchmark
-    // -----
-
-    /// Old implementation
-    ctime_t told0 = CTime::getFastTime();
-
-    for (std::size_t i = 0; i < nbExec; i++)
-    {
-        TMatrixOld matrix;
-        sofa::defaulttype::CRSTraceReader<TMatrixOld, 1u> traceReader(&matrix);
-        for (std::size_t step = start; step <= stop; step++)
-        {
-            std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-            auto& fnArgs = instructions.fnArgsbyStep[step];
-            std::size_t nbInstruction = fnIds.size();
-
-            for (std::size_t j = 0; j < nbInstruction; j++)
-            {
-                traceReader.callFn(fnIds[j], fnArgs[j]);
-            }
-        }
-    }
-    ctime_t told1 = CTime::getFastTime();
-    double timeusOld = 0.001 * (((told1 - told0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-    std::cout << "CRS Old  Mean duration : " << timeusOld << " ms" << std::endl;
-
-    /// Policy A
-    if (checkA)
-    {
-        ctime_t ta0 = CTime::getFastTime();
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixA matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixA, TMatrixA::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-            }
-        }
-
-        ctime_t ta1 = CTime::getFastTime();
-        double timeusA = 0.001 * (((ta1 - ta0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout << "Policy A Mean duration : " << timeusA << " ms" << std::endl;
-        std::cout << "Policy A SpeedUp       : " << 100.0 * (timeusOld - timeusA) / timeusOld << " %" <<std::endl;
-    }
-
-    /// Policy B
-    if (nbPolicy > 1 && checkB)
-    {
-        ctime_t tb0 = CTime::getFastTime();
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixB matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixB, TMatrixB::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-            }
-        }
-
-        ctime_t tb1 = CTime::getFastTime();
-        double timeusB = 0.001 * (((tb1 - tb0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout << "Policy B Mean duration : " << timeusB << " ms" << std::endl;
-        std::cout << "Policy B SpeedUp       : " << 100.0 * (timeusOld - timeusB) / timeusOld << " %" <<std::endl;
-    }
-
-    /// Policy C
-    if (nbPolicy > 2 && checkC)
-    {
-        ctime_t tc0 = CTime::getFastTime();
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixC matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixC, TMatrixC::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-            }
-        }
-
-        ctime_t tc1 = CTime::getFastTime();
-        double timeusC = 0.001 * (((tc1 - tc0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout << "Policy C Mean duration : " << timeusC << " ms" << std::endl;
-        std::cout << "Policy C SpeedUp       : " << 100.0 * (timeusOld - timeusC) / timeusOld << " %" <<std::endl;
-    }
-
-    /// Policy D
-    if (nbPolicy > 3 && checkD)
-    {
-        ctime_t td0 = CTime::getFastTime();
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixD matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixD, TMatrixD::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-            }
-        }
-
-        ctime_t td1 = CTime::getFastTime();
-        double timeusD = 0.001 * (((td1 - td0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout << "Policy D Mean duration : " << timeusD << " ms" << std::endl;
-        std::cout << "Policy D SpeedUp       : " << 100.0 * (timeusOld - timeusD) / timeusOld << " %" <<std::endl;
-    }
+    return bench<TMatrix, Type>(reader, nbExec);
 }
 
+template<class TMatrix, int Type>
+double benchAllSteps(const std::vector<std::string>& logTraceFiles, const std::size_t nbExec)
+{
+    CRSTraceReader<TMatrix, Type>  reader;
+    for (const std::string& file : logTraceFiles)
+    {
+        reader.readInstructions(file);
+    }
+    return bench<TMatrix, Type>(reader, nbExec);
+}
+
+
 template<class TBloc>
-void benchByStep(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
-                 const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
+void benchByStep(const std::vector<std::string>& matrixTraceFiles, const std::size_t nbExec)
 {
     typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA> TMatrixA;
     typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB> TMatrixB;
@@ -354,219 +198,49 @@ void benchByStep(std::string& checkMatrixFile, const std::vector<std::string>& l
     typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD> TMatrixD;
     typedef CompressedRowSparseMatrixOld<TBloc>                                 TMatrixOld;
 
-    FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
+    const std::size_t numLogTraceFiles = matrixTraceFiles.size();
 
-    std::cout<<"Run benchByStep on "<<nbExec<<" executions with "<<nbPolicy<<" policies between step "<<start<<" and step "<<stop<<std::endl;
+    std::cout<<"Run benchByStep "<<nbExec<<" executions on "<< numLogTraceFiles << " log trace files" << std::endl;
 
-    // -----
-    // pre load cpu
-    // -----
-
-    for (unsigned int i = 0; i < nPreload; i ++)
-    {
-        TMatrixA matrixPreLoad;
-        playAllInstructions<TMatrixA>(matrixPreLoad, instructions);
-    }
 
     // -----
     // execute benchmark
     // -----
 
-    std::vector<ctime_t> timesOld;
-    std::vector<ctime_t> timesA;
-    std::vector<ctime_t> timesB;
-    std::vector<ctime_t> timesC;
-    std::vector<ctime_t> timesD;
+    std::vector< double > benchOld;
+    std::vector< double > benchA;
+    std::vector< double > benchB;
+    std::vector< double > benchC;
+    std::vector< double > benchD;
 
-    std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
-    bool checkB = false;
-    bool checkC = false;
-    bool checkD = false;
-    if (nbPolicy > 1)
+    for (const std::string& file : matrixTraceFiles)
     {
-        std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 2)
-    {
-        std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 3)
-    {
-        std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
-    }
+        std::cout << "File: " << file << std::endl;
 
-    /// Old implementation
-    timesOld.resize(stop - start + 1);
+        benchOld.push_back( benchStep< TMatrixOld, 1 >(file, nbExec) );
+        benchA.push_back( benchStep< TMatrixA, TMatrixA::Policy::matrixType>(file, nbExec) );
+        benchB.push_back( benchStep< TMatrixB, TMatrixB::Policy::matrixType>(file, nbExec) );
+        benchC.push_back( benchStep< TMatrixC, TMatrixC::Policy::matrixType>(file, nbExec) );
+        benchD.push_back( benchStep< TMatrixD, TMatrixD::Policy::matrixType>(file, nbExec) );
 
-    for (std::size_t i = 0; i < nbExec; i++)
-    {
-        TMatrixOld matrix;
-        sofa::defaulttype::CRSTraceReader<TMatrixOld, 1u> traceReader(&matrix);
-        for (std::size_t step = start; step <= stop; step++)
-        {
-            std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-            auto& fnArgs = instructions.fnArgsbyStep[step];
-            std::size_t nbInstruction = fnIds.size();
 
-            ctime_t told0 = CTime::getFastTime();
-            for (std::size_t j = 0; j < nbInstruction; j++)
-            {
-                traceReader.callFn(fnIds[j], fnArgs[j]);
-            }
-            ctime_t told1 = CTime::getFastTime();
-            timesOld[step - start] += told1 - told0;
-        }
+        std::cout << "CRS Old  mean : " << benchOld.back() << " ms" << std::endl;
+        std::cout << "Policy A mean : " << benchA.back() << " ms" << std::endl;
+        std::cout << "Policy B mean : " << benchB.back() << " ms" << std::endl;
+        std::cout << "Policy C mean : " << benchC.back() << " ms" << std::endl;
+        std::cout << "Policy D mean : " << benchD.back() << " ms" << std::endl;
+
+        std::cout << "Policy A SpeedUp : " << 100.0 * (benchOld.back() - benchA.back() ) / benchOld.back() << " %" << std::endl;
+        std::cout << "Policy B SpeedUp : " << 100.0 * (benchOld.back() - benchB.back()) / benchOld.back() << " %" << std::endl;
+        std::cout << "Policy C SpeedUp : " << 100.0 * (benchOld.back() - benchC.back()) / benchOld.back() << " %" << std::endl;
+        std::cout << "Policy D SpeedUp : " << 100.0 * (benchOld.back() - benchD.back()) / benchOld.back() << " %" << std::endl;
+
     }
 
-    /// Policy A
-    if (checkA)
-    {
-        timesA.resize(stop - start + 1);
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixA matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixA, TMatrixA::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                ctime_t ta0 = CTime::getFastTime();
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-                ctime_t ta1 = CTime::getFastTime();
-                timesA[step - start] += ta1 - ta0;
-            }
-        }
-    }
-
-    /// Policy B
-    if (nbPolicy > 1 && checkB)
-    {
-        timesB.resize(stop - start + 1);
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixB matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixB, TMatrixB::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                ctime_t tb0 = CTime::getFastTime();
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-                ctime_t tb1 = CTime::getFastTime();
-                timesB[step - start] += tb1 - tb0;
-            }
-        }
-    }
-
-    /// Policy C
-    if (nbPolicy > 2 && checkC)
-    {
-        timesC.resize(stop - start + 1);
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixC matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixC, TMatrixC::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                ctime_t tc0 = CTime::getFastTime();
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-                ctime_t tc1 = CTime::getFastTime();
-                timesC[step - start] += tc1 - tc0;
-            }
-        }
-    }
-
-    /// Policy D
-    if (nbPolicy > 3 && checkD)
-    {
-        timesD.resize(stop - start + 1);
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixD matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixD, TMatrixD::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                ctime_t td0 = CTime::getFastTime();
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-                ctime_t td1 = CTime::getFastTime();
-                timesD[step - start] += td1 - td0;
-            }
-        }
-    }
-
-    if (!checkA && !checkB && !checkC && !checkD) return;
-    else
-    {
-        ctime_t ticksPerSec = CTime::getTicksPerSec();
-        for (std::size_t i = 0; i < timesA.size(); i++)
-        {
-            double tOld = 0.0;
-            double tA = 0.0;
-            double tB = 0.0;
-            double tC = 0.0;
-            double tD = 0.0;
-
-            tOld = 0.001 * (((timesOld[i]) * 1000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-            if (checkA) tA = 0.001 * (((timesA[i]) * 1000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-            if (nbPolicy > 1 && checkB) tB = 0.001 * (((timesB[i]) * 1000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-            if (nbPolicy > 2 && checkC) tC = 0.001 * (((timesC[i]) * 1000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-            if (nbPolicy > 3 && checkD) tD = 0.001 * (((timesD[i]) * 1000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-
-            std::cout << std::endl;
-            std::cout << "Step : " << start + i << std::endl;
-            std::cout << std::endl;
-            std::cout << "CRS Old  mean : " << tOld << " ms" << std::endl;
-            if (checkA) std::cout << "Policy A mean : " << tA << " ms" << std::endl;
-            if (nbPolicy > 1 && checkB) std::cout << "Policy B mean : " << tB << " ms" << std::endl;
-            if (nbPolicy > 2 && checkC) std::cout << "Policy C mean : " << tC << " ms" << std::endl;
-            if (nbPolicy > 3 && checkD) std::cout << "Policy D mean : " << tD << " ms" << std::endl;
-            std::cout << std::endl;
-            std::cout << "Policy A SpeedUp : " << 100.0 * (tOld - tA) / timesOld[i] << " %" <<std::endl;
-            if (nbPolicy > 1 && checkB) std::cout << "Policy B SpeedUp : " << 100.0 * (tOld - tB) / tOld << " %" <<std::endl;
-            if (nbPolicy > 2 && checkC) std::cout << "Policy C SpeedUp : " << 100.0 * (tOld - tC) / tOld << " %" <<std::endl;
-            if (nbPolicy > 3 && checkD) std::cout << "Policy D SpeedUp : " << 100.0 * (tOld - tD) / tOld << " %" <<std::endl;
-        }
-    }
 }
 
 template<class TBloc>
-void benchAll(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
-              const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
+void benchAll(const std::vector<std::string>& matrixTraceFiles, const std::size_t nbExec)
 {
     typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyA> TMatrixA;
     typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyB> TMatrixB;
@@ -574,238 +248,38 @@ void benchAll(std::string& checkMatrixFile, const std::vector<std::string>& list
     typedef CompressedRowSparseMatrixMechanical<TBloc, CRSBenchMechanicalPolicyD> TMatrixD;
     typedef CompressedRowSparseMatrixOld<TBloc>                                 TMatrixOld;
 
-    FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
+    const std::size_t numLogTraceFiles = matrixTraceFiles.size();
 
-    std::cout<<"Run benchAll on "<<nbExec<<" executions with "<<nbPolicy<<" policies between step "<<start<<" and step "<<stop<<std::endl;
-    // -----
-    // pre load cpu
-    // -----
+    std::cout << "Run benchAll " << nbExec << " executions on " << numLogTraceFiles << " log trace files" << std::endl;
 
-    for (unsigned int i = 0; i < nPreload; i ++)
-    {
-        TMatrixA matrixPreLoad;
-        playAllInstructions<TMatrixA>(matrixPreLoad, instructions);
-    }
+    const double benchOld = benchAllSteps< TMatrixOld, 1 >(matrixTraceFiles, nbExec);
+    const double benchA = benchAllSteps< TMatrixA, TMatrixA::Policy::matrixType >(matrixTraceFiles, nbExec);
+    const double benchB = benchAllSteps< TMatrixB, TMatrixB::Policy::matrixType >(matrixTraceFiles, nbExec);
+    const double benchC = benchAllSteps< TMatrixC, TMatrixC::Policy::matrixType >(matrixTraceFiles, nbExec);
+    const double benchD = benchAllSteps< TMatrixD, TMatrixD::Policy::matrixType >(matrixTraceFiles, nbExec);
 
-    // -----
-    // execute benchmark
-    // -----
+    std::cout << "CRS Old  mean : " << benchOld << " ms" << std::endl;
+    std::cout << "Policy A mean : " << benchA << " ms" << std::endl;
+    std::cout << "Policy B mean : " << benchB << " ms" << std::endl;
+    std::cout << "Policy C mean : " << benchC << " ms" << std::endl;
+    std::cout << "Policy D mean : " << benchD << " ms" << std::endl;
 
-    std::vector<std::vector<ctime_t>> timesOld;
-    std::vector<std::vector<ctime_t>> timesA;
-    std::vector<std::vector<ctime_t>> timesB;
-    std::vector<std::vector<ctime_t>> timesC;
-    std::vector<std::vector<ctime_t>> timesD;
+    std::cout << "Policy A SpeedUp : " << 100.0 * (benchOld - benchA) / benchOld << " %" << std::endl;
+    std::cout << "Policy B SpeedUp : " << 100.0 * (benchOld - benchB) / benchOld << " %" << std::endl;
+    std::cout << "Policy C SpeedUp : " << 100.0 * (benchOld - benchC) / benchOld << " %" << std::endl;
+    std::cout << "Policy D SpeedUp : " << 100.0 * (benchOld - benchD) / benchOld << " %" << std::endl;
 
-    std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchMechanicalPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
-    bool checkB = false;
-    bool checkC = false;
-    bool checkD = false;
-    if (nbPolicy > 1)
-    {
-        std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchMechanicalPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 2)
-    {
-        std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchMechanicalPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 3)
-    {
-        std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchMechanicalPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-
-    /// Old implementation
-    timesOld.resize(stop - start + 1);
-    for (std::size_t i = 0; i < nbExec; i++)
-    {
-        TMatrixOld matrix;
-        sofa::defaulttype::CRSTraceReader<TMatrixOld, 1u> traceReader(&matrix);
-        for (std::size_t step = start; step <= stop; step++)
-        {
-            std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-            auto& fnArgs = instructions.fnArgsbyStep[step];
-            std::size_t nbInstruction = fnIds.size();
-
-            timesOld[step - start].resize(nbInstruction);
-            for (std::size_t j = 0; j < nbInstruction; j++)
-            {
-                ctime_t told0 = CTime::getFastTime();
-                traceReader.callFn(fnIds[j], fnArgs[j]);
-                ctime_t told1 = CTime::getFastTime();
-                timesOld[step - start][j] += told1 - told0;
-            }
-        }
-    }
-
-    /// Policy A
-    if (checkA)
-    {
-        timesA.resize(stop - start + 1);
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixA matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixA, TMatrixA::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                timesA[step - start].resize(nbInstruction);
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    ctime_t t0 = CTime::getFastTime();
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                    ctime_t t1 = CTime::getFastTime();
-                    timesA[step - start][j] += t1 - t0;
-                }
-            }
-        }
-    }
-
-    /// Policy B
-    if (nbPolicy > 1 && checkB)
-    {
-        timesB.resize(stop - start + 1);
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixB matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixB, TMatrixB::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                timesB[step - start].resize(nbInstruction);
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    ctime_t t0 = CTime::getFastTime();
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                    ctime_t t1 = CTime::getFastTime();
-                    timesB[step - start][j] += t1 - t0;
-                }
-            }
-        }
-    }
-
-    /// Policy C
-    if (nbPolicy > 2 && checkC)
-    {
-        timesC.resize(stop - start + 1);
-
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixC matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixC, TMatrixC::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                timesC[step - start].resize(nbInstruction);
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    ctime_t t0 = CTime::getFastTime();
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                    ctime_t t1 = CTime::getFastTime();
-                    timesC[step - start][j] += t1 - t0;
-                }
-            }
-        }
-    }
-
-    /// Policy D
-    if (nbPolicy > 3 && checkD)
-    {
-        timesD.resize(stop - start + 1);
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            TMatrixD matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixD, TMatrixD::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                timesD[step - start].resize(nbInstruction);
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    ctime_t t0 = CTime::getFastTime();
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                    ctime_t t1 = CTime::getFastTime();
-                    timesD[step - start][j] += t1 - t0;
-                }
-            }
-        }
-    }
-
-    if (!checkA && !checkB && !checkC && !checkD) return;
-    else
-    {
-        ctime_t ticksPerSec = CTime::getTicksPerSec();
-        for (std::size_t i = 0; i < timesA.size(); i++)
-        {
-            std::vector<int>& fnIds = instructions.fnIdbyStep[i];
-
-            std::cout << std::endl;
-            std::cout << "Step : " << start + i << std::endl;
-            std::cout << std::endl;
-            for (std::size_t j = 0; j < timesOld[i].size(); j++)
-            {
-                double tOld = 0.0;
-                double tA = 0.0;
-                double tB = 0.0;
-                double tC = 0.0;
-                double tD = 0.0;
-
-                /// Process times
-                tOld = 0.001 * (((timesOld[i][j]) * 1000000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-                if (checkA) tA = 0.001 * (((timesA[i][j]) * 1000000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-                if (nbPolicy > 1 && checkB) tB = 0.001 * (((timesB[i][j]) * 1000000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-                if (nbPolicy > 2 && checkC) tC = 0.001 * (((timesC[i][j]) * 1000000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-                if (nbPolicy > 3 && checkD) tD = 0.001 * (((timesD[i][j]) * 1000000000) / (ticksPerSec * static_cast<unsigned long long>(nbExec)));
-
-                std::cout << std::endl;
-                std::cout << "FnID : " << fnIds[j] << std::endl;
-
-                std::cout << "CRS Old  mean : " << tOld << " micro second" << std::endl;
-                if (checkA) std::cout << "Policy A mean : " << tA << " micro second" << std::endl;
-                if (nbPolicy > 1 && checkB) std::cout << "Policy B mean : " << tB << " micro second" << std::endl;
-                if (nbPolicy > 2 && checkC) std::cout << "Policy C mean : " << tC << " micro second" << std::endl;
-                if (nbPolicy > 3 && checkD) std::cout << "Policy D mean : " << tD << " micro second" << std::endl;
-            }
-        }
-    }
 }
 
 void showHelp()
 {
     std::cout<<"Usage : CompressedRowSparseMatrixMechanicalCompare_bench [option] ... [arg] ..."<<std::endl;
-    std::cout<<"-a   / --accuracy  : type of bench you want to launch, default benchFast"<<std::endl;
-    std::cout<<"                     0 : benchFast   = Means of nbExec executions of all instructions of all steps between start step and stop step"<<std::endl;
-    std::cout<<"                     1 : benchByStep = Means of nbExec executions of all instructions for each step between start step and stop step"<<std::endl;
-    std::cout<<"                     2 : benchAll    = Means of nbExec executions of each instructions for each step between start step and stop step"<<std::endl;
+    std::cout<<"-a   / --accuracy  : type of bench you want to launch, default benchByStep"<<std::endl;
+    std::cout<<"                     0 : benchByStep = Each trace file is treated separetly ( step by step )" << std::endl;
+    std::cout<<"                     1 : benchAll    = Trace files are processed together ( read all then benchmark )"<<std::endl;
     std::cout<<"-h   / --help      : print this help message and exit"<<std::endl;
-    std::cout<<"-n   / --nbExec    : number of execution, default 1000"<<std::endl;
-    std::cout<<"-nbp / --nbpolicy  : number of policy to bench, max 4, default 1"<<std::endl;
-    std::cout<<"                     policies could be specified directly in this cpp file, compilation needed"<<std::endl;
-    std::cout<<"     / --start     : start step for bench, default 0"<<std::endl;
-    std::cout<<"     / --stop      : stop  step for bench, default max of trace"<<std::endl;
-    std::cout<<"     / --subfolder : name of subfolder of ISSofa/framework/framework_bench/ressources where trace to bench is located"<<std::endl;
-    std::cout<<"     / --verbose   : when check matrix consistency failed, verbose give more outputs for debug"<<std::endl;
+    std::cout<<"-n   / --nbExec    : number of execution, default 25"<<std::endl;
+    std::cout<<"     / --subfolder : name of subfolder of ISSofa/framework/framework_bench/ressources where trace to bench is located (default /benchmarks/CRSResources)"<<std::endl;
     std::cout<<"arg ...            : arguments passed to program in sys.argv[1:]"<<std::endl;
     std::cout<<std::endl;
     std::cout<<"For trace generation help please refer to README in ISSofa/framework/framework_bench"<<std::endl;
@@ -814,11 +288,7 @@ void showHelp()
 int main(int argc, char* argv[])
 {
     long accuracy = 0;
-    long nbExec = 1000;
-    long startStep = 0;
-    long endStep = -1;
-    long nbPolicy = 1;
-    bool verbose = false;
+    long nbExec = 25;
     std::string folderName = "CRSMechanical_Reference";
 
     for(int i = 1; i < argc; i++)
@@ -836,22 +306,6 @@ int main(int argc, char* argv[])
         else if (arg == "-n" || arg == "--nbExec")
         {
             i++; nbExec = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "--start")
-        {
-            i++; startStep = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "--stop")
-        {
-            i++; endStep = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "-nbp" || arg == "--nbpolicy")
-        {
-            i++; nbPolicy = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "--verbose")
-        {
-            verbose = true;
         }
         else if (arg == "--subfolder")
         {
@@ -885,103 +339,53 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::vector<std::string> listOfBinFiles;
+    std::vector<std::string> matrixTraceFiles;
 #ifdef SOFA_HAVE_ZLIB
     { // first try compressed files
-        listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".gz");
+        matrixTraceFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".gz");
     }
-    if (listOfBinFiles.empty())
+    if (matrixTraceFiles.empty())
 #endif
     { // try uncompressed files
-        listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".bin");
+        matrixTraceFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".bin");
     }
-    if (listOfBinFiles.empty())
+    if (matrixTraceFiles.empty())
     {
         std::cout<<"ERROR: could not find trace into specified folder "<<matrixTraceDirectory << std::endl;
         return -1;
     }
+    
+    std::string fileName = sofa::helper::system::SetDirectory::GetFileName(matrixTraceFiles[0].c_str());
 
-    const char delim = '_';
-    std::string filesName = sofa::helper::system::SetDirectory::GetFileName(listOfBinFiles[0].c_str());
-    std::stringstream ss(filesName);
-
-    std::string matrixType, tbloc;
-    std::getline(ss, matrixType, delim);
-    std::getline(ss, tbloc, delim);
-
-    std::string checkFile = matrixTraceDirectory + matrixType + "_" + tbloc + "_Check.txt";
-
-    if (endStep == -1) endStep = static_cast<long>(listOfBinFiles.size() - 1);
-
-    if (matrixType != "CRSMechanicalMatrix")
+    if      (fileName.find("_double_") != std::string::npos)
     {
-        std::cout<<"ERROR: CompressedRowSparseMatrixMechanicalCompare_bench could be only instanciated with CRSMechanical matrix trace"<<std::endl;
-        return -1;
+        if (accuracy == 0) benchByStep<double>(matrixTraceFiles, nbExec);
+        else benchAll<double>(matrixTraceFiles, nbExec);
     }
-    else
+    else if ((fileName.find("_float_") != std::string::npos))
     {
-        std::cout<<"Execute CRSMatrixMechanicalCompareBench on trace stored in subfolder "<<folderName<< " with template "<<tbloc<<std::endl;
+        if (accuracy == 0) benchByStep<float>(matrixTraceFiles, nbExec);
+        else benchAll<float>(matrixTraceFiles, nbExec);
     }
-
-    if      (tbloc == "double")
+    else if ((fileName.find("_1f_") != std::string::npos))
     {
-        switch (accuracy)
-        {
-            case 0  : benchFast  <double>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 1  : benchByStep<double>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 2  : benchAll   <double>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            default : std::cout<<"ERROR: not handled accuracy"<<std::endl; return - 1;
-        }
+        if (accuracy == 0) benchByStep<Mat1x1f>(matrixTraceFiles, nbExec);
+        else benchAll<Mat1x1f>(matrixTraceFiles, nbExec);
     }
-    else if (tbloc == "float")
+    else if ((fileName.find("_1d_") != std::string::npos))
     {
-        switch (accuracy)
-        {
-            case 0  : benchFast  <float>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 1  : benchByStep<float>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 2  : benchAll   <float>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            default : std::cout<<"ERROR: not handled accuracy"<<std::endl; return - 1;
-        }
+        if (accuracy == 0) benchByStep<Mat1x1d>(matrixTraceFiles, nbExec);
+        else benchAll<Mat1x1d>(matrixTraceFiles, nbExec);
     }
-    else if (tbloc == "1f")
+    else if ((fileName.find("_3f_") != std::string::npos))
     {
-        switch (accuracy)
-        {
-            case 0  : benchFast  <Mat1x1f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 1  : benchByStep<Mat1x1f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 2  : benchAll   <Mat1x1f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            default : std::cout<<"ERROR: not handled accuracy"<<std::endl; return - 1;
-        }
+        if (accuracy == 0) benchByStep<Mat3x3f>(matrixTraceFiles, nbExec);
+        else benchAll<Mat3x3f>(matrixTraceFiles, nbExec);
     }
-    else if (tbloc == "1d")
+    else if ((fileName.find("_3d_") != std::string::npos))
     {
-        switch (accuracy)
-        {
-            case 0  : benchFast  <Mat1x1d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 1  : benchByStep<Mat1x1d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 2  : benchAll   <Mat1x1d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            default : std::cout<<"ERROR: not handled accuracy"<<std::endl; return - 1;
-        }
-    }
-    else if (tbloc == "3f")
-    {
-        switch (accuracy)
-        {
-            case 0  : benchFast  <Mat3x3f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 1  : benchByStep<Mat3x3f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 2  : benchAll   <Mat3x3f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            default : std::cout<<"ERROR: not handled accuracy"<<std::endl; return - 1;
-        }
-    }
-    else if (tbloc == "3d")
-    {
-        switch (accuracy)
-        {
-            case 0  : benchFast  <Mat3x3d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 1  : benchByStep<Mat3x3d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            case 2  : benchAll   <Mat3x3d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose); break;
-            default : std::cout<<"ERROR: not handled accuracy"<<std::endl; return - 1;
-        }
+        if (accuracy == 0) benchByStep<Mat3x3d>(matrixTraceFiles, nbExec);
+        else benchAll<Mat3x3d>(matrixTraceFiles, nbExec);
     }
     else
     {

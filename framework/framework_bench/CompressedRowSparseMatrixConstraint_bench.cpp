@@ -14,12 +14,13 @@
 #include "CompressedRowSparseMatrixHelper_bench.h"
 #include <sofa/defaulttype/MapMapSparseMatrix.h>
 
+#include <chrono>
 
 using namespace sofa::defaulttype;
 using namespace sofa::helper::system::thread;
 
 /// Number of execution to pre load CPU
-static constexpr std::size_t nPreload = 100u;
+static constexpr std::size_t nPreload = 5u;
 
 /// Specific policy for benchmark on CRSMatrixConstraint
 class CRSBenchConstraintPolicyA : public CRSConstraintPolicy
@@ -50,7 +51,7 @@ public:
 /// Specific policy for benchmark on CRSMatrixConstraint
 class CRSBenchConstraintPolicyC : public CRSConstraintPolicy
 {
-public:
+public:  
 
     static constexpr bool OrderedInsertion = true;
     static constexpr bool CompressZeros = true;
@@ -73,394 +74,278 @@ public:
     static constexpr bool LogTrace = false;
 };
 
-template <class TBloc, class TPolicy>
-bool checkMatrix(const std::string& checkMatrixFileName, const std::vector<std::string>& listOfBinFiles, const bool verbose)
-{
-    typedef CompressedRowSparseMatrixConstraint<TBloc> TMatrixRef;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, TPolicy> TMatrix;
-
-    if (TPolicy::CompressZeros)
-    {
-        std::cout<<"Policy CompressZero change matrix format, check not available"<<std::endl;
-        return true;
-    }
-
-    FnList<TMatrix> instructions = readInstructionsFromFiles<TMatrix>(listOfBinFiles);
-
-    /// Check Matrix consistency
-    TMatrixRef mref;
-    TMatrix mloaded;
-    playAllInstructions<TMatrix>(mloaded, instructions);
-    return checkMatrixConsistency<TMatrixRef>(checkMatrixFileName, mloaded, verbose);
-}
-
 template <class TMapMap, class TBloc>
-void callMapMapFn(int fnId, TMapMap& mat, unsigned int rowId, unsigned int colId, TBloc bloc)
+void callMapMapFn(int fnId, TMapMap& mat, unsigned int rowId, unsigned int colId, const TBloc& bloc)
 {
     switch (fnId)
     {
         case FnEnum::addCol          : mat.writeLine(rowId).addCol(colId, bloc); break;
         case FnEnum::setCol          : mat.writeLine(rowId).setCol(colId, bloc); break;
-        default : assert(false); return;
+        case FnEnum::compress        : mat.compress(); break;
+        case FnEnum::clear           : mat.clear(); break;
+        default : std::cerr << "callMapMapFn unsupported fnId: " << fnId << std::endl;; return;
     }
 }
 
-template<class TBloc>
-void benchFast(std::string& checkMatrixFile, const std::vector<std::string>& listOfBinFiles,
-               const std::size_t start, const std::size_t stop, const std::size_t nbExec, const int nbPolicy, const bool verbose)
+template<class TMatrix, int Type>
+double benchStep(const std::string& logTraceFileName, const std::size_t nbExec)
 {
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA> TMatrixA;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyB> TMatrixB;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyC> TMatrixC;
-    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyD> TMatrixD;
-    typedef MapMapSparseMatrix<TBloc>                                                    TMapMap;
+    CRSTraceReader<TMatrix, Type>  reader;
+    
+    reader.readInstructions(logTraceFileName);
 
-    std::cout<<"Run benchFast on "<<nbExec<<" executions with "<<nbPolicy<<" policies between step "<<start<<" and step "<<stop<<std::endl;
-
-    std::cout<<std::endl;
-    std::cout<<"Policy A : ";
-    bool checkA = checkMatrix<TBloc, CRSBenchConstraintPolicyA>(checkMatrixFile, listOfBinFiles, verbose);
-    bool checkB = false;
-    bool checkC = false;
-    bool checkD = false;
-    if (nbPolicy > 1)
+    for (unsigned int i = 0; i < nPreload; ++i)
     {
-        std::cout<<"Policy B : ";
-        checkB = checkMatrix<TBloc, CRSBenchConstraintPolicyB>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 2)
-    {
-        std::cout<<"Policy C : ";
-        checkC = checkMatrix<TBloc, CRSBenchConstraintPolicyC>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    if (nbPolicy > 3)
-    {
-        std::cout<<"Policy D : ";
-        checkD = checkMatrix<TBloc, CRSBenchConstraintPolicyD>(checkMatrixFile, listOfBinFiles, verbose);
-    }
-    std::cout<<std::endl;
-
-    // -----
-    // pre load cpu
-    // -----
-
-    FnList<TMatrixA> instructions = readInstructionsFromFiles<TMatrixA>(listOfBinFiles);
-    for (unsigned int i = 0; i < nPreload; i ++)
-    {
-        TMatrixA matrixPreLoad;
-        playAllInstructions<TMatrixA>(matrixPreLoad, instructions);
+        TMatrix matrix;
+        reader.playInstructions(matrix);
     }
 
-    // -----
-    // execute benchmark
-    // -----
+    auto startTime = std::chrono::high_resolution_clock::now();
 
-    /// MapMap implementation
-
-    /// Write test
-    ctime_t tWriteMapMap0 = CTime::getFastTime();
-
-    for (std::size_t i = 0; i < nbExec; i++)
+    for (unsigned int i = 0; i < nbExec; ++i)
     {
-        TMapMap matrix;
-        for (std::size_t step = start; step <= stop; step++)
-        {
-            std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-            auto& fnArgs = instructions.fnArgsbyStep[step];
-            std::size_t nbInstruction = fnIds.size();
-
-            for (std::size_t j = 0; j < nbInstruction; j++)
-            {
-                callMapMapFn(fnIds[j], matrix, fnArgs[j].i, fnArgs[j].j, fnArgs[j].b);
-            }
-        }
+        TMatrix matrix;
+        reader.playInstructions(matrix);
     }
 
-    ctime_t tWriteMapMap1 = CTime::getFastTime();
-    double timeusWriteMapMap = 0.001 * (((tWriteMapMap1 - tWriteMapMap0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-    std::cout << "MapMap   Write mean duration : " << timeusWriteMapMap << " ms" << std::endl;
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = endTime - startTime;
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double milli = double(microseconds) / 1000.;
+
+    double time = milli / double(nbExec);
+
+    return time;
+}
+
+template<class TMatrix, int Type>
+double benchReadStep(const std::string& logTraceFileName, const std::size_t nbExec)
+{
+    CRSTraceReader<TMatrix, Type>  reader;
+    reader.readInstructions(logTraceFileName);
+
+    TMatrix matrix;
+    reader.playInstructions(matrix);
+
+    using TBloc = typename TMatrix::Bloc;
 
 
-    /// Read test
-    TMapMap matrixMapMap;
-    for (std::size_t step = start; step <= stop; step++)
+    for (unsigned int i = 0; i < nPreload; ++i)
     {
-        std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-        auto& fnArgs = instructions.fnArgsbyStep[step];
-        std::size_t nbInstruction = fnIds.size();
+        TBloc bloc;
 
-        for (std::size_t j = 0; j < nbInstruction; j++)
-        {
-            callMapMapFn(fnIds[j], matrixMapMap, fnArgs[j].i, fnArgs[j].j, fnArgs[j].b);
-        }
-    }
+        auto rowItEnd = matrix.end();
 
-    TBloc DataMapMap;
-
-    ctime_t tReadMapMap0 = CTime::getFastTime();
-    for (std::size_t i = 0; i < nbExec; i++)
-    {
-        auto rowItEnd = matrixMapMap.end();
-
-        for (auto rowIt = matrixMapMap.begin(); rowIt != rowItEnd; ++rowIt)
+        for (auto rowIt = matrix.begin(); rowIt != rowItEnd; ++rowIt)
         {
             auto colIt = rowIt.begin();
             auto colItEnd = rowIt.end();
 
             while (colIt != colItEnd)
             {
-                DataMapMap += colIt.val();
+                bloc += colIt.val();
                 ++colIt;
             }
         }
     }
-    ctime_t tReadMapMap1 = CTime::getFastTime();
-    double timeusReadMapMap = 0.001 * (((tReadMapMap1 - tReadMapMap0) * 1000000000) / (CTime::getTicksPerSec() * nbExec));
-    std::cout << "MapMap   Read  mean duration : " << timeusReadMapMap << " micro second" << std::endl;
 
-    /// Policy A
-    if (checkA)
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    for (unsigned int i = 0; i < nbExec; ++i)
     {
-        /// Write Test
-        ctime_t ta0 = CTime::getFastTime();
-        for (std::size_t i = 0; i < nbExec; i++)
+        TBloc bloc;
+
+        auto rowItEnd = matrix.end();
+
+        for (auto rowIt = matrix.begin(); rowIt != rowItEnd; ++rowIt)
         {
-            TMatrixA matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixA, TMatrixA::Policy::matrixType> traceReader(&matrix);
+            auto colIt = rowIt.begin();
+            auto colItEnd = rowIt.end();
 
-            for (std::size_t step = start; step <= stop; step++)
+            while (colIt != colItEnd)
             {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
+                bloc += colIt.val();
+                ++colIt;
             }
         }
-
-        ctime_t ta1 = CTime::getFastTime();
-        double timeusAWrite = 0.001 * (((ta1 - ta0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy A Write Mean duration : " << timeusAWrite << " ms" << std::endl;
-        std::cout << "Policy A Write SpeedUp       : " << 100.0 * (timeusWriteMapMap - timeusAWrite) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
-
-        /// ReadTest
-        TMatrixA matrixCRS;
-        playAllInstructions<TMatrixA>(matrixCRS, instructions);
-        TBloc DataCRS;
-
-        ctime_t ta2 = CTime::getFastTime();
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            auto rowItEnd = matrixCRS.end();
-
-            for (auto rowIt = matrixCRS.begin(); rowIt != rowItEnd; ++rowIt)
-            {
-                auto colIt = rowIt.begin();
-                auto colItEnd = rowIt.end();
-
-                while (colIt != colItEnd)
-                {
-                    DataCRS += colIt.val();
-                    ++colIt;
-                }
-            }
-        }
-        ctime_t ta3 = CTime::getFastTime();
-        double timeusARead = 0.001 * (((ta3 - ta2) * 1000000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy A Read  Mean duration : " << timeusARead << " micro second" << std::endl;
-        std::cout << "Policy A Read  SpeedUp       : " << 100.0 * (timeusReadMapMap - timeusARead) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
     }
 
-    /// Policy B
-    if (nbPolicy > 1 && checkB)
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = endTime - startTime;
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double milli = double(microseconds) / 1000.;
+
+    double time = milli / double(nbExec);
+
+    return time;
+}
+
+
+template< class TBloc >
+double benchStepMapMap(const std::string& logTraceFileName, const std::size_t nbExec)
+{
+    typedef MapMapSparseMatrix<TBloc>                                             TMapMap;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA> TMatrixA;
+
+    // instantiate a reader just to have access to the instructions
+    CRSTraceReader<TMatrixA, TMatrixA::Policy::matrixType>  reader;
+    reader.readInstructions(logTraceFileName);
+    const std::vector<int>& fnIds   = reader.getFnIds();
+    const auto& fnArgs        = reader.getFnArgs();
+    std::size_t nbInstruction = fnIds.size();
+
+    for (unsigned int i = 0; i < nPreload; ++i)
     {
-        /// Write test
-        ctime_t tb0 = CTime::getFastTime();
-
-        for (std::size_t i = 0; i < nbExec; i++)
+        TMapMap matrix;
+        for (std::size_t j = 0; j < nbInstruction; ++j)
         {
-            TMatrixB matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixB, TMatrixB::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-            }
+            callMapMapFn(fnIds[j], matrix, fnArgs[j].i, fnArgs[j].j, fnArgs[j].b);
         }
-
-        ctime_t tb1 = CTime::getFastTime();
-        double timeusBWrite = 0.001 * (((tb1 - tb0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy B Write Mean duration : " << timeusBWrite << " ms" << std::endl;
-        std::cout << "Policy B Write SpeedUp       : " << 100.0 * (timeusWriteMapMap - timeusBWrite) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
-
-        /// ReadTest
-        TMatrixB matrixCRS;
-        FnList<TMatrixB> instructionsB = readInstructionsFromFiles<TMatrixB>(listOfBinFiles);
-        playAllInstructions<TMatrixB>(matrixCRS, instructionsB);
-        TBloc DataCRS;
-
-        ctime_t tb2 = CTime::getFastTime();
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            auto rowItEnd = matrixCRS.end();
-
-            for (auto rowIt = matrixCRS.begin(); rowIt != rowItEnd; ++rowIt)
-            {
-                auto colIt = rowIt.begin();
-                auto colItEnd = rowIt.end();
-
-                while (colIt != colItEnd)
-                {
-                    DataCRS += colIt.val();
-                    ++colIt;
-                }
-            }
-        }
-        ctime_t tb3 = CTime::getFastTime();
-        double timeusBRead = 0.001 * (((tb3 - tb2) * 1000000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy B Read  Mean duration : " << timeusBRead << " micro second" << std::endl;
-        std::cout << "Policy B Read  SpeedUp       : " << 100.0 * (timeusReadMapMap - timeusBRead) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
     }
 
-    /// Policy C
-    if (nbPolicy > 2 && checkC)
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    for (unsigned int i = 0; i < nbExec; ++i)
     {
-        /// Write Test
-        ctime_t tc0 = CTime::getFastTime();
-
-        for (std::size_t i = 0; i < nbExec; i++)
+        TMapMap matrix;
+        for (std::size_t j = 0; j < nbInstruction; ++j)
         {
-            TMatrixC matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixC, TMatrixC::Policy::matrixType> traceReader(&matrix);
-
-            for (std::size_t step = start; step <= stop; step++)
-            {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
-            }
+            callMapMapFn(fnIds[j], matrix, fnArgs[j].i, fnArgs[j].j, fnArgs[j].b);
         }
-
-        ctime_t tc1 = CTime::getFastTime();
-        double timeusCWrite = 0.001 * (((tc1 - tc0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy C Write Mean duration : " << timeusCWrite << " ms" << std::endl;
-        std::cout << "Policy C Write SpeedUp       : " << 100.0 * (timeusWriteMapMap - timeusCWrite) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
-
-        /// ReadTest
-        TMatrixC matrixCRS;
-        FnList<TMatrixC> instructionsC = readInstructionsFromFiles<TMatrixC>(listOfBinFiles);
-        playAllInstructions<TMatrixC>(matrixCRS, instructionsC);
-        TBloc DataCRS;
-
-        ctime_t tc2 = CTime::getFastTime();
-        for (std::size_t i = 0; i < nbExec; i++)
-        {
-            auto rowItEnd = matrixCRS.end();
-
-            for (auto rowIt = matrixCRS.begin(); rowIt != rowItEnd; ++rowIt)
-            {
-                auto colIt = rowIt.begin();
-                auto colItEnd = rowIt.end();
-
-                while (colIt != colItEnd)
-                {
-                    DataCRS += colIt.val();
-                    ++colIt;
-                }
-            }
-        }
-        ctime_t tc3 = CTime::getFastTime();
-        double timeusCRead = 0.001 * (((tc3 - tc2) * 1000000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy C Read  Mean duration : " << timeusCRead << " micro second" << std::endl;
-        std::cout << "Policy C Read  SpeedUp       : " << 100.0 * (timeusReadMapMap - timeusCRead) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
     }
 
-    /// Policy D
-    if (nbPolicy > 3 && checkD)
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = endTime - startTime;
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double milli = double(microseconds) / 1000.;
+
+    double time = milli / double(nbExec);
+
+    return time;
+
+}
+
+template< class TBloc >
+double benchReadStepMapMap(const std::string& logTraceFileName, const std::size_t nbExec)
+{
+    typedef MapMapSparseMatrix<TBloc>                                             TMapMap;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA> TMatrixA;
+
+    // instantiate a reader just to have access to the instructions
+    CRSTraceReader<TMatrixA, TMatrixA::Policy::matrixType>  reader;
+    reader.readInstructions(logTraceFileName);
+    const std::vector<int>& fnIds = reader.getFnIds();
+    const auto& fnArgs      = reader.getFnArgs();
+    std::size_t nbInstruction = fnIds.size();
+
+    TMapMap matrix;
+    for (std::size_t j = 0; j < nbInstruction; j++)
     {
-        ctime_t td0 = CTime::getFastTime();
+        callMapMapFn(fnIds[j], matrix, fnArgs[j].i, fnArgs[j].j, fnArgs[j].b);
+    }
 
-        for (std::size_t i = 0; i < nbExec; i++)
+    for (unsigned int i = 0; i < nPreload; ++i)
+    {
+        TBloc bloc;
+        auto rowItEnd = matrix.end();
+
+        for (auto rowIt = matrix.begin(); rowIt != rowItEnd; ++rowIt)
         {
-            TMatrixD matrix;
-            sofa::defaulttype::CRSTraceReader<TMatrixD, TMatrixD::Policy::matrixType> traceReader(&matrix);
+            auto colIt = rowIt.begin();
+            auto colItEnd = rowIt.end();
 
-            for (std::size_t step = start; step <= stop; step++)
+            while (colIt != colItEnd)
             {
-                std::vector<int>& fnIds = instructions.fnIdbyStep[step];
-                auto& fnArgs = instructions.fnArgsbyStep[step];
-                std::size_t nbInstruction = fnIds.size();
-
-                for (std::size_t j = 0; j < nbInstruction; j++)
-                {
-                    traceReader.callFn(fnIds[j], fnArgs[j]);
-                }
+                bloc += colIt.val();
+                ++colIt;
             }
         }
+    }
 
-        ctime_t td1 = CTime::getFastTime();
-        double timeusDWrite = 0.001 * (((td1 - td0) * 1000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy D Write Mean duration : " << timeusDWrite << " ms" << std::endl;
-        std::cout << "Policy D Write SpeedUp       : " << 100.0 * (timeusWriteMapMap - timeusDWrite) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
+    auto startTime = std::chrono::high_resolution_clock::now();
 
-        /// ReadTest
-        TMatrixD matrixCRS;
-        FnList<TMatrixD> instructionsD = readInstructionsFromFiles<TMatrixD>(listOfBinFiles);
-        playAllInstructions<TMatrixD>(matrixCRS, instructionsD);
-        TBloc DataCRS;
+    for (unsigned int i = 0; i < nbExec; ++i)
+    {
+        TBloc bloc;
+        auto rowItEnd = matrix.end();
 
-        ctime_t td2 = CTime::getFastTime();
-        for (std::size_t i = 0; i < nbExec; i++)
+        for (auto rowIt = matrix.begin(); rowIt != rowItEnd; ++rowIt)
         {
-            auto rowItEnd = matrixCRS.end();
+            auto colIt = rowIt.begin();
+            auto colItEnd = rowIt.end();
 
-            for (auto rowIt = matrixCRS.begin(); rowIt != rowItEnd; ++rowIt)
+            while (colIt != colItEnd)
             {
-                auto colIt = rowIt.begin();
-                auto colItEnd = rowIt.end();
-
-                while (colIt != colItEnd)
-                {
-                    DataCRS += colIt.val();
-                    ++colIt;
-                }
+                bloc += colIt.val();
+                ++colIt;
             }
         }
-        ctime_t td3 = CTime::getFastTime();
-        double timeusDRead = 0.001 * (((td3 - td2) * 1000000000) / (CTime::getTicksPerSec() * nbExec));
-        std::cout<<std::endl;
-        std::cout << "Policy D Read  Mean duration : " << timeusDRead << " micro second" << std::endl;
-        std::cout << "Policy D Read  SpeedUp       : " << 100.0 * (timeusReadMapMap - timeusDRead) / timeusWriteMapMap << " %" <<std::endl;
-        std::cout<<std::endl;
+    }
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = endTime - startTime;
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double milli = double(microseconds) / 1000.;
+
+    double time = milli / double(nbExec);
+
+    return time;
+
+}
+
+template<class TBloc>
+void benchFast(const std::vector<std::string>& listOfBinFiles, const std::size_t nbExec, const bool verbose)
+{
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA> TMatrixA;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyB> TMatrixB;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyC> TMatrixC;
+    typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyD> TMatrixD;
+    typedef MapMapSparseMatrix<TBloc>                                             TMapMap;
+
+
+    const std::size_t numLogTraceFiles = listOfBinFiles.size();
+
+    std::cout << "Run benchByStep on " << nbExec << " executions  with " << numLogTraceFiles << " log trace files" << std::endl;
+
+    for (const std::string& file : listOfBinFiles)
+    {
+        {
+            const double benchMapMap = benchStepMapMap<TBloc>(file, nbExec);
+            const double benchA = benchStep<TMatrixA, TMatrixA::Policy::matrixType>(file, nbExec);
+            const double benchB = benchStep<TMatrixB, TMatrixB::Policy::matrixType>(file, nbExec);
+            const double benchC = benchStep<TMatrixC, TMatrixC::Policy::matrixType>(file, nbExec);
+            const double benchD = benchStep<TMatrixD, TMatrixD::Policy::matrixType>(file, nbExec);
+
+            std::cout << "File: " << file << std::endl;
+            std::cout << "MapMap WRITE mean : " << benchMapMap << " ms" << std::endl;
+            std::cout << "Policy A WRITE mean : " << benchA << " ms" << std::endl;
+            std::cout << "Policy B WRITE mean : " << benchB << " ms" << std::endl;
+            std::cout << "Policy C WRITE mean : " << benchC << " ms" << std::endl;
+            std::cout << "Policy D WRITE mean : " << benchD << " ms" << std::endl;
+
+            std::cout << "Policy A WRITE SpeedUp : " << 100.0 * (benchMapMap - benchA) / benchMapMap << " %" << std::endl;
+            std::cout << "Policy B WRITE SpeedUp : " << 100.0 * (benchMapMap - benchB) / benchMapMap << " %" << std::endl;
+            std::cout << "Policy C WRITE SpeedUp : " << 100.0 * (benchMapMap - benchC) / benchMapMap << " %" << std::endl;
+            std::cout << "Policy D WRITE SpeedUp : " << 100.0 * (benchMapMap - benchD) / benchMapMap << " %" << std::endl;
+        }
+        {
+            const double benchMapMap = benchReadStepMapMap<TBloc>(file, nbExec);
+            const double benchA = benchReadStep<TMatrixA, TMatrixA::Policy::matrixType>(file, nbExec);
+            const double benchB = benchReadStep<TMatrixB, TMatrixB::Policy::matrixType>(file, nbExec);
+            const double benchC = benchReadStep<TMatrixC, TMatrixC::Policy::matrixType>(file, nbExec);
+            const double benchD = benchReadStep<TMatrixD, TMatrixD::Policy::matrixType>(file, nbExec);
+
+            std::cout << "MapMap READ mean : " << benchMapMap << " ms" << std::endl;
+            std::cout << "Policy A READ mean : " << benchA << " ms" << std::endl;
+            std::cout << "Policy B READ mean : " << benchB << " ms" << std::endl;
+            std::cout << "Policy C READ mean : " << benchC << " ms" << std::endl;
+            std::cout << "Policy D READ mean : " << benchD << " ms" << std::endl;
+
+            std::cout << "Policy A READ SpeedUp : " << 100.0 * (benchMapMap - benchA) / benchMapMap << " %" << std::endl;
+            std::cout << "Policy B READ SpeedUp : " << 100.0 * (benchMapMap - benchB) / benchMapMap << " %" << std::endl;
+            std::cout << "Policy C READ SpeedUp : " << 100.0 * (benchMapMap - benchC) / benchMapMap << " %" << std::endl;
+            std::cout << "Policy D READ SpeedUp : " << 100.0 * (benchMapMap - benchD) / benchMapMap << " %" << std::endl;
+        }
     }
 }
 
@@ -482,7 +367,7 @@ void showHelp()
 
 int main(int argc, char* argv[])
 {
-    long nbExec = 1000;
+    long nbExec = 25;
     long startStep = 0;
     long endStep = -1;
     long nbPolicy = 1;
@@ -564,38 +449,18 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    const char delim = '_';
-    std::string filesName = sofa::helper::system::SetDirectory::GetFileName(listOfBinFiles[0].c_str());
-    std::stringstream ss(filesName);
+    const std::string fileName = sofa::helper::system::SetDirectory::GetFileName(listOfBinFiles[0].c_str());
 
-    std::string matrixType, tbloc;
-    std::getline(ss, matrixType, delim);
-    std::getline(ss, tbloc, delim);
-
-    std::string checkFile = matrixTraceDirectory + matrixType + "_" + tbloc + "_Check.txt";
-
-    if (endStep == -1) endStep = static_cast<long>(listOfBinFiles.size() - 1);
-
-    if (matrixType != "CRSConstraintMatrix")
-    {
-        std::cout<<"ERROR: CompressedRowSparseMatrixConstraint_bench could be only instanciated with CRSConstraint matrix trace"<<std::endl;
-        return -1;
-    }
-    else
-    {
-        std::cout<<"Execute CRSMatrixConstraintBench on trace stored in subfolder "<<folderName<< " with template "<<tbloc<<std::endl;
-    }
-
-    if      (tbloc == "V1f") benchFast<Vec1f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "V1d") benchFast<Vec1d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "V3f") benchFast<Vec3f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "V3d") benchFast<Vec3d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "V6f") benchFast<Vec6f>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "V6d") benchFast<Vec6d>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "RigidDeriv<2,float>")  benchFast<RigidDeriv<2,float>>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "RigidDeriv<2,double>") benchFast<RigidDeriv<3,double>>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "RigidDeriv<3,float>")  benchFast<RigidDeriv<3,float>>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
-    else if (tbloc == "RigidDeriv<3,double>") benchFast<RigidDeriv<3,double>>(checkFile, listOfBinFiles, startStep, endStep, nbExec, nbPolicy, verbose);
+    if      (fileName.find("_V1f_") != std::string::npos) benchFast<Vec1f>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_V1d_") != std::string::npos) benchFast<Vec1d>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_V3f_") != std::string::npos) benchFast<Vec3f>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_V3d_") != std::string::npos) benchFast<Vec3d>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_V6f_") != std::string::npos) benchFast<Vec6f>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_V6d_") != std::string::npos) benchFast<Vec6d>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_RigidDeriv<2,float>_") != std::string::npos) benchFast<RigidDeriv<2, float>>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_RigidDeriv<2,double>_") != std::string::npos) benchFast<RigidDeriv<2, double>>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_RigidDeriv<3,float>_") != std::string::npos) benchFast<RigidDeriv<3, float>>(listOfBinFiles, nbExec, verbose);
+    else if (fileName.find("_RigidDeriv<3,double>_") != std::string::npos) benchFast<RigidDeriv<3, double>>(listOfBinFiles, nbExec, verbose);
     else
     {
         std::cout<<"ERROR: CompressedRowSparseMatrixConstraint_bench bloc template not handled"<<std::endl;
@@ -603,4 +468,4 @@ int main(int argc, char* argv[])
     }
 
     return 0;
-}
+} 
