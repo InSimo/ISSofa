@@ -81,6 +81,7 @@ public:
     virtual void step(const core::ExecParams* params /* PARAMS FIRST =ExecParams::defaultInstance()*/, double dt) = 0;
 
     virtual void setSimulationToSleep(bool sleep) {};
+    virtual bool isSkippingSimulation() { return false; };
 
     /// Returns starting time of the simulation
     double getResetTime() const;
