@@ -31,6 +31,7 @@
 
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/common/Simulation.h>
+#include <sofa/core/behavior/BaseAnimationLoop.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
 #include "ScriptEnvironment.h"
@@ -307,7 +308,10 @@ extern "C" PyObject * Node_detachFromGraph(PyObject *self, PyObject * /*args*/)
 
 extern "C" PyObject * Node_sendScriptEvent(PyObject *self, PyObject * args)
 {
+    sofa::core::behavior::BaseAnimationLoop* m_animationloop;
     Node* node=Node::DynamicCast(((PySPtr<Base>*)self)->object.get());
+    node->getRootContext()->get(m_animationloop);
+    m_animationloop->setSimulationToSleep(false);
     PyObject* pyUserData;
     char* eventName;
     if (!PyArg_ParseTuple(args, "sO",&eventName,&pyUserData))
