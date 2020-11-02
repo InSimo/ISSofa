@@ -70,7 +70,8 @@ public:
     static MyVecId restPosition()  { return MyVecId(2);}
     static MyVecId freePosition()  { return MyVecId(3);}
     static MyVecId resetPosition() { return MyVecId(4);}
-    enum { V_FIRST_DYNAMIC_INDEX = 5 }; ///< This is the first index used for dynamically allocated vectors
+	static MyVecId lastPosition() {  return MyVecId(5); }
+    enum { V_FIRST_DYNAMIC_INDEX = 6 }; ///< This is the first index used for dynamically allocated vectors
 
     static std::string getName(const MyVecId& v)
     {
@@ -87,6 +88,8 @@ public:
             break;
         case 4: result+= "resetPosition";
             break;
+		case 5: result += "lastPosition";
+			break;
         default:
             std::ostringstream out;
             out << v.getIndex();
