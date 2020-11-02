@@ -52,6 +52,7 @@ int DiscreteIntersectionClass = core::RegisterObject("TODO-DiscreteIntersectionC
 
 
 DiscreteIntersection::DiscreteIntersection()
+    : d_useContinuous(initData(&d_useContinuous, false, "useContinuous", "if true use continuous bounding tree"))
 {
     intersectors.add<CubeModel,       CubeModel,         DiscreteIntersection> (this);
 

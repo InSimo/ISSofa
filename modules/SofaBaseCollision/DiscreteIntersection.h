@@ -58,6 +58,7 @@ public:
 
     template <class Elem1, class Elem2>
     using OutputContainer = sofa::core::collision::TDetectionOutputContainer<typename Elem1::Model, typename Elem2::Model>;
+    sofa::Data<bool> d_useContinuous;
 
     /// Return the intersector class handling the given pair of collision models, or NULL if not supported.
     /// @param swapModel output value set to true if the collision models must be swapped before calling the intersector.
@@ -65,6 +66,8 @@ public:
 
     core::collision::IntersectorMap intersectors;
     typedef core::collision::IntersectorFactory<DiscreteIntersection> IntersectorFactory;
+
+    virtual bool useContinuous() const { return d_useContinuous.getValue(); }
 
     template <class Elem1,class Elem2>
     int computeIntersection(Elem1 & e1,Elem2 & e2,OutputContainer<Elem1,Elem2>* contacts)
