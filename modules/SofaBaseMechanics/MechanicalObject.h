@@ -157,6 +157,7 @@ public:
     Data< MatrixDeriv > c;
     Data< VecCoord > reset_position;
     Data< VecDeriv > reset_velocity;
+	Data< VecCoord > previous_x;
 #endif
 
     Data< SReal > restScale;

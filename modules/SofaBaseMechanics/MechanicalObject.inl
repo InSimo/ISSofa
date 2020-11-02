@@ -105,6 +105,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     , c(initData(&c, "constraint", "constraints applied to the degrees of freedom"))
     , reset_position(initData(&reset_position, "reset_position", "reset position coordinates of the degrees of freedom"))
     , reset_velocity(initData(&reset_velocity, "reset_velocity", "reset velocity coordinates of the degrees of freedom"))
+	, previous_x(initData(&previous_x, "previous_position", "last position"))
     , restScale(initData(&restScale, (SReal)1.0, "restScale", "optional scaling of rest position coordinates (to simulated pre-existing internal tension)"))
     , d_useTopology(initData(&d_useTopology, true, "useTopology", "Shall this object rely on any active topology to initialize its size and positions"))
     , showObject(initData(&showObject, (bool) false, "showObject", "Show objects"))
@@ -146,6 +147,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     c               .setGroup("Vector");
     reset_position  .setGroup("Vector");
     reset_velocity  .setGroup("Vector");
+	previous_x      .setGroup("Vector");
 
     translation     .setGroup("Transformation");
     translation2    .setGroup("Transformation");
@@ -157,6 +159,7 @@ MechanicalObject<DataTypes>::MechanicalObject()
     setVecCoord(core::VecCoordId::freePosition().index, &xfree);
     setVecCoord(core::VecCoordId::restPosition().index, &x0);
     setVecCoord(core::VecCoordId::resetPosition().index, &reset_position);
+	setVecCoord(core::VecCoordId::lastPosition().index, &previous_x);
     setVecDeriv(core::VecDerivId::velocity().index, &v);
     setVecDeriv(core::VecDerivId::force().index, &f);
     setVecDeriv(core::VecDerivId::externalForce().index, &externalForces);
