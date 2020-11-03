@@ -10,6 +10,8 @@ set(HEADER_FILES
     CholeskySolver.inl
     BTDLinearSolver.h
     BTDLinearSolver.inl
+    EigenLLTDomainSolver.h
+    EigenLLTDomainSolver.inl
     FullMatrix.h
     DiagonalMatrix.h
     SingleMatrixAccessor.h
@@ -32,6 +34,7 @@ set(SOURCE_FILES
     BTDLinearSolver.cpp
     GraphScatteredTypes.cpp
     DefaultMultiMatrixAccessor.cpp
+    EigenLLTDomainSolver.cpp
     MatrixLinearSolver.cpp
     SingleMatrixAccessor.cpp
     SparseMatrix.cpp
