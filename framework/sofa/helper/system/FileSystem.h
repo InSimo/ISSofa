@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace sofa
 {
@@ -67,12 +68,12 @@ SOFA_HELPER_API bool listDirectory(const std::string& directoryPath,
                                    const std::string& extension);
 
 /// @brief Returns true if and only if the given file exists.
-SOFA_HELPER_API bool exists(const std::string& path);
+SOFA_HELPER_API bool exists(const std::string& path, std::ostream* err = nullptr);
 
 /// @brief Returns true if and only if the given file path corresponds to a directory.
 ///
 /// The path must exist.
-SOFA_HELPER_API bool isDirectory(const std::string& path);
+SOFA_HELPER_API bool isDirectory(const std::string& path, std::ostream* err = nullptr);
 
 }
 

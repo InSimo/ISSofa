@@ -116,7 +116,7 @@ bool listDirectory(const std::string& directoryPath,
 }
 
 
-bool exists(const std::string& path)
+bool exists(const std::string& path, std::ostream* err)
 {
 #if defined(WIN32)
 	::SetLastError(0);
@@ -124,8 +124,11 @@ bool exists(const std::string& path)
     DWORD errorCode = ::GetLastError();
 	if (errorCode != 0
 		&& errorCode != ERROR_FILE_NOT_FOUND
-		&& errorCode != ERROR_PATH_NOT_FOUND) {
-        std::cerr << "FileSystem::exists(\"" << path << "\"): "
+		&& errorCode != ERROR_PATH_NOT_FOUND
+        && err
+        ) 
+    {
+        *err << "FileSystem::exists(\"" << path << "\"): "
                   << Utils::GetLastError() << std::endl;
     }
     return  pathExists;
@@ -140,21 +143,21 @@ bool exists(const std::string& path)
         if (errno == ENOENT)    // No such file or directory
             return false;
         else {
-            std::cerr << "FileSystem::exists(\"" << path << "\"): "
-                      << strerror(errno) << std::endl;
-            return false;
+            if(err) *err << "FileSystem::exists(\"" << path << "\"): "
+                           << strerror(errno) << std::endl;
+            return false; 
         }
 #endif
 }
 
 
-bool isDirectory(const std::string& path)
+bool isDirectory(const std::string& path, std::ostream* err)
 {
 #if defined(WIN32)
     DWORD fileAttrib = GetFileAttributes(Utils::s2ws(path).c_str());
     if (fileAttrib == INVALID_FILE_ATTRIBUTES) {
-        std::cerr << "FileSystem::isDirectory(\"" << path << "\"): "
-                  << Utils::GetLastError() << std::endl;
+        if(err) *err << "FileSystem::isDirectory(\"" << path << "\"): "
+                     << Utils::GetLastError() << std::endl;
         return false;
     }
     else
@@ -162,8 +165,8 @@ bool isDirectory(const std::string& path)
 #elif defined (_XBOX)
     DWORD fileAttrib = GetFileAttributes(path.c_str());
     if (fileAttrib == -1) {
-        std::cerr << "FileSystem::isDirectory(\"" << path << "\"): "
-                  << Utils::GetLastError() << std::endl;
+        if(err) *err << "FileSystem::isDirectory(\"" << path << "\"): "
+                     << Utils::GetLastError() << std::endl;
         return false;
     }
     else
@@ -171,8 +174,8 @@ bool isDirectory(const std::string& path)
 #else
     struct stat st_buf;
     if (stat(path.c_str(), &st_buf) != 0) {
-        std::cerr << "FileSystem::isDirectory(\"" << path << "\"): "
-                  << strerror(errno) << std::endl;
+        if(err) *err << "FileSystem::isDirectory(\"" << path << "\"): "
+                     << strerror(errno) << std::endl;
         return false;
     }
     else
