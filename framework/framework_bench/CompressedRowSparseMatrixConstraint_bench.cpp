@@ -7,11 +7,12 @@
 #endif
 
 #include <sofa/helper/system/FileRepository.h>
+#include <sofa/helper/system/FileSystem.h>
+#include <sofa/helper/system/SetDirectory.h>
 #include <sofa/helper/system/thread/CTime.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
 
-#include "CompressedRowSparseMatrixHelper_bench.h"
 #include <sofa/defaulttype/MapMapSparseMatrix.h>
 
 #include <chrono>
@@ -294,7 +295,7 @@ double benchReadStepMapMap(const std::string& logTraceFileName, const std::size_
 }
 
 template<class TBloc>
-void benchFast(const std::vector<std::string>& listOfBinFiles, const std::size_t nbExec, const bool verbose)
+void benchFast(const std::vector<std::string>& matrixTraceFiles, const std::size_t nbExec)
 {
     typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyA> TMatrixA;
     typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyB> TMatrixB;
@@ -303,11 +304,11 @@ void benchFast(const std::vector<std::string>& listOfBinFiles, const std::size_t
     typedef MapMapSparseMatrix<TBloc>                                             TMapMap;
 
 
-    const std::size_t numLogTraceFiles = listOfBinFiles.size();
+    const std::size_t numLogTraceFiles = matrixTraceFiles.size();
 
     std::cout << "Run benchByStep on " << nbExec << " executions  with " << numLogTraceFiles << " log trace files" << std::endl;
 
-    for (const std::string& file : listOfBinFiles)
+    for (const std::string& file : matrixTraceFiles)
     {
         {
             const double benchMapMap = benchStepMapMap<TBloc>(file, nbExec);
@@ -353,13 +354,8 @@ void showHelp()
 {
     std::cout<<"Usage : CompressedRowSparseMatrixMechanicalCompare_bench [option] ... [arg] ..."<<std::endl;
     std::cout<<"-h   / --help      : print this help message and exit"<<std::endl;
-    std::cout<<"-n   / --nbExec    : number of execution, default 1000"<<std::endl;
-    std::cout<<"-nbp / --nbpolicy  : number of policy to bench, max 4, default 1"<<std::endl;
-    std::cout<<"                     policies could be specified directly in this cpp file, compilation needed"<<std::endl;
-    std::cout<<"     / --start     : start step for bench, default 0"<<std::endl;
-    std::cout<<"     / --stop      : stop  step for bench, default max of trace"<<std::endl;
+    std::cout<<"-n   / --nbExec    : number of execution, default 50"<<std::endl;
     std::cout<<"     / --subfolder : name of subfolder of ISSofa/share/benchmarks/CRSResources where trace to bench is located"<<std::endl;
-    std::cout<<"     / --verbose   : when check matrix consistency failed, verbose give more outputs for debug"<<std::endl;
     std::cout<<"arg ...            : arguments passed to program in sys.argv[1:]"<<std::endl;
     std::cout<<std::endl;
     std::cout<<"For trace generation help please refer to README in ISSofa/framework/framework_bench"<<std::endl;
@@ -367,11 +363,7 @@ void showHelp()
 
 int main(int argc, char* argv[])
 {
-    long nbExec = 25;
-    long startStep = 0;
-    long endStep = -1;
-    long nbPolicy = 1;
-    bool verbose = false;
+    long nbExec = 50;
     std::string folderName = "CRSConstraint_Reference";
 
     for(int i = 1; i < argc; i++)
@@ -385,22 +377,6 @@ int main(int argc, char* argv[])
         else if (arg == "-n" || arg == "--nbExec")
         {
             i++; nbExec = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "--start")
-        {
-            i++; startStep = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "--stop")
-        {
-            i++; endStep = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "-nbp" || arg == "--nbpolicy")
-        {
-            i++; nbPolicy = strtol(argv[i], nullptr, 10);
-        }
-        else if (arg == "--verbose")
-        {
-            verbose = true;
         }
         else if (arg == "--subfolder")
         {
@@ -420,7 +396,7 @@ int main(int argc, char* argv[])
     bool foundPath = false;
     for (std::size_t i = 0; i < paths.size(); i++)
     {
-        if (filesys::exists(paths[i] + matrixTraceDirectory))
+        if (sofa::helper::system::FileSystem::isDirectory(paths[i] + matrixTraceDirectory))
         {
             foundPath = true;
             matrixTraceDirectory = paths[i] + matrixTraceDirectory;
@@ -430,37 +406,45 @@ int main(int argc, char* argv[])
 
     if (!foundPath)
     {
-        std::cout<<"Error could not find "<<matrixTraceDirectory<<" in all environnement paths"<<std::endl;
+        std::cout << "Error could not find " << matrixTraceDirectory << " in all environnement paths" << std::endl;
         return -1;
     }
-    std::vector<std::string> listOfBinFiles;
+    
+    std::vector<std::string> matrixTraceFiles;
 #ifdef SOFA_HAVE_ZLIB
     { // first try compressed files
-        listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".gz");
+        sofa::helper::system::FileSystem::listDirectory(matrixTraceDirectory, matrixTraceFiles, ".gz");
     }
-    if (listOfBinFiles.empty())
+    if (matrixTraceFiles.empty())
 #endif
     { // try uncompressed files
-        listOfBinFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".bin");
+        sofa::helper::system::FileSystem::listDirectory(matrixTraceDirectory, matrixTraceFiles, ".bin");
     }
-    if (listOfBinFiles.empty())
+    if (matrixTraceFiles.empty())
     {
-        std::cout<<"ERROR: could not find trace into specified folder "<<matrixTraceDirectory << std::endl;
+        std::cout << "ERROR: could not find trace into specified folder " << matrixTraceDirectory << std::endl;
         return -1;
     }
+    else
+    {
+        for (auto& file : matrixTraceFiles)
+        {
+            file = matrixTraceDirectory + file;
+        }
+    }
 
-    const std::string fileName = sofa::helper::system::SetDirectory::GetFileName(listOfBinFiles[0].c_str());
+    const std::string fileName = sofa::helper::system::SetDirectory::GetFileName(matrixTraceFiles[0].c_str());
 
-    if      (fileName.find("_V1f_") != std::string::npos) benchFast<Vec1f>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_V1d_") != std::string::npos) benchFast<Vec1d>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_V3f_") != std::string::npos) benchFast<Vec3f>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_V3d_") != std::string::npos) benchFast<Vec3d>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_V6f_") != std::string::npos) benchFast<Vec6f>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_V6d_") != std::string::npos) benchFast<Vec6d>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_RigidDeriv<2,float>_") != std::string::npos) benchFast<RigidDeriv<2, float>>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_RigidDeriv<2,double>_") != std::string::npos) benchFast<RigidDeriv<2, double>>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_RigidDeriv<3,float>_") != std::string::npos) benchFast<RigidDeriv<3, float>>(listOfBinFiles, nbExec, verbose);
-    else if (fileName.find("_RigidDeriv<3,double>_") != std::string::npos) benchFast<RigidDeriv<3, double>>(listOfBinFiles, nbExec, verbose);
+    if      (fileName.find("_V1f_") != std::string::npos) benchFast<Vec1f>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_V1d_") != std::string::npos) benchFast<Vec1d>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_V3f_") != std::string::npos) benchFast<Vec3f>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_V3d_") != std::string::npos) benchFast<Vec3d>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_V6f_") != std::string::npos) benchFast<Vec6f>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_V6d_") != std::string::npos) benchFast<Vec6d>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_RigidDeriv<2,float>_") != std::string::npos) benchFast<RigidDeriv<2, float>>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_RigidDeriv<2,double>_") != std::string::npos) benchFast<RigidDeriv<2, double>>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_RigidDeriv<3,float>_") != std::string::npos) benchFast<RigidDeriv<3, float>>(matrixTraceFiles, nbExec);
+    else if (fileName.find("_RigidDeriv<3,double>_") != std::string::npos) benchFast<RigidDeriv<3, double>>(matrixTraceFiles, nbExec);
     else
     {
         std::cout<<"ERROR: CompressedRowSparseMatrixConstraint_bench bloc template not handled"<<std::endl;

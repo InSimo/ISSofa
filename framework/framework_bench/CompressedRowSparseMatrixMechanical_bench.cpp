@@ -7,11 +7,13 @@
 #endif
 
 #include <sofa/helper/system/FileRepository.h>
+#include <sofa/helper/system/FileSystem.h>
+#include <sofa/helper/system/SetDirectory.h>
+
 #include <sofa/helper/system/thread/CTime.h>
 
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.inl>
 
-#include "CompressedRowSparseMatrixHelper_bench.h"
 #include "CompressedRowSparseMatrixOld.h"
 
 #include <chrono>
@@ -325,7 +327,7 @@ int main(int argc, char* argv[])
     bool foundPath = false;
     for (std::size_t i = 0; i < paths.size(); i++)
     {
-        if (filesys::exists(paths[i] + matrixTraceDirectory))
+        if (sofa::helper::system::FileSystem::isDirectory( paths[i] + matrixTraceDirectory))
         {
             foundPath = true;
             matrixTraceDirectory = paths[i] + matrixTraceDirectory;
@@ -342,17 +344,24 @@ int main(int argc, char* argv[])
     std::vector<std::string> matrixTraceFiles;
 #ifdef SOFA_HAVE_ZLIB
     { // first try compressed files
-        matrixTraceFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".gz");
+        sofa::helper::system::FileSystem::listDirectory(matrixTraceDirectory, matrixTraceFiles, ".gz");
     }
     if (matrixTraceFiles.empty())
 #endif
     { // try uncompressed files
-        matrixTraceFiles = getAllFilesInDir(matrixTraceDirectory, {}, ".bin");
+        sofa::helper::system::FileSystem::listDirectory(matrixTraceDirectory, matrixTraceFiles, ".bin");
     }
     if (matrixTraceFiles.empty())
     {
         std::cout<<"ERROR: could not find trace into specified folder "<<matrixTraceDirectory << std::endl;
         return -1;
+    }
+    else
+    {
+        for (auto& file : matrixTraceFiles)
+        {
+            file = matrixTraceDirectory + file;
+        }
     }
     
     std::string fileName = sofa::helper::system::SetDirectory::GetFileName(matrixTraceFiles[0].c_str());

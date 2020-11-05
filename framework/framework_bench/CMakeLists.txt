@@ -14,12 +14,8 @@ set(BENCHMARKS_FILES
    )
 
 set(BENCHMARKS_HEADERS
-    CompressedRowSparseMatrixHelper_bench.h
     CompressedRowSparseMatrixOld.h
    )
-
-# Boost
-find_package(Boost REQUIRED COMPONENTS filesystem QUIET)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_sources(${PROJECT_NAME} INTERFACE ${BENCHMARKS_HEADERS})
@@ -27,7 +23,7 @@ target_sources(${PROJECT_NAME} INTERFACE ${BENCHMARKS_HEADERS})
 foreach(SOURCE_FILE ${BENCHMARKS_FILES})
     get_filename_component(TARGET_NAME ${SOURCE_FILE} NAME_WE)
     add_executable(${TARGET_NAME} ${SOURCE_FILE})
-    target_link_libraries(${TARGET_NAME} Boost::filesystem SofaDefaultType)
+    target_link_libraries(${TARGET_NAME} SofaDefaultType)
     install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${SOFAFRAMEWORK_INSTALL_BIN_DIR} COMPONENT SofaFramework_bench)
 endforeach()
 
