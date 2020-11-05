@@ -69,7 +69,6 @@ PointSetTopologyContainer::PointSetTopologyContainer(int npoints)
     , nbPoints (initData(&nbPoints, (unsigned int )npoints, "nbPoints", "Number of points"))
     , points(initData(&points, "points","List of point indices"))
 {
-    addAlias(&d_initPoints,"points");
 }
 
 void PointSetTopologyContainer::setNbPoints(int n)
