@@ -35,7 +35,7 @@
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 
 #include <sofa/helper/map.h>

@@ -29,7 +29,7 @@
 #include <SofaBaseLinearSolver/MatrixLinearSolver.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <sofa/helper/map.h>
 
 #include <math.h>
@@ -54,6 +54,8 @@ public:
     typedef TVector Vector;
     typedef typename Vector::Real Real;
     typedef sofa::component::linearsolver::MatrixLinearSolver<TMatrix,TVector> Inherit;
+    
+    using FullMatrix = sofa::defaulttype::FullMatrix<typename Vector::Real>;
 
     Data<bool> f_verbose;
 
@@ -66,13 +68,13 @@ public:
     void invert(Matrix& M);
 
 private :
-    FullMatrix<typename Vector::Real> L;
+    FullMatrix L;
 };
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_BASE_LINEAR_SOLVER)
 extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< FullMatrix<float>, sofa::defaulttype::FullVector<float> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CholeskySolver< sofa::defaulttype::FullMatrix<float>, sofa::defaulttype::FullVector<float> >;
 #endif
 
 } // namespace linearsolver

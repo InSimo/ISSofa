@@ -30,7 +30,7 @@
 #include <sofa/core/behavior/ConstraintCorrection.h>
 #include <sofa/core/objectmodel/DataFileName.h>
 
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Vec.h>
@@ -160,7 +160,7 @@ public:
     //VecDeriv constraint_disp, constraint_force;
     helper::vector<int> id_to_localIndex;	// table that gives the local index of a constraint given its id
     sofa::helper::vector<unsigned int>* localConstraintId;
-    linearsolver::FullMatrix< Real > localW;
+    sofa::defaulttype::FullMatrix< Real > localW;
     double* constraint_force;
 
     // NEW METHOD FOR UNBUILT

@@ -45,7 +45,7 @@
 #include <SofaBaseTopology/TopologyData.inl>
 
 #include <sofa/helper/AdvancedTimer.h>
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 
 namespace sofa
 {
@@ -441,7 +441,7 @@ void FastTriangularBendingSprings<DataTypes>::addDForce(const core::MechanicalPa
 template<class DataTypes>
 void FastTriangularBendingSprings<DataTypes>::addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
-    linearsolver::BlocMatrixWriter<Mat> writer;
+    core::BlocMatrixWriter<Mat> writer;
     writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 }
 

@@ -28,7 +28,7 @@
 #include <sofa/SofaGeneral.h>
 #include <sofa/core/behavior/ConstraintSolver.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 
 namespace sofa
 {
@@ -43,7 +43,7 @@ namespace constraintset
 class SOFA_CONSTRAINT_API ConstraintProblem
 {
 public:
-    sofa::component::linearsolver::LPtrFullMatrix<double> W;
+    sofa::defaulttype::LPtrFullMatrix<double> W;
     sofa::defaulttype::FullVector<double> dFree, f;
     sofa::defaulttype::FullVector<double> _d;
     std::vector<core::behavior::ConstraintResolution*> constraintsResolutions;

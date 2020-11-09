@@ -31,7 +31,7 @@
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseMechanics/UniformMass.h>
 
 namespace sofa

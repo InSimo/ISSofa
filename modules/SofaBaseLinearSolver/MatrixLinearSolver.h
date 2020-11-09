@@ -33,7 +33,7 @@
 #include <sofa/SofaBase.h>
 #include <SofaBaseLinearSolver/DefaultMultiMatrixAccessor.h>
 #include <SofaBaseLinearSolver/GraphScatteredTypes.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 
@@ -485,8 +485,8 @@ void MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredVector,NoThreadManage
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_BASE_LINEAR_SOLVER)
 extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< GraphScatteredMatrix, GraphScatteredVector, NoThreadManager >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< FullMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::FullMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< SparseMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;

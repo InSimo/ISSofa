@@ -26,7 +26,7 @@
 #define SOFA_COMPONENT_INTERACTIONFORCEFIELD_JOINTSPRINGFORCEFIELD_INL
 
 #include <SofaRigid/JointSpringForceField.h>
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/behavior/PairInteractionForceField.inl>
 #include <sofa/core/topology/BaseMeshTopology.h>
@@ -427,7 +427,7 @@ void JointSpringForceField<DataTypes>::addKToMatrix(const sofa::core::Mechanical
 {
     if (this->mstate1 != this->mstate2) return;
 
-    component::linearsolver::BlocMatrixWriter<defaulttype::Mat<6,6,Real>> writer;
+    core::BlocMatrixWriter<defaulttype::Mat<6,6,Real>> writer;
     writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate1));
 }
 

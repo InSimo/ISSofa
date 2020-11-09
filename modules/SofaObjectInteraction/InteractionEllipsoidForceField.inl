@@ -32,7 +32,7 @@
 #include <sofa/helper/system/config.h>
 #include <sofa/helper/system/glut.h>
 #include <sofa/helper/rmath.h>
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 #include <assert.h>
 #include <iostream>
 
@@ -375,7 +375,7 @@ void InteractionEllipsoidForceField<DataTypes1, DataTypes2>::addKToMatrixT(const
 template<class DataTypes1, class DataTypes2>
 void InteractionEllipsoidForceField<DataTypes1, DataTypes2>::addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix )
 {
-    linearsolver::BlocMatrixWriter<Mat> writer;
+    core::BlocMatrixWriter<Mat> writer;
     writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate1));
 }
 

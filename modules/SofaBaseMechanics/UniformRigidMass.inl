@@ -2,7 +2,7 @@
 #define SOFA_COMPONENT_MASS_UNIFORMRIGIDMASS_INL
 
 #include "UniformRigidMass.h"
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 #include <sofa/helper/gl/Axis.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/gl/template.h>
@@ -151,7 +151,7 @@ void UniformRigidMass<RigidDataTypes>::addMDx( const sofa::core::MechanicalParam
 template< class RigidDataTypes >
 void UniformRigidMass<RigidDataTypes>::addMToMatrix(const core::MechanicalParams *mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
-    //sofa::component::linearsolver::BlocMatrixWriter<MatBloc> writer;
+    //sofa::core::BlocMatrixWriter<MatBloc> writer;
     //writer.addMToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix( this->getMState() );

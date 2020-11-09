@@ -79,8 +79,8 @@ public:
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_BASE_LINEAR_SOLVER)
 
 extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< GraphScatteredMatrix, GraphScatteredVector >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< FullMatrix<double>, FullVector<double> >;
-extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< SparseMatrix<double>, FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< sofa::defaulttype::SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< CompressedRowSparseMatrixMechanical<double>, FullVector<double> >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< CompressedRowSparseMatrixMechanical<float>, FullVector<float> >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API MinResLinearSolver< CompressedRowSparseMatrixMechanical<defaulttype::Mat<2,2,double> >, FullVector<double> >;

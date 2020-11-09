@@ -73,7 +73,7 @@ SOFA_DECL_CLASS(CGLinearSolver)
 int CGLinearSolverClass = core::RegisterObject("Linear system solver using the conjugate gradient iterative algorithm")
         .add< CGLinearSolver< GraphScatteredMatrix, GraphScatteredVector > >(true)
 #ifndef SOFA_FLOAT
-        .add< CGLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> > >()
+        .add< CGLinearSolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double> > >()
         .add< CGLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> > >()
         .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>, sofa::defaulttype::FullVector<double> > >()
         .add< CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat<2,2,double> >, sofa::defaulttype::FullVector<double> > >()
@@ -96,7 +96,7 @@ int CGLinearSolverClass = core::RegisterObject("Linear system solver using the c
 
 template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< GraphScatteredMatrix, GraphScatteredVector >;
 #ifndef SOFA_FLOAT
-template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
 template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
 template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>, sofa::defaulttype::FullVector<double> >;
 template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<2u,2u,double> >, sofa::defaulttype::FullVector<double> >;

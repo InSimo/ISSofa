@@ -31,7 +31,7 @@
 #include <SofaDeformable/StiffSpringForceField.h>
 #include <SofaDeformable/SpringForceField.inl>
 #include <sofa/helper/AdvancedTimer.h>
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 
 #include <sofa/core/visual/VisualParams.h>
 
@@ -188,7 +188,7 @@ void StiffSpringForceField<DataTypes>::addKToMatrix(const core::MechanicalParams
 {
     if (this->mstate1 == this->mstate2)
     {
-        linearsolver::BlocMatrixWriter<Mat> writer;
+        core::BlocMatrixWriter<Mat> writer;
         writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate1));
     }
     else

@@ -28,7 +28,7 @@
 #include <SofaBaseLinearSolver/MinResLinearSolver.h>
 #include <SofaBaseLinearSolver/MatrixLinearSolver.inl>
 #include <sofa/core/visual/VisualParams.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>

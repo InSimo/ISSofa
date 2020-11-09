@@ -2777,7 +2777,7 @@ std::list< core::behavior::BaseMechanicalState::ConstraintBlock > MechanicalObje
     // simple column/block map
 
     typedef sofa::component::linearsolver::SparseMatrix<SReal> matrix_t;
-    // typedef sofa::component::linearsolver::FullMatrix<SReal> matrix_t;
+    // typedef sofa::defaulttype::FullMatrix<SReal> matrix_t;
 
     typedef std::map<unsigned int, matrix_t* > blocks_t;
     blocks_t blocks;

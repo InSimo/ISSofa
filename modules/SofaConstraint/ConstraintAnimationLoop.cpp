@@ -55,7 +55,6 @@
 #include <sstream>
 
 using namespace sofa::defaulttype;
-using namespace sofa::component::linearsolver;
 using namespace sofa::helper::system::thread;
 
 namespace sofa

@@ -33,7 +33,7 @@
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 
 #include <sofa/helper/set.h>
@@ -187,14 +187,14 @@ private:
     void build_LCP();
     LCPConstraintProblem lcp1, lcp2, lcp3; // Triple buffer for LCP.
     LCPConstraintProblem *lcp, *last_lcp; /// use of last_lcp allows several LCPForceFeedback to be used in the same scene
-    sofa::component::linearsolver::LPtrFullMatrix<double>  *_W;
+    sofa::defaulttype::LPtrFullMatrix<double>  *_W;
 
     /// multi-grid approach ///
     void MultigridConstraintsMerge();
     void MultigridConstraintsMerge_Compliance();
     void MultigridConstraintsMerge_Spatial();
     void build_Coarse_Compliance(std::vector<int> &/*constraint_merge*/, int /*sizeCoarseSystem*/);
-    sofa::component::linearsolver::LPtrFullMatrix<double>  _Wcoarse;
+    sofa::defaulttype::LPtrFullMatrix<double>  _Wcoarse;
 
     //std::vector< int> _contact_group;
     //std::vector< int> _constraint_group;

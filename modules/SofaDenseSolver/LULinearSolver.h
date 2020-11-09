@@ -28,7 +28,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <SofaBaseLinearSolver/MatrixLinearSolver.inl>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <math.h>
 
 namespace sofa
@@ -46,6 +46,9 @@ class LULinearSolver : public sofa::component::linearsolver::MatrixLinearSolver<
 {
 public:
     SOFA_CLASS(SOFA_TEMPLATE2(LULinearSolver,Matrix,Vector),SOFA_TEMPLATE2(sofa::component::linearsolver::MatrixLinearSolver,Matrix,Vector));
+
+    template< class TReal >
+    using FullMatrix = sofa::defaulttype::FullMatrix<TReal>;
 
     Data<bool> f_verbose;
     typename Matrix::LUSolver* solver;

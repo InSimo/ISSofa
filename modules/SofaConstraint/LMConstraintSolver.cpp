@@ -26,7 +26,7 @@
 #include <SofaConstraint/LMConstraintSolver.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/behavior/LinearSolver.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <sofa/defaulttype/FullVector.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
 
@@ -50,7 +50,7 @@ namespace constraintset
 {
 
 using sofa::defaulttype::FullVector;
-using linearsolver::FullMatrix;
+using sofa::defaulttype::FullMatrix;
 
 LMConstraintSolver::LMConstraintSolver()
     : constraintAcc( initData( &constraintAcc, false, "constraintAcc", "Constraint the acceleration"))

@@ -240,8 +240,8 @@ defaulttype::BaseVector* MatrixLinearSolver<GraphScatteredMatrix,GraphScatteredV
 
 // Force template instantiation
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< GraphScatteredMatrix, GraphScatteredVector, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
-template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< FullMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
+template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::FullMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< SparseMatrix<float>, sofa::defaulttype::FullVector<float>, NoThreadManager >;
 template class SOFA_BASE_LINEAR_SOLVER_API MatrixLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>, sofa::defaulttype::FullVector<double>, NoThreadManager >;

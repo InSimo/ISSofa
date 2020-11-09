@@ -3,7 +3,7 @@
 
 #include "MappingGeometricStiffnessForceField.h"
 #include <sofa/core/behavior/ForceField.inl>
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 
 namespace sofa
 {
@@ -69,7 +69,7 @@ void MappingGeometricStiffnessForceField<DataTypes>::addKToMatrix(const sofa::co
 
 
     //typedef typename DataTypes::Deriv TBloc;
-    //sofa::component::linearsolver::BlocMatrixWriter< TBloc > writer;
+    //sofa::core::BlocMatrixWriter< TBloc > writer;
     //writer.addKToMatrix(this, mparams, matrix->getMatrix(this->getMState()));
 }
 

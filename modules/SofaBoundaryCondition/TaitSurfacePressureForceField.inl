@@ -26,7 +26,7 @@
 #define SOFA_COMPONENT_FORCEFIELD_TAITSURFACEPRESSUREFORCEFIELD_INL
 
 #include <SofaBoundaryCondition/TaitSurfacePressureForceField.h>
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
@@ -314,7 +314,7 @@ void TaitSurfacePressureForceField<DataTypes>::addDForce(const core::MechanicalP
 template<class DataTypes>
 void TaitSurfacePressureForceField<DataTypes>::addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix )
 {
-    linearsolver::BlocMatrixWriter<MatBloc> writer;
+    core::BlocMatrixWriter<MatBloc> writer;
     writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 }
 

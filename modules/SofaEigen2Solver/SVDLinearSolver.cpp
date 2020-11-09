@@ -27,7 +27,7 @@
 // Copyright: See COPYING file that comes with this distribution
 #include <SofaEigen2Solver/SVDLinearSolver.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>

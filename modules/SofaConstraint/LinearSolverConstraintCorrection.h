@@ -35,7 +35,7 @@
 #include <sofa/defaulttype/Vec.h>
 
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 
 namespace sofa
 {
@@ -141,7 +141,7 @@ protected:
     linearsolver::SparseMatrix<SReal> J; ///< constraint matrix
     sofa::defaulttype::FullVector<SReal> F; ///< forces computed from the constraints
 #if 0 // refMinv is not use in normal case    
-    linearsolver::FullMatrix<SReal> refMinv; ///< reference inverse matrix
+    defaulttype::FullMatrix<SReal> refMinv; ///< reference inverse matrix
 #endif
 
     /*

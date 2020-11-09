@@ -640,7 +640,7 @@ defaulttype::BaseMatrix* DefaultMultiMatrixAccessor::createMatrix(const sofa::co
 {
     // The auxiliar interaction matrix is added if and only if at least one of two state is not real state
     //assert(! (realStateOffsets.find(mstate1) != realStateOffsets.end() && realStateOffsets.find(mstate2) != realStateOffsets.end()) );
-    component::linearsolver::FullMatrix<SReal>* m = new component::linearsolver::FullMatrix<SReal>;
+    sofa::defaulttype::FullMatrix<SReal>* m = new sofa::defaulttype::FullMatrix<SReal>;
 
     if(mstate1 == mstate2)
     {

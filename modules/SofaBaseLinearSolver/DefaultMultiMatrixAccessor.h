@@ -30,7 +30,7 @@
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/SofaBase.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <SofaBaseLinearSolver/GraphScatteredTypes.h>
 #include <vector>

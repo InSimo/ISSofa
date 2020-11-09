@@ -192,7 +192,7 @@ void LinearSolverConstraintCorrection<DataTypes>::addComplianceInConstraintSpace
         J.resize(numDOFReals,numDOFReals);
         for (unsigned int i=0; i<numDOFReals; ++i)
             J.set(i,i,1);
-        linearsolver::FullMatrix<Real> Minv;
+        defaulttype::FullMatrix<Real> Minv;
         Minv.resize(numDOFReals,numDOFReals);
         // use the Linear solver to compute J*inv(M)*Jt, where M is the mechanical linear system matrix
         linearsolvers[0]->addJMInvJt(&Minv, &J, factor);

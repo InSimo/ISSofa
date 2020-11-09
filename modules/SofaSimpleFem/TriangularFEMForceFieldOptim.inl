@@ -33,7 +33,7 @@
 #include "TriangularFEMForceFieldOptim.h"
 #include <sofa/core/behavior/ForceField.inl>
 
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 
 #include <sofa/core/visual/VisualParams.h>
 
@@ -444,7 +444,7 @@ void TriangularFEMForceFieldOptim<DataTypes>::addDForce(const core::MechanicalPa
 template <class DataTypes>
 void TriangularFEMForceFieldOptim<DataTypes>::addKToMatrix(const core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
 {
-    linearsolver::BlocMatrixWriter<MatBloc> writer;
+    core::BlocMatrixWriter<MatBloc> writer;
     writer.addKToMatrix(this, mparams, matrix->getMatrix(this->mstate));
 }
 

@@ -30,7 +30,7 @@
 #include <sofa/core/behavior/LinearSolver.h>
 #include <sofa/SofaBase.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #ifdef SOFA_SMP
 #include <sofa/core/behavior/ParallelMultiVec.h>
 #endif

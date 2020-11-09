@@ -94,7 +94,7 @@ inline void CGLinearSolver<component::linearsolver::GraphScatteredMatrix,compone
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_BASE_LINEAR_SOLVER)
 extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< GraphScatteredMatrix, GraphScatteredVector >;
 #ifndef SOFA_FLOAT
-extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
+extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::FullMatrix<double>, sofa::defaulttype::FullVector<double> >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< SparseMatrix<double>, sofa::defaulttype::FullVector<double> >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<double>, sofa::defaulttype::FullVector<double> >;
 extern template class SOFA_BASE_LINEAR_SOLVER_API CGLinearSolver< sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<2,2,double> >, sofa::defaulttype::FullVector<double> >;

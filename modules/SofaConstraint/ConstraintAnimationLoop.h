@@ -33,7 +33,7 @@
 #include <sofa/core/behavior/BaseConstraintCorrection.h>
 #include <sofa/core/behavior/OdeSolver.h>
 
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 
 #include <sofa/simulation/common/CollisionAnimationLoop.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
@@ -200,7 +200,7 @@ protected:
 class SOFA_CONSTRAINT_API ConstraintProblem
 {
 protected:
-    sofa::component::linearsolver::LPtrFullMatrix<double> _W;
+    sofa::defaulttype::LPtrFullMatrix<double> _W;
     sofa::defaulttype::FullVector<double> _dFree, _force, _d, _df;              // cf. These Duriez + _df for scheme correction
     std::vector<core::behavior::ConstraintResolution*> _constraintsResolutions;
     double _tol;
@@ -214,7 +214,7 @@ public:
     virtual void clear(int dim, const double &tol);
 
     inline int getSize(void) {return _dim;};
-    inline sofa::component::linearsolver::LPtrFullMatrix<double>* getW(void) {return &_W;};
+    inline sofa::defaulttype::LPtrFullMatrix<double>* getW(void) {return &_W;};
     inline sofa::defaulttype::FullVector<double>* getDfree(void) {return &_dFree;};
     inline sofa::defaulttype::FullVector<double>* getD(void) {return &_d;};
     inline sofa::defaulttype::FullVector<double>* getF(void) {return &_force;};
