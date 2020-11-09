@@ -34,7 +34,6 @@
 #include <sofa/defaulttype/VirtualTypeInfo.h>
 #include <sofa/helper/accessor.h>
 #include <sofa/helper/vector.h>
-#include <boost/shared_ptr.hpp>
 #include <sofa/core/dataparser/DataParserRegistry.h>
 #include <stdlib.h>
 #include <string>
@@ -43,6 +42,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <memory>
 
 namespace sofa
 {
@@ -252,7 +252,7 @@ public:
 template <class T>
 class DataValue<T, true>
 {
-    boost::shared_ptr<T> ptr;
+    std::shared_ptr<T> ptr;
 public:
 
     DataValue()

@@ -26,7 +26,7 @@
 #define SOFA_HELPER_SYSTEM_PLUGINMANAGER_H
 
 #include <sofa/helper/system/DynamicLibrary.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <map>
 #include <sofa/SofaFramework.h>
 

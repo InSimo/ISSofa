@@ -29,6 +29,7 @@
 
 #include <boost/static_assert.hpp>
 
+#include <memory>
 #include <map>
 
 namespace sofa
@@ -249,7 +250,7 @@ public:
 #else
 
 private:
-    boost::shared_ptr< IdMap > idMap_ptr;
+    std::shared_ptr< IdMap > idMap_ptr;
 
 	template <VecType vtype2, VecAccess vaccess2> friend class TMultiVecId;
 
@@ -327,7 +328,7 @@ public:
             {
 SOFA_WARNING_PUSH()
 SOFA_WARNING_DISABLE_GCC(strict-aliasing) // this should not create problems here
-                idMap_ptr = *reinterpret_cast<const boost::shared_ptr< IdMap > * >(&mv.idMap_ptr);
+                idMap_ptr = *reinterpret_cast<const std::shared_ptr< IdMap > * >(&mv.idMap_ptr);
 SOFA_WARNING_POP()
 			}
 			else
@@ -514,7 +515,7 @@ public:
 #else
 
 private:
-    boost::shared_ptr< IdMap > idMap_ptr;
+    std::shared_ptr< IdMap > idMap_ptr;
 
 protected:
     IdMap& writeIdMap()
