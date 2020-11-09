@@ -26,19 +26,12 @@
 #include <sofa/core/visual/VisualParams.h>
 
 #include <sofa/core/ObjectFactory.h>
-// Use BOOST GRAPH LIBRARY :
 
-#include <boost/config.hpp>
 #include <iostream>
 #include <vector>
 #include <utility>
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/connected_components.hpp>
-
-#include <boost/graph/cuthill_mckee_ordering.hpp>
-#include <boost/graph/bandwidth.hpp>
-
+#include <sofa/SofaBase.h>
 
 
 namespace sofa
@@ -195,27 +188,6 @@ const Edge EdgeSetTopologyContainer::getEdge (EdgeID i)
     return (d_edge.getValue())[i];
 }
 
-
-// Return the number of connected components from the graph containing all edges and give, for each vertex, which component it belongs to  (use BOOST GRAPH LIBRAIRY)
-int EdgeSetTopologyContainer::getNumberConnectedComponents(sofa::helper::vector<unsigned int>& components)
-{
-    using namespace boost;
-
-    typedef adjacency_list <vecS, vecS, undirectedS> Graph;
-
-    Graph G;
-    helper::ReadAccessor< Data< sofa::helper::vector<Edge> > > m_edge = d_edge;
-
-    for (size_t k=0; k<m_edge.size(); ++k)
-    {
-        add_edge(m_edge[k][0], m_edge[k][1], G);
-    }
-
-    components.resize(num_vertices(G));
-    int num = (int) connected_components(G, &components[0]);
-
-    return num;
-}
 
 bool EdgeSetTopologyContainer::checkTopology() const
 {
