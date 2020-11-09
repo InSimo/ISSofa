@@ -12,7 +12,6 @@ set(HEADER_FILES
     BTDLinearSolver.inl
     EigenLLTDomainSolver.h
     EigenLLTDomainSolver.inl
-    FullMatrix.h
     DiagonalMatrix.h
     SingleMatrixAccessor.h
     SparseMatrix.h
@@ -20,7 +19,6 @@ set(HEADER_FILES
     DefaultMultiMatrixAccessor.h
     MatrixLinearSolver.h
     MatrixLinearSolver.inl
-    BlocMatrixWriter.h
     MinResLinearSolver.h
     MinResLinearSolver.inl
 

@@ -20,6 +20,7 @@ set(SOFADEFAULTTYPE_HEADERS
 	Frame.h	 
     FullVector.h
     FullVector.inl
+    FullMatrix.h
 	LaparoscopicRigidTypes.h	
 	MapMapSparseMatrix.h	
     MapMapSparseMatrixEigenUtils.h
@@ -60,7 +61,8 @@ set(SOFADEFAULTTYPE_SOURCES
     CompressedRowSparseMatrixConstraint.cpp
     CompressedRowSparseMatrixMechanical.cpp
 	Frame.cpp
-    FullVector.cpp    
+    FullMatrix.cpp
+    FullVector.cpp
 	#RigidInertia.cpp
 	SolidTypes.cpp
 	TemplatesAliases.cpp

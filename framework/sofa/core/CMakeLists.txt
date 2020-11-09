@@ -6,6 +6,7 @@ set(SOFACORE_HEADERS
 	VecId.h
 #	Plugin.h
 #	PluginManager.h
+    BlocMatrixWriter.h
 	ConstraintParams.h
 	ExecParams.h
 	MechanicalParams.h
