@@ -178,13 +178,12 @@ void SkeletalMotionConstraint<DataTypes>::projectPosition(const core::Mechanical
         findKeyTimes();
 
         // if we found 2 keyTimes, we have to interpolate a velocity (linear interpolation)
-        interpolatePosition<Coord>(cT, x.wref());
+        interpolatePosition(cT, x.wref());
     }
 }
 
 template <class DataTypes>
-template <class MyCoord>
-void SkeletalMotionConstraint<DataTypes>::interpolatePosition(Real cT, typename boost::enable_if<boost::is_same<MyCoord, defaulttype::RigidCoord<3, Real> >, VecCoord>::type& x)
+void SkeletalMotionConstraint<DataTypes>::interpolatePosition(Real cT, VecCoord& x)
 {
     // set the motion to the SkeletonJoint corresponding rigid
     if(finished && nextT != prevT)
@@ -225,7 +224,7 @@ void SkeletalMotionConstraint<DataTypes>::interpolatePosition(Real cT, typename 
     }
 
     // apply the final transformation from skeletonBones to dofs here
-    localToGlobal<Coord>(x);
+    localToGlobal(x);
 }
 
 template <class DataTypes>
@@ -238,8 +237,7 @@ void SkeletalMotionConstraint<DataTypes>::projectJacobianMatrix(const core::Mech
 }
 
 template <class DataTypes>
-template <class MyCoord>
-void SkeletalMotionConstraint<DataTypes>::localToGlobal(typename boost::enable_if<boost::is_same<MyCoord, defaulttype::RigidCoord<3, Real> >, VecCoord>::type& x)
+void SkeletalMotionConstraint<DataTypes>::localToGlobal(VecCoord& x)
 {
     for(unsigned int i = 0; i < skeletonJoints.getValue().size(); ++i)
     {

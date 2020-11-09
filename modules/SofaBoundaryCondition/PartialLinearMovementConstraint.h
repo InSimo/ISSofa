@@ -36,8 +36,7 @@
 #include <SofaBaseTopology/TopologySubsetData.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <type_traits>
 #include <set>
 
 namespace sofa
@@ -172,10 +171,18 @@ protected:
                             [](VecDeriv& dx, const unsigned int index, const VecBool& b)
                                 { for( unsigned j = 0; j < b.size(); j++) if (b[j]) dx[index][j] = 0.0; });
 
-    template <class MyCoord>
-    void interpolatePosition(Real cT, typename boost::disable_if<boost::is_same<MyCoord, sofa::defaulttype::RigidCoord<3, Real> >, VecCoord>::type& x);
-    template <class MyCoord>
-    void interpolatePosition(Real cT, typename boost::enable_if<boost::is_same<MyCoord, sofa::defaulttype::RigidCoord<3, Real> >, VecCoord>::type& x);
+    template< class MyCoord >
+    using disable_if_is_rigid = typename std::enable_if< !std::is_same<MyCoord, defaulttype::RigidCoord<3, Real> >::value, VecCoord >;
+
+    template< class MyCoord >
+    using enable_if_is_rigid = typename std::enable_if< std::is_same<MyCoord, defaulttype::RigidCoord<3, Real> >::value, VecCoord >;
+
+    template< class MyCoord >
+    void interpolatePosition(Real cT, typename disable_if_is_rigid<MyCoord>::type& x);
+
+    template< class MyCoord >
+    void interpolatePosition(Real cT, typename enable_if_is_rigid<MyCoord>::type& x);
+
 
     /// Pointer to the current topology
     sofa::core::topology::BaseMeshTopology* topology;
