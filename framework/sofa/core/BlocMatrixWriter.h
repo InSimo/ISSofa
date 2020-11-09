@@ -22,10 +22,9 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_LINEARSOLVER_BLOCMATRIXWRITER_H
-#define SOFA_COMPONENT_LINEARSOLVER_BLOCMATRIXWRITER_H
+#ifndef SOFA_CORE_BLOCMATRIXWRITER_H
+#define SOFA_CORE_BLOCMATRIXWRITER_H
 
-#include <sofa/SofaBase.h>
 #include <sofa/core/MechanicalParams.h>
 #include <sofa/core/behavior/MultiMatrixAccessor.h>
 #include <sofa/defaulttype/Vec.h>
@@ -35,10 +34,7 @@
 namespace sofa
 {
 
-namespace component
-{
-
-namespace linearsolver
+namespace core
 {
 
 /// This class is a helper to efficiently implement addKToMatrix in forcefields (and is could later be used for mapping, etc.)
@@ -405,10 +401,8 @@ public:
     }
 };
 
-} // namespace linearsolver
-
-} // namespace component
+} // namespace core
 
 } // namespace sofa
 
-#endif // SOFA_COMPONENT_LINEARSOLVER_BLOCMATRIXWRITER_H
+#endif // SOFA_CORE_BLOCMATRIXWRITER_H

@@ -22,9 +22,10 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_LINEARSOLVER_FULLMATRIX_H
-#define SOFA_COMPONENT_LINEARSOLVER_FULLMATRIX_H
+#ifndef SOFA_DEFAULTTYPE_FULLMATRIX_H
+#define SOFA_DEFAULTTYPE_FULLMATRIX_H
 
+#include <sofa/SofaFramework.h>
 #include <sofa/defaulttype/BaseMatrix.h>
 #include <sofa/defaulttype/FullVector.h>
 
@@ -33,10 +34,7 @@
 namespace sofa
 {
 
-namespace component
-{
-
-namespace linearsolver
+namespace defaulttype
 {
 
 //#define FULLMATRIX_CHECK
@@ -458,11 +456,16 @@ public:
 };
 
 
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_BUILD_DEFAULTTYPE) 
+extern template class SOFA_DEFAULTTYPE_API FullMatrix<float>;
+extern template class SOFA_DEFAULTTYPE_API FullMatrix<double>;
 
-} // namespace linearsolver
+extern template class SOFA_DEFAULTTYPE_API LPtrFullMatrix<float>;
+extern template class SOFA_DEFAULTTYPE_API LPtrFullMatrix<double>;
+#endif
 
-} // namespace component
+} // namespace defaulttype
 
 } // namespace sofa
 
-#endif
+#endif // SOFA_DEFAULTTYPE_FULLMATRIX_H
