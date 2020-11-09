@@ -19,6 +19,7 @@ option(SOFA_ENABLE_BENCHMARKS  "Set to true to enable compilation and installati
 option(SOFA_ALLOW_UNITY_BUILDS "Set to true to build sofa using unity builds and get the option to toggle unity build on/off for each sofa project" OFF)
 option(SOFA_OPTIONAL "Set to true to build sofa optional libraries" OFF)
 option(SOFA_ENABLE_TIMESTAMPS "Set to true to add timestamps before logs" OFF)
+option(SOFA_USE_MINIBOOST "Set to true to use the header only minimal version of boost distributed in extlibs" OFF)
 
 # sofa.env options
 option(SOFA_GENERATE_ENV_FILE "Generate a sofa.env file in the build directory. Disable if this file is not needed or created some other way" ON)
@@ -52,6 +53,15 @@ if(${SOFA_ENABLE_UNIT_TESTS})
     enable_testing()
 endif()
 
+if(SOFA_USE_MINIBOOST)
+    # Add miniBoost to extlibs if it is not already the case
+    list(FIND SOFA_EXTLIBS_TARGETS "miniBoost" SOFA_EXTLIBS_TARGET_HAS_SOFAMINIBOOST)
+    if(SOFA_EXTLIBS_TARGET_HAS_SOFAMINIBOOST EQUAL -1)
+        message(STATUS "SOFA_USE_MINIBOOST is ON: Adding miniBoost to SOFA_EXTLIBS_TARGETS")
+        add_subdirectory( ${SOFA_EXTLIBS_DIR}/miniBoost ${CMAKE_CURRENT_BINARY_DIR}/miniBoost )
+    endif()
+endif()
+
 # Sofa libraries
 set(SOFA_LIBRARIES_DIR ${SOFA_ACTUAL_SOURCE_DIR})
 set(SOFA_LIBRARIES_TARGETS_DEFAULT SofaFramework;SofaSimulation;SofaBase;SofaCommon;SofaGeneral;SofaAdvanced;SofaMisc)
@@ -66,6 +76,8 @@ set(SOFA_PLUGINS_TARGETS ${SOFA_PLUGINS_TARGETS_DEFAULT} CACHE STRING "An ordere
 set(SOFA_PROJECTS_DIR "${SOFA_ACTUAL_SOURCE_DIR}/applications/projects" )
 set(SOFA_PROJECTS_TARGETS_DEFAULT runSofa)
 set(SOFA_PROJECTS_TARGETS ${SOFA_PROJECTS_TARGETS_DEFAULT} CACHE STRING "An ordered list (semicolon separated) of sofa projects to add to the build.")
+
+
 
 foreach(TARGET ${SOFA_EXTLIBS_TARGETS} )
     if( EXISTS ${SOFA_EXTLIBS_DIR}/${TARGET}/CMakeLists.txt )
