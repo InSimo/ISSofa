@@ -49,6 +49,7 @@ set(SOFAHELPER_HEADERS
     set.h
     simple_svg.h
     SSOBuffer.h
+    static_assert.h
     SVector.h
     system/config.h
     system/gl.h

@@ -27,7 +27,7 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/defaulttype/Vec.h>
-#include <boost/static_assert.hpp>
+#include <sofa/helper/static_assert.h>
 
 #include <sstream>
 #include <iostream>
@@ -240,7 +240,7 @@ public:
     template<VecAccess vaccess2>
     TVecId(const TVecId<vtype, vaccess2>& v) : index(v.getIndex())
     {
-        BOOST_STATIC_ASSERT(vaccess2 >= vaccess);
+        SOFA_STATIC_ASSERT(vaccess2 >= vaccess);
     }
 
     TVecId(const TVecId<vtype, V_WRITE>& v) : index(v.getIndex()) { }
@@ -323,7 +323,7 @@ public:
     /// a write-access VecId from a read-only VecId.
     TVecId(const TVecId<vtype2, vaccess2>& v) : type(v.getType()), index(v.getIndex())
     {
-        BOOST_STATIC_ASSERT(vaccess2 >= vaccess);
+        SOFA_STATIC_ASSERT(vaccess2 >= vaccess);
     }
 
     //operator TVecId<V_ALL, V_READ>() const { return TVecId<V_ALL, V_READ>(getType(), getIndex()); }

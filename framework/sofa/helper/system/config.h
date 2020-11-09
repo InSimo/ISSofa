@@ -26,6 +26,7 @@
 #define SOFA_HELPER_SYSTEM_CONFIG_H
 
 #include <sofa/SofaFramework.h>
+#include <sofa/helper/static_assert.h>
 
 // to define NULL
 #include <cstring>

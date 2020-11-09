@@ -27,7 +27,7 @@
 
 #include <sofa/core/VecId.h>
 
-#include <boost/static_assert.hpp>
+#include <sofa/helper/static_assert.h>
 
 #include <memory>
 #include <map>
@@ -291,7 +291,7 @@ public:
         :
         defaultId(v)
     {
-        BOOST_STATIC_ASSERT(vaccess2 >= vaccess);
+        SOFA_STATIC_ASSERT(vaccess2 >= vaccess);
     }
 
     //// Copy constructor
@@ -314,9 +314,9 @@ public:
     template< VecType vtype2, VecAccess vaccess2>
     TMultiVecId( const TMultiVecId<vtype2,vaccess2>& mv) : defaultId( mv.getDefaultId() )
     {
-        BOOST_STATIC_ASSERT( vaccess2 >= vaccess );
-        BOOST_STATIC_ASSERT( vtype == V_ALL || vtype2 == vtype );
-        BOOST_STATIC_ASSERT( vtype != vtype2 || vaccess != vaccess2 );
+        SOFA_STATIC_ASSERT( vaccess2 >= vaccess );
+        SOFA_STATIC_ASSERT( vtype == V_ALL || vtype2 == vtype );
+        SOFA_STATIC_ASSERT( vtype != vtype2 || vaccess != vaccess2 );
         if (mv.hasIdMap())
         {
 #ifdef MAP_PTR
@@ -346,8 +346,8 @@ SOFA_WARNING_POP()
     template< VecAccess vaccess2>
     explicit TMultiVecId( const TMultiVecId<V_ALL,vaccess2>& mv) : defaultId( MyVecId(mv.getDefaultId()) )
     {
-        BOOST_STATIC_ASSERT( vaccess2 >= vaccess );
-        BOOST_STATIC_ASSERT( !(vtype == V_ALL) ); // for V_ALL vectors, this constructor is redundant with the previous one
+        SOFA_STATIC_ASSERT( vaccess2 >= vaccess );
+        SOFA_STATIC_ASSERT( !(vtype == V_ALL) ); // for V_ALL vectors, this constructor is redundant with the previous one
 
         if (mv.hasIdMap())
         {
@@ -478,7 +478,7 @@ SOFA_WARNING_POP()
         template<class DataTypes>
         typename DataTypesVecInfo<DataTypes,vtype>::DataVecT* write(State<DataTypes>* s) const
         {
-            BOOST_STATIC_ASSERT(vaccess >= V_WRITE);
+            SOFA_STATIC_ASSERT(vaccess >= V_WRITE);
             return s->write(getId(s));
         }
     */
@@ -552,7 +552,7 @@ public:
     template<VecType vtype2, VecAccess vaccess2>
     TMultiVecId(const TVecId<vtype2, vaccess2>& v) : defaultId(v)
     {
-        BOOST_STATIC_ASSERT(vaccess2 >= vaccess);
+        SOFA_STATIC_ASSERT(vaccess2 >= vaccess);
     }
 
     //// Copy constructor
@@ -574,8 +574,8 @@ public:
     template< VecType vtype2, VecAccess vaccess2>
     TMultiVecId( const TMultiVecId<vtype2,vaccess2>& mv) : defaultId( mv.getDefaultId() )
     {
-        BOOST_STATIC_ASSERT( vaccess2 >= vaccess );
-        //BOOST_STATIC_ASSERT( vtype == V_ALL || vtype2 == vtype );
+        SOFA_STATIC_ASSERT( vaccess2 >= vaccess );
+        //SOFA_STATIC_ASSERT( vtype == V_ALL || vtype2 == vtype );
 
         if (mv.hasIdMap())
         {
@@ -703,7 +703,7 @@ public:
         template<class DataTypes>
         typename DataTypesVecInfo<DataTypes,vtype>::DataVecT* write(State<DataTypes>* s) const
         {
-            BOOST_STATIC_ASSERT(vaccess >= V_WRITE);
+            SOFA_STATIC_ASSERT(vaccess >= V_WRITE);
             return s->write(getId(s));
         }
     */
