@@ -16,6 +16,7 @@ set(SOFAHELPER_HEADERS
     FnDispatcher.inl
     gl/Trackball.h
     gl/Transformation.h
+    hash.h
     helper.h
     integer_id.h
     intrusive_ptr.h

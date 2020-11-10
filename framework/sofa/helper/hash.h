@@ -22,14 +22,8 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_HELPER_PAIR_H
-#define SOFA_HELPER_PAIR_H
 
-#include <utility>
-#include <iostream>
-#include <limits>
-
-#include "hash.h"
+#include <functional>
 
 namespace sofa
 {
@@ -37,77 +31,36 @@ namespace sofa
 namespace helper
 {
 
-struct HashPair
+// taken from boost/container_hash/hash.hpp
+template< class T >
+inline void hash_combine(std::size_t& seed, const T& val)
 {
-    template<class TPair>
-    inline std::size_t operator()(const TPair& pair) const
-    {
-        return hash_value(pair.first, pair.second);
-    }
-};
+    seed ^= std::hash<T>()(val) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
 
-template<class T1, class T2>
-class pair : public std::pair<T1, T2>
+// recursive implementation of hash_value using variadic templates 
+// taken from  https://youngforest.github.io/2020/05/27/best-implement-to-use-pair-as-key-to-std-unordered-map-in-C/
+
+template <typename T> inline void hash_value(std::size_t& seed, const T& val) 
 {
-public:
-    
-    // inherit constructors from std::pair
-    using std::pair<T1,T2>::pair;
+    hash_combine(seed, val);
+}
 
-    //**************************
-    //   Serialization format :
-    //   first,second
-    //**************************
+template <typename T, typename... Types>
+inline void hash_value(std::size_t& seed, const T& val, const Types &... args) 
+{
+    hash_combine(seed, val);
+    hash_value(seed, args...);
+}
 
-    std::ostream& write(std::ostream& os) const
-    {
-        os << this->first << "," << this->second;
-        return os;
-    }
+template <typename... Types>
+inline std::size_t hash_value(const Types &... args) 
+{
+    std::size_t seed = 0;
+    hash_value(seed, args...);
+    return seed;
+}
 
-    std::istream& read(std::istream& in)
-    {
-        T1 f;
-        T2 s;
+} 
 
-        if (! (in >> f))
-        {
-            return in;
-        }
-
-        in.ignore(std::numeric_limits<std::streamsize>::max(), ',');
-
-        if (! (in >> s))
-        {
-            return in;
-        }
-
-        this->first = f;
-        this->second = s;
-
-        if (in.eof())
-        {
-            in.clear();
-        }
-
-        return in;
-    }
-
-    /// Output stream
-    inline friend std::ostream& operator<<(std::ostream& os, const pair<T1, T2>& p)
-    {
-        return p.write(os);
-    }
-
-    /// Input stream
-    inline friend std::istream& operator>>(std::istream& in, pair<T1, T2>& p)
-    {
-        return p.read(in);
-    }
-};
-
-} // namespace helper
-
-} // namespace sofa
-
-#endif
+}
