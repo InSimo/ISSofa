@@ -41,7 +41,7 @@ typedef sofa::defaulttype::BaseRootClass<Base> BaseClass;
 
 // Do not use this macro directly, use SOFA_*_CLASS instead
 #define SOFA_BASE_CLASS_DECL                                                  \
-    typedef boost::intrusive_ptr<MyType> SPtr;                                \
+    typedef sofa::helper::intrusive_ptr<MyType> SPtr;                                \
     template<class SOFA_T> ::sofa::core::objectmodel::BaseData::BaseInitData  \
     initData(::sofa::core::objectmodel::Data<SOFA_T>* field,                  \
              const char* name, const char* help,                              \

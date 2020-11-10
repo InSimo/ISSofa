@@ -38,7 +38,7 @@
 #include <sofa/core/objectmodel/BaseObjectDescription.h>
 #include <sofa/core/objectmodel/Tag.h>
 
-#include <boost/intrusive_ptr.hpp>
+#include <sofa/helper/intrusive_ptr.h>
 
 #include <string>
 #include <map>
@@ -66,7 +66,7 @@ class SOFA_CORE_API Base
 public:
     SOFA_ROOT_CLASS_EXTERNAL((Base));
 
-    typedef boost::intrusive_ptr<Base> SPtr;
+    typedef sofa::helper::intrusive_ptr<Base> SPtr;
     typedef std::size_t ExecUID;
 
     template<class T>

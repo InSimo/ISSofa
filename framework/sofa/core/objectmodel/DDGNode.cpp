@@ -26,10 +26,9 @@
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/core/objectmodel/Base.h>
 #include <sofa/core/DataEngine.h>
-#ifdef SOFA_HAVE_BOOST_THREAD
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp> 
-#endif
+
+#include <sofa/helper/system/lock_guard.h>
+#include <sofa/helper/system/mutex.h>
 //#include <sofa/helper/BackTrace.h>
 
 //#define SOFA_DDG_TRACE
@@ -47,9 +46,8 @@ struct DDGNode::UpdateState
 {
     sofa::helper::system::atomic<int> updateThreadID;
     sofa::helper::system::atomic<int> lastUpdateThreadID;
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::mutex updateMutex;
-#endif
+    sofa::helper::mutex updateMutex;
+
     UpdateState()
     : updateThreadID(-1)
     , lastUpdateThreadID(-1)
@@ -142,10 +140,9 @@ void DDGNode::doCleanDirty(const core::ExecParams* params, bool warnBadUse)
         //sofa::helper::BackTrace::dump();
     }
 
-#ifdef SOFA_HAVE_BOOST_THREAD
     // Here we know this thread does not own the lock (otherwise updateThreadID would not be -1 earlier), so we can take it
-    boost::lock_guard<boost::mutex> guard(state.updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(state.updateMutex);
+
 
     dirtyValue = 0;
 
@@ -224,10 +221,9 @@ void DDGNode::requestUpdateIfDirty(const core::ExecParams* params)
         return;
     }
 
-#ifdef SOFA_HAVE_BOOST_THREAD
     // Here we know this thread does not own the lock (otherwise updateThreadID would be currentThreadID earlier), so we can take it
-    boost::lock_guard<boost::mutex> guard(state.updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(state.updateMutex);
+
     if (dirtyValue != 0)
     {
         // we need to call update

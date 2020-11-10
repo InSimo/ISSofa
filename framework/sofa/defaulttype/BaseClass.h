@@ -37,10 +37,8 @@
 #include <memory>
 #include <type_traits>
 
-#ifdef SOFA_HAVE_BOOST_THREAD
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp> 
-#endif
+#include <sofa/helper/system/mutex.h>
+#include <sofa/helper/system/lock_guard.h>
 
 namespace sofa
 {
@@ -1045,9 +1043,8 @@ public:
 template<class RootType>
 struct BaseRootClass<RootType>::DerivedLock
 {
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::mutex updateMutex;
-#endif
+    sofa::helper::mutex updateMutex;
+
     DerivedLock()
     {}
 };
@@ -1127,18 +1124,14 @@ void BaseRootClass<RootType>::linkNewClass()
 template<class TRootType>
 void BaseRootClass<TRootType>::addDerived(const RootClass * c)
 {
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(derivedLock->updateMutex);
     derived.push_back(c);
 }
 
 template<class TRootType>
 void BaseRootClass<TRootType>::removeDerived(const RootClass * c)
 {
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(derivedLock->updateMutex);
     auto it = std::find(derived.begin(), derived.end(), c);
     if (it != derived.end())
     {
@@ -1159,9 +1152,7 @@ void BaseRootClass<TRootType>::removeParent(const RootClass * c)
 template<class TRootType>
 auto BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info) const -> const RootClass *
 {
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(derivedLock->updateMutex);
 auto it = std::find_if(derived.begin(), derived.end(), [&info](const RootClass* c) -> bool
 {
     return info == *c;
@@ -1177,9 +1168,7 @@ return res;
 template<class TRootType>
 bool BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info, std::vector<const RootClass*>& result) const
 {
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(derivedLock->updateMutex);
     bool res = false;
     for (const RootClass* c : derived)
     {
@@ -1195,9 +1184,8 @@ bool BaseRootClass<TRootType>::findDerived(const BaseClassInfo & info, std::vect
 template<class TRootType>
 void BaseRootClass<TRootType>::insertTargetNames(const BaseClassInfo & info)
 {
-#ifdef SOFA_HAVE_BOOST_THREAD
-    boost::lock_guard<boost::mutex> guard(derivedLock->updateMutex);
-#endif
+    sofa::helper::lock_guard<sofa::helper::mutex> guard(derivedLock->updateMutex);
+
     if (!info.targetNames.empty())
     {
         targetNames.insert(targetNames.end(), info.targetNames.cbegin(), info.targetNames.cend());

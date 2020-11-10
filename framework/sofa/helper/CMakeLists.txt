@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(SofaHelper)
 
 set(SOFAHELPER_HEADERS
+    aligned_allocator.h
     ArgumentParser.h
     BackTrace.h
     DecodeTypeName.h
@@ -17,6 +18,7 @@ set(SOFAHELPER_HEADERS
     gl/Transformation.h
     helper.h
     integer_id.h
+    intrusive_ptr.h
     io/Image.h
     io/ImageBMP.h
     io/ImageRAW.h
@@ -53,6 +55,9 @@ set(SOFAHELPER_HEADERS
     system/SetDirectory.h
     system/FileRepository.h
     system/atomic.h
+    system/lock_guard.h
+    system/mutex.h
+    system/thread.h
 	system/thread/CircularQueue.h
 	system/thread/CircularQueue.inl
     system/thread/CTime.h
