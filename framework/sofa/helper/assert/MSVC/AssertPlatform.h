@@ -1,5 +1,5 @@
-#ifndef ISASSERT_PLATFORM_H
-#define ISASSERT_PLATFORM_H
+#ifndef SOFA_ASSERT_PLATFORM_H
+#define SOFA_ASSERT_PLATFORM_H
 
 #define DEBUG_BREAK()  __debugbreak()
 

@@ -1,8 +1,8 @@
-#include <ISSystem/ISAssert.h>
+#include <sofa/helper/assert.h>
 
 #include <iostream>
 
-namespace issystem
+namespace sofa
 {
 namespace assertion
 {
@@ -26,4 +26,4 @@ Action defaultAssertionHandler(const char* condition, const char* file, unsigned
 }
 
 } // namespace assertion
-} // namespace issystem
+} // namespace sofa

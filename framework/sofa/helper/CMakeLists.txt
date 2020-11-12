@@ -3,6 +3,7 @@ project(SofaHelper)
 
 set(SOFAHELPER_HEADERS
     aligned_allocator.h
+    assert.h
     ArgumentParser.h
     BackTrace.h
     DecodeTypeName.h
@@ -98,6 +99,7 @@ set(SOFAHELPER_HEADERS
 
 set (SOFAHELPER_SOURCES_OUTSIDE_UNITY
      AdvancedTimer.cpp
+     assert.cpp
      io/ImageDDS.cpp
      io/SphereLoader.cpp )
  
@@ -153,6 +155,23 @@ if(Boost_thread_FOUND )
 	list(APPEND SOFAHELPER_HEADERS "system/thread/TimeoutWatchdog.h")
 	list(APPEND SOFAHELPER_SOURCES_UNITY "system/thread/TimeoutWatchdog.cpp")
 endif()
+
+
+# Platform-specific files
+set(ASSERT_PLATFORM_DIR)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(ASSERT_PLATFORM_DIR "assert/GCC")
+elseif(MSVC)
+    set(ASSERT_PLATFORM_DIR "assert/MSVC")
+else()
+    message(WARNING "UNKNOWN COMPILER!")
+endif()
+set(ASSERT_PLATFORM_HEADER_FILES "${ASSERT_PLATFORM_DIR}/AssertPlatform.h")
+set(ASSERT_PLATFORM_SOURCE_FILES "${ASSERT_PLATFORM_DIR}/AssertPlatform.cpp")
+
+list(APPEND SOFAHELPER_HEADERS ${ASSERT_PLATFORM_HEADER_FILES} )
+list(APPEND SOFAHELPER_SOURCES_OUTSIDE_UNITY ${ASSERT_PLATFORM_SOURCE_FILES} )
+
 
 if(NOT SOFA-MISC_NO_OPENGL)
 	if(SOFA_HAVE_GLUT)
@@ -291,6 +310,14 @@ endif()
 set_target_properties( ${PROJECT_NAME}  PROPERTIES DEBUG_POSTFIX "_d" )
 target_compile_definitions( ${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SOFA_LIBSUFFIX=_d> )
 set_target_properties( ${PROJECT_NAME}  PROPERTIES VERSION ${SOFAFRAMEWORK_VERSION} )
+
+if (SOFA_FAST_ASSERTION_ENABLED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SOFA_FAST_ASSERTION_ENABLED>)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:RelWithDebInfo>:SOFA_FAST_ASSERTION_ENABLED>)
+elseif(SOFA_ASSERTION_ENABLED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SOFA_ASSERTION_ENABLED>)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:RelWithDebInfo>:SOFA_ASSERTION_ENABLED>)
+endif()
 
 set( SOFAHELPER_COMPILER_FLAGS "-DSOFA_BUILD_HELPER -DUNICODE")
 

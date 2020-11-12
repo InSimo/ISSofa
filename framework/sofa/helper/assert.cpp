@@ -3,13 +3,13 @@
 * CONFIDENTIAL SOURCE CODE. This file is the property of InSimo and should not *
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
-#include "ISAssert.h"
+#include "assert.h"
 
 #include <iostream>
 #include <stdarg.h>
 #include <stdio.h>
 
-namespace issystem
+namespace sofa
 {
 namespace assertion
 {
@@ -18,7 +18,7 @@ Action defaultAssertionHandler(const char* condition, const char* file, unsigned
 
 Action silentHalt(const char* /*condition*/, const char* /*file*/, unsigned int /*line*/, const char* /*msg*/)
 {
-    return issystem::assertion::HALT;
+    return sofa::assertion::HALT;
 }
 
 
@@ -72,4 +72,4 @@ Action onAssertionFailureFormatted(const char* condition, const char* file, unsi
 }
 
 } // namespace assertion
-} // namespace issystem
+} // namespace sofa
