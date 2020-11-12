@@ -45,6 +45,7 @@ namespace sofa
 namespace simulation
 {
 
+class TaskStatus;
 
 /**
   Event fired by Simulation::animate() after computing a new animation step.
@@ -60,12 +61,12 @@ public:
     ~AnimateEndEvent();
 
     double getDt() const { return dt; }
-    void setTaskStatus(void* status) { taskStatus = status; }
-    void* getTaskStatus() const { return taskStatus; }
+    void setTaskStatus(TaskStatus* status) { taskStatus = status; }
+    TaskStatus* getTaskStatus() const { return taskStatus; }
 
 protected:
     double dt;
-    void* taskStatus;
+    TaskStatus* taskStatus;
 };
 
 } // namespace simulation
