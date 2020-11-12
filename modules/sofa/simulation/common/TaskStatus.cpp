@@ -19,7 +19,7 @@
 *
 *
 * A multicore tasking engine in some 500 lines of C
-* This is the code corresponding to the seminar on writing a task-scheduler suitable 
+* This is the code corresponding to the seminar on writing a task-scheduler suitable
 * for use in multicore optimisation of small prods by Jerome Muffat-Meridol.
 *
 * Credits :
@@ -27,34 +27,50 @@
 *  .music taken from M40-Southbound, by Ghaal (c)2009
 *  .liposuction advice from Matt Pietrek
 *     http://www.microsoft.com/msj/archive/S572.aspx
-*  .ordering display list ideas based on Christer Ericson's article 
+*  .ordering display list ideas based on Christer Ericson's article
 *     http://realtimecollisiondetection.net/blog/?p=86
 *  .Approximate Math Library by Alex Klimovitski, Intel GmbH
 *  .kkrunchy packed this exe, kudos to ryg/farbrausch
 *     http://www.farbrausch.de/~fg/kkrunchy/
 */
 
-
-#ifndef SOFA_SIMULATION_MULTITHREADING_INL
-#define SOFA_SIMULATION_MULTITHREADING_INL
-
-#include <cassert>
+#include "TaskStatus.h"
+#include <sofa/helper/assert.h>
 
 namespace sofa
 {
-
 namespace simulation
 {
-
-inline TaskStatus* Task::getStatus(void) const
+inline TaskStatus::TaskStatus()
+	:mBusy(0)
 {
-	return const_cast<TaskStatus*>(m_Status);
+}
+
+inline TaskStatus::~TaskStatus()
+{
+	SOFA_ASSERT_FAST(!IsBusy());
+}
+
+inline bool TaskStatus::IsBusy() const
+{
+	return mBusy != 0;
+}
+
+inline void TaskStatus::MarkBusy(bool bBusy)
+{
+	if (bBusy)
+	{
+		++mBusy;
+	}
+	else
+	{
+		--mBusy;
+	}
 }
 
 
-} // namespace simulation
-
-} // namespace sofa
 
 
-#endif
+}
+
+}

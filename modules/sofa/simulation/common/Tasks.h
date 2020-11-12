@@ -38,9 +38,9 @@
 #define SOFA_SIMULATION_TASKS_H
 
 #include <sofa/SofaSimulation.h>
-#include <atomic>
 #include <sofa/helper/system/thread/CTime.h>
 #include <sofa/defaulttype/Vec.h>
+#include "TaskStatus.h"
 
 namespace sofa
 {
@@ -56,27 +56,10 @@ class SOFA_SIMULATION_COMMON_API Task
 public:
     virtual ~Task();
 
-    // Task Status class definition
-    class Status
-    {
-    public:
-        Status();
-        virtual ~Status();
-
-        bool IsBusy() const;
-
-    private:
-
-        void MarkBusy(bool bBusy);
-
-        std::atomic_uint mBusy;
-
-        friend class WorkerThread;
-    };
-
     typedef sofa::helper::system::thread::ctime_t ctime_t;
     typedef std::pair<ctime_t,ctime_t> TimeInterval;
     typedef sofa::defaulttype::Vec4f Color;
+    using Status = TaskStatus;
 
     virtual const char* getName() const;
     virtual Color getColor() const;

@@ -62,6 +62,7 @@ set(HEADER_FILES
     Tasks.h
     Tasks.inl
     TaskScheduler.h
+    TaskStatus.h
     TaskTraits.h
 	TopologyChangeVisitor.h
 	TransformationVisitor.h
@@ -146,6 +147,7 @@ set(SOURCE_FILES
 	SolveVisitor.cpp
     Tasks.cpp
     TaskScheduler.cpp
+    TaskStatus.cpp
 	TopologyChangeVisitor.cpp
 	StateChangeVisitor.cpp   
 	TransformationVisitor.cpp
