@@ -18,9 +18,9 @@
 
 #include <utility>
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 MechanicalProjectPositionAndVelocityVisitorMT::MechanicalProjectPositionAndVelocityVisitorMT(
@@ -91,5 +91,5 @@ sofa::simulation::Visitor::Result MechanicalProjectPositionAndVelocityVisitorMT:
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa

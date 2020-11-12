@@ -5,19 +5,19 @@
 *******************************************************************************/
 #include "ProjectiveConstraintTasks.h"
 
-#include <MultiThreading/src/TaskSchedulerBoost.h>
+#include "TaskScheduler.h"
 #include <sofa/core/behavior/BaseProjectiveConstraintSet.h>
 #include <sofa/core/behavior/MultiVec.h>
-#include <ISSystem/ISAssert.h>
+#include <sofa/helper/assert.h>
 #ifdef ISSOFA_VERSION
 #include <sofa/simulation/common/VectorOperations.h>
 #else
 #include <sofa/simulation/VectorOperations.h>
 #endif
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
     ProjectiveConstraintTask::ProjectiveConstraintTask(core::behavior::BaseProjectiveConstraintSet *pProjectiveConstraintSet, std::string baseName)
@@ -53,5 +53,5 @@ namespace base
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa

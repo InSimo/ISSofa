@@ -6,9 +6,9 @@
 
 #include "MechanicalResetConstraintVisitorMT.h"
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 namespace
@@ -48,7 +48,7 @@ void ResetConstraintTask<sofa::core::behavior::BaseConstraintSet>::resetConstrai
 
 sofa::simulation::Visitor::Result MechanicalResetConstraintVisitorMT::fwdMechanicalState(sofa::simulation::Node* /*node*/, sofa::core::behavior::BaseMechanicalState* mm)
 {
-    ISASSERT_FAST(m_cParams != nullptr);
+    SOFA_ASSERT_FAST(m_cParams != nullptr);
     ResetConstraintTask<BaseMechanicalState>* task = findOrCreate(mm, m_resetConstraintsMechanicalStateTasks, m_cParams);
     task->enable(&m_taskStatus);
     m_currentThread->addStealableTask(task);
@@ -77,5 +77,5 @@ sofa::simulation::Visitor::Result MechanicalResetConstraintVisitorMT::fwdConstra
 }
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa

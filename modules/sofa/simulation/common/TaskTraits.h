@@ -4,23 +4,23 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_TASKTRAITS_H
-#define ISPHYSICS_BASE_TASKTRAITS_H
+#ifndef SOFA_SIMULATION_TASKTRAITS_H
+#define SOFA_SIMULATION_TASKTRAITS_H
 
-#include "initPlugin.h"
+#include <sofa/SofaSimulation.h>
 
-ISPHYSICS_INTERNAL
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 template<typename TTask>
 struct TaskTraits;
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif
 

@@ -17,9 +17,9 @@ class WorkerThread;
 } // namespace simulation
 } // sofa
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 AccumulateTask::AccumulateTask(sofa::core::BaseMapping* mapping, std::string baseName)
@@ -38,5 +38,5 @@ bool AccumulateTask::run(sofa::simulation::WorkerThread*)
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa

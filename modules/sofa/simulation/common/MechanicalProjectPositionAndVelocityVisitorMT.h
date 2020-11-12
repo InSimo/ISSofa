@@ -4,13 +4,14 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MECHANICALPROJECTPOSITIONANDVELOCITYVISITORMT_H
-#define ISPHYSICS_BASE_MECHANICALPROJECTPOSITIONANDVELOCITYVISITORMT_H
+#ifndef SOFA_SIMULATION_MECHANICALPROJECTPOSITIONANDVELOCITYVISITORMT_H
+#define SOFA_SIMULATION_MECHANICALPROJECTPOSITIONANDVELOCITYVISITORMT_H
 
+#include <sofa/SofaSimulation.h>
 #include "TaskDependencyGraph.h"
 
-#include <ISPhysicsBase/DependencyTask.h>
-#include <MultiThreading/src/Tasks.h>
+#include "DependencyTask.h"
+#include "Tasks.h"
 #include <sofa/core/objectmodel/BaseObject.h>
 
 #ifndef ISSOFA_VERSION 
@@ -23,11 +24,11 @@
 #include "MechanicalTaskDependencyGraph.h"
 #include "ProjectiveConstraintTasks.h"
 
-ISPHYSICS_INTERNAL
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 typedef ProjectiveConstraintTaskInfo MechanicalProjectPositionAndVelocityVisitorInfo;
@@ -35,7 +36,7 @@ typedef ProjectiveConstraintTaskInfo MechanicalProjectPositionAndVelocityVisitor
     * @class MechanicalProjectPositionAndVelocityVisitorMT
     * @brief [TODO]
     */
-class MechanicalProjectPositionAndVelocityVisitorMT : public sofa::simulation::BaseMechanicalVisitor
+class SOFA_SIMULATION_COMMON_API MechanicalProjectPositionAndVelocityVisitorMT : public sofa::simulation::BaseMechanicalVisitor
 {
 public:
     typedef MechanicalProjectPositionAndVelocityVisitorInfo                                        VisitorInfo;
@@ -84,7 +85,7 @@ private:
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif

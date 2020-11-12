@@ -4,32 +4,30 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_ACCUMULATETASKS_H
-#define ISPHYSICS_BASE_ACCUMULATETASKS_H
+#ifndef SOFA_SIMULATION_ACCUMULATETASKS_H
+#define SOFA_SIMULATION_ACCUMULATETASKS_H
 
-#include <MultiThreading/src/Tasks.h>
-#include <ISPhysicsBase/DependencyTask.h>
-#include "initPlugin.h"
+#include <sofa/SofaSimulation.h>
+#include "Tasks.h"
+#include "DependencyTask.h"
 #include <sofa/core/MultiVecId.h>
 #include <sofa/core/BaseMapping.h>
 #include <sofa/core/ConstraintParams.h>
 #include "SofaDependencyTask.h"
 
-ISPHYSICS_PUBLIC
-
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
-struct SOFA_ISPHYSICS_BASE_API AccumulateTaskInfo
+struct SOFA_SIMULATION_COMMON_API AccumulateTaskInfo
 {
     const sofa::core::ConstraintParams* m_cparams;
     sofa::core::MultiMatrixDerivId      m_res;
     bool                                m_reverseOrder;
 };
 
-class SOFA_ISPHYSICS_BASE_API AccumulateTask : public TSofaDependencyTask< sofa::core::BaseMapping, AccumulateTaskInfo >
+class SOFA_SIMULATION_COMMON_API AccumulateTask : public TSofaDependencyTask< sofa::core::BaseMapping, AccumulateTaskInfo >
 {
 public:
     typedef TSofaDependencyTask< sofa::core::BaseMapping, AccumulateTaskInfo > Inherit;
@@ -41,7 +39,7 @@ public:
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif

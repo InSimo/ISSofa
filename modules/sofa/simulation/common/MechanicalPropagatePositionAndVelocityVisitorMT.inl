@@ -4,8 +4,8 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_INL
-#define ISPHYSICS_BASE_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_INL
+#ifndef SOFA_SIMULATION_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_INL
+#define SOFA_SIMULATION_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_INL
 
 #include "MechanicalPropagatePositionAndVelocityVisitorMT.h"
 #ifndef ISSOFA_VERSION 
@@ -18,11 +18,11 @@
 
 #include <utility>
 
-ISPHYSICS_INTERNAL
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 
@@ -67,7 +67,7 @@ TMechanicalPropagatePositionAndVelocityVisitorMT<TTask>::TMechanicalPropagatePos
 template<typename TTask>
 sofa::simulation::Visitor::Result TMechanicalPropagatePositionAndVelocityVisitorMT<TTask>::fwdMechanicalMapping(sofa::simulation::Node* /*node*/, sofa::core::BaseMapping* mapping)
 {        
-    ISASSERT(mapping);
+    SOFA_ASSERT(mapping);
 
     const sofa::core::VecId positionId = m_visitorInfo.positionId;
     if(!positionId.isNull())
@@ -84,8 +84,8 @@ sofa::simulation::Visitor::Result TMechanicalPropagatePositionAndVelocityVisitor
     return Visitor::RESULT_CONTINUE;
 }
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif 
 

@@ -5,7 +5,7 @@
 *******************************************************************************/
 #include "MappingTasks.h"
 
-#include <MultiThreading/src/TaskSchedulerBoost.h>
+#include "TaskScheduler.h"
 #ifndef ISSOFA_VERSION 
 #include <sofa/simulation/VectorOperations.h>
 #else
@@ -16,9 +16,9 @@
 #include <sofa/core/MechanicalParams.h>
 #include <sofa/core/behavior/MultiVec.h>
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 using namespace sofa::simulation;
@@ -85,5 +85,5 @@ MappingPropagateVelocityTask::run(sofa::simulation::WorkerThread *)
     return true;
 }
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa

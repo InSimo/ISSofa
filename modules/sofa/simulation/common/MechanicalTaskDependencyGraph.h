@@ -4,18 +4,18 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MECHANICALTASKDEPENDENCYGRAPH_H
-#define ISPHYSICS_BASE_MECHANICALTASKDEPENDENCYGRAPH_H
+#ifndef SOFA_SIMULATION_MECHANICALTASKDEPENDENCYGRAPH_H
+#define SOFA_SIMULATION_MECHANICALTASKDEPENDENCYGRAPH_H
 
-#include <ISPhysicsBase/TaskDependencyGraph.h>
-#include <ISPhysicsBase/TaskDependencyGraph.inl>
+#include "TaskDependencyGraph.h"
+#include "TaskDependencyGraph.inl"
 #include <sofa/core/BaseState.h>
 
-ISPHYSICS_PUBLIC
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 struct MechanicalTaskDependencyTraits
@@ -33,8 +33,8 @@ typedef sofa::simulation::TaskDependencyGraph< MechanicalTaskDependencyTraits > 
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
-#endif // ISPHYSICS_BASE_MECHANICALTASKDEPENDENCYGRAPH_H
+#endif // SOFA_SIMULATION_MECHANICALTASKDEPENDENCYGRAPH_H
 

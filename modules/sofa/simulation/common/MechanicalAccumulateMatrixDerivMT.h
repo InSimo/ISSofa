@@ -4,14 +4,14 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MECHANICALACCUMULATEMATRIXDERIVMT_H
-#define ISPHYSICS_BASE_MECHANICALACCUMULATEMATRIXDERIVMT_H
+#ifndef SOFA_SIMULATION_MECHANICALACCUMULATEMATRIXDERIVMT_H
+#define SOFA_SIMULATION_MECHANICALACCUMULATEMATRIXDERIVMT_H
 
 #include "AccumulateTasks.h"
 #include "MechanicalTaskDependencyGraph.h"
-#include "initPlugin.h"
+#include <sofa/SofaSimulation.h>
 
-#include <MultiThreading/src/Tasks.h>
+#include "Tasks.h"
 
 
 #ifndef ISSOFA_VERSION 
@@ -22,7 +22,7 @@
 
 #include <unordered_map>
 
-ISPHYSICS_PUBLIC
+
 
 namespace sofa
 {
@@ -36,9 +36,9 @@ class TaskDependencyGraph;
 } // namespace simulation
 }
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 class AccumulateTask;
@@ -48,7 +48,7 @@ class AccumulateTask;
     * @class MechanicalAccumulateMatrixDerivMT
     * @brief Accumulate Jacobian matrices through the mappings up to the independant DOFs
     */
-class SOFA_ISPHYSICS_BASE_API MechanicalAccumulateMatrixDerivMT : public sofa::simulation::BaseMechanicalVisitor
+class SOFA_SIMULATION_COMMON_API MechanicalAccumulateMatrixDerivMT : public sofa::simulation::BaseMechanicalVisitor
 {
 public:
     typedef std::unordered_map<sofa::core::objectmodel::Base::ExecUID, AccumulateTask*>   MapAccumulateTasks;
@@ -105,7 +105,7 @@ protected:
 };
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif

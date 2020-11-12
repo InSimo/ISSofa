@@ -4,14 +4,14 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_H
-#define ISPHYSICS_BASE_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_H
+#ifndef SOFA_SIMULATION_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_H
+#define SOFA_SIMULATION_MECHANICALPROPAGATEPOSITIONANDVELOCITYVISITORMT_H
 
 
 #include "TaskDependencyGraph.h"
 #include "TaskTraits.h"
 
-#include <MultiThreading/src/Tasks.h>
+#include "Tasks.h"
 #include <sofa/core/objectmodel/BaseObject.h>
 #ifndef ISSOFA_VERSION 
 #include <sofa/simulation/MechanicalVisitor.h>
@@ -24,11 +24,11 @@
 #include "MechanicalTaskDependencyGraph.h"
 #include "MappingTasks.h"
 
-ISPHYSICS_INTERNAL
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 typedef MappingPropagateTaskInfo MechanicalPropagatePositionAndVelocityVisitoInfo;
@@ -103,7 +103,7 @@ typedef MappingPropagateTaskInfo UpdateMappingVisitorInfo;
     * @class UpdateMappingVisitorMT
     * @brief [TODO]
     */
-class UpdateMappingVisitorMT : public sofa::simulation::Visitor
+class SOFA_SIMULATION_COMMON_API UpdateMappingVisitorMT : public sofa::simulation::Visitor
 {
 public:
     typedef UpdateMappingVisitorInfo                                                VisitorInfo;
@@ -138,7 +138,7 @@ private:
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif

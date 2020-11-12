@@ -4,10 +4,10 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_PROJECTIVECONSTRAINTTASKS_H
-#define ISPHYSICS_BASE_PROJECTIVECONSTRAINTTASKS_H
+#ifndef SOFA_SIMULATION_PROJECTIVECONSTRAINTTASKS_H
+#define SOFA_SIMULATION_PROJECTIVECONSTRAINTTASKS_H
 
-#include "initPlugin.h"
+#include <sofa/SofaSimulation.h>
 
 #include "TaskTraits.h"
 
@@ -25,14 +25,14 @@
 
 #include <unordered_map>
 
-ISPHYSICS_INTERNAL
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
-struct ProjectiveConstraintTaskInfo
+struct SOFA_SIMULATION_COMMON_API ProjectiveConstraintTaskInfo
 {
     sofa::simulation::Node          *pNode;
     const sofa::core::ExecParams    *pExecParams;
@@ -41,7 +41,7 @@ struct ProjectiveConstraintTaskInfo
     bool                            projectVelocity;
 };
 
-class ProjectiveConstraintTask : public TSofaDependencyTask<sofa::core::behavior::BaseProjectiveConstraintSet, ProjectiveConstraintTaskInfo>
+class SOFA_SIMULATION_COMMON_API ProjectiveConstraintTask : public TSofaDependencyTask<sofa::core::behavior::BaseProjectiveConstraintSet, ProjectiveConstraintTaskInfo>
 {
 public:
     typedef TSofaDependencyTask<sofa::core::behavior::BaseProjectiveConstraintSet, ProjectiveConstraintTaskInfo> Inherit;
@@ -67,8 +67,8 @@ struct TaskTraits<ProjectiveConstraintTask>
     }
 };
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif
 

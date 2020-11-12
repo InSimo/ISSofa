@@ -4,13 +4,15 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MAPPINGTASKS_H
-#define ISPHYSICS_BASE_MAPPINGTASKS_H
+#ifndef SOFA_SIMULATION_MAPPINGTASKS_H
+#define SOFA_SIMULATION_MAPPINGTASKS_H
+
+#include <sofa/SofaSimulation.h>
 
 #include "TaskTraits.h"
 
-#include <ISPhysicsBase/DependencyTask.h>
-#include <MultiThreading/src/Tasks.h>
+#include "DependencyTask.h"
+#include "Tasks.h"
 #include <sofa/core/BaseMapping.h>
 #include <sofa/helper/system/config.h>
 #ifndef ISSOFA_VERSION 
@@ -23,14 +25,14 @@
 
 #include <unordered_map>
 
-ISPHYSICS_INTERNAL
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
-struct MappingPropagateTaskInfo
+struct SOFA_SIMULATION_COMMON_API MappingPropagateTaskInfo
 {
     sofa::simulation::Node          *pNode;
     const sofa::core::ExecParams    *pExecParams;
@@ -39,7 +41,7 @@ struct MappingPropagateTaskInfo
     bool                            bPropagateVelocity;
 };
 
-class MappingPropagateTask : public TSofaDependencyTask< sofa::core::BaseMapping, MappingPropagateTaskInfo>
+class SOFA_SIMULATION_COMMON_API MappingPropagateTask : public TSofaDependencyTask< sofa::core::BaseMapping, MappingPropagateTaskInfo>
 {
 public:
     typedef sofa::simulation::Task::Color   Color;
@@ -50,7 +52,7 @@ public:
     bool run(sofa::simulation::WorkerThread* thread);
 };
 
-class MappingPropagateVelocityTask : public TSofaDependencyTask< sofa::core::BaseMapping, MappingPropagateTaskInfo>
+class SOFA_SIMULATION_COMMON_API MappingPropagateVelocityTask : public TSofaDependencyTask< sofa::core::BaseMapping, MappingPropagateTaskInfo>
 {
 public:
     typedef sofa::simulation::Task::Color   Color;
@@ -86,7 +88,7 @@ struct TaskTraits<MappingPropagateVelocityTask>
     : public MappingTaskTraitsBase<MappingPropagateVelocityTask>
 {};
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
-#endif // ISPHYSICS_BASE_MAPPINGTASKS_H
+#endif // SOFA_SIMULATION_MAPPINGTASKS_H

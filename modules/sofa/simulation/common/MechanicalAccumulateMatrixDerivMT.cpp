@@ -8,9 +8,9 @@
 #include "AccumulateTasks.h"
 #include "TaskDependencyGraph.inl"
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 namespace
@@ -48,5 +48,5 @@ void MechanicalAccumulateMatrixDerivMT::bwdMechanicalMapping(sofa::simulation::N
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa

@@ -4,27 +4,27 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_MECHANICALRESETCONSTRAINTVISITORMT_H
-#define ISPHYSICS_BASE_MECHANICALRESETCONSTRAINTVISITORMT_H
+#ifndef SOFA_SIMULATION_MECHANICALRESETCONSTRAINTVISITORMT_H
+#define SOFA_SIMULATION_MECHANICALRESETCONSTRAINTVISITORMT_H
 
-#include "initPlugin.h"
+#include <sofa/SofaSimulation.h>
 
-#include <MultiThreading/src/Tasks.h>
-#include <MultiThreading/src/TaskSchedulerBoost.h>
+#include "Tasks.h"
+#include "TaskScheduler.h"
 #ifndef ISSOFA_VERSION
 #include <sofa/simulation/MechanicalVisitor.h>
 #else
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #endif // !ISSOFA_VERSION
 
-#include <ISSystem/ISAssert.h>
+#include <sofa/helper/assert.h>
 #include <unordered_map>
 
-ISPHYSICS_PUBLIC
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 template< class Object >
@@ -42,7 +42,7 @@ public:
    
     bool run(sofa::simulation::WorkerThread *) override
     {
-        ISASSERT_FAST_MSG(m_cParams != nullptr, "Must call setConstraintParams with a valid ConstraintParams instance before attempting to run");
+        SOFA_ASSERT_FAST_MSG(m_cParams != nullptr, "Must call setConstraintParams with a valid ConstraintParams instance before attempting to run");
         resetConstraint();
         return true;
     }
@@ -66,7 +66,7 @@ protected:
 };
 
 
-class SOFA_ISPHYSICS_BASE_API MechanicalResetConstraintVisitorMT : public sofa::simulation::BaseMechanicalVisitor
+class SOFA_SIMULATION_COMMON_API MechanicalResetConstraintVisitorMT : public sofa::simulation::BaseMechanicalVisitor
 {
 public:
     using BaseMechanicalState = sofa::core::behavior::BaseMechanicalState;
@@ -132,7 +132,7 @@ protected:
 };
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
 #endif

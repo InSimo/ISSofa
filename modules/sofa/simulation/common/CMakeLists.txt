@@ -3,6 +3,7 @@ project(SofaSimulationCommon)
 
 set(HEADER_FILES
 	Node.h
+    AccumulateTasks.h
 	AnimateBeginEvent.h
 	AnimateEndEvent.h
 	AnimateVisitor.h   
@@ -30,9 +31,16 @@ set(HEADER_FILES
 	IntegrateBeginEvent.h
 	IntegrateEndEvent.h
 	LocalStorage.h
+    MappingTasks.h
+    MechanicalAccumulateMatrixDerivMT.h
 	MechanicalComputeEnergyVisitor.h
+    MechanicalProjectPositionAndVelocityVisitorMT.h
+    MechanicalPropagatePositionAndVelocityVisitorMT.h
+    MechanicalPropagatePositionAndVelocityVisitorMT.inl
 	MechanicalMatrixVisitor.h
 	MechanicalOperations.h
+    MechanicalResetConstraintVisitorMT.h
+    MechanicalTaskDependencyGraph.h
 	MechanicalVPrintVisitor.h
 	MechanicalVisitor.h
 	MutationListener.h
@@ -41,6 +49,7 @@ set(HEADER_FILES
 	PipelineImpl.h
 	PositionEvent.h
 	PrintVisitor.h
+    ProjectiveConstraintTasks.h
 	PropagateEventVisitor.h
 	ReleaseAspectVisitor.h
 	ResetVisitor.h
@@ -53,6 +62,7 @@ set(HEADER_FILES
     Tasks.h
     Tasks.inl
     TaskScheduler.h
+    TaskTraits.h
 	TopologyChangeVisitor.h
 	TransformationVisitor.h
 	UpdateBoundingBoxVisitor.h
@@ -88,6 +98,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
 
 	Node.cpp
+    AccumulateTasks.cpp
 	AnimateBeginEvent.cpp
 	AnimateEndEvent.cpp
 	AnimateVisitor.cpp
@@ -111,9 +122,14 @@ set(SOURCE_FILES
 	InitVisitor.cpp   
 	IntegrateBeginEvent.cpp
 	IntegrateEndEvent.cpp
+    MappingTasks.cpp
+    MechanicalAccumulateMatrixDerivMT.cpp
 	MechanicalComputeEnergyVisitor.cpp
+    MechanicalProjectPositionAndVelocityVisitorMT.cpp
+    MechanicalPropagatePositionAndVelocityVisitorMT.cpp
 	MechanicalOperations.cpp
 	MechanicalMatrixVisitor.cpp
+    MechanicalResetConstraintVisitorMT.cpp
 	MechanicalVPrintVisitor.cpp
 	MechanicalVisitor.cpp   
 	MutationListener.cpp 
@@ -122,6 +138,7 @@ set(SOURCE_FILES
 	PipelineImpl.cpp
 	PositionEvent.cpp
 	PrintVisitor.cpp
+    ProjectiveConstraintTasks.cpp
 	PropagateEventVisitor.cpp
 	ReleaseAspectVisitor.cpp
 	ResetVisitor.cpp

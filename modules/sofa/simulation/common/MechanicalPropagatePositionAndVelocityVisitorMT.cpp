@@ -14,9 +14,9 @@
 
 #include <utility>
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 UpdateMappingVisitorMT::UpdateMappingVisitorMT(
@@ -60,5 +60,5 @@ sofa::simulation::Visitor::Result UpdateMappingVisitorMT::processNodeTopDown(sof
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
