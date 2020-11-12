@@ -4,21 +4,19 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_FUNCTORTASK_H
-#define ISPHYSICS_BASE_FUNCTORTASK_H
+#ifndef SOFA_SIMULATION_FUNCTORTASK_H
+#define SOFA_SIMULATION_FUNCTORTASK_H
 
-#include <MultiThreading/src/Tasks.h>
-#include <MultiThreading/src/TaskSchedulerBoost.h>
+#include "Tasks.h"
+#include "TaskScheduler.h"
 #include "DependencyTask.h"
-#include "initPlugin.h"
 
 #include <utility>
 
-ISPHYSICS_PUBLIC
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 /// Task that can contain any object that can be called using its operator()
@@ -132,10 +130,10 @@ template<typename Fn, typename... Args>
 using FunctorDependencyTask = TFunctorTask< sofa::simulation::DependencyTask, Fn, Args... >;
 
 template<typename... Args>
-using FunctorTaskWithArgs = isphysics::base::FunctorTask<std::function<void(Args...)>, Args...>;
+using FunctorTaskWithArgs = sofa::simulation::FunctorTask<std::function<void(Args...)>, Args...>;
 
 template<typename... Args>
-using FunctorDependencyTaskWithArgs = isphysics::base::FunctorDependencyTask<std::function<void(Args...)>, Args...>;
+using FunctorDependencyTaskWithArgs = sofa::simulation::FunctorDependencyTask<std::function<void(Args...)>, Args...>;
 
 /// Helper function to use when getting the type of the functor is complicated
 /// Implements the object generator idiom
@@ -178,9 +176,9 @@ void runAsTask(const std::string& name, const sofa::defaulttype::Vec4f& color, s
 
     if (!task)
     {
-        task.reset(base::make_new_functorTask(f, args...));
+        task.reset(make_new_functorTask(f, args...));
     }
-    auto* functorTask = static_cast<base::FunctorTask<std::decay_t<Fn>, std::decay_t<Args>...>*>(task.get());
+    auto* functorTask = static_cast<sofa::simulation::FunctorTask<std::decay_t<Fn>, std::decay_t<Args>...>*>(task.get());
     functorTask->enable(thread->getCurrentStatus(), name, color);
     functorTask->setArguments(args...);
     thread->runTask(functorTask);
@@ -209,16 +207,16 @@ void runAsStealableTask(const sofa::simulation::Task::Status* status, const std:
 
     if (!task)
     {
-        task.reset(base::make_new_functorTask(f, args...));
+        task.reset(sofa::simulation::make_new_functorTask(f, args...));
     }
-    auto* functorTask = static_cast<base::FunctorTask<std::decay_t<Fn>, std::decay_t<Args>...>*>(task.get());
+    auto* functorTask = static_cast<sofa::simulation::FunctorTask<std::decay_t<Fn>, std::decay_t<Args>...>*>(task.get());
     functorTask->enable(status, name, color);
     functorTask->setArguments(args...);
     thread->addStealableTask(functorTask);
 }
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
-#endif // ISPHYSICS_BASE_FUNCTORTASK_H
+#endif // SOFA_SIMULATION_FUNCTORTASK_H

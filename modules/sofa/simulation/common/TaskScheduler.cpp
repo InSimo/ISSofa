@@ -34,7 +34,7 @@
 *     http://www.farbrausch.de/~fg/kkrunchy/
 */
 
-#include "TaskSchedulerBoost.h"
+#include "TaskScheduler.h"
 #include <sofa/helper/system/thread/CTime.h>
 
 

@@ -4,15 +4,15 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_TASKDEPENDENCYGRAPH_INL
-#define ISPHYSICS_BASE_TASKDEPENDENCYGRAPH_INL
+#ifndef SOFA_SIMULATION_TASKDEPENDENCYGRAPH_INL
+#define SOFA_SIMULATION_TASKDEPENDENCYGRAPH_INL
 
 #include "TaskDependencyGraph.h"
 
-#include <MultiThreading/src/Tasks.h>
-#include <MultiThreading/src/TaskSchedulerBoost.h>
+#include "Tasks.h"
+#include "TaskScheduler.h"
 
-ISPHYSICS_PUBLIC
+
 
 namespace sofa
 {

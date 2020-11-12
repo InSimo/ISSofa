@@ -35,8 +35,8 @@
 */
 
 
-#ifndef MultiThreadingTasks_inl__
-#define MultiThreadingTasks_inl__
+#ifndef SOFA_SIMULATION_MULTITHREADING_INL
+#define SOFA_SIMULATION_MULTITHREADING_INL
 
 #include <cassert>
 

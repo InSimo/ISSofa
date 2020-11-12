@@ -36,7 +36,7 @@
 
 
 #include "Tasks.h"
-#include "TaskSchedulerBoost.h"
+#include "TaskScheduler.h"
 
 namespace sofa
 {

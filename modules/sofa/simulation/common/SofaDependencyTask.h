@@ -4,18 +4,18 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_SOFADEPENDENCYTASK_H
-#define ISPHYSICS_BASE_SOFADEPENDENCYTASK_H
+#ifndef SOFA_SIMULATION_SOFADEPENDENCYTASK_H
+#define SOFA_SIMULATION_SOFADEPENDENCYTASK_H
 
 #include "DependencyTask.h"
 #include <sofa/core/objectmodel/BaseObject.h>
-#include <ISSystem/ISAssert.h>
+#include <sofa/helper/assert.h>
 
-ISPHYSICS_PUBLIC
 
-namespace isphysics
+
+namespace sofa
 {
-namespace base
+namespace simulation
 {
 
 class BaseSofaDependencyTask : public sofa::simulation::DependencyTask
@@ -61,7 +61,7 @@ TSofaDependencyTask<TSofaObject, TTaskInfo>::TSofaDependencyTask(TSofaObject* so
 :m_sofaObjectPtr(sofaObject)
 ,m_name(baseName)
 {
-    ISASSERT_FAST(sofaObject);
+    SOFA_ASSERT_FAST(sofaObject);
 }
 
 template< typename TSofaObject, typename TTaskInfo >
@@ -116,7 +116,7 @@ TTaskInfo& TSofaDependencyTask<TSofaObject, TTaskInfo>::getTaskInfo()
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
-#endif // ISPHYSICS_BASE_SOFADEPENDENCYTASK_H
+#endif // SOFA_SIMULATION_SOFADEPENDENCYTASK_H

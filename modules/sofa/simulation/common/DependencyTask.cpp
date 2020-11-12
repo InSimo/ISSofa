@@ -5,7 +5,7 @@
 *******************************************************************************/
 
 #include "DependencyTask.h"
-#include <MultiThreading/src/TaskSchedulerBoost.h>
+#include "TaskScheduler.h"
 
 namespace sofa
 {

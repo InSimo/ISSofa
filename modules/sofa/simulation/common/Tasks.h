@@ -34,10 +34,10 @@
 *     http://www.farbrausch.de/~fg/kkrunchy/
 */
 
-#ifndef MultiThreadingTasks_h__
-#define MultiThreadingTasks_h__
+#ifndef SOFA_SIMULATION_TASKS_H
+#define SOFA_SIMULATION_TASKS_H
 
-#include "initMultiThreading.h"
+#include <sofa/SofaSimulation.h>
 #include <atomic>
 #include <sofa/helper/system/thread/CTime.h>
 #include <sofa/defaulttype/Vec.h>
@@ -51,7 +51,7 @@ namespace simulation
 class WorkerThread;
 class TaskScheduler;
 
-class SOFA_MULTITHREADING_PLUGIN_API Task
+class SOFA_SIMULATION_COMMON_API Task
 {
 public:
     virtual ~Task();
@@ -129,4 +129,4 @@ private:
 #include "Tasks.inl"
 
 
-#endif // MultiThreadingTasks_h__
+#endif // SOFA_SIMULATION_TASKS_H

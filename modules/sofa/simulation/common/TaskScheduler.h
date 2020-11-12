@@ -34,10 +34,9 @@
 *     http://www.farbrausch.de/~fg/kkrunchy/
 */
 
-#ifndef TaskSchedulerBoost_h__
-#define TaskSchedulerBoost_h__
+#ifndef SOFA_SIMULATION_TASKSCHEDULER_H
+#define SOFA_SIMULATION_TASKSCHEDULER_H
 
-#include "initMultiThreading.h"
 #include "Tasks.h"
 
 #include <mutex>
@@ -67,7 +66,7 @@ void run(TaskScheduler* scheduler, unsigned index);
 
 }
 
-class SOFA_MULTITHREADING_PLUGIN_API WorkerThread
+class SOFA_SIMULATION_COMMON_API WorkerThread
 {
 public:
     ~WorkerThread();
@@ -145,7 +144,7 @@ private:
     std::vector<Task*>                mTaskLog;
 };
 
-class SOFA_MULTITHREADING_PLUGIN_API TaskScheduler
+class SOFA_SIMULATION_COMMON_API TaskScheduler
 {
     enum
     {
@@ -219,4 +218,4 @@ private:
 } // namespace sofa
 
 
-#endif // TaskSchedulerBoost_h__
+#endif // SOFA_SIMULATION_TASKSCHEDULER_H

@@ -20,6 +20,7 @@ set(HEADER_FILES
 	DefaultAnimationLoop.h
 	DefaultVisualManagerLoop.h
 	DeleteVisitor.h
+    DependencyTask.h
 	ExportGnuplotVisitor.h
 	ExportOBJVisitor.h
 	FindByTypeVisitor.h
@@ -44,8 +45,14 @@ set(HEADER_FILES
 	ReleaseAspectVisitor.h
 	ResetVisitor.h
 	Simulation.h
+    SofaDependencyTask.h
 	SolveVisitor.h
 	StateChangeVisitor.h
+    TaskDependencyGraph.h
+    TaskDependencyGraph.inl
+    Tasks.h
+    Tasks.inl
+    TaskScheduler.h
 	TopologyChangeVisitor.h
 	TransformationVisitor.h
 	UpdateBoundingBoxVisitor.h
@@ -96,6 +103,7 @@ set(SOURCE_FILES
 	DefaultAnimationLoop.cpp
 	DefaultVisualManagerLoop.cpp
 	DeleteVisitor.cpp
+    DependencyTask.cpp
 	ExportGnuplotVisitor.cpp
 	ExportOBJVisitor.cpp
 	BaseGUI.cpp
@@ -119,6 +127,8 @@ set(SOURCE_FILES
 	ResetVisitor.cpp
 	Simulation.cpp  
 	SolveVisitor.cpp
+    Tasks.cpp
+    TaskScheduler.cpp
 	TopologyChangeVisitor.cpp
 	StateChangeVisitor.cpp   
 	TransformationVisitor.cpp

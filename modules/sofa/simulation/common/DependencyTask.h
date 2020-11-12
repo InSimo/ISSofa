@@ -3,16 +3,14 @@
 * CONFIDENTIAL SOURCE CODE. This file is the property of InSimo and should not *
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
-#ifndef ISPHYSICS_BASE_DEPENDENCYTASK_H
-#define ISPHYSICS_BASE_DEPENDENCYTASK_H
+#ifndef SOFA_SIMULATION_DEPENDENCYTASK_H
+#define SOFA_SIMULATION_DEPENDENCYTASK_H
 
-#include "initPlugin.h"
-#include <MultiThreading/src/Tasks.h>
+#include <sofa/SofaSimulation.h>
+#include "Tasks.h"
 
 #include <vector>
 #include <mutex>
-
-ISPHYSICS_PUBLIC
 
 namespace sofa
 {
@@ -20,7 +18,7 @@ namespace sofa
 namespace simulation
 {
 
-class SOFA_ISPHYSICS_BASE_API DependencyTask : public Task
+class SOFA_SIMULATION_COMMON_API DependencyTask : public Task
 {
 public: 
 
