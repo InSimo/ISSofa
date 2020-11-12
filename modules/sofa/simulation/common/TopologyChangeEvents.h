@@ -7,21 +7,22 @@
 // Description:
 // Define events for safer topological changes propagation
 
-#ifndef ISPHYSICS_BASE_TOPOLOGYCHANGEEVENTS_H
-#define ISPHYSICS_BASE_TOPOLOGYCHANGEEVENTS_H
+#ifndef SOFA_SIMULATION_TOPOLOGYCHANGEEVENTS_H
+#define SOFA_SIMULATION_TOPOLOGYCHANGEEVENTS_H
 
 #include <sofa/core/objectmodel/Event.h>
-#include "initPlugin.h"
+#include <sofa/SofaSimulation.h>
 
-ISPHYSICS_PUBLIC
 
-namespace isphysics
+namespace sofa
 {
-
+namespace simulation
+{
+class TaskStatus;
 /**
   Event fired by Simulation::animate() after AnimateBeginEvent to perform before topological changes.
 */
-class SOFA_ISPHYSICS_BASE_API PreTopologyChangeEvent : public sofa::core::objectmodel::Event
+class SOFA_SIMULATION_COMMON_API PreTopologyChangeEvent : public sofa::core::objectmodel::Event
 {
 public:
     SOFA_EVENT_CLASS_EXTERNAL((PreTopologyChangeEvent),((Event)));
@@ -39,7 +40,7 @@ protected:
 /**
   Event fired by Simulation::animate() after PreTopologyChangeEvent to perform topological changes.
 */
-class SOFA_ISPHYSICS_BASE_API TopologyChangeEvent : public sofa::core::objectmodel::Event
+class SOFA_SIMULATION_COMMON_API TopologyChangeEvent : public sofa::core::objectmodel::Event
 {
 public:
     SOFA_EVENT_CLASS_EXTERNAL((TopologyChangeEvent),((Event)));
@@ -49,18 +50,18 @@ public:
     ~TopologyChangeEvent();
 
     double getDt() const { return dt; }
-	void setTaskStatus(void* status) { taskStatus = status; }
-	void* getTaskStatus() const { return taskStatus; }
+	void setTaskStatus(TaskStatus* status) { taskStatus = status; }
+    TaskStatus* getTaskStatus() const { return taskStatus; }
 
 protected:
     double dt;
-	void* taskStatus;
+    TaskStatus* taskStatus;
 };
 
 /**
   Event fired by Simulation::animate() after TopologyChangeEvent to perform after topological changes.
 */
-class SOFA_ISPHYSICS_BASE_API PostTopologyChangeEvent : public sofa::core::objectmodel::Event
+class SOFA_SIMULATION_COMMON_API PostTopologyChangeEvent : public sofa::core::objectmodel::Event
 {
 public:
     SOFA_EVENT_CLASS_EXTERNAL((PostTopologyChangeEvent),((Event)));
@@ -70,14 +71,15 @@ public:
     ~PostTopologyChangeEvent();
 
     double getDt() const { return dt; }
-	void setTaskStatus(void* status) { taskStatus = status; }
-	void* getTaskStatus() const { return taskStatus; }
+	void setTaskStatus(TaskStatus* status) { taskStatus = status; }
+    TaskStatus* getTaskStatus() const { return taskStatus; }
 
 protected:
     double dt;
-	void* taskStatus;
+    TaskStatus* taskStatus;
 };
 
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
-#endif // ISPHYSICS_BASE_TOPOLOGYCHANGEEVENTS_H
+#endif // SOFA_SIMULATION_TOPOLOGYCHANGEEVENTS_H

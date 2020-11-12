@@ -64,6 +64,7 @@ set(HEADER_FILES
     TaskScheduler.h
     TaskStatus.h
     TaskTraits.h
+    TopologyChangeEvents.h
 	TopologyChangeVisitor.h
 	TransformationVisitor.h
 	UpdateBoundingBoxVisitor.h
@@ -148,6 +149,7 @@ set(SOURCE_FILES
     Tasks.cpp
     TaskScheduler.cpp
     TaskStatus.cpp
+    TopologyChangeEvents.cpp
 	TopologyChangeVisitor.cpp
 	StateChangeVisitor.cpp   
 	TransformationVisitor.cpp

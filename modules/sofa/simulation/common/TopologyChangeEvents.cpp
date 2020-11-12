@@ -6,7 +6,9 @@
 
 #include "TopologyChangeEvents.h"
 
-namespace isphysics
+namespace sofa
+{
+namespace simulation
 {
 
 SOFA_EVENT_CLASS_IMPL((PreTopologyChangeEvent));
@@ -48,5 +50,6 @@ PostTopologyChangeEvent::~PostTopologyChangeEvent()
 {
 }
 
-} // namespace isphysics
+} // namespace simulation
+} // namespace sofa
 
