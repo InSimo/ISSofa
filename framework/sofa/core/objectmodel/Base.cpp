@@ -729,7 +729,7 @@ static std::string xmlencode(const std::string& str)
     return res;
 }
 
-void  Base::writeDatas (std::ostream& out, const std::string& separator)
+void Base::writeDatas(std::ostream& out, const std::string& separator, const std::string& dataParserName)
 {
     for(VecData::const_iterator iData = m_vecData.begin(); iData != m_vecData.end(); ++iData)
     {
@@ -740,9 +740,26 @@ void  Base::writeDatas (std::ostream& out, const std::string& separator)
         }
         else
         {
-            if(field->isPersistent() && field->isSet())
+            if (field->isPersistent() && field->isSet())
             {
-                std::string val = field->getValueString();
+                static sofa::core::dataparser::DataParser* parser = nullptr;
+                if (!dataParserName.empty())
+                {
+                    parser = sofa::core::dataparser::DataParserRegistry::getParser(dataParserName);
+                }
+
+                std::string val;
+                if (parser != nullptr && field->getValueTypeInfo()->ValidInfo())
+                {
+                    std::ostringstream os;
+                    std::error_code errc = parser->fromData(os, field->getValueVoidPtr(), field->getValueTypeInfo());
+                    val = !errc ? os.str() : field->getValueString();
+                }
+                else
+                {
+                    val = field->getValueString();
+                }
+
                 if (!val.empty())
                     out << separator << field->getName() << "=\""<< xmlencode(val) << "\" ";
             }

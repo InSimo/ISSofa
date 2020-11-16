@@ -154,7 +154,8 @@ public:
 
     /// Write the current field values to the given output stream
     /// separated with the given separator (" " used by default for XML)
-    void writeDatas (std::ostream& out, const std::string& separator = " ");
+    /// and using the given DataParser to print each field
+    void writeDatas(std::ostream& out, const std::string& separator = " ", const std::string& dataParserName = "");
 
     /// Find a data field given its name. Return NULL if not found.
     /// If more than one field is found (due to aliases), only the first is returned.
