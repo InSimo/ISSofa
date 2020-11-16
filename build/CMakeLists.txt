@@ -23,8 +23,10 @@ option(SOFA_ENABLE_TIMESTAMPS "Set to true to add timestamps before logs" OFF)
 # sofa.env options
 option(SOFA_GENERATE_ENV_FILE "Generate a sofa.env file in the build directory. Disable if this file is not needed or created some other way" ON)
 set(SOFA_ENV_DIR "${CMAKE_BINARY_DIR}" CACHE PATH "If SOFA_GENERATE_ENV_FILE is enabled: directory where sofa.env will be written.")
-file(RELATIVE_PATH SOFA_SOURCE_PATH_RELATIVE_TO_ENV ${SOFA_ENV_DIR} ${SOFA_ACTUAL_SOURCE_DIR})
-set(SOFA_DATA_PATH_ENV "${SOFA_SOURCE_PATH_RELATIVE_TO_ENV}/examples" "${SOFA_SOURCE_PATH_RELATIVE_TO_ENV}/share" CACHE LIST "A list (semicolon separated) of sofa data paths to write in sofa.env file. They should be relative to the SOFA_ENV_DIR directory (CMAKE_BINARY_DIR by default).")
+# CHANGE: use absolute paths instead of relative ones so that Build2Build system can process the generated file
+#file(RELATIVE_PATH SOFA_SOURCE_PATH_RELATIVE_TO_ENV ${SOFA_ENV_DIR} ${SOFA_ACTUAL_SOURCE_DIR})
+#set(SOFA_DATA_PATH_ENV "${SOFA_SOURCE_PATH_RELATIVE_TO_ENV}/examples" "${SOFA_SOURCE_PATH_RELATIVE_TO_ENV}/share" CACHE LIST "A list (semicolon separated) of sofa 
+set(SOFA_DATA_PATH_ENV "${SOFA_ACTUAL_SOURCE_DIR}/examples" "${SOFA_ACTUAL_SOURCE_DIR}/share" CACHE LIST "A list (semicolon separated) of sofa data paths to write in sofa.env file. They should be relative to the SOFA_ENV_DIR directory (CMAKE_BINARY_DIR by default).")
 set(SOFA_PLUGIN_PATH_ENV CACHE LIST "A list (semicolon separated) of sofa data paths to write in sofa.env file. They should be relative to the SOFA_ENV_DIR directory (CMAKE_BINARY_DIR by default).")
 set(SOFA_PRELOAD_ENV CACHE LIST "A list (semicolon separated) of preloaded sofa plugins to write in sofa.env file.")
 
@@ -116,6 +118,10 @@ SOFA_PRELOAD=$<JOIN:$<TARGET_PROPERTY:SofaHelper,SOFA_PRELOAD>,\nSOFA_PRELOAD=>\
     install(FILES ${SOFA_ENV_DIR}/sofa-install.env
             DESTINATION ${SOFA_INSTALL_BIN_DIR}
             RENAME sofa.env)
+    # FIX: manually register sofa.env file when using Build2Build
+    if(DEFINED B2B_ACTIVE)
+        B2B_add_files(${SOFA_ENV_DIR}/sofa.env)
+    endif()
 endif()
 
 foreach(TARGET ${SOFA_PLUGINS_TARGETS} )
