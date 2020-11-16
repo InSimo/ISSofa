@@ -399,6 +399,27 @@ public:
         DispatcherForceField_addMBKToMatrix<FF> dispatch(main, mparams);
         apply(dispatch, r.matrix, r.offset, r.offset);
     }
+
+    template<class Mapping>
+    struct DispatcherMapping_addGeometricStiffnessToMatrix
+    {
+        Mapping* main;
+        const sofa::core::MechanicalParams* mparams;
+        DispatcherMapping_addGeometricStiffnessToMatrix(Mapping* main, const sofa::core::MechanicalParams* mparams) : main(main), mparams(mparams) {}
+        template <class MatrixWriter>
+        void operator()(const MatrixWriter& m)
+        {
+            main->addGeometricStiffnessToMatrixT(mparams, m);
+        }
+    };
+
+    template<class Mapping>
+    void addGeometricStiffnessToMatrix(Mapping* main, const sofa::core::MechanicalParams* mparams, sofa::core::behavior::MultiMatrixAccessor::MatrixRef r)
+    {
+        if (!r) return;
+        DispatcherMapping_addGeometricStiffnessToMatrix<Mapping> dispatch(main, mparams);
+        apply(dispatch, r.matrix, r.offset, r.offset);
+    }
 };
 
 } // namespace core
