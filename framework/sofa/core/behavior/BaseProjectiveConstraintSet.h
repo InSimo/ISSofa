@@ -27,6 +27,7 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/core/behavior/MultiMatrixAccessor.h>
+#include <sofa/core/BaseMapping.h>
 
 namespace sofa
 {

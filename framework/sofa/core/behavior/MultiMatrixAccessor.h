@@ -27,13 +27,14 @@
 
 #include <sofa/defaulttype/BaseMatrix.h>
 #include <sofa/core/behavior/BaseMechanicalState.h>
-#include <sofa/core/BaseMapping.h>
 
 namespace sofa
 {
 
 namespace core
 {
+
+class BaseMapping;
 
 namespace behavior
 {
