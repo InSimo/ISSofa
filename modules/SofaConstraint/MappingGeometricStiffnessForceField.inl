@@ -49,8 +49,7 @@ void MappingGeometricStiffnessForceField<DataTypes>::addKToMatrix(const sofa::co
     const sofa::defaulttype::BaseMatrix* mappingK = l_mapping->getK();
     if(!mappingK)
     {
-        sofa::core::behavior::MultiMatrixAccessor::MatrixRef mref = matrix->getMatrix(this->mstate);
-        l_mapping->addGeometricStiffnessToMatrix(mref.matrix, mref.offset, kFact);
+        l_mapping->addGeometricStiffnessToMatrix(mparams, matrix);
     }
     else
     {
@@ -65,13 +64,8 @@ void MappingGeometricStiffnessForceField<DataTypes>::addKToMatrix(const sofa::co
             }
         }
     }
-
-
-
-    //typedef typename DataTypes::Deriv TBloc;
-    //sofa::core::BlocMatrixWriter< TBloc > writer;
-    //writer.addKToMatrix(this, mparams, matrix->getMatrix(this->getMState()));
 }
+
 
 //template<class MatrixWriter>
 //template<class DataTypes>

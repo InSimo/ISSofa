@@ -29,9 +29,6 @@ public:
 
     void addKToMatrix(const sofa::core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix) override;
 
-    //template<class MatrixWriter>
-    //void addKToMatrixT(const sofa::core::MechanicalParams* mparams, MatrixWriter m);
-
     SReal getPotentialEnergy(const sofa::core::MechanicalParams*, const DataVecCoord&) const override
     {
         return 0;
