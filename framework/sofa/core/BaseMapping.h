@@ -36,6 +36,7 @@
 #include <sofa/core/MechanicalParams.h>
 #include <sofa/core/VecId.h>
 #include <sofa/helper/vector.h>
+#include <sofa/core/behavior/MultiMatrixAccessor.h>
 
 namespace sofa
 {
@@ -175,8 +176,7 @@ public:
     /// use this method for fast addition of geometric stiffness matrix to the mechanical matrix,
     ///         in this scheme, BaseMappping::getK() returns Null and BaseMappping::updateK()
     ///         only stores the child force vector for use in this method
-    virtual void addGeometricStiffnessToMatrix(sofa::defaulttype::BaseMatrix* /*matrix*/, const unsigned int /*matrixOffset*/, const double /*factor*/) {}
-
+    virtual void addGeometricStiffnessToMatrix(const MechanicalParams* /*mparams*/, const sofa::core::behavior::MultiMatrixAccessor* /*matrix*/ ) {}
     /// @}
 
 protected:
