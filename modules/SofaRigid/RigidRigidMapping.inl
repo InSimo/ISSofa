@@ -143,24 +143,6 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mpar
     getVOrientation(parentForces[parentIndex]) += omega;
 }
 
-template <class TIn, class TOut>
-void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST */, core::MultiVecDerivId parentForceChangeId, core::ConstMultiVecDerivId )
-{
-//    if( mparams->symmetricMatrix() ) return;
-
-    helper::ReadAccessor<Data<OutVecDeriv> > childForces (*mparams->readF(this->toModel));
-    helper::WriteAccessor<Data<InVecDeriv> > parentForces (*parentForceChangeId[this->fromModel.get(mparams)].write());
-    helper::ReadAccessor<Data<InVecDeriv> > parentDisplacements (*mparams->readDx(this->fromModel));
-    Real kfactor = (Real)mparams->kFactor();
-
-    unsigned parentIndex = index.getValue();
-    for (unsigned childIndex=0; childIndex<points.getValue().size(); ++childIndex)
-    {
-        typename TIn::AngularVector& parentTorque = getVOrientation(parentForces[parentIndex]);
-        const typename TIn::AngularVector& parentRotation = getVOrientation(parentDisplacements[parentIndex]);
-        parentTorque -=  TIn::crosscross(getLinear(childForces[childIndex]), parentRotation, pointsR0[childIndex] ) * kfactor;
-    }
-}
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cparams*/ /* PARAMS FIRST */, Data<InMatrixDeriv>& dOut, const Data<OutMatrixDeriv>& dIn)
@@ -229,6 +211,25 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
     dAcc_out.endEdit();
 }
 
+
+template <class TIn, class TOut>
+void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST */, core::MultiVecDerivId parentForceChangeId, core::ConstMultiVecDerivId )
+{
+    if( mparams->symmetricMatrix() ) return;
+
+    helper::ReadAccessor<Data<OutVecDeriv> > childForces (*mparams->readF(this->toModel));
+    helper::WriteAccessor<Data<InVecDeriv> > parentForces (*parentForceChangeId[this->fromModel.get(mparams)].write());
+    helper::ReadAccessor<Data<InVecDeriv> > parentDisplacements (*mparams->readDx(this->fromModel));
+    Real kfactor = (Real)mparams->kFactor();
+
+    unsigned parentIndex = index.getValue();
+    for (unsigned childIndex=0; childIndex<points.getValue().size(); ++childIndex)
+    {
+        typename TIn::AngularVector& parentTorque = getVOrientation(parentForces[parentIndex]);
+        const typename TIn::AngularVector& parentRotation = getVOrientation(parentDisplacements[parentIndex]);
+        parentTorque -=  TIn::crosscross(getLinear(childForces[childIndex]), parentRotation, pointsR0[childIndex] ) * kfactor;
+    }
+}
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::updateK(const sofa::core::MechanicalParams *mparams, sofa::core::ConstMultiVecDerivId childForceId )
