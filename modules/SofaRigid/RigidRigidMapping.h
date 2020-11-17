@@ -71,6 +71,7 @@ public:
 protected:
     Data < OutVecCoord > points;
     sofa::helper::vector< typename TIn::CPos > pointsR0;
+    defaulttype::Mat<3, 3, Real> K;
 
 public:
     Data<unsigned> index;
@@ -106,6 +107,12 @@ public:
     virtual void computeAccFromMapping(const core::MechanicalParams *mparams /* PARAMS FIRST */, Data<OutVecDeriv>& acc_out, const Data<InVecDeriv>& v_in, const Data<InVecDeriv>& acc_in);
 
     virtual void applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST  = core::MechanicalParams::defaultInstance()*/, core::MultiVecDerivId parentForce, core::ConstMultiVecDerivId  childForce );
+
+    virtual void updateK( const sofa::core::MechanicalParams* mparams, sofa::core::ConstMultiVecDerivId childForce ) override;
+
+    void addGeometricStiffnessToMatrix(const sofa::core::MechanicalParams* /*mparams*/, const sofa::core::behavior::MultiMatrixAccessor* /*matrix*/ ) override;
+    template<class MatrixWriter>
+    void addGeometricStiffnessToMatrixT(const sofa::core::MechanicalParams* mparams, MatrixWriter m);
 
     virtual const sofa::defaulttype::BaseMatrix* getJ()
     {

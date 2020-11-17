@@ -30,7 +30,7 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/gl/Axis.h>
 #include <sofa/helper/gl/template.h>
-
+#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
 
 namespace sofa
 {
@@ -146,6 +146,8 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mpar
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST */, core::MultiVecDerivId parentForceChangeId, core::ConstMultiVecDerivId )
 {
+//    if( mparams->symmetricMatrix() ) return;
+
     helper::ReadAccessor<Data<OutVecDeriv> > childForces (*mparams->readF(this->toModel));
     helper::WriteAccessor<Data<InVecDeriv> > parentForces (*parentForceChangeId[this->fromModel.get(mparams)].write());
     helper::ReadAccessor<Data<InVecDeriv> > parentDisplacements (*mparams->readDx(this->fromModel));
@@ -226,6 +228,48 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
 
     dAcc_out.endEdit();
 }
+
+
+template <class TIn, class TOut>
+void RigidRigidMapping<TIn, TOut>::updateK(const sofa::core::MechanicalParams *mparams, sofa::core::ConstMultiVecDerivId childForceId )
+{
+    sofa::helper::ReadAccessor< sofa::Data<OutVecDeriv > > childForce( *childForceId[this->toModel.get(mparams)].read() );
+    Real kfactor = (Real)mparams->kFactor();
+
+    K =  defaulttype::Mat<3,3,Real>();
+    for (unsigned childIndex=0; childIndex<points.getValue().size(); ++childIndex)
+    {
+
+        const typename Out::Deriv& lambda = childForce[childIndex];
+        const typename Out::Deriv::Vec3& f = lambda.getLinear();
+
+        K += defaulttype::crossProductMatrix<Real>( f ) * defaulttype::crossProductMatrix<Real>( pointsR0[childIndex]);
+
+    }
+    K.symmetrize();
+}
+
+
+
+template <class TIn, class TOut>
+void RigidRigidMapping<TIn, TOut>::addGeometricStiffnessToMatrix(const sofa::core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
+{
+    sofa::component::linearsolver::BlocMatrixWriter< defaulttype::Mat<3, 3, Real> > writer;
+    sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->getMechFrom()[0]);
+    r.offset = 3;
+    writer.addGeometricStiffnessToMatrix(this, mparams, r);
+}
+
+
+template <class TIn, class TOut>
+template<class MatrixWriter>
+void RigidRigidMapping<TIn, TOut>::addGeometricStiffnessToMatrixT(const sofa::core::MechanicalParams* mparams, MatrixWriter mwriter)
+{
+    const auto kFact = mparams->kFactor();
+    unsigned parentIndex = index.getValue();
+    mwriter.add(parentIndex, parentIndex, K * kFact);
+}
+
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
