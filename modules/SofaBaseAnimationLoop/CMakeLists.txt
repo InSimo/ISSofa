@@ -4,6 +4,7 @@ project(SofaBaseAnimationLoop)
 set(HEADER_FILES
 
 	initBaseAnimationLoop.h
+    FreeMotionTaskAnimationLoop.h
     MultiStepAnimationLoop.h
     MultiTagAnimationLoop.h
 	)
@@ -11,6 +12,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
 
 	initBaseAnimationLoop.cpp
+    FreeMotionTaskAnimationLoop.cpp
     MultiStepAnimationLoop.cpp
     MultiTagAnimationLoop.cpp
 	)
