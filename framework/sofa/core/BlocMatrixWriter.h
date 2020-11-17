@@ -60,6 +60,8 @@ public:
         const unsigned int boffsetL, boffsetC;
     public:
         BlocCRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal>, TPolicy >* m, unsigned int boffsetL, unsigned int boffsetC) : m(m), boffsetL(boffsetL), boffsetC(boffsetC) {}
+        const sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<NL,NC,MReal>, TPolicy >* getMatrix() const {return m;}
+        const sofa::helper::fixed_array<unsigned int, 2> getOffsets() const {return sofa::helper::fixed_array<unsigned int, 2> {boffsetL, boffsetC};}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i = boffsetL + bi;
@@ -167,6 +169,8 @@ public:
         const unsigned int offsetL, offsetC;
     public:
         CRSMatrixWriter(sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal, TPolicy>* m, unsigned int offsetL, unsigned int offsetC) : m(m), offsetL(offsetL), offsetC(offsetC) {}
+        const sofa::defaulttype::CompressedRowSparseMatrixMechanical<MReal, TPolicy>* getMatrix() const {return m;}
+        const sofa::helper::fixed_array<unsigned int, 2> getOffsets() const {return sofa::helper::fixed_array<unsigned int, 2> {offsetL, offsetC};}
         void add(unsigned int bi, unsigned int bj, const MatBloc& b)
         {
             unsigned int i0 = offsetL + bi*NL;
