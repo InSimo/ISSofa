@@ -62,6 +62,7 @@ set(HEADER_FILES
     Tasks.h
     Tasks.inl
     TaskScheduler.h
+    TaskSchedulerHelpers.h
     TaskStatus.h
     TaskTraits.h
     TopologyChangeEvents.h
@@ -148,6 +149,7 @@ set(SOURCE_FILES
 	SolveVisitor.cpp
     Tasks.cpp
     TaskScheduler.cpp
+    TaskSchedulerHelpers.cpp
     TaskStatus.cpp
     TopologyChangeEvents.cpp
 	TopologyChangeVisitor.cpp

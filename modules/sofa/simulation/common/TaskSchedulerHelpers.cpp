@@ -4,20 +4,23 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#include "helpers_task_scheduler.h"
+#include "TaskSchedulerHelpers.h"
 
 #include <sofa/simulation/common/Tasks.h>
 #include <sofa/simulation/common/TaskScheduler.h>
 
-namespace isphysics
+namespace sofa
 {
 
-namespace base
+namespace simulation
 {
 
-void start(Timer& timer)
+namespace taskscheduler
 {
-    const Timer::Time t0 = sofa::helper::system::thread::CTime::getFastTime();
+
+void start(TaskTimer& timer)
+{
+    const TaskTimer::Time t0 = sofa::helper::system::thread::CTime::getFastTime();
 
 
     if (timer.execTime.first != timer.execTime.second) {
@@ -29,13 +32,11 @@ void start(Timer& timer)
     timer.execTime.first = t0;
 }
 
-void stop(Timer& timer)
+void stop(TaskTimer& timer)
 {
     timer.execTime.second = sofa::helper::system::thread::CTime::getFastTime();
 }
 
-namespace taskscheduler
-{
 
 void setup(sofa::simulation::TaskScheduler& taskScheduler,
            unsigned int& lastThreadsCount,
@@ -129,7 +130,7 @@ void draw(const sofa::simulation::TaskScheduler& taskScheduler,
     glLoadIdentity();
 
     glLineWidth(1.0f);
-    const Timer& timer = drawInfo.timer;
+    const TaskTimer& timer = drawInfo.timer;
     sofa::helper::system::thread::ctime_t ticks = sofa::helper::system::thread::CTime::getTicksPerSec();
     sofa::helper::system::thread::ctime_t t0 = timer.execTime.first + sofa::helper::system::thread::ctime_t(timeOffset * ticks);
     sofa::helper::system::thread::ctime_t tlabel = sofa::helper::system::thread::ctime_t(taskLabelMinDuration * ticks);
@@ -340,7 +341,7 @@ void logTasksHTML(const sofa::simulation::TaskScheduler& scheduler,
 
     float tscale = 4000.f / timeScale;
 
-    const Timer& timer = exportInfo.timer;
+    const TaskTimer& timer = exportInfo.timer;
     sofa::helper::system::thread::ctime_t ticks = sofa::helper::system::thread::CTime::getTicksPerSec();
     sofa::helper::system::thread::ctime_t t0 = timer.execTime.first + sofa::helper::system::thread::ctime_t(timeOffset * ticks);
 
@@ -571,7 +572,6 @@ void logTasksHTML(const sofa::simulation::TaskScheduler& scheduler,
 
 } // namespace taskscheduler
 
-} // namespace base
+} // namespace simulation
 
-} // namespace isphysics
-
+} // namespace sofa
