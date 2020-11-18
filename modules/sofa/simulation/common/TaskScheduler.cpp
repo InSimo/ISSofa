@@ -35,6 +35,8 @@
 */
 
 #include "TaskScheduler.h"
+#include "Tasks.h"
+#include "TaskStatus.h"
 #include <sofa/helper/system/thread/CTime.h>
 
 
@@ -213,7 +215,7 @@ bool TaskScheduler::stop()
 
 
 
-void TaskScheduler::notifyWorkersForWork(Task::Status* status)
+void TaskScheduler::notifyWorkersForWork(TaskStatus* status)
 {
     // Need to be called from the main thread
     assert(isMainWorkerThread(GetCurrentWorkerThread()));
@@ -318,7 +320,7 @@ void WorkerThread::idle()
     mTaskScheduler->idleWorkerUntilNotified(this);
 }
 
-void WorkerThread::doWork(const Task::Status* status)
+void WorkerThread::doWork(const TaskStatus* status)
 {
     //NOTE:
     //If status is nullptr, then we'll work until there is nothing left to do. This
@@ -341,7 +343,7 @@ void WorkerThread::doWork(const Task::Status* status)
         while (popTask(&pTask))
         {
             // run
-            Task::Status* currentStatus = pTask->getStatus();
+            TaskStatus* currentStatus = pTask->getStatus();
             mCurrentStatuses.push_back(currentStatus);
             mCurrentTasks.push_back(pTask);
             
@@ -371,7 +373,7 @@ void WorkerThread::doWork(const Task::Status* status)
 }
 
 
-void WorkerThread::workUntilDone(const Task::Status* status)
+void WorkerThread::workUntilDone(const TaskStatus* status)
 {
     if (std::find(mCurrentStatuses.cbegin(), mCurrentStatuses.cend(), status) != mCurrentStatuses.cend())
     {

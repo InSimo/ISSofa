@@ -37,13 +37,12 @@
 #ifndef SOFA_SIMULATION_TASKSCHEDULER_H
 #define SOFA_SIMULATION_TASKSCHEDULER_H
 
-#include "Tasks.h"
-
 #include <mutex>
 #include <thread>
 #include <condition_variable>
 #include <memory>
-
+#include <vector>
+#include <sofa/SofaSimulation.h>
 namespace sofa
 {
 
@@ -52,7 +51,8 @@ namespace simulation
 
 class TaskScheduler;
 class WorkerThread;
-
+class Task;
+class TaskStatus;
 
 namespace detail
 {
@@ -82,7 +82,7 @@ public:
     /// run the given task directly
     void runTask(Task* pTask);
 
-    void workUntilDone(const Task::Status* status);
+    void workUntilDone(const TaskStatus* status);
         
     unsigned getThreadIndex() const;
     
@@ -92,7 +92,7 @@ public:
     
     const std::vector<Task*>& getTaskLog() const;
 
-    const Task::Status* getCurrentStatus() const { return mCurrentStatuses.empty() ? nullptr : mCurrentStatuses.back(); }
+    const TaskStatus* getCurrentStatus() const { return mCurrentStatuses.empty() ? nullptr : mCurrentStatuses.back(); }
     const Task* getCurrentTask() const { return mCurrentTasks.empty() ? nullptr : mCurrentTasks.back(); }
 
     const TaskScheduler* getTaskScheduler() { return mTaskScheduler; }
@@ -116,7 +116,7 @@ private:
     // give an idle thread some work
     bool giveUpSomeWork(WorkerThread* pIdleThread);	 
 
-    void doWork(const Task::Status* status);
+    void doWork(const TaskStatus* status);
 
     void idle();
 
@@ -137,7 +137,7 @@ private:
     Task*                             mSpecificTask[Max_TasksPerThread];///< thread specific task list, not stealable. They have a higher priority compared to the shared task list
     unsigned			              mStealableTaskCount;///< current size of the shared task list
     unsigned                          mSpecificTaskCount;///< current size of the specific task list								
-    std::vector<const Task::Status*>  mCurrentStatuses;///< current statuses stack (grows each time a task is run within another)
+    std::vector<const TaskStatus*>    mCurrentStatuses;///< current statuses stack (grows each time a task is run within another)
     std::vector<const Task*>          mCurrentTasks;///< current task stack (grows each time a task is run within another)
     unsigned                          mThreadIndex;
     bool                              mTaskLogEnabled;
@@ -165,7 +165,7 @@ public:
 
     bool stop();
     
-    void notifyWorkersForWork(Task::Status* status);
+    void notifyWorkersForWork(TaskStatus* status);
 
     void notifyWorkersForClosing();
 
@@ -179,7 +179,7 @@ public:
 
     bool isMainWorkerThread(const WorkerThread* worker) const;
 
-    Task::Status* getRootTaskStatus() const { return mRootTaskStatus; }
+    TaskStatus* getRootTaskStatus() const { return mRootTaskStatus; }
 
     bool isClosing() const { return mIsClosing; }
 
@@ -196,7 +196,7 @@ private:
     WorkerThread*               mWorker[MAX_THREADS];
     std::thread                 mThread[MAX_THREADS];
 
-    Task::Status*	            mRootTaskStatus; // should only be set from main worker thread
+    TaskStatus*	                mRootTaskStatus; // should only be set from main worker thread
     unsigned                    mThreadCount;
     unsigned                    mMainThreadIndex;
     unsigned                    mWorkerThreadCreateCount; // guarded by startMutex
