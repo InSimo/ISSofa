@@ -319,6 +319,13 @@ elseif(SOFA_ASSERTION_ENABLED)
     target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:RelWithDebInfo>:SOFA_ASSERTION_ENABLED>)
 endif()
 
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13.0")
+    # if we are using freeglut we need to disable linking from freeglut_std.h using pragma directive
+    # since it fails with debug builds ( ie the code will attempt to link with freeglut.lib when the lib name can be freeglutd.lib for example )
+    # https://gitlab.kitware.com/cmake/cmake/-/commit/0da645d4523474093f36d66722dfcd3aa008a40d
+    target_compile_definitions(${PROJECT_NAME} PUBLIC FREEGLUT_LIB_PRAGMAS=0)
+endif()
+
 set( SOFAHELPER_COMPILER_FLAGS "-DSOFA_BUILD_HELPER -DUNICODE")
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAHELPER_COMPILER_FLAGS}"  )
