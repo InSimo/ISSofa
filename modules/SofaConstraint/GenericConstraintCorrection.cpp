@@ -52,7 +52,7 @@ void GenericConstraintCorrection::bwdInit()
 {
     core::objectmodel::BaseContext* c = this->getContext();
 
-    c->get(odesolver, core::objectmodel::BaseContext::Local);
+    c->get(odesolver, core::objectmodel::BaseContext::SearchUp);
 
     linearsolvers.clear();
 
