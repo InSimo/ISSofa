@@ -29,6 +29,7 @@
 #include <sofa/helper/system/config.h>
 #include <sofa/core/CollisionElement.h>
 #include <sofa/defaulttype/Vec.h>
+#include <sofa/helper/assert.h>
 #include <sofa/helper/vector.h>
 #include <sofa/helper/integer_id.h>
 #include <iostream>
@@ -104,11 +105,14 @@ public:
  */
 class SOFA_CORE_API DetectionOutputContainer
 {
-protected:
-    virtual ~DetectionOutputContainer() {}
 public:
+    virtual ~DetectionOutputContainer() {}
+    /// Create a new concrete instance of DetectionOutputContainer
+    virtual DetectionOutputContainer* create() const = 0;
     /// Clear the contents of this container
     virtual void clear() = 0;
+    /// Allocate memory if needed for at least n DetectionOutputs
+    virtual void reserve(std::size_t n) = 0;
     /// Current size (number of detected contacts)
     virtual unsigned int size() const = 0;
     /// Test if the container is empty
@@ -117,6 +121,8 @@ public:
     virtual void release() { delete this; }
     /// Swap the contents of both containers
     virtual void swap(DetectionOutputContainer& other) = 0;
+    /// Insert length elements from other container, starting at index
+    virtual void insertFrom(const DetectionOutputContainer& other, int index, int length) = 0;
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)
     /// @return false if not supported
@@ -141,11 +147,25 @@ public:
     using DetectionOutputID = sofa::helper::integer_id<DetectionOutputIDName>;
 
     virtual ~TDetectionOutputContainer() {}
+
+    /// Create a new concrete instance of DetectionOutputContainer
+    DetectionOutputContainer* create() const override
+    {
+        return new TDetectionOutputContainer<CM1, CM2>();
+    }
+
     /// Clear the contents of this container
     virtual void clear() override
     {
         return Vector::clear();
     }
+
+    /// Allocate memory if needed for at least n DetectionOutputs
+    virtual void reserve(std::size_t n) override
+    {
+        Vector::reserve(n);
+    }
+
     /// Current size (number of detected contacts)
     virtual unsigned int size() const override
     {
@@ -155,8 +175,20 @@ public:
     virtual void swap(DetectionOutputContainer& other) override
     {
         TDetectionOutputContainer<CM1, CM2>* otherAsVector = dynamic_cast<TDetectionOutputContainer<CM1, CM2>*>(&other);
-        assert(otherAsVector != nullptr);
+        SOFA_ASSERT_FAST(otherAsVector != nullptr);
         Vector::swap(*otherAsVector);
+    }
+
+    /// Insert length elements from other container, starting at index
+    void insertFrom(const DetectionOutputContainer& other, int index, int length) override
+    {
+        const TDetectionOutputContainer<CM1, CM2>* otherAsVector = dynamic_cast<const TDetectionOutputContainer<CM1, CM2>*>(&other);
+        SOFA_ASSERT_FAST(otherAsVector != nullptr);
+        const int end = index + length;
+        for (; index < end; ++index)
+        {
+            Vector::push_back(otherAsVector->at(index));
+        }
     }
     /// Copy one contact to a DetectionOutput (inefficient,
     /// not supported by all subclasses, use only for debugging)
