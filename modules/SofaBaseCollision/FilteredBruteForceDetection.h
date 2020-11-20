@@ -10,18 +10,14 @@
 
 #include <sofa/core/collision/ContactManager.h>
 #include <sofa/core/objectmodel/Link.h>
+#include <sofa/SofaBase.h>
 
-#include "initPlugin.h"
-
-
-ISPHYSICS_INTERNAL
-
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
-class SOFA_ISPHYSICS_BASE_API FilteredBruteForceDetection : public sofa::component::collision::BruteForceDetection
+class SOFA_BASE_COLLISION_API FilteredBruteForceDetection : public sofa::component::collision::BruteForceDetection
 {
 public:
     SOFA_CLASS(FilteredBruteForceDetection, sofa::component::collision::BruteForceDetection);
@@ -42,7 +38,7 @@ protected:
     LinkContactManager l_contactManager;
 };
 
-} // namespace base
-} // namespace isphysics
+} // namespace collision
+} // namespace sofa
 
 #endif // ISPHYSICS_BASE_FILTEREDBRUTEFORCEDETECTION_H

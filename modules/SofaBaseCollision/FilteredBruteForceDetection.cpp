@@ -9,9 +9,9 @@
 #include <sofa/core/ObjectFactory.h>
 
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 SOFA_DECL_CLASS(FilteredBruteForceDetection)
@@ -55,6 +55,6 @@ bool FilteredBruteForceDetection::keepCollisionBetween(sofa::core::CollisionMode
 }
 
 
-} // namespace base
+} // namespace collision
 
-} // namespace isphysics
+} // namespace sofa

@@ -6,11 +6,11 @@
 #include "FilteredBruteForceDetectionMT.h"
 #include <sofa/simulation/common/TaskScheduler.h>
 #include <sofa/core/ObjectFactory.h>
-#include <ISSystem/ISAssert.h>
+#include <sofa/helper/assert.h>
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 
@@ -99,7 +99,7 @@ void FilteredBruteForceDetectionMT::beginNarrowPhase()
         NarrowPhaseDetectionTask* const task = pair.second;
         task->disable();
     }
-    ISASSERT_FAST(m_taskStatus.IsBusy() == false);
+    SOFA_ASSERT_FAST(m_taskStatus.IsBusy() == false);
     Inherit::beginNarrowPhase();
 }
 
@@ -123,5 +123,5 @@ void FilteredBruteForceDetectionMT::endNarrowPhase()
 }
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace collision
+} // namespace sofa

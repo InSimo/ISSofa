@@ -16,11 +16,11 @@
 #endif
 #include <sofa/core/ObjectFactory.h>
 
-#include <ISSystem/ISAssert.h>
+#include <sofa/helper/assert.h>
 
 #define VERBOSE(a) if (bVerbose.getValue()) a; else {}
 
-namespace isphysics
+namespace sofa
 {
 namespace collision
 {
@@ -51,7 +51,7 @@ ComputeResponseTask* registerTask(Contact* contact,
     VecComputeResponseTask::size_type taskIndex,
     sofa::simulation::Task::Status& taskStatus)
 {
-    ISASSERT_FAST(contact != NULL);
+    SOFA_ASSERT_FAST(contact != NULL);
 
     ComputeResponseTask* task = NULL;
     if (taskIndex < computeResponseTasks.size()) {
@@ -372,4 +372,4 @@ void DefaultPipelineMT::doCollisionResponse()
 }
 
 } // namespace collision
-} // namespace isphysics
+} // namespace sofa

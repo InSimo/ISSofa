@@ -3,21 +3,17 @@
 * CONFIDENTIAL SOURCE CODE. This file is the property of InSimo and should not *
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
-#ifndef ISPHYSICS_BASE_COLLISIONDETECTIONTASKS_H
-#define ISPHYSICS_BASE_COLLISIONDETECTIONTASKS_H
+#ifndef SOFA_COLLISION_COLLISIONDETECTIONTASKS_H
+#define SOFA_COLLISION_COLLISIONDETECTIONTASKS_H
 
 #include <sofa/simulation/common/Tasks.h>
 #include <sofa/core/CollisionModel.h>
 #include <sofa/core/collision/DetectionOutput.h>
 #include <sofa/core/collision/Intersection.h>
 
-#include <isphysics/ISPhysics.h>
-
-ISPHYSICS_INTERNAL
-
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 
@@ -76,4 +72,4 @@ private:
 } // namespace base
 } // namespace isphysics
 
-#endif // ISPHYSICS_BASE_COLLISIONDETECTIONTASKS_H
+#endif // SOFA_COLLISION_COLLISIONDETECTIONTASKS_H

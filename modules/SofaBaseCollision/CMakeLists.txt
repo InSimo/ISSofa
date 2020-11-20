@@ -6,14 +6,19 @@ set(HEADER_FILES
     initBaseCollision.h
     BaseContactMapper.h
     DefaultPipeline.h
+    DefaultPipelineMT.h
     Sphere.h
     SphereModel.h
     SphereModel.inl
+    CollisionDetectionTasks.h
+    ComputeIntersectionTasks.h
     Cube.h
     CubeModel.h
     DiscreteIntersection.h
     BruteForceDetection.h
     DefaultContactManager.h
+    FilteredBruteForceDetection.h
+    FilteredBruteForceDetectionMT.h
     MinProximityIntersection.h
     NewProximityIntersection.h
     NewProximityIntersection.inl
@@ -47,10 +52,15 @@ set(SOURCE_FILES
     initBaseCollision.cpp
     BaseContactMapper.cpp
     DefaultPipeline.cpp
+    DefaultPipelineMT.cpp
     SphereModel.cpp
+    CollisionDetectionTasks.cpp
+    ComputeIntersectionTasks.cpp
     CubeModel.cpp
     CapsuleModel.cpp
     DiscreteIntersection.cpp
+    FilteredBruteForceDetection.cpp
+    FilteredBruteForceDetectionMT.cpp
     BruteForceDetection.cpp
     DefaultContactManager.cpp
     MinProximityIntersection.cpp

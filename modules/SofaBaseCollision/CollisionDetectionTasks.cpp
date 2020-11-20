@@ -14,9 +14,9 @@
 #include <queue>
 #include <stack>
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 unsigned char NarrowPhaseDetectionTask::taskColors[][3] = {

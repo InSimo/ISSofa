@@ -3,19 +3,17 @@
 * CONFIDENTIAL SOURCE CODE. This file is the property of InSimo and should not *
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
-#ifndef ISPHYSICS_COLLISION_DEFAULTPIPELINEMT_H
-#define ISPHYSICS_COLLISION_DEFAULTPIPELINEMT_H
+#ifndef SOFA_COLLISION_DEFAULTPIPELINEMT_H
+#define SOFA_COLLISION_DEFAULTPIPELINEMT_H
 
-#include "initPlugin.h"
 #include <sofa/core/collision/Contact.h>
 #include <sofa/core/collision/NarrowPhaseDetection.h>
 #include <SofaBaseCollision/DefaultPipeline.h>
 #include <sofa/simulation/common/Tasks.h>
 #include <sofa/simulation/common/TaskScheduler.h>
+#include <sofa/SofaBase.h>
 
-ISPHYSICS_INTERNAL
-
-namespace isphysics
+namespace sofa
 {
 namespace collision
 {
@@ -141,7 +139,7 @@ private:
 typedef sofa::helper::vector<ComputeResponseTask* >  VecComputeResponseTask;
 
 
-class SOFA_ISPHYSICS_COLLISION_API DefaultPipelineMT : public sofa::component::collision::DefaultPipeline
+class SOFA_BASE_COLLISION_API DefaultPipelineMT : public sofa::component::collision::DefaultPipeline
 {
 public:
     SOFA_CLASS(DefaultPipelineMT, DefaultPipeline);
@@ -171,6 +169,6 @@ void computeResponseMT(const sofa::helper::vector<sofa::core::collision::Contact
                        sofa::simulation::WorkerThread* thread);
 
 } // namespace collision
-} // namespace isphysics
+} // namespace sofa
 
 #endif

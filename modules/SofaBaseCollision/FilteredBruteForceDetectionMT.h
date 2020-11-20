@@ -3,19 +3,17 @@
 * CONFIDENTIAL SOURCE CODE. This file is the property of InSimo and should not *
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
-#ifndef ISPHYSICS_BASE_FILTEREDBRUTEFORCEDETECTIONMT_H
-#define ISPHYSICS_BASE_FILTEREDBRUTEFORCEDETECTIONMT_H
+#ifndef SOFA_COLLISION_FILTEREDBRUTEFORCEDETECTIONMT_H
+#define SOFA_COLLISION_FILTEREDBRUTEFORCEDETECTIONMT_H
 
 #include "FilteredBruteForceDetection.h"
 #include <sofa/core/CollisionModel.h>
 #include "CollisionDetectionTasks.h"
 #include <unordered_map>
 
-ISPHYSICS_INTERNAL
-
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 class FilteredBruteForceDetectionMT : public FilteredBruteForceDetection
@@ -52,7 +50,7 @@ private:
 
 
 
-} // namespace base
-} // namespace isphysics
+} // namespace collision
+} // namespace sofa
 
-#endif // ISPHYSICS_BASE_FILTEREDBRUTEFORCEDETECTIONMT_H
+#endif // SOFA_COLLISION_FILTEREDBRUTEFORCEDETECTIONMT_H

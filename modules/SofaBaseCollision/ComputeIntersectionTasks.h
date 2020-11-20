@@ -4,20 +4,16 @@
 * be redistributed. Commercial use is prohibited without a specific license.   *
 *******************************************************************************/
 
-#ifndef ISPHYSICS_BASE_COMPUTEINTERSECTIONTASKS_H
-#define ISPHYSICS_BASE_COMPUTEINTERSECTIONTASKS_H
+#ifndef SOFA_COLLISION_COMPUTEINTERSECTIONTASKS_H
+#define SOFA_COLLISION_COMPUTEINTERSECTIONTASKS_H
 
 #include <sofa/simulation/common/Tasks.h>
 #include <sofa/core/collision/Intersection.h>
 #include <sofa/core/collision/DetectionOutput.h>
 
-#include <isphysics/ISPhysics.h>
-
-ISPHYSICS_INTERNAL
-
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 struct ComputeIntersectionTaskInfo
@@ -67,4 +63,4 @@ private:
 } // namespace base
 } // namespace isphysics
 
-#endif // ISPHYSICS_BASE_COMPUTEINTERSECTIONTASKS_H
+#endif // SOFA_COLLISION_COMPUTEINTERSECTIONTASKS_H

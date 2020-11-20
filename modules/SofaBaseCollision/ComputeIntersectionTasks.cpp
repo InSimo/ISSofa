@@ -15,9 +15,9 @@
 
 
 
-namespace isphysics
+namespace sofa
 {
-namespace base
+namespace collision
 {
 
 
