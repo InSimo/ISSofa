@@ -389,7 +389,7 @@ private:
     std::size_t readT(TBloc& b, int argId = -1)
     {
         using traits = matrix_bloc_traits<TBloc>;
-        typename traits::Real vals[traits::NL][traits::NC];
+        typename traits::Real vals[traits::NL][traits::NC] { { 0 } };
         std::size_t processed = fileRead(&(vals[0][0]),sizeof(vals),1);
         for (int l = 0; l < traits::NL; ++l)
             for (int c = 0; c < traits::NC; ++c)

@@ -38,9 +38,9 @@ public:
 };
 
 
-template class CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyA>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyA>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyA>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyA>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyA>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyA>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyA>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyA>));
@@ -67,17 +67,17 @@ public:
     static constexpr bool LogTrace = false;
 };
 
-template class CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyB>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyB>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyB>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyB>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyB>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyB>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyB>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyB>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyB>));
 
-template class CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyB>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyB>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyB>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyB>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyB>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyB>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyB>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyB>));
@@ -96,17 +96,17 @@ public:
     static constexpr bool LogTrace = false;
 };
 
-template class CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyC>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyC>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyC>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyC>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyC>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyC>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyC>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyC>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyC>));
 
-template class CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyC>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyC>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyC>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyC>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyC>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyC>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyC>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyC>));
@@ -125,17 +125,17 @@ public:
     static constexpr bool LogTrace = false;
 };
 
-template class CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyD>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyD>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyD>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyD>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyD>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyD>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<float, CRSBenchMechanicalPolicyD>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1f, CRSBenchMechanicalPolicyD>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat3x3f, CRSBenchMechanicalPolicyD>));
 
-template class CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyD>;
-template class CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyD>;
-template class CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyD>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyD>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyD>;
+template class sofa::defaulttype::CompressedRowSparseMatrixMechanical<Mat3x3d, CRSBenchMechanicalPolicyD>;
 
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<double, CRSBenchMechanicalPolicyD>));
 SOFA_TEMPLATE_MATRIX_CLASS_IMPL((CompressedRowSparseMatrixMechanical<Mat1x1d, CRSBenchMechanicalPolicyD>));
