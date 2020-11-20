@@ -119,6 +119,16 @@ public:
         return NULL;
     }
 
+    unsigned int addPoint(OutCoord point)
+    {
+        sofa::helper::WriteAccessor<sofa::Data<OutVecCoord>> wpoint = points;
+
+        unsigned int size = wpoint.size();
+        wpoint.push_back(point);
+        pointsR0.resize(size + 1);
+        return size;
+    }
+
     void draw(const core::visual::VisualParams* vparams);
 
     void clear();
