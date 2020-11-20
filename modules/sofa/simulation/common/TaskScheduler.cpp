@@ -147,8 +147,8 @@ WorkerThread* TaskScheduler::getWorkerThread(const unsigned int index) const
 
 void TaskScheduler::setWorkerThread(WorkerThread* worker, unsigned index)
 {
-    notifyWorkerThreadCreated(worker);
     mWorker[index] = worker;
+    notifyWorkerThreadCreated(worker); 
 }
 
 bool TaskScheduler::isMainWorkerThread(const WorkerThread* worker) const

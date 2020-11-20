@@ -6,6 +6,7 @@
 
 #include "TaskSchedulerHelpers.h"
 
+#include <sofa/helper/assert.h>
 #include <sofa/simulation/common/Tasks.h>
 #include <sofa/simulation/common/TaskScheduler.h>
 
@@ -52,6 +53,7 @@ void setup(sofa::simulation::TaskScheduler& taskScheduler,
     for (unsigned int i = 0; i < taskScheduler.getThreadCount(); i++)
     {
         sofa::simulation::WorkerThread* workerThread = taskScheduler.getWorkerThread(i);
+        SOFA_ASSERT_FAST_MSG(workerThread != nullptr, "Worker thread is nullptr !");
         workerThread->enableTaskLog(taskLogEnabled);
     }
 
