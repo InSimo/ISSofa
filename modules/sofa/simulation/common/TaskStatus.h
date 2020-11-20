@@ -63,6 +63,23 @@ private:
     friend class WorkerThread;
 };
 
+inline bool TaskStatus::IsBusy() const
+{
+	return mBusy != 0;
+}
+
+inline void TaskStatus::MarkBusy(bool bBusy)
+{
+	if (bBusy)
+	{
+		++mBusy;
+	}
+	else
+	{
+		--mBusy;
+	}
+}
+
 }
 }
 

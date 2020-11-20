@@ -41,35 +41,16 @@ namespace sofa
 {
 namespace simulation
 {
-inline TaskStatus::TaskStatus()
+
+TaskStatus::TaskStatus()
 	:mBusy(0)
 {
 }
 
-inline TaskStatus::~TaskStatus()
+TaskStatus::~TaskStatus()
 {
 	SOFA_ASSERT_FAST(!IsBusy());
 }
-
-inline bool TaskStatus::IsBusy() const
-{
-	return mBusy != 0;
-}
-
-inline void TaskStatus::MarkBusy(bool bBusy)
-{
-	if (bBusy)
-	{
-		++mBusy;
-	}
-	else
-	{
-		--mBusy;
-	}
-}
-
-
-
 
 }
 
