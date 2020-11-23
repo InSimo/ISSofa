@@ -40,7 +40,7 @@ namespace constraintset
 {
 
 template<class DataTypes>
-void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv norm, Coord P, Coord Q, Real contactDistance, int m1, int m2, Coord /*Pfree*/, Coord /*Qfree*/, long id, PersistentID localid)
+void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv norm, Coord P, Coord Q, Real contactDistance, int m1, int m2, long id, PersistentID localid)
 {
     contacts.resize(contacts.size() + 1);
     Contact &c = contacts.back();
