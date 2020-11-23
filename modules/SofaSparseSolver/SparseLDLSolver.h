@@ -27,7 +27,7 @@
 
 #include <sofa/core/behavior/LinearSolver.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <sofa/helper/map.h>
@@ -59,6 +59,9 @@ public :
     typedef typename Inherit::ResMatrixType ResMatrixType;
     typedef typename Inherit::JMatrixType JMatrixType;
     typedef SparseLDLImplInvertData<helper::vector<int>, helper::vector<Real> > InvertData;
+
+    template<class T>
+    using FullMatrix = sofa::defaulttype::FullMatrix<T>;
 
     void solve (Matrix& M, Vector& x, Vector& b);
     void invert(Matrix& M);

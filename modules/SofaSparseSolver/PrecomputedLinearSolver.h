@@ -29,7 +29,7 @@
 #include <SofaBaseLinearSolver/MatrixLinearSolver.inl>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <sofa/helper/map.h>
 #include <math.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
@@ -48,6 +48,8 @@ class PrecomputedLinearSolverInternalData
 {
 public :
     typedef typename TMatrix::Real Real;
+    template< class T >
+    using FullMatrix = sofa::defaulttype::FullMatrix<T>;
     typedef FullMatrix<Real> TBaseMatrix ;
 
     FullMatrix<Real> JMinv;

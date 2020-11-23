@@ -29,7 +29,7 @@
 #include <SofaBaseLinearSolver/MatrixLinearSolver.inl>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/DiagonalMatrix.h>
 #include <sofa/helper/map.h>
 

@@ -29,7 +29,7 @@
 #define SOFA_COMPONENT_LINEARSOLVER_SSORPRECONDITIONER_INL
 #include <SofaPreconditioner/SSORPreconditioner.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <SofaBaseLinearSolver/SparseMatrix.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
 #include <iostream>

@@ -30,7 +30,7 @@
 #include <SofaBaseLinearSolver/MatrixLinearSolver.h>
 #include <sofa/simulation/common/MechanicalVisitor.h>
 #include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
-#include <SofaBaseLinearSolver/FullMatrix.h>
+#include <sofa/defaulttype/FullMatrix.h>
 #include <sofa/helper/map.h>
 #include <math.h>
 
@@ -49,8 +49,11 @@ class PrecomputedWarpPreconditionerInternalData
 public :
     typedef typename TDataTypes::Coord Coord;
     typedef typename Coord::value_type Real;
-    typedef FullMatrix<Real> TBaseMatrix;
+    typedef sofa::defaulttype::FullMatrix<Real> TBaseMatrix;
     typedef sofa::defaulttype::FullVector<Real> TBaseVector;
+    template<typename T>
+    using FullMatrix = sofa::defaulttype::FullMatrix<T>;
+
 
     SparseMatrix<Real> JR;
     FullMatrix<Real> JRMinv;
