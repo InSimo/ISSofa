@@ -79,8 +79,10 @@ protected:
     core::objectmodel::BaseContext* parent;
 
     Data<double> mu, tol;
-    std::vector< const sofa::core::collision::DetectionOutput* > contacts;
+    std::vector< sofa::core::collision::DetectionOutput > contacts;
     std::vector< std::pair< std::pair<int, int>, double > > mappedContacts;
+
+    void createMappers();
 
     void activateMappers();
 
@@ -99,7 +101,11 @@ public:
 
     void createResponse(core::objectmodel::BaseContext* group) override;
 
-    virtual void updateContactsMappers() override;
+    void computeResponse() override;
+
+    void updateContactsMappers() override;
+
+    void finalizeResponse(sofa::core::objectmodel::BaseContext* group) override;
 
     void removeResponse() override;
     
