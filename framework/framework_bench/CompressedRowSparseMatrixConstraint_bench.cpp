@@ -301,7 +301,7 @@ void benchFast(const std::vector<std::string>& matrixTraceFiles, const std::size
     typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyB> TMatrixB;
     typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyC> TMatrixC;
     typedef CompressedRowSparseMatrixConstraint<TBloc, CRSBenchConstraintPolicyD> TMatrixD;
-    typedef MapMapSparseMatrix<TBloc>                                             TMapMap;
+    //typedef MapMapSparseMatrix<TBloc>                                             TMapMap;
 
 
     const std::size_t numLogTraceFiles = matrixTraceFiles.size();

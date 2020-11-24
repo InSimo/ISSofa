@@ -739,11 +739,11 @@ public:
     /// to call again with -1 as base to undo it.
     void shiftIndices(Index base)
     {
-        for (Index i=0; i<rowIndex.size(); ++i)
+        for (Index i=0; i<(Index)rowIndex.size(); ++i)
             rowIndex[i] += base;
-        for (Index i=0; i<rowBegin.size(); ++i)
+        for (Index i=0; i<(Index)rowBegin.size(); ++i)
             rowBegin[i] += base;
-        for (Index i=0; i<colsIndex.size(); ++i)
+        for (Index i=0; i<(Index)colsIndex.size(); ++i)
             colsIndex[i] += base;
     }
 
