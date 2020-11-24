@@ -211,11 +211,6 @@ void FreeMotionTaskAnimationLoop::init()
         m_taskScheduler.reset(new sofa::simulation::TaskScheduler());
     }
 
-    reinit();
-}
-
-void FreeMotionTaskAnimationLoop::reinit()
-{
     {
         auto func = [this]() { stepAnimateBegin(sofa::core::ExecParams::defaultInstance(), getContext()->getDt()); };
         m_animateBeginEventTask = std::make_unique<EventTask>(std::move(func));
@@ -261,7 +256,7 @@ void FreeMotionTaskAnimationLoop::reinit()
         m_mechanicalBeginIntegrationTask = std::make_unique<FunctorTask>(std::move(func));
     }
     {
-        auto func = [this](sofa::core::MechanicalParams mparams, sofa::core::ConstraintParams cparams) 
+        auto func = [this](sofa::core::MechanicalParams mparams, sofa::core::ConstraintParams cparams)
         {
             mparams.update();
             cparams.update();
@@ -282,10 +277,10 @@ void FreeMotionTaskAnimationLoop::reinit()
         m_collisionResponseTask = std::make_unique<CollisionPipelineTask>(std::move(func));
     }
     {
-        auto func = [this](sofa::core::ConstraintParams cparams) 
+        auto func = [this](sofa::core::ConstraintParams cparams)
         {
             cparams.update();
-            stepConstraintSolverPrepare(&cparams);  
+            stepConstraintSolverPrepare(&cparams);
         };
         m_constraintSolverPrepare = std::make_unique<ConstraintSolverTask>(std::move(func));
     }
@@ -321,6 +316,12 @@ void FreeMotionTaskAnimationLoop::reinit()
         auto func = [this]() { stepUpdateTime(sofa::core::ExecParams::defaultInstance(), getContext()->getDt());  };
         m_updateTimeTask = std::make_unique<FunctorTask>(std::move(func));
     }
+    reinit();
+}
+
+void FreeMotionTaskAnimationLoop::reinit()
+{
+
 }
 
 void FreeMotionTaskAnimationLoop::handleEvent(sofa::core::objectmodel::Event* event)
