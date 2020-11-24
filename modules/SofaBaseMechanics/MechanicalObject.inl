@@ -2971,7 +2971,7 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
         const VecCoord& inputPositions = showFreePositions.getValue() ? read(core::ConstVecCoordId::freePosition())->getValue()
                                                                       : read(core::ConstVecCoordId::position())->getValue();
         sofa::helper::vector<Vector3> positions(inputPositions.size());
-        for (int i = 0; i < positions.size(); ++i)
+        for (unsigned i = 0; i < positions.size(); ++i)
         {
             positions[i] = DataTypes::getCPos(inputPositions[i]);
         }

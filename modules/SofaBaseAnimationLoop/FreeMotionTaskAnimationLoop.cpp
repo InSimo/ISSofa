@@ -653,7 +653,7 @@ void FreeMotionTaskAnimationLoop::stepAnimateEnd(const sofa::core::ExecParams* p
     sendEvent<sofa::simulation::AnimateEndEvent>(this, params, dt, "AnimateEnd");
 }
 
-void FreeMotionTaskAnimationLoop::step(const sofa::core::ExecParams* params, SReal dt)
+void FreeMotionTaskAnimationLoop::step(const sofa::core::ExecParams* params, SReal /*dt*/)
 {
     sofa::simulation::taskscheduler::setup(*m_taskScheduler.get(), m_lastThreadsCount, d_threadsCount.getValue(), d_showTasks.getValue());
 

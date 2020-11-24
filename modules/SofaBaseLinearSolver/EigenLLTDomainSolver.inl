@@ -203,7 +203,7 @@ void EigenLLTDomainSolver< DataTypes >::solveTriangular(const MatrixDeriv& J)
     Eigen::VectorXd Jperm;
     Jperm.resize(mstateMatrixSize);
 
-    for (int r = 0; r < J.rowIndex.size(); ++r)
+    for (int r = 0; r < (int)J.rowIndex.size(); ++r)
     {
         const int i = J.rowIndex[r];
         indexMap[r]             = i;
