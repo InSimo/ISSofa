@@ -137,7 +137,8 @@ set(SOFA_HAVE_BOOST FALSE CACHE INTERNAL "")
 
 if(SOFA_USE_MINIBOOST)
     find_package(SofaBoost COMPONENTS miniBoost REQUIRED)
-    list(APPEND SOFAFRAMEWORK_DEPENDENCY_LINK SofaBoost::miniBoost )
+    find_package(Threads REQUIRED)
+    list(APPEND SOFAFRAMEWORK_DEPENDENCY_LINK SofaBoost::miniBoost Threads::Threads)
 else()
     # Boost
     find_package(Boost COMPONENTS thread system date_time chrono REQUIRED)
