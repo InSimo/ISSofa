@@ -35,7 +35,7 @@
 #include <assert.h>
 #include <iostream>
 #include <set>
-#include <sofa/defaulttype/CompressedRowSparseMatrixMechanical.h>
+#include <sofa/core/BlocMatrixWriter.h>
 
 
 namespace sofa
@@ -1998,161 +1998,82 @@ void TetrahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams*
     //glDepthMask(1);
 }
 
+
+
 template<class DataTypes>
 void TetrahedronFEMForceField<DataTypes>::addKToMatrix(const core::MechanicalParams* mparams /* PARAMS FIRST */, const sofa::core::behavior::MultiMatrixAccessor* matrix )
 {
+    sofa::core::BlocMatrixWriter<MatBloc> writer;
+
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->mstate);
     if (r)
-        addKToMatrix(r.matrix, mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue()), r.offset);
+        writer.addKToMatrix(this, mparams, r);
     else serr<<"ERROR("<<getClassName()<<"): addKToMatrix found no valid matrix accessor." << sendl;
 }
 
-
 template<class DataTypes>
-void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMatrix *mat, SReal k, unsigned int &offset)
+template<class MatrixWriter>
+void TetrahedronFEMForceField<DataTypes>::addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter m)
 {
     // Build Matrix Block for this ForceField
-    int i,j,n1, n2, row, column, ROW, COLUMN , IT;
+    int i, j, n1, n2, IT;
+
+    const Real k = (Real)mparams->kFactor();
+
 
     Transformation Rot;
-    StiffnessMatrix JKJt,tmp;
+    StiffnessMatrix JKJt, tmp;
 
     typename VecElement::const_iterator it;
 
-    Index noeud1, noeud2;
-    int offd3 = offset/3;
-
-    Rot[0][0]=Rot[1][1]=Rot[2][2]=1;
-    Rot[0][1]=Rot[0][2]=0;
-    Rot[1][0]=Rot[1][2]=0;
-    Rot[2][0]=Rot[2][1]=0;
-
-    if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,double> >::DynamicCast(mat))
+    Rot[0][0] = Rot[1][1] = Rot[2][2] = 1;
+    Rot[0][1] = Rot[0][2] = 0;
+    Rot[1][0] = Rot[1][2] = 0;
+    Rot[2][0] = Rot[2][1] = 0;
+    for (it = _indexedElements->begin(), IT = 0; it != _indexedElements->end(); ++it, ++IT)
     {
-        for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
+        if (method == SMALL) computeStiffnessMatrix(JKJt, tmp, materialsStiffnesses[IT], strainDisplacements[IT], Rot);
+        else computeStiffnessMatrix(JKJt, tmp, materialsStiffnesses[IT], strainDisplacements[IT], rotations[IT]);
+
+        defaulttype::Mat<3, 3, double> tmpBlock[4][4];
+        // find index of node 1
+        for (n1 = 0; n1 < 4; n1++)
         {
-            if (method == SMALL) computeStiffnessMatrix(JKJt,tmp,materialsStiffnesses[IT], strainDisplacements[IT],Rot);
-            else computeStiffnessMatrix(JKJt,tmp,materialsStiffnesses[IT], strainDisplacements[IT],rotations[IT]);
-
-            defaulttype::Mat<3,3,double> tmpBlock[4][4];
-            // find index of node 1
-            for (n1=0; n1<4; n1++)
+            for (i = 0; i < 3; i++)
             {
-                for(i=0; i<3; i++)
+                for (n2 = 0; n2 < 4; n2++)
                 {
-                    for (n2=0; n2<4; n2++)
+                    for (j = 0; j < 3; j++)
                     {
-                        for (j=0; j<3; j++)
-                        {
-                            tmpBlock[n1][n2][i][j] = - tmp[n1*3+i][n2*3+j]*k;
-                        }
-                    }
-                }
-            }
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[0], tmpBlock[0][0]);
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[1], tmpBlock[0][1]);
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[2], tmpBlock[0][2]);
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[3], tmpBlock[0][3]);
-
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[0], tmpBlock[1][0]);
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[1], tmpBlock[1][1]);
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[2], tmpBlock[1][2]);
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[3], tmpBlock[1][3]);
-
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[0], tmpBlock[2][0]);
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[1], tmpBlock[2][1]);
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[2], tmpBlock[2][2]);
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[3], tmpBlock[2][3]);
-
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[0], tmpBlock[3][0]);
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[1], tmpBlock[3][1]);
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[2], tmpBlock[3][2]);
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[3], tmpBlock[3][3]);
-        }
-    }
-    else if (sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> > * crsmat = sofa::defaulttype::CompressedRowSparseMatrixMechanical<defaulttype::Mat<3,3,float> >::DynamicCast(mat))
-    {
-        for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
-        {
-            if (method == SMALL) computeStiffnessMatrix(JKJt,tmp,materialsStiffnesses[IT], strainDisplacements[IT],Rot);
-            else computeStiffnessMatrix(JKJt,tmp,materialsStiffnesses[IT], strainDisplacements[IT],rotations[IT]);
-
-            defaulttype::Mat<3,3,double> tmpBlock[4][4];
-            // find index of node 1
-            for (n1=0; n1<4; n1++)
-            {
-                for(i=0; i<3; i++)
-                {
-                    for (n2=0; n2<4; n2++)
-                    {
-                        for (j=0; j<3; j++)
-                        {
-                            tmpBlock[n1][n2][i][j] = - tmp[n1*3+i][n2*3+j]*k;
-                        }
-                    }
-                }
-            }
-
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[0], tmpBlock[0][0]);
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[1], tmpBlock[0][1]);
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[2], tmpBlock[0][2]);
-            crsmat->addBloc(offd3 + (*it)[0], offd3 + (*it)[3], tmpBlock[0][3]);
-
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[0], tmpBlock[1][0]);
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[1], tmpBlock[1][1]);
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[2], tmpBlock[1][2]);
-            crsmat->addBloc(offd3 + (*it)[1], offd3 + (*it)[3], tmpBlock[1][3]);
-
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[0], tmpBlock[2][0]);
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[1], tmpBlock[2][1]);
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[2], tmpBlock[2][2]);
-            crsmat->addBloc(offd3 + (*it)[2], offd3 + (*it)[3], tmpBlock[2][3]);
-
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[0], tmpBlock[3][0]);
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[1], tmpBlock[3][1]);
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[2], tmpBlock[3][2]);
-            crsmat->addBloc(offd3 + (*it)[3], offd3 + (*it)[3], tmpBlock[3][3]);
-        }
-    }
-    else
-    {
-        for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
-        {
-            if (method == SMALL)
-                computeStiffnessMatrix(JKJt,tmp,materialsStiffnesses[IT], strainDisplacements[IT],Rot);
-            else
-                computeStiffnessMatrix(JKJt,tmp,materialsStiffnesses[IT], strainDisplacements[IT],rotations[IT]);
-
-            // find index of node 1
-            for (n1=0; n1<4; n1++)
-            {
-                noeud1 = (*it)[n1];
-
-                for(i=0; i<3; i++)
-                {
-                    ROW = offset+3*noeud1+i;
-                    row = 3*n1+i;
-                    // find index of node 2
-                    for (n2=0; n2<4; n2++)
-                    {
-                        noeud2 = (*it)[n2];
-
-                        for (j=0; j<3; j++)
-                        {
-                            COLUMN = offset+3*noeud2+j;
-                            column = 3*n2+j;
-                            mat->add(ROW, COLUMN, - tmp[row][column]*k);
-//                                                        cerr<<"TetrahedronFEMForceField<DataTypes>::addKToMatrix, k= " << k << ", value = " << - tmp[row][column]*k <<", ROW = "<< ROW << ", COLUMN = "<< COLUMN << endl << *mat << endl;
-//                                                        cerr<<"TetrahedronFEMForceField<DataTypes>::addKToMatrix, k= " << k << ", value = " << - tmp[row][column]*k <<", ROW = "<< ROW << ", COLUMN = "<< COLUMN << endl ;
-                        }
+                        tmpBlock[n1][n2][i][j] = -tmp[n1 * 3 + i][n2 * 3 + j] * k;
                     }
                 }
             }
         }
 
+        m.add((*it)[0], (*it)[0], tmpBlock[0][0]);
+        m.add((*it)[0], (*it)[1], tmpBlock[0][1]);
+        m.add((*it)[0], (*it)[2], tmpBlock[0][2]);
+        m.add((*it)[0], (*it)[3], tmpBlock[0][3]);
+
+        m.add((*it)[1], (*it)[0], tmpBlock[1][0]);
+        m.add((*it)[1], (*it)[1], tmpBlock[1][1]);
+        m.add((*it)[1], (*it)[2], tmpBlock[1][2]);
+        m.add((*it)[1], (*it)[3], tmpBlock[1][3]);
+
+        m.add((*it)[2], (*it)[0], tmpBlock[2][0]);
+        m.add((*it)[2], (*it)[1], tmpBlock[2][1]);
+        m.add((*it)[2], (*it)[2], tmpBlock[2][2]);
+        m.add((*it)[2], (*it)[3], tmpBlock[2][3]);
+
+        m.add((*it)[3], (*it)[0], tmpBlock[3][0]);
+        m.add((*it)[3], (*it)[1], tmpBlock[3][1]);
+        m.add((*it)[3], (*it)[2], tmpBlock[3][2]);
+        m.add((*it)[3], (*it)[3], tmpBlock[3][3]);
+
     }
-    //std::cout << this->getName() << " M = " << *mat << std::endl;
 }
+
 
 template<class DataTypes>
 void TetrahedronFEMForceField<DataTypes>::addSubKToMatrix(sofa::defaulttype::BaseMatrix *mat, const helper::vector<unsigned> & subMatrixIndex, SReal k, unsigned int &offset) {

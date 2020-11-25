@@ -118,6 +118,10 @@ public:
             SVD = 3      ///< Symbol of corotational large displacements tetrahedron solver based on a SVD decomposition   -> inspired from Irving et al 2004 "Invertible Finite Element for Robust Simulation of Large Deformation"
          };
 
+    enum { DerivSize = DataTypes::deriv_total_size };
+    typedef defaulttype::Mat<DerivSize, DerivSize, Real> MatBloc;
+
+
 protected:
 
     /// @name Per element (tetrahedron) data
@@ -426,9 +430,11 @@ public:
         serr << "Get potentialEnergy not implemented" << sendl;
         return 0.0;
     }
+    
 
-    virtual void addKToMatrix(sofa::defaulttype::BaseMatrix *m, SReal kFactor, unsigned int &offset);
     virtual void addKToMatrix(const core::MechanicalParams* /*mparams*/, const sofa::core::behavior::MultiMatrixAccessor* /*matrix*/ );
+    template<class MatrixWriter>
+    void addKToMatrixT(const core::MechanicalParams* mparams, MatrixWriter m);
 
     virtual void addSubKToMatrix(sofa::defaulttype::BaseMatrix *mat, const helper::vector<unsigned> & subMatrixIndex, SReal k, unsigned int &offset);
 
