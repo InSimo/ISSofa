@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, version 1.0 RC 1        *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*            (c) 2006-2021 INRIA, USTL, UJF, CNRS, MGH, InSimo                *
 *                                                                             *
 * This library is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
