@@ -129,6 +129,18 @@ public:
         return size;
     }
 
+    void setLocalPoint(OutCoord pos, unsigned int id)
+    {
+        sofa::helper::WriteAccessor<sofa::Data<OutVecCoord>> wpoint = points;
+        wpoint[id] = pos;
+    }
+
+    OutCoord getLocalPoint(unsigned int id)
+    {
+        sofa::helper::ReadAccessor<sofa::Data<OutVecCoord>> rpoint = points;
+        return rpoint[id];
+    }
+
     void draw(const core::visual::VisualParams* vparams);
 
     void clear();
