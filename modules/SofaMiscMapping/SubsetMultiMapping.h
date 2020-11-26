@@ -81,6 +81,8 @@ public:
 
     virtual void init();
 
+    void handleTopologyChange(sofa::core::topology::Topology* t) override;
+
     // Append particle of given index within the given model to the subset.
     void addPoint(const core::BaseState* fromModel, int index);
     // Append particle of given index within the given model to the subset.

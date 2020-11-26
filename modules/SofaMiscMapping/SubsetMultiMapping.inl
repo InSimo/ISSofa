@@ -84,6 +84,128 @@ SubsetMultiMapping<TIn, TOut>::~SubsetMultiMapping()
 {
 }
 
+
+template <class TIn, class TOut>
+void SubsetMultiMapping<TIn, TOut>::handleTopologyChange(sofa::core::topology::Topology* t)
+{
+    sofa::core::topology::BaseMeshTopology* topo = sofa::core::topology::BaseMeshTopology::DynamicCast(t);
+
+    if (topo == this->getTo()[0]->getContext()->getActiveMeshTopology())
+    {
+
+        std::list<const sofa::core::topology::TopologyChange *>::const_iterator it = topo->beginChange();
+        std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd   = topo->endChange();
+        typedef  sofa::Data<sofa::helper::vector<unsigned>> IndexPairType;
+        sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<unsigned>>>  w_indexPairs = indexPairs;
+        while ( it != itEnd )
+        {
+            switch ( ( *it )->getChangeType() )
+            {
+                case core::topology::POINTSADDED:
+                {
+                    const sofa::core::topology::PointsAdded* topoChange = static_cast<const sofa::core::topology::PointsAdded*>(*it);
+                    const sofa::helper::vector<unsigned int>& points = topoChange->getIndexArray();
+                    w_indexPairs.resize(w_indexPairs.size() + 2 * points.size());
+                    break;
+                }
+                case core::topology::POINTSREMOVED:
+                {
+                    const sofa::helper::vector<unsigned int>& index = (static_cast<const sofa::core::topology::PointsRemoved*>(*it))->getArray();
+                    unsigned int nbPoints = w_indexPairs.size() / 2;
+                    for (unsigned int i = 0; i < index.size(); ++i)
+                    {
+                        w_indexPairs[2*index[i]] = w_indexPairs[2*(nbPoints - 1)];
+                        w_indexPairs[2*index[i] + 1] = w_indexPairs[2*(nbPoints - 1) + 1];
+                        --nbPoints;
+                    }
+                    w_indexPairs.resize(w_indexPairs.size() - 2 * index.size());
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            ++it;
+        }
+
+    }
+    else
+    {
+
+        for (unsigned int i = 0; i < this->fromModels.size(); i++)
+        {
+             if (topo == this->getFrom()[i]->getContext()->getActiveMeshTopology())
+             {
+                std::list<const sofa::core::topology::TopologyChange *>::const_iterator it = topo->beginChange();
+                std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd   = topo->endChange();
+
+                sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<unsigned>>>  w_indexPairs = indexPairs;
+                while ( it != itEnd )
+                {
+                    switch ( ( *it )->getChangeType() )
+                    {
+                        case core::topology::POINTSREMOVED:
+                        {
+                            const sofa::helper::vector<unsigned int>& index = (static_cast<const sofa::core::topology::PointsRemoved*>(*it))->getArray();
+                            const unsigned int nbPoints = this->getFrom()[i]->getSize();
+                            //make a reverse copy of tab
+                            sofa::helper::vector<unsigned int> lastIndexVec;
+                            lastIndexVec.reserve(index.size());
+                            for (unsigned int i_init = 0; i_init < index.size(); ++i_init)
+                            {
+                                lastIndexVec.push_back(nbPoints - 1 - i_init);
+                            }
+
+                            const sofa::helper::vector<unsigned int> copy(w_indexPairs.ref());
+
+                            for (unsigned int id = 0; id < index.size(); id++)
+                            {
+                                auto swappedIndexInlastIndexVec = std::find(lastIndexVec.begin() + i, lastIndexVec.end(), index[id]);
+                                bool willBeRemoved = (swappedIndexInlastIndexVec != lastIndexVec.end());
+                                if (willBeRemoved)
+                                    *swappedIndexInlastIndexVec = lastIndexVec[i];
+
+                                for (unsigned int outid = 0; outid < (w_indexPairs.size()/2); outid++)
+                                {
+                                    if (copy[2*outid] == i && copy[2*outid + 1] == lastIndexVec[id] )
+                                    {
+                                        if (index[i] == nbPoints - 1)
+                                        {
+                                            w_indexPairs[2*outid + 1] = (unsigned int)(-1);
+                                        }
+                                        else
+                                        {
+                                            w_indexPairs[2*outid + 1] = index[id];
+                                        }
+
+                                    }
+                                    else if(copy[2*outid] == i && copy[2*outid + 1] == index[id])
+                                    {
+                                        w_indexPairs[2*outid + 1] = (unsigned int)(-1);
+                                    }
+
+                                }
+                            }
+
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+
+                    ++it;
+                }
+            }
+        }
+    }
+
+}
+
+
 template <class TIn, class TOut>
 void SubsetMultiMapping<TIn, TOut>::addPoint( const core::BaseState* from, int index)
 {
