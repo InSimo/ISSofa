@@ -132,6 +132,11 @@ public:
     virtual void onEndAnimationStep(const double /*dt*/) {};
 
     /**
+    * @brief Intergated End Animation event callback.
+    */
+    virtual void onIntegrateEndEvent() {};
+
+    /**
     * @brief GUI event callback.
     */
     virtual void onGUIEvent(core::objectmodel::GUIEvent *) {};

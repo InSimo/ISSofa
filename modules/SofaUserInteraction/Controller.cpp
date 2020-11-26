@@ -46,6 +46,7 @@
 #include <sofa/core/objectmodel/GUIEvent.h>
 #include <sofa/simulation/common/AnimateBeginEvent.h>
 #include <sofa/simulation/common/AnimateEndEvent.h>
+#include <sofa/simulation/common/IntegrateEndEvent.h>
 
 
 namespace sofa
@@ -78,6 +79,10 @@ void Controller::handleEvent(core::objectmodel::Event *event)
     else if (sofa::simulation::AnimateEndEvent* ev = sofa::simulation::AnimateEndEvent::DynamicCast(event))
     {
         onEndAnimationStep(ev->getDt());
+    }
+    else if (sofa::simulation::IntegrateEndEvent* ev = sofa::simulation::IntegrateEndEvent::DynamicCast(event))
+    {
+        onIntegrateEndEvent();
     }
     else if (sofa::core::objectmodel::KeypressedEvent *kpev = sofa::core::objectmodel::KeypressedEvent::DynamicCast(event))
     {
