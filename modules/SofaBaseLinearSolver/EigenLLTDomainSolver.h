@@ -15,6 +15,7 @@
 #include <Eigen/MetisSupport> 
 #endif
 
+#define EIGENLLTDOMAINSOLVER_USE_BSR_MATRIX_ASSEMBLY
 
 namespace sofa
 {
@@ -23,16 +24,25 @@ namespace component
 namespace linearsolver
 {
 
-
+#ifdef EIGENLLTDOMAINSOLVER_USE_BSR_MATRIX_ASSEMBLY
+template< class TDataTypes >
+struct MatrixAssemblyTraits
+{
+    using DataTypes = TDataTypes;
+    static constexpr int BSIZE = DataTypes::deriv_total_size;
+    using Block = sofa::defaulttype::Mat<BSIZE, BSIZE, double>;
+    using BSRMatrix = sofa::defaulttype::CompressedRowSparseMatrixMechanical< Block >;
+};
+#else
 template< class TDataTypes >
 struct MatrixAssemblyTraits
 {
     using DataTypes            = TDataTypes;
     static constexpr int BSIZE = DataTypes::deriv_total_size;
-    using Block                = sofa::defaulttype::Mat<BSIZE, BSIZE, double>;
-    using BSRMatrix            = sofa::defaulttype::CompressedRowSparseMatrixMechanical< Block >;
+    using Block                = double;
+    using BSRMatrix            = sofa::defaulttype::CompressedRowSparseMatrixMechanical< double >;
 };
-
+#endif
 
 template<class DataTypes>
 class EigenLLTDomainSolver : public sofa::core::behavior::LinearSolver
