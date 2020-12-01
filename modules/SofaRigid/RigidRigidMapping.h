@@ -71,13 +71,16 @@ public:
 protected:
     Data < OutVecCoord > points;
     sofa::helper::vector< typename TIn::CPos > pointsR0;
-    defaulttype::Mat<3, 3, Real> K;
+    sofa::helper::vector<defaulttype::Mat<3, 3, Real>> vecK;
+    sofa::helper::vector<typename TOut::DPos > previousChildForces;
 
 public:
     Data<unsigned> index;
     //axis length for display
     Data<double> axisLength;
     Data< bool > globalToLocalCoords;
+    Data< bool > d_useGeometricStiffness;
+
 
 protected:
     RigidRigidMapping()
@@ -85,7 +88,8 @@ protected:
           points(initData(&points, "initialPoints", "Initial position of the points")),
           index(initData(&index,(unsigned)0,"index","input frame index")),
           axisLength(initData( &axisLength, 0.7, "axisLength", "axis length for display")),
-          globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) )
+          globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) ),
+          d_useGeometricStiffness( initData ( &d_useGeometricStiffness,false, "useGeometricStiffness","to be use with a geometricstiffness forcefield" ) )
     {
 
     }
