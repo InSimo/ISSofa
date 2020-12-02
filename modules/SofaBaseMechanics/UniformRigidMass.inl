@@ -77,7 +77,10 @@ void UniformRigidMass<RigidDataTypes>::reinit()
 
     for(std::size_t i=0;i<rigidMass.size();++i)
     {
-        rigidMass[i].recalc();
+        if (rigidMass[i].mass != 0)
+        {
+            rigidMass[i].recalc();
+        }
     }
 
     this->sout << "mass= " << d_mass.getValue() << this->sendl;
