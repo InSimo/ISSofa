@@ -541,10 +541,7 @@ bool MeshObjLoader::readOBJ (std::istringstream& filestream, const char* filenam
 
             if (nodes.size() == 2) // Edge
             {
-                if (nodes[0]<nodes[1])
-                    addEdge(&my_edges, Edge(nodes[0], nodes[1]));
-                else
-                    addEdge(&my_edges, Edge(nodes[1], nodes[0]));
+                addEdge(&my_edges, Edge(nodes[0], nodes[1]));
             }
             else if (nodes.size()==4 && !this->triangulate.getValue()) // Quad
             {
