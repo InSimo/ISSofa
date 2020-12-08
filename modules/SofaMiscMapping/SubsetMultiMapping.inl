@@ -162,10 +162,10 @@ void SubsetMultiMapping<TIn, TOut>::handleTopologyChange(sofa::core::topology::T
 
                             for (unsigned int id = 0; id < index.size(); id++)
                             {
-                                auto swappedIndexInlastIndexVec = std::find(lastIndexVec.begin() + i, lastIndexVec.end(), index[id]);
+                                auto swappedIndexInlastIndexVec = std::find(lastIndexVec.begin() + id, lastIndexVec.end(), index[id]);
                                 bool willBeRemoved = (swappedIndexInlastIndexVec != lastIndexVec.end());
                                 if (willBeRemoved)
-                                    *swappedIndexInlastIndexVec = lastIndexVec[i];
+                                    *swappedIndexInlastIndexVec = lastIndexVec[id];
 
                                 for (unsigned int outid = 0; outid < (w_indexPairs.size()/2); outid++)
                                 {
