@@ -44,6 +44,16 @@ public:
 
     void bwdMechanicalMapping(simulation::Node* node, core::BaseMapping* map) override;
 
+    bool childOrderReversed(simulation::Node* /*node*/) override
+    {
+        return true;
+    }
+
+    virtual bool stopAtMechanicalMapping(sofa::simulation::Node* /*node*/, core::BaseMapping* /*mapping*/)
+    {
+        return false; // !mapping->isMechanical();
+    }
+
 private:
     const sofa::core::ConstraintParams* m_cParams;
     const sofa::defaulttype::BaseVector* m_lambda;
