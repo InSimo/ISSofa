@@ -26,6 +26,10 @@
 #define SOFA_COMPONENT_MAPPING_RIGIDMAPPING_INL
 
 #include <SofaRigid/RigidMapping.h>
+
+#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/helper/decompose.h>
+
 #include <sofa/core/visual/VisualParams.h>
 
 #include <sofa/core/behavior/MechanicalState.h>
@@ -45,6 +49,7 @@
 #include <string.h>
 #include <iostream>
 #include <cassert>
+
 
 namespace sofa
 {
@@ -138,6 +143,7 @@ RigidMapping<TIn, TOut>::RigidMapping()
     , pointsPerFrame(initData(&pointsPerFrame, "repartition", "number of dest dofs per entry dof"))
     , globalToLocalCoords(initData(&globalToLocalCoords, false, "globalToLocalCoords", "are the output DOFs initially expressed in global coordinates"))
     , updateJ(false)
+    , d_useGeometricStiffness( initData ( &d_useGeometricStiffness,false, "useGeometricStiffness","to be use with a geometricstiffness forcefield" ) )
 {
     //std::cout << "RigidMapping Creation\n";
     this->addAlias(&fileRigidMapping, "filename");
@@ -606,8 +612,8 @@ void RigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mparams*/
 template <class TIn, class TOut>
 void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST */, core::MultiVecDerivId parentForceChangeId, core::ConstMultiVecDerivId )
 {
-    if( mparams->symmetricMatrix() )
-        return;  // This method corresponds to a non-symmetric matrix, due to the non-commutativity of the group of rotations.
+    if( !d_useGeometricStiffness.getValue() )
+        return;
 
     helper::ReadAccessor<Data<VecDeriv> > childForces (*mparams->readF(this->toModel));
     helper::WriteAccessor<Data<InVecDeriv> > parentForces (*parentForceChangeId[this->fromModel.get(mparams)].write());
@@ -668,19 +674,94 @@ void RigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparams /* 
         {
             typename TIn::AngularVector& parentTorque = getVOrientation(parentForces[parentIdx]);
             const typename TIn::AngularVector& parentRotation = getVOrientation(parentDisplacements[parentIdx]);
-            //                        const typename TIn::AngularVector& torqueDecrement = symCrossCross( childForces[childIdx], parentRotation, rotatedPoints[childIdx]) * kfactor;
-            const typename TIn::AngularVector& torqueDecrement = TIn::crosscross( childForces[childIdx], parentRotation, rotatedPoints[childIdx]) * kfactor;
-            parentTorque -=  torqueDecrement;
-//            cerr<<"RigidMapping<TIn, TOut>::applyDJT, childForces[childIdx] = "<< childForces[childIdx] << endl;
-//            cerr<<"RigidMapping<TIn, TOut>::applyDJT, parentRotation = "<< parentRotation << endl;
-//            cerr<<"RigidMapping<TIn, TOut>::applyDJT, rotatedPoints[childIdx] = "<< rotatedPoints[childIdx] << endl;
-//            cerr<<"RigidMapping<TIn, TOut>::applyDJT,  kfactor = "<<  kfactor << endl;
-//            cerr<<"RigidMapping<TIn, TOut>::applyDJT, parentTorque increment = "<< -torqueDecrement << endl;
-//            cerr<<"RigidMapping<TIn, TOut>::applyDJT, parentTorque = "<< parentTorque << endl;
+            parentTorque += (vecK[childIdx]*parentRotation*kfactor);
+        }
+    }
+}
 
 
+template <class TIn, class TOut>
+void RigidMapping<TIn, TOut>::updateK(const sofa::core::MechanicalParams *mparams, sofa::core::ConstMultiVecDerivId childForceId )
+{
+    if( !d_useGeometricStiffness.getValue() ) return;
+    sofa::helper::ReadAccessor< sofa::Data<VecDeriv > > childForce( *childForceId[this->toModel.get(mparams)].read() );
+    Real kfactor = (Real)mparams->kFactor();
+    vecK.clear();
+     defaulttype::Mat<3,3,Real> K;
+    for (unsigned childIndex=0; childIndex<points.getValue().size(); ++childIndex)
+    {
+        const Deriv& lambda = childForce[childIndex];
+        K = defaulttype::crossProductMatrix<Real>( lambda ) * defaulttype::crossProductMatrix<Real>( rotatedPoints[childIndex]);
+        // This corresponds to a non-symmetric matrix, due to the non-commutativity of the group of rotations.
+        K.symmetrize();
+        sofa::helper::Decompose<Real>::NSDProjection( K ); // negative, semi-definite projection
+        vecK.push_back(K);
+
+    }
+
+}
 
 
+template <class TIn, class TOut>
+void RigidMapping<TIn, TOut>::addGeometricStiffnessToMatrix(const sofa::core::MechanicalParams* mparams, const sofa::core::behavior::MultiMatrixAccessor* matrix)
+{
+    if( !d_useGeometricStiffness.getValue() ) return;
+
+    sofa::component::linearsolver::BlocMatrixWriter< defaulttype::Mat<3, 3, Real> > writer;
+    sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->getMechFrom()[0]);
+    writer.addGeometricStiffnessToMatrix(this, mparams, r);
+}
+
+
+template <class TIn, class TOut>
+template<class MatrixWriter>
+void RigidMapping<TIn, TOut>::addGeometricStiffnessToMatrixT(const sofa::core::MechanicalParams* mparams, MatrixWriter mwriter)
+{
+    const InReal kfactor = (InReal)mparams->kFactor();
+    const VecCoord& pts = this->getPoints();
+    unsigned repartitionCount = pointsPerFrame.getValue().size();
+
+    std::size_t parentSize = this->fromModel->getSize();
+
+    if (repartitionCount > 1 && repartitionCount != parentSize)
+    {
+        serr << "Error : mapping dofs repartition is not correct" << sendl;
+        return;
+    }
+
+    unsigned parentIdxBegin;
+    unsigned parentIdxEnd;
+    unsigned inputPerOutput;
+
+    if (repartitionCount == 0)
+    {
+        parentIdxBegin = index.getValue();
+        if (indexFromEnd.getValue())
+        {
+            parentIdxBegin = parentSize - 1 - parentIdxBegin;
+        }
+        parentIdxEnd = parentIdxBegin + 1;
+        inputPerOutput = pts.size();
+    }
+    else
+    {
+        parentIdxBegin = 0;
+        parentIdxEnd = parentSize;
+        inputPerOutput = pointsPerFrame.getValue()[0];
+    }
+
+    for (unsigned parentIdx = parentIdxBegin, childIdx = 0; parentIdx < parentIdxEnd; ++parentIdx)
+    {
+        if (repartitionCount > 1)
+        {
+            inputPerOutput = pointsPerFrame.getValue()[parentIdx];
+        }
+
+        for (unsigned iInput = 0;
+             iInput < inputPerOutput;
+             ++iInput, ++childIdx)
+        {
+            mwriter.addDiag(2*parentIdx + 1, vecK[childIdx]*kfactor);
         }
     }
 }

@@ -107,6 +107,8 @@ public:
     sofa::core::objectmodel::DataFileName fileRigidMapping;
     Data<bool> useX0;
     Data<bool> indexFromEnd;
+    Data< bool > d_useGeometricStiffness;
+
     /**
      * pointsPerRigid:
      *  - no value specified : simple rigid mapping, all points attached to the same frame (index=0)
@@ -138,6 +140,12 @@ public:
 
     virtual void applyDJT(const core::MechanicalParams* mparams /* PARAMS FIRST  = core::MechanicalParams::defaultInstance()*/, core::MultiVecDerivId parentForce, core::ConstMultiVecDerivId  childForce );
 
+    virtual void updateK( const sofa::core::MechanicalParams* mparams, sofa::core::ConstMultiVecDerivId childForce ) override;
+
+    void addGeometricStiffnessToMatrix(const sofa::core::MechanicalParams* /*mparams*/, const sofa::core::behavior::MultiMatrixAccessor* /*matrix*/ ) override;
+    template<class MatrixWriter>
+    void addGeometricStiffnessToMatrixT(const sofa::core::MechanicalParams* mparams, MatrixWriter m);
+
     virtual const sofa::defaulttype::BaseMatrix* getJ();
 
 #ifdef SOFA_HAVE_EIGEN2
@@ -161,6 +169,7 @@ protected:
     const VecCoord& getPoints();
 
     bool updateJ;
+    sofa::helper::vector<Mat> vecK;
 
 #ifdef SOFA_HAVE_EIGEN2
     SparseMatrixEigen eigenJacobian;                      ///< Jacobian of the mapping used by getJs
