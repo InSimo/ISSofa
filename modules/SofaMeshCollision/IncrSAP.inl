@@ -195,10 +195,11 @@ inline const core::CollisionElementIterator ISAPBox::finalElement()const{
 
 template <template<class T,class Allocator> class List,template <class T> class Allocator>
 TIncrSAP<List,Allocator>::TIncrSAP()
-    : bDraw(initData(&bDraw, false, "draw", "enable/disable display of results"))
+    : bDrawEnabled(initData(&bDrawEnabled, false, "drawEnabled", "enable/disable display of results"))
     , box(initData(&box, "box", "if not empty, objects that do not intersect this bounding-box will be ignored")),
       _nothing_added(true)
 {
+    addAlias(&bDrawEnabled, "draw");
     //_end_points = new EndPointList[3];
 }
 

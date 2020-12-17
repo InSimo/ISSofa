@@ -273,7 +273,7 @@ void EllipsoidForceField<DataTypes>::draw(const core::visual::VisualParams* vpar
 {
 #ifndef SOFA_NO_OPENGL
     if (!vparams->displayFlags().getShowForceFields()) return;
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
 
     const sofa::helper::vector<CPos> vcenter = this->center.getValue();
     const sofa::helper::vector<Quat> vquat = this->orientations.getValue();

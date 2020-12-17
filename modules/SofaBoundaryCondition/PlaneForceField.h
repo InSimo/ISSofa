@@ -134,7 +134,7 @@ public:
 	Data<Real>                                        maxForce;
     Data<sofa::helper::vector< unsigned > >           indices; //< BaseMeshTopology should provide a way to get the PointID from the array of points.
     Data<defaulttype::Vec3f>                          color;
-    Data<bool>                                        bDraw;
+    Data<bool>                                        bDrawEnabled;
     Data<Real>                                        drawSize;
     /// option bilateral : if true, the force field is applied on both side of the plane
     Data<bool>                                        bilateral;
@@ -149,11 +149,13 @@ protected:
         , maxForce(initData(&maxForce, (Real)0, "maxForce", "if non-null, the max force that can be applied to the object"))
         , indices(initData(&indices,"indices","If not empty the list of indices where this forcefield is applied"))
 		, color(initData(&color, defaulttype::Vec3f(0.0f,.5f,.2f), "color", "plane color"))
-        , bDraw(initData(&bDraw, false, "draw", "enable/disable drawing of plane"))
+        , bDrawEnabled(initData(&bDrawEnabled, false, "drawEnabled", "enable/disable drawing of plane"))
         , drawSize(initData(&drawSize, (Real)10.0f, "drawSize", "plane display size if draw is enabled"))
         , bilateral( initData(&bilateral, false, "bilateral", "if true the plane force field is applied on both sides"))
         , contacts( initData(&contacts, "contacts","The information related to the points in violation with the plane"))
     {
+        this->addAlias(&bDrawEnabled, "draw");
+
 		Deriv n;
 		DataTypes::set(n, 0, 1, 0);
         planeNormal.setValue(DataTypes::getDPos(n));

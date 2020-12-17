@@ -112,7 +112,7 @@ public:
     Data<Real> stiffness;
     Data<Real> damping;
     Data<defaulttype::Vec3f> color;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
 protected:
     ConicalForceField()
         : contacts(initData(&contacts, "contacts", "Active forces"))
@@ -123,8 +123,9 @@ protected:
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,0.0f,1.0f), "color", "cone color"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the cone"))
+        , bDrawEnabled(initData(&bDrawEnabled, true, "drawEnabled", "enable/disable drawing of the cone"))
     {
+        this->addAlias(&bDrawEnabled, "draw");
     }
 public:
     void setCone(const Coord& center, Coord height, Real angle)

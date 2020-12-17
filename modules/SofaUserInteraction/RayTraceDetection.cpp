@@ -70,10 +70,11 @@ int RayTraceDetectionClass =
 using namespace core::objectmodel;
 
 RayTraceDetection::
-RayTraceDetection ():bDraw (initData
-            (&bDraw, false, "draw",
+RayTraceDetection ():bDrawEnabled(initData
+            (&bDrawEnabled, false, "drawEnabled",
                     "enable/disable display of results"))
 {
+    addAlias(&bDrawEnabled, "draw");
 }
 
 
@@ -296,7 +297,7 @@ void RayTraceDetection::addCollisionPair (const std::pair <
 void RayTraceDetection::draw (const core::visual::VisualParams* vparams)
 {
 #ifndef SOFA_NO_OPENGL
-    if (!bDraw.getValue ())
+    if (!bDrawEnabled.getValue ())
         return;
 
     glDisable (GL_LIGHTING);

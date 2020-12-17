@@ -121,7 +121,7 @@ private:
       */
     void update();
 
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
 
     Data< helper::fixed_array<defaulttype::Vector3,2> > box;
 
@@ -144,7 +144,7 @@ protected:
 
     std::vector<EndPoint*> _to_del;//EndPoint arrays to delete when deleting DirectSAP
 public:
-    void setDraw(bool val) { bDraw.setValue(val); }
+    void setDraw(bool val) { bDrawEnabled.setValue(val); }
 
     void init();
     void reinit();

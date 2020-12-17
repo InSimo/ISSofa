@@ -163,7 +163,7 @@ SReal EvalSurfaceDistance<DataTypes>::eval()
 template<class DataTypes>
 void EvalSurfaceDistance<DataTypes>::draw(const core::visual::VisualParams* )
 {
-    if (!this->f_draw.getValue())
+    if (!this->f_drawEnabled.getValue())
         return;
     if (!this->mstate1 || !this->mstate2 || xproj.empty()) return;
     const VecCoord& x1 = this->mstate1->read(core::ConstVecCoordId::position())->getValue();

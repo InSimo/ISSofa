@@ -58,7 +58,7 @@
 
     <Node name="InitTopology">
         <Mesh name="surface" src="@../InputMesh" />
-        <MeshTetraStuffing name="stuffing" snapPoints="true" splitTetras="false" draw="false" size="2.5" inputPoints="@surface.points" inputTriangles="@surface.triangles" />
+        <MeshTetraStuffing name="stuffing" snapPoints="true" splitTetras="false" drawEnabled="false" size="2.5" inputPoints="@surface.points" inputTriangles="@surface.triangles" />
     </Node>
     <Node name="SoftSphere" >
         <EulerImplicit name="odesolver" />

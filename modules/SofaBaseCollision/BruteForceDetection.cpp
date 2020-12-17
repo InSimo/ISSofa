@@ -57,9 +57,10 @@ int BruteForceDetectionClass = core::RegisterObject("Collision detection using e
 using namespace core::objectmodel;
 
 BruteForceDetection::BruteForceDetection()
-    : bDraw(initData(&bDraw, false, "draw", "enable/disable display of results"))
+    : bDrawEnabled(initData(&bDrawEnabled, false, "drawEnabled", "enable/disable display of results"))
     , box(initData(&box, "box", "if not empty, objects that do not intersect this bounding-box will be ignored"))
 {
+    addAlias(&bDrawEnabled, "draw");
 }
 
 BruteForceDetection::~BruteForceDetection()

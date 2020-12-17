@@ -97,7 +97,7 @@ public:
     Data<Real1> stiffness;
     Data<Real1> damping;
     Data<defaulttype::Vec3f> color;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
     Data<int> object2_dof_index;
     Data<bool> object2_forces;
     Data<bool> object2_invert;
@@ -110,11 +110,12 @@ protected:
         , stiffness(initData(&stiffness, (Real1)500, "stiffness", "force stiffness (positive to repulse outward, negative inward)"))
         , damping(initData(&damping, (Real1)5, "damping", "force damping"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,0.5f,1.0f), "color", "ellipsoid color"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the ellipsoid"))
+        , bDrawEnabled(initData(&bDrawEnabled, true, "drawEnabled", "enable/disable drawing of the ellipsoid"))
         , object2_dof_index(initData(&object2_dof_index, (int)0, "object2_dof_index", "Dof index of object 2 where the forcefield is attached"))
         , object2_forces(initData(&object2_forces, true, "object2_forces", "enable/disable propagation of forces to object 2"))
         , object2_invert(initData(&object2_invert, false, "object2_invert", "inverse transform from object 2 (use when object 1 is in local coordinates within a frame defined by object 2)"))
     {
+        this->addAlias(&bDrawEnabled, "draw");
     }
 public:
     void setStiffness(Real1 stiff)

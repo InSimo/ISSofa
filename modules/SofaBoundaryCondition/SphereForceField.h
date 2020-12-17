@@ -100,7 +100,7 @@ public:
     Data<Real> stiffness;
     Data<Real> damping;
     Data<defaulttype::Vec3f> color;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
 
     /// optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)
     Data< defaulttype::Vec<2,int> > localRange;
@@ -114,10 +114,11 @@ protected:
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,0.0f,1.0f), "color", "sphere color"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the sphere"))
+        , bDrawEnabled(initData(&bDrawEnabled, true, "drawEnabled", "enable/disable drawing of the sphere"))
         , localRange( initData(&localRange, defaulttype::Vec<2,int>(-1,-1), "localRange", "optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)" ) )
         , bilateral( initData(&bilateral, false, "bilateral", "if true the sphere force field is applied on both sides"))
     {
+        this->addAlias(&bDrawEnabled, "draw");
     }
 public:
     void setSphere(const Coord& center, Real radius)

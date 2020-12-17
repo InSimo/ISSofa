@@ -47,7 +47,7 @@ namespace misc
 
 template<class DataTypes>
 EvalPointsDistance<DataTypes>::EvalPointsDistance()
-    : f_draw( initData(&f_draw, true, "draw", "activate rendering of lines between associated points"))
+    : f_drawEnabled( initData(&f_drawEnabled, true, "drawEnabled", "activate rendering of lines between associated points"))
     , isToPrint( initData(&isToPrint, false, "isToPrint", "suppress somes data before using save as function"))
     , f_filename( initData(&f_filename, "filename", "output file name"))
     , f_period( initData(&f_period, 0.0, "period", "period between outputs"))
@@ -65,7 +65,7 @@ EvalPointsDistance<DataTypes>::EvalPointsDistance()
     , outfile(NULL)
     , lastTime(0)
 {
-
+    addAlias(&f_drawEnabled, "draw");
 
     mstate1.setPath("@./"); // default path: state in the same node
     mstate2.setPath("@./"); // default path: state in the same node
@@ -227,7 +227,7 @@ SReal EvalPointsDistance<DataTypes>::doEval(const VecCoord& x1, const VecCoord& 
 template<class DataTypes>
 void EvalPointsDistance<DataTypes>::draw(const core::visual::VisualParams* )
 {
-    if (!f_draw.getValue())
+    if (!f_drawEnabled.getValue())
         return;
     if (!mstate1 || !mstate2)
         return;

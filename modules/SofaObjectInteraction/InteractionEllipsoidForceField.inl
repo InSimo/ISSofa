@@ -391,7 +391,7 @@ void InteractionEllipsoidForceField<DataTypes1, DataTypes2>::draw(const core::vi
 {
 #ifndef SOFA_NO_OPENGL
     if (!vparams->displayFlags().getShowInteractionForceFields()) return;
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
     Real1 cx2=0, cy2=0, cz2=0;
 
     cx2=(Real1)vars.pos6D.getCenter()[0];

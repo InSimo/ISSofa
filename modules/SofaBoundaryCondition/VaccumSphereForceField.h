@@ -102,7 +102,7 @@ public:
     Data<Real> stiffness;
     Data<Real> damping;
     Data<defaulttype::Vec3f> color;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
     Data<std::string> centerState;
     Data < bool > active;
     Data < char > keyEvent;
@@ -116,12 +116,13 @@ protected:
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,0.0f,1.0f), "color", "sphere color"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the sphere"))
+        , bDrawEnabled(initData(&bDrawEnabled, true, "drawEnabled", "enable/disable drawing of the sphere"))
         , centerState(initData(&centerState, "centerState", "path to the MechanicalState controlling the center point"))
         , active( initData(&active, false, "active", "Activate this object.\nNote that this can be dynamically controlled by using a key") )
         , keyEvent( initData(&keyEvent, '1', "key", "key to press to activate this object until the key is released") )
         , filter(initData(&filter, (Real)0, "filter", "filter"))
     {
+        this->addAlias(&bDrawEnabled, "draw");
     }
 protected:
     void setSphere(const Coord& center, Real radius)

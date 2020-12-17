@@ -198,7 +198,7 @@ void VaccumSphereForceField<DataTypes>::draw(const core::visual::VisualParams* v
     if (!active.getValue()) return;
 
     if (!vparams->displayFlags().getShowForceFields()) return;
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
 
     defaulttype::Vec3d center;
     DataTypes::get(center[0], center[1], center[2], sphereCenter.getValue());

@@ -161,7 +161,7 @@ public:
     bool flipNormals;
 
     Data<defaulttype::Vec3f> color;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
     Data<bool> drawPoints;
     Data<Real> drawSize;
 
@@ -188,11 +188,12 @@ protected:
         , minVolume(initData(&minVolume, (Real)0, "minVolume", "minimal volume for each tetrahedron (a flipped triangle will have a negative volume)"))
         , stiffnessVolume(initData(&stiffnessVolume, (Real)0, "stiffnessVolume", "force stiffness if a tetrahedron have an volume less than minVolume"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,.5f,.2f), "color", "display color"))
-        , bDraw(initData(&bDraw, false, "draw", "enable/disable drawing of distancegrid"))
+        , bDrawEnabled(initData(&bDrawEnabled, false, "drawEnabled", "enable/disable drawing of distancegrid"))
         , drawPoints(initData(&drawPoints, false, "drawPoints", "enable/disable drawing of distancegrid"))
         , drawSize(initData(&drawSize, (Real)10.0f, "drawSize", "display size if draw is enabled"))
         , localRange( initData(&localRange, defaulttype::Vec<2,int>(-1,-1), "localRange", "optional range of local DOF indices. Any computation involving only indices outside of this range are discarded (useful for parallelization using mesh partitionning)" ) )
     {
+        this->addAlias(&bDrawEnabled, "draw");
         this->addAlias(&stiffnessIn,"stiffness");
         this->addAlias(&stiffnessOut,"stiffness");
         this->addAlias(&fileDistanceGrid,"filename");

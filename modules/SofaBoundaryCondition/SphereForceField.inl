@@ -182,7 +182,7 @@ void SphereForceField<DataTypes>::draw(const core::visual::VisualParams* vparams
 {
 #ifndef SOFA_NO_OPENGL
     if (!vparams->displayFlags().getShowForceFields()) return;
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
 
     defaulttype::Vec3d center;
     DataTypes::get(center[0], center[1], center[2], sphereCenter.getValue());

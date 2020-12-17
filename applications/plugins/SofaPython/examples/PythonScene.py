@@ -55,7 +55,7 @@ def createScene(rootNode):
 
 	# scene global stuff
 	rootNode.createObject('VisualStyle', displayFlags='hideBehaviorModels hideCollisionModels hideMappings hideForceFields')
-	rootNode.createObject('CollisionPipeline', verbose=0, depth=10, draw=0)
+	rootNode.createObject('CollisionPipeline', verbose=0, depth=10, drawEnabled=0)
 	rootNode.createObject('BruteForceDetection', name='N2')
 	rootNode.createObject('MinProximityIntersection', name='Proximity', alarmDistance=0.5, contactDistance=0.33)
 	rootNode.createObject('CollisionResponse', name='Response', response='default')

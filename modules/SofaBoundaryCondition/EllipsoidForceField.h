@@ -109,7 +109,7 @@ public:
     Data<Real> damping;
     Data<sofa::helper::vector< unsigned > >  d_indices;
     Data<defaulttype::Vec3f> color;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
     Data<int>  nbContact;
 protected:
     EllipsoidForceField()
@@ -121,9 +121,10 @@ protected:
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , d_indices(initData(&d_indices, "indices","If not empty the list of indices where this forcefield is applied"))
         , color(initData(&color, defaulttype::Vec3f(0.0f,0.5f,1.0f), "color", "ellipsoid color"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the ellipsoid"))
+        , bDrawEnabled(initData(&bDrawEnabled, true, "drawEnabled", "enable/disable drawing of the ellipsoid"))
         , nbContact(initData(&nbContact, (int)0, "nbContact", "number of contact outside ellipsoid"))
     {
+        this->addAlias(&bDrawEnabled, "draw");
     }
 public:
     void setStiffness(Real stiff)

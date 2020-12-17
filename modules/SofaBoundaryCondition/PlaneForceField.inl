@@ -239,7 +239,7 @@ void PlaneForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
     if (!vparams->displayFlags().getShowForceFields()) return;
 	//if (!vparams->isSupported(core::visual::API_OpenGL)) return;
-    if (bDraw.getValue()) drawPlane(vparams);
+    if (bDrawEnabled.getValue()) drawPlane(vparams);
 }
 
 
@@ -320,7 +320,7 @@ void PlaneForceField<DataTypes>::drawPlane(const core::visual::VisualParams* vpa
 template <class DataTypes>
 void PlaneForceField<DataTypes>::computeBBox(const core::ExecParams * params)
 {
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
 
     const Real max_real = std::numeric_limits<Real>::max();
     const Real min_real = std::numeric_limits<Real>::min();

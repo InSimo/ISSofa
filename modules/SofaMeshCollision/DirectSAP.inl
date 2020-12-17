@@ -92,9 +92,10 @@ inline bool DSAPBox::overlaps(const DSAPBox &other, int axis, double alarmDist) 
 
 template <template<class T,class Allocator> class List,template <class T> class Allocator>
 TDirectSAP<List,Allocator>::TDirectSAP()
-    : bDraw(initData(&bDraw, false, "draw", "enable/disable display of results"))
+    : bDrawEnabled(initData(&bDrawEnabled, false, "drawEnabled", "enable/disable display of results"))
     , box(initData(&box, "box", "if not empty, objects that do not intersect this bounding-box will be ignored"))
 {
+    addAlias(&bDrawEnabled, "draw");
 }
 
 template <template<class T,class Allocator> class List,template <class T> class Allocator>

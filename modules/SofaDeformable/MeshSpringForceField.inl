@@ -258,7 +258,7 @@ void MeshSpringForceField<DataTypes>::handleEvent(sofa::core::objectmodel::Event
 template<class DataTypes>
 void MeshSpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
-    if( d_draw.getValue() )
+    if(d_drawEnabled.getValue() )
     {
         typedef typename Inherit1::Spring  Spring;
         sofa::helper::vector<Spring >& ss = *this->springs.beginEdit();

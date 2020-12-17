@@ -66,9 +66,10 @@ int DefaultPipelineClass = core::RegisterObject("The default collision detection
 
 DefaultPipeline::DefaultPipeline()
     : bVerbose(initData(&bVerbose, false, "verbose","Display current step information"))
-    , bDraw(initData(&bDraw, false, "draw","Draw detected collisions"))
+    , bDrawEnabled(initData(&bDrawEnabled, false, "drawEnabled","Draw detected collisions"))
     , depth(initData(&depth, 6, "depth","Max depth of bounding trees"))
 {
+    addAlias(&bDrawEnabled, "draw");
 }
 
 #ifdef SOFA_DUMP_VISITOR_INFO
@@ -295,7 +296,7 @@ helper::set< std::string > DefaultPipeline::getResponseList() const
 
 void DefaultPipeline::draw(const core::visual::VisualParams* )
 {
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
     if (!narrowPhaseDetection) return;
 #if 0
     glDisable(GL_LIGHTING);

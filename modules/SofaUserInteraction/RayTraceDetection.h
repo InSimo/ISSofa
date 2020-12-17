@@ -57,14 +57,14 @@ public:
 
 private:
     sofa::helper::vector < core::CollisionModel * >collisionModels;
-    Data < bool > bDraw;
+    Data < bool > bDrawEnabled;
 
 protected:
     RayTraceDetection ();
 public:
     void setDraw (bool val)
     {
-        bDraw.setValue (val);
+        bDrawEnabled.setValue (val);
     }
     void selfCollision (TriangleOctreeModel * cm1);
     void addCollisionModel (core::CollisionModel * cm);

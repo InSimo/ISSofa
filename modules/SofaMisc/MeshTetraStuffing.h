@@ -88,7 +88,7 @@ public:
     Data< Real > alphaShort;
     Data< bool > bSnapPoints;
     Data< bool > bSplitTetrahedra;
-    Data< bool > bDraw;
+    Data< bool > bDrawEnabled;
 
     Real cellsize;
     int gsize[3];

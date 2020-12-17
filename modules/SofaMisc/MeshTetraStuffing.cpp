@@ -63,10 +63,11 @@ MeshTetraStuffing::MeshTetraStuffing()
     , alphaShort(initData(&alphaShort,(Real)0.42978,"alphaShort","Minimum alpha values on short edges when snapping points"))
     , bSnapPoints(initData(&bSnapPoints,false,"snapPoints","Snap points to the surface if intersections on edges are closed to given alpha values"))
     , bSplitTetrahedra(initData(&bSplitTetrahedra,false,"splitTetrahedra","Split tetrahedra crossing the surface"))
-    , bDraw(initData(&bDraw,false,"draw","Activate rendering of internal datasets"))
+    , bDrawEnabled(initData(&bDrawEnabled,false,"drawEnabled","Activate rendering of internal datasets"))
 {
     addAlias(&outputTetrahedra,"outputTetras");
-    addAlias(&bSplitTetrahedra,"splitTetras");
+    addAlias(&bSplitTetrahedra, "splitTetras");
+    addAlias(&bDrawEnabled,"draw");
 }
 
 MeshTetraStuffing::~MeshTetraStuffing()
@@ -919,7 +920,7 @@ MeshTetraStuffing::Point MeshTetraStuffing::getEdgeDir(int e)
 
 void MeshTetraStuffing::draw(const core::visual::VisualParams* vparams)
 {
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
     //const SeqPoints& inP = inputPoints.getValue();
     //const SeqTriangles& inT = inputTriangles.getValue();
     const SeqPoints& outP = outputPoints.getValue();

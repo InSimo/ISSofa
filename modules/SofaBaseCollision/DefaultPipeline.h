@@ -43,7 +43,7 @@ public:
     SOFA_CLASS(DefaultPipeline,sofa::simulation::PipelineImpl);
 
     Data<bool> bVerbose;
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
     Data<int> depth;
 protected:
     DefaultPipeline();

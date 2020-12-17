@@ -63,7 +63,7 @@ public:
     typedef typename defaulttype::Vector3 Vec3;
 
     /// Rendering of lines between associated points (activation)
-    Data < bool > f_draw;
+    Data < bool > f_drawEnabled;
     /// Suppress field for save as function
     Data < bool > isToPrint;
     /// Output file name    

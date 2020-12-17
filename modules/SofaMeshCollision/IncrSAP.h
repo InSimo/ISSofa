@@ -226,7 +226,7 @@ private:
     void purge();
 
 
-    Data<bool> bDraw;
+    Data<bool> bDrawEnabled;
 
     Data< helper::fixed_array<defaulttype::Vector3,2> > box;
 
@@ -265,7 +265,7 @@ protected:
     virtual ~TIncrSAP();
 
 public:
-    void setDraw(bool val) { bDraw.setValue(val); }
+    void setDraw(bool val) { bDrawEnabled.setValue(val); }
 
     void init();
     void reinit();

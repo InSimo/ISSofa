@@ -167,7 +167,7 @@ void ConicalForceField<DataTypes>::draw(const core::visual::VisualParams* vparam
 {
 #ifndef SOFA_NO_OPENGL
     if (!vparams->displayFlags().getShowForceFields()) return;
-    if (!bDraw.getValue()) return;
+    if (!bDrawEnabled.getValue()) return;
 
     const Real a = coneAngle.getValue();
     Coord height = coneHeight.getValue();
