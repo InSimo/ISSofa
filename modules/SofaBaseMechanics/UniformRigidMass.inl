@@ -6,6 +6,8 @@
 #include <sofa/helper/gl/Axis.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/gl/template.h>
+#include <SofaBaseTopology/TopologyData.inl>
+#include <SofaBaseTopology/PointSetTopologyContainer.h>
 
 namespace sofa
 {
@@ -59,12 +61,27 @@ UniformRigidMass<RigidDataTypes>::UniformRigidMass()
                                                                                      Clamp value must be specified, since explicit computation diverges"))
 ,d_drawAxisFactor(initData(&d_drawAxisFactor,1.0f,"drawAxisFactor","Draw: the factor applied on the size of the axis"))
 {
+
+    m_pointInfosHandler = new PointInfosHandler(&d_mass);
 }
 
 template< class RigidDataTypes >
 void UniformRigidMass<RigidDataTypes>::init()
 {
     Inherit1::init();
+
+    if (d_mass.getValue().size() != 1)
+    {
+        sofa::component::topology::PointSetTopologyContainer* toTopoCont;
+        this->getContext()->get(toTopoCont);
+        if (toTopoCont)
+        {
+            d_mass.createTopologicalEngine(toTopoCont, m_pointInfosHandler);
+            d_mass.registerTopologicalData();
+        }
+        d_mass.beginEdit()->resize(this->getContext()->getMechanicalState()->getSize());
+        d_mass.endEdit();
+    }
     reinit();
 }
 

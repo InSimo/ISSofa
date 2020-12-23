@@ -3,7 +3,7 @@
 
 #include <sofa/core/behavior/Mass.h>
 #include <sofa/defaulttype/RigidTypes.h>
-
+#include <SofaBaseTopology/TopologyData.h>
 #include <sofa/SofaBase.h>
 
 namespace sofa
@@ -37,7 +37,7 @@ public:
     typedef typename sofa::defaulttype::RigidMass< spatial_dimensions, Real > TRigidMass;
 
 
-    sofa::Data< sofa::helper::vector<TRigidMass> > d_mass;
+    sofa::component::topology::PointData< sofa::helper::vector<TRigidMass> > d_mass;
     sofa::Data< bool  >      d_useGyroscopicExplicit;
     sofa::Data< Real  >      d_maxGyroscopicForce;
     sofa::Data< float >      d_drawAxisFactor;
@@ -73,6 +73,25 @@ public:
 protected:
 
     UniformRigidMass();
+
+    // handlers
+    class PointInfosHandler : public sofa::component::topology::TopologyDataHandler<sofa::core::topology::Topology::Point, sofa::helper::vector<TRigidMass> >
+    {
+    public:
+        PointInfosHandler(sofa::component::topology::PointData<sofa::helper::vector<TRigidMass> >* d)
+            : sofa::component::topology::TopologyDataHandler<sofa::core::topology::Topology::Point, sofa::helper::vector<TRigidMass> >(d)
+        {}
+
+        void applyCreateFunction(unsigned int p, TRigidMass& rigidMass,
+            const sofa::core::topology::Topology::Point & /*point*/,
+            const sofa::helper::vector< unsigned int > & /*ancestors*/,
+            const sofa::helper::vector< double > & /*coefs*/)
+        {
+            // add null mass for new vertex
+            rigidMass.mass = 0;
+        }
+    };
+    PointInfosHandler* m_pointInfosHandler;
 
 };
 
