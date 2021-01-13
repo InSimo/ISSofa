@@ -18,6 +18,7 @@ option(SOFA_ENABLE_UNIT_TESTS  "Set to true to enable unit tests for sofa" ON)
 option(SOFA_ENABLE_BENCHMARKS  "Set to true to enable compilation and installation of ISSofa benchmarks" OFF)
 option(SOFA_ALLOW_UNITY_BUILDS "Set to true to build sofa using unity builds and get the option to toggle unity build on/off for each sofa project" OFF)
 option(SOFA_OPTIONAL "Set to true to build sofa optional libraries" OFF)
+option(SOFA_ENABLE_TIMESTAMPS "Set to true to add timestamps before logs" OFF)
 
 # sofa.env options
 option(SOFA_GENERATE_ENV_FILE "Generate a sofa.env file in the build directory. Disable if this file is not needed or created some other way" ON)

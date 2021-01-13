@@ -352,4 +352,8 @@ install(DIRECTORY ${SofaCore_SOURCE_DIR}/
         )
 endif()
 
+if (SOFA_ENABLE_TIMESTAMPS)
+    # Timestamp option
+    add_definitions(-DTIMESTAMPS)
+endif()
 
