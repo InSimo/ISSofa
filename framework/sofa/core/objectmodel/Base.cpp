@@ -30,6 +30,8 @@
 #include <string.h>
 #include <sstream>
 #include <atomic>
+#include <ctime>
+
 
 namespace sofa
 {
@@ -375,14 +377,21 @@ void Base::processStream(std::ostream& out)
     if (&out == &serr)
     {
         serr << "\n";
-        const std::string str = prefix + serr.str();
 #ifdef WIN32
+#ifdef TIMESTAMPS
+        SetConsoleTextAttribute(winConsole, SOFA_CONSOLE_WHITE);
+        std::cerr << "[" << getTimestamp() <<  "]";
+#endif
         SetConsoleTextAttribute(winConsole, SOFA_CONSOLE_RED);
-        std::cerr<< " [WARN] ";
+        std::cerr << " [WARN] ";
         SetConsoleTextAttribute(winConsole, winConsoleInfo.wAttributes);
 #else
-        std::cerr<< SOFA_CONSOLE_RED <<"[WARN]" << SOFA_CONSOLE_ENDL;
+#ifdef TIMESTAMPS
+        std::cerr << SOFA_CONSOLE_WHITE << "[" << getTimestamp() <<  "]";
 #endif
+        std::cerr << SOFA_CONSOLE_RED <<"[WARN]" << SOFA_CONSOLE_ENDL;
+#endif
+        const std::string str = prefix + serr.str();
         std::cerr << str << std::flush;
         if (warnings.size()+str.size() >= MAXLOGSIZE)
         {
@@ -401,13 +410,20 @@ void Base::processStream(std::ostream& out)
         if (f_printLog.getValue())
         {
 #ifdef WIN32
+#ifdef TIMESTAMPS
+            SetConsoleTextAttribute(winConsole, SOFA_CONSOLE_WHITE);
+            std::cout << "[" << getTimestamp() <<  "]";
+#endif
             SetConsoleTextAttribute(winConsole, SOFA_CONSOLE_GREEN);
-            std::cout<<" [INFO] ";
+            std::cout <<" [INFO] ";
             SetConsoleTextAttribute(winConsole, winConsoleInfo.wAttributes);
 #else
-            std::cout<< SOFA_CONSOLE_GREEN <<"[INFO]"<< SOFA_CONSOLE_ENDL;
+#ifdef TIMESTAMPS
+            std::cout << SOFA_CONSOLE_WHITE << "[" << getTimestamp() <<  "]";
 #endif
-            std::cout<< str << std::flush;
+            std::cout << SOFA_CONSOLE_GREEN <<"[INFO]"<< SOFA_CONSOLE_ENDL;
+#endif
+            std::cout << str << std::flush;
         }
         if (outputs.size()+str.size() >= MAXLOGSIZE)
         {
@@ -432,6 +448,16 @@ void Base::processStream(std::ostream& out)
 #endif
 
 }
+
+std::string Base::getTimestamp() const
+{
+    // get a precise timestamp following the convention [yyyy-mm-ddThh:mm:ssTimeZone] (ex: US Easter Standard Time: [2020-12-30T18:11:41-05:00], Mumbai : [2020-12-22T12:16:07+05:30])
+    const auto now_t = std::time(0);
+    std::stringstream timestamp;
+    timestamp  << std::put_time(std::localtime(&now_t), "%FT%T%z");     // Date, time and timezone
+    return timestamp.str();
+}
+
 
 const std::string& Base::getWarnings() const
 {

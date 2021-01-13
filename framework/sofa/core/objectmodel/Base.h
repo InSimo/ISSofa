@@ -273,6 +273,7 @@ public:
     mutable std::ostringstream                      serr;
     mutable std::ostringstream                      sout;
 
+    std::string getTimestamp() const;
     const std::string& getWarnings() const;
     const std::string& getOutputs() const;
 
