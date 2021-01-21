@@ -384,7 +384,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::draw(const core::visual::Visua
     if (showObject.getValue())
     {
         const float scale = showObjectScale.getValue();
-        helper::ReadAccessor<Data<VecCoord> > x = *this->read(core::VecCoordId::position());
+        helper::ReadAccessor<Data<VecCoord> > x = showFreePositions.getValue() ? *this->read(core::VecCoordId::freePosition()) : *this->read(core::VecCoordId::position());
         const int vsize = d_size.getValue();
         for (int i = 0; i < vsize; ++i)
         {
