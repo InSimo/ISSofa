@@ -308,11 +308,7 @@ bool SofaPhysicsSimulation::Impl::load(const char* cfilename)
         }
         else
         {
-            // NOTE: if there is no GUI we must reset the scene manually to maintain the same behavior
-            // since gui->setScene() is internally calling reset()
-            // Based on default behaviour of setScene in BatchGUI
             m_RootNode->setTime( 0. );
-            m_Simulation->reset( m_RootNode.get() );
             sofa::simulation::UpdateSimulationContextVisitor( sofa::core::ExecParams::defaultInstance() ).execute( m_RootNode.get() );
         }
     }
