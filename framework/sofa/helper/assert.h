@@ -110,7 +110,7 @@ Thanks to Noel Llopis and Charles Nicholson of Power of Two Games: http://cnicho
     { \
         if (!(condition)) \
         { \
-            if (sofa::assertion::onAssertionFailure(#condition, __FILE__, __LINE__, NULL) == sofa::assertion::HALT) \
+            if (sofa::assertion::onAssertionFailure(#condition, __FILE__, __LINE__, nullptr) == sofa::assertion::HALT) \
             { \
                 DEBUG_BREAK(); \
             } \
