@@ -62,10 +62,11 @@ protected:
     ArticulatedHierarchyContainer();
 
     ~ArticulatedHierarchyContainer() {}
+
 public:
-
-
     void init();
+
+    void reset() override;
 
     void setFilename(std::string f) {filename.setValue(f);}
 
