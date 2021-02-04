@@ -54,20 +54,33 @@ public:
      */
     typedef enum
     {
-        Move=0,
+        Move = 0,
         // The standard mouse button (on a three mouse button)
-		LeftPressed,
+        // for uninvasive manipulation
+        LeftPressed,
         LeftReleased,
         RightPressed,
         RightReleased,
         MiddlePressed,
         MiddleReleased,
 
-		// In case the mouse has more than three button
-		// the extra button will send this event. Unless the 
-		// ExtraButton0Pressed lines is properly implemented throughou Sofa. 
-		AnyExtraButtonPressed,   
-		AnyExtraButtonReleased,
+        // In case the mouse has more than three button
+        // the extra button will send this event. Unless the 
+        // ExtraButton0Pressed lines is properly implemented throughou Sofa. 
+        AnyExtraButtonPressed,
+        AnyExtraButtonReleased,
+
+        // The standard mouse button including a shift button
+        // for manipulation impacting the simulation
+        LeftPressedAction,
+        LeftReleasedAction,
+        RightPressedAction,
+        RightReleasedAction,
+        MiddlePressedAction,
+        MiddleReleasedAction,
+        AnyExtraButtonPressedAction,
+        AnyExtraButtonReleasedAction,
+
 
 		// Some mice has extra mouse buttons, 
 		// TODO: replace the AnyExtraButton events by Button0, Button1 events.
