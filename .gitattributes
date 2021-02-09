@@ -2,25 +2,60 @@
 # Explicitly declare text files we want to always be normalized and converted
 # to native line endings on checkout.
 
-## C/C++/Cuda code
-*.h text
-*.c text
-*.cpp text
-*.inl text
-*.hpp text
+# CMake / txt
+*.txt text
+*.cmake text
+*.in text
+*.md text
+*.tex text
+*.rst text
+*.cfg text
+*.ini text
+README text
 
-## Cuda
+## C/C++/Cuda code
+*.c text
+*.C text
+*.cc text
+*.cpp text
 *.cu text
+*.inl text
+*.h text
+*.H text
+*.hpp text
+*.cuh text
+*.ui text
+
+## Python
+*.py text
+
+## HTML / Javascript
+*.html text
+*.css text
+*.php text
+*.js text
+*.ts text
+*.json text
 
 ## Shaders
+*.glsl text
+*.hlsl text
 *.frag text
 *.vert text
-*.glsl text
+*.geo text
+*.geom text
+*.tessctrl text
+*.tesseval text
 
 ## Scenes
 *.scn text
 *.xml text
+*.view text
 
 ## Scripts
-*.sh text
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf
 *.awk text
+*.yml text
