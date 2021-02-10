@@ -363,11 +363,6 @@ void ArticulatedHierarchyContainer::init ()
     }
 }
 
-void ArticulatedHierarchyContainer::reset()
-{
-    init();
-}
-
 
 
 
