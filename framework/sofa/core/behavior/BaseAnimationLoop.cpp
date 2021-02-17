@@ -59,7 +59,12 @@ double BaseAnimationLoop::getResetTime() const
     return m_resetTime;
 }
 
-BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointWork(SyncPointID /*predecessorID*/, SyncPointID /*successorID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/)
+bool BaseAnimationLoop::registerSyncPoint(SyncPointID /*registerID*/)
+{
+    return false;
+}
+
+BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointWork(SyncPointID /*predecessorID*/, SyncPointID /*successorID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/,  sofa::defaulttype::Vec4f /*color*/)
 {
     return nullptr;
 }
@@ -69,7 +74,7 @@ BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointS
     return nullptr;
 }
 
-BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointWork(SyncPointID /*syncPointID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/)
+BaseAnimationLoop::SyncPointWorkRegisterID BaseAnimationLoop::registerSyncPointWork(SyncPointID /*syncPointID*/, SyncPointWorkFunctor /*work*/, std::string /*taskName*/,  sofa::defaulttype::Vec4f /*color*/)
 {
     return nullptr;
 }

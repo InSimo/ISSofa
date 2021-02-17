@@ -97,19 +97,25 @@ public:
     ///Methods used to add specific actions/simulation in the step() method (for example haptics)
     typedef std::string SyncPointID;
     typedef std::function<void()> SyncPointWorkFunctor;
-    typedef void* SyncPointWorkRegisterID;
+    typedef const void* SyncPointWorkRegisterID;
+
+    /// Register synchronisation point ID
+    virtual bool registerSyncPoint(SyncPointID syncPointID);
+
+    /// Register work functor that will be executed asynchronously when between predecessorID and successorID
+    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID predecessorID, SyncPointID successorID, SyncPointWorkFunctor work, std::string taskName, sofa::defaulttype::Vec4f color = {0.f, 0.f, 0.f, 1.f});
     
-    /// Register work functor that will be executed asynchronously when between predecessorID and successorID.
-    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID predecessorID, SyncPointID successorID, SyncPointWorkFunctor work, std::string taskName);
+    /// Register work functor that will be executed synchronously when syncPointID is reached
+    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName, sofa::defaulttype::Vec4f color = {0.f, 0.f, 0.f, 1.f});
     
-    /// Register work functor that will be executed synchronously when syncPointID is reached .
-    virtual SyncPointWorkRegisterID registerSyncPointSeqWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName, sofa::defaulttype::Vec4f color = sofa::defaulttype::Vec4f());
-    
-    /// Register work functor that will be executed asynchronously when syncPointID is reached.
-    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName);
+    /// Register work functor that will be executed asynchronously when syncPointID is reached
+    virtual SyncPointWorkRegisterID registerSyncPointWork(SyncPointID syncPointID, SyncPointWorkFunctor work, std::string taskName, sofa::defaulttype::Vec4f color = {0.f, 0.f, 0.f, 1.f});
 
     /// Unregister work functor
     virtual bool unregisterSyncPointWork(SyncPointWorkRegisterID registerID);
+
+    /// Synchronisation point : wait for given work to end, start new work synchronously or asynchronously
+    virtual void doSyncPoint(SyncPointID) {};
 
 };
 
