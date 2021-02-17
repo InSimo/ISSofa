@@ -26,13 +26,12 @@
 
 #include <sofa/core/CollisionModel.h>
 #include <sofa/core/ObjectFactory.h>
+#include <sofa/core/behavior/BaseAnimationLoop.h>
 #include <sofa/core/collision/BroadPhaseDetection.h>
 #include <sofa/core/collision/NarrowPhaseDetection.h>
 #include <sofa/core/collision/CollisionGroupManager.h>
 #include <sofa/core/collision/ContactManager.h>
 #include <sofa/core/visual/VisualParams.h>
-
-#include <sofa/simulation/common/Node.h>
 
 #ifdef SOFA_DUMP_VISITOR_INFO
 #include <sofa/simulation/common/Visitor.h>
@@ -70,6 +69,20 @@ DefaultPipeline::DefaultPipeline()
     , depth(initData(&depth, 6, "depth","Max depth of bounding trees"))
 {
     addAlias(&bDrawEnabled, "draw");
+}
+
+void DefaultPipeline::init()
+{
+    Inherit1::init();
+
+    this->getContext()->get(m_animationLoop);
+    if (m_animationLoop)
+    {
+        m_animationLoop->registerSyncPoint("BeginBroadPhase");
+        m_animationLoop->registerSyncPoint("BeginCollisionResponse");
+    }
+    else
+        serr << "Animation loop not found" << sendl;
 }
 
 #ifdef SOFA_DUMP_VISITOR_INFO
@@ -137,6 +150,10 @@ void DefaultPipeline::doCollisionDetection(const sofa::helper::vector<core::Coll
 #endif
         VERBOSE(sout << "DefaultPipeline::doCollisionDetection, Computed "<<nActive<<" BBoxs"<<sendl);
     }
+
+    if (m_animationLoop)
+        m_animationLoop->doSyncPoint("BeginBroadPhase");
+
     // then we start the broad phase
     if (broadPhaseDetection==NULL) return; // can't go further
     VERBOSE(sout << "DefaultPipeline::doCollisionDetection, BroadPhaseDetection "<<broadPhaseDetection->getName()<<sendl);
@@ -181,6 +198,9 @@ void DefaultPipeline::doCollisionDetection(const sofa::helper::vector<core::Coll
 
 void DefaultPipeline::doCollisionResponse()
 {
+    if (m_animationLoop)
+        m_animationLoop->doSyncPoint("BeginCollisionResponse");
+
     core::objectmodel::BaseContext* scene = getContext();
     // then we start the creation of contacts
     if (contactManager==NULL) return; // can't go further

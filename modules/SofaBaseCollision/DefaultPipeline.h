@@ -31,6 +31,14 @@
 namespace sofa
 {
 
+namespace core
+{
+namespace behavior
+{
+class BaseAnimationLoop;
+}
+}
+
 namespace component
 {
 
@@ -42,31 +50,33 @@ class SOFA_BASE_COLLISION_API DefaultPipeline : public sofa::simulation::Pipelin
 public:
     SOFA_CLASS(DefaultPipeline,sofa::simulation::PipelineImpl);
 
+    void init() override;
+
     Data<bool> bVerbose;
     Data<bool> bDrawEnabled;
     Data<int> depth;
 protected:
     DefaultPipeline();
 public:
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams* vparams) override;
 
     /// get the set of response available with the current collision pipeline
-    helper::set< std::string > getResponseList() const;
+    helper::set< std::string > getResponseList() const override;
 protected:
     // -- Pipeline interface
 
     /// Remove collision response from last step
-    virtual void doCollisionReset();
+    virtual void doCollisionReset() override;
     /// Detect new collisions. Note that this step must not modify the simulation graph
-    virtual void doCollisionDetection(const sofa::helper::vector<core::CollisionModel*>& collisionModels);
+    virtual void doCollisionDetection(const sofa::helper::vector<core::CollisionModel*>& collisionModels) override;
     /// Add collision response in the simulation graph
-    virtual void doCollisionResponse();
+    virtual void doCollisionResponse() override;
     /// remove inactive contacts
-    virtual void doRemoveContacts();
+    virtual void doRemoveContacts() override;
     /// update mapper xfree
-    virtual void doUpdateMappers();
+    virtual void doUpdateMappers() override;
 
-
+    sofa::core::behavior::BaseAnimationLoop* m_animationLoop;
 };
 
 } // namespace collision
