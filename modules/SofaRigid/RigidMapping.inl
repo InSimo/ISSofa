@@ -27,7 +27,7 @@
 
 #include <SofaRigid/RigidMapping.h>
 
-#include <SofaBaseLinearSolver/BlocMatrixWriter.h>
+#include <sofa/core/BlocMatrixWriter.h>
 #include <sofa/helper/decompose.h>
 
 #include <sofa/core/visual/VisualParams.h>
@@ -707,7 +707,7 @@ void RigidMapping<TIn, TOut>::addGeometricStiffnessToMatrix(const sofa::core::Me
 {
     if( !d_useGeometricStiffness.getValue() ) return;
 
-    sofa::component::linearsolver::BlocMatrixWriter< defaulttype::Mat<3, 3, Real> > writer;
+    sofa::core::BlocMatrixWriter< defaulttype::Mat<3, 3, Real> > writer;
     sofa::core::behavior::MultiMatrixAccessor::MatrixRef r = matrix->getMatrix(this->getMechFrom()[0]);
     writer.addGeometricStiffnessToMatrix(this, mparams, r);
 }
