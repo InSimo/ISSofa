@@ -94,7 +94,7 @@ void ExtrudeSurface<DataTypes>::update()
     helper::vector<BaseMeshTopology::Triangle>* extrusionTriangles = f_extrusionTriangles.beginEdit();
     extrusionTriangles->clear();
 
-    helper::vector<BaseMeshTopology::TriangleID>::const_iterator itTriangles, itTrianglesSide;
+    helper::vector<BaseMeshTopology::TriangleID>::const_iterator itTriangles;
 
     std::map<int, int> pointMatching;
     std::map<BaseMeshTopology::Edge, bool > edgesOnBorder;
@@ -226,7 +226,6 @@ void ExtrudeSurface<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
     const helper::vector<BaseMeshTopology::TriangleID> &surfaceTriangles = f_surfaceTriangles.getValue();
 
-    helper::vector<BaseMeshTopology::TriangleID>::const_iterator itTriangles;
     glDisable(GL_LIGHTING);
 
     if (!vparams->displayFlags().getShowBehaviorModels() || !isVisible.getValue())
@@ -237,7 +236,6 @@ void ExtrudeSurface<DataTypes>::draw(const core::visual::VisualParams* vparams)
 
     const helper::vector<BaseMeshTopology::Triangle> &extrusionTriangles = f_extrusionTriangles.getValue();
     const VecCoord& extrusionVertices = f_extrusionVertices.getValue();
-    helper::vector<BaseMeshTopology::Triangle>::const_iterator it;
 
     //Triangles From Surface
 

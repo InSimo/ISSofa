@@ -60,14 +60,8 @@ protected:
     class EdgePressureInformation
     {
     public:
-        Real length;
+        Real length = 0;
         Deriv force;
-
-        EdgePressureInformation(): length(0) {}
-        EdgePressureInformation(const EdgePressureInformation &e)
-            : length(e.length),force(e.force)
-        { }
-
 
         /// Output stream
         inline friend std::ostream& operator<< ( std::ostream& os, const EdgePressureInformation& /*ei*/ )

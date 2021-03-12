@@ -38,7 +38,7 @@ namespace component
 namespace linearsolver
 {
 
-/// Simple full matrix container
+/// Simple diagonal matrix container
 template<typename T>
 class DiagonalMatrix : public defaulttype::BaseMatrix
 {
@@ -60,13 +60,13 @@ public:
     {
     }
 
-    DiagonalMatrix(Index nbRow, Index nbCol)
-        : data(new T[nbRow])
+    DiagonalMatrix(Index nbRow, Index /*nbCol*/)
+        : data(new T[nbRow], nbRow)
     {
     }
 
-    DiagonalMatrix(Real* p, Index nbRow, Index nbCol)
-        : data(p)
+    DiagonalMatrix(Real* p, Index nbRow, Index /*nbCol*/)
+        : data(p, nbRow)
     {
     }
 
@@ -77,12 +77,12 @@ public:
 
     Real* operator[](Index i)
     {
-        return data+i;
+        return ptr()+i;
     }
 
     const Real* operator[](Index i) const
     {
-        return data+i;
+        return ptr()+i;
     }
 
     void resize(Index nbRow, Index /*nbCol*/)
@@ -175,7 +175,6 @@ public:
 
     void clear(Index i)
     {
-        printf("je clear\n");
         data[i] = (Real)0;
     }
 

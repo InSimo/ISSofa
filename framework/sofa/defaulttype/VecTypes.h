@@ -344,6 +344,7 @@ template<class T>
 class ResizableExtVector : public ExtVector<T>
 {
 public:
+    typedef ExtVector<T> Inherit;
     typedef typename ExtVector<T>::value_type value_type;
     typedef typename ExtVector<T>::size_type size_type;
     ResizableExtVector()
@@ -355,6 +356,11 @@ public:
         :ExtVector<T>(ev)
     {
         this->setAllocator(new DefaultAllocator<T>);
+    }
+
+    void operator=(const ResizableExtVector& ev)
+    {
+        Inherit::operator=(ev);
     }
 };
 

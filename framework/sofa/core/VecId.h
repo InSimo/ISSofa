@@ -248,6 +248,8 @@ public:
 
     TVecId(const TVecId<vtype, V_WRITE>& v) : index(v.getIndex()) { }
 
+    void operator=(const TVecId<vtype, V_WRITE>& v) { index = v.getIndex(); }
+
     explicit TVecId(const TVecId<V_ALL, vaccess>& v) : index(v.getIndex())
     {
 #ifndef NDEBUG

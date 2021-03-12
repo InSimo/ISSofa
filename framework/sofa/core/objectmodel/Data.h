@@ -412,8 +412,7 @@ public:
         , m_values()
         , shared(NULL)
     {
-        ValueType val;
-        m_values.assign(val);
+        m_values[DDGNode::currentAspect()] = ValueType(T());
     }
 
     /** \copydoc BaseData(const char*, bool, bool)

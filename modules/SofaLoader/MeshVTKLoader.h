@@ -162,7 +162,7 @@ protected:
                 }
                 else
                 {
-                    n = sizeof(s.c_str())/sizeof(T);
+                    n = s.length()/sizeof(T);
                 }
                 //std::cout << "Guessed size is " << n << std::endl;
                 std::istringstream iss(s);
@@ -286,7 +286,7 @@ protected:
 
         BaseVTKDataIO* newVTKDataIO(const std::string& typestr, int num)
         {
-            BaseVTKDataIO* result;
+            BaseVTKDataIO* result = nullptr;
 
             if (num == 1)
                 result = newVTKDataIO(typestr);

@@ -50,7 +50,7 @@ DataMonitor::DataMonitor()
 
 const char* DataMonitor::getValue()
 {
-    return data.getValueString().c_str();
+    return data.getValue().c_str();
 }
 
 } // namespace misc

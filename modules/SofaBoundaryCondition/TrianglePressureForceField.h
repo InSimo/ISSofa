@@ -71,13 +71,8 @@ protected:
     class TrianglePressureInformation
     {
     public:
-        Real area;
+        Real area = 0;
         Deriv force;
-
-        TrianglePressureInformation() {}
-        TrianglePressureInformation(const TrianglePressureInformation &e)
-            : area(e.area),force(e.force)
-        { }
 
         /// Output stream
         inline friend std::ostream& operator<< ( std::ostream& os, const TrianglePressureInformation& /*ei*/ )

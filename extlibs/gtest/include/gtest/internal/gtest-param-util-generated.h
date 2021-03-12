@@ -77,6 +77,7 @@ template <typename T1>
 class ValueArray1 {
  public:
   explicit ValueArray1(T1 v1) : v1_(v1) {}
+  ValueArray1(ValueArray1&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -86,6 +87,7 @@ class ValueArray1 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray1(const ValueArray1& other);
   void operator=(const ValueArray1& other);
 
   const T1 v1_;
@@ -95,6 +97,7 @@ template <typename T1, typename T2>
 class ValueArray2 {
  public:
   ValueArray2(T1 v1, T2 v2) : v1_(v1), v2_(v2) {}
+  ValueArray2(ValueArray2&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -104,6 +107,7 @@ class ValueArray2 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray2(const ValueArray2& other);
   void operator=(const ValueArray2& other);
 
   const T1 v1_;
@@ -114,6 +118,8 @@ template <typename T1, typename T2, typename T3>
 class ValueArray3 {
  public:
   ValueArray3(T1 v1, T2 v2, T3 v3) : v1_(v1), v2_(v2), v3_(v3) {}
+  ValueArray3(ValueArray3&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -124,6 +130,7 @@ class ValueArray3 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray3(const ValueArray3& other);
   void operator=(const ValueArray3& other);
 
   const T1 v1_;
@@ -136,6 +143,8 @@ class ValueArray4 {
  public:
   ValueArray4(T1 v1, T2 v2, T3 v3, T4 v4) : v1_(v1), v2_(v2), v3_(v3),
       v4_(v4) {}
+  ValueArray4(ValueArray4&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -146,6 +155,7 @@ class ValueArray4 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray4(const ValueArray4& other);
   void operator=(const ValueArray4& other);
 
   const T1 v1_;
@@ -159,6 +169,8 @@ class ValueArray5 {
  public:
   ValueArray5(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5) : v1_(v1), v2_(v2), v3_(v3),
       v4_(v4), v5_(v5) {}
+  ValueArray5(ValueArray5&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -169,6 +181,7 @@ class ValueArray5 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray5(const ValueArray5& other);
   void operator=(const ValueArray5& other);
 
   const T1 v1_;
@@ -184,6 +197,8 @@ class ValueArray6 {
  public:
   ValueArray6(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6) : v1_(v1), v2_(v2),
       v3_(v3), v4_(v4), v5_(v5), v6_(v6) {}
+  ValueArray6(ValueArray6&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -195,6 +210,7 @@ class ValueArray6 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray6(const ValueArray6& other);
   void operator=(const ValueArray6& other);
 
   const T1 v1_;
@@ -211,6 +227,8 @@ class ValueArray7 {
  public:
   ValueArray7(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7) : v1_(v1),
       v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7) {}
+  ValueArray7(ValueArray7&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -222,6 +240,7 @@ class ValueArray7 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray7(const ValueArray7& other);
   void operator=(const ValueArray7& other);
 
   const T1 v1_;
@@ -240,6 +259,8 @@ class ValueArray8 {
   ValueArray8(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7,
       T8 v8) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7),
       v8_(v8) {}
+  ValueArray8(ValueArray8&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -251,6 +272,7 @@ class ValueArray8 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray8(const ValueArray8& other);
   void operator=(const ValueArray8& other);
 
   const T1 v1_;
@@ -270,6 +292,8 @@ class ValueArray9 {
   ValueArray9(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7, T8 v8,
       T9 v9) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7),
       v8_(v8), v9_(v9) {}
+  ValueArray9(ValueArray9&& other) = default;
+
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -282,6 +306,7 @@ class ValueArray9 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray9(const ValueArray9& other);
   void operator=(const ValueArray9& other);
 
   const T1 v1_;
@@ -302,6 +327,7 @@ class ValueArray10 {
   ValueArray10(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7, T8 v8, T9 v9,
       T10 v10) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7),
       v8_(v8), v9_(v9), v10_(v10) {}
+  ValueArray10(ValueArray10&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -314,6 +340,7 @@ class ValueArray10 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray10(const ValueArray10& other);
   void operator=(const ValueArray10& other);
 
   const T1 v1_;
@@ -336,6 +363,7 @@ class ValueArray11 {
   ValueArray11(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7, T8 v8, T9 v9,
       T10 v10, T11 v11) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6),
       v7_(v7), v8_(v8), v9_(v9), v10_(v10), v11_(v11) {}
+  ValueArray11(ValueArray11&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -348,6 +376,7 @@ class ValueArray11 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray11(const ValueArray11& other);
   void operator=(const ValueArray11& other);
 
   const T1 v1_;
@@ -371,6 +400,7 @@ class ValueArray12 {
   ValueArray12(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7, T8 v8, T9 v9,
       T10 v10, T11 v11, T12 v12) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5),
       v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12) {}
+  ValueArray12(ValueArray12&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -384,6 +414,7 @@ class ValueArray12 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray12(const ValueArray12& other);
   void operator=(const ValueArray12& other);
 
   const T1 v1_;
@@ -409,6 +440,7 @@ class ValueArray13 {
       T10 v10, T11 v11, T12 v12, T13 v13) : v1_(v1), v2_(v2), v3_(v3), v4_(v4),
       v5_(v5), v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10), v11_(v11),
       v12_(v12), v13_(v13) {}
+  ValueArray13(ValueArray13&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -422,6 +454,7 @@ class ValueArray13 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray13(const ValueArray13& other);
   void operator=(const ValueArray13& other);
 
   const T1 v1_;
@@ -448,6 +481,7 @@ class ValueArray14 {
       T10 v10, T11 v11, T12 v12, T13 v13, T14 v14) : v1_(v1), v2_(v2), v3_(v3),
       v4_(v4), v5_(v5), v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10),
       v11_(v11), v12_(v12), v13_(v13), v14_(v14) {}
+  ValueArray14(ValueArray14&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -461,6 +495,7 @@ class ValueArray14 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray14(const ValueArray14& other);
   void operator=(const ValueArray14& other);
 
   const T1 v1_;
@@ -488,6 +523,7 @@ class ValueArray15 {
       T10 v10, T11 v11, T12 v12, T13 v13, T14 v14, T15 v15) : v1_(v1), v2_(v2),
       v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10),
       v11_(v11), v12_(v12), v13_(v13), v14_(v14), v15_(v15) {}
+  ValueArray15(ValueArray15&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -502,6 +538,7 @@ class ValueArray15 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray15(const ValueArray15& other);
   void operator=(const ValueArray15& other);
 
   const T1 v1_;
@@ -532,6 +569,7 @@ class ValueArray16 {
       v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7), v8_(v8), v9_(v9),
       v10_(v10), v11_(v11), v12_(v12), v13_(v13), v14_(v14), v15_(v15),
       v16_(v16) {}
+  ValueArray16(ValueArray16&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -546,6 +584,7 @@ class ValueArray16 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray16(const ValueArray16& other);
   void operator=(const ValueArray16& other);
 
   const T1 v1_;
@@ -577,6 +616,7 @@ class ValueArray17 {
       T17 v17) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7),
       v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12), v13_(v13), v14_(v14),
       v15_(v15), v16_(v16), v17_(v17) {}
+  ValueArray17(ValueArray17&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -591,6 +631,7 @@ class ValueArray17 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray17(const ValueArray17& other);
   void operator=(const ValueArray17& other);
 
   const T1 v1_;
@@ -623,6 +664,7 @@ class ValueArray18 {
       T18 v18) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6), v7_(v7),
       v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12), v13_(v13), v14_(v14),
       v15_(v15), v16_(v16), v17_(v17), v18_(v18) {}
+  ValueArray18(ValueArray18&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -638,6 +680,7 @@ class ValueArray18 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray18(const ValueArray18& other);
   void operator=(const ValueArray18& other);
 
   const T1 v1_;
@@ -671,6 +714,7 @@ class ValueArray19 {
       T18 v18, T19 v19) : v1_(v1), v2_(v2), v3_(v3), v4_(v4), v5_(v5), v6_(v6),
       v7_(v7), v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12), v13_(v13),
       v14_(v14), v15_(v15), v16_(v16), v17_(v17), v18_(v18), v19_(v19) {}
+  ValueArray19(ValueArray19&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -686,6 +730,7 @@ class ValueArray19 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray19(const ValueArray19& other);
   void operator=(const ValueArray19& other);
 
   const T1 v1_;
@@ -721,6 +766,7 @@ class ValueArray20 {
       v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12),
       v13_(v13), v14_(v14), v15_(v15), v16_(v16), v17_(v17), v18_(v18),
       v19_(v19), v20_(v20) {}
+  ValueArray20(ValueArray20&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -736,6 +782,7 @@ class ValueArray20 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray20(const ValueArray20& other);
   void operator=(const ValueArray20& other);
 
   const T1 v1_;
@@ -773,6 +820,7 @@ class ValueArray21 {
       v5_(v5), v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10), v11_(v11),
       v12_(v12), v13_(v13), v14_(v14), v15_(v15), v16_(v16), v17_(v17),
       v18_(v18), v19_(v19), v20_(v20), v21_(v21) {}
+  ValueArray21(ValueArray21&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -789,6 +837,7 @@ class ValueArray21 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray21(const ValueArray21& other);
   void operator=(const ValueArray21& other);
 
   const T1 v1_;
@@ -827,6 +876,7 @@ class ValueArray22 {
       v4_(v4), v5_(v5), v6_(v6), v7_(v7), v8_(v8), v9_(v9), v10_(v10),
       v11_(v11), v12_(v12), v13_(v13), v14_(v14), v15_(v15), v16_(v16),
       v17_(v17), v18_(v18), v19_(v19), v20_(v20), v21_(v21), v22_(v22) {}
+  ValueArray22(ValueArray22&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -843,6 +893,7 @@ class ValueArray22 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray22(const ValueArray22& other);
   void operator=(const ValueArray22& other);
 
   const T1 v1_;
@@ -883,6 +934,7 @@ class ValueArray23 {
       v11_(v11), v12_(v12), v13_(v13), v14_(v14), v15_(v15), v16_(v16),
       v17_(v17), v18_(v18), v19_(v19), v20_(v20), v21_(v21), v22_(v22),
       v23_(v23) {}
+  ValueArray23(ValueArray23&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -899,6 +951,7 @@ class ValueArray23 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray23(const ValueArray23& other);
   void operator=(const ValueArray23& other);
 
   const T1 v1_;
@@ -940,6 +993,7 @@ class ValueArray24 {
       v10_(v10), v11_(v11), v12_(v12), v13_(v13), v14_(v14), v15_(v15),
       v16_(v16), v17_(v17), v18_(v18), v19_(v19), v20_(v20), v21_(v21),
       v22_(v22), v23_(v23), v24_(v24) {}
+  ValueArray24(ValueArray24&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -957,6 +1011,7 @@ class ValueArray24 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray24(const ValueArray24& other);
   void operator=(const ValueArray24& other);
 
   const T1 v1_;
@@ -999,6 +1054,7 @@ class ValueArray25 {
       v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12), v13_(v13), v14_(v14),
       v15_(v15), v16_(v16), v17_(v17), v18_(v18), v19_(v19), v20_(v20),
       v21_(v21), v22_(v22), v23_(v23), v24_(v24), v25_(v25) {}
+  ValueArray25(ValueArray25&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1016,6 +1072,7 @@ class ValueArray25 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray25(const ValueArray25& other);
   void operator=(const ValueArray25& other);
 
   const T1 v1_;
@@ -1060,6 +1117,7 @@ class ValueArray26 {
       v8_(v8), v9_(v9), v10_(v10), v11_(v11), v12_(v12), v13_(v13), v14_(v14),
       v15_(v15), v16_(v16), v17_(v17), v18_(v18), v19_(v19), v20_(v20),
       v21_(v21), v22_(v22), v23_(v23), v24_(v24), v25_(v25), v26_(v26) {}
+  ValueArray26(ValueArray26&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1077,6 +1135,7 @@ class ValueArray26 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray26(const ValueArray26& other);
   void operator=(const ValueArray26& other);
 
   const T1 v1_;
@@ -1123,6 +1182,7 @@ class ValueArray27 {
       v14_(v14), v15_(v15), v16_(v16), v17_(v17), v18_(v18), v19_(v19),
       v20_(v20), v21_(v21), v22_(v22), v23_(v23), v24_(v24), v25_(v25),
       v26_(v26), v27_(v27) {}
+  ValueArray27(ValueArray27&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1141,6 +1201,7 @@ class ValueArray27 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray27(const ValueArray27& other);
   void operator=(const ValueArray27& other);
 
   const T1 v1_;
@@ -1188,6 +1249,7 @@ class ValueArray28 {
       v13_(v13), v14_(v14), v15_(v15), v16_(v16), v17_(v17), v18_(v18),
       v19_(v19), v20_(v20), v21_(v21), v22_(v22), v23_(v23), v24_(v24),
       v25_(v25), v26_(v26), v27_(v27), v28_(v28) {}
+  ValueArray28(ValueArray28&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1206,6 +1268,7 @@ class ValueArray28 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray28(const ValueArray28& other);
   void operator=(const ValueArray28& other);
 
   const T1 v1_;
@@ -1254,6 +1317,7 @@ class ValueArray29 {
       v12_(v12), v13_(v13), v14_(v14), v15_(v15), v16_(v16), v17_(v17),
       v18_(v18), v19_(v19), v20_(v20), v21_(v21), v22_(v22), v23_(v23),
       v24_(v24), v25_(v25), v26_(v26), v27_(v27), v28_(v28), v29_(v29) {}
+  ValueArray29(ValueArray29&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1272,6 +1336,7 @@ class ValueArray29 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray29(const ValueArray29& other);
   void operator=(const ValueArray29& other);
 
   const T1 v1_;
@@ -1322,6 +1387,7 @@ class ValueArray30 {
       v17_(v17), v18_(v18), v19_(v19), v20_(v20), v21_(v21), v22_(v22),
       v23_(v23), v24_(v24), v25_(v25), v26_(v26), v27_(v27), v28_(v28),
       v29_(v29), v30_(v30) {}
+  ValueArray30(ValueArray30&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1341,6 +1407,7 @@ class ValueArray30 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray30(const ValueArray30& other);
   void operator=(const ValueArray30& other);
 
   const T1 v1_;
@@ -1393,6 +1460,7 @@ class ValueArray31 {
       v17_(v17), v18_(v18), v19_(v19), v20_(v20), v21_(v21), v22_(v22),
       v23_(v23), v24_(v24), v25_(v25), v26_(v26), v27_(v27), v28_(v28),
       v29_(v29), v30_(v30), v31_(v31) {}
+  ValueArray31(ValueArray31&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1412,6 +1480,7 @@ class ValueArray31 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray31(const ValueArray31& other);
   void operator=(const ValueArray31& other);
 
   const T1 v1_;
@@ -1465,6 +1534,7 @@ class ValueArray32 {
       v16_(v16), v17_(v17), v18_(v18), v19_(v19), v20_(v20), v21_(v21),
       v22_(v22), v23_(v23), v24_(v24), v25_(v25), v26_(v26), v27_(v27),
       v28_(v28), v29_(v29), v30_(v30), v31_(v31), v32_(v32) {}
+  ValueArray32(ValueArray32&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1484,6 +1554,7 @@ class ValueArray32 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray32(const ValueArray32& other);
   void operator=(const ValueArray32& other);
 
   const T1 v1_;
@@ -1539,6 +1610,7 @@ class ValueArray33 {
       v21_(v21), v22_(v22), v23_(v23), v24_(v24), v25_(v25), v26_(v26),
       v27_(v27), v28_(v28), v29_(v29), v30_(v30), v31_(v31), v32_(v32),
       v33_(v33) {}
+  ValueArray33(ValueArray33&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1559,6 +1631,7 @@ class ValueArray33 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray33(const ValueArray33& other);
   void operator=(const ValueArray33& other);
 
   const T1 v1_;
@@ -1615,6 +1688,7 @@ class ValueArray34 {
       v21_(v21), v22_(v22), v23_(v23), v24_(v24), v25_(v25), v26_(v26),
       v27_(v27), v28_(v28), v29_(v29), v30_(v30), v31_(v31), v32_(v32),
       v33_(v33), v34_(v34) {}
+  ValueArray34(ValueArray34&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1635,6 +1709,7 @@ class ValueArray34 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray34(const ValueArray34& other);
   void operator=(const ValueArray34& other);
 
   const T1 v1_;
@@ -1692,6 +1767,7 @@ class ValueArray35 {
       v20_(v20), v21_(v21), v22_(v22), v23_(v23), v24_(v24), v25_(v25),
       v26_(v26), v27_(v27), v28_(v28), v29_(v29), v30_(v30), v31_(v31),
       v32_(v32), v33_(v33), v34_(v34), v35_(v35) {}
+  ValueArray35(ValueArray35&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1712,6 +1788,7 @@ class ValueArray35 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray35(const ValueArray35& other);
   void operator=(const ValueArray35& other);
 
   const T1 v1_;
@@ -1771,6 +1848,7 @@ class ValueArray36 {
       v19_(v19), v20_(v20), v21_(v21), v22_(v22), v23_(v23), v24_(v24),
       v25_(v25), v26_(v26), v27_(v27), v28_(v28), v29_(v29), v30_(v30),
       v31_(v31), v32_(v32), v33_(v33), v34_(v34), v35_(v35), v36_(v36) {}
+  ValueArray36(ValueArray36&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1792,6 +1870,7 @@ class ValueArray36 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray36(const ValueArray36& other);
   void operator=(const ValueArray36& other);
 
   const T1 v1_;
@@ -1853,6 +1932,7 @@ class ValueArray37 {
       v24_(v24), v25_(v25), v26_(v26), v27_(v27), v28_(v28), v29_(v29),
       v30_(v30), v31_(v31), v32_(v32), v33_(v33), v34_(v34), v35_(v35),
       v36_(v36), v37_(v37) {}
+  ValueArray37(ValueArray37&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1874,6 +1954,7 @@ class ValueArray37 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray37(const ValueArray37& other);
   void operator=(const ValueArray37& other);
 
   const T1 v1_;
@@ -1936,6 +2017,7 @@ class ValueArray38 {
       v23_(v23), v24_(v24), v25_(v25), v26_(v26), v27_(v27), v28_(v28),
       v29_(v29), v30_(v30), v31_(v31), v32_(v32), v33_(v33), v34_(v34),
       v35_(v35), v36_(v36), v37_(v37), v38_(v38) {}
+  ValueArray38(ValueArray38&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -1957,6 +2039,7 @@ class ValueArray38 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray38(const ValueArray38& other);
   void operator=(const ValueArray38& other);
 
   const T1 v1_;
@@ -2020,6 +2103,7 @@ class ValueArray39 {
       v23_(v23), v24_(v24), v25_(v25), v26_(v26), v27_(v27), v28_(v28),
       v29_(v29), v30_(v30), v31_(v31), v32_(v32), v33_(v33), v34_(v34),
       v35_(v35), v36_(v36), v37_(v37), v38_(v38), v39_(v39) {}
+  ValueArray39(ValueArray39&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2042,6 +2126,7 @@ class ValueArray39 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray39(const ValueArray39& other);
   void operator=(const ValueArray39& other);
 
   const T1 v1_;
@@ -2107,6 +2192,7 @@ class ValueArray40 {
       v28_(v28), v29_(v29), v30_(v30), v31_(v31), v32_(v32), v33_(v33),
       v34_(v34), v35_(v35), v36_(v36), v37_(v37), v38_(v38), v39_(v39),
       v40_(v40) {}
+  ValueArray40(ValueArray40&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2129,6 +2215,7 @@ class ValueArray40 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray40(const ValueArray40& other);
   void operator=(const ValueArray40& other);
 
   const T1 v1_;
@@ -2196,6 +2283,7 @@ class ValueArray41 {
       v27_(v27), v28_(v28), v29_(v29), v30_(v30), v31_(v31), v32_(v32),
       v33_(v33), v34_(v34), v35_(v35), v36_(v36), v37_(v37), v38_(v38),
       v39_(v39), v40_(v40), v41_(v41) {}
+  ValueArray41(ValueArray41&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2218,6 +2306,7 @@ class ValueArray41 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray41(const ValueArray41& other);
   void operator=(const ValueArray41& other);
 
   const T1 v1_;
@@ -2286,6 +2375,7 @@ class ValueArray42 {
       v27_(v27), v28_(v28), v29_(v29), v30_(v30), v31_(v31), v32_(v32),
       v33_(v33), v34_(v34), v35_(v35), v36_(v36), v37_(v37), v38_(v38),
       v39_(v39), v40_(v40), v41_(v41), v42_(v42) {}
+  ValueArray42(ValueArray42&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2309,6 +2399,7 @@ class ValueArray42 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray42(const ValueArray42& other);
   void operator=(const ValueArray42& other);
 
   const T1 v1_;
@@ -2378,6 +2469,7 @@ class ValueArray43 {
       v26_(v26), v27_(v27), v28_(v28), v29_(v29), v30_(v30), v31_(v31),
       v32_(v32), v33_(v33), v34_(v34), v35_(v35), v36_(v36), v37_(v37),
       v38_(v38), v39_(v39), v40_(v40), v41_(v41), v42_(v42), v43_(v43) {}
+  ValueArray43(ValueArray43&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2401,6 +2493,7 @@ class ValueArray43 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray43(const ValueArray43& other);
   void operator=(const ValueArray43& other);
 
   const T1 v1_;
@@ -2472,6 +2565,7 @@ class ValueArray44 {
       v31_(v31), v32_(v32), v33_(v33), v34_(v34), v35_(v35), v36_(v36),
       v37_(v37), v38_(v38), v39_(v39), v40_(v40), v41_(v41), v42_(v42),
       v43_(v43), v44_(v44) {}
+  ValueArray44(ValueArray44&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2495,6 +2589,7 @@ class ValueArray44 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray44(const ValueArray44& other);
   void operator=(const ValueArray44& other);
 
   const T1 v1_;
@@ -2567,6 +2662,7 @@ class ValueArray45 {
       v30_(v30), v31_(v31), v32_(v32), v33_(v33), v34_(v34), v35_(v35),
       v36_(v36), v37_(v37), v38_(v38), v39_(v39), v40_(v40), v41_(v41),
       v42_(v42), v43_(v43), v44_(v44), v45_(v45) {}
+  ValueArray45(ValueArray45&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2591,6 +2687,7 @@ class ValueArray45 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray45(const ValueArray45& other);
   void operator=(const ValueArray45& other);
 
   const T1 v1_;
@@ -2665,6 +2762,7 @@ class ValueArray46 {
       v29_(v29), v30_(v30), v31_(v31), v32_(v32), v33_(v33), v34_(v34),
       v35_(v35), v36_(v36), v37_(v37), v38_(v38), v39_(v39), v40_(v40),
       v41_(v41), v42_(v42), v43_(v43), v44_(v44), v45_(v45), v46_(v46) {}
+  ValueArray46(ValueArray46&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2689,6 +2787,7 @@ class ValueArray46 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray46(const ValueArray46& other);
   void operator=(const ValueArray46& other);
 
   const T1 v1_;
@@ -2765,6 +2864,7 @@ class ValueArray47 {
       v35_(v35), v36_(v36), v37_(v37), v38_(v38), v39_(v39), v40_(v40),
       v41_(v41), v42_(v42), v43_(v43), v44_(v44), v45_(v45), v46_(v46),
       v47_(v47) {}
+  ValueArray47(ValueArray47&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2789,6 +2889,7 @@ class ValueArray47 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray47(const ValueArray47& other);
   void operator=(const ValueArray47& other);
 
   const T1 v1_;
@@ -2866,6 +2967,7 @@ class ValueArray48 {
       v34_(v34), v35_(v35), v36_(v36), v37_(v37), v38_(v38), v39_(v39),
       v40_(v40), v41_(v41), v42_(v42), v43_(v43), v44_(v44), v45_(v45),
       v46_(v46), v47_(v47), v48_(v48) {}
+  ValueArray48(ValueArray48&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2891,6 +2993,7 @@ class ValueArray48 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray48(const ValueArray48& other);
   void operator=(const ValueArray48& other);
 
   const T1 v1_;
@@ -2969,6 +3072,7 @@ class ValueArray49 {
       v33_(v33), v34_(v34), v35_(v35), v36_(v36), v37_(v37), v38_(v38),
       v39_(v39), v40_(v40), v41_(v41), v42_(v42), v43_(v43), v44_(v44),
       v45_(v45), v46_(v46), v47_(v47), v48_(v48), v49_(v49) {}
+  ValueArray49(ValueArray49&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -2994,6 +3098,7 @@ class ValueArray49 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray49(const ValueArray49& other);
   void operator=(const ValueArray49& other);
 
   const T1 v1_;
@@ -3073,6 +3178,7 @@ class ValueArray50 {
       v33_(v33), v34_(v34), v35_(v35), v36_(v36), v37_(v37), v38_(v38),
       v39_(v39), v40_(v40), v41_(v41), v42_(v42), v43_(v43), v44_(v44),
       v45_(v45), v46_(v46), v47_(v47), v48_(v48), v49_(v49), v50_(v50) {}
+  ValueArray50(ValueArray50&& other) = default;
 
   template <typename T>
   operator ParamGenerator<T>() const {
@@ -3098,6 +3204,7 @@ class ValueArray50 {
 
  private:
   // No implementation - assignment is unsupported.
+  ValueArray50(const ValueArray50& other);
   void operator=(const ValueArray50& other);
 
   const T1 v1_;

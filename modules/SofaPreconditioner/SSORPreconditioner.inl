@@ -179,37 +179,34 @@ void SSORPreconditioner<sofa::defaulttype::CompressedRowSparseMatrixMechanical<d
             z[j] *= 2-w;
 }
 
-#define B 3
-#define Real double
-#define typename
 //template<int B, class Real>
 template<>
-void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrixMechanical< defaulttype::Mat<B,B,Real> >, sofa::defaulttype::FullVector<Real> >::solve(Matrix& M, Vector& z, Vector& r)
+void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrixMechanical< defaulttype::Mat<3,3,double> >, sofa::defaulttype::FullVector<double> >::solve(Matrix& M, Vector& z, Vector& r)
 {
     SSORPreconditionerInvertData * data = (SSORPreconditionerInvertData *) this->getMatrixInvertData(&M);
-
+    enum { B = 3 };
     //const Index n = M.rowSize();
     const Index nb = M.rowBSize();
-    const Real w = (Real)f_omega.getValue();
+    const double w = (double)f_omega.getValue();
 
     //const Matrix::VecIndex& rowIndex = M.getRowIndex();
-    const typename Matrix::VecIndex& colsIndex = M.getColsIndex();
-    const typename Matrix::VecBloc& colsValue = M.getColsValue();
+    const Matrix::VecIndex& colsIndex = M.getColsIndex();
+    const Matrix::VecBloc& colsValue = M.getColsValue();
     //Solve (D+U) * t = r;
     for (Index jb=nb-1; jb>=0; jb--)
     {
         Index j0 = jb*B;
-        defaulttype::Vec<B,Real> temp;
-        typename Matrix::Range rowRange = M.getRowRange(jb);
+        defaulttype::Vec<B,double> temp;
+        Matrix::Range rowRange = M.getRowRange(jb);
         Index xi = rowRange.begin();
         while (xi < rowRange.end() && colsIndex[xi] < jb) ++xi;
         // bloc on the diagonal
-        const typename Matrix::Bloc& bdiag = colsValue[xi];
+        const Matrix::Bloc& bdiag = colsValue[xi];
         // upper triangle matrix
         for (++xi; xi < rowRange.end(); ++xi)
         {
             Index i0 = colsIndex[xi]*B;
-            const typename Matrix::Bloc& b = colsValue[xi];
+            const Matrix::Bloc& b = colsValue[xi];
             for (Index j1=0; j1<B; ++j1)
             {
                 //Index j = j0+j1;
@@ -222,7 +219,7 @@ void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrixMechanical<
         }
         // then the diagonal
         {
-            const typename Matrix::Bloc& b = bdiag;
+            const Matrix::Bloc& b = bdiag;
             for (Index j1=B-1; j1>=0; j1--)
             {
                 Index j = j0+j1;
@@ -240,14 +237,14 @@ void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrixMechanical<
     for (Index jb=0; jb<nb; jb++)
     {
         Index j0 = jb*B;
-        defaulttype::Vec<B,Real> temp;
-        typename Matrix::Range rowRange = M.getRowRange(jb);
+        defaulttype::Vec<B,double> temp;
+        Matrix::Range rowRange = M.getRowRange(jb);
         Index xi = rowRange.begin();
         // lower triangle matrix
         for (; xi < rowRange.end() && colsIndex[xi] < jb; ++xi)
         {
             Index i0 = colsIndex[xi]*B;
-            const typename Matrix::Bloc& b = colsValue[xi];
+            const Matrix::Bloc& b = colsValue[xi];
             for (Index j1=0; j1<B; ++j1)
             {
                 //Index j = j0+j1;
@@ -260,7 +257,7 @@ void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrixMechanical<
         }
         // then the diagonal
         {
-            const typename Matrix::Bloc& b = colsValue[xi];
+            const Matrix::Bloc& b = colsValue[xi];
             for (Index j1=0; j1<B; ++j1)
             {
                 Index j = j0+j1;
@@ -275,10 +272,6 @@ void SSORPreconditioner< sofa::defaulttype::CompressedRowSparseMatrixMechanical<
         }
     }
 }
-
-#undef B
-#undef Real
-#undef typename
 
 
 template<class TMatrix, class TVector, class TThreadManager>

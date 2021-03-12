@@ -55,6 +55,8 @@ public:
         defaulttype::BaseMatrix* matrix;
         unsigned int offset;
         MatrixRef() : matrix(NULL), offset(0) {}
+        MatrixRef(const MatrixRef& b) = default;
+        MatrixRef(MatrixRef&& b) = default;
         defaulttype::BaseMatrix* operator->() const { return matrix; }
         bool operator!() const { return matrix == NULL; }
         operator bool() const { return matrix != NULL; }
@@ -68,6 +70,8 @@ public:
         defaulttype::BaseMatrix* matrix;
         unsigned int offRow, offCol;
         InteractionMatrixRef() : matrix(NULL), offRow(0), offCol(0) {}
+        InteractionMatrixRef(const InteractionMatrixRef& b) = default;
+        InteractionMatrixRef(InteractionMatrixRef&& b) = default;
         defaulttype::BaseMatrix* operator->() const { return matrix; }
         bool operator!() const { return matrix == NULL; }
         operator bool() const { return matrix != NULL; }

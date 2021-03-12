@@ -249,13 +249,13 @@ extern template class SOFA_HELPER_API Polynomial_LD<double,5>;
 #endif
 
 
-#ifndef SOFA_DOUBLE
-extern template class SOFA_HELPER_API Polynomial_LD<float,1>;
-extern template class SOFA_HELPER_API Polynomial_LD<float,2>;
-extern template class SOFA_HELPER_API Polynomial_LD<float,3>;
-extern template class SOFA_HELPER_API Polynomial_LD<float,4>;
-extern template class SOFA_HELPER_API Polynomial_LD<float,5>;
-#endif
+//#ifndef SOFA_DOUBLE
+//extern template class SOFA_HELPER_API Polynomial_LD<float,1>;
+//extern template class SOFA_HELPER_API Polynomial_LD<float,2>;
+//extern template class SOFA_HELPER_API Polynomial_LD<float,3>;
+//extern template class SOFA_HELPER_API Polynomial_LD<float,4>;
+//extern template class SOFA_HELPER_API Polynomial_LD<float,5>;
+//#endif
 
 #endif
 

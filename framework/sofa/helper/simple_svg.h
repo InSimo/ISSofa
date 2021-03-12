@@ -546,9 +546,9 @@ namespace svg
     class LineChart : public Shape
     {
     public:
-        LineChart(Dimensions margin = Dimensions(), double scale = 1,
+        LineChart(Dimensions margin = Dimensions(),
                   Stroke const & axis_stroke = Stroke(.5, Color::Purple))
-            : axis_stroke(axis_stroke), margin(margin), scale(scale) { }
+            : axis_stroke(axis_stroke), margin(margin) { }
         LineChart & operator<<(Polyline const & polyline)
         {
             if (polyline.points.empty())
@@ -576,7 +576,6 @@ namespace svg
     private:
         Stroke axis_stroke;
         Dimensions margin;
-        double scale;
         std::vector<Polyline> polylines;
 
         optional<Dimensions> getDimensions() const

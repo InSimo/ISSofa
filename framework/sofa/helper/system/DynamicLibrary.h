@@ -53,6 +53,7 @@ public:
         Handle();
         /// Copy constructor.
         Handle(const Handle& that);
+        void operator=(const Handle& that);
         /// Check if the handle is valid, i.e. if load() was successful.
         bool isValid() const;
         /// Get the filename of the library.

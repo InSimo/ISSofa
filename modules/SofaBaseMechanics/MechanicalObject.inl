@@ -1124,7 +1124,7 @@ void MechanicalObject<DataTypes>::init()
 
         // Print a warning if one or more vector don't match the maximum size
         bool allSizeAreEqual = true;
-        for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) 
+        for (const std::pair<const std::string, const size_t>& vector_size : vector_sizes) 
         {
             const std::string& name = vector_size.first;
             const size_t & size = vector_size.second;
@@ -1148,7 +1148,7 @@ void MechanicalObject<DataTypes>::init()
         if (!allSizeAreEqual || (copyXToX0 && sizeRestPosition>1) || (copyX0ToX && sizePosition>1))
         {
             std::string message_warning = "One or more of the state vectors passed as argument don't match the size of the others : ";
-            for (const std::pair<const std::string, const size_t> vector_size : vector_sizes) 
+            for (const std::pair<const std::string, const size_t>& vector_size : vector_sizes) 
             {
                 const std::string & name = vector_size.first;
                 const size_t & size = vector_size.second;

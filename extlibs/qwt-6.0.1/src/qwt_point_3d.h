@@ -28,6 +28,7 @@ public:
     QwtPoint3D( double x, double y, double z );
     QwtPoint3D( const QwtPoint3D & );
     QwtPoint3D( const QPointF & );
+    void operator=( const QwtPoint3D & );
 
     bool isNull()    const;
 
@@ -88,6 +89,17 @@ inline QwtPoint3D::QwtPoint3D( const QwtPoint3D &other ):
     d_y( other.d_y ),
     d_z( other.d_z )
 {
+}
+
+/*!
+    Copy operator.
+    Constructs a point using the values of the point specified.
+*/
+inline void QwtPoint3D::operator=( const QwtPoint3D &other )
+{
+    d_x = other.d_x;
+    d_y = other.d_y;
+    d_z = other.d_z;
 }
 
 /*!

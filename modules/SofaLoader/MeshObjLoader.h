@@ -100,7 +100,7 @@ public:
     helper::vector<sofa::defaulttype::Vector2> getAllTexCoord() const
     {
         helper::vector<sofa::defaulttype::Vector2> result;
-        for (const auto it : m_mapTexFaces)
+        for (const auto& it : m_mapTexFaces)
         {
             result.emplace_back(it.first);
         }

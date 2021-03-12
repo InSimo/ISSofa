@@ -34,6 +34,7 @@ public:
     template<class InputIterator>
     stable_vector(InputIterator first, InputIterator last) : Inherit(first,last) {}
     stable_vector(const stable_vector& x) : Inherit(x) {}
+    void operator=(const stable_vector& x) { Inherit::operator=(x); }
 };
 
 } // namespace helper

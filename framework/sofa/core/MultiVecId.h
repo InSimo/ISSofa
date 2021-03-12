@@ -305,6 +305,17 @@ public:
     {
     }
 
+    //// Copy operator
+    void operator=( const TMultiVecId<vtype,vaccess>& mv)
+    {
+        defaultId = mv.getDefaultId();
+#ifdef MAP_PTR
+        idMap_ptr = mv.idMap_ptr;
+#else
+        idMap = mv.idMap;
+#endif
+    }
+
     //// Only TMultiVecId< V_ALL , vaccess> can declare copy constructors with all
     //// other kinds of TMultiVecIds, namely MultiVecCoordId, MultiVecDerivId...
     //// In other cases, the copy constructor takes a TMultiVecId of the same type
@@ -564,6 +575,17 @@ public:
         , idMap( mv.idMap )
 #endif
     {
+    }
+
+    //// Copy operator
+    void operator=( const TMultiVecId<V_ALL,vaccess>& mv)
+    {
+        defaultId = mv.getDefaultId();
+#ifdef MAP_PTR
+        idMap_ptr = mv.idMap_ptr;
+#else
+        idMap = mv.idMap;
+#endif
     }
 
     //// Only TMultiVecId< V_ALL , vaccess> can declare copy constructors with all

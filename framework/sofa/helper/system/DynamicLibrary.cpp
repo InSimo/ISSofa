@@ -52,6 +52,12 @@ DynamicLibrary::Handle::Handle(const Handle& that)
 {
 }
 
+void DynamicLibrary::Handle::operator=(const Handle& that)
+{
+    m_realHandle = that.m_realHandle;
+    m_filename = that.m_filename;
+}
+
 DynamicLibrary::Handle::Handle(): m_realHandle(NULL)
 {
 }

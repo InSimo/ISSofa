@@ -209,7 +209,7 @@ namespace
             Matrix::RowIterator itRow = matrix.writeLine(line1.rowIndex); //[FIX]
             Matrix::RowType& row = itRow.row();
 
-            SOFA_ASSERT(line1.initialDataCount == 3);
+            EXPECT_EQ(line1.initialDataCount, 3);
             EXPECT_EQ(line1.data1.value, row[line1.data1.index]);
             EXPECT_EQ(line1.data2.value, row[line1.data2.index]);
             EXPECT_EQ(line1.data3.value, row[line1.data3.index]);
@@ -220,7 +220,7 @@ namespace
             Matrix::RowIterator itRow = matrix.writeLine(line2.rowIndex); // [FIX]
             Matrix::RowType& row = itRow.row();
 
-            SOFA_ASSERT(line2.initialDataCount == 3);
+            EXPECT_EQ(line2.initialDataCount, 3);
             EXPECT_EQ(line2.data1.value, row[line2.data1.index]);
             EXPECT_EQ(line2.data2.value, row[line2.data2.index]);
             EXPECT_EQ(line2.data3.value, row[line2.data3.index]);

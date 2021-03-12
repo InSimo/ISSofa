@@ -308,7 +308,7 @@ void TetrahedronSetTopologyContainer::createTrianglesInTetrahedronArray()
         createTriangleSetArray();
 
     //if(hasTrianglesInTetrahedron())
-        clearTrianglesInTetrahedron();
+    clearTrianglesInTetrahedron();
 
     m_trianglesInTetrahedron.resize( getNumberOfTetrahedra());
     helper::ReadAccessor< Data< sofa::helper::vector<Tetrahedron> > > m_tetrahedron = d_tetrahedron;

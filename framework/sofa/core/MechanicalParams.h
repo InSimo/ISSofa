@@ -248,6 +248,9 @@ public:
     {
     }
 
+    MechanicalParams( const MechanicalParams& mparams ) = default;
+    MechanicalParams( MechanicalParams&& mparams ) = default;
+
     /// Get the default MechanicalParams, to be used to provide a default values for method parameters
     static const MechanicalParams* defaultInstance();
 

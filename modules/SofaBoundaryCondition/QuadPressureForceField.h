@@ -78,13 +78,8 @@ protected:
     class QuadPressureInformation
     {
     public:
-        Real area;
+        Real area = 0;
         Deriv force;
-
-        QuadPressureInformation() {}
-        QuadPressureInformation(const QuadPressureInformation &e)
-            : area(e.area),force(e.force)
-        { }
 
         /// Output stream
         inline friend std::ostream& operator<< ( std::ostream& os, const QuadPressureInformation& /*ei*/ )

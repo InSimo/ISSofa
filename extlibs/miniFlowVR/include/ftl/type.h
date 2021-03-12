@@ -416,14 +416,15 @@ class TypedArray
 protected:
   int valueType;
   unsigned int dataSize;
+  struct TypedArrayUnionStruct
+  {
+    unsigned char* ptr; ///< for larger data
+    int* refs; ///< Number of references to the allocated data
+  };
   union
   {
     unsigned char sdata[16]; ///< for small data
-    struct
-    {
-      unsigned char* ptr; ///< for larger data
-      int* refs; ///< Number of references to the allocated data
-    } s;
+    TypedArrayUnionStruct s; ///< for larger data
   };
 public:
 

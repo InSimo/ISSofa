@@ -1133,7 +1133,7 @@ public:
         add(bi, bj, b, boffsetL, boffsetC);
     }
 
-    void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, const Bloc &b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSym(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& /*rowIdT*/, int& /*colIdT*/, const Bloc &b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
     {
         add(bi, bj, rowId, colId, b, boffsetL, boffsetC);
     }
@@ -1148,7 +1148,7 @@ public:
         addDValue(bi, bj, b, boffsetL, boffsetC);
     }
 
-    void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& rowIdT, int& colIdT, Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
+    void addSymDValue(unsigned int bi, unsigned int bj, int& rowId, int& colId, int& /*rowIdT*/, int& /*colIdT*/, Real b, const unsigned int boffsetL = 0u, const unsigned int boffsetC = 0u)
     {
         addDValue(bi, bj, rowId, colId, b, boffsetL, boffsetC);
     }
