@@ -95,7 +95,7 @@ void SubsetMultiMapping<TIn, TOut>::handleTopologyChange(sofa::core::topology::T
 
         std::list<const sofa::core::topology::TopologyChange *>::const_iterator it = topo->beginChange();
         std::list<const sofa::core::topology::TopologyChange *>::const_iterator itEnd   = topo->endChange();
-        typedef  sofa::Data<sofa::helper::vector<unsigned>> IndexPairType;
+        //typedef  sofa::Data<sofa::helper::vector<unsigned>> IndexPairType;
         sofa::helper::WriteAccessor<sofa::Data<sofa::helper::vector<unsigned>>>  w_indexPairs = indexPairs;
         while ( it != itEnd )
         {

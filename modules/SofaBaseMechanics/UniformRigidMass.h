@@ -82,7 +82,7 @@ protected:
             : sofa::component::topology::TopologyDataHandler<sofa::core::topology::Topology::Point, sofa::helper::vector<TRigidMass> >(d)
         {}
 
-        void applyCreateFunction(unsigned int p, TRigidMass& rigidMass,
+        void applyCreateFunction(unsigned int /*p*/, TRigidMass& rigidMass,
             const sofa::core::topology::Topology::Point & /*point*/,
             const sofa::helper::vector< unsigned int > & /*ancestors*/,
             const sofa::helper::vector< double > & /*coefs*/)

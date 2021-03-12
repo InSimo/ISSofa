@@ -385,7 +385,7 @@ void MechanicalObject<defaulttype::Rigid3dTypes>::draw(const core::visual::Visua
     {
         const float scale = showObjectScale.getValue();
         helper::ReadAccessor<Data<VecCoord> > x = showFreePositions.getValue() ? *this->read(core::VecCoordId::freePosition()) : *this->read(core::VecCoordId::position());
-        for (int i = 0; i < x.size(); ++i)
+        for (std::size_t i = 0; i < x.size(); ++i)
         {
             vparams->drawTool()->pushMatrix();
             float glTransform[16];

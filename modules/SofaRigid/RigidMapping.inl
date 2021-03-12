@@ -685,9 +685,9 @@ void RigidMapping<TIn, TOut>::updateK(const sofa::core::MechanicalParams *mparam
 {
     if( !d_useGeometricStiffness.getValue() ) return;
     sofa::helper::ReadAccessor< sofa::Data<VecDeriv > > childForce( *childForceId[this->toModel.get(mparams)].read() );
-    Real kfactor = (Real)mparams->kFactor();
+    //Real kfactor = (Real)mparams->kFactor();
     vecK.clear();
-     defaulttype::Mat<3,3,Real> K;
+    defaulttype::Mat<3,3,Real> K;
     for (unsigned childIndex=0; childIndex<points.getValue().size(); ++childIndex)
     {
         const Deriv& lambda = childForce[childIndex];

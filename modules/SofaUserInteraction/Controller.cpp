@@ -80,7 +80,7 @@ void Controller::handleEvent(core::objectmodel::Event *event)
     {
         onEndAnimationStep(ev->getDt());
     }
-    else if (sofa::simulation::IntegrateEndEvent* ev = sofa::simulation::IntegrateEndEvent::DynamicCast(event))
+    else if (/*sofa::simulation::IntegrateEndEvent* ev =*/ sofa::simulation::IntegrateEndEvent::DynamicCast(event))
     {
         onIntegrateEndEvent();
     }
